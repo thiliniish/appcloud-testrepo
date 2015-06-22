@@ -1,0 +1,197 @@
+<data name="WSO2CloudBillingDS">
+   <description>WSO2 Cloud Billing Data Service</description>
+   <config id="apim_stat">
+      <property name="carbon_datasource_name">apim_stats</property>
+   </config>
+   <config id="cloud_mgt">
+      <property name="carbon_datasource_name">cloud_mgt</property>
+   </config>
+   <query id="getTotalRequestCountPerDayQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount, apiPublisher,year,month,day From API_REQUEST_SUMMARY  WHERE year=:year AND month=:month AND day=:day GROUP BY apiPublisher,year,month,day;</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="totalCount" name="totalCount" xsdType="string"/>
+         <element column="apiPublisher" name="apiPublisher" xsdType="string"/>
+         <element column="year" name="year" xsdType="string"/>
+         <element column="month" name="month" xsdType="string"/>
+         <element column="day" name="day" xsdType="string"/>
+         <call-query href="getAccountForTenant" requiredRoles="">
+            <with-param column="apiPublisher" name="TENANT_DOMAIN"/>
+         </call-query>
+      </result>
+      <param name="year" sqlType="SMALLINT"/>
+      <param name="month" sqlType="SMALLINT"/>
+      <param name="day" sqlType="SMALLINT"/>
+   </query>
+   <query id="getUsageDataQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount, apiPublisher,time,day,year,month From API_REQUEST_SUMMARY WHERE apiPublisher=:apiPublisher AND (time BETWEEN  DATE(:startDate)  AND  DATE(:endDate))  GROUP BY apiPublisher,day,year,month;</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="totalCount" name="totalCount" xsdType="string"/>
+         <element column="apiPublisher" name="apiPublisher" xsdType="string"/>
+         <element column="time" name="time" xsdType="string"/>
+         <element column="day" name="day" xsdType="string"/>
+         <element column="year" name="year" xsdType="string"/>
+         <element column="month" name="month" xsdType="string"/>
+         <call-query href="getAccountForTenant" requiredRoles="">
+            <with-param column="apiPublisher" name="TENANT_DOMAIN"/>
+         </call-query>
+      </result>
+      <param name="apiPublisher" sqlType="STRING"/>
+      <param name="startDate" sqlType="STRING"/>
+      <param name="endDate" sqlType="STRING"/>
+   </query>
+   <query id="getAccountForTenant" useConfig="cloud_mgt">
+      <sql>SELECT ACCOUNT_NUMBER FROM BILLING_ACCOUNT INNER JOIN BILLING_STATUS ON BILLING_STATUS.TENANT_DOMAIN=BILLING_ACCOUNT.TENANT_DOMAIN WHERE TYPE='PAID' AND  (STATUS='ACTIVE' OR STATUS='DISABLED' OR STATUS='PENDING_DISABLE') AND BILLING_STATUS.TENANT_DOMAIN=:TENANT_DOMAIN</sql>
+      <result element="Accounts" rowName="Account">
+         <element column="ACCOUNT_NUMBER" name="ACCOUNT_ID" xsdType="string"/>
+      </result>
+      <param name="TENANT_DOMAIN" sqlType="STRING"/>
+   </query>
+   <query id="getAccountAmendmentsQ" useConfig="cloud_mgt">
+      <sql>SELECT ACCOUNT_NUMBER,PRODUCT_RATE_PLAN_ID,START_DATE,END_DATE FROM BILLING_ACCOUNT_AMENDMENTS WHERE ACCOUNT_NUMBER=:ACCOUNT_NUMBER AND SUBSCRIPTION=:SUBSCRIPTION</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="ACCOUNT_NUMBER" name="ACCOUNT_NUMBER" xsdType="string"/>
+         <element column="PRODUCT_RATE_PLAN_ID" name="PRODUCT_RATE_PLAN_ID" xsdType="string"/>
+         <element column="START_DATE" name="START_DATE" xsdType="string"/>
+         <element column="END_DATE" name="END_DATE" xsdType="string"/>
+      </result>
+      <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+      <param name="SUBSCRIPTION" sqlType="STRING"/>
+   </query>
+   <query id="getPendingDisableSubscriptionsQ" useConfig="cloud_mgt">
+      <sql>SELECT TENANT_DOMAIN, SUBSCRIPTION,START_DATE, END_DATE FROM BILLING_STATUS WHERE TYPE='PAID' AND STATUS='PENDING_DISABLE' AND DATE(END_DATE)&lt;=CURDATE()</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="TENANT_DOMAIN" name="TenantDomain" xsdType="string"/>
+         <element column="SUBSCRIPTION" name="Subscription" xsdType="string"/>
+         <element column="START_DATE" name="StartDate" xsdType="string"/>
+         <element column="END_DATE" name="EndDate" xsdType="string"/>
+      </result>
+   </query>
+   <query id="updateDisabledSubscriptionsQ" useConfig="cloud_mgt">
+      <sql>UPDATE BILLING_STATUS SET STATUS = 'DISABLED', END_DATE = NOW() WHERE (TENANT_DOMAIN, SUBSCRIPTION, DATE(END_DATE))  = (:TENANT_DOMAIN,:SUBSCRIPTION,:END_DATE);</sql>
+      <param name="TENANT_DOMAIN" sqlType="STRING"/>
+      <param name="SUBSCRIPTION" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="DATE"/>
+   </query>
+   <query id="updateSubscriptionStatusQ" useConfig="cloud_mgt">
+      <sql>UPDATE SUBSCRIPTIONS SET :CLOUD_TYPE =:STATUS WHERE tenantDomain=:TENANT_DOMAIN</sql>
+      <param name="CLOUD_TYPE" sqlType="QUERY_STRING"/>
+      <param name="STATUS" sqlType="TINYINT"/>
+      <param name="TENANT_DOMAIN" sqlType="STRING"/>
+   </query>
+   <query id="insertBillingHistoryQ" useConfig="cloud_mgt">
+      <sql>INSERT INTO BILLING_STATUS_HISTORY(TENANT_DOMAIN,SUBSCRIPTION,ACCOUNT_NUMBER,TYPE,STATUS,START_DATE,END_DATE) VALUES (:TENANT_DOMAIN,:SUBSCRIPTION,:ACCOUNT_NUMBER,:TYPE,:STATUS,:START_DATE,:END_DATE)</sql>
+      <param name="TENANT_DOMAIN" sqlType="STRING"/>
+      <param name="SUBSCRIPTION" sqlType="STRING"/>
+      <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+      <param name="TYPE" sqlType="STRING"/>
+      <param name="STATUS" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="DATE"/>
+      <param name="END_DATE" sqlType="DATE"/>
+   </query>
+   <operation name="getTotalRequestCountPerDay">
+      <call-query href="getTotalRequestCountPerDayQ">
+         <with-param name="year" query-param="year"/>
+         <with-param name="month" query-param="month"/>
+         <with-param name="day" query-param="day"/>
+      </call-query>
+   </operation>
+   <operation name="getUsage">
+      <call-query href="getUsageDataQ">
+         <with-param name="apiPublisher" query-param="apiPublisher"/>
+         <with-param name="startDate" query-param="startDate"/>
+         <with-param name="endDate" query-param="endDate"/>
+      </call-query>
+   </operation>
+   <operation name="getAccountForTenant">
+      <call-query href="getAccountForTenant">
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+      </call-query>
+   </operation>
+   <operation name="getAccountAmendments">
+      <call-query href="getAccountAmendmentsQ">
+         <with-param name="ACCOUNT_NUMBER" query-param="ACCOUNT_NUMBER"/>
+         <with-param name="SUBSCRIPTION" query-param="SUBSCRIPTION"/>
+      </call-query>
+   </operation>
+   <operation name="getPendingDisableSubscriptions">
+      <call-query href="getPendingDisableSubscriptionsQ"/>
+   </operation>
+   <operation name="updateDisabledSubsriptions">
+      <call-query href="updateDisabledSubscriptionsQ">
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+         <with-param name="SUBSCRIPTION" query-param="SUBSCRIPTION"/>
+         <with-param name="END_DATE" query-param="END_DATE"/>
+      </call-query>
+   </operation>
+   <operation name="updateSubscriptionStatus">
+      <call-query href="updateSubscriptionStatusQ">
+         <with-param name="CLOUD_TYPE" query-param="CLOUD_TYPE"/>
+         <with-param name="STATUS" query-param="STATUS"/>
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+      </call-query>
+   </operation>
+   <operation name="insertBillingHistory">
+      <call-query href="insertBillingHistoryQ">
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+         <with-param name="SUBSCRIPTION" query-param="SUBSCRIPTION"/>
+         <with-param name="ACCOUNT_NUMBER" query-param="ACCOUNT_NUMBER"/>
+         <with-param name="TYPE" query-param="TYPE"/>
+         <with-param name="STATUS" query-param="STATUS"/>
+         <with-param name="START_DATE" query-param="START_DATE"/>
+         <with-param name="END_DATE" query-param="END_DATE"/>
+      </call-query>
+   </operation>
+   <resource method="GET" path="requestcount">
+      <call-query href="getTotalRequestCountPerDayQ">
+         <with-param name="year" query-param="year"/>
+         <with-param name="month" query-param="month"/>
+         <with-param name="day" query-param="day"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="usage">
+      <call-query href="getUsageDataQ">
+         <with-param name="apiPublisher" query-param="apiPublisher"/>
+         <with-param name="startDate" query-param="startDate"/>
+         <with-param name="endDate" query-param="endDate"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="tenantaccount">
+      <call-query href="getAccountForTenant">
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="amendments">
+      <call-query href="getAccountAmendmentsQ">
+         <with-param name="ACCOUNT_NUMBER" query-param="ACCOUNT_NUMBER"/>
+         <with-param name="SUBSCRIPTION" query-param="SUBSCRIPTION"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="pendingdisables">
+      <call-query href="getPendingDisableSubscriptionsQ"/>
+   </resource>
+   <resource method="POST" path="disabletenant">
+      <call-query href="updateDisabledSubscriptionsQ">
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+         <with-param name="SUBSCRIPTION" query-param="SUBSCRIPTION"/>
+         <with-param name="END_DATE" query-param="END_DATE"/>
+      </call-query>
+   </resource>
+   <resource method="POST" path="subscriptionstatus">
+      <call-query href="updateSubscriptionStatusQ">
+         <with-param name="CLOUD_TYPE" query-param="CLOUD_TYPE"/>
+         <with-param name="STATUS" query-param="STATUS"/>
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+      </call-query>
+   </resource>
+   <resource method="POST" path="billinghistory">
+      <call-query href="insertBillingHistoryQ">
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+         <with-param name="SUBSCRIPTION" query-param="SUBSCRIPTION"/>
+         <with-param name="ACCOUNT_NUMBER" query-param="ACCOUNT_NUMBER"/>
+         <with-param name="TYPE" query-param="TYPE"/>
+         <with-param name="STATUS" query-param="STATUS"/>
+         <with-param name="START_DATE" query-param="START_DATE"/>
+         <with-param name="END_DATE" query-param="END_DATE"/>
+      </call-query>
+   </resource>
+</data>

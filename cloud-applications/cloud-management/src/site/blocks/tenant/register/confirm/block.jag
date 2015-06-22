@@ -1,0 +1,9 @@
+<%
+jagg.block("tenant/register/confirm", {
+    initialize:function (data) {
+
+    }
+
+
+});
+%>

@@ -1,0 +1,76 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+include("/modules/database/dataaccess.jag");
+
+var log = new Log();
+var modManager = jagg.module("manager");
+
+
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var getUserRolesOfTenant = function (userName, tenantDomain) {
+    var displayRoles=[];
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+
+    try {
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantId);
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+        var user = tenantMgtService.getUserInfo(userName);
+        var roles=user.getRoles();
+    }
+    catch (e) {
+        log.error("Error while retrieving user roles for "+userName);
+    }
+    return roles;
+};
+
+var getOrganizations = function() {
+    var user =  String(session.get("LOGGED_IN_USER"));
+    var userName =  jagg.module("util").getDomainLessUserName(user);
+    var queryString  = SQL_QUERY_STRINGS.SELECT_ORGANIZATION_OF_TENANT_DOMAIN;
+    var parameters =[userName];
+    var results = jagg.module("database").executeQuery(queryString, parameters);
+    var tenants = [];
+    if(results.length >= 1){
+        for(var i=0;i<results.length;i++) {
+            var tenant = {};
+            tenant.tenantDomain =  results[i]["tenantDomain"];
+            tenant.displayName =  results[i]["displayName"];
+            var roles = getUserRolesOfTenant(userName,tenant.tenantDomain);
+            tenant.userRoles = roles;
+            var displayRoles = [];
+            for(var j=0;j<roles.length;j++){
+                if(roles[j]=='admin'){
+                    displayRoles=[];
+                    displayRoles.push('Admin');
+                    tenant.adminUser = 'true';
+                    break;
+                }
+                var disName = getProperty("TenantRoles.Role." + roles[j] + ".DisplayName");
+                if(disName!= null){
+                    displayRoles.push(disName);
+                }
+            }
+            if(displayRoles.length == 0 ){
+                displayRoles.push("User");
+            }
+            tenant.displayRoles = displayRoles;
+            tenants.push(tenant);
+        }
+        return tenants;
+    } else {
+        log.error("Error while getting tenants \n");
+        throw "Error while getting tenants ";
+    }
+}
+
+%>
+

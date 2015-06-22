@@ -1,0 +1,7 @@
+<%
+jagg.block("billing/account/add", {
+    initialize:function (data) {
+
+    }
+});
+%>

@@ -1,0 +1,28 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+	var mod, obj, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("tenant");
+
+	if (action == "getOrganizations") {
+		try {
+			var result = mod.getOrganizations();
+			if(result != null ) {
+				print(result);
+			} else {
+				throw "Error while getting user organizations";
+			}
+		} catch (e) {
+			throw "Error while getting user organizations";
+		}
+	} else{
+		throw new Error("No action specified");
+	}
+
+}());
+%>

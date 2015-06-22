@@ -1,0 +1,7 @@
+<%
+jagg.block("tenant/manage/profile", {
+    initialize:function (data) {
+    }
+
+});
+%>

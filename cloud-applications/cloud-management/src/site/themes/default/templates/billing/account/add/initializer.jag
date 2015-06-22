@@ -1,0 +1,16 @@
+<%
+jagg.initializer("billing/account/add", {
+
+    preInitialize : function () {
+        var log = new Log("billing/account/add");
+        if(request.getParameter("responseFrom") == null) {
+            log.warn("Request received directly");
+            response.sendRedirect("../pages/index.jag");
+        }
+        var tenantInfo = session.get("TENANT_INFO");
+        if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) {
+            response.sendRedirect("../pages/index.jag");
+        }
+    }
+});
+%>

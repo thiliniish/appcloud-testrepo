@@ -1,0 +1,95 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+	var mod, obj, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("tenant");
+
+	if (action == "generateCaptchaFromCloud") {
+		try {
+			var result = mod.generateCaptchaFromCloud();
+			if(result != null ) {
+				print(result);
+			} else {
+				throw "Error while generating captcha";
+			}
+		} catch (e) {
+			throw "Error while generating captcha";
+		}
+	}else if(action=="sendInvite"){
+		log.info("Inside block register");
+		var userName=request.getParameter("username");
+			
+		try {
+			var result = mod.sendInvite(userName);
+			if (result != null) {
+				print(result);
+			}
+		} catch(e) {
+			throw "Error sending email to the user  "+userName;
+		}
+	} else if (action == "checkDomainAvailability") {
+		var companyId = request.getParameter("companyName");
+		try {
+			var result = mod.checkDomainAvailability(companyId);
+			if(result != null ) {
+				print(result);
+			} else {
+				throw "Error while checking domain validation.";
+			}
+		} catch (e) {
+			throw "Error while checking domain validation.";
+		}
+
+	} else if (action == "isExistingUser") {
+		var userName = request.getParameter("userName");
+		try {
+			var result = mod.isExistingUser(userName);
+			if(result != null ) {
+				print(result);
+			} else {
+				throw "Error while checking domain validation.";
+			}
+		} catch (e) {
+			throw "Error while checking domain validation.";
+		}
+
+	}  else if (action == "registerOrg") {
+		var companyName = request.getParameter("companyName");
+		var adminPassword = request.getParameter("adminPassword");
+		var usagePlan = request.getParameter("usagePlan");
+		var confirmationKey = request.getParameter("confirmationKey");
+		var firstName = request.getParameter("firstName");
+		var lastName = request.getParameter("lastName");
+		try {
+			var result = mod.registerOrg(companyName, adminPassword, usagePlan, confirmationKey, firstName, lastName);
+
+			if (result != null) {
+				print(result);
+			} else {
+				throw "Error while registering an organization " + companyName;
+			}
+		} catch (e) {
+			var message = e.toString();
+			if(message.indexOf("Captcha validation failed") !== -1){
+				response.status = 500
+				print("Captcha validation failed");
+			} else if(message.indexOf("Domain is not available to register") !== -1){
+				response.status = 500
+				print("Domain is not available to register");
+			}
+			else {
+				throw "Error while registering an organization " +companyName + e;
+			}
+		}
+
+	} else{
+		throw new Error("No action specified");
+	}
+
+}());
+%>

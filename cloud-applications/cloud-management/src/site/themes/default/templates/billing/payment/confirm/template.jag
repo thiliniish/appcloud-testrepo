@@ -1,0 +1,170 @@
+<% jagg.template("billing/payment/confirm", function(inputs, outputs, jagg) { %>
+<%
+    include("/jagg/constants.jag");
+    var log = new Log("site/themes/default/templates/billing/payment/confirm/template.jag");
+
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+    
+    var errorMessage = "NA";
+    var userName =  session.get("LOGGED_IN_USER");
+    var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
+    var currRatePlan =  session.get("CURRENT_RATE_PLAN");
+    var accounts =  session.get("ACCOUNTS");
+    var callsPerDay =  session.get("CALLS_PER_DAY");
+    var callsAbovePlan =  session.get("CALLS_ABOVE_PLAN");
+    var monthlyRental =   session.get("MONTHLY_RENTAL");
+    var couponDiscount =   session.get("COUPON_DISCOUNT");
+    var serviceId = session.get("SERVICE_ID");
+    var responseFrom = request.getParameter("responseFrom");
+
+    var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
+    var cloudName =serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
+    var bttnLabel = "Go to " + cloudName;
+    var l = Packages.java.util.Locale.getDefault();
+    var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+    if(callsPerDay != null){
+        callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
+    }
+    var isDowngrade = session.get("IS_DOWNGRADE");
+    %>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+
+   
+$(document).ready(function($){
+
+});
+    </script>
+
+<div class="container col-lg-12 col-md-12 col-sm-12">
+
+<div class="container content-starter">
+	<div class="row">
+		<div class="col-lg-12">
+		    <%if(responseFrom == IS_FROM_CHANGE_PLAN){%>
+		        <h1>Change Subscription Plan</h1>
+		        <div class="helper_text" id="helper_text">
+                    <p>You have successfully changed your plan.</p>
+             	</div>
+			<%}else { %>
+			<h1>Upgrade Account</h1>
+			<div class="helper_text" id="helper_text">
+				<p>Please enter your contact information and check WSO2 Cloud services - Terms of Use. </p>
+			</div>
+			<%} %>
+		</div>
+
+	</div>
+</div>
+<!-- content/body -->
+<div class="container c-both wr-billing-white">
+
+    <%if(responseFrom == IS_FROM_CHANGE_PLAN ){ %>
+	<div class="row wr-wizard">
+		<div class="col-md-4 col-xs-4">
+			<div class="itm-wiz"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
+			<br class="c-both" />
+		</div>
+    		<div class="col-md-4 col-xs-4">
+    			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs"><span>Payment Confirmation </span></div></div>
+    			<br class="c-both" />
+    		</div>
+		<div class="col-md-4 col-xs-4">
+		    <div class="itm-wiz itm-wiz-current"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs"><span>Summary</span></div></div>
+			<br class="c-both" />
+		</div>
+	</div>
+    <%}else {%>
+		<div class="row wr-wizard">
+    		<div class="col-md-3 col-xs-3">
+    			<div class="itm-wiz"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
+    			<br class="c-both" />
+    		</div>
+    		<div class="col-md-3 col-xs-3">
+    			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs"><span>Billing Information</span></div></div>
+    			<br class="c-both" />
+    		</div>
+    		<div class="col-md-3 col-xs-3">
+    			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs"><span>Contact Information</span></div></div>
+    			<br class="c-both" />
+    		</div>
+    		<div class="col-md-3 col-xs-3">
+    			<div class="itm-wiz itm-wiz-current"><div class="wiz-no">4</div><div class="wiz-lbl hidden-xs"><span>Summary</span></div></div>
+    			<br class="c-both" />
+    		</div>
+    	</div>
+
+	<% } %>
+	<div class="row">
+		<div class="container col-md-12">
+			<div class="wr-head"><h2>Payment Summary</h2></div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="container col-md-8 wr-text">
+			<div class="wr-head"><h2 class="tcenter">Congratulations!</h2></div>
+			
+			
+			 <% if(isDowngrade ) {  %>
+                <p class="tcenter">You have sucessfully downgraded your payment plan to <span id="payable-ammount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span> Plan</span></p>
+                           <p class="tcenter">You will be charged USD <%=Number(monthlyRental - couponDiscount).toFixed(2)%> <b>on your next renewal date</b> <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
+                              <% } else if (responseFrom == IS_FROM_CHANGE_PLAN ) {  %>
+                               <p class="tcenter">You have sucessfully upgraded your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
+                               <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span>,  you will be charged USD <%=Number(monthlyRental - couponDiscount).toFixed(2)%> . Your today's payment will only be the difference between monthly charge and remaining balance from your previous payment. </p>
+                            <% }  else {  %>     
+                            	<p class="tcenter">You have sucessfully subscribed to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
+								<p class="tcenter">Your next renewal will be on <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
+                            <% }    %>
+
+		</div>
+		<div class="container col-md-4">
+			<div class="wr-text">
+				<div id="product-container">
+					<p class="product-summery">PRODUCT SUMMARY</p>
+					<p class="product-planname"><%=currRatePlan%></p>
+					<ul>
+						<li><%=accounts%> accounts</li>
+						<li><%=callsPerDay%> calls/day</li>
+						<li><%=callsAbovePlan%> calls above plan</li>
+					</ul>
+				</div>
+				<hr class="wr-separate"/>
+				<div id="pricing-container">
+					<p class="col-md-8 nopad">&nbsp;</p><p class="col-md-4 nopad tright"><strong>USD</strong></p>
+					<p class="col-md-8 nopad">Subscription Fee (per/m)</p><p class="col-md-4 nopad tright"><%=Number(monthlyRental).toFixed(2)%></p>
+					<p class="col-md-8 nopad">Discount from coupon</p><p class="col-md-4 nopad tright"><%=Number(couponDiscount).toFixed(2)%></p>
+					<br class="c-both" />
+					<div class="col-md-8 nopad blue">&nbsp;</div>
+					<div class="col-md-4 nopad tright ">
+						<p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
+						<p class="col-md-12 nopad nomargin blue-line-right"><span id="payable-ammount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span></p>
+					</div>
+					<br class="c-both" />
+				</div>
+				<div id="action-container">
+					<button id="goToAPICloudbtn" type="button" class="btn btn-default btn-back col-md-12 col-xs-12" onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button>
+					<br class="c-both" />
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row pad-bot-50">
+		<div class="container col-md-8">
+			&nbsp;
+		</div>
+		<div class="container col-md-4">
+			&nbsp;
+		</div>
+		<br class="c-both" />
+	</div>
+
+</div>
+<!-- /content/body -->
+
+</div>
+<div class="clearfix"></div>
+
+<% }); %>

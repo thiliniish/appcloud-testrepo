@@ -1,0 +1,1009 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/modules/database/dataaccess.jag");
+
+var log = new Log("modules/billing/billing.jag");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var subscriptionsType = cloudConfig.subscriptions.type;
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var zuoraObj = cloudConfig.billing.zuora;
+var modDb = jagg.module("database");
+var mdAlgorithm = "SHA-512";
+
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var userName =  session.get("LOGGED_IN_USER");
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+
+var isPaidAccount = function() {
+	
+	if((session.get("TENANT_INFO")) != null ){
+		var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+		var queryString  = SQL_QUERY_STRINGS.SELECT_ACCOUNT_NUMBER_FROM_BILLING_ACCOUNT;
+		var parameters =[tenantDomain];
+		var result = modDb.executeQuery(queryString, parameters);
+		if (result[0] != null && result[0] != "undefined") {
+			var accountNumber =  result[0]["ACCOUNT_NUMBER"];
+			if (accountNumber == null || accountNumber == "NULL") {
+				return false;
+			} else {
+				return true;
+			}
+		} else { 
+			return false; 
+		}
+	} else { 
+		return false;
+	}
+};
+
+var getPaymentPlanFromId = function(serviceId, paymentPlanId) {
+
+	var subscriptions = billingService.getAllSubscriptions(serviceId);
+	for(var i=0;i<subscriptions.length;i++){
+		var item = subscriptions[i];
+		var id = item.getId();
+		if (id == paymentPlanId ) {
+			return item.getName();
+		}
+	}
+    return null;
+};
+
+var getCloudURL = function(serviceName) {
+    for (i = 0; i < subscriptionsType.length; i++) {
+        if ((subscriptionsType[i].id).equals(serviceName)) {
+             subscriptionsURL = subscriptionsType[i].urls.cloudTypeUrl;
+             return subscriptionsURL;
+        }
+    }
+    return cloudmgtURL + "/site/pages/index.jag";
+}
+
+var getAccountId = function() {
+	if((session.get("TENANT_INFO")) != null ){
+		var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+		var queryString  = SQL_QUERY_STRINGS.SELECT_ACCOUNT_NUMBER_FROM_BILLING_ACCOUNT;
+		var parameters =[tenantDomain];
+		var result = modDb.executeQuery(queryString, parameters);
+		try{
+		    var accountNumber =  result[0]["ACCOUNT_NUMBER"];
+            if (accountNumber == null || accountNumber == "NULL") {
+                return null;
+            } else {
+                return accountNumber;
+            }
+		}catch (e){
+                log.error("Error reading account number from db for tenantDomain " + tenantDomain);
+                log.error(e);
+                return null;
+        }
+
+	} else {
+		return null;
+	}
+};
+
+var getDisplayNameFromTenantDomain = function (tenantDomain){
+    var queryString  = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
+    var parameters = [tenantDomain];
+    var result = jagg.module("database").executeQuery(queryString, parameters);
+
+    if (result.length > 0){
+        return result[0]["displayName"];
+    } else {
+        return null;
+    }
+};
+
+var getCancelSubscriptionEffectiveDate = function (){
+    var effectiveDate = setChangePlanEffectiveDate(false);
+    var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+    return dateFormatter.format(effectiveDate);
+};
+
+var cancelSubscription = function(serviceName) {
+	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    var effectiveDate = setChangePlanEffectiveDate(false);
+    var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+
+	var serviceId=null;
+	try {
+		var subscriptionId = billingService.getSubscriptionId(tenantDomain);
+		log.info("Cancelling subscription for tenant: " + tenantDomain + " subscription id: "+subscriptionId);
+		var data = {
+		};
+
+		data.cancellationPolicy = 'SpecificDate';
+        data.cancellationEffectiveDate = dateFormatter.format(effectiveDate);
+		data.invoiceCollect = true;
+		var url = zuoraObj.apis.cancel;
+		url = url.replace("{subscription-key}", subscriptionId);
+		var response = sendHTTPRequest(url, "PUT", null, data);
+		if (response.success === true) {
+			for (i = 0; i < subscriptionsType.length; i++) {
+				if ((subscriptionsType[i].name).equals(serviceName)) {
+					serviceId= subscriptionsType[i].id;
+					break;
+				}				
+			}
+			if(serviceId!=null){
+	            updateBillingStatus(status.PENDING_DISABLE, effectiveDate, type.PAID, serviceId, tenantDomain);
+            }
+            var tenantDisplayName = getDisplayNameFromTenantDomain(tenantDomain);
+            if (tenantDisplayName!=null) {
+                setTimeout(function () {
+                    try {
+                        jagg.module("util").sendSubscriptionCancellationEmail(tenantDisplayName, serviceName, effectiveDate);
+                        jagg.module("util").sendBillingSubscriptionCancelledNotification(tenantDisplayName, serviceId, effectiveDate);
+                        return true;
+                    } catch (e){
+                        log.error("Error while sending notification on subscription cancellation: "+ e);
+                        return true;
+                    } finally {
+                        tenantDisplayName = null;
+                        serviceName = null;
+                        serviceId = null;
+                        effectiveDate = null;
+                    }
+                } ,0);
+            }
+			return true;
+		} else {
+			return false;
+		}
+	} catch (e){
+		log.error("Error cancelling subscription for tenant "+tenantDomain+e);
+		throw Error(e);
+	}
+};
+
+//Generate zuora HPM page parameters
+var generateParams = function (serviceId, productRatePlanId) {
+	billingService.loadConfig(zuoraObj.username, zuoraObj.password, JSON.stringify(zuoraObj.hostedPage));
+	var clientParams = JSON.parse(billingService.prepareParams());
+	session.put(ZUORA_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
+	clientParams.field_passthrough1 = clientParams.token;
+	clientParams.field_passthrough2 = serviceId;
+	clientParams.field_passthrough3 = productRatePlanId;
+    if (log.isDebugEnabled()) {
+        log.debug("Parameters generated for tenant: " + clientParams.tenantId);
+    }
+	return clientParams;
+};
+
+//Getting product rate plans
+var getRatePlans = function (serviceId) {
+	try {
+		var subscriptions = billingService.getAllSubscriptions(serviceId);
+
+		var subscriptionJson = {
+			entry: []
+		};
+
+		for(var i=0;i<subscriptions.length;i++){
+			var item = subscriptions[i];
+			subscriptionJson.entry.push({
+				"id" : subscriptions[i].getId(),
+				"name"  : item.getName(),
+				"maxDailyUsage"       : item.getMaxDailyUsage(),
+				"maxAccounts"       : item.getMaxAccounts(),
+				"monthlyRental"       : item.getMonthlyRental(),
+				"overUsage"       : item.getOverUsage(),
+                "premiumLevel" : item.getPremiumLevel()
+			});
+		}
+		return subscriptionJson;
+	} catch (e){
+		log.error("Error retrieving rate plans "+e);
+		throw Error(e);
+	}
+};
+
+//Get Usage for a given time line
+var getTenantUsage = function (fromDate,toDate) {
+	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+	try {
+
+        if (log.isDebugEnabled()) {
+            log.debug("Getting tenant Usage for year from " + fromDate + " To " + toDate);
+        }
+		var usage = billingService.getTenantUsageDataForGivenDateRange(tenantDomain,"API_CLOUD",fromDate,toDate);
+		var accountUsage = {
+			entry: []
+		};
+		for(var i=0;i<usage.length;i++){
+			var item = usage[i];
+			accountUsage.entry.push({
+				"date" : usage[i].getDate(),
+				"maxUsage"  : item.getMaxDailyUsage(),
+				"calls"       : item.getUsage(),
+				"ratePlan"       : item.getRatePlan(),
+				"isPaid"      : item.isPaidAccount(),
+				"overage"       : item.getOverage()
+			});
+		}
+
+		return accountUsage;
+	} catch (e){
+		log.error("Error retrieving usage for : "+tenantDomain+" "+ e);
+		throw Error(e);
+	}
+};
+
+var updateContactInfo = function (accountData) {
+    var accountId = getAccountId();
+    var url = zuoraObj.apis.accounts + "/" + accountId;
+    var data = {};
+    data.billToContact = accountData;
+    var response = sendHTTPRequest(url, "PUT", null, data);
+    if (response.success === true) {
+        return "Your contact information is successfully added"
+    }else {
+        log.error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
+        throw new Error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
+    }
+}
+
+//Create Zuora account for tenant
+var createAccount = function (accountData, metaData) {
+
+	var url = zuoraObj.apis.accounts;
+	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+
+	try {
+		validateSignature(metaData.signature);
+		log.debug("Zuora signature validated successfully for tenant: " + tenantDomain);
+	} catch (e){
+		log.error("Signature validation failure: " + e);
+		throw Error(e);
+	}
+	if (validatePassThroughHash(metaData.field_passthrough1)
+	&& validateRatePlanId(metaData.serviceId , metaData.productRatePlanId)) {
+
+		var effectiveDate = new Packages.java.util.Date();
+
+		var data = populateAccountInfo(tenantDomain, accountData, metaData, effectiveDate);
+        if (log.isDebugEnabled()){
+            log.debug("Creating Zuora account with data: " + data);
+        }
+		var response = sendHTTPRequest(url, "POST", null, data);
+		if (response.success === true) {
+
+			//TODO mysql batch execution
+			//update BILLING_ACCOUNT table
+			var queryString  = SQL_QUERY_STRINGS.INSERT_ACCOUNT_NUMBER_TO_BILLING_ACCOUNT;
+			var parameters = [response.accountNumber, tenantDomain];
+			modDb.executeQuery(queryString, parameters);
+
+			var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+			var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+
+			//update BILLING_STATUS table with new subscription
+			queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
+			parameters = [tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE, formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING];
+			modDb.executeQuery(queryString, parameters);
+
+			//update the previous plan
+			queryString = SQL_QUERY_STRINGS.UPDATE_SUBSCRIPTION_TYPE_STATUS_IN_BILLING_STATUS;
+			parameters = [status.DISABLED, formattedEffectiveDate, tenantDomain, metaData.serviceId, type.TRIAL];
+			modDb.executeQuery(queryString, parameters);
+
+			//add to BILLING_ACCOUNT_AMENDMENTS
+			queryString = SQL_QUERY_STRINGS.INSERT_BILLING_ACCOUNT_AMENDMENTS;
+			parameters = [response.accountNumber, metaData.productRatePlanId, formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING, metaData.serviceId];
+			modDb.executeQuery(queryString, parameters);
+
+			//send an email to the user
+            var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
+            var planName = getPaymentPlanFromId(metaData.serviceId , metaData.productRatePlanId);
+            var subscriptionName = productIdFromServiceId[metaData.serviceId];
+
+            var profileFirstName = accountData.firstName;
+            var profileLastName = accountData.lastName;
+
+            if (tenantDisplayName!=null) {
+                setTimeout(function () {
+                    try {
+                        var modProfile = jagg.module("user/profile");
+                        var claims = modProfile.getProfile();
+                        if (claims.firstname == null && claims.lastname == null) {
+                            modProfile.updateProfile(profileFirstName, profileLastName);
+                        }
+                        jagg.module("util").sendBillingAccountCreationEmail(tenantDisplayName, subscriptionName, planName, effectiveDate);
+                        jagg.module("util").sendBillingAccountCreationNotification(tenantDisplayName, subscriptionName, planName, effectiveDate);
+                        //Rightwave
+                        var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+                       
+                        if(is_enable.toString() == "true") {
+                        	var modEvents = jagg.module("events");
+                        	var type =metaData.serviceId.toUpperCase();
+                        	type = type.substring(0, type.indexOf("_"));
+                        	var email = String(session.get("LOGGED_IN_USER_EMAIL"));
+                        	var jsonData={
+                        		"email" : email,
+                        		"cloudtype" : type,
+                        		"upgrade" : "1"
+                        	};
+                        	var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
+                        	var data = "json="+JSON.stringify(jsonData);
+                        	var result = post(URL,data,{'Content-Type': 'application/json'}, 'text');
+							var msg = result['data'];
+                        	var actionString = "Rightwave-"+type+"-Upgrade:";
+                        	var page = "Rightwave";
+                        	var item = type;
+                        	var events = [];
+                        	if(msg === "Data Submitted Successfully") {
+                        		actionString =  actionString+"Success";
+                        	} else {
+                        		actionString =  actionString+"Failed";
+                        		log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
+                        	
+                        	}
+                        	var event={
+                        	};
+                        	event.item = item;
+                        	event.timestamp = new Date().getTime();
+                        	event.pageName = page;
+                        	event.action = actionString;
+                        	events[events.length] = event;
+                        	modEvents.publishUserActivity(events,jagg.getUser(),tenantDomain);
+                        }
+                        return true;
+                    } catch (e){
+                        log.error("Error while sending notification for paid plan subscription: "+e);
+                        return true;
+                    } finally {
+                        tenantDisplayName = null;
+                        planName = null;
+                        subscriptionName = null;
+                        profileFirstName = null;
+                        profileLastName = null;
+                        effectiveDate = null;
+                    }
+                }, 0);
+            }
+			return response.accountNumber;
+		} else {
+			log.error("Zuora customer account creation failed. Error : " + JSON.stringify(response.reasons));
+		}
+	} else {
+		log.error("Zuora customer account creation failed. Error: token expired or rate plan validation failure");
+	}
+};
+
+//Validate rate plan Id with the service type
+var validateRatePlanId = function (serviceId , productRatePlanId) {
+	try {
+		return (zuoraObj.ratePlans[serviceId]).indexOf(productRatePlanId) > -1;
+	} catch (e) {
+		log.error("Rate Plan id invalid, service: " + serviceId + ", ratePlanId: " + productRatePlanId);
+		return false;
+	}
+};
+
+var validateServiceId =function (serviceId){
+    return zuoraObj.ratePlans.hasOwnProperty(serviceId);
+};
+
+//add tenant to billing account tables at the tenant registration
+var addTenantToBilling = function (tenantId, tenantDomain) {
+
+    var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+
+    var queryString  = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_ACCOUNT;
+    var parameters =[null, tenantDomain];
+
+    var result = modDb.executeQuery(queryString, parameters);
+    if(log.isDebugEnabled()){
+        log.debug("Tenant : " + tenantDomain +" (tenant id: " + tenantId + ") added to BILLING_ACCOUNT table");
+    }
+
+    var subscriptions = cloudConfig.subscriptions.type;
+    for(var i = 0; i < subscriptions.length ; i++) {
+        var subscription = subscriptions[i].id;
+        var billingAccountStatus;
+        var startDate;
+        var billingType;
+        var endDate;
+        if (subscriptions[i].serviceType === service.COMMERCIAL) {
+            billingType = type.TRIAL;
+            billingAccountStatus = status.INACTIVE;
+            startDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
+            endDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
+        } else if (subscriptions[i].serviceType === service.FREE) {
+            startDate = new Packages.java.util.Date();
+            billingAccountStatus = status.ACTIVE;
+            billingType = type.FREE;
+            endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
+        } else {
+            log.error("No service type found for: " + subscription
+                      + "in cloud_mgt config. It should be either free or commercial");
+            parameters = [tenantDomain];
+            queryString = SQL_QUERY_STRINGS.DELETE_FROM_BILLING_ACCOUNT;
+            log.info("Tenant : " + tenantDomain +" (tenant id: " + tenantId
+                     + ") deleted from BILLING_ACCOUNT table. [As a rollback operation] ");
+            result = modDb.executeQuery(queryString, parameters);
+            throw new Error("Tenant billing account registration failure: Configuration failure ");
+        }
+        queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
+        parameters = [tenantDomain, subscription, billingType, billingAccountStatus,
+                      sqlDateFormat.format(startDate), sqlDateFormat.format(endDate)];
+        result = modDb.executeQuery(queryString, parameters);
+    }
+    if(log.isDebugEnabled()){
+        log.debug("Tenant : " + tenantDomain +" (tenant id: " + tenantId
+                  + ") added to BILLING_STATUS table with params: " + parameters);
+    }
+};
+
+var getCouponProductRatePlanId = function(couponData, serviceId){
+	var getAllRatePlans = JSON.parse(billingService.getProductRatePlans(serviceId));
+	for (var index = 0; index < getAllRatePlans.length; index++){
+		if(((getAllRatePlans[index].name) == (BILLING_COUPON_HEADER + couponData)) && getAllRatePlans[index].status != EXPIRED_RATE_PALN){
+			return getAllRatePlans[index]["id"];
+		}
+	}
+	return null;
+};
+
+//todo improve this logic : move coupon rate plans to billing.xml with an additional property to get the discount and read from there
+var getPricingSummaryForCoupon = function(couponData, serviceId){
+log.info("Requesting Pricing Summary for serviceId : " + serviceId + " coupon : " + couponData);
+	var allRatePlans = JSON.parse(billingService.getProductRatePlans(serviceId));
+	log.info("allRatePlans : " + allRatePlans);
+
+	for (var index = 0; index < allRatePlans.length; index++){
+		if(((allRatePlans[index].name) === (BILLING_COUPON_HEADER + couponData)) && allRatePlans[index].status != EXPIRED_RATE_PALN){
+    	    var couponRatePlan = allRatePlans[index]["productRatePlanCharges"];
+			return couponRatePlan[0].pricingSummary;
+		}
+	}
+	return "";
+};
+
+
+var calculateDiscountForCoupon = function(couponData){
+    var serviceId = session.get("SERVICE_ID");
+    var premium = session.get("MONTHLY_RENTAL");
+	var pricingSummary = getPricingSummaryForCoupon(couponData, serviceId);
+    var discount = 0.00;
+    if (log.isDebugEnabled()) {
+        log.debug("Calculating discount for serviceId : " + serviceId + " coupon : " + couponData + " premium : " + premium + " pricingSummary = " + pricingSummary);
+    }
+	if (pricingSummary == "10%  discount") { //todo checking percentage logic need to be improved but due to an issue with indexof('%') =-1 , it was temporarily implemented in this way
+	    discount = premium * 0.1;
+	}else if (pricingSummary == "200USD  fixed"){
+	    discount = "200";
+	}else if (pricingSummary == "80%  discount"){
+        discount = premium * 0.8;
+	}else if (pricingSummary == "100%  discount"){
+        discount = premium * 1;
+	}
+	session.put("COUPON_DISCOUNT", discount);
+    return discount;
+};
+
+var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlans, serviceId,couponData) {
+	//checking the validity of the coupon and getting the new coupons rate plan Id
+	if(couponData != "" && couponData != "null" && couponData != null){
+		var newCouponProductRatePlanId = getCouponProductRatePlanId(couponData,serviceId);
+		if(newCouponProductRatePlanId == null){
+			log.error("Given Coupon " + couponData +" is invalid for : " + accountId);
+			return ("Given Coupon " + couponData +" is invalid." );
+		}
+	}
+	var ratePlan = getCurrentRatePlan(serviceId);
+	var currentRatePlanId;
+	var couponRatePlanId;
+	var planId = null;
+	var couponPlanId = null;
+	var parameters;
+	var oldPlanInfoArray= new Array();
+	//if 2 rate plans available for the current user account
+	for(var i = 0; i < ratePlan.length; i++){
+		if((ratePlan[i]["ratePlanName"].indexOf("coupon") < 0)){
+			currentRatePlanId = ratePlan[i].productRatePlanId;
+			planId = ratePlan[i].id;
+		}
+		else{
+			couponRatePlanId = ratePlan[i].productRatePlanId;
+			couponPlanId = ratePlan[i].id;
+		}
+	}
+
+	var isUpgrade = isPlanUpgrade(ratePlans, currentRatePlanId, newProductRatePlanId);
+	var effectiveDate = setChangePlanEffectiveDate(isUpgrade);
+
+	var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+    var changePlanData = {
+		"termType": zuoraObj.termType,
+		"autoRenew": true,
+		"invoiceCollect": Boolean(isUpgrade),
+		"invoiceTargetDate": dateFormatter.format(effectiveDate)
+	};
+    // get account summary info
+	var accInfoStr = billingService.getAccountSummary(accountId);
+    var accountSummary = JSON.parse(accInfoStr);
+
+    if (log.isDebugEnabled()){
+        log.debug("Rate plan updated for account: " + accountId + "for plan: " + newProductRatePlanId);
+    }
+ 
+    var  item = {};
+ 	item ["ratePlanId"] = planId;
+   	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+   
+	var oldPlanInfo = [];
+	oldPlanInfo.push(item);
+	if(couponPlanId != null){
+		item = {};
+		item ["ratePlanId"] = couponPlanId;
+		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+		oldPlanInfo.push(item)
+	}
+	
+	// create new plan info
+	var newPlanInfo = [];
+	if(newCouponProductRatePlanId != null){
+		item = {};
+		item ["productRatePlanId"] = newCouponProductRatePlanId;
+		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+		newPlanInfo.push(item);
+	}
+	item = {};
+	item ["productRatePlanId"] = newProductRatePlanId;
+	item ["contractEffectiveDate"] =  dateFormatter.format(effectiveDate);
+	newPlanInfo.push(item);
+
+	changePlanData["remove"] = oldPlanInfo;
+	changePlanData["add"] = newPlanInfo;
+
+	var url = zuoraObj.apis.subscriptions + "/" + accountSummary.subscriptions[0].subscriptionNumber;
+	var response = sendHTTPRequest(url, "PUT", null, changePlanData);
+
+    if (response.success) {
+        //add an entry to subscription
+        //UPDATE_ BILLING_ACCOUNT_AMENDMENTS
+        //INSERT_BILLING_ACCOUNT_AMENDMENTS
+        //update the previous plan
+        var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+        var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+        var queryString = SQL_QUERY_STRINGS.UPDATE_BILLING_ACCOUNT_AMENDMENTS;
+        parameters = [formattedEffectiveDate, accountId, MYSQL_MAX_DATETIME_STRING, serviceId];
+        modDb.executeQuery(queryString, parameters);
+
+        //add to BILLING_ACCOUNT_AMENDMENTS
+        queryString = SQL_QUERY_STRINGS.INSERT_BILLING_ACCOUNT_AMENDMENTS;
+        parameters = [accountId, newProductRatePlanId, formattedEffectiveDate,MYSQL_MAX_DATETIME_STRING, serviceId];
+        modDb.executeQuery(queryString, parameters);
+
+        if(log.isDebugEnabled()){
+            log.debug("Rate plan changed for Account Id: " + accountId + " into plan: " + newProductRatePlanId);
+        }
+
+        var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
+
+        var newPlanName = getPaymentPlanFromId(serviceId, newProductRatePlanId);
+        var previousPlan = getPaymentPlanFromId(serviceId, currentRatePlanId);
+        if (tenantDisplayName!=null) {
+            setTimeout( function () {
+                try {
+                    jagg.module("util").sendBillingPlanChangedEmail(tenantDisplayName, serviceId, newPlanName, effectiveDate);
+                    jagg.module("util").sendBillingPlanChangedNotification(tenantDisplayName, serviceId, effectiveDate, newPlanName, previousPlan);
+                    return true;
+                } catch (e){
+                    log.error("Error while sending notifications for subscription plan change: " + e);
+                    return true;
+                } finally {
+                    tenantDisplayName = null;
+                    serviceId = null;
+                    newPlanName = null;
+                    effectiveDate = null;
+                    previousPlan = null;
+                }
+            }, 0);
+        }
+        return true;
+    } else {
+        if (response.reasons[0].message == "The Contract effective date should not be " +
+                                            "earlier than the customer acceptance date of the previous amendment."){
+            if (log.isDebugEnabled()){
+                log.debug("Rate plan change failed for account: " + accountId + " into plan: " + newProductRatePlanId + " from plan: "
+                         + currentRatePlanId + " Response from zuora: " + JSON.stringify(response));
+            }
+            return ("The Contract effective date should not be " +
+                                            "earlier than the customer acceptance date of the previous amendment.");
+        } 
+        else if (response.reasons[0].message.indexOf("Rate plan \""+ BILLING_COUPON_HEADER + couponData+"\" is not effective on the contract effective date") >= 0){
+        	if (log.isDebugEnabled()){
+        		log.debug("Rate plan \""+ BILLING_COUPON_HEADER + couponData+"\"is not effective on the contract effective date. Response from zuora: " +
+        				 JSON.stringify(response));
+        	}
+        	return ("Coupon is not valid. Please enter a valid coupon.");
+        }
+        else {
+            throw new Error("Rate plan change failed for account: " + accountId + " into plan: " + newProductRatePlanId + " from plan: "
+                            + currentRatePlanId + " Response from zuora: " + JSON.stringify(response));
+        }
+    }
+};
+
+var setChangePlanEffectiveDate = function (isUpgrade) {
+
+    try {
+        if (!isUpgrade) {
+            var accountDetails = getAccountDetails();
+            var billCycleDay = accountDetails.billingAndPayment.billCycleDay;
+
+            //to calculate effectiveDate
+            var cal = Packages.java.util.Calendar.getInstance();
+            //to get the current value
+            var tempCal = Packages.java.util.Calendar.getInstance();
+
+            var dayOfMonth = Packages.java.util.Calendar.DAY_OF_MONTH;
+            cal.set(dayOfMonth, billCycleDay);
+
+            if (tempCal.get(dayOfMonth) >= cal.get(dayOfMonth)) {
+                cal.add(Packages.java.util.Calendar.MONTH, 1);
+            }
+
+            return cal.getTime();
+        } else {
+            return new Packages.java.util.Date();
+        }
+
+    } catch (e) {
+        log.error("Setting change plan effective date failed. "+ e);
+        throw Error(e);
+    }
+};
+
+var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
+
+    var currentPlanLevel = 0;
+    var newPlanLevel = 0;
+    for(var i=0; i<ratePlans.length; i++) {
+        if (ratePlans[i].id == currentRatePlan){
+            currentPlanLevel = ratePlans[i].premiumLevel;
+        } else if (ratePlans[i].id == newRatePlan){
+            newPlanLevel = ratePlans[i].premiumLevel;
+        }
+    }
+    return currentPlanLevel < newPlanLevel;
+};
+
+/*
+ get account details from Zuora
+ */
+var getAccountDetails = function () {
+
+    var accountId = getAccountId();
+    var url = zuoraObj.apis.accounts + "/" + accountId;
+    return sendHTTPRequest(url, "GET", null, null);
+};
+
+var removePaymentMethod = function (methodId) {
+    var url = zuoraObj.apis.removePaymentMethod + "/" + methodId;
+    return sendHTTPRequest(url, "DELETE", null, null);
+};
+
+var getAllPaymentMethods = function (accountId) {
+    var url = zuoraObj.apis.methods + "/accounts/" + accountId;
+    return sendHTTPRequest(url, "GET", null, null);
+};
+
+var updateDefaultPaymentMethod = function (methodId) {
+    var url = zuoraObj.apis.methods + "/" + methodId;
+    var data = {
+        "defaultPaymentMethod": true
+    };
+    var response = sendHTTPRequest(url, "PUT", null, data);
+    return response.success;
+};
+
+var getCurrentRatePlan = function (serviceId) {
+	if((session.get("TENANT_INFO")) != null ) {
+        var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+        return JSON.parse(billingService.getCurrentRatePlan(tenantDomain, productIdFromServiceId[serviceId]));
+	} else {
+		return null;
+	}
+};
+
+function addCloudSubmissionToRightwave(email,domain,type) {
+	var extensionStartDate = new Packages.java.util.Date();
+	var extendedEndDate = addDays(extensionStartDate,  parseInt(cloudConfig.billing.trialPeriod));
+	var sqlDateFormat = dateTimeFormatter(RIGHTWAVE_DATE_FORMAT);
+	var expDate = sqlDateFormat.format(extendedEndDate);
+	var type = type.substring(0, type.indexOf("_"));
+	var modProfile = jagg.module("user/profile");
+	var claims = modProfile.getProfile();
+	var jsonData;
+	if (claims.firstname != "undefined" && claims.lastname != "undefined") {
+		var firstName = claims.firstname;
+		var lastName = claims.lastname;
+		jsonData={
+			"email" : email,
+			"cloudtype" : type,
+			"firstlogin" : "1",
+			"expiryts" : ""+expDate+"",
+			"firstname" : ""+firstName+"",
+			"lastname" : ""+lastName+""
+			
+		};
+	} else {
+		jsonData={
+			"email" : email,
+			"cloudtype" : type,
+			"firstlogin" : "1",
+			"expiryts" : ""+expDate+""
+		};
+	}
+	var URL = cloudConfig.RightWaveAddUserApi.cloudSubmission;
+	var data = "json="+JSON.stringify(jsonData);
+	var result = post(URL,data,{'Content-Type': 'application/json'}, 'text');
+	return result;
+}
+/*
+ Headers should in following format
+var headers = [
+{
+'name':'apiSecretAccessKey',
+'value' :'password'
+}
+];
+*/
+var sendHTTPRequest = function (url, type, headers, data) {
+	var username = zuoraObj.username;
+	var password = zuoraObj.password;
+
+	var xhr = new XMLHttpRequest();
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.setRequestHeader('apiAccessKeyId', username);
+	xhr.setRequestHeader('apiSecretAccessKey', password);
+
+	if (headers != null) {
+		for (var i = 0; i < headers.length; i++) {
+			xhr.setRequestHeader(headers[i].name, headers[i].value);
+		}
+	}
+
+	xhr.open(type, url);
+	xhr.send(data);
+
+	var response = xhr.responseText;
+	if (response != null) {
+		return JSON.parse(response);
+	} else {
+		log.error("HTTP request: response from zuora cannot be null");
+		throw new Error("Response from zuora cannot be null");
+	}
+};
+
+// Validate zuora signature.
+var validateSignature = function (signature) {
+	billingService.validSignature(signature, zuoraObj.signatureExpired);
+};
+
+//validate passthrough token
+var validatePassThroughHash = function (token) {
+	var tokenHash = session.get(ZUORA_SIGNATURE_HASH);
+	return billingService.validateHash(token, tokenHash, mdAlgorithm);
+};
+
+//populate account information object
+var populateAccountInfo = function (tenantDomain, accountData, metaData, effectiveDate) {
+	var couponData = session.get("PRODUCT_COUPON_DATA");
+	var serviceId = session.get("SERVICE_ID");
+	session.remove("PRODUCT_COUPON_DATA");
+	var item={};
+	var subscribeToRatePlans=[];
+		if(couponData != "" && couponData != "null" && couponData != null){
+			var newCouponProductRatePlanId = getCouponProductRatePlanId(couponData,serviceId);
+			if(newCouponProductRatePlanId == null){
+				throw ("Given Coupon " + couponData +" is invalid for : " + accountId );
+			}
+			else{
+			item["productRatePlanId"] = newCouponProductRatePlanId;
+			subscribeToRatePlans.push(item);
+			}
+		}
+	var data = {};
+	var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+
+	data.name = tenantDomain;
+	data.autoPay = true;
+	data.currency = zuoraObj.currency;
+	data.billToContact = {};
+	item={};
+	item["productRatePlanId"] = metaData.productRatePlanId;
+	subscribeToRatePlans.push(item);
+	data.subscription = {
+		"termType": zuoraObj.termType,
+		"autoRenew": true,
+		"subscribeToRatePlans": subscribeToRatePlans,
+		"contractEffectiveDate": dateFormatter.format(effectiveDate)
+	};
+
+	data.hpmCreditCardPaymentMethodId = metaData.refId;
+	data.billToContact = accountData;
+	data.invoiceCollect= true;
+	data.invoiceTargetDate = dateFormatter.format(effectiveDate);
+	return data;
+};
+
+var addDays = function (date, days){
+	var cal = Packages.java.util.Calendar.getInstance();
+	cal.setTime(date);
+	cal.add(Packages.java.util.Calendar.DATE, days);
+	return cal.getTime();
+};
+
+var dateTimeFormatter = function (dateTimeFormat) {
+	return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
+};
+
+var updateBillingStatus = function (status, effectiveDate, serviceType, serviceId, tenantDomain) {
+
+	var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+	var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+
+    //updating the billing status
+    var queryString  = SQL_QUERY_STRINGS.UPDATE_SUBSCRIPTION_TYPE_STATUS_IN_BILLING_STATUS;
+    var parameters = [status, formattedEffectiveDate, tenantDomain, serviceId, serviceType];
+    modDb.executeQuery(queryString, parameters);
+};
+
+var getAccountStatus = function (subscription, type){
+
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    var queryString  = SQL_QUERY_STRINGS.SELECT_STATUS_FROM_BILLING_STATUS;
+    var parameters = [tenantDomain, subscription, type];
+
+    return modDb.executeQuery(queryString, parameters);
+};
+
+var extendTrial = function (serviceId, customerRequest) {
+
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+
+    var extensionStartDate = new Packages.java.util.Date();
+    var extendedEndDate = addDays(extensionStartDate,  parseInt(cloudConfig.billing.trialPeriod));
+
+    var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+
+    var queryString  = SQL_QUERY_STRINGS.SELECT_ALL_FROM_BILLING_STATUS;
+    var parameters =[tenantDomain, serviceId, type.TRIAL];
+    var result = modDb.executeQuery(queryString, parameters);
+
+    if (result.length > 0) {
+        if (result[0]["STATUS"] === status.ACTIVE || status.EXTENDED){
+
+            var trialStartDate = result[0]["START_DATE"];
+            var trialEndDate = result[0]["END_DATE"];
+
+            queryString = SQL_QUERY_STRINGS.INSERT_BILLING_STATUS_HISTORY;
+            parameters = [serviceId, null, tenantDomain, type.TRIAL, status.EXPIRED, trialStartDate, trialEndDate];
+            modDb.executeQuery(queryString, parameters);
+
+            queryString = SQL_QUERY_STRINGS.UPDATE_BILLING_STATUS;
+            parameters = [status.EXTENDED, sqlDateFormat.format(extensionStartDate),
+                          sqlDateFormat.format(extendedEndDate), tenantDomain, serviceId, type.TRIAL];
+            modDb.executeQuery(queryString, parameters);
+
+            var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
+
+            if(tenantDisplayName != null){
+                setTimeout( function () {
+                    try {
+                        jagg.module("util").sendBillingTrialExtendedMailToUser(tenantDisplayName, serviceId, extendedEndDate);
+                        jagg.module("util").sendBillingTrialExtendedNotification(tenantDisplayName, serviceId, extendedEndDate, customerRequest);
+                        var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+                        if(is_enable.toString() == "true") {
+                        	var modEvents = jagg.module("events");
+                        	var type =serviceId.toUpperCase();
+                        	type = type.substring(0, type.indexOf("_"));
+                        	var email = String(session.get("LOGGED_IN_USER_EMAIL"));
+                        	var jsonData={
+                        		"email" : email,
+                        		"cloudtype" : type,
+                        		"expiryts": ""+ sqlDateFormat.format(extendedEndDate)+""
+                        	};
+                        	var URL = cloudConfig.RightWaveAddUserApi.trialExtension;
+                        	var data = "json="+JSON.stringify(jsonData);
+                        	var result = post(URL,data,{
+                        		'Content-Type': 'application/json'}, 'text');
+                        		var msg = result['data'];
+                        		var actionString = "Rightwave-"+type+"-trialextension:";
+                        		var page = "Rightwave";
+                        		var item = type;
+                        		var events = [];
+                        		if(msg === "Data Submitted Successfully") {
+                        			actionString =  actionString+"Success";
+                        		} else {
+                        			actionString =  actionString+"Failed";
+                        			log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
+                        		}
+                        		var event={
+                        		};
+                        		event.item = item;
+                        		event.timestamp = new Date().getTime();
+                        		event.pageName = page;
+                        		event.action = actionString;
+                        		events[events.length] = event;
+                        		modEvents.publishUserActivity(events,jagg.getUser(),tenantDomain);
+                        }
+                        return true;
+                    } catch (e) {
+                        log.error("Error while sending notification for renewal of trial subscription : "+e);
+                        return true;
+                    } finally {
+                        serviceId = null;
+                        extendedEndDate = null;
+                        tenantDisplayName = null;
+                        customerRequest = null;
+                    }
+                }, 0);
+            }
+            return true;
+        } else {
+            return false;
+        }
+
+    } else {
+        return false;
+    }
+};
+var getBillingInvoiceData= function (accountId,invoiceId){
+	var summary = billingService.getInvoices(accountId);
+	var invoiceObj = JSON.parse(summary);
+	var invoices = invoiceObj.invoices;
+	for (var index = 0; index < invoices.length; index++){
+		if (invoiceId == invoices[index].id) {
+			var invoiceItems = invoices[index].invoiceItems;
+			var invoiceData = {};
+
+			invoiceData["accountName"] = invoices[index].accountName;
+			invoiceData["invoiceDate"] = invoices[index].invoiceDate;
+			invoiceData["invoiceNumber"] = invoices[index].invoiceNumber;
+			invoiceData["amount"] = invoices[index].amount;
+			invoiceData["invoiceItems"] = [];
+				
+			for(var i=0; i< invoiceItems.length; i++) {
+				var item ={};
+				var invoiceItem = invoiceItems[i];
+				if(invoiceItem.chargeName != DISCOUNT_CHARGE_NAME){
+					if(invoiceItem.chargeName == MONTHLY_SUBSCRIPTION_CHARGE_NAME){
+						item["chargeName"] = invoiceItem.chargeName;
+						item["amount"] = invoiceItem.chargeAmount;
+						item["servicePeriod"] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
+						item["chargeDate"] = invoices[index].invoiceDate;
+						//if next invoice item is not in the next billing cycle
+						if ((i+1) < invoiceItems.length && invoiceItems[i+1].chargeName == DISCOUNT_CHARGE_NAME) {
+							item["discount"] = invoiceItems[i+1].chargeAmount;
+						}
+						else {
+							item["discount"] = 0.0;
+						}
+					}
+					else{
+						item["chargeName"] = invoiceItem.chargeName;
+						item["amount"] = invoiceItem.chargeAmount;
+						item["servicePeriod"] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
+						item["chargeDate"] = invoices[index].invoiceDate;
+						item["discount"] = 0.0;
+					}
+					invoiceData["invoiceItems"].push(item);
+				}
+			}
+			return invoiceData;
+		}
+	}
+};
+
+%>

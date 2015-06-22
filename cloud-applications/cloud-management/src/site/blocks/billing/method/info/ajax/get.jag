@@ -1,0 +1,32 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("site/blocks/billing/method/info/ajax/get.jag");
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("billing");
+
+(function () {
+    var action = request.getParameter("action");
+    if (action == "get-payment-methods") {
+        if ((session.get("TENANT_INFO")) != null) {
+            var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+            var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+            var accountId = billingService.getAccountId(tenantDomain);
+            // call the billing module
+            var summary = mod.getAllPaymentMethods(accountId);
+            print(summary);
+        }
+    } else if (action == "setDefaultMethod") {
+        var methodId = request.getParameter("paymentMethodId");
+        print(mod.updateDefaultPaymentMethod(methodId));    
+                 
+    } else if (action == "removePaymentMethod") {
+        var methodId = request.getParameter("paymentMethodId");
+        print(mod.removePaymentMethod(methodId));
+    }
+
+}());
+%>

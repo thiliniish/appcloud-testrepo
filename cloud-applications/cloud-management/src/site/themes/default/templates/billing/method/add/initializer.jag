@@ -1,0 +1,13 @@
+<%
+jagg.initializer("billing/method/add", {
+    preInitialize:function () {
+        if (session.get("PRODUCT_PLAN_ID") == null && request.getParameter("accountId") == null){
+            response.sendRedirect("../pages/index.jag");
+        }
+        var tenantInfo = session.get("TENANT_INFO");
+        if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) {
+            response.sendRedirect("../pages/index.jag");
+        }
+    }
+});
+%>

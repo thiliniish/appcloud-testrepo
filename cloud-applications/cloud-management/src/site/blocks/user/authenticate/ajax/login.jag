@@ -1,0 +1,67 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            mod = jagg.module("user/authenticate"),
+            site = require("/site/conf/site.json");
+
+    if (action == "login") {
+        var userName = request.getParameter("userName");
+        var password = request.getParameter("password");
+        try {
+            result = mod.login(userName, password);
+            var Jresult = parse(result);
+            var cookie = Jresult.cookie;
+
+            var parsedJSON = eval('(' + result + ')');
+            var errorStatus = parsedJSON.error;
+            if (errorStatus === 'false') {
+                print('true');
+            }
+            else {
+                print('false');
+            }
+        } catch (e) {
+            throw "Error while login " + e.message;
+        }
+    }else if (action == "validatePassword") {
+        var userName = request.getParameter("userName");
+        var password = request.getParameter("password");
+        try {
+            result = mod.validatePassword(userName, password);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while checking the password validity.";
+            }
+        } catch (e) {
+            throw "Error while checking the password validity. " + e.message;
+        }
+    } else if (action == "logout") {
+        try {
+            result=mod.logout();
+            var parsedJSON = eval('('+result+')');
+            var errorStatus=parsedJSON.error;
+            print('errorStatus:'+errorStatus);
+            if(errorStatus === "false"){
+                print('Logout succesfully inside json parse');
+                return true;
+            }
+            else{
+                print('Already logged out');
+                return false;
+            }
+
+        } catch (e) {
+            log.error("Error while logout user" + e.message);
+            throw "Error while logout user";
+        }
+    } else {
+        throw new Error("No action specified");
+    }
+
+}());
+%>

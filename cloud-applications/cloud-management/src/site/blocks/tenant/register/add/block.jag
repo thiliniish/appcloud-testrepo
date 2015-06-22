@@ -1,0 +1,9 @@
+<%
+jagg.block("tenant/register/add", {
+    initialize:function (data) {
+
+    }
+
+
+});
+%>

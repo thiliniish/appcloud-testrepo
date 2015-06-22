@@ -1,0 +1,34 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+	var mod, obj, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("tenant");
+
+	if (action == "registerOrg") {
+
+		var companyName = request.getParameter("companyName");
+		var adminPassword = request.getParameter("adminPassword");
+		var usagePlan = request.getParameter("usagePlan");
+		try {
+			var result = mod.registerOrg(companyName, adminPassword, usagePlan,null);
+
+			if (result != null) {
+				print(result);
+			} else {
+				throw "Error while registering an organization " + companyName;
+			}
+		} catch (e) {
+            throw "Error while registering an organization" +companyName + e.message;
+		}
+
+	} else{
+		throw new Error("No action specified");
+	}
+
+}());
+%>

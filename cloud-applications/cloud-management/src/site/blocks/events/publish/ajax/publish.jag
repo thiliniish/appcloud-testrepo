@@ -1,0 +1,36 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod,cloudConfig,
+    action = request.getParameter("action");
+    cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+
+    mod = jagg.module("events");
+
+    var log = new Log("Publish Log /site/blocks/events/publish/ajax/publish.jag");
+
+    if(session.get("LOGGED_IN_USER_EMAIL")){
+       if(cloudConfig.userActivityMonitor.enable == "true"){
+             if (action == "userActivity") {
+                 var events = request.getParameter("events");
+                 var domainName = jagg.module("util").getDomainFromUsername(jagg.getUser());
+                 var parseJSON = JSON.parse(events);
+                 mod.publishUserActivity(parseJSON, session.get("LOGGED_IN_USER_EMAIL"), domainName);
+             } else {
+                 log.error("Invalid action specified. specified action is : " + action);
+                 throw new Error("Invalid action specified. specified action is : " + action);
+             }
+       }
+	}
+    else if(action == "userActivitySignUp" && cloudConfig.userActivityMonitor.enable == "true"){
+        var events = request.getParameter("events");
+        var parseJSON = JSON.parse(events);
+        var tenantDomain = request.getParameter("tenantDomain");
+        var user = session.get("registration-email");
+        mod.publishUserActivity(parseJSON, user, tenantDomain);
+    }
+
+}());
+%>

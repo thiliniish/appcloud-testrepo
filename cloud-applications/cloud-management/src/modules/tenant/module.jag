@@ -1,0 +1,63 @@
+<%
+jagg.module("tenant", {
+
+	addRolestoUserinTenantDomain:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").addRolestoUserinTenantDomain.apply(this, arguments);
+	},
+	addUserRoles:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").addUserRoles.apply(this, arguments);
+	},
+	getUsersofTenant:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersofTenant.apply(this, arguments);
+	},
+	getUserInfo:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserInfo.apply(this, arguments);
+	},
+	updateUserRoles:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRoles.apply(this, arguments);
+	},
+	deleteUserFromTenant:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").deleteUserFromTenant.apply(this, arguments);
+	},
+	importInvitedUser:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").importInvitedUser.apply(this, arguments);
+	},
+	sendUserInvite:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").sendUserInvite.apply(this, arguments);
+	},
+	isFirstLogin:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").isFirstLogin.apply(this, arguments);
+	},
+	changePassword:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").changePassword.apply(this, arguments);
+	},
+	isOTTenantUser:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").isOTTenantUser.apply(this, arguments);
+	},
+	isExistingUser:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").isExistingUser.apply(this, arguments);
+	},
+	checkDomainAvailability:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").checkDomainAvailability.apply(this, arguments);
+	},
+	registerOrg:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").registerOrg.apply(this, arguments);
+	},generateCaptchaFromCloud:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").generateCaptchaFromCloud.apply(this, arguments);
+	},sendInvite:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").sendInvite.apply(this, arguments);
+	},confirmUser:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").confirmUser.apply(this, arguments);
+	},isExistingUser:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").isExistingUser.apply(this, arguments);
+	},getApplicatioinKeysOfUser:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getApplicatioinKeysOfUser.apply(this, arguments);
+	},getOrganizations:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/manage/manage.jag").getOrganizations.apply(this, arguments);
+	},
+	getBlockedSubscriptions:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").getBlockedSubscriptions.apply(this, arguments);
+	}
+
+});
+%>

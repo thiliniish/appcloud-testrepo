@@ -1,0 +1,6 @@
+<%
+jagg.block("billing/payment/confirm", {
+    initialize:function (data) {
+    }
+});
+%>

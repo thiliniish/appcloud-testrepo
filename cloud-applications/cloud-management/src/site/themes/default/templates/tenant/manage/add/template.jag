@@ -1,0 +1,223 @@
+<% jagg.template("tenant/manage/add", function(inputs, outputs, jagg) { %>
+<%
+
+var log = new Log();
+
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var userName =  session.get("LOGGED_IN_USER");
+var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
+%>
+
+
+
+<script type="text/javascript">
+
+function disable() {
+	document.getElementById("spinner").style.display = '';
+	 var submitButton = document.getElementById('submitbtn');
+	 $('#submitbtn').css('background-color','#F9BFBB');
+	 submitButton.disabled = true;
+}
+
+function enable() {
+	document.getElementById("spinner").style.display = 'none';
+	 var submitButton = document.getElementById('submitbtn');
+	 $('#submitbtn').css('background-color','#428BCA');
+	 submitButton.disabled = false;
+}
+
+    function doSubmit() {
+    	disable();
+        var adminPassword = $("#password").attr('value');
+        var companyName = $("#companyName").attr('value');
+        var cloudmgtURL =  $("#cloudmgtURL").attr('value');
+       
+        jagg.message({content:'Your request to add the new Organization to WSO2 Cloud has been submitted. Please wait...',type:'success'});
+        jagg.post("../blocks/tenant/manage/add/ajax/add.jag", {
+            action:"registerOrg",
+            adminPassword:adminPassword ,
+            companyName:companyName ,
+            usagePlan:'Demo'
+        },
+        function (result) {
+            $('.message_box').empty();
+            jagg.message({content:'Organization was successfully added.',type:'success',cbk:function(){
+                    window.location.href = cloudmgtURL + "/site/pages/organization.jag";
+                }
+            });
+            enable();
+        },
+        function (jqXHR, textStatus, errorThrown) {
+            $('.message_box').empty();
+            jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                    window.location.href = cloudmgtURL ;
+                }
+            });
+            enable();
+        });
+      
+    }
+
+    $(document).ready(function($){
+        initializeUserActivity("Add Organization Page");
+        var clickwithblur = false;
+
+        jQuery.validator.setDefaults({
+                errorElement:'span'
+        });
+        jQuery.validator.addMethod("validatePassword", function(value, element) {
+            var userName = $("#userName").attr('value');
+            var isValid = false;
+            $.ajax({ url: "../blocks/user/authenticate/ajax/login.jag",
+            	 type: "POST",
+                    data: {
+                        action:"validatePassword",
+                        userName:userName,
+                        password:value
+                    },
+                    async: false,
+                success:
+                    function(msg) {
+                        msg = msg.replace(/[\r\n]/g, "");
+                        if(msg == 'true'){
+                            isValid = true;
+                        }
+                     }
+            });
+            return isValid;
+        }, "Password is not correct.");
+        jQuery.validator.addMethod("domain", function(value, element) {
+            var isSuccess = false;
+            $.ajax({ url: "../blocks/tenant/register/add/ajax/add.jag",
+                    data: {
+                        action:"checkDomainAvailability",
+                        companyName:value
+                    },
+                    async: false,
+                success:
+                    function(msg) {
+                        msg = msg.replace(/[\r\n]/g, "");
+                        if(msg == "true"){
+                            isSuccess = true;
+                        }
+                     }
+            });
+            return isSuccess;
+        }, function(value, element) {
+            return "Company name &lt;" + element.value + "&gt; is already taken. Please supply a different name for your organization."
+        });
+		$('#registerForm').validate({
+		    onfocusout: false,
+		    onkeyup : false,
+			rules : {
+                password: {
+                    required: true,
+                    validatePassword: true,
+                    minlength: 5
+                } ,
+                companyName:{
+                    domain: true
+                }
+            },
+            messages: {
+                password: {
+                    minlength: "Minimum is 5 characters ",
+                    validatePassword: "Password is not correct. "
+                }
+            },
+
+			submitHandler: function(form) {
+				doSubmit();
+		    }
+		});
+
+         $('#companyName').blur(function(){
+              document.activeElement;
+              if(!clickwithblur)
+                 $('#companyName').valid();
+         });
+
+         $('#password').blur(function(){
+              if(!clickwithblur)
+                  $('#password').valid();
+         });
+
+        $('#submitbtn').mousedown(function(){
+              clickwithblur = true;
+        });
+
+        $('#submitbtn').mouseup(function(){
+              clickwithblur = false;
+        });
+    });
+</script>
+
+<div class="container content-starter">
+	<div class="row">
+		<div class="col-lg-12">
+			<h1>Manage Organizations</h1>
+			<div class="helper_text" id="helper_text">
+			    <p>Please enter your company name or some unique character sequence
+				that we will use for your company id. It will be used for internal
+				URLs of your applications on WSO2 cloud.
+				</p>
+		    </div>
+		</div>
+
+	</div>
+</div>
+<% jagg.includeBlock("page/messages", null); %>
+<div class="container content-section-wrapper" id="form_div">
+	<div class="row">
+		<div class="col-lg-12 content-section">
+			<form method='post' name="inputData" class='form-horizontal'
+				id='registerForm' role="form">
+
+				<!--Organization-->
+				<div class="form-group">
+					<label for="company" class="col-sm-2 control-label"
+						style="font-weight: bold">Company Display Name</label>
+					<div class="col-sm-8">
+						<input type="text" id="companyName" name="companyName"
+							class="required" />
+					</div>
+				</div>
+
+				<!--Admin Password-->
+				<div class="form-group">
+					<label for="password" class="col-sm-2 control-label"
+						style="font-weight: bold">Your Password</label>
+					<div class="col-sm-8">
+						<input type="password" id="password" name="password"
+							class="required password" />
+						<p>Please enter your existing password here</p>
+					</div>
+
+				</div>
+
+
+
+				<div class="form-group">
+				    <label for="password" class="col-sm-2 control-label"></label>
+					<div class="col-sm-8">
+						<input id="submitbtn" type='submit' value='Add Organization'
+							class="btn btn-primary" />
+						<a id="btn_cancel"
+										href="javascript:location.href='/cloudmgt/site/pages/organization.jag'">Cancel</a>
+						<i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display:none; margin-left: 10px;"></i>
+					</div>
+					
+				</div>
+				<input type="hidden" name="cloudmgtURL" id="cloudmgtURL"
+					value="<%=cloudmgtURL%>" /> <input type="hidden" name="userName"
+					id="userName" value="<%=userName%>" />
+
+			</form>
+			<div class="signin"></div>
+		</div>
+	</div>
+</div>
+<% }); %>
+

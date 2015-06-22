@@ -1,0 +1,21 @@
+<%
+jagg.initializer("billing/plan/get", {
+    preInitialize : function () {
+        var serviceId = session.get("SERVICE_ID");
+        var tenantInfo = session.get("TENANT_INFO");
+        if (serviceId == null && request.getParameter("cloud-type") != null) {
+            serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
+        } else if (serviceId == null && request.getParameter("cloud-type") == null ){
+            response.sendRedirect("../pages/index.jag");
+        }
+        if(serviceId !=null && jagg.module("billing").validateServiceId(serviceId)) {
+            session.put("SERVICE_ID", serviceId);
+        } else {
+            response.sendRedirect("../pages/index.jag");
+        }
+        if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) {
+            response.sendRedirect("../pages/index.jag");
+        }
+    }
+});
+%>

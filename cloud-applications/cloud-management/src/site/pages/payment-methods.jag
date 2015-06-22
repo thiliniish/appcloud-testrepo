@@ -1,0 +1,29 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+var log = new Log();
+(function () {
+    var sessionId = session.getId();
+
+    jagg.render({
+                    "name":"page/base",
+                    "inputs":{
+                        "title":"WSO2 Cloud Mgt",
+                        "pagePath":"/site/pages/payment-methods.jag",
+                        "body":[
+                            {
+                                "name":"layout/base",
+                                "inputs":{
+                                    "title":"Account Summary",
+                                    "middle":[
+                                        {
+                                            "name":"billing/method/info"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                });
+}());
+%>

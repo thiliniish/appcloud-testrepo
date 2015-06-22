@@ -1,0 +1,37 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/modules/database/sql.jag");
+
+var log = new Log("modules/database/dataaccess.jag");
+/*
+ * executes a sql query given in queryString.
+ * @param queryString
+ * @param parameters : query parameters gives as an array
+ */
+var executeQuery = function(queryString, parameters)  {
+
+    for(var i = 0; i < parameters.length; i++) {
+        if (parameters[i] != null){
+            queryString= queryString.replace("?",parameters[i]);
+        } else {
+            queryString= queryString.replace("'?'",parameters[i]);
+        }
+    }
+    try{
+        var  dbConnection = new Database("cloud_mgt");
+        var results = dbConnection.query(queryString);
+        if(log.isDebugEnabled()){
+            log.debug("Executed query: "+queryString);
+        }
+    } catch (e) {
+        log.error("Error while accessing database" + " sql : " + queryString + "\n" + e);
+        throw (e);
+    }finally{
+        if(dbConnection != null){
+            dbConnection.close();
+        }
+    }
+    return results;
+};
+%>

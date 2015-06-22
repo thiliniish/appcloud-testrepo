@@ -1,0 +1,116 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+
+var log = new Log();
+var modManager = jagg.module("manager");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+
+var CLOUD_MGT_URL = cloudConfig.ServerUrls.appfactory.toString();
+function login(userName, password){
+
+    log.info("user logs in module called");
+    var ws = require('ws');
+    var finalResult={};
+    try{
+        var xhr = new XMLHttpRequest();
+        var endPoint = CLOUD_MGT_URL + "AuthenticationAdmin";
+        xhr.setRequestHeader('SOAPAction', 'urn:login');
+        xhr.setRequestHeader('Content-Type', 'text/xml');
+        xhr.open("POST", endPoint);
+        var payload = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">' +
+                '<soapenv:Body>' +
+                '<aut:login xmlns:aut="http://authentication.services.core.carbon.wso2.org">' +
+                '<aut:username>'+userName+'</aut:username>' +
+                '<aut:password>'+password+'</aut:password>' +
+                '<aut:remoteAddress>localhost</aut:remoteAddress>' +
+                '</aut:login>' +
+                '</soapenv:Body>' +
+                '</soapenv:Envelope>';
+        xhr.send(payload);
+        var result = xhr.responseText;
+
+        if (result.indexOf("false") === -1 && result.indexOf("faultstring") === -1) {
+            log.info("user logs in");
+            jagg.setUser(userName);
+            log.info("user set in the jagg");
+            var cookie = (xhr.getAllResponseHeaders());
+            var cookieString = cookie.split(";")[0].split(":")[1];
+            if(cookieString!=null){
+                cookieString = cookieString.replace(/^\s+|\s+$/g, '');
+            }
+            finalResult.error="false";
+            finalResult.message="User successfully logged in";
+            finalResult.username=userName;
+            finalResult.cookie=cookieString;
+            session.put("LOGGED_IN_USER",userName);
+            return stringify(finalResult);
+        }
+        finalResult.error="true";
+        finalResult.message="Authentication failure";
+        return stringify(finalResult);
+    } catch(e){
+        log.error("Error while authenticating user: "+ e.message());
+        finalResult.error="true";
+        finalResult.message="Internal Error Occured";
+        return stringify(finalResult);
+    }
+
+}
+
+function validatePassword(userName, password){
+    log.info("Password validating...");
+    var user = jagg.module("util").getDomainLessUserName(userName);
+    var userPass = jagg.module("util").escapeSpecialCharsXML(password);
+    var ws = require('ws');
+    var finalResult={};
+    try{
+        var xhr = new XMLHttpRequest();
+        var endPoint = CLOUD_MGT_URL + "AuthenticationAdmin";
+        xhr.setRequestHeader('SOAPAction', 'urn:login');
+        xhr.setRequestHeader('Content-Type', 'text/xml');
+        xhr.open("POST", endPoint);
+        var payload = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">' +
+                '<soapenv:Body>' +
+                '<aut:login xmlns:aut="http://authentication.services.core.carbon.wso2.org">' +
+                '<aut:username>'+user+'</aut:username>' +
+                '<aut:password>'+userPass+'</aut:password>' +
+                '<aut:remoteAddress>localhost</aut:remoteAddress>' +
+                '</aut:login>' +
+                '</soapenv:Body>' +
+                '</soapenv:Envelope>';
+        xhr.send(payload);
+        var result = xhr.responseText;
+        if (result.indexOf("false") === -1 && result.indexOf("faultstring") === -1) {
+            return true;
+        }
+        return false;
+    } catch(e){
+        log.error("Error while validating password: "+ e.message());
+        return false;
+    }
+
+}
+function logout(){
+    var log = new Log();
+    var username = jagg.getUser();
+    var finalResult={};
+
+    if(username!=null){
+        jagg.setUser(null)
+        print(" error:false message:'User successfully logged out username:"+username);
+        finalResult.error="false";
+        finalResult.message="User successfully logged out";
+        // print('error:false message:User successfully logged out');
+        return stringify(finalResult);
+    }
+    finalResult.error="true";
+    finalResult.message="User already logged out";
+    print('error:true message:already logged out');
+    return stringify(finalResult);
+
+}
+
+
+%>

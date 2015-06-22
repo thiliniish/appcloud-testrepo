@@ -1,0 +1,64 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+ 
+    var log = new Log();
+    var modManager = jagg.module("manager");
+    var carbon = require('carbon');
+    var server = carbon.server;
+    var multitenancy = carbon.multitenancy;
+
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+
+    var IS_URL =  cloudConfig.ServerUrls.identity.toString();
+
+    var verifyPasswordResetConfirmationCode = function(confirm,id) {
+        log.info("Verifying Password reset confirmation");
+        var ws = require('ws');
+        var request = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.1;
+        options.timeout = 1000000;
+        options.action = "urn:verifyConfirmationCode";
+        options["HTTPHeaders"] = [
+            { name : "Cookie", value :modManager.getAdminCookie(IS_URL) }
+        ];
+        var payload = '<verifyConfirmationCode xmlns="http://services.mgt.identity.carbon.wso2.org"><username>'+id+'</username><code>'+confirm+'</code></verifyConfirmationCode>';
+        var result;
+        var verifyUserResponse = {};
+        try {
+            var endPoint = IS_URL + "UserInformationRecoveryService";
+            request.open(options,endPoint, false);
+            request.send(payload);
+            result=request.responseE4X;
+            var entry = result.*::["return"];
+            var key = entry.*::key.text();
+            var verified = entry.*::verified.text();
+            var error = entry.*::error.text();
+            if(verified == true){
+                var userInfo = jagg.module("tenant").getUserInfo(id);
+                var data = {};
+                data.confirmationKey = key;
+                data.userName = id;
+                data.email = userInfo.email.toString();
+                session.put('intermediate-data',stringify(data));
+                return "password-verifier.jag";
+            }else {
+                if(error == "18001"){
+                    log.error("Invalid code provided to validate.");
+                    return "18001";
+                }else{
+                    log.error(error);
+                    throw error;
+                }
+            }
+        } catch (e) {
+            log.error("Error while verifying user \n" + e.message);
+            throw "Error while verifying user \n" + e.message;
+        }
+    }
+
+
+
+%>
+

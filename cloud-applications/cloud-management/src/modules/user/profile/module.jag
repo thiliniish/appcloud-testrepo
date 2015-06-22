@@ -1,0 +1,14 @@
+<%
+jagg.module("user/profile", {
+    getProfile: function () {
+        return jagg.require(jagg.getModulesDir() + "user/profile/profile.jag").getProfile.apply(this, arguments);
+    },
+    updateProfile: function () {
+        return jagg.require(jagg.getModulesDir() + "user/profile/profile.jag").updateProfile.apply(this, arguments);
+    },
+    getEmailOfUser: function () {
+        return jagg.require(jagg.getModulesDir() + "user/profile/profile.jag").getEmailOfUser.apply(this, arguments);
+    }
+
+});
+%>

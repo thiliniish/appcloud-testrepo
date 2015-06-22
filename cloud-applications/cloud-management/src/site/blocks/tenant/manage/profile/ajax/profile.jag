@@ -1,0 +1,50 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            mod = jagg.module("tenant/profile"),
+            site = require("/site/conf/site.json");
+
+    if (action == "getProfile") {
+        var organization =  request.getParameter("organization");
+        try {
+            var result = mod.getProfile(organization);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while getting the profile ";
+            }
+        } catch (e) {
+            throw "Error while getting the profile " + e.message;
+        }
+    } else if (action == "updateProfile") {
+        var tenantDomain = request.getParameter("tenantDomain");
+        var displayName = request.getParameter("displayName");
+        var response = {};
+        if(jagg.module("permission").hasOrganizationMgtPermission(tenantDomain)){
+            try {
+                var result = mod.updateProfile(tenantDomain,displayName);
+                if (result != null) {
+                    response.error = false;
+                    response.message = result;
+                    print(stringify(response));
+                } else {
+                    throw "Error while updating the Organization profile ";
+                }
+            } catch (e) {
+                throw "Error while updating the Organization profile " + e.message;
+            }
+        } else{
+            response.error = true;
+            response.message = "You don't have permission to update Organization profile";
+            print(stringify(response));
+        }
+    } else {
+        throw new Error("No action specified");
+    }
+
+}());
+%>

@@ -1,0 +1,108 @@
+{
+  "Main": {
+    "Navigate": {
+      "url": "#",
+      "icon": "fa fa-cloud",
+      "isDropDown": {
+        "API Cloud": {
+          "id":"api_cloud",
+          "url": "https://milestones.appfactory.wso2.com:9643/publisher/",
+          "icon": "fa fa-cloud",
+          "isDropDown": "false",
+          "target" : "_blank"
+        },
+        "App Cloud": {
+          "id":"app_cloud",
+          "url": "https://milestones.appfactory.wso2.com:9443/appmgt/",
+          "icon": "fa fa-cloud",
+          "isDropDown": "false",
+          "target" : "_blank"
+        }
+      }
+    },
+    "Manage": {
+      "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/organization.jag",
+      "icon": "fa fa-bars",
+      "isDropDown": "false",
+      "target" : "_self"
+    },
+    "Members": {
+      "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/user.jag",
+      "icon": "fa fa-users",
+      "isDropDown": "false",
+      "target" : "_self"
+    },
+      "Support": {
+      "url": "#",
+      "icon": "fa fa-life-ring",
+       "isDropDown": {
+        "Contact Us": {
+          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/contact-us.jag",
+          "icon": "fa fa-envelope",
+          "isDropDown": "false",
+          "target" : "_self"
+        },
+        "stackoverflow": {
+          "url": "http://stackoverflow.com/questions/tagged/wso2cloud",
+          "icon": "fa fa-stack-overflow",
+          "isDropDown": "false",
+          "target" : "_self"
+        }
+      }
+    },
+    "Documentation": {
+      "url": "#",
+      "icon": "fa fa-book",
+      "isDropDown": {
+        "API Cloud": {
+          "id":"api_cloud",
+          "url": "https://docs.wso2.com/display/APICloud/WSO2+API+Cloud+Documentation",
+          "icon": "fa fa-book",
+          "isDropDown": "false",
+          "target" : "_blank"
+        },
+        "App Cloud": {
+         "id":"app_cloud",
+          "url": "https://docs.wso2.com/display/AppCloud/WSO2+App+Cloud+Documentation",
+          "icon": "fa fa-book",
+          "isDropDown": "false",
+          "target" : "_blank"
+        }
+      }
+    },
+   "Account": {
+      "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/account-summary.jag",
+      "icon": "fa fa-briefcase",
+      "isDropDown": "false",
+       "target" : "_blank"
+    }
+  },
+  "Left_menu": {
+    "Domain": {
+      "url": "#",
+      "icon": "fa fa-bank",
+      "isDropDown": "false"
+    },
+    "Email": {
+      "url": "#",
+      "icon": "fa fa-user",
+      "isDropDown": {
+        "Change Password": {
+          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/change-password.jag",
+          "icon": "fa fa-lock",
+          "isDropDown": "false"
+        },
+        "Profile": {
+          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/user-profile.jag",
+          "icon": "fa fa-user",
+          "isDropDown": "false"
+        },
+        "Logout": {
+          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/logout.jag",
+          "icon": "fa fa-sign-out",
+          "isDropDown": "false"
+        }
+      }
+    }
+  }
+}

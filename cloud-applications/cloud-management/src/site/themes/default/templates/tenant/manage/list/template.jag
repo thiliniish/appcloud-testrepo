@@ -1,0 +1,191 @@
+<% jagg.template("tenant/manage/list", function(inputs, outputs, jagg) { %>
+<%
+var userName =  session.get("LOGGED_IN_USER");
+var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var carbon = require('carbon');
+var server = carbon.server;
+//getting the max items per page
+var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
+%>
+
+<style type="text/css">
+    .team_role .list_col_content {
+        font-size: 1em;
+    }
+</style>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js'))%>"></script>
+<script type="text/javascript">
+        var orgArray;
+		var maxItemsInPage=<%=itemsPerPage%>;
+     	var pageNumber=1;
+     	var totalPages=1;
+     	
+       function getOrganizations() {
+            jagg.syncPost("../blocks/tenant/manage/list/ajax/list.jag", {
+                             action:"getOrganizations"
+                }, function (result) {              
+                    orgArray = result;
+                    displayOrganizations(orgArray);
+                }, function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to get organizations.'});
+                });
+       }
+
+       function displayOrganizations(organizations ){
+            var $userListContainer = $('#userListContainer');
+            var noOfOrgs = organizations.length;
+            var hasAdminPermission = false;
+            if(noOfOrgs===1){
+                $('#organizationCount').replaceWith('<h2 id="organizationCount" class="big push_bottom_40">1 Organization</h2>');
+            } else{
+                $('#organizationCount').replaceWith('<h2 id="organizationCount" class="big push_bottom_40">'+ noOfOrgs+' Organizations</h2>');
+            }
+
+     		$('.cleanable').remove();
+     		//looping uptil the max number of Organizations in a page is added
+ 	      	for (var i=((pageNumber-1)*maxItemsInPage); i <noOfOrgs && i < (pageNumber*maxItemsInPage); i++ ) {
+                var tenant = organizations[i];
+                var  checkBoxString="";
+                if(tenant.adminUser){
+                    hasAdminPermission = true;
+                    checkBoxString='<input id="ck_'+i+'" type="radio" name="action_check" id="action_check" class="action_check" data-tenant="'+tenant.tenantDomain+'" data-name="'+tenant.displayName+'"/>';
+               }
+
+                var $userListContainerRow = $('<li class="list_row_item cleanable" data-tenant="'+tenant.tenantDomain+'" data-name="'+tenant.displayName+'">'+
+                                                '<ul class="list_row" id="'+tenant.tenantDomain+'">'+
+                                                    '<li class="list_col first_list_col item_select" >'+
+                                                        '<div class="list_col_content">'+
+                                                            checkBoxString+
+                                                        '</div>'+
+                                                    '</li>'+
+                                                    '<li class="list_col team_member">'+
+                                                        '<div class="list_col_content">'+
+                                                            '<div class="image_list">'+
+                                                                '<dl>'+
+                                                                    '<dt>'+tenant.displayName+'</dt>'+
+                                                                '</dl>'+
+                                                            '</div>'+
+                                                        '</div>'+
+                                                    '</li>'+
+                                                    '<li class="list_col  team_role">'+
+                                                        '<div style="padding-left: 7px; padding-top: 15px;" class="list_col_content">'+tenant.tenantDomain+'</div>'+
+                                                    '</li>'+
+                                                    '<li onclick="selectCheckBox('+i+')" class="list_col  team_role">'+
+                                                        '<div style="padding-left: 21px;padding-top: 15px;" class="list_col_content">'+tenant.displayRoles+'</div>'+
+                                                    '</li>'+
+                                                '</ul>'+
+                                              '</li>');
+                $userListContainer.append($userListContainerRow);
+            }
+            if(!hasAdminPermission){
+                $('#btnViewOrg').hide();
+                $('#btnViewTeam').hide();
+            }
+       }
+
+       function viewProfile(){
+            if($("input[name=action_check]:checked").is(':checked')) {
+
+                var url = '<%=cloudmgtURL%>';
+                window.location.href =  url + "/site/pages/org-profile.jag?organization=" + $("input[name=action_check]:checked").attr('data-tenant') ;
+            } else {
+                jagg.message({type:'warning',content:'Please select a Organization first'});
+            }
+
+       }
+
+       $(document).ready(function($){
+           initializeUserActivity("Manage Organization");
+    	   getOrganizations();
+           /*getting the total number of pages using max items in a page
+           checking if the number of Organization are equal to the max Organization in a page,else add a new page to the total*/
+	       totalPages= ((orgArray.length % maxItemsInPage) == 0 )?(orgArray.length/maxItemsInPage):(orgArray.length/maxItemsInPage)+1;
+	       totalPages=Math.floor(totalPages);
+    	   if(totalPages >1){
+    			$('.pagefooter').bootpag({
+    				total: totalPages
+    			    }).on("page", function(event, num){
+    				    pageNumber=num;	
+    				    if(orgArray!== 'undefined' && orgArray.length > 0 ){
+    				  	  displayOrganizations(orgArray);
+    				    }
+    			});
+    		}else{
+    			$('.pagefooter').hide();
+    		}
+       });
+
+    </script>
+
+
+<div class="container content-starter">
+	<div class="row">
+		<div class="col-lg-12">
+			<h1>Manage Organizations</h1>
+			<div class="helper_text" id="helper_text">
+                <p>Use this page to add and manage organizations, which are used to organize apps and APIs. When you log in to WSO2 Cloud, you will be prompted to select the organization you want to log in to. You can then access the apps and APIs that were created while logged into that organization.<p>
+            </div>
+		</div>
+	</div>
+</div>
+
+
+<div id="mess">
+    <% jagg.includeBlock("page/messages", null); %>
+</div>
+<div class="container content-section-wrapper">
+	<div class="row">
+		<div class="col-lg-12 content-section">
+
+			<article class="main">
+
+				<section class="separator">
+					<div class="content">
+						<header class="separator">
+							<div class="content">
+								<div class="left">
+									<a id="btnAddOrg"
+										href="<%=jagg.getAbsoluteUrl("/site/pages/add-org.jag")%>"
+										class='btn btn-primary'>Add Organization</a>
+								</div>
+								<br /> <br /> <br />
+							</div>
+						</header>
+						<h2 id="organizationCount" class="big push_bottom_40">
+							Organizations</h2>
+						<ul class="list_table highlight" id="userListContainer">
+							<li class="list_row_item first_list_row_item">
+								<ul class="list_row first_list_row ">
+                                    <li class="list_col team_member cursover_remover" style="width:286px;">
+										<h2 class="list_col_heading"
+											style="padding-left: 11px; font-size: 14px">Organization</h2>
+									</li>
+									<li class="list_col team_member cursover_remover" >
+										<h2 class="list_col_heading"
+											style="padding-left: 11px; font-size: 14px">Organization Key</h2>
+									</li>
+									<li class="list_col  team_role cursover_remover">
+										<h2 class="list_col_heading"
+											style="padding-left: 11px; font-size: 14px">Roles</h2>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+ 				<div class="pagefooter" style="width:30%; margin:0 auto"></div>
+				<div class="clearfix"></div>
+				<br />
+				<div class="left">
+					<a id="btnViewOrg" onclick="viewProfile()" class='btn btn-primary'>Profile</a>
+				</div>
+			</article>
+		</div>
+	</div>
+</div>
+
+
+
+<% }); %>

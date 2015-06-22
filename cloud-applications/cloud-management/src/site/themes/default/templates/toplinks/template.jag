@@ -1,0 +1,172 @@
+<%
+jagg.template("toplinks", function(inputs, outputs, jagg) { %>
+<%
+
+    var log = new Log();
+    var userName =  session.get("LOGGED_IN_USER");
+    var tenantDisplayName = session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME");
+    var userEmail = session.get("LOGGED_IN_USER_EMAIL");
+    var loggedOrg = session.get("LOGGED_IN_ORGANIZATION");
+    var requestURI = request.getRequestURI();
+    var isBillingAccount = jagg.module("billing").isPaidAccount();
+    var isUserAdmin = jagg.module("util").isUserInAdminRole();
+
+    var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/toplink_menu.json");
+
+    var mainMenu = jsonObj.Main;
+    var leftMenu = jsonObj.Left_menu;
+  
+    var jsonObjCloudmgt = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
+    var typeList = jsonObjCloudmgt.subscriptions.type;
+    if((session.get("TENANT_INFO")) != null ){
+    	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    	var blockedSubscriptions= jagg.module("tenant").getBlockedSubscriptions(tenantDomain);
+    }
+    if(userName != null ){
+    %>
+
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+<div class="navbar navbar-inverse navbar-fixed-top main-menu">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/img/logo.png'))%>"/>
+        </a>
+    </div>
+    <div class="navbar-collapse collapse main-menu-inside">
+
+        <ul class="nav navbar-nav pull-left menu1">
+  	<%for (var attr in mainMenu) {
+            var mainMenuData = mainMenu[attr];
+            var menuURL = mainMenu[attr].url;
+       	    var menuIcon = mainMenu[attr].icon;
+       	    var target = mainMenu[attr].target;
+       	     if (mainMenu[attr].isDropDown == "false") {%>
+       	        <%  if(attr =="Account" && (!isBillingAccount || !isUserAdmin)){  %>
+
+               <% } else { %>
+                     <li><a href="<%=menuURL%>" target="<%=target%>" id="<%=attr%>-nav">
+                                     <i id="<%=attr%>-nav" class="<%=menuIcon%>"></i>
+                                     <span id="<%=attr%>-nav"><br><%=attr%></span></a></li>
+             <%}%>
+             <%}
+            
+           else {
+			if(!(attr =="Navigate" && typeList.length == blockedSubscriptions.length)){
+ %>
+%>
+                <li class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#" id="<%=attr%>-nav">
+                <i id="<%=attr%>-nav" class="<%=menuIcon%>" id="<%=attr%>-nav"></i>
+                <span id="<%=attr%>-nav"><br><%=attr%></span> <b class="caret"></b></a>
+                <ul class="dropdown-menu">	
+             <%
+		var dropDown = mainMenu[attr].isDropDown;
+                 for (var subAttr in dropDown) {
+				  if(!(attr =="Navigate" && blockedSubscriptions.indexOf(dropDown[subAttr].id)>=0)){
+				      var subURL = dropDown[subAttr].url;
+				      var subIcon  = dropDown[subAttr].icon;
+				      var subTarget  = dropDown[subAttr].target;
+	                     %>
+                  <li><a href="<%=subURL%>" target="<%=subTarget%>" id="<%=attr%>-<%=subAttr%>-nav">
+                    <i class="<%=subIcon%>" id="<%=attr%>-<%=subAttr%>-nav"></i>
+                    <span id="<%=attr%>-<%=subAttr%>-nav"> <%=subAttr%></span></a></li>
+             <%
+                 }
+                 }   %>
+                    </ul> </li>
+             <%
+           		}	 
+            }
+            
+            
+        }%>
+           
+        </ul>
+
+ <ul class="nav navbar-nav pull-right menu2">
+           <% for (var attr in leftMenu) {
+            var leftMenuData = leftMenu[attr];
+            var menuURL = leftMenu[attr].url;
+       	    var menuIcon = leftMenu[attr].icon;
+            if (leftMenu[attr].isDropDown == "false") { %>
+              <%  if(attr =="Domain"){  %>
+                <li><a href="<%=menuURL%>" id="<%=attr%>"><i class="<%=menuIcon%>" id="<%=attr%>"></i>
+                    <spanid="<%=attr%>"><br><%=tenantDisplayName%></span></a></li>
+               <% } else { %>	
+                   <li><a href="<%=menuURL%>" id="<%=attr%>"><i class="<%=menuIcon%>" id="<%=attr%>"></i>
+                   <span id="<%=attr%>"><br><%=attr%></span></a></li>
+             <%}%>
+             
+             <%}
+            
+            else {
+%>
+                <li class="dropdown">
+                <%  if((userName !=null ) &&  (attr =="Email")){  %>
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="<%=menuIcon%>"></i> <span><br><%=userEmail%></span> <b class="caret"></b></a>
+                <% } else { %>
+                   <a data-toggle="dropdown" class="dropdown-toggle" href="#" id="<%=attr%>">
+                        <i class="<%=menuIcon%>" id="<%=attr%>"></i>
+                        <span id="<%=attr%>"><br><%=attr%></span> <b class="caret"></b></a>
+                 <% }  %>
+                <ul class="dropdown-menu">	
+                    
+                 <%
+		        var dropDown = leftMenu[attr].isDropDown;
+                for (var subAttr in dropDown) {
+		        var subURL = dropDown[subAttr].url;
+		        var subIcon  = dropDown[subAttr].icon;
+                     %>
+                   <li><a href="<%=subURL%>" id="<%=attr%>-<%=subAttr%>-nav">
+                        <i class="<%=subIcon%>" id="<%=attr%>-<%=subAttr%>-nav"></i>
+                        <span id="<%=attr%>-<%=subAttr%>-nav"><%=subAttr%></span></a></li>
+                      
+             <%
+                 }   %>
+                    </ul> </li>
+             <%
+            }
+            
+        }%>
+        </ul>
+
+
+	
+     
+        </ul>
+    </div>
+    <!--/.navbar-collapse -->
+</div>
+</div>
+
+<%  }
+else {%>
+<div class="navbar navbar-inverse navbar-fixed-top main-menu">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/img/logo.png'))%>"/>
+        </a>
+    </div>
+    <div class="navbar-collapse collapse main-menu-inside">
+
+        <ul class="nav navbar-nav pull-left menu1">
+      
+        </ul>
+    </div>
+    <!--/.navbar-collapse -->
+</div>
+</div>
+
+ <%}
+
+ }); %>

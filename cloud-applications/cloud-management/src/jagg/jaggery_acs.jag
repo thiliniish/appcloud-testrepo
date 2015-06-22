@@ -1,0 +1,127 @@
+<html>
+    <body>
+    Waiting for responses from identity server and validate response and forward to requested URI.
+        <%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/modules/database/dataaccess.jag");
+include("/modules/database/sql.jag");
+
+(function () {
+    var log = new Log("jagg/jaggery_acs.jag");
+    var samlResponse = request.getParameter("SAMLResponse");
+    var sessionId = session.getId();
+    var samlRequest = request.getParameter("SAMLRequest");
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var SSO_NAME = cloudConfig.SSORelyingParty.name;
+
+    // create a sso relying party js object
+    include('config_reader.jag');
+    include("/jagg/jagg.jag");
+    var security = require("sso");
+    var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+    var isLogoutResponse = false;
+    var isLogoutRequest = false;
+    // if saml response is not a log out response
+    if (samlResponse != null) {
+        isLogoutResponse = ssoRelyingParty.isLogoutResponse(samlResponse);
+        if (!Boolean(isLogoutResponse)) {
+            // relay state value should be a valid value, this value is mapped with request uri.
+            var relayState = request.getParameter("RelayState");
+            var requestedURI = ssoRelyingParty.getRelayStateProperty(relayState);
+            if (requestedURI == null) {
+                log.error("Relaystate value is invalid.");
+                session.remove('ERROR_MSG');
+                session.put('ERROR_MSG', 'An authorization error occurred in the backend');
+                response.sendRedirect("../site/pages/error-pages/error.jag");
+                return;
+            }
+
+            // validating the signature
+            var isSignatureValid = ssoRelyingParty.validateSignature(samlResponse);
+            if (!Boolean(isSignatureValid)) {
+                log.error("SAML response signature is verification failed.");
+                session.remove('ERROR_MSG');
+                session.put('ERROR_MSG', 'An authorization error occurred in the backend');
+                response.sendRedirect("../site/pages/error-pages/error.jag");
+                return;
+            }
+            samlResponse = samlResponse.replace('<?xml version="1.0" encoding="UTF-8"?>', "");
+            session.put("SAML_TOKEN", samlResponse);
+            ssoRelyingParty.setSessionAuthenticated(sessionId, samlResponse);
+            jagg.setUser(ssoRelyingParty.getLoggedInUser(sessionId));
+            session.put("LOGGED_IN_USER", ssoRelyingParty.getLoggedInUser(sessionId));
+            //Getting the Email Address of the user
+            var userName = ssoRelyingParty.getLoggedInUser(sessionId);
+            var modManager = jagg.module("manager");
+            var carbon = require('carbon');
+            var server = carbon.server;
+            var multitenancy = carbon.multitenancy;
+            var tenantLessUserName;
+            var tenantDomain;
+            var tenantDisplayName;
+            var atIndex = userName.lastIndexOf('@');
+            if (userName != null) {
+                tenantLessUserName = userName;
+                tenantDomain = "";
+                if (atIndex != -1) {
+                    tenantLessUserName = userName.substring(0, atIndex);
+                    tenantDomain = userName.substring(atIndex + 1, userName.length);
+                }
+            }
+            if(session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME")==null){
+                var queryString  = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
+             var parameters =[tenantDomain];
+               var results = jagg.module("database").executeQuery(queryString, parameters);
+                if(results.length >= 1){
+                   tenantDisplayName=results[0]["displayName"];
+                  session.put("LOGGED_IN_USER_TENANT_DISPLAY_NAME", tenantDisplayName);
+               }
+            }
+            var tenantManager = multitenancy.getTenantManager();
+            var context=multitenancy.getPrivilegedCarbonContext();
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+            var email = tenantMgtService.getUserEmail(tenantLessUserName);
+            session.put("LOGGED_IN_USER_EMAIL", email);
+
+            log.info("LOGGED_IN_USER " +ssoRelyingParty.getLoggedInUser(sessionId));
+            log.info("Inside session "+  session.get("LOGGED_IN_USER"));
+            response.sendRedirect(requestedURI);
+			createTenantInfoObject();
+        } else {
+            // if the saml response is log out request from IDP, we log out from web app.
+            ssoRelyingParty.invalidateSessionBySessionId(sessionId);
+            session.invalidate();
+            response.sendRedirect("../");
+            return;
+        }
+
+    }
+
+    // if saml request is a log out request, then invalidate session.
+    if (samlRequest != null) {
+        isLogoutRequest = ssoRelyingParty.isLogoutRequest(samlRequest);
+        if (Boolean(isLogoutRequest)) {
+            ssoRelyingParty.invalidateSessionBySAMLResponse(samlRequest);
+            session.invalidate();
+        }
+    }
+
+
+}());
+
+function createTenantInfoObject(){
+    var modManager = jagg.module("manager");
+    var tenantInfo={};
+    tenantInfo.tenantDomain=modManager.getTenantDomain();
+    tenantInfo.tenantId=modManager.getTenantId();
+    tenantInfo.isOTTenant=modManager.getOTtenantProperty();
+    session.put("TENANT_INFO",tenantInfo);
+}
+
+%>
+
+</body>
+</html>

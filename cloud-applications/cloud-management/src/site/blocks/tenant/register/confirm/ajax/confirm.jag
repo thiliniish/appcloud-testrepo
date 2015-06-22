@@ -1,0 +1,38 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("site/blocks/tenant/register/confirm/ajax/confirm.jag");
+(function () {
+	var mod, obj, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("tenant");
+
+	if (action == "confirmUser") {
+		var confirm = request.getParameter("confirm");
+		var isInvitee = request.getParameter("isInvitee");
+		try {
+			var result = mod.confirmUser(confirm,isInvitee);
+			if (result != null) {
+				print(result);
+			} else {
+				throw "Error while confirming user ";
+			}
+		} catch(e) {
+			var message = e.toString();
+			if(message.indexOf("Email verification failed") !== -1){
+				response.status = 500;
+				print("You have already click the link that post to you to configure your administrator account or it must have been expired.");
+			} else {
+				throw "Error while confirming user "+e;
+			}
+			 
+		}
+	}  else {
+		throw new Error("No action specified");
+	}
+
+}());
+%>

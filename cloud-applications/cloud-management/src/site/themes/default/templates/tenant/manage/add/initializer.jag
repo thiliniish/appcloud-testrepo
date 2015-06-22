@@ -1,0 +1,8 @@
+<%
+jagg.initializer("tenant/manage/add", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

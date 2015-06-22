@@ -1,0 +1,141 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+	var mod, obj, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("tenant");
+
+	if (action == "addRolesToUserInTheTenantDomain") {
+
+		var Username = request.getParameter("Username");
+		var UserRole = request.getParameter("UserRole");
+		// jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION.USER.INVITE);
+
+		try {
+			var result = mod.addUserRoles(Username,UserRole);
+
+			if (result != null) {
+				print(result);
+			} else {
+				throw "Error while adding user as "+UserRole;
+			}
+		} catch(e) {
+			throw "Error while adding user as "+UserRole;
+		}
+	}else if(action=="updateUserRoles"){
+		var userName=request.getParameter("userName");
+		var newRoles=request.getParameter("rolesToAdd");
+		var removeRoles=request.getParameter("rolesToDelete");
+        var response = {};
+        var tenantDomain = jagg.module("manager").getTenantDomain();
+        if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
+            try {
+                var result = mod.updateUserRoles(userName,newRoles,removeRoles);
+                if (result != null) {
+                    response.error = false;
+                    response.message = result;
+                    print(stringify(response));
+                }
+            } catch(e) {
+                throw "Error while updating user "+userName;
+            }
+        } else{
+            response.error = true;
+            response.message = "You don't have permission to update users";
+            print(stringify(response));
+        }
+	}else if(action=="deleteUserFromTenant"){
+		var userName=request.getParameter("userName");
+        var response = {};
+        var tenantDomain = jagg.module("manager").getTenantDomain();
+        if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
+            try {
+                var result = mod.deleteUserFromTenant(userName);
+                if (result != null) {
+                    response.error = false;
+                    response.message = result;
+                    print(stringify(response));
+                }
+            } catch(e) {
+                throw "Error while removing user "+userName;
+            }
+        } else{
+            response.error = true;
+            response.message = "You don't have permission to delete users";
+            print(stringify(response));
+        }
+	}else if(action=="sendUserInvite"){
+		var users=request.getParameter("users");
+		var roles=request.getParameter("roles");
+        var response = {};
+        var tenantDomain = jagg.module("manager").getTenantDomain();
+        if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
+            var userArray=users.split(",");
+            for(var user in userArray){
+                userArray[user]=userArray[user].replace(/^\s+|\s+$/g, '');
+            }
+            try {
+                var result = mod.sendUserInvite(userArray,roles);
+                if (result != null) {
+                    response.error = false;
+                    response.message = result;
+                    print(stringify(response));
+                }
+            } catch(e) {
+                throw "Error while Sending invite user "+userName;
+            }
+        } else{
+            response.error = true;
+            response.message = "You don't have permission to invite users";
+            print(stringify(response));
+        }
+
+	}else if(action=="importInvitedUser"){
+		var confirmationKey=request.getParameter("confirmationKey");
+		var password=request.getParameter("adminPassword");
+		var firstName=request.getParameter("firstName");
+		var lastName=request.getParameter("lastName");
+		try {
+			var result =mod.importInvitedUser(confirmationKey, password, firstName, lastName);
+			if (result != null) {
+				var url=jagg.module("util").getInviteeDirectUrl(result);
+				print(url);
+			}
+		} catch(e) {
+			log.error("Error while adding users "+e);
+			print(""+e.javaException);
+		}
+
+	}else if(action=="changePassword"){
+		var newPassword=request.getParameter("newPassword");
+		var oldPassword=request.getParameter("oldPassword");
+		try {
+			var result =mod.changePassword(oldPassword,newPassword);
+			if (result != null) {
+				print(result);
+			}
+		} catch(e) {
+			throw "Error while changing user passwords for the user";
+		}
+
+	}else if (action=="getBlockedSubscriptions"){
+		var tenantDomain=request.getParameter("tenantDomain");
+		try {
+			var result =mod.getBlockedSubscriptions(tenantDomain);
+			print(result);
+		} catch(e) {
+			log.error("Error while getting blocked subscriptions ");
+			throw "Error while getting blocked subscriptions";
+		}
+	}
+	
+	else{
+		throw new Error("No action specified");
+	}
+
+}());
+%>

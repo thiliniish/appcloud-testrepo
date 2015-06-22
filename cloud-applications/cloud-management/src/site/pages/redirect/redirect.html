@@ -1,0 +1,27 @@
+<script type="text/javascript">
+    function getUrlParameter(sParam)
+    {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++)
+        {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam)
+            {
+                return sParameterName[1];
+            }
+        }
+    }
+    var success = getUrlParameter('success');
+    var secondaryCC = getUrlParameter('field_passthrough4');
+    if("true" == success) {
+        if(secondaryCC != null && secondaryCC ==  "secondary-card") {
+            window.top.location.href = "../../../site/pages/payment-methods.jag?secondary-card=success";
+        } else {
+            window.top.location.href = "../../../site/pages/add-billing-account.jag?" + window.location.search.substring(1)
+        }
+    } else {
+        window.top.location.href = "../../../site/pages/add-payment-method.jag?" + window.location.search.substring(1)
+    }
+</script>
+

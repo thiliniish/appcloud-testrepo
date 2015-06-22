@@ -1,0 +1,8 @@
+<%
+jagg.module("database", {
+
+    executeQuery:function () {
+        return jagg.require(jagg.getModulesDir() + "database/dataaccess.jag").executeQuery.apply(this, arguments);
+    },
+});
+%>

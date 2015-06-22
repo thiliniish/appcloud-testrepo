@@ -1,0 +1,73 @@
+<%
+jagg.module("util", {
+    getUserNameFromEmail: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserNameFromEmail.apply(this, arguments);
+    },
+    getDomainLessUserName: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getDomainLessUserName.apply(this, arguments);
+    },
+    escapeSpecialChars: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").escapeSpecialChars.apply(this, arguments);
+    },
+    escapeSpecialCharsXML: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").escapeSpecialCharsXML.apply(this, arguments);
+    },
+     addUserToOT: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").addUserToOT.apply(this, arguments);
+    },
+    addUserToRightWave: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").addUserToRightWave.apply(this, arguments);
+    },
+    changeOTUserPass: function () {
+            return jagg.require(jagg.getModulesDir() + "util/util.jag").changeOTUserPass.apply(this, arguments);
+    },
+    generateUUId: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").generateUUId.apply(this, arguments);
+    },
+    getJsonFromFile: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getJsonFromFile.apply(this, arguments);
+    },
+    getObjFromFile: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getObjFromFile.apply(this, arguments);
+    },
+    getInviteeDirectUrl: function () {
+            return jagg.require(jagg.getModulesDir() + "util/util.jag").getInviteeDirectUrl.apply(this, arguments);
+    },
+    getLoadBalanceDataPublisher: function () {
+                return jagg.require(jagg.getModulesDir() + "util/util.jag").getLoadBalanceDataPublisher.apply(this, arguments);
+    },
+    getUserActivityStreamId: function () {
+                return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserActivityStreamId.apply(this, arguments);
+    },
+    sendBillingTrialExtendedMailToUser: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendBillingTrialExtendedMailToUser.apply(this, arguments);
+    },
+    sendBillingAccountCreationEmail: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendBillingAccountCreationEmail.apply(this, arguments);
+    },
+    sendBillingPlanChangedEmail: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendBillingPlanChangedEmail.apply(this, arguments);
+    },
+    sendBillingTrialExtendedNotification: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendBillingTrialExtendedNotification.apply(this, arguments);
+    },
+    sendSubscriptionCancellationEmail: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendSubscriptionCancellationEmail.apply(this, arguments);
+    },
+    sendBillingPlanChangedNotification: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendBillingPlanChangedNotification.apply(this, arguments);
+    },
+    sendBillingSubscriptionCancelledNotification: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendBillingSubscriptionCancelledNotification.apply(this, arguments);
+    },
+    sendBillingAccountCreationNotification: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendBillingAccountCreationNotification.apply(this, arguments);
+    },
+    isUserInAdminRole: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").isUserInAdminRole.apply(this, arguments);
+    },
+    getDomainFromUsername: function(){
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getDomainFromUsername.apply(this, arguments);
+    }
+});
+%>

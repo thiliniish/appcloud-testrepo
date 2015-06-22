@@ -1,0 +1,28 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var log = new Log();
+(function () {
+var mod, obj, result,
+action = request.getParameter("action"),
+mod = jagg.module("user/initiate"),
+site = require("/site/conf/site.json");
+
+if (action == "initiatePasswordReset") {
+     var username = request.getParameter("username");
+    try {
+        var result = mod.initiatePasswordReset(username);
+        if (result != null) {
+            print(result);
+        } else {
+            throw "Error while initiating password reset";
+        }
+    } catch(e) {
+        throw "Error while initiating password reset. Please try again.";
+    }
+}  else {
+    throw new Error("No action specified");
+}
+
+}());
+%>

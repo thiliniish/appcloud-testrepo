@@ -1,0 +1,34 @@
+<% jagg.template("logout", function(inputs, outputs, jagg) { %>
+ 
+<%
+
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+
+var SSO_NAME = cloudConfig.SSORelyingParty.name;
+var SSO_PROVIDER = cloudConfig.SSORelyingParty.identityProviderURL;
+var SSO_KEYSTORE_PASSWORD = cloudConfig.SSORelyingParty.keyStorePassword;
+var SSO_KEY_ALIAS = cloudConfig.SSORelyingParty.identityKeyAlias;
+var SSO_KEYSTORE_NAME = cloudConfig.SSORelyingParty.keyStoreName;
+if (session.get("LOGGED_IN_USER") != null ){
+	var security =require("sso");
+	var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+	var samlLogoutRequest = ssoRelyingParty.getSAMLLogoutRequest(session.get("LOGGED_IN_USER"), session.getId());
+	var encodedRequest = ssoRelyingParty.encode(samlLogoutRequest);
+	var relayState = ssoRelyingParty.getUUID();
+	var idpURL = SSO_PROVIDER;
+
+%>
+
+<body bgcolor="#272C38">
+
+    <form method="post" action="<%=idpURL%>">
+        <input type="hidden" name="SAMLRequest"
+              value="<%= encodedRequest %>"/>
+        <input type="hidden" name="RelayState" value="<%=relayState%>"/>
+    </form>
+</body>
+<script type = "text/javascript" >
+       document.forms[0].submit();
+</script>
+ 
+<% }}); %>

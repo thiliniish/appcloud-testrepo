@@ -1,0 +1,9 @@
+<%
+jagg.module("events", {
+
+	publishUserActivity:function () {
+		return jagg.require(jagg.getModulesDir() + "events/publish/publish.jag").publishUserActivity.apply(this, arguments);
+	}
+
+});
+%>

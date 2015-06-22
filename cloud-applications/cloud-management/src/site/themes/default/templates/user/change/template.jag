@@ -1,0 +1,263 @@
+<% jagg.template("user/change", function(inputs, outputs, jagg) { %>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.password.js'))%>"></script>
+<%
+    include("/jagg/constants.jag");
+
+    var userName =  session.get("LOGGED_IN_USER");
+    var log = new Log("site/themes/default/templates/user/change/template.jag");
+    session.put("wso2carbon.admin.logged.in", userName);
+
+    %>
+
+    <style>
+    header {
+        display: none;
+    }
+
+    body#home {
+        background: none #292E38;
+    }
+
+    .sticky-wrapper {
+        position: relative;
+        height: auto !important;
+    }
+
+    .warning_message {
+        background-color: #ffffff;
+    }
+
+    .info_message .close_message {
+        position: absolute;
+        right: 13px;
+        top: 7px;
+    }
+
+    .info_message {
+        background-color: #ffffff;
+        width: 400px;
+    }
+
+    .txt-right {
+        text-align: right;
+    }
+
+    #tenantDomain {
+        width: 87%;
+        margin-left: 7px;
+    }
+
+    #captchaImgDiv img {
+        width: 100%;
+        height: 39px;
+    }
+
+    #aPaaS,#iPaaS {
+        width: 20%;
+    }
+
+    #lblLoginID {
+        color: #888;
+        display: none;
+    }
+
+    #preAt {
+        margin-left: -3px;
+        margin-right: -3px;
+    }
+
+    section.start_content div.subs-cont {
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+
+    #submitbtn {
+        background-color: #EB7067;
+        border: #EB7067;
+    }
+    ul
+    {
+        list-style-type: none;
+    }
+    </style>
+
+    <script type="text/javascript">
+        initializeUserActivity("Change password");
+        function disable() {
+            document.getElementById("spinner").style.display = '';
+             var submitButton = document.getElementById('submitbtn');
+             $('#submitbtn').css('background-color','#F9BFBB');
+             submitButton.disabled = true;
+        }
+
+       function enable() {
+            document.getElementById("spinner").style.display = 'none';
+             var submitButton = document.getElementById('submitbtn');
+             $('#submitbtn').css('background-color','#428BCA');
+             submitButton.disabled = false;
+        }
+
+       function doSubmit() {
+        disable();
+            var oldPassword = $("#oldPassword").attr('value');
+            var password  = $("#password").attr('value');
+            jagg.post("../blocks/user/change/ajax/user.jag", {
+                             action:"changePassword",
+                             oldPassword:oldPassword,
+                             password:password
+                      },
+                      function (result) {
+                            jagg.message({type:'success',content:'You have successfully changed your password.',type:'success',cbk:function(){
+                                window.location.href = "../pages/index.jag";
+                            }});
+                      },
+                      function (jqXHR, textStatus, errorThrown) {
+                        jagg.message({type:'error',content:'<strong>Error!</strong> Old credential does not match with the existing credentials.'});
+                     })
+           enable();
+        }
+
+
+
+
+        $(document).ready(function($){
+            jQuery.validator.setDefaults({
+                    errorElement:'span'
+                });
+        $('#userForm').validate({
+            rules : {
+                    password: {
+                        required: true,
+                        minlength: 5
+                    } ,
+                    clouds: {
+                        required: true,
+                minlength: 1
+                            },
+                    domainName: {
+                        domain: true
+                    }
+                },
+                messages: {
+                    password: {
+                        minlength: "Minimum is 5 characters "
+                    },
+                    clouds: "Select atleast one subscription.",
+                },
+
+            submitHandler: function(form) {
+                    doSubmit();
+                }
+            });
+
+             $("#password").keyup(function() {
+                 $('#password').valid();
+             });
+             $('#password').focus(function() {
+                $('#password-help').show();
+                $('.password-meter').show();
+             });
+             $('#password').blur(function() {
+                $('#password-help').hide();
+                $('.password-meter').hide();
+                $('#password').valid();
+             });
+              $("#oldPassword").focus(function() {
+                 $('#oldPassword').valid();
+             });
+              $("#password2").focus(function() {
+                 $('#password2').valid();
+             });
+        });
+    </script>
+
+
+    <div class="container content-starter">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Change Password</h1>
+                <div class="helper_text" id="helper_text">
+                    <p>
+                        You can change your password
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% jagg.includeBlock("page/messages", null); %>
+<div class="container content-section-wrapper" id="form_div">
+	<div class="row">
+		<div class="col-lg-12 content-section">
+			<form method='post' name="inputData" class='form-horizontal'
+				id='userForm' action="javascript:doSubmit()" role="form">
+				<div class="form-group">
+					<label for="inputEmail3" class="col-sm-2 control-label">Current
+						Password</label>
+					<div class="col-sm-8">
+						<input type="password" id="oldPassword" name="oldPassword"
+							class="required password avoidValidate" />
+					</div>
+				</div>
+
+
+            <div class="form-group">
+               <label for="password" class="col-sm-2 control-label">New Password</label>
+               <div class="col-sm-8">
+                  <div class="row-fluid">
+                     <div class="span6">
+                        <input type="password" id="password" name="password"
+                           class="required password " />
+                        <div class="span6">
+                           <div class="password-meter" style="display:none;">
+                              <div class="password-meter-message"></div>
+                              <div class="password-meter-bg">
+                                 <div class="password-meter-bar"></div>
+                              </div>
+                           </div>
+                        </div>
+                                <div class="help-block" id="password-help" style="display:none">
+                                Password Requirements :
+                                <ul class = "list1">
+                                    <li class="fa fa-times gray">Min 8 characters</li>
+                                </ul>
+                                3 out of 4 character groups presents :
+                                <ul class = "list2">
+                                    <li class="fa fa-times gray">UPPERCASE,</li>
+                                    <li class="fa fa-times gray">lowercase,</li>
+                                    <li class="fa fa-times gray">digits,</li>
+                                    <li class="fa fa-times gray">Special characters.</li>
+                                </ul>
+                                </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+				<div class="form-group">
+					<label for="password2" class="col-sm-2 control-label">Confirm
+						Password</label>
+					<div class="col-sm-8">
+						<input type="password" id="password2" name="password2"
+							class="required password_match" />
+					</div>
+				</div>
+				<div class="form-group">
+				    <label for="password" class="col-sm-2 control-label"></label>
+					<div class="col-sm-8">
+						<input id="submitbtn" type='submit' value='Reset Password'
+							class='btn btn-primary' />
+						<a  id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/index.jag'">Cancel</a>
+					  	<i class="fa fa-spinner fa-spin fa-4x" id="spinner" class="spinner" style="display:none; margin-left: 10px;"></i>
+					</div>
+					
+				</div>
+
+				<input type="hidden" name="secretKey" id="secretKey" value="" /> <input
+					type="hidden" name="imagePath" id="imagePath" value="" />
+			</form>
+		</div>
+	</div>
+</div>
+
+
+<% }); %>
+

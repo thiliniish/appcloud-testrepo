@@ -1,0 +1,41 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            mod = jagg.module("user/profile"),
+            site = require("/site/conf/site.json");
+
+    if (action == "getProfile") {
+        try {
+            var user = request.getParameter("user");
+            var result = mod.getProfile(user);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while getting the profile ";
+            }
+        } catch (e) {
+            throw "Error while getting the profile " + e.message;
+        }
+    } else if (action == "updateProfile") {
+        var firstName = request.getParameter("firstName");
+        var lastName = request.getParameter("lastName");
+        try {
+            var result = mod.updateProfile(firstName, lastName);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while updating the user profile ";
+            }
+        } catch (e) {
+            throw "Error while updating the user profile " + e.message;
+        }
+    } else {
+        throw new Error("No action specified");
+    }
+
+}());
+%>

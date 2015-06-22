@@ -1,0 +1,17 @@
+<%
+jagg.module("contact", {
+sendSupportRequest: function () {
+        return jagg.require(jagg.getModulesDir() + "contact/contact.jag").sendSupportRequest.apply(this, arguments);
+    },
+getEmailForUser: function () {
+        return jagg.require(jagg.getModulesDir() + "contact/contact.jag").getEmailForUser.apply(this, arguments);
+    },
+    createJiraTicket: function() {
+        return jagg.require(jagg.getModulesDir() + "contact/contact.jag").createJiraTicket.apply(this, arguments);
+    },
+    sendSupportRequestAndCreateJira: function() {
+        return jagg.require(jagg.getModulesDir() + "contact/contact.jag").sendSupportRequestAndCreateJira.apply(this, arguments);
+    }
+
+});
+%>

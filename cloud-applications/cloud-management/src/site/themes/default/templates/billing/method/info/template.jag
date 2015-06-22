@@ -1,0 +1,182 @@
+<% jagg.template("billing/method/info", function(inputs, outputs, jagg) { %>
+<%
+    var secondaryCCStatus = request.getParameter("secondary-card");
+%>
+
+    <style type="text/css">
+        .label-style {
+            text-align: left !important;
+        }
+        .panel-btn-style {
+            margin-top: -7px !important;
+            font-size: 12px !important;
+        }
+        .marg-r-10{
+        	margin-right:10px;
+        }
+        .panel-header {
+            font-weight: bold !important;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            //call backend and load data
+            $.ajax({
+                url: "../blocks/billing/method/info/ajax/get.jag",
+                data: {
+                    "action": "get-payment-methods"
+                    },
+                success: function(data) {
+                    var paymentMethodsObj = jQuery.parseJSON(data);
+                    var creditCards = paymentMethodsObj.creditCards;
+
+                    if(creditCards.length == 1) {
+                        // Single payment method, it is the default
+                        for(var i=0; i<creditCards.length;  i++) {
+                            $('#paymentType').text(creditCards[i].cardType);
+                            $('#ccName').text(creditCards[i].cardHolderInfo.cardHolderName);
+                            $('#ccNum').text(creditCards[i].cardNumber);
+                            $('#ccExpiary').text(creditCards[i].expirationMonth + "/" + creditCards[i].expirationYear);
+                        }
+                    } else {
+                        $('#other-cc-panel').show();
+                        for(var i=0; i<creditCards.length;  i++) {
+                            if(creditCards[i].defaultPaymentMethod) {
+                                $('#paymentType').text(creditCards[i].cardType);
+                                $('#ccName').text(creditCards[i].cardHolderInfo.cardHolderName);
+                                $('#ccNum').text(creditCards[i].cardNumber);
+                                $('#ccExpiary').text(creditCards[i].expirationMonth + "/" + creditCards[i].expirationYear);
+                            } else {
+                                $("#other-cc-panel-body").append($('<div class="well"><div class="row" style="position:relative;">'
+                                    + '<div style="position:absolute; top:5px; right:5px; z-index:10000;"><button type="button" class="btn btn-default pull-right panel-btn-style"'
+                                    + 'onclick="makeDefaultMethod(\'' + creditCards[i].id + '\');">Set As Primary</button>'
+    								+'<button id="btnRemovePaymentMethod" type="button" class="btn btn-default pull-right panel-btn-style marg-r-10"'
+    	                            + 'onclick="removePaymentMethod(\'' + creditCards[i].id + '\');">Remove Method</button></div>'
+                                    + '<div class="col-lg-12 content-section-wrapper">'
+                                    + '<label class="control-label label-style">Card type :</label>'
+                                    + '<label id="paymentType" name="paymentType" class="control-label label-style">' + creditCards[i].cardType + '</label></div>'
+                                    + '<div class="col-lg-12 content-section-wrapper">'
+                                    + '<label class="control-label label-style">Card holder name :</label>'
+                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + creditCards[i].cardHolderInfo.cardHolderName + '</label></div>'
+                                    + '<div class="col-lg-12 content-section-wrapper">'
+                                    + '<label class="control-label label-style">Card number :</label>'
+                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + creditCards[i].cardNumber + '</label></div>'
+                                    + '<div class="col-lg-12 content-section-wrapper">'
+                                    + '<label class="control-label label-style">Expiration date:</label>'
+                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + creditCards[i].expirationMonth + "/" + creditCards[i].expirationYear
+                                    + '</label></br></div>'
+                                    + '</div></div>'
+                                ));
+                            }
+                        }
+
+                    }
+                }
+
+            });
+
+            if('<%= secondaryCCStatus%>' != null && '<%= secondaryCCStatus%>' == "success") {
+                jagg.message({
+                    content:'Successfully added credit card information.',
+                    type:'success'
+                });
+            }
+        });
+
+        function makeDefaultMethod(methodId) {
+            $.ajax({
+                url: "../blocks/billing/method/info/ajax/get.jag",
+                data: {
+                    "action": "setDefaultMethod",
+                    "paymentMethodId": methodId
+                },
+                success: function(data) {
+                    if(data) {
+                        jagg.message({
+                            content:'Successfully updated default payment method.',
+                            type:'success',
+                            cbk:function() {
+                                window.top.location.href = "../pages/payment-methods.jag";
+                            }
+                        });
+                    }
+                }
+             });
+        }
+        
+        function removePaymentMethod(methodId){
+       	 $.ajax({
+                url: "../blocks/billing/method/info/ajax/get.jag",
+                data: {
+                    "action": "removePaymentMethod",
+                    "paymentMethodId": methodId
+                },
+                success: function(data) {
+                    if(data) {
+                        jagg.message({
+                            content:'Successfully removed the payment method.',
+                            type:'success',
+                            cbk:function() {
+                                window.top.location.href = "../pages/payment-methods.jag";
+                            }
+                        });
+                    }
+                }
+             });
+       }
+
+    </script>
+
+    <div class="container content-starter">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Account Summary</h1>
+                <div class="helper_text" id="helper_text">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <% jagg.includeBlock("page/messages", null); %>
+    <div class="container content-section-wrapper" id="form_div">
+        <div class="row">
+            <form class='form-horizontal'>
+            <div class="col-lg-12 content-section">
+                <div class="panel panel-default">
+                    <div class="panel-heading panel-header">Primary Payment Method</div>
+                    <div class="panel-body">
+                        <div class="col-lg-12 content-section-wrapper">
+                            <label class="control-label label-style">Card type :</label>
+                            <label id="paymentType" name="paymentType" class="control-label label-style"></label>
+                        </div>
+                        <div class="col-lg-12 content-section-wrapper">
+                            <label class="control-label label-style">Card holder name :</label>
+                            <label id="ccName" name="ccName" class="control-label label-style"></label>
+                        </div>
+                        <div class="col-lg-12 content-section-wrapper">
+                            <label class="control-label label-style">Card number :</label>
+                            <label id="ccNum" name="ccNum" class="control-label label-style"></label>
+                        </div>
+                        <div class="col-lg-12 content-section-wrapper">
+                            <label class="control-label label-style">Expiration date :</label>
+                            <label id="ccExpiary" name="ccExpiary" class="control-label label-style"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default" id="other-cc-panel" style="display: none">
+                    <div class="panel-heading panel-header">Other Payment Methods</div>
+                        <div class="panel-body" id="other-cc-panel-body">
+                        </div>
+                </div>
+                <div class="col-lg-12 ">
+					<a class="btn btn-primary" href="<%=jagg.getAbsoluteUrl("/site/pages/account-summary.jag")%>"> Back </a>
+				</div>
+            </div>
+
+            </form>
+        </div>
+    </div>
+
+<% }); %>

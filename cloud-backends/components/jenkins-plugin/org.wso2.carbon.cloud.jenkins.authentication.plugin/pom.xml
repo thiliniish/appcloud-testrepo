@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.522</version><!-- which Jenkins version is this plugin built against? -->
+  </parent>
+  
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>org.wso2.carbon.cloud.jenkins.authentication.plugin</artifactId>
+  <version>1.0.0</version>
+  <packaging>hpi</packaging>
+  <name>Cloud - Jenkins Authentication Plugin</name>
+  <url>http://wso2.org</url>
+
+  <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
+    </repository>
+    <repository>
+       <id>wso2-nexus</id>
+       <name>WSO2 internal Repository</name>
+       <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+       <releases>
+         <enabled>true</enabled>
+         <updatePolicy>daily</updatePolicy>
+         <checksumPolicy>ignore</checksumPolicy>
+       </releases>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
+    </pluginRepository>
+  </pluginRepositories>
+  <dependencies>
+    <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+            <version>${wso2carbon.version}</version>
+    	    <scope>provided</scope>
+    </dependency>
+    <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.common</artifactId>
+            <version>${org.wso2.carbon.af.version}</version>
+            <scope>provided</scope>
+    </dependency>
+      <dependency>
+          <groupId>org.jenkins.wso2.appfactory</groupId>
+          <artifactId>appfactory-authentication-plugin</artifactId>
+          <version>${jenkins.af.auth.plugin.version}</version>
+          <scope>compile</scope>
+      </dependency>
+  </dependencies>
+  <properties>
+      <wso2carbon.version>4.2.0</wso2carbon.version>
+      <org.wso2.carbon.af.version>2.0.0</org.wso2.carbon.af.version>
+      <jenkins.af.auth.plugin.version>2.0.0</jenkins.af.auth.plugin.version> 
+  </properties>
+</project>

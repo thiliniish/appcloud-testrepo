@@ -1,0 +1,36 @@
+<%
+jagg.initializer("contact", {
+
+    preInitialize:function () {
+
+        var  queryString = request.getQueryString();
+        var tenantInfo = session.get("TENANT_INFO");
+
+        if (queryString!=null && session.get("TEMP_QUERY_PARAMS") == null && tenantInfo == null){
+
+            if (request.getParameter("cloud-type") != null && request.getParameter("request-extension") != null) {
+                var cloudType = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
+                var requestExtension = jagg.module("util").escapeSpecialChars(request.getParameter("request-extension"));
+
+                if (jagg.module("billing").validateServiceId(cloudType) && requestExtension == 'true'){
+                    session.put("TEMP_QUERY_PARAMS", "cloud-type="+cloudType+"&request-extension=true");
+                }
+            } else {
+                response.sendRedirect("../pages/index.jag");
+            }
+
+        } else if (session.get("TEMP_QUERY_PARAMS") != null) {
+            response.sendRedirect("../pages/contact-us.jag?" + session.get("TEMP_QUERY_PARAMS"));
+            session.remove("TEMP_QUERY_PARAMS");
+        } else if (request.getParameter("cloud-type") != null){
+            var serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
+
+            if (jagg.module("billing").validateServiceId(serviceId)){
+                session.put("SERVICE_ID", serviceId);
+            } else {
+                response.sendRedirect("../pages/index.jag");
+            }
+        }
+    }
+});
+%>

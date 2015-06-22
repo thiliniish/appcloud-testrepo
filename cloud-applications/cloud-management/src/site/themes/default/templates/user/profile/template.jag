@@ -1,0 +1,144 @@
+<% jagg.template("user/profile", function(inputs, outputs, jagg) { %>
+<%
+    var userName =  session.get("LOGGED_IN_USER");
+    var log = new Log();
+
+    %>
+
+
+    <script type="text/javascript">
+
+       function getProfile() {
+            jagg.post("../blocks/user/profile/ajax/profile.jag", {
+                             action:"getProfile"
+                },
+                function (result) {
+                    json = JSON.parse(result);
+                    displayClaims(json);
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to get user profile.'});
+                })
+       }
+
+       function displayClaims(claims){
+            if(claims.firstname !=  null ){
+                document.getElementById("firstName").value = claims.firstname;
+            }
+            if(claims.lastname != null){
+                document.getElementById("lastName").value = claims.lastname;
+            }
+            if(claims.email !=  null){
+                document.getElementById("email").value = claims.email;
+            }
+       }
+
+       function doSubmit() {
+            var firstName = $("#firstName").attr('value');
+            var lastName = $("#lastName").attr('value');
+            jagg.post("../blocks/user/profile/ajax/profile.jag", {
+                             action:"updateProfile",
+                             firstName:firstName,
+                             lastName:lastName
+                },
+                function (result) {
+                        jagg.message({type:'success',content:'You have successfully updated your profile.',type:'success',cbk:function(){
+                        window.location.href = "../pages/index.jag";
+                    }});
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to update profile.'});
+                })
+       }
+
+       $(document).ready(function($){
+            initializeUserActivity("User Profile Page");
+            getProfile();
+            jQuery.validator.setDefaults({
+                errorElement:'span'
+            });
+            $('#userForm').validate({
+                rules : {
+                    firstName: {
+                        required: true
+                    },
+                    lastName: {
+                        required: true
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    }
+                },
+
+                submitHandler: function(form) {
+                    doSubmit();
+                }
+            });
+       });
+
+
+    </script>
+
+
+    <div class="container content-starter">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>User Profile</h1>
+                <div class="helper_text" id="helper_text">
+			    <p>
+			        You can update your profile
+				</p>
+		    </div>
+            </div>
+        </div>
+    </div>
+
+    <%
+    jagg.includeBlock("page/messages", null);
+    %>
+
+   <div class="container content-section-wrapper">
+   <div class="row">
+       <div class="col-lg-12 content-section">
+           <form method='post' name="inputData" class='form-horizontal' id='userForm' action="javascript:doSubmit()"  role="form">
+             <div class="form-group">
+               <label for="firstName" class="col-sm-2 control-label">First Name</label>
+               <div class="col-sm-8">
+                 <input type="text" id="firstName" name="firstName" class="required"  />
+               </div>
+             </div>
+
+
+             <div class="form-group">
+               <label for="lastName" class="col-sm-2 control-label">Last Name</label>
+               <div class="col-sm-8">
+                 <input type="text" id="lastName" name="lastName" class="required"  />
+               </div>
+             </div>
+
+
+              <div class="form-group">
+               <label for="email" class="col-sm-2 control-label">Email</label>
+               <div class="col-sm-8">
+                 <input type="text" id="email" name="email" class="required" disabled/>
+               </div>
+             </div>
+
+
+
+             <div class="form-group">
+                <label for="password" class="col-sm-2 control-label"></label>
+                <div class="col-sm-8">
+                    <input id="submitbtn" type='submit' value='Update Profile' class='btn btn-primary'/>
+                    <a  id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/index.jag'">Cancel</a>
+               </div>
+             </div>
+
+              <input type="hidden" name="secretKey" id="secretKey" value=""/>
+               <input type="hidden" name="imagePath" id="imagePath" value=""/>
+           </form>
+       </div>
+   </div>
+   </div>
+   <% }); %>

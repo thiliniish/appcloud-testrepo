@@ -1,0 +1,400 @@
+<% jagg.template("billing/plan/get", function(inputs, outputs, jagg) {
+
+	%>
+
+<style>
+table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+th, td {
+	padding: 5px;
+}
+
+.helper_text_home p {
+	color: hsl(0, 0%, 100%);
+	font-size: 30px;
+	text-align: center;
+}
+
+.helper_text_home sub {
+	color: hsl(0, 0%, 100%);
+	font-size: 20px;
+	margin-left: 0;
+	margin-right: 0;
+	text-align: center;
+	line-height: 1.5;
+	margin-bottom: 8.71429em;
+}
+
+.packages {
+	text-align: center;
+	background-color: white;
+	border-radius: 10px;
+	font-family: 'Open Sans', sans-serif;
+	margin-left: 0px;
+	margin-right: 0px;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-bottom: 10px;
+}
+
+.package-name {
+	font-size: 15px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: bold;
+	background-color: rgb(73, 73, 73);
+	margin: -15px -15px 15px;
+	color: #fff;
+	padding: 10px;
+	border-radius: 10px 10px 0px 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+.package-content {
+	font-size: 14px;
+	line-height: 30px;
+	padding-bottom: 30px;
+}
+
+.package-price {
+	font-size: 20px;
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+
+.sticky-wrapper {
+	position: fixed;
+	height: auto !important;
+}
+
+span.error {
+	position: absolute;
+	margin-top: 71px;
+	margin-left: -14px;
+	padding-left: 0;
+}
+
+input+input.txtCoupon {
+	display: none;
+}
+
+input:checked+input.txtCoupon {
+	display: block;
+}
+
+.txtCoupon {
+	position: absolute;
+	align:center;
+	width: 75%;
+	margin-left: 7px;
+	background-color:#efefef;
+}
+
+.askUs {
+	position: relative; 
+	color: #FFFFFF;
+	font-size: 15px;
+}
+</style>
+
+<%
+var log = new Log("site/themes/default/templates/billing/plan/get/template.jag");
+var serviceId = session.get("SERVICE_ID");
+var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
+var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
+var currRatePlanId = null;
+var currRatePlan = null;
+var accounts = null;
+var callsPerDay = null;
+var callsAbovePlan = null;
+if(ratePlans != null){
+    for(var i = 0; i < ratePlans.length; i++){
+        if((ratePlans[i]["ratePlanName"].indexOf("coupon") < 0)){
+            currRatePlan = ratePlans[i];
+            break;
+        }
+    }
+ 	currRatePlanId = currRatePlan.productRatePlanId;
+}
+var paymentPlans = ratePlansObj.entry;
+var l = Packages.java.util.Locale.getDefault();
+var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+
+session.put("RATE_PLANS", paymentPlans);
+session.put("OLD_PLAN_ID",currRatePlanId);
+var isFromChangePlan = request.getParameter("is-from-change-plan");
+if(isFromChangePlan == null || isFromChangePlan == 'null'){
+    isFromChangePlan = false;
+}
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+
+var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
+var cloudName =serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
+var bttnLabel = "Go to " + cloudName;
+
+%>
+
+
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+
+
+       $(document).ready(function(){
+       	$(".tiny").hover(function(e){
+       		$(".tiny").removeClass("selected");
+       		$(this).addClass("selected");
+       	});
+
+           $('[data-toggle="tooltip"]').tooltip();
+
+           $("[data-toggle=popover]").popover();
+
+           $(".ctrl-asset-type-switcher").popover({
+               html : true,
+               content: function() {
+                 return $('#content-asset-types').html();
+               }
+           });
+
+           $(".ctrl-filter-type-switcher").popover({
+               html : true,
+               content: function() {
+                 return $('#content-filter-types').html();
+               }
+           });
+
+       	$('#nav').affix({
+       	      offset: {
+       	        top: $('header').height()
+       	      }
+       	});
+        });
+
+        function disableButton(id) {
+	        //document.getElementById("spinner_"+id).style.display = '';
+	        document.getElementById("selectbtn_"+id).setAttribute("disabled", true);
+        }
+
+        function enableButton(id) {
+	        document.getElementById("spinner_"+id).style.display = 'none';
+	        document.getElementById("selectbtn_"+id).removeAttribute("disabled", "disabled");
+        }
+
+        function createAccount(id, currRatePlan, accounts, callsPerDay, callsAbovePlan, monthlyRental, isFromChangePlan){
+            disableButton(id);
+	     //   var couponData = null;
+	       // if(document.getElementById(id).checked){
+			//	couponData = document.getElementById("txt"+id).value;
+			//}
+
+		//
+            jagg.post("../blocks/billing/plan/get/ajax/get.jag", {
+                             action :"goToCreateAccount",
+                             productRatePlanId : id,
+                             currRatePlan:currRatePlan,
+                             accounts : accounts,
+                             callsPerDay : callsPerDay,
+                             callsAbovePlan : callsAbovePlan,
+                             monthlyRental : monthlyRental,
+                             isFromChangePlan : isFromChangePlan
+                },
+                function (result) {
+                  enableButton(id);
+                  if(result.indexOf("add-payment-method") >= 0 ){
+                 	  window.location.href =  result;
+	              }else if(result.indexOf("add-billing-account") >= 0){
+	                  goToPaymentConfirmationPageFromChangePlan();
+	              }else if (result.indexOf("null") < 0) {
+   	                  jagg.message({type:'error',content: result});
+    	          } else{
+	              	  jagg.message({type:'error',content: result});
+	                  window.location.href =  "";
+	              }
+
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                	 enableButton(id);
+                	 jagg.message({type:'error',content:'<strong>Error!</strong> Plan change failed. Please contact support.'});
+                })
+        }
+
+        function goToPaymentConfirmationPageFromChangePlan(){
+            var formContactInfo = $('<form action="add-billing-account.jag" method="post">' +
+                                  '<input type="hidden" name="responseFrom" value = "isFromChangePlan"/>' +
+                                  '</form>');
+        	$('body').append(formContactInfo);
+        	$(formContactInfo).submit();
+            }
+    </script>
+
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index.css'))%>" />
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>" />
+<div class="container col-lg-12 col-md-12 col-sm-12">
+
+<!-- header -->
+<!--header>
+<div class="row wr-global-header">
+	<div class="col-sm-12 app-logo"><img src="images/logo.png" /><h2 class="app-title">Cloud Billing</h2>
+	</div>
+</div>
+</header-->
+<!-- /header -->
+<div class="container content-starter">
+	<div class="row">
+		<div class="col-lg-12">
+		    <%if(isFromChangePlan == false) { %>
+			    <h1>Upgrade Account</h1>
+			    <div class="helper_text" id="helper_text">
+			        <p>Please select a plan to upgrade your account</p>
+                </div>
+		    <%} else {%>
+		        <h1>Change Subscription Plan</h1>
+		        <div class="helper_text" id="helper_text">
+                    <p>Please select a plan to change your account</p>
+             	</div>
+			<%} %>
+		</div>
+
+	</div>
+</div>
+
+<!-- content/body -->
+<div class="container c-both wr-billing-white">
+
+	<div class="row wr-wizard">
+	    <%if(isFromChangePlan == false) { %>
+		<div class="col-md-3 col-xs-3">
+			<div class="itm-wiz itm-wiz-current"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
+			<br class="c-both" />
+		</div>
+		<%} else {%>
+		<div class="col-md-4 col-xs-4">
+			<div class="itm-wiz itm-wiz-current"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
+			<br class="c-both" />
+		</div>
+		<%}
+		if(isFromChangePlan == false) { %>
+		<div class="col-md-3 col-xs-3">
+			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs"><span>Billing Information</span></div></div>
+			<br class="c-both" />
+		</div>
+		<%} else {%>
+		<div class="col-md-4 col-xs-4">
+			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs"><span>Payment Confirmation</span></div></div>
+			<br class="c-both" />
+		</div>
+		<%}
+        if(isFromChangePlan == false) { %>
+		<div class="col-md-3 col-xs-3">
+			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs"><span>Contact Information</span></div></div>
+			<br class="c-both" />
+		</div>
+		<%} %>
+		<%if(isFromChangePlan == false) { %>
+		<div class="col-md-3 col-xs-3">
+			<div class="itm-wiz"><div class="wiz-no">4</div><div class="wiz-lbl hidden-xs"><span>Summary</span></div></div>
+			<br class="c-both" />
+		</div>
+        <%} else {%>
+		<div class="col-md-4 col-xs-4">
+			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs"><span>Summary</span></div></div>
+			<br class="c-both" />
+		</div>
+        <%} %>
+	</div>
+
+	<div class="row">
+		<div class="container col-md-12">
+			<div class="tiny-features">
+                <div class="pricing-table-header-tiny features">
+                    <h3>&nbsp;</h3>
+                    <div class="price">
+                    	<span class="col-md-2">&nbsp;</span>
+                    	<h2 class="col-md-7">&nbsp;</h2>
+                    	<p class="col-md-3">&nbsp;</p>
+                    	<br class="c-both" />
+                    </div>
+                </div>
+                <div class="pricing-table-features">
+                    <p>Accounts</p>
+                    <p>Calls/day</p>
+                    <p>Calls above plan</p>
+                </div>
+			</div>
+
+			<% for(var i=0;i<paymentPlans.length;i++) {
+			var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
+			var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
+			var maxUsageStr = numFormat.format(maxUsageAmmount);
+			var monthlyRentalAmount = new Packages.java.math.BigDecimal(monthlyRental);
+			var rental = numFormat.format(monthlyRentalAmount);
+			%>
+			<div class="tiny">
+                <div class="pricing-table-header-tiny">
+                    <h3><%=paymentPlans[i].name%></h3>
+                    <div class="price">
+                    	<h2 class="col-md-10"><span>$</span><%=rental%></h2>
+                    	<p class="col-md-2">per<br>month</p>
+                    	<br class="c-both" />
+                    </div>
+                </div>
+                <div class="pricing-table-features">
+                    <p><%=paymentPlans[i].maxAccounts%></p>
+                    <p><%=maxUsageStr%></p>
+                    <p><%=paymentPlans[i].overUsage%></p>
+                </div>
+                <div class="pricing-table-signup-tiny">
+	        <%
+                var spinner = "spinner_"+paymentPlans[i].id;
+                var selectbtn = "selectbtn_"+paymentPlans[i].id;
+                if(currRatePlanId == paymentPlans[i].id) {
+                %>
+
+                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
+                    <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
+                	<%
+                	} else {
+                	var paymentPlanName = paymentPlans[i].name.toUpperCase();
+					%>
+					    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" >Select</button>
+				        <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
+                    <%
+                    }
+            %>
+                </div>
+			</div>
+
+			 <% } %><%if(!isFromChangePlan) { %> <button id="goToCloudType" type="button" class="btn btn-default btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
+			 
+            <input type="hidden" name="secretKey" id="secretKey" value=""/>
+            <input type="hidden" name="imagePath" id="imagePath" value=""/>
+            <input type="hidden" name="isFromChangePlan" id="isFromChangePlan" value="true"/>
+
+		</div>
+	</div>
+	<div class="row pad-bot-50">
+		<div class="container col-md-8">
+			&nbsp;
+		</div>
+		<div class="container col-md-4">
+			&nbsp;
+		</div>
+		<br class="c-both " />
+	</div>
+
+</div>
+<!-- /content/body -->
+
+</div>
+
+
+<% }); %>
+

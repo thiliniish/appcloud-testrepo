@@ -1,0 +1,173 @@
+<% jagg.template("tenant/manage/profile", function(inputs, outputs, jagg) { %>
+<%
+var userName =  session.get("LOGGED_IN_USER");
+var organization =  request.getParameter("organization");
+var log = new Log();
+%>
+
+<script type="text/javascript">
+
+       function getProfile() {
+            var organization = '<%=organization%>';
+            jagg.post("../blocks/tenant/manage/profile/ajax/profile.jag", {
+                             action:"getProfile",
+                             organization:organization
+                },
+                function (result) {
+                    json = JSON.parse(result);
+                    displayOrgProfile(json);
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to get user profile.'});
+                })
+       }
+
+       function displayOrgProfile(organization){
+            if(organization.displayName !=  null ){
+                document.getElementById("displayName").value = organization.displayName;
+            }
+
+            var hasPermission = organization.adminPermission;
+            if(!hasPermission){
+                $('#submitbtn').hide();
+                $('#displayName').attr("disabled", true);
+            }
+       }
+
+       function disable() {
+    		document.getElementById("spinner").style.display = '';
+    		 var submitButton = document.getElementById('submitbtn');
+    		 $('#submitbtn').css('background-color','#F9BFBB');
+    		 submitButton.disabled = true;
+    	}
+
+    	function enable() {
+    		document.getElementById("spinner").style.display = 'none';
+    		 var submitButton = document.getElementById('submitbtn');
+    		 $('#submitbtn').css('background-color','#428BCA');
+    		 submitButton.disabled = false;
+    	}
+
+       function doSubmit() {
+    	   disable();
+            var organization = '<%=organization%>';
+            var displayName  = $("#displayName").attr('value');
+            jagg.post("../blocks/tenant/manage/profile/ajax/profile.jag", {
+                             action:"updateProfile",
+                             tenantDomain:organization,
+                             displayName:displayName
+                },
+                function (result) {
+                    enable();
+                    var json = jQuery.parseJSON(result);
+                    var error =  json.error.toString();
+                    error = error.replace(/[\r\n]/g, "");
+                    if(error == "true"){
+                        jagg.message({content:json.message, type:'error',cbk:function(){
+                                window.location.href = "index.jag";
+                            }
+                        });
+                    }else{
+                        jagg.message({type:'success',content:'You have successfully updated Organization profile.',type:'success',cbk:function(){
+                            window.location.href = "../pages/organization.jag";
+                        }});
+                    }
+
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to update Organization profile.'});
+                })
+       }
+
+       $(document).ready(function($){
+            getProfile();
+            jQuery.validator.setDefaults({
+                errorElement:'span'
+            });
+
+            jQuery.validator.addMethod("domain", function(value, element) {
+            var isSuccess = false;
+            $.ajax({ url: "../blocks/tenant/register/add/ajax/add.jag",
+                    data: {
+                        action:"checkDomainAvailability",
+                        companyName:value
+                    },
+                    async: false,
+                success:
+                    function(msg) {
+                        msg = msg.replace(/[\r\n]/g, "");
+                        if(msg == "true"){
+                            isSuccess = true;
+                        }
+                     }
+            });
+            return isSuccess;
+            }, function(value, element) {
+                return "Company name &lt;" + element.value + "&gt; is already taken. Please supply a different name for your organization."
+            });
+            $('#registerForm').validate({
+                rules : {
+                    displayName: {
+                        required: true,
+                        domain: true
+                    }
+                },
+
+                submitHandler: function(form) {
+                    doSubmit();
+                }
+            });
+       });
+
+
+    </script>
+
+
+<div class="container content-starter">
+	<div class="row">
+		<div class="col-lg-12">
+			<h1>Organization Profile</h1>
+			<div class="helper_text" id="helper_text">
+		        <p>You can change the organization display name with a unique name<p>
+	        </div>
+		</div>
+	</div>
+</div>
+
+<%
+jagg.includeBlock("page/messages", null);
+%>
+
+<div class="container content-section-wrapper">
+	<div class="row">
+		<div class="col-lg-12 content-section" id="form_div">
+			<form method='post' name="inputData" class='form-horizontal'
+				id='registerForm' action="javascript:doSubmit()" role="form">
+				<div class="form-group">
+					<label for="displayName" class="col-sm-2 control-label">Organization
+						Name</label>
+					<div class="col-sm-8">
+						<input type="text" id="displayName" name="displayName"
+							class="required" />
+					</div>
+				</div>
+
+				<div class="form-group">
+				    <label for="password" class="col-sm-2 control-label"></label>
+					<div class="col-sm-8">
+						<input id="submitbtn" type='submit' value='Update Profile'
+							class="btn btn-primary" />
+						<a id="btn_cancel"
+										href="javascript:location.href='/cloudmgt/site/pages/organization.jag'">Cancel</a>
+						<i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display:none; margin-left: 10px;"></i>
+					</div>
+
+				</div>
+					
+			</form>
+		</div>
+	</div>
+</div>
+
+
+<% }); %>

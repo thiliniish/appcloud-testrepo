@@ -1,0 +1,614 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+include("/modules/database/dataaccess.jag");
+
+var log = new Log("modules/tenant/register/register.jag");
+var modManager = jagg.module("manager");
+
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+
+var ADMIN_USERNAME = cloudConfig.SSORelyingParty.adminUser;
+var ADMIN_PASSWORD = cloudConfig.SSORelyingParty.adminPassword;
+
+var AFURL =  cloudConfig.ServerUrls.appfactory.toString();
+var BPSURL = cloudConfig.ServerUrls.bps.toString();
+var AFURL_TMP =  cloudConfig.ServerUrls.appfactory_tmp.toString();
+
+var body = jagg.module("util").getObjFromFile("/site/conf/emails/new_registration_email.body.txt");
+
+var from = cloudConfig.registrationEmail.from;
+var subject =  cloudConfig.registrationEmail.subject;
+var senderEmail = cloudConfig.registrationEmail.username;
+var senderPort = parseInt(cloudConfig.registrationEmail.port);
+var senderPassword= cloudConfig.registrationEmail.password;
+var senderHost= cloudConfig.registrationEmail.host;
+var tls = cloudConfig.registrationEmail.tls.toString();
+var targetEpr = cloudConfig.registrationEmail.targetEpr.toString();
+
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var confirmUser = function(confirm,isInvitee) {
+    try{
+        var isUserInvitee = (isInvitee != null && isInvitee =="true");
+        if (isUserInvitee) {
+            session.put('isInvitee',true);
+             queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
+        } else {
+            session.put('isInvitee',false);
+             queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
+        }
+        var parameters =[confirm];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+        if(results.length >= 1){
+            var email =   results[0]["email"];
+            var userName =  jagg.module("util").getUserNameFromEmail(email);
+            var isUserAvail = isExistingUser(userName);
+            if(isUserAvail && isUserInvitee){
+                var tenantMod = jagg.module("tenant");
+                var roles= tenantMod.importInvitedUser(confirm,null);
+               	var url=jagg.module("util").getInviteeDirectUrl(roles); 
+               	log.debug("user is invited to "+tenantMod+" url- "+url);
+                return url;
+            }
+            session.put('isUserAvail',isUserAvail);
+            session.put('registration-intermediate-data',confirm);
+            session.put('registration-email',email);
+            return "add-tenant.jag";
+        } else {
+            return "expired";
+        }
+    } catch (e) {
+        log.error("Error while confirming user: " + email);
+        log.error(e);
+        throw (e);
+    }
+}
+
+var getConfirmationEmail = function(confirm){
+    try {
+        var queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
+        var parameters =[confirm];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+        var email = results[0]["email"];
+        var deleteString =SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
+        var parameters =[confirm];
+        var results = jagg.module("database").executeQuery(deleteString, parameters);
+        log.info("Confirmation Email: " + email);
+        return email;
+    }catch (e){
+        log.error("Error while getting confirmation email: " + confirm);
+        log.error(e);
+        throw (e);
+    }
+}
+
+var registerOrg = function (organizationName, password, usagePlan, confirmationKey, firstName, lastName) {
+    log.info("Registering Organization: " + organizationName) ;
+    var email;
+    var newUser = true;
+    var adminUserName;
+    if(confirmationKey != null){
+        email = getConfirmationEmail(confirmationKey);
+        adminUserName = jagg.module("util").getUserNameFromEmail(email.toString());
+    } else {
+        var fullUserName = String(session.get("LOGGED_IN_USER"));
+        adminUserName = jagg.module("util").getDomainLessUserName(fullUserName);
+        var tmpUser = jagg.module("tenant").getUserInfo(adminUserName);
+        firstName = tmpUser.firstName;
+        lastName = tmpUser.lastName;
+        email = tmpUser.email;
+        newUser = false;
+    }
+    log.info("User Information [ adminUserName: " + adminUserName +", FirstName: " + firstName +", LastName: " + lastName + ", Email: " + email + " ]");
+    newUser = !isExistingUser(adminUserName);
+    var organizationDomain = getCompanyId(organizationName);
+    log.info("Organization Information [ Name: " + organizationName + ", Domain: " + organizationDomain);
+    var adminPassword = jagg.module("util").escapeSpecialCharsXML(password);
+    var id =registerTenantForTrustedUser(organizationDomain,adminUserName,adminPassword, firstName,lastName,email,usagePlan);
+    log.info("Created Tenant in platform");
+    var isUserInCloud = hasATenant(adminUserName);
+        if(!isUserInCloud){
+        log.info("Sending tenant creation events to BAM");
+        server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName,"ADD");
+
+        try {
+            jagg.module("util").addUserToOT(email, adminPassword, firstName, lastName);
+            //jagg.module("util").addUserToRightWave(email);
+        } catch (e) {
+            log.error("Error while registering organization: " + organizationDomain + " Email: " + email);
+            log.error(e);
+            throw (e);
+        }
+
+    }
+
+    //adding tenant mapping to the table
+	//TODO - Move the below to a listener
+    storeTenantMGTRegistration(adminUserName,organizationDomain);
+    storeTenantDisplayNameMapping(organizationDomain,organizationName);
+    if(newUser){
+        addDefaultLoginRole(adminUserName);
+        log.info("Successfully Added default role ");
+       
+    }
+    storeSubscription(organizationDomain);
+
+    registerOrganization(organizationDomain, adminUserName, adminPassword, firstName, lastName, email, usagePlan);
+    log.info("Created Tenant in AppFactory ");
+    //Add tenant to billing account database tables
+    var tenantId = modManager.getTenantId(organizationDomain);
+
+    //Adding tenant to billing Account part removed temporarily.
+    //TODO uncomment following lines
+
+    jagg.module("billing").addTenantToBilling(tenantId, organizationDomain);
+    log.info("Billing account created for tenant: " + organizationDomain);
+
+    log.info("Tenant Registration completed ");
+    return true;
+}
+
+var hasATenant = function (userName) {
+    try {
+        var queryString =SQL_QUERY_STRINGS.SELECT_USR_NAME_FROM_TENANT_USER_MAPPING;
+        var parameters =[userName];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+        if(results[0] == null ) {
+            return false;
+        } else {
+            log.info(results[0]["userName"]+"  already in the cloud system");
+            return true;
+        }
+    }catch (e){
+        log.error(e)
+    }
+}
+
+function getCompanyId(organizationName){
+	var companyId =  organizationName.replace(/\s/g, "").replace(/([^a-zA-Z0-9\-])/gi, "").trim().toLowerCase();
+	var length = companyId.length;
+	var str;
+	if(length <= 5){
+		str = companyId + Math.floor(Math.random()*(9000)+1000);
+		companyId =  str;
+	}
+	if(length > 15){
+		str = companyId.substring(0,15);
+		companyId =  str;
+	}
+
+	var avail = checkTenantDomainAvailability(companyId);
+    log.info("Availability : " + avail);
+	if(avail){
+		return companyId;
+	}else {
+        var tmpId;
+        if(companyId.length == 15){
+            tmpId = companyId.substring(0,11) + Math.floor(Math.random() * 10000);
+        }else {
+            tmpId = companyId + Math.floor(Math.random() * 10000);
+        }
+		return getCompanyId(tmpId);
+	}
+}
+var isValidEmail = function(userName){
+    var isValid=true;
+    var patternForEmailValidation = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    var isValid = patternForEmailValidation.test(userName);
+    return isValid;
+}
+
+var isExistingUser = function( userName ) {
+    log.info("Checking if the email is valid for:  " + userName);
+    var isExist = false;
+    try {
+        var user = userName;
+        if(userName.indexOf('@') > 0) {
+        	if(!isValidEmail(userName)){
+        	 	log.info(userName+" is not a valid email Address");
+        	 	throw "Invalid Email Address "+userName;
+        	 }
+            log.info("Checking user existence for: " + userName);
+            user = jagg.module("util").getUserNameFromEmail(userName);
+        }
+        isExist = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').isExistingUser(user);
+    } catch (e) {
+        log.error("Error while checking the existence of user: " + user );
+        log.error(e);
+        throw (e);
+    }
+    log.info("User " + userName + " exist : " + isExist)
+    return isExist;
+}
+
+var addDefaultLoginRole = function(userName) {
+    log.info("Adding default login role for user " + userName);
+    try{
+        return server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').addDefaultLoginRole(userName);
+    }catch (e){
+        log.error("Error while adding defualt role for user: " + userName );
+        log.error(e);
+        throw (e);
+    }
+}
+
+var storeSubscription = function( domain) {
+    try{
+        log.info("Adding subscriptions");
+        var queryString =SQL_QUERY_STRINGS.INSERT_INTO_SUBSCRIPTIONS;
+        var parameters =[domain];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+        log.info("Subscriptions added successfully");
+    }catch (e){
+        log.error("Error while storing subscription for domain: " + domain );
+        log.error(e);
+        throw (e);
+    }
+
+}
+
+var registerOrganization = function(organizationDomain, adminUsername, adminPassword, firstName, lastName, email, usagePlan) {
+    log.info("Creating tenant in AppFactory");
+    var tenantId = modManager.getTenantId(organizationDomain);
+    var ws = require("ws");
+    var creatTenant = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "http://wso2.org/bps/sample/process";
+    options.mep = "in-only";
+
+  //  options["rampart"] = { user : ADMIN_USERNAME, userPassword :ADMIN_PASSWORD };
+//     options["policy"] = <wsp:Policy xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+//             xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+//             wsu:Id="UTOverTransport">
+//         <wsp:ExactlyOne>
+//             <wsp:All>
+//                 <sp:TransportBinding
+//                         xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+//                     <wsp:Policy>
+//                         <sp:TransportToken>
+//                             <wsp:Policy>
+//                                 <sp:HttpsToken RequireClientCertificate="false" />
+//                             </wsp:Policy>
+//                         </sp:TransportToken>
+//                         <sp:AlgorithmSuite>
+//                             <wsp:Policy>
+//                                 <sp:Basic256 />
+//                             </wsp:Policy>
+//                         </sp:AlgorithmSuite>
+//                         <sp:Layout>
+//                             <wsp:Policy>
+//                                 <sp:Lax />
+//                             </wsp:Policy>
+//                         </sp:Layout>
+//                         <sp:IncludeTimestamp />
+//                     </wsp:Policy>
+//                 </sp:TransportBinding>
+//                 <sp:SignedSupportingTokens
+//                         xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+//                     <wsp:Policy>
+//                         <sp:UsernameToken
+//                                 sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient" />
+//                     </wsp:Policy>
+//                 </sp:SignedSupportingTokens>
+//                 <rampart:RampartConfig xmlns:rampart="http://ws.apache.org/rampart/policy">
+//                     <rampart:encryptionUser>useReqSigCert</rampart:encryptionUser>
+//                     <rampart:timestampPrecisionInMilliseconds>true</rampart:timestampPrecisionInMilliseconds>
+//                     <rampart:timestampTTL>300</rampart:timestampTTL>
+//                     <rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>
+//                     <rampart:timestampStrict>false</rampart:timestampStrict>
+//                     <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.common.security.PWCBHandler</rampart:passwordCallbackClass>
+//                     <rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>
+//                     <rampart:nonceLifeTime>300</rampart:nonceLifeTime>
+//                 </rampart:RampartConfig>
+//             </wsp:All>
+//         </wsp:ExactlyOne>
+//     </wsp:Policy>;
+
+	var payload ='<p:CreateTenantRequest xmlns:p="http://wso2.org/bps/sample">'+
+	'<admin xmlns="http://wso2.org/bps/sample">'+adminUsername+'</admin>'+
+	'<firstName xmlns="http://wso2.org/bps/sample">'+firstName+'</firstName>'+
+	'<lastName xmlns="http://wso2.org/bps/sample">'+lastName+'</lastName>'+
+	'<adminPassword xmlns="http://wso2.org/bps/sample">'+adminPassword+'</adminPassword>'+
+	'<tenantDomain xmlns="http://wso2.org/bps/sample">'+organizationDomain+'</tenantDomain>'+
+	'<tenantId xmlns="http://wso2.org/bps/sample">'+tenantId+'</tenantId>'+
+	'<email xmlns="http://wso2.org/bps/sample">'+email+'</email>'+
+	'<active xmlns="http://wso2.org/bps/sample">true</active>'+
+	'<successKey xmlns="http://wso2.org/bps/sample">key</successKey>'+
+	'<createdDate xmlns="http://wso2.org/bps/sample">2001-12-31T12:00:00</createdDate>'+
+	'<originatedService xmlns="http://wso2.org/bps/sample">WSO2 App Factory</originatedService>'+
+	'<usagePlan xmlns="http://wso2.org/bps/sample">'+usagePlan+'</usagePlan>'+
+	'</p:CreateTenantRequest>';
+
+	var result;
+	try {
+		var endPoint = BPSURL + "CreateTenant";
+		creatTenant.open(options,endPoint, false);
+		creatTenant.send(payload);
+		result = creatTenant.responseE4X;
+
+		return result;
+	} catch (e) {
+		log.error("Error while registering organization: " + organizationDomain );
+		log.error(e);
+		throw (e);
+	}
+}
+
+
+var registerTenantForTrustedUser = function (organizationDomain,adminUser,adminPassword, firstName,lastName,email,usagePlan) {
+    log.info("Creating tenant in platform - user info: firstName= " + firstName + ", lastName= " + lastName + " email= " + email);
+	var ws = require("ws");
+	var creatTenant = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.1;
+	options.action = "urn:registerTenantForTrustedUser";
+	options.timeout = 1000000;
+	options["HTTPHeaders"] = [
+	{
+		name : "Cookie", value :modManager.getAdminCookie(AFURL_TMP)}
+		];
+		var payload = '<p:registerTenantForTrustedUser xmlns:p="http://services.mgt.tenant.carbon.wso2.org">' +
+		'<tenantInfoBean xmlns="http://services.mgt.tenant.carbon.wso2.org">' +
+		'<active xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">true</active>' +
+		'<admin xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + adminUser + '</admin>' +
+		'<adminPassword xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + adminPassword + '</adminPassword>' +
+		'<createdDate xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">2001-12-31T12:00:00</createdDate>' +
+		'<email xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + email + '</email>' +
+		'<firstname xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + firstName + '</firstname>' +
+		'<lastname xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + lastName + '</lastname>' +
+		'<originatedService xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">WSO2 Cloud Manager</originatedService>' +
+		'<tenantDomain xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + organizationDomain + '</tenantDomain>' +
+		'<tenantId xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">-1</tenantId>' +
+		'<usagePlan xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + usagePlan + '</usagePlan>' +
+		'</tenantInfoBean>' +
+		'</p:registerTenantForTrustedUser>' ;
+
+		var result;
+		try {
+			var endPoint = AFURL_TMP + "TenantMgtService";
+			creatTenant.open(options,endPoint, false);
+			creatTenant.send(payload);
+			result = creatTenant.responseE4X;
+			return result;
+		} catch (e) {
+			log.error("Error while registering organization: " + organizationDomain + " for trusted user: " + email);
+			log.error(e);
+			throw (e);
+		}
+}
+
+var checkDomainAvailability = function (domainName) {
+    log.info("Checking Organization name availability for: " + domainName);
+    var isDomainAvailable = false;
+    try{
+        var companyDisplayName = jagg.module("util").escapeSpecialChars(domainName);
+        var queryString =SQL_QUERY_STRINGS.SELECT_DIS_NAME_FROM_ORGANIZATIONS;
+        var parameters =[companyDisplayName];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+        isDomainAvailable = results.length == 0;
+    }catch (e) {
+        log.error("Error while checking Organization name availability for " + domainName);
+        log.error(e);
+        throw (e);
+    }
+    return isDomainAvailable;
+}
+
+var checkTenantDomainAvailability = function (domainName) {
+    log.info("Checking domain availability for: " + domainName);
+    var availability = false;
+    try{
+        var tenantSelfRegistrationService = server.osgiService('org.wso2.carbon.tenant.mgt.services.TenantSelfRegistrationService');
+        availability = tenantSelfRegistrationService.checkDomainAvailability(domainName);
+    }catch (e) {
+        log.error("Error while checking domain availability for " + domainName );
+        log.error(e);
+        throw (e);
+    }
+    log.info("Domain " + domainName + " availability: " + availability);
+    return availability;
+}
+
+
+var sendRegisterOrganizationEmail = function (organizationDomain,firstName,email, uuid) {
+
+	var ws = require("ws");
+	var creatTenant = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.1;
+	options.action = "urn:sendOrganizationRegistrationConfirmationEmail";
+	options.timeout = 1000000;
+
+	options["HTTPHeaders"] = [
+	{
+		name : "Cookie", value :modManager.getAdminCookie(AFURL_TMP)}
+		];
+
+		var payload ='<p:sendOrganizationRegistrationConfirmationEmail xmlns:p="http://services.registration.user.appfactory.carbon.wso2.org">'+
+		'<userName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">testusername***</userName>'+
+		'<firstName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+firstName+'</firstName>'+
+		'<uuid xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+uuid+'</uuid>'+
+		'<email xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+email+'</email>'+
+		'<organizationName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+organizationDomain+'</organizationName>'+
+		'</p:sendOrganizationRegistrationConfirmationEmail>';
+
+		var result;
+		try {
+			var endPoint = AFURL_TMP + "EmailSenderService";
+			creatTenant.open(options,endPoint, false);
+			creatTenant.send(payload);
+			result = creatTenant.responseE4X;
+
+			return result;
+		} catch (e) {
+			log.error("Error while sending organization registration confirmation email " + organizationDomain + " to " + email );
+			log.error(e);
+			throw (e) ;
+		}
+}
+
+
+var generateCaptchaFromCloud = function() {
+
+	log.info("Generating Captcha From Cloud")
+	var ws = require('ws');
+	var request = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.1;
+	options.timeout = 1000000;
+	options.action = "urn:generateRandomCaptcha";
+	options["HTTPHeaders"] = [
+	{
+		name : "Cookie", value :modManager.getAdminCookie(AFURL) }
+		];
+		var payload = '<generateRandomCaptcha xmlns="http://services.mgt.tenant.carbon.wso2.org"></generateRandomCaptcha>';
+		var result;
+		var captchaInfo = {
+		};
+		try {
+			var endPoint = AFURL+ "TenantMgtService";
+			request.open(options,endPoint, false);
+			request.send(payload);
+			result=request.responseE4X;
+			log.info("Captcha result : ");
+			log.info(result);
+			var entry = result.*::["return"];
+
+			var path = entry.*::imagePath.text();
+			var secretKey = entry.*::secretKey.text();
+
+			captchaInfo.path = path;
+			captchaInfo.secretKey = secretKey;
+
+
+			if (log.isDebugEnabled()) {
+				log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+			}
+		} catch (e) {
+			log.error("Error while checking for application key ");
+			log.error(e);
+			throw (e);
+		}
+		return captchaInfo;
+}
+
+var storeTenantMGTRegistration = function (userName,tenantDomain) {
+    try {
+        //Adding User -Tenant Mapping
+        log.info("Adding tenant user mapping for user "+userName + " tenantDomain: " + tenantDomain );
+        var queryString1 = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
+        var parameters =[userName,tenantDomain];
+        var results = jagg.module("database").executeQuery(queryString1, parameters);
+        log.info("Successfully added the tenant user mapping for user: " + userName + " tenantDomain: "+ tenantDomain);
+
+    }catch (e){
+        log.error("Error while storing tenant details for tenant: " + tenantDomain + " of user: " + userName );
+        log.error(e);
+        throw (e);
+    }
+}
+var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
+    try {
+
+        //Adding Tenant - Display Name mapping
+        log.info("Adding tenant display name mapping for tenantDomain: "+ tenantDomain + " displayName: "+displayName);
+        var displayName = jagg.module("util").escapeSpecialChars(displayName);   //company display name
+        var queryString2 = SQL_QUERY_STRINGS.INSERT_INTO_ORGANIZATIONS;
+        var parameters =[tenantDomain,displayName];
+        var results = jagg.module("database").executeQuery(queryString2, parameters);
+        log.info("Successfully added the tenant display name mapping for tenantDomain: "+ tenantDomain + " displayName: "+displayName);
+    }catch (e){
+        log.error("Error while storing tenant details for tenant: " + tenantDomain + " with display name: " + displayName);
+        log.error(e);
+        throw (e);
+    }
+}
+
+var storeTempRegistration = function (email,uuid,isInvitee) {
+	log.info("Adding temp registration for user: " + email);
+	try{
+	var queryString =SQL_QUERY_STRINGS.INSERT_INTO_TEMP_REGISTRATION;
+	var parameters =[email,uuid,isInvitee,uuid];
+    var results = jagg.module("database").executeQuery(queryString, parameters);
+	}catch (e){
+        log.error("Error while storeTempRegistration for email: " + email);
+        log.error(e);
+        throw (e);
+    }
+	log.info("Sucessfully added to the temp registration user: " + email);
+}
+
+var sendInvite = function(email) {
+	log.info("Sending invitation for self signed user: "+email);
+	var uuid = jagg.module("util").generateUUId();
+	storeTempRegistration(email,uuid,0);
+	var link = targetEpr+"?confirmation="+uuid;
+	sendEmail(email,link);
+	//adding selfsign user to rightwave
+	var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+	if(is_enable.toString() == "true") {
+		setTimeout(function () {
+			var modEvents = jagg.module("events");
+			var jsonData={
+				"email" : email
+			};
+			var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
+			var data = "json="+JSON.stringify(jsonData);
+			var result = post(URL,data,{
+				'Content-Type': 'application/json'}, 'text');
+			var type ="CloudMgt";
+			var msg = result['data'];
+			var actionString = "Rightwave-"+type+"-cloudsignup:";
+			var page = "Rightwave";
+			var item = type;
+			var events = [];
+			if(msg === "Data Submitted Successfully") {
+				actionString =  actionString+"Success";
+			} else {
+				actionString =  actionString+"Failed";
+				log.error("Rightwave api call failed for the user "+email);
+				log.error("Rightwave api call failed for the user "+msg);
+			}
+			var event={
+			};
+			event.item = item;
+			event.timestamp = new Date().getTime();
+			event.pageName = page;
+			event.action = actionString;
+			events[events.length] = event;
+			modEvents.publishUserActivity(events,email,"not-defined");
+		} ,0);
+	}
+	return email;
+}
+
+var sendEmail = function(to,link) {
+	try{
+		body = body.replace("$link",link).replace("$link",link);
+		var email = require('email');
+		var sender;
+		if (tls == "true") {
+			sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword,"tls");
+		} else {
+			sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword);
+
+		}
+		sender.from = from;
+		sender.to = to;
+		sender.subject = subject;
+		sender.html = body;
+		sender.send();
+		log.info("email successfully sent to " + to);
+	} catch (e) {
+		log.error("Error while sending email to : " + to);
+		log.error(e);
+		throw (e);
+	}
+}
+;
+%>

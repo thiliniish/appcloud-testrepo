@@ -1,0 +1,36 @@
+<%
+
+    var log = new Log("modules/events/publish/publish.jag");
+
+
+var publishUserActivity = function (events, userID, tenantDomain) {
+
+    var loadBalancingDataPublisher = jagg.module("util").getLoadBalanceDataPublisher("loadBalancingDataPublisher");
+
+    if(loadBalancingDataPublisher){
+        for (var i = 0; i < events.length; i++) {
+            publishEvents(loadBalancingDataPublisher, events[i], userID, tenantDomain);
+        }
+    }
+
+};
+
+function  publishEvents(loadBalancingDataPublisher, event, userID, tenantDomain){
+    if(log.isDebugEnabled()){
+        log.debug("Event Stream : " + stringify(event) +" User : "+ userID +" TenantDomain name : "+ tenantDomain);
+    }
+
+    var ext_str = new java.lang.String("external");
+    var item = new java.lang.String(event.item);
+    var action = new java.lang.String(event.action);
+    var timestamp = new java.lang.String(event.timestamp);
+    var pageName = new java.lang.String(event.pageName);
+    try{
+        loadBalancingDataPublisher.publish(USER_ACTIVITY_STREAM, USER_ACTIVITY_STREAM_VERSION,
+                                    [ext_str], null, [item, action, timestamp, pageName, userID, tenantDomain]);
+    }catch(e){
+        log.error("Error occurred while publishing user clicks data \n" + e);
+    }
+
+}
+%>

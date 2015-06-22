@@ -1,0 +1,20 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("site/blocks/billing/payment/confirm/ajax/confirm.jag");
+var mod = jagg.module("billing");
+
+
+
+(function () {
+	var result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+    log.info("---------------------------- action : " + action);
+	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    var serviceId = session.get("SERVICE_ID");
+
+}());
+%>

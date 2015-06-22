@@ -1,0 +1,120 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log();
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var userName = session.get("LOGGED_IN_USER");
+
+
+var getProfile = function (user) {
+    if(userName != null){
+        user = userName.substring(0,userName.lastIndexOf('@'));
+    }
+
+    var tenantDomain = modManager.getTenantDomain();
+    var context = multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+    try {
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        var realm = realmService.getTenantUserRealm(tenantId);
+        var userStoreManager = realm.getUserStoreManager();
+        var result = userStoreManager.getUserClaimValues(user, "default");
+    } catch (e) {
+        log.error("Error while getting user profile " + userName + e.message);
+        throw "Error while getting user profile " + userName + e.message;
+    } finally {
+        context.endTenantFlow();
+    }
+    log.info("Successfully retrieved profile");
+    return convertClaims(result);
+}
+
+var updateProfile = function (firstName, lastName) {
+    var user = userName.substring(0,userName.lastIndexOf('@'));
+    var tenantDomain = modManager.getTenantDomain();
+    var context = multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+    try {
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        var realm = realmService.getTenantUserRealm(tenantId);
+        var userStoreManager = realm.getUserStoreManager();
+        userStoreManager.setUserClaimValue(user, "http://wso2.org/claims/givenname", firstName, "default");
+        userStoreManager.setUserClaimValue(user, "http://wso2.org/claims/lastname", lastName, "default");
+        var fullName = firstName + " " +lastName;
+        userStoreManager.setUserClaimValue(user, "http://wso2.org/claims/fullname", fullName, "default");
+        log.info("Successfully updated profile");
+        return true;
+    } catch (e) {
+        log.error("Error while updating user profile " + userName + " " + e.message);
+        throw "Error while updating user profile " + userName + " " + e.message;
+    } finally {
+        context.endTenantFlow();
+    }
+}
+
+var convertClaims = function (result) {
+    var claims = {};
+    if(result != null){
+        for (var i = 0; i < result.length; i++) {
+           var uri = result[i].getClaimUri();
+
+           if (uri.indexOf("wso2.org") > 0) {
+              if (uri.indexOf("lastname") > 0) {
+                  var tmp = result[i].getValue();
+                  if(tmp.indexOf("@") < 0 && tmp.indexOf("$") != 0){
+                     claims.lastname = result[i].getValue();
+                  }
+              } else if (uri.indexOf("givenname") > 0) {
+                 var tmp = result[i].getValue();
+                 if(tmp.indexOf("$") != 0){
+                     claims.firstname = result[i].getValue();
+                 }
+              } else if (uri.indexOf("emailaddress") > 0) {
+                 claims.email = result[i].getValue();
+              }
+           }
+        }
+    }
+    return claims;
+}
+
+
+var getEmailOfUser = function (userName) {
+    var tenantLessUserName;
+    var tenantDomain;
+    var atIndex = userName.lastIndexOf('@');
+    if (userName != null) {
+        tenantLessUserName = userName;
+        tenantDomain = "";
+        if (atIndex != -1) {
+            tenantLessUserName = userName.substring(0, atIndex);
+            tenantDomain = userName.substring(atIndex + 1, userName.length);
+        }
+    }
+
+    var tenantManager = multitenancy.getTenantManager();
+    var context=multitenancy.getPrivilegedCarbonContext();
+    context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+    context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+    var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+    var email = tenantMgtService.getUserEmail(tenantLessUserName);
+    return email;
+}
+
+
+
+%>
+

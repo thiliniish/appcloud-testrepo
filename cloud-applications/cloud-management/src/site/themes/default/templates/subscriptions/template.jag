@@ -1,0 +1,113 @@
+<% jagg.template("subscriptions", function(inputs, outputs, jagg) { %>
+<%
+include("/modules/database/dataaccess.jag");
+
+var log = new Log();
+var userName = session.get("LOGGED_IN_USER");
+
+if (userName != null) {
+	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+
+	var types = cloudConfig.subscriptions.type;
+	var domainName = userName.substring(userName.lastIndexOf('@') + 1);
+	var subscriptionInfo = {
+	};
+	for (var i = 0; i < types.length; i++) {
+		var columnName = types[i].id;
+		var url = types[i].url;
+		var queryString =  SQL_QUERY_STRINGS.SELECT_FROM_SUBSCRIPTIONS;
+		var parameters =[columnName,domainName];
+		var isRegistered = jagg.module("database").executeQuery(queryString, parameters);
+		if(isRegistered.length>0){
+			subscriptionInfo[columnName] = isRegistered[0][columnName];
+		}else{
+			subscriptionInfo[columnName] = "true";//as a fail proof, it is assumed that tenant has subscribed to all the available clouds.
+			log.error("Subscription details were not found for "+ columnName + " of tenant "+ domainName );
+            }
+	}
+	var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
+	var parameters =[domainName];
+	var results = jagg.module("database").executeQuery(queryString, parameters);
+	if(results !=null){
+            session.put("LOGGED_IN_ORGANIZATION",results[0]["displayName"])
+        }
+        log.info("Logged in Organization : " + session.get("LOGGED_IN_ORGANIZATION") ) ;
+        %>
+
+        
+<script type="text/javascript">
+function subscription(type,domain) {
+	// I have not done this in a seperate thread as it is not supported by older versions of firefox and chrome.
+	  jagg.post("../blocks/subscriptions/ajax/subscriptions.jag", {
+	        action:"addCloudUserSubscription",
+	        type:type,
+	        domain:domain
+	        },
+	        function (result) {
+		       
+	            },
+	       function (jqXHR, textStatus, errorThrown) {
+	       });
+  return true;
+}
+</script>
+
+<link
+	rel="stylesheet"
+	href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index.css'))%>" />
+<link
+	rel="stylesheet"
+	href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>" />
+
+<div class="container content-starter">
+	<div class="row">
+		<div class="col-lg-12">
+			<h1 class="home-h1">Home</h1>
+
+		</div>
+	</div>
+</div>
+<div class="helper_text_home">
+	<p class="helper_text_bold">You are now signed in.</p>
+	<p>Click the logo of the cloud you want to access.</p>
+</div>
+<div class="container content-section-wrapper cloud-shifter">
+	<div class="row">
+		<div class="">
+			<div class="col-lg-3"></div>
+			<%
+			for(var i=0;i<types.length;i++) {
+                        if(subscriptionInfo[types[i].id] == true) {
+                            %>
+			<div class="col-lg-3">
+				<%  if(types[i].id=="integration_cloud") {%>
+				<i class="<%=types[i].id%>_disabled"></i>
+				<div class="helper_text">Coming Soon...</div> 
+				<%} else {%>
+
+				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" onclick="subscription('<%=types[i].id%>','<%=domainName%>');return true"></i></a> <%} %>
+			</div>
+			<% }else{ %>
+			<div class="col-lg-3">
+				<i class="<%=types[i].id%>_disabled"></i>
+				<div class="<%=types[i].id%>_disabled_helper helper_text" style= "color:black; font-size: 13px;">
+						Subscription has being disabled. Please contact WSO2 Cloud Team</div> 	
+			</div>
+
+			<% }
+                    } %>
+			<input type="hidden" name="secretKey" id="secretKey" value="" /> <input
+				type="hidden" name="imagePath" id="imagePath" value="" />
+
+		</div>
+		<br />
+
+	</div>
+	<br/><br/>
+	<div class="helper_text_home">
+		<p class="helper_text_bold">WSO2 Cloud is a beta service</p>
+	</div>
+</div>
+<% } 
+%>
+<% }); %>

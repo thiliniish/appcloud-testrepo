@@ -1,0 +1,29 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+var log = new Log();
+(function () {
+
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 Cloud Mgt",
+            "pagePath":"/site/pages/org-profile.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"Org Mgt",
+                        "middle":[
+                            {
+                                "name":"tenant/manage/profile"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

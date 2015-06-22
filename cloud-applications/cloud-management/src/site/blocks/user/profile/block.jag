@@ -1,0 +1,7 @@
+<%
+jagg.block("user/profile", {
+    initialize:function (data) {
+    }
+
+});
+%>

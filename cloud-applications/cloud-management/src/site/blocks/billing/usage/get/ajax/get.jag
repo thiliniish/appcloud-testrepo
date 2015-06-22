@@ -1,0 +1,31 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("site/blocks/billing/usage/get/ajax/get.jag");
+(function () {
+	var mod,result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("billing");
+	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+	if (action == "getTenantUsage") {
+		try {
+			var fromDate = request.getParameter("fromDate");
+			var toDate = request.getParameter("toDate");
+			result = mod.getTenantUsage(fromDate,toDate);
+			if (result != null) {
+				print(result);
+			} else {
+				log.error("Error while getting Usage data for  " + tenantDomain);
+				throw new Error("Error while getting Usage data for  " + tenantDomain);
+			}
+		} catch (e) {
+			throw new Error("Error while getting Usage data for "+tenantDomain + e);
+		}
+	} else{
+		throw new Error("No action specified");
+	}
+}());
+%>

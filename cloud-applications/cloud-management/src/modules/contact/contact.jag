@@ -1,0 +1,190 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log();
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var userName =  session.get("LOGGED_IN_USER");
+
+
+var sendSupportRequest = function(customerEmail,subject ,body) {
+       var sender;
+       var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+       var senderEmail =cloudConfig.registrationEmail.username;
+       var senderHost = cloudConfig.registrationEmail.host;
+       var to = cloudConfig.supportContact.to;
+       var from = cloudConfig.registrationEmail.from;
+       var senderPort = parseInt(cloudConfig.registrationEmail.port);
+       var tls = cloudConfig.registrationEmail.tls.toString();
+       var senderPassword = cloudConfig.registrationEmail.password;
+
+       var  emailBody ="Support requested from the tenant user : "+userName+ " email : "+customerEmail+"\n\n"+body;
+    
+       var email = require('email');
+       if (tls == "true") {
+         sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword,"tls");
+       } else {
+         sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword);
+       }
+       sender.to = to;
+       sender.from = from;
+       sender.subject = subject;
+       sender.text = emailBody;
+       sender.send();
+
+       log.info("Support request sent");
+      return true;
+    }
+
+var getEmailForUser = function() {
+    var user = userName.substring(0,userName.lastIndexOf('@'));
+    var tenantDomain=modManager.getTenantDomain();
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+
+    try {
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+        var tmpemail = tenantMgtService.getUserEmail(user);
+    }catch (e){
+    	log.error(e);
+    }finally{
+        context.endTenantFlow();
+    }    
+      return tmpemail;
+  }
+
+/*
+ * create a jira ticket by using jira soap api
+ * @param  customerEmail : customerEmail id
+ * @param  subject : jira ticket summary
+ * @param  body : jira ticket description
+ */
+ var createJiraTicket = function (customerEmail,subject, body) {
+     subject =jagg.module("util").escapeSpecialCharsXML(subject);
+     body =jagg.module("util").escapeSpecialCharsXML(body);
+
+     var tenantDomain = modManager.getTenantDomain();
+     subject = subject + " for " + customerEmail +" of tenant " + tenantDomain;
+     log.info("creating jira ticket for " + customerEmail +" of tenant " + tenantDomain +" message : " + body);
+     var ws = require('ws');
+     var finalResult = {};
+     try{
+
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var enabled = cloudConfig.JIRAContact.enable;
+        if (enabled == "true") {
+            var endPoint = cloudConfig.JIRAContact.url;
+            var username = cloudConfig.JIRAContact.username;
+            var password = cloudConfig.JIRAContact.password;
+            var key = cloudConfig.JIRAContact.projectKey;
+            var authToken = generateAuthToken(username,password, endPoint);
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.setRequestHeader('SOAPAction', 'urn:login');
+            xmlhttp.setRequestHeader('Content-Type', 'text/xml');
+            xmlhttp.open("POST", endPoint);
+            // build SOAP request
+            var data ='<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://soap.rpc.jira.atlassian.com" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">' +
+                          '<soapenv:Header/>' +
+                          '<soapenv:Body> ' +
+                             '<soap:createIssue soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">'  +
+                                '<in0 xsi:type="xsd:string">' + authToken +'</in0>' +
+                                '<in1 xsi:type="bean:RemoteIssue" xmlns:bean="http://beans.soap.rpc.jira.atlassian.com">' +
+                                  '<description xsi:type="xsd:string">'+ body +'</description>' +
+
+                                   '<project xsi:type="xsd:string">'+ key +'</project>' +
+
+                                   '<status xsi:type="xsd:string">open</status>' +
+                                   '<summary xsi:type="xsd:string">'+ subject +'</summary>' +
+                                   '<type xsi:type="xsd:string">1</type>' +
+
+                                '</in1>' +
+                             '</soap:createIssue>' +
+                          '</soapenv:Body>' +
+                       '</soapenv:Envelope>';
+
+            // Send the POST request
+            response =xmlhttp.send(data);
+            log.info("Jira ticket created for " + customerEmail +" of tenant " + tenantDomain )
+
+            }else{
+                log.info("Support request Jira creation is not enabled! " + + "\n"+ " for " + customerEmail +" of tenant " + tenantDomain +" message : " + body);
+            }
+          
+
+     } catch (e) {
+        log.error("Error while creating jira ticket! Exception:" + e + "\n"+ " for " + customerEmail +" of tenant " + tenantDomain +" message : " + body);
+     }
+
+ }
+ /*
+  * generate auth token by sending login request to api
+  * @param  userName : username
+  * @param  password : password
+  * @param  url : api url
+  */
+ var generateAuthToken = function(userName, password , url){
+     try{
+         var xhr = new XMLHttpRequest();
+         xhr.setRequestHeader('SOAPAction', 'urn:login');
+         xhr.setRequestHeader('Content-Type', 'text/xml');
+         xhr.open("POST", url);
+         // build SOAP request
+         var payload ='<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://soap.rpc.jira.atlassian.com">' +
+                          '<soapenv:Header/>' +
+                          '<soapenv:Body>' +
+                             '<soap:login soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">' +
+                                '<in0 xsi:type="xsd:string">' + jagg.module("util").escapeSpecialCharsXML(userName) + '</in0>' +
+                                '<in1 xsi:type="xsd:string">' + jagg.module("util").escapeSpecialCharsXML(password) + '</in1>' +
+                             '</soap:login>' +
+                          '</soapenv:Body>' +
+                       '</soapenv:Envelope>';
+
+         // Send the POST request
+         xhr.send(payload);
+         var response = xhr.responseText;
+         var pos = response.indexOf("</loginReturn>");
+         var substr = response.substring(0,pos);
+         var pos1 = substr.lastIndexOf(">");
+         var authtoken = substr.slice(pos1+1);
+         if(authtoken == null){
+            throw("Error while generation Auth token : for " + userName );
+         }
+         return authtoken;
+
+     } catch(e){
+        log.error("Error while generation Auth token : " + e);
+     }
+ }
+
+ /*
+  * send support request and crate a jira
+  * @param  customerEmail : user email
+  * @param  subject : jira ticket summary
+  * @param  body : jira ticket description
+  */
+ var sendSupportRequestAndCreateJira = function(customerEmail,subject ,body){
+     try{
+       var resultSupportRequest = sendSupportRequest(customerEmail,subject ,body);
+
+     } catch(e){
+        log.error("Error while sending support email: " + e);
+     }
+     try{
+        var resultCreateJira = createJiraTicket(customerEmail,subject ,body);
+     } catch(e){
+        log.error("Error while creating jira : " + e);
+     }
+         return resultSupportRequest + " : " + resultCreateJira;
+
+ }
+
+
+%>

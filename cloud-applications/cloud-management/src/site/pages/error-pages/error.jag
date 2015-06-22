@@ -1,0 +1,27 @@
+<html>
+<head>
+<style>
+        h1 {text-align:center;}
+        p {text-align:center;}
+</style>
+</head>
+<%
+var log = new Log();
+var errorMessage=session.get('ERROR_MSG');
+    if(errorMessage!=null){
+ %>
+                    <body>
+                            <h1>An Unexpected Error Occurred</h1><p><br/>Cause of Error : <b><%=errorMessage%></b><br/>
+                        Please try login back to Cloud from <a href='https://cloudmgt.cloud.wso2.com/cloudmgt/'>here</a> in a while....</p>
+                </body>
+<%
+    }else{
+ %>
+                    <body>
+                            <h1>An Unexpected Error Occurred</h1><p><br/>Unknown Cause of Error<br/>
+                            Please try login back to Cloud from <a href='https://cloudmgt.cloud.wso2.com/cloudmgt/'>here</a> in a while....</p>
+                    </body>
+ <%
+    }
+%>
+</html>

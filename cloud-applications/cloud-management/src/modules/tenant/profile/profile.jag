@@ -1,0 +1,49 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/modules/database/dataaccess.jag");
+var log = new Log();
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var userName = session.get("LOGGED_IN_USER");
+
+
+var getProfile = function (organization) {
+    var queryString = SQL_QUERY_STRINGS.SELECT_ALL_FROM_ORGANIZATIONS;
+    var parameters =[organization];
+    var results = jagg.module("database").executeQuery(queryString, parameters);
+    var displayName = results[0]["displayName"];
+    var tenantDomain = results[0]["tenantDomain"];
+    var organization = {};
+    organization.displayName =  results[0]["displayName"];
+    var permMod = jagg.module("permission");
+    organization.adminPermission = permMod.hasOrganizationMgtPermission(tenantDomain);
+    return organization;
+}
+
+var updateProfile = function (tenantDomain, displayName) {
+    if(jagg.module("permission").hasOrganizationMgtPermission(tenantDomain)){
+        log.info("Updating Organization Display name [ Tenant: " + tenantDomain + ", Display Name: " + displayName + " ]");
+        try {
+            var displayNameStr = jagg.module("util").escapeSpecialChars(displayName);
+            var queryString =SQL_QUERY_STRINGS.UPDATE_ORGANIZATIONS;
+            var parameters =[displayNameStr,tenantDomain];
+            var results = jagg.module("database").executeQuery(queryString, parameters);
+            log.info("Successfully updated Organization profile for " + displayName);
+            return true;
+        } catch (e) {
+            log.error("Error while updating the Organization profile " + e.message);
+            throw "Error while updating the Organization profile " + e.message;
+        }
+    }else{
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+        log.error(msg);
+        throw  msg;
+    }
+};
+
+%>
+

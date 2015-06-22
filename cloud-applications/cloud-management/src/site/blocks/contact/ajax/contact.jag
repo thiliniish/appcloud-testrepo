@@ -1,0 +1,54 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var log = new Log("site/blocks/contact/ajax/contact.jag");
+(function () {
+var action = request.getParameter("action"),
+mod = jagg.module("contact"),
+site = require("/site/conf/site.json");
+
+var from = request.getParameter("from");
+var subject = request.getParameter("subject");
+var body = request.getParameter("body");
+
+
+if (action == "sendExtensionRequest") {
+    if (jagg.module("util").isUserInAdminRole()) {
+        var serviceId = session.get("SERVICE_ID");
+        var result = jagg.module("billing").extendTrial(serviceId, body);
+        print(result);
+    } else {
+        print("index.jag");
+    }
+
+} else if (action == "sendSupportRequest") {
+//send support req while creating a jira
+    try {
+        var result = mod.sendSupportRequestAndCreateJira(from,subject ,body);
+        if (result != null) {
+            print(result);
+        } else {
+            throw "Error while sending the support request for "+ from +" message :  " +body;
+        }
+    } catch(e) {
+        throw "Error while sending the support request for " + from + "  " +e;
+    }
+
+} else if (action == "getEmailForUser") {
+
+    try {
+        var result = mod.getEmailForUser();
+        if (result != null) {
+            print(result);
+        } else {
+            throw "Error while resetting the password ";
+        }
+    } catch(e) {
+        throw "Error while changing the password "+e.message;
+    }
+} else {
+    throw new Error("No action specified");
+}
+
+}());
+%>
