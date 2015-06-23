@@ -7,6 +7,8 @@ THE SOURCE REPOSITORY FOR WSO2 PUBLIC CLOUD - 22nd June 2015
 
 (*) All the components are based on WSO2 Carbon Kernel version 4.2.0.
 
+(*) Developers should not work on master repository and would need to fork a repository to regulate commits. 
+
 (*) Dependencies to compile and build components -
 
 	(1.) Apache Maven 3.0.5 or above.
