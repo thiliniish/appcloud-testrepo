@@ -17,4 +17,4 @@ THE SOURCE REPOSITORY FOR WSO2 PUBLIC CLOUD - 22nd June 2015
              of WSO2 Cloud components. ( svn location : https://svn.wso2.org/repos/wso2/carbon/kernel/branches/4.2.0/patches ),
              build without tests. 
 
-(*) Compile and build from the root pom.xml in the initial attempts.  
+(*) Compile and build from the root pom.xml in the initial attemptssss.  
