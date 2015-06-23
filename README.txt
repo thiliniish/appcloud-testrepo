@@ -1,5 +1,5 @@
-THE GIT SOURCE REPOSITORY FOR CLOUD - 22nd June 2015
-====================================================
+THE SOURCE REPOSITORY FOR WSO2 PUBLIC CLOUD - 22nd June 2015
+============================================================
 
 (*) The GIT space "cloud" contains components, applications and tools related to WSO2 Public Cloud. 
 
