@@ -3,7 +3,7 @@ THE GIT SOURCE REPOSITORY FOR CLOUD - 22nd June 2015
 
 (*) The GIT space "cloud" contains components, applications and tools related to WSO2 Public Cloud. 
 
-(*) This repository is a Private repository and any unauthorized access is strictly prohibited. 
+(*) IMPORTANT : This repository is a Private repository and any unauthorized access is strictly prohibited. 
 
 (*) All the components are based on WSO2 Carbon Kernel version 4.2.0.
 
