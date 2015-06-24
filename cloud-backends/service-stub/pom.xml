@@ -23,17 +23,11 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>cloud-components</artifactId>
+    <artifactId>cloud-service-stubs</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>Cloud Backend Components</name>
+    <name>Cloud Backend Service Stubs</name>
     <modules>
-        <module>billing/org.wso2.carbon.cloud.billing</module>
-        <module>billing/org.wso2.carbon.cloud.apihandler</module>
-        <module>user-store/org.wso2.carbon.cloud.userstore</module>
-        <module>user-manager/org.wso2.carbon.cloud.user.manager</module>
-        <module>cloud-mgt/org.wso2.carbon.cloud.users</module>
-        <module>gitblit-plugin/org.wso2.carbon.cloud.gitblit.plugin</module>
-        <module>jenkins-plugin/org.wso2.carbon.cloud.jenkins.authentication.plugin</module>
+        <module>user-manager/org.wso2.carbon.cloud.user.manager.stub</module>
     </modules>
 </project>

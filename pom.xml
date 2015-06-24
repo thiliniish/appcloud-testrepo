@@ -30,7 +30,8 @@
     </parent>
 
     <modules>
-        <module>cloud-backends/components/</module>
+        <module>cloud-backends/service-stub</module>
+        <module>cloud-backends/components</module>
         <module>cloud-applications</module>
         <module>cloud-monitoring</module>
     </modules>
@@ -136,7 +137,9 @@
         <commons.logging.version>1.2</commons.logging.version>
         <apache.axis2.version>1.6.2</apache.axis2.version>
         <wsdl4j.version>1.6.2</wsdl4j.version>
+        <wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
         <axiom.version>1.2.13</axiom.version>
+        <axiom.wso2.version>1.2.11.wso2v4</axiom.wso2.version>
         <apache.neethi.version>3.0.2</apache.neethi.version>
         <javax.servlet.version>2.5</javax.servlet.version>
         <securevault.version>1.0.0-wso2v2</securevault.version>

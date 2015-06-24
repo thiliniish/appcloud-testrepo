@@ -1,0 +1,19 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Cloud - User Manager Stub
+
+
+From: 'an unknown organization'
+  - axis2.wso2 (http://wso2.org) org.apache.axis2.wso2:axis2:bundle:1.6.1.wso2v10
+
+  - axiom.wso2 (http://wso2.org) org.apache.ws.commons.axiom.wso2:axiom:bundle:1.2.11.wso2v4
+
+  - wsdl4j.wso2 (http://wso2.org) wsdl4j.wso2:wsdl4j:bundle:1.6.2.wso2v4
+
+
+
+
+
