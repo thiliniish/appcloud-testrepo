@@ -250,7 +250,9 @@ var updateContactInfo = function (accountData) {
 }
 
 var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
+
 	var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+
 	if(is_enable.toString() == "true") {
 		var modEvents = jagg.module("events");
 		var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
