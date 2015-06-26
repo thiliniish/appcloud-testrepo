@@ -7,7 +7,12 @@ var userName = session.get("LOGGED_IN_USER");
 
 if (userName != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
+	var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
+	if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
+		var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":")+1, isUnfinishedUpgrade.length);
+		var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
+	}
+	 
 	var types = cloudConfig.subscriptions.type;
 	var domainName = userName.substring(userName.lastIndexOf('@') + 1);
 	var subscriptionInfo = {

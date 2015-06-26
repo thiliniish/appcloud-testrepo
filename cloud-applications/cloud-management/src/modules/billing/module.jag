@@ -72,6 +72,9 @@ jagg.module("billing", {
     isPlanUpgrade:function () {
     	return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isPlanUpgrade.apply(this, arguments);
     },
+    notifyRightwaveForUnfinishedUpgrades:function () {
+    	return jagg.require(jagg.getModulesDir() + "billing/billing.jag").notifyRightwaveForUnfinishedUpgrades.apply(this, arguments);
+    },
     getCloudURL:function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCloudURL.apply(this, arguments);
     }

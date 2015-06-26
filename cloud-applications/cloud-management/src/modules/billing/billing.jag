@@ -249,6 +249,48 @@ var updateContactInfo = function (accountData) {
     }
 }
 
+var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
+
+	var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+
+	if(is_enable.toString() == "true") {
+		var modEvents = jagg.module("events");
+		var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
+		var email = String(session.get("LOGGED_IN_USER_EMAIL"));
+		log.debug("Sending notification to rightwave for unfinished upgrades for "+email);
+		var jsonData={
+			"email" : email,
+			"cloudtype" : type,
+			"upgrade" : "0"
+		};
+		var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
+		var data = "json="+JSON.stringify(jsonData);
+		var result = post(URL,data,{
+			'Content-Type': 'application/json'}, 'text');
+			var msg = result['data'];
+			log.debug("Rightwave response "+msg)
+			var actionString = "Rightwave-"+type+"-Upgrade:";
+			var page = "Rightwave";
+			var item = type;
+			var events = [];
+			if(msg === "Data Submitted Successfully") {
+				actionString =  actionString+"Success";
+				session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
+			} else {
+				actionString =  actionString+"Failed";
+				log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
+			}
+			var event={
+			};
+			event.item = item;
+			event.timestamp = new Date().getTime();
+			event.pageName = page;
+			event.action = actionString;
+			events[events.length] = event;
+			modEvents.publishUserActivity(events,jagg.getUser(),email);
+	}
+}
+
 //Create Zuora account for tenant
 var createAccount = function (accountData, metaData) {
 

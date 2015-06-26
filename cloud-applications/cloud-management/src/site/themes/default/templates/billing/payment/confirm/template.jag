@@ -27,6 +27,7 @@
         callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
     }
     var isDowngrade = session.get("IS_DOWNGRADE");
+    session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
     %>
 
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>

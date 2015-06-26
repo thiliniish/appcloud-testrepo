@@ -107,6 +107,7 @@ var log = new Log("site/themes/default/templates/billing/plan/get/template.jag")
 var serviceId = session.get("SERVICE_ID");
 var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
 var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
+session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "true:"+serviceId);
 var currRatePlanId = null;
 var currRatePlan = null;
 var accounts = null;
