@@ -26,6 +26,7 @@
     var couponDiscount =  session.get("COUPON_DISCOUNT");
     var isFromChangePlan = request.getParameter("isFromChangePlan");
     var accountId = request.getParameter("accountId");
+    var actualPaymentAmount = session.get("ACTUAL_PAYMENT_AMOUNT");
     var l = Packages.java.util.Locale.getDefault();
     var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
     
@@ -51,7 +52,7 @@
             profileFirstName = claims.firstname || "";
             profileLastName = claims.lastname || "";
             signature = request.getParameter("signature");
-            refId = request.getParameter("refId")[0];
+            refId = request.getParameter("refId");
             field_passthrough1 = request.getParameter("field_passthrough1");
             field_passthrough2 = request.getParameter("field_passthrough2");
             field_passthrough3 = request.getParameter("field_passthrough3");
@@ -124,8 +125,9 @@
                     }
 
                     $('#discountPara').text(Number(couponDiscount).toFixed(2));
-                    document.getElementById("payable-ammount").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
-                    document.getElementById("payable-ammount-txt").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
+                    $('#actual-payable-amount-txt').text(Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2));
+                    $('#monthly-payable-amount-txt').text(Number(<%= monthlyRental %> - couponDiscount).toFixed(2));
+                    document.getElementById("payable-amount").innerHTML = Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2);
                     
             },
             function (jqXHR, textStatus, errorThrown) {
@@ -460,11 +462,11 @@
                    <div class="container col-md-8 wr-text">
                           <% if(isDowngrade ) {  %>
                            <p class="tcenter">You will be downgrading  your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
-                           <p class="tcenter">You will be charged USD <span id="payable-ammount-txt"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span> <b> on your next renewal date</b> <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
+                           <p class="tcenter">You will be charged USD <span id="payable-amount-txt"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span> <b> on your next renewal date</b> <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
                               <% } else {  %>
                                <p class="tcenter">You will be upgrading  your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
                              <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span>,  
-                             you will be charged USD <%=Number(monthlyRental - couponDiscount).toFixed(2)%> . Your today's payment will only be the difference between monthly charge and remaining balance from your previous payment. </p>
+                             you will be charged USD <span id="monthly-payable-amount-txt"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%> </span>. Your today's payment will be USD <span id="actual-payable-amount-txt"><%=Number(actualPaymentAmount - couponDiscount).toFixed(2)%>.</span> </p>
                             <% }   %>
                    </div>     
 		<% } if(responseFrom == EDIT_USER_INFO ) {  %>
@@ -500,11 +502,12 @@
 					<p class="col-md-8 nopad">&nbsp;</p><p class="col-md-4 nopad tright"><strong>USD</strong></p>
 					<p class="col-md-8 nopad">Subscription Fee (per/m)</p><p id="monthlyRentalPara" class="col-md-4 nopad tright"><%=Number(monthlyRental).toFixed(2)%></p>
 					<p class="col-md-8 nopad">Discount from coupon</p><p id="discountPara" class="col-md-4 nopad tright"><%=Number(couponDiscount).toFixed(2)%></p>
+					<p class="col-md-8 nopad">Remaining account balance</p><p id="accountBalancePara" class="col-md-4 nopad tright"><%=Number(monthlyRental - actualPaymentAmount).toFixed(2)%></p>
 					<br class="c-both" />
 					<div class="col-md-8 nopad blue">&nbsp;</div>
 					<div class="col-md-4 nopad tright ">
 						<p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
-						<p id="payableAmountPara" class="col-md-12 nopad nomargin blue-line-right"><span id="payable-ammount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span></p>
+						<p id="payableAmountPara" class="col-md-12 nopad nomargin blue-line-right"><span id="payable-amount"><%=Number(actualPaymentAmount - couponDiscount).toFixed(2)%></span></p>
 					</div>
 					<br class="c-both" />
 				</div>
