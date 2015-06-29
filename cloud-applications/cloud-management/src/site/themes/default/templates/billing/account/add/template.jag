@@ -127,8 +127,9 @@
                     $('#discountPara').text(Number(couponDiscount).toFixed(2));
                     $('#actual-payable-amount-txt').text(Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2));
                     $('#monthly-payable-amount-txt').text(Number(<%= monthlyRental %> - couponDiscount).toFixed(2));
+                    $('#payable-amount-txt').text(Number(<%= monthlyRental %> - couponDiscount).toFixed(2));
                     document.getElementById("payable-amount").innerHTML = Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2);
-                    
+
             },
             function (jqXHR, textStatus, errorThrown) {
                 $('.message_box').empty();

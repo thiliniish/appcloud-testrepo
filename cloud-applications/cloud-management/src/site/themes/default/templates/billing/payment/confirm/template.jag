@@ -110,13 +110,13 @@ $(document).ready(function($){
 			
 			
 			 <% if(isDowngrade ) {  %>
-                <p class="tcenter">You have sucessfully downgraded your payment plan to <span id="payable-amount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span> Plan</span></p>
-                           <p class="tcenter">You will be charged USD <%=Number(monthlyRental - couponDiscount).toFixed(2)%> <b>on your next renewal date</b> <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
+                <p class="tcenter">You have successfully downgraded your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
+                           <p class="tcenter">You will be charged USD <span id="payable-amount"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%> </span> <b>on your next renewal date</b> <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
                               <% } else if (responseFrom == IS_FROM_CHANGE_PLAN ) {  %>
-                               <p class="tcenter">You have sucessfully upgraded your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
+                               <p class="tcenter">You have successfully upgraded your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
                                <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span>,  you will be charged USD <%=Number(monthlyRental - couponDiscount).toFixed(2)%> . Your today's payment will be USD <span id="actual-payable-ammount-txt"><%=Number(actualPaymentAmount - couponDiscount).toFixed(2)%>.</span>  </p>
                             <% }  else {  %>     
-                            	<p class="tcenter">You have sucessfully subscribed to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
+                            	<p class="tcenter">You have successfully subscribed to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
 								<p class="tcenter">Your next renewal will be on <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
                             <% }    %>
 
