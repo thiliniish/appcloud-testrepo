@@ -18,6 +18,14 @@ var createAccount = function (serviceId){
     session.put("PRODUCT_PLAN_ID",productRatePlanId);
     var accountId =  mod.getAccountId();
     var couponId = mod.getCouponProductRatePlanId(couponData,serviceId);
+
+	// Getting actual payment amount
+	var ratePlans = session.get("RATE_PLANS");
+	var actualPaymentAmount = null;
+	if (isFromChangePlan == "true") {
+		actualPaymentAmount = mod.getActualPaymentAmount(accountId, productRatePlanId, ratePlans, serviceId);
+	}
+
     if((couponData != "" && couponData != "null" && couponData != null) && (couponId == null)){
     	log.error("Given Coupon " + couponData +" is invalid for : " + accountId);
     	print ("Given Coupon " + couponData +" is invalid." );
@@ -32,6 +40,11 @@ var createAccount = function (serviceId){
 	        session.put("CALLS_ABOVE_PLAN", callsAbovePlan);
 	        session.put("MONTHLY_RENTAL", monthlyRental);
 	        session.put("ACCOUNT_ID", accountId);
+			if (actualPaymentAmount != null) {
+				session.put("ACTUAL_PAYMENT_AMOUNT", actualPaymentAmount["amount"]);
+			} else {
+				session.put("ACTUAL_PAYMENT_AMOUNT", monthlyRental);
+			}
 	        log.info(isFromChangePlan);
 	        if(isFromChangePlan == 'true') {
 	        	print("add-billing-account.jag?isFromChangePlan=" + isFromChangePlan);

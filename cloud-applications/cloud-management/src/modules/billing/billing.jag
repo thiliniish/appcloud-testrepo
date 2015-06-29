@@ -508,6 +508,80 @@ log.info("Requesting Pricing Summary for serviceId : " + serviceId + " coupon : 
 	return "";
 };
 
+// Get the actual amount to be paid by the customer
+var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlans, serviceId) {
+
+	var ratePlan = getCurrentRatePlan(serviceId);
+	var currentRatePlanId;
+	var couponRatePlanId;
+	var planId = null;
+	var couponPlanId = null;
+
+	// Get rate plan Id for the current user account
+	for (var i = 0; i < ratePlan.length; i++) {
+		if ((ratePlan[i]["ratePlanName"].indexOf("coupon") < 0)) {
+			currentRatePlanId = ratePlan[i].productRatePlanId;
+			planId = ratePlan[i].id;
+		}
+		else {
+			couponRatePlanId = ratePlan[i].productRatePlanId;
+			couponPlanId = ratePlan[i].id;
+		}
+	}
+
+	// Get effective date
+	var isUpgrade = isPlanUpgrade(ratePlans, currentRatePlanId, newProductRatePlanId);
+	var effectiveDate = setChangePlanEffectiveDate(isUpgrade);
+	var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+
+
+	// Change plan data
+	var changePlanData = {
+		"termType": zuoraObj.termType,
+		"autoRenew": true,
+		"invoiceTargetDate": dateFormatter.format(effectiveDate),
+		"preview": true,
+		"previewType": "InvoiceItem"
+	};
+
+	// Old plan info
+	var oldPlanInfo = [];
+	var item = {};
+	item ["ratePlanId"] = planId;
+	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+	oldPlanInfo.push(item);
+
+	// Old plan info with coupon plan
+	if (couponPlanId != null) {
+		item = {};
+		item ["ratePlanId"] = couponPlanId;
+		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+		oldPlanInfo.push(item)
+	}
+
+	// New plan info
+	var newPlanInfo = [];
+	item = {};
+	item ["productRatePlanId"] = newProductRatePlanId;
+	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+	newPlanInfo.push(item);
+
+	// Add 'remove' and 'add' plan options
+	changePlanData["remove"] = oldPlanInfo;
+	changePlanData["add"] = newPlanInfo;
+
+	// get account summary info
+	var accInfoStr = billingService.getAccountSummary(accountId);
+	var accountSummary = JSON.parse(accInfoStr);
+	// Zuora api request URL
+	var url = zuoraObj.apis.subscriptions + "/" + accountSummary.subscriptions[0].subscriptionNumber;
+
+	var response = sendHTTPRequest(url, "PUT", null, changePlanData);
+	if (response.success) {
+		return response;
+	}
+	return null;
+};
 
 var calculateDiscountForCoupon = function(couponData){
     var serviceId = session.get("SERVICE_ID");

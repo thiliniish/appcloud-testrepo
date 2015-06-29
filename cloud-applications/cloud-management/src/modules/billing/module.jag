@@ -77,7 +77,10 @@ jagg.module("billing", {
     },
     getCloudURL:function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCloudURL.apply(this, arguments);
-    }
+	},
+	getActualPaymentAmount: function () {
+		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getActualPaymentAmount.apply(this, arguments);
+	}
     
 });
 %>
