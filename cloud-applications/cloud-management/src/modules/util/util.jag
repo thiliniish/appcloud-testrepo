@@ -522,6 +522,27 @@ var getDomainFromUsername = function(userName){
 	}
 };
 
+var getUserRoleDisplayName = function(userRoleKey){
+    var cloudMgtJsonObject = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var subscriptionTypes = cloudMgtJsonObject.subscriptions.type;
+    var userRoleDisplayName = "";
+
+    //Merging clouds user roles
+    var cloudUserRoles = [];
+
+    for(var z = 0; z < subscriptionTypes.length; z++){
+        cloudUserRoles = cloudUserRoles.concat(subscriptionTypes[z].roleTypes);
+    }
+
+    for(var i = 0; i < cloudUserRoles.length; i++){
+        if(cloudUserRoles[i].roleName == userRoleKey){
+            userRoleDisplayName = cloudUserRoles[i].displayRoles;
+            break;
+        }
+    }
+
+    return userRoleDisplayName;
+};
 
 %>
 

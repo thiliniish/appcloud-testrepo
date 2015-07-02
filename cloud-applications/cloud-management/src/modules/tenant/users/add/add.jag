@@ -1,7 +1,6 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
-include("/jagg/config_reader.jag");
 include("/modules/database/dataaccess.jag");
 include("/modules/database/sql.jag");
 // used for logging
@@ -175,20 +174,20 @@ var sendInvite = function(email,tenant,roles) {
 }
 
 var sendEmail = function(to,link,domain,roles) {
-    var roleArr = roles.split(",");
+    var userRoleArray = roles.split(",");
     var displayRoles="";
-    for(var i=0;i<roleArr.length;i++){
-        var str = getProperty("TenantRoles.Role." + roleArr[i] + ".DisplayName");
-        if(str != null || str != "" || str != "null") {
-            displayRoles = displayRoles + str;
-            if (i == roleArr.length - 2) {
+    for(var i=0;i<userRoleArray.length;i++){
+        var userRoleDisplayName = jagg.module("util").getUserRoleDisplayName(userRoleArray[i]);
+        if(userRoleDisplayName != null || userRoleDisplayName != "" || userRoleDisplayName != "null") {
+            displayRoles = displayRoles + userRoleDisplayName;
+            if (i == userRoleArray.length - 2) {
                 displayRoles = displayRoles + " and ";
-            } else if (i < roleArr.length - 2) {
+            } else if (i < userRoleArray.length - 2) {
                 displayRoles = displayRoles + ", ";
             }
         }
     }
-    if(roleArr.length == 1){
+    if(userRoleArray.length == 1){
         displayRoles = displayRoles + " role";
     } else{
         displayRoles = displayRoles + " roles";
@@ -199,20 +198,8 @@ var sendEmail = function(to,link,domain,roles) {
 	body = body.replace("$link",link).replace("$link",link);
 	body = body.replace("$tenant",domain);
 	body = body.replace("$roles",displayRoles);
-	var email = require('email');
-	var sender;
-	if (tls == "true") {
-		sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword,"tls");
-	} else {
-		sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword);
-
-	}
     var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-	sender.from = from;
-	sender.to = to;
-	sender.subject = subject + loggedInUserEmail;
-	sender.html = body;
-	sender.send();
+	jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
 	log.info("Email successfully sent to " + to);
 }
 
