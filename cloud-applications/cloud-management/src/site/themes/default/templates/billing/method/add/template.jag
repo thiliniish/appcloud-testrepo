@@ -151,6 +151,12 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
             $( "#redeembtn" ).click(function() {
                  calculateDiscount();
             });
+            $('#coupon').keydown(function(event) {
+                if(event.keyCode === 13) {
+                     calculateDiscount();
+                     return false;
+                }
+            });
             $('#submitbtn').mousedown(function(){
                   clickwithblur = true;
             });
