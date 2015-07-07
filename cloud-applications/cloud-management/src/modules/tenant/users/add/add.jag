@@ -198,7 +198,7 @@ var sendEmail = function(to,link,domain,roles) {
 	body = body.replace("$link",link).replace("$link",link);
 	body = body.replace("$tenant",domain);
 	body = body.replace("$roles",displayRoles);
-    var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
+	var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
 	jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
 	log.info("Email successfully sent to " + to);
 }
