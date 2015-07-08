@@ -178,8 +178,10 @@ var sendEmail = function(to,link,domain,roles) {
     var displayRoles="";
     for(var i=0;i<userRoleArray.length;i++){
         var userRoleDisplayName = jagg.module("util").getUserRoleDisplayName(userRoleArray[i]);
-        if(userRoleDisplayName != null || userRoleDisplayName != "" || userRoleDisplayName != "null") {
+        if(userRoleDisplayName != null && userRoleDisplayName != "" && userRoleDisplayName != "null") {
             displayRoles = displayRoles + userRoleDisplayName;
+
+            //Appending (',') or ('and') to the displayRoles string value.
             if (i == userRoleArray.length - 2) {
                 displayRoles = displayRoles + " and ";
             } else if (i < userRoleArray.length - 2) {
