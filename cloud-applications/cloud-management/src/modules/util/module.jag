@@ -68,6 +68,12 @@ jagg.module("util", {
     },
     getDomainFromUsername: function(){
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getDomainFromUsername.apply(this, arguments);
+    },
+    getUserRoleDisplayName: function(){
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserRoleDisplayName.apply(this, arguments);
+    },
+    sendEmail: function() {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendEmail.apply(this, arguments);
     }
 });
 %>
