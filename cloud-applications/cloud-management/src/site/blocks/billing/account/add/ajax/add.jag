@@ -107,8 +107,6 @@ var ratePlans = session.get("RATE_PLANS");
 						}
 					}
 				}
-			} else {
-				log.info("Given Coupon " + couponData + " is invalid for : " + accountId);
 			}
 			if (log.isDebugEnabled()) {
 				log.debug("Coupon discount result = " + result);
