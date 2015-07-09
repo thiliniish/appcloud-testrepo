@@ -628,25 +628,37 @@ var isValidCoupon = function (couponData, serviceId) {
 	}
 };
 
-var calculateDiscountForCoupon = function(couponData){
-    var serviceId = session.get("SERVICE_ID");
-    var premium = session.get("MONTHLY_RENTAL");
-	var pricingSummary = getPricingSummaryForCoupon(couponData, serviceId);
-    var discount = 0.00;
-    if (log.isDebugEnabled()) {
-        log.debug("Calculating discount for serviceId : " + serviceId + " coupon : " + couponData + " premium : " + premium + " pricingSummary = " + pricingSummary);
-    }
-	if (pricingSummary == "10%  discount") { //todo checking percentage logic need to be improved but due to an issue with indexof('%') =-1 , it was temporarily implemented in this way
-	    discount = premium * 0.1;
-	}else if (pricingSummary == "200USD  fixed"){
-	    discount = "200";
-	}else if (pricingSummary == "80%  discount"){
-        discount = premium * 0.8;
-	}else if (pricingSummary == "100%  discount"){
-        discount = premium * 1;
+// Get the discount value for the coupon
+var calculateDiscountForCoupon = function (couponData) {
+	var serviceId = session.get("SERVICE_ID");
+	var premium = session.get("MONTHLY_RENTAL");
+	var discount = 0.00;
+	try {
+		var pricingSummary = getPricingSummaryForCoupon(couponData, serviceId);
+		if (pricingSummary.length > 0) {
+			if (log.isDebugEnabled()) {
+				log.debug("Calculating discount for serviceId : " + serviceId + " coupon : " + couponData + " premium : " + premium + " pricingSummary = " + pricingSummary);
+			}
+			/** pricingSummary contains the coupon discount percentage or the fixed discount value
+			 * eg: "80%  discount" for percentage discounts
+			 * eg: "USD200 fixed amount discount" for fixed discount amounts **/
+			var pricingSummaryArray = pricingSummary.toString().split(" ");
+			if (pricingSummaryArray.length == 3 && pricingSummaryArray[0].indexOf("%")) {
+				// Get the discount percentage
+				var discountPercentage = pricingSummaryArray[0].substring(0, pricingSummaryArray.length - 1);
+				discount = premium * (parseInt(discountPercentage) / 100);
+			} else if (pricingSummaryArray.length > 3 && pricingSummaryArray[1].indexOf("fixed")) {
+				// Get the discount fixed amount
+				var discountFixAmount = pricingSummaryArray[0].substring(3);
+				discount = parseInt(discountFixAmount);
+			}
+		}
+		return discount;
+	} catch (e) {
+		log.error("ERROR in calculating discount for coupon : " + e.message);
+		throw new Error("ERROR in calculating discount for coupon " + couponData)
+		throw new Error(e);
 	}
-	session.put("COUPON_DISCOUNT", discount);
-    return discount;
 };
 
 // Function for change the current subscription plan
