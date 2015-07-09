@@ -113,7 +113,7 @@ var ratePlans = session.get("RATE_PLANS");
 			}
 			print(result);
 		} catch (e) {
-			throw new Error("Billing account discount preview failure for coupon " + couponData);
+			log.error("Billing account discount preview failure for coupon " + couponData + " : " + e.message);
 			log.error(e);
 			throw e;
 		}
