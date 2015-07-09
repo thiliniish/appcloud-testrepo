@@ -80,6 +80,9 @@ jagg.module("billing", {
 	},
 	getActualPaymentAmount: function () {
 		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getActualPaymentAmount.apply(this, arguments);
+	},
+	isValidCoupon: function () {
+		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isValidCoupon.apply(this, arguments);
 	}
     
 });
