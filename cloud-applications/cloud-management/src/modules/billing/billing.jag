@@ -610,22 +610,24 @@ var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlan
 			return actualPaymentResult;
 		}
 	} catch (e) {
-		log.error("ERROR in getting actual payment amount in preview mode : " + e.message);
-		throw new Error("ERROR in getting actual payment amount in preview mode for account " + accountId)
-		throw new Error(e);
+		log.error("ERROR in getting actual payment amount in preview mode for account " + accountId + " : " + e.message);
+		log.error(e);
+		throw e;
 	}
 };
 
 // Checking whether the provided coupon is valid
 var isValidCoupon = function (couponData, serviceId) {
+	var couponValidity = false;
 	if (couponData != "" && couponData != "null" && couponData != null) {
 		var couponProductRatePlanId = getCouponProductRatePlanId(couponData, serviceId);
 		if (couponProductRatePlanId != null) {
-			return true;
+			couponValidity = true;
+		} else {
+			log.info("Given Coupon " + couponData + " is invalid");
 		}
-		log.info("Given Coupon " + couponData + " is invalid");
-		return false;
 	}
+	return couponValidity;
 };
 
 // Get the discount value for the coupon
@@ -655,9 +657,9 @@ var calculateDiscountForCoupon = function (couponData) {
 		}
 		return discount;
 	} catch (e) {
-		log.error("ERROR in calculating discount for coupon : " + e.message);
-		throw new Error("ERROR in calculating discount for coupon " + couponData)
-		throw new Error(e);
+		log.error("ERROR in calculating discount for coupon : " + couponData + " : " + e.message);
+		log.error(e);
+		throw e;
 	}
 };
 
