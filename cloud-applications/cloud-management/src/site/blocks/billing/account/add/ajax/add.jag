@@ -67,17 +67,55 @@ var ratePlans = session.get("RATE_PLANS");
 			    throw new Error("Billing account creation failure: " + e);
 			}
 		}
-	} else if(action == "calculateDiscount") {
-            var couponData = request.getParameter("couponData");
-            var serviceId = request.getParameter("serviceId");
-           // var premium = request.getParameter("premium");
+	} else if (action == "calculateDiscount") {
+		var couponData = request.getParameter("couponData");
 		try {
-            session.put("PRODUCT_COUPON_DATA", couponData);
-			result = mod.calculateDiscountForCoupon(couponData, serviceId);
-			log.info("calculating discount result = " + result);
+			session.put("PRODUCT_COUPON_DATA", couponData);
+			var serviceId = session.get("SERVICE_ID");
+			var accountId = session.get("ACCOUNT_ID");
+			var productRatePlanId = session.get("PRODUCT_PLAN_ID");
+			result = 0;
+			// Check the coupon validity
+			if (mod.isValidCoupon(couponData, serviceId)) {
+				/** Coupon discount value is calculated in calculateDiscountForCoupon() function
+				 * in modules/billing/billing.jag. This coupon discount generic calculation logic
+				 * depends on the format of the PricingSummary value of the zuora productRatePlans
+				 * API response. In-order to avoid the risk of breaking the logic due to change in
+				 * the format of the value PricingSummary,this calculation is used only when creating
+				 * the billing account for the very first time.
+				 * Every other time coupon discount value get from the zuora subscriptions API PUT
+				 * in preview mode. This cannot be done in firs case as it requires billing account
+				 * id. **/
+				if (accountId == null) {
+					result = mod.calculateDiscountForCoupon(couponData);
+					session.put("COUPON_DISCOUNT", result);
+				} else {
+					var actualPaymentAmountResult = mod.getActualPaymentAmount(accountId, productRatePlanId, ratePlans, serviceId, couponData);
+					// Get the invoice item data
+					var invoiceItems = actualPaymentAmountResult["invoiceItems"];
+					var discountAmount;
+					for (var i = 0; i < invoiceItems.length; i++) {
+						// Check for discount charges
+						if (invoiceItems[i]["chargeName"] == 'Discount') {
+							discountAmount = invoiceItems[i]["chargeAmount"];
+							// Invoice items preview the current coupon discount as a negative numeric value
+							if (discountAmount.toString().charAt(0) == '-') {
+								// Get the positive numeric value of the current coupon discount amount
+								result = Math.abs(discountAmount);
+								session.put("COUPON_DISCOUNT", result.toString());
+							}
+						}
+					}
+				}
+			} else {
+				log.info("Given Coupon " + couponData + " is invalid for : " + accountId);
+			}
+			if (log.isDebugEnabled()) {
+				log.debug("Coupon discount result = " + result);
+			}
 			print(result);
 		} catch (e) {
-			throw new Error("Billing account calculating discount failure: ");
+			throw new Error("Billing account discount preview failure: ");
 			throw new Error(e);
 		}
 	} else {
