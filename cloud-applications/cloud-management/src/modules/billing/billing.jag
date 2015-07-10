@@ -508,9 +508,17 @@ log.info("Requesting Pricing Summary for serviceId : " + serviceId + " coupon : 
 	return "";
 };
 
-// Get the actual amount to be paid by the customer
-var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlans, serviceId) {
-
+// Get new subscription plan info
+var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId, ratePlans, serviceId, couponData, previewMode) {
+	// Checking the validity of the coupon and getting the new coupons rate plan Id
+	if (isValidCoupon(couponData, serviceId)) {
+		var newCouponProductRatePlanId = getCouponProductRatePlanId(couponData, serviceId);
+		if (newCouponProductRatePlanId == null) {
+			log.error("Given Coupon " + couponData + " is invalid for : " + accountId);
+			return ("Given Coupon " + couponData + " is invalid." );
+		}
+	}
+	// Get rate plans
 	var ratePlan = getCurrentRatePlan(serviceId);
 	var currentRatePlanId;
 	var couponRatePlanId;
@@ -528,22 +536,31 @@ var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlan
 			couponPlanId = ratePlan[i].id;
 		}
 	}
-
+	session.put("CURRENT_RATE_PLAN_ID", currentRatePlanId);
 	// Get effective date
 	var isUpgrade = isPlanUpgrade(ratePlans, currentRatePlanId, newProductRatePlanId);
 	var effectiveDate = setChangePlanEffectiveDate(isUpgrade);
+	session.put("EFFECTIVE_DATE", effectiveDate);
 	var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
 
-
 	// Change plan data
-	var changePlanData = {
-		"termType": zuoraObj.termType,
-		"autoRenew": true,
-		"invoiceTargetDate": dateFormatter.format(effectiveDate),
-		"preview": true,
-		"previewType": "InvoiceItem"
-	};
-
+	var changePlanData;
+	if (previewMode) {
+		changePlanData = {
+			"termType": zuoraObj.termType,
+			"autoRenew": true,
+			"invoiceTargetDate": dateFormatter.format(effectiveDate),
+			"preview": true,
+			"previewType": "InvoiceItem"
+		};
+	} else {
+		changePlanData = {
+			"termType": zuoraObj.termType,
+			"autoRenew": true,
+			"invoiceCollect": Boolean(isUpgrade),
+			"invoiceTargetDate": dateFormatter.format(effectiveDate)
+		};
+	}
 	// Old plan info
 	var oldPlanInfo = [];
 	var item = {};
@@ -561,6 +578,12 @@ var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlan
 
 	// New plan info
 	var newPlanInfo = [];
+	if (newCouponProductRatePlanId != null) {
+		item = {};
+		item ["productRatePlanId"] = newCouponProductRatePlanId;
+		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+		newPlanInfo.push(item);
+	}
 	item = {};
 	item ["productRatePlanId"] = newProductRatePlanId;
 	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
@@ -570,118 +593,87 @@ var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlan
 	changePlanData["remove"] = oldPlanInfo;
 	changePlanData["add"] = newPlanInfo;
 
-	// get account summary info
+	// Get account summary info
 	var accInfoStr = billingService.getAccountSummary(accountId);
 	var accountSummary = JSON.parse(accInfoStr);
 	// Zuora api request URL
 	var url = zuoraObj.apis.subscriptions + "/" + accountSummary.subscriptions[0].subscriptionNumber;
-
-	var response = sendHTTPRequest(url, "PUT", null, changePlanData);
-	if (response.success) {
-		return response;
-	}
-	return null;
+	return sendHTTPRequest(url, "PUT", null, changePlanData);
 };
 
-var calculateDiscountForCoupon = function(couponData){
-    var serviceId = session.get("SERVICE_ID");
-    var premium = session.get("MONTHLY_RENTAL");
-	var pricingSummary = getPricingSummaryForCoupon(couponData, serviceId);
-    var discount = 0.00;
-    if (log.isDebugEnabled()) {
-        log.debug("Calculating discount for serviceId : " + serviceId + " coupon : " + couponData + " premium : " + premium + " pricingSummary = " + pricingSummary);
-    }
-	if (pricingSummary == "10%  discount") { //todo checking percentage logic need to be improved but due to an issue with indexof('%') =-1 , it was temporarily implemented in this way
-	    discount = premium * 0.1;
-	}else if (pricingSummary == "200USD  fixed"){
-	    discount = "200";
-	}else if (pricingSummary == "80%  discount"){
-        discount = premium * 0.8;
-	}else if (pricingSummary == "100%  discount"){
-        discount = premium * 1;
+// Get the actual payment amount to be paid by the customer
+var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlans, serviceId, couponData) {
+	var previewMode = true;
+	try {
+		var actualPaymentResult = getChangeSubscriptionPlanResult(accountId, newProductRatePlanId, ratePlans, serviceId, couponData, previewMode);
+		if (actualPaymentResult.success) {
+			return actualPaymentResult;
+		}
+	} catch (e) {
+		log.error("ERROR in getting actual payment amount in preview mode for account " + accountId + " : " + e.message);
+		log.error(e);
+		throw e;
 	}
-	session.put("COUPON_DISCOUNT", discount);
-    return discount;
 };
 
+// Checking whether the provided coupon is valid
+var isValidCoupon = function (couponData, serviceId) {
+	var couponValidity = false;
+	if (couponData != "" && couponData != "null" && couponData != null) {
+		var couponProductRatePlanId = getCouponProductRatePlanId(couponData, serviceId);
+		if (couponProductRatePlanId != null) {
+			couponValidity = true;
+		} else {
+			log.info("Given Coupon " + couponData + " is invalid");
+		}
+	}
+	return couponValidity;
+};
+
+// Get the discount value for the coupon
+var calculateDiscountForCoupon = function (couponData) {
+	var serviceId = session.get("SERVICE_ID");
+	var premium = session.get("MONTHLY_RENTAL");
+	var discount = 0.00;
+	try {
+		var pricingSummary = getPricingSummaryForCoupon(couponData, serviceId);
+		if (pricingSummary.length > 0) {
+			if (log.isDebugEnabled()) {
+				log.debug("Calculating discount for serviceId : " + serviceId + " coupon : " + couponData + " premium : " + premium + " pricingSummary = " + pricingSummary);
+			}
+			/** pricingSummary contains the coupon discount percentage or the fixed discount value
+			 * eg: "80%  discount" for percentage discounts
+			 * eg: "USD200 fixed amount discount" for fixed discount amounts **/
+			var pricingSummaryArray = pricingSummary.toString().split(" ");
+			if (pricingSummaryArray.length == 3 && pricingSummaryArray[0].indexOf("%")) {
+				// Get the discount percentage
+				var discountPercentage = pricingSummaryArray[0].substring(0, pricingSummaryArray.length - 1);
+				discount = premium * (parseInt(discountPercentage) / 100);
+			} else if (pricingSummaryArray.length > 3 && pricingSummaryArray[1].indexOf("fixed")) {
+				// Get the discount fixed amount
+				var discountFixAmount = pricingSummaryArray[0].substring(3);
+				discount = parseInt(discountFixAmount);
+			}
+		}
+		return discount;
+	} catch (e) {
+		log.error("ERROR in calculating discount for coupon : " + couponData + " : " + e.message);
+		log.error(e);
+		throw e;
+	}
+};
+
+// Function for change the current subscription plan
 var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlans, serviceId,couponData) {
-	//checking the validity of the coupon and getting the new coupons rate plan Id
-	if(couponData != "" && couponData != "null" && couponData != null){
-		var newCouponProductRatePlanId = getCouponProductRatePlanId(couponData,serviceId);
-		if(newCouponProductRatePlanId == null){
-			log.error("Given Coupon " + couponData +" is invalid for : " + accountId);
-			return ("Given Coupon " + couponData +" is invalid." );
-		}
-	}
-	var ratePlan = getCurrentRatePlan(serviceId);
-	var currentRatePlanId;
-	var couponRatePlanId;
-	var planId = null;
-	var couponPlanId = null;
+	// Get current rate plan id
+	var currentRatePlanId = session.get("CURRENT_RATE_PLAN_ID");
+	var effectiveDate = session.get("EFFECTIVE_DATE");
+	var previewMode = false;
 	var parameters;
-	var oldPlanInfoArray= new Array();
-	//if 2 rate plans available for the current user account
-	for(var i = 0; i < ratePlan.length; i++){
-		if((ratePlan[i]["ratePlanName"].indexOf("coupon") < 0)){
-			currentRatePlanId = ratePlan[i].productRatePlanId;
-			planId = ratePlan[i].id;
-		}
-		else{
-			couponRatePlanId = ratePlan[i].productRatePlanId;
-			couponPlanId = ratePlan[i].id;
-		}
-	}
-
-	var isUpgrade = isPlanUpgrade(ratePlans, currentRatePlanId, newProductRatePlanId);
-	var effectiveDate = setChangePlanEffectiveDate(isUpgrade);
-
-	var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
-    var changePlanData = {
-		"termType": zuoraObj.termType,
-		"autoRenew": true,
-		"invoiceCollect": Boolean(isUpgrade),
-		"invoiceTargetDate": dateFormatter.format(effectiveDate)
-	};
-    // get account summary info
-	var accInfoStr = billingService.getAccountSummary(accountId);
-    var accountSummary = JSON.parse(accInfoStr);
-
-    if (log.isDebugEnabled()){
-        log.debug("Rate plan updated for account: " + accountId + "for plan: " + newProductRatePlanId);
-    }
- 
-    var  item = {};
- 	item ["ratePlanId"] = planId;
-   	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
-   
-	var oldPlanInfo = [];
-	oldPlanInfo.push(item);
-	if(couponPlanId != null){
-		item = {};
-		item ["ratePlanId"] = couponPlanId;
-		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
-		oldPlanInfo.push(item)
-	}
-	
-	// create new plan info
-	var newPlanInfo = [];
-	if(newCouponProductRatePlanId != null){
-		item = {};
-		item ["productRatePlanId"] = newCouponProductRatePlanId;
-		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
-		newPlanInfo.push(item);
-	}
-	item = {};
-	item ["productRatePlanId"] = newProductRatePlanId;
-	item ["contractEffectiveDate"] =  dateFormatter.format(effectiveDate);
-	newPlanInfo.push(item);
-
-	changePlanData["remove"] = oldPlanInfo;
-	changePlanData["add"] = newPlanInfo;
-
-	var url = zuoraObj.apis.subscriptions + "/" + accountSummary.subscriptions[0].subscriptionNumber;
-	var response = sendHTTPRequest(url, "PUT", null, changePlanData);
-
+	// Remove session variable
+	session.remove("CURRENT_RATE_PLAN_ID");
+	session.remove("EFFECTIVE_DATE");
+	var response = getChangeSubscriptionPlanResult(accountId, newProductRatePlanId, ratePlans, serviceId, couponData, previewMode);
     if (response.success) {
         //add an entry to subscription
         //UPDATE_ BILLING_ACCOUNT_AMENDMENTS

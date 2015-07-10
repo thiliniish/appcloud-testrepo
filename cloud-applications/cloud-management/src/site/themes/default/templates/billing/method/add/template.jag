@@ -14,7 +14,7 @@
     var callsPerDay =  session.get("CALLS_PER_DAY");
     var callsAbovePlan =  session.get("CALLS_ABOVE_PLAN");
     var monthlyRental =  session.get("MONTHLY_RENTAL");
-    var couponDiscount =  session.get("DISCOUNT");
+    var couponDiscount =  session.get("COUPON_DISCOUNT");
     var l = Packages.java.util.Locale.getDefault();
     var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
     if(callsPerDay != null) {
