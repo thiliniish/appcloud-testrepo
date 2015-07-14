@@ -24,31 +24,31 @@ var isUserInAdminRole = function () {
         var tenantInfo = session.get("TENANT_INFO");
         var context=multitenancy.getPrivilegedCarbonContext();
 
-        try {
             if (tenantInfo != null && userName != null) {
-                var tenantManager = multitenancy.getTenantManager();
-                var userNameWithoutTenant = userName.substring(0, userName.lastIndexOf('@'));
-                var tenantDomain=tenantInfo.tenantDomain;
-                var tenantId = tenantManager.getTenantId(tenantDomain);
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-
-                var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
-                isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(userNameWithoutTenant, ROLE_ADMIN);
-                session.put("IS_USER_ADMIN", String(isAdmin));
-                return isAdmin;
+                try {
+                  context.startTenantFlow();
+                  var tenantManager = multitenancy.getTenantManager();
+                  var userNameWithoutTenant = userName.substring(0, userName.lastIndexOf('@'));
+                  var tenantDomain=tenantInfo.tenantDomain;
+                  var tenantId = tenantManager.getTenantId(tenantDomain);
+                  context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+                  context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+                  var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+                  isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(userNameWithoutTenant, ROLE_ADMIN);
+                  session.put("IS_USER_ADMIN", String(isAdmin));
+                  return isAdmin;
+                } catch (e) {
+                  log.error("Error while authenticating user for admin role. User: "+ userName +". Error:" +e);
+                  return false;
+                } finally {
+                  context.endTenantFlow();
+                }
             } else {
                 return false;
             }
-        } catch (e) {
-            log.error("Error while authenticating user for admin role. User: "+ userName +". Error:" +e);
-            return false;
-        } finally {
-            context.endTenantFlow();
-        }
     }
 };
+
 
 var sendBillingTrialExtendedNotification = function (tenantDomain, serviceId, endDate, customerRequest) {
 
