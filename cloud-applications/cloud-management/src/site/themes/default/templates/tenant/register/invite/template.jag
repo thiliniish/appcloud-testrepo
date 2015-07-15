@@ -79,6 +79,9 @@ section.start_content div.subs-cont {
 	background-color: #EB7067;
 	border: #EB7067;
 }
+#success-message{
+    display:none;
+}
 </style>
 
 <!-- Google Tag Manager -->
@@ -95,7 +98,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
     function validateEmail(){
-     
+
         var isEmailValid=true;
         var email = $("#email").val();
         var patternForEmailValidation =/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -143,14 +146,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 		 $('#submitbtn').css('background-color','#F9BFBB');
 		 submitButton.disabled = true;
 	}
-	
+
 	function enable() {
 		document.getElementById("spinner").style.display = 'none';
 		 var submitButton = document.getElementById('submitbtn');
 		 $('#submitbtn').css('background-color','#428BCA');
 		//submitButton.disabled = false;
 	}
-	
+
 function doSubmit() {
     var email = $("#email").attr('value');
     disable();
@@ -163,16 +166,19 @@ function doSubmit() {
 	              function (result) {
 	            	  result = result.replace(/(\r\n|\n|\r)/gm,"");
 	            	  if(result=="false"){
-	            	      
+
 	            	        jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
 	            	                         action:"sendInvite",
 	            	                         email:email
 	            	                  },
 	            	                  function (result) {
-	            	                        jagg.message({content:'We\'ve just sent you the welcome email to ' + email + ' Please click the link in the email to continue.',type:'success',cbk:function(){
-	            	                                window.location.href = "index.jag";
-	            	                        }
-	            	                        });enable();
+	            	                        $(".content-starter h1").text("Check Your Email");
+                                            $(".content-starter h1").css('color','white');
+                                            $("#email-sent-to").replaceWith("<h5> We have sent you the welcome email to <b>"+email+"</b>. Please click the link in the email to continue signing up.</h5>");
+                                            $(".helper_text h5").css({'font-size':'18px', 'text-align':'left'});
+                                            $("#helper_text").hide();
+                                            $("#success-message").show();
+                                            $(".content-section-wrapper").hide();
 	            	                  },
 	            	                  function (jqXHR, textStatus, errorThrown) {
 	            	                        jagg.message({content:' Error Sending the registration email ', type:'error',cbk:function(){
@@ -211,6 +217,11 @@ function doSubmit() {
 			<div class="helper_text" id="helper_text">
 			    <p>The world's most comprehensive platform-as-a-service</p>
 		    </div>
+		    <div class="helper_text" id="success-message">
+                <p id="email-sent-to"></p>
+                <p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no typos and that the email didn’t get caught in you spam folder</p>
+                <p>If the email still cannot be found, contact us at <a href="mailto:cloud@wso2.com">cloud@wso2.com</a></p>
+            </div>
 		</div>
 
 	</div>
@@ -245,6 +256,4 @@ function doSubmit() {
 		</div>
 	</div>
 </div>
-
-
 <% }); %>
