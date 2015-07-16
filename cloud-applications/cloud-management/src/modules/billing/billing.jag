@@ -773,16 +773,18 @@ var setChangePlanEffectiveDate = function (isUpgrade) {
 
 var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
 
-    var currentPlanLevel = 0;
-    var newPlanLevel = 0;
-    for(var i=0; i<ratePlans.length; i++) {
-        if (ratePlans[i].id == currentRatePlan){
-            currentPlanLevel = ratePlans[i].premiumLevel;
-        } else if (ratePlans[i].id == newRatePlan){
-            newPlanLevel = ratePlans[i].premiumLevel;
-        }
-    }
-    return currentPlanLevel < newPlanLevel;
+	var currentPlanLevel = 0;
+	var newPlanLevel = 0;
+	if (ratePlans != null) {
+		for (var i = 0; i < ratePlans.length; i++) {
+			if (ratePlans[i].id == currentRatePlan) {
+				currentPlanLevel = ratePlans[i].premiumLevel;
+			} else if (ratePlans[i].id == newRatePlan) {
+				newPlanLevel = ratePlans[i].premiumLevel;
+			}
+		}
+	}
+	return currentPlanLevel < newPlanLevel;
 };
 
 /*
