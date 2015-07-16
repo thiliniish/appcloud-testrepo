@@ -395,7 +395,8 @@ ul
                         <h5>Remaining profile information</h5></label>
                 </div>
                 <div class="form-group">
-                    <label for="firstname" class="col-lg-4 col-md-12 col-sm-12 col-xs-12 fixed-width-label" style="text-align:center;">
+                    <label class="col-lg-1"></label>
+                    <label for="firstname" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" style="text-align:center;">
                         <span style="color:#ff0000;"> * </span>First name</label>
                     <div class="col-sm-6">
                         <input type="text" id="firstName" name="firstName" class="required left" style="margin-bottom:10px;"/>
@@ -404,7 +405,8 @@ ul
                 </div>
 
                 <div class="form-group">
-                    <label for="lastName" class="col-lg-4 col-md-12 col-sm-12 col-xs-12 fixed-width-label" style="text-align:center;">
+                    <label class="col-lg-1"></label>
+                    <label for="lastName" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" style="text-align:center;">
                         <span style="color:#ff0000;"> * </span>Last name</label>
                     <div class="col-sm-6">
                         <input type="text" id="lastName" name="lastName" class="required left" style="margin-bottom:10px;"/>
@@ -413,7 +415,8 @@ ul
                 </div>
                 <% if(!isInvitee) {%>
                     <div class="form-group">
-                        <label for="companyName" class="col-lg-4 col-md-12 col-sm-12 col-xs-12 fixed-width-label" style="text-align:center;">
+                        <label class="col-lg-1"></label>
+                        <label for="companyName" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" style="text-align:center;">
                             <span style="color:#ff0000;"> * </span>Company</label>
                         <div class="col-sm-6">
                             <input type="text" id="companyName" name="companyName" class="required domain" style="margin-bottom:10px;" />
