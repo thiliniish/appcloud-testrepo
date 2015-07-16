@@ -396,7 +396,7 @@ ul
                 </div>
                 <div class="form-group">
                     <label for="firstname" class="col-lg-4 col-md-12 col-sm-12 col-xs-12 fixed-width-label">
-                        <span style="color:#ff0000;"> * </span>First Name</label>
+                        <span style="color:#ff0000;"> * </span>First name</label>
                     <div class="col-sm-6">
                         <input type="text" id="firstName" name="firstName" class="required left" style="margin-bottom:10px;"/>
                     </div>
@@ -405,7 +405,7 @@ ul
 
                 <div class="form-group">
                     <label for="lastName" class="col-lg-4 col-md-12 col-sm-12 col-xs-12 fixed-width-label">
-                        <span style="color:#ff0000;"> * </span>Last Name</label>
+                        <span style="color:#ff0000;"> * </span>Last name</label>
                     <div class="col-sm-6">
                         <input type="text" id="lastName" name="lastName" class="required left" style="margin-bottom:10px;"/>
                     </div>
@@ -414,7 +414,7 @@ ul
                 <% if(!isInvitee) {%>
                     <div class="form-group">
                         <label for="companyName" class="col-lg-4 col-md-12 col-sm-12 col-xs-12 fixed-width-label">
-                            <span style="color:#ff0000;"> * </span>Company Display Name</label>
+                            <span style="color:#ff0000;"> * </span>Company</label>
                         <div class="col-sm-6">
                             <input type="text" id="companyName" name="companyName" class="required domain" style="margin-bottom:10px;" />
                         </div>
