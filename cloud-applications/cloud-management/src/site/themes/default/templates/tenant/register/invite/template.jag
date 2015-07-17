@@ -98,7 +98,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 
     function validateEmail(){
-
         var isEmailValid=true;
         var email = $("#email").val();
         var patternForEmailValidation =/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -166,19 +165,18 @@ function doSubmit() {
 	              function (result) {
 	            	  result = result.replace(/(\r\n|\n|\r)/gm,"");
 	            	  if(result=="false"){
-
 	            	        jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
 	            	                         action:"sendInvite",
 	            	                         email:email
 	            	                  },
 	            	                  function (result) {
 	            	                        $(".content-starter h1").text("Check Your Email");
-                                            $(".content-starter h1").css('color','white');
-                                            $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>"+email+"</b>. Please click the link in the email to continue signing up.</h5>");
-                                            $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
-                                            $("#helper_text").hide();
-                                            $("#success-message").show();
-                                            $(".content-section-wrapper").hide();
+                                             $(".content-starter h1").css('color','white');
+                                             $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>"+email+"</b>. Please click the link in the email to continue signing up.</h5>");
+                                             $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
+                                             $("#helper_text").hide();
+                                             $("#success-message").show();
+                                             $(".content-section-wrapper").hide();
 	            	                  },
 	            	                  function (jqXHR, textStatus, errorThrown) {
 	            	                        jagg.message({content:' Error Sending the registration email ', type:'error',cbk:function(){
