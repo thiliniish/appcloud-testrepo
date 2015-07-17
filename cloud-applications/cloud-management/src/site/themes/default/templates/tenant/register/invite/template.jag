@@ -171,13 +171,13 @@ function doSubmit() {
 	            	                  },
 	            	                  function (result) {
 	            	                        $(".content-starter h1").text("Check Your Email");
-                                             $(".content-starter h1").css('color','white');
-                                             $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>"+email+"</b>. Please click the link in the email to continue signing up.</h5>");
-                                             $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
-                                             $("#helper_text").hide();
-                                             $("#success-message").show();
-                                             $(".content-section-wrapper").hide();
-	            	                  },
+                                                $(".content-starter h1").css('color','white');
+                                                $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>"+email+"</b>. Please click the link in the email to continue signing up.</h5>");
+                                                $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
+                                                $("#helper_text").hide();
+                                                $("#success-message").show();
+                                                $(".content-section-wrapper").hide();
+	            	                  }, 
 	            	                  function (jqXHR, textStatus, errorThrown) {
 	            	                        jagg.message({content:' Error Sending the registration email ', type:'error',cbk:function(){
 	            	                        window.location.href = "index.jag";
@@ -216,10 +216,10 @@ function doSubmit() {
 			    <p>The world's most comprehensive platform-as-a-service</p>
 		    </div>
 		    <div class="helper_text" id="success-message">
-                <p id="email-sent-to"></p>
-                <br><p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no typos and that the email didn’t get caught in you spam folder</p>
-                <p>If the email still cannot be found, contact us at <a href="mailto:cloud@wso2.com">cloud@wso2.com</a></p>
-            </div>
+                        <p id="email-sent-to"></p>
+                        <br><p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no typos and that the email didn’t get caught in you spam folder</p>
+                        <p>If the email still cannot be found, contact us at <a href="mailto:cloud@wso2.com">cloud@wso2.com</a></p>
+                     </div>
 		</div>
 
 	</div>
