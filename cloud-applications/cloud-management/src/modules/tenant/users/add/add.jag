@@ -240,7 +240,8 @@ var sendUserInvite = function sendUserInvite(users,roles){
 
 
 
-var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassword, firstName, lastName){
+var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassword, firstName,
+                                                   lastName, isStoreInvitee) {
 
 	try {
 		var tenantMod = jagg.module("tenant");
@@ -268,11 +269,15 @@ var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassw
 		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
 		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
 
-		if(!isUserExist) {
-		    server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
-			jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
-			//jagg.module("util").addUserToRightWave(email);
-		}
+        if (!isUserExist) {
+            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
+            jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
+
+            //since the store invitees do not get added to rightwave
+            if (!isStoreInvitee) {
+                //jagg.module("util").addUserToRightWave(email);
+            }
+        }
         log.info("Updating the user roles");
         server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(userName, assignedRoles, null);
 	}catch(e){

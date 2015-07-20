@@ -13,8 +13,9 @@ var log = new Log("site/blocks/tenant/register/confirm/ajax/confirm.jag");
 	if (action == "confirmUser") {
 		var confirm = request.getParameter("confirm");
 		var isInvitee = request.getParameter("isInvitee");
+		var isStoreInvitee = request.getParameter("isStoreInvitee");
 		try {
-			var result = mod.confirmUser(confirm,isInvitee);
+			var result = mod.confirmUser(confirm,isInvitee,isStoreInvitee);
 			if (result != null) {
 				print(result);
 			} else {
