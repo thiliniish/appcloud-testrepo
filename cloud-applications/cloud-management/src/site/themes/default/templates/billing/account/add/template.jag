@@ -33,12 +33,17 @@
     var selectedRatePlanId =  session.get("PRODUCT_PLAN_ID");
     var previousRatePlanId =  session.get("OLD_PLAN_ID");
     var ratePlans =  session.get("RATE_PLANS");
-    var isUpgrade = jagg.module("billing").isPlanUpgrade(ratePlans, previousRatePlanId, selectedRatePlanId);
-    if(responseFrom == IS_FROM_CHANGE_PLAN &&  !isUpgrade){
-    	session.put("IS_DOWNGRADE",true);
-    } else {
-    	session.put("IS_DOWNGRADE",false);
+    // verifying a downgrade/upgrade
+    if (responseFrom == IS_FROM_CHANGE_PLAN) {
+        // Check for upgrade
+        var isUpgrade = jagg.module("billing").isPlanUpgrade(ratePlans, previousRatePlanId, selectedRatePlanId);
+        if (isUpgrade) {
+            session.put("IS_DOWNGRADE", false);
+        } else {
+            session.put("IS_DOWNGRADE", true);
+        }
     }
+
     var isDowngrade = session.get("IS_DOWNGRADE");
     
     if(callsPerDay != null){

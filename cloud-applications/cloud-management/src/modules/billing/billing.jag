@@ -132,7 +132,7 @@ var cancelSubscription = function(serviceName) {
 				}				
 			}
 			if(serviceId!=null){
-	            updateBillingStatus(status.DISABLED, effectiveDate, type.PAID, serviceId, tenantDomain);
+	            updateBillingStatus(status.PENDING_DISABLE, effectiveDate, type.PAID, serviceId, tenantDomain);
             }
             var tenantDisplayName = getDisplayNameFromTenantDomain(tenantDomain);
             if (tenantDisplayName!=null) {
