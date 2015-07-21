@@ -217,7 +217,7 @@ function doSubmit() {
 		    </div>
 		    <div class="helper_text" id="success-message">
                         <p id="email-sent-to"></p>
-                        <br><p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no typos and that the email didn’t get caught in you spam folder</p>
+                        <br><p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no typos and that the email didn’t get caught in your spam folder.</p>
                         <p>If the email still cannot be found, contact us at <a href="mailto:cloud@wso2.com">cloud@wso2.com</a></p>
                      </div>
 		</div>
