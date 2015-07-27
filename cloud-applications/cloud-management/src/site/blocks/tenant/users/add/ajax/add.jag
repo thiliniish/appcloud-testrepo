@@ -99,9 +99,8 @@ var log = new Log();
 		var password=request.getParameter("adminPassword");
 		var firstName=request.getParameter("firstName");
 		var lastName=request.getParameter("lastName");
-		var isStoreInvitee=request.getParameter("isStoreInvitee");
 		try {
-			var result =mod.importInvitedUser(confirmationKey, password, firstName, lastName, isStoreInvitee);
+			var result =mod.importInvitedUser(confirmationKey, password, firstName, lastName);
 			if (result != null) {
 				var url=jagg.module("util").getInviteeDirectUrl(result);
 				print(url);

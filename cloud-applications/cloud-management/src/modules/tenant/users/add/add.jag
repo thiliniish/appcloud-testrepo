@@ -241,7 +241,7 @@ var sendUserInvite = function sendUserInvite(users,roles){
 
 
 var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassword, firstName,
-                                                   lastName, isStoreInvitee) {
+                                                   lastName) {
 
 	try {
 		var tenantMod = jagg.module("tenant");
@@ -272,13 +272,8 @@ var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassw
         if (!isUserExist) {
             server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
             jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
-
-            //since the store invitees do not get added to rightwave
-            if (!isStoreInvitee) {
-                //jagg.module("util").addUserToRightWave(email);
-            }
         }
-        log.info("Updating the user roles");
+        log.info("Updating the user roles of user "+userName);
         server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(userName, assignedRoles, null);
 	}catch(e){
         log.error("Error while importing " + firstName + " " + lastName + "." + e);

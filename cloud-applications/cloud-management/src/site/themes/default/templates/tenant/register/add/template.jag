@@ -23,7 +23,6 @@ var eulaContent =  eulaDoc.EULA.text();
 var confirmationKey = session.get("registration-intermediate-data");
 var email = session.get("registration-email");
 var isInvitee = session.get("isInvitee");
-var isStoreInvitee = session.get("isStoreInvitee");
 var isUserAvail = session.get("isUserAvail");
 %>
 
@@ -86,15 +85,13 @@ ul
         var isInvitee = $("#isInvitee").attr('value');
         var firstName = $("#firstName").attr('value');
         var lastName = $("#lastName").attr('value');
-        var isStoreInvitee=$("#isStoreInvitee").attr('value');
         if(isInvitee == "true") {
               jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
                   action:"importInvitedUser",
                   adminPassword:adminPassword ,
                   confirmationKey:confirmationKey,
                   firstName:firstName,
-                  lastName:lastName,
-                  isStoreInvitee:isStoreInvitee
+                  lastName:lastName
               },
               function (result) {
                   jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
@@ -434,7 +431,6 @@ ul
 
 
                         <input type="hidden" name="isInvitee" id="isInvitee" value="<%=isInvitee%>" />
-                        <input type="hidden" name="isStoreInvitee" id="isStoreInvitee" value="<%=isStoreInvitee%>" />
                         <input type="hidden" name="confirmationKey" id="confirmationKey" value="<%=confirmationKey%>" />
                         <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>" />
                         <input type="hidden" name="secretKey" id="secretKey" value="" />

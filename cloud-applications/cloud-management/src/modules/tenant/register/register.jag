@@ -55,17 +55,11 @@ var confirmUser = function(confirm,isInvitee,isStoreInvitee) {
             var email =   results[0]["email"];
             var userName =  jagg.module("util").getUserNameFromEmail(email);
             var isUserAvail = isExistingUser(userName);
-            if(isUserAvail && isStoreInvitee){
+            if((isUserAvail && isStoreInvitee) || (isUserAvail && isUserInvitee)){
                 var tenantMod = jagg.module("tenant");
                 var roles= tenantMod.importInvitedUser(confirm,null);
                 var url=jagg.module("util").getInviteeDirectUrl(roles);
                 log.debug("user is invited to "+tenantMod);
-                return url;
-            } else if(isUserAvail && isUserInvitee){
-                var tenantMod = jagg.module("tenant");
-                var roles= tenantMod.importInvitedUser(confirm,null);
-                var url=jagg.module("util").getInviteeDirectUrl(roles);
-                log.debug("user is invited to "+tenantMod+" url- "+url);
                 return url;
             }
             session.put('isUserAvail',isUserAvail);
