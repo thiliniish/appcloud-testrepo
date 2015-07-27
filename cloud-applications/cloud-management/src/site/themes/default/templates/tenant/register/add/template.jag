@@ -176,6 +176,7 @@ ul
 
     $(document).ready(function($){
         var clickwithblur = false;
+        var isKeyup = false;
         checkConfirmation();
         getProfile();
         jQuery.validator.setDefaults({
@@ -204,7 +205,7 @@ ul
         });
         jQuery.validator.addMethod("confirmPassword", function(value, element) {
             var isUserAvail = '<%=isUserAvail%>';
-            if(isUserAvail != 'true'){
+            if(isUserAvail != 'true' || (isUserAvail == 'true' && isKeyup)){
                 return true;
             }
             var email = '<%=email%>';
@@ -229,24 +230,12 @@ ul
             return isValid;
         }, "Password is not correct.");
 
-        jQuery.validator.addMethod("validatePassword", function(value, element) {
-               var isUserAvail = '<%=isUserAvail%>';
-               if (isUserAvail) {
-                   return true;
-                } else {
-                    var re = /(?=.*\d)(?=.*[a-z])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])(?=.*[A-Z]).{8,}/;
-                    var isValidPwd = re.test(value);
-                 	return isValidPwd;
-                }
-               return false;
-        }, "Password validation failed - Your password must contain at least 8 characters including one digit from 0-9, one lowercase character, one uppercase characters and one special symbol.");
 		$('#registerForm').validate({
 		    onfocusout: false,
 		    onkeyup: false,
 			rules : {
                 password: {
                     required: true,
-                    validatePassword:true,
                     confirmPassword:true
                 },
 		        companyName: {
@@ -278,12 +267,14 @@ ul
 
         $('#password').blur(function(){
            $('.password-meter').hide();
+           isKeyup = false;
            if (!clickwithblur){
               $('#password').valid();
            }
         });
 
         $("#password").keyup(function() {
+           isKeyup = true;
            $('#password').valid();
         });
 
