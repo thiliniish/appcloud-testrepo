@@ -25,6 +25,9 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
+            <excludes>
+                <exclude>mysql:mysql-connector-java:jar:*</exclude>
+            </excludes>
         </dependencySet>
     </dependencySets>
 
