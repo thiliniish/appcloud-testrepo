@@ -1,0 +1,12 @@
+<% jagg.template("page/billing_messages", function (inputs, outputs, jagg) { %>
+<div class="message_box info-message">
+    <div class="message warning_message" style="display:none;">
+            <div class="left"></div>
+            <a href="#" class="close_message right icon-remove-sign js_close_message"></a>
+    </div>
+</div>
+
+    <a id="qtip" href="#" style="display:none">Qtip</a>
+<%
+});
+%>
