@@ -756,6 +756,7 @@ var setChangePlanEffectiveDate = function (isUpgrade) {
     try {
         if (!isUpgrade) {
             var accountDetails = getAccountDetails();
+            if(accountDetails.success) {
             var billCycleDay = accountDetails.billingAndPayment.billCycleDay;
 
             //to calculate effectiveDate
@@ -769,10 +770,11 @@ var setChangePlanEffectiveDate = function (isUpgrade) {
             if (tempCal.get(dayOfMonth) >= cal.get(dayOfMonth)) {
                 cal.add(Packages.java.util.Calendar.MONTH, 1);
             }
-
             return cal.getTime();
+            }
+            return accountDetails;
         } else {
-            return new Packages.java.util.Date();
+        return new Packages.java.util.Date();
         }
 
     } catch (e) {
