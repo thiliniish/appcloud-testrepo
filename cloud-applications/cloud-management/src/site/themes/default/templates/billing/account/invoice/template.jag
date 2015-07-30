@@ -1,6 +1,7 @@
 <% jagg.template("billing/account/invoice", function(inputs, outputs, jagg) { 
 	
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var currency = cloudConfig.billing.zuora.currency.toString();
 var invoiceId = request.getParameter("invoiceId");
 %>
@@ -90,8 +91,13 @@ th, td {
 
             
 	   },
-	   function (jqXHR, textStatus, errorThrown) {  	
-	   	 jagg.message({type:'error',content:'<strong>Error!</strong> Error while getting the invoice data. Please contact support.'});
+	   function (jqXHR, textStatus, errorThrown) {
+	   $('.message_box').empty();
+	   jagg.message({content:"Unable to load the Invoice data at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
+		var cloudMgtURL =  $("#cloudmgtURL").attr('value');
+	   	window.location.href = cloudMgtURL+"/site/pages/contact-us.jag" ;
+	   }
+	   });
 	   });
   	   });
 </script>
@@ -185,6 +191,7 @@ th, td {
 			</div>
 			<div class="col-lg-12 ">
 			<a class="btn btn-primary" href="<%=jagg.getAbsoluteUrl("/site/pages/account-summary.jag")%>"> Back </a>
+			<input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudMgtURL%>" />
 			</div>
 		</div>
 	</div>
