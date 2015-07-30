@@ -657,7 +657,7 @@ var calculateDiscountForCoupon = function (couponData) {
 			var pricingSummaryArray = pricingSummary.toString().split(" ");
 			if (pricingSummaryArray.length == 3 && pricingSummaryArray[0].indexOf("%")) {
 				// Get the discount percentage
-				var discountPercentage = pricingSummaryArray[0].substring(0, pricingSummaryArray.length - 1);
+				var discountPercentage = pricingSummaryArray[0].substring(0, pricingSummaryArray[0].length - 1);
 				discount = premium * (parseInt(discountPercentage) / 100);
 			} else if (pricingSummaryArray.length > 3 && pricingSummaryArray[1].indexOf("fixed")) {
 				// Get the discount fixed amount
