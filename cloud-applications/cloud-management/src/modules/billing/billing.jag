@@ -1079,6 +1079,8 @@ var extendTrial = function (serviceId, customerRequest) {
     }
 };
 var getBillingInvoiceData= function (accountId,invoiceId){
+
+try {
 	var summary = billingService.getInvoices(accountId);
 	var invoiceObj = JSON.parse(summary);
 	var invoices = invoiceObj.invoices;
@@ -1122,6 +1124,11 @@ var getBillingInvoiceData= function (accountId,invoiceId){
 			}
 			return invoiceData;
 		}
+	}
+	} catch (e) {
+		log.error("ERROR in getting Billing invoice data for account Id : " + accountId + " : " + e.message);
+		log.error(e);
+		throw e;
 	}
 };
 
