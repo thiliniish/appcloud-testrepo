@@ -46,9 +46,26 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         return super.doAuthenticate(userName, credential);
     }
 
+    @Override
     public boolean isUserInRole(String userName, String roleName) throws UserStoreException {
         return super.isUserInRole(doConvert(userName), roleName);
     }
+
+    /**
+     * This is done for avoid addTenant method from changing already existing password in LDAP, from Stratos side
+     * i.e. In first login AF creates the tenant in Stratos Side and they will send a empty password, to addTenant method
+     * @param userName - userName
+     * @param newCredential - newCredential
+     * @throws UserStoreException
+     */
+    @Override
+    public void doUpdateCredentialByAdmin(String userName, Object newCredential)
+            throws UserStoreException {
+        if (newCredential != null && !newCredential.equals("")) {
+            super.doUpdateCredentialByAdmin(userName, newCredential);
+        }
+    }
+
 
     private String doConvert(String userName) throws UserStoreException {
         StringBuilder convertedUser = new StringBuilder(userName);
