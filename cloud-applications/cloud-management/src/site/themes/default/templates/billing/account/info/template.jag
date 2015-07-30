@@ -4,7 +4,8 @@
     var server = carbon.server;
     //getting the max items per page
     var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
-
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 %>
 
     <style type="text/css">
@@ -108,10 +109,20 @@
                     totalPaymentPages = ((paymentsObj.length % maxNumberOfItems) == 0 ) ? (paymentsObj.length/maxNumberOfItems) : (paymentsObj.length/maxNumberOfItems) + 1;
                     totalPaymentPages = Math.floor(totalPaymentPages);
                     updatePaymentTable(paymentsObj);
-             
+                }, error : function (jqXHR, textStatus, errorThrown) {
+                    // Disable buttons
+                    document.getElementById("btnAddNewPayment").disabled = true;
+                    document.getElementById("btnViewPayment").disabled = true;
+                    document.getElementById("btnUpdateContactInfo").disabled = true;
+                    $('.message_box').empty();
+                    jagg.message({content:"Unable to load the Account Summery at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
+                        var cloudMgtURL =  $("#cloudmgtURL").attr('value');
+                        window.location.href = cloudMgtURL+"/site/pages/contact-us.jag" ;
+                    }
+                });
                 }
-
             });
+            return false;
 
         }
 
@@ -317,9 +328,8 @@
 
                 <div class="panel panel-default">
                     <div class="panel-heading panel-header">Payment Method (Primary)
-                   		 <button type="button" class="btn btn-default pull-right panel-btn-style" 
-                   		 		onclick="addNewPaymentMethod();">New Payment Method</button>
-                   		 <button type="button" class="btn btn-default pull-right panel-btn-style marg-r-10" onclick="viewPaymentMethods();">View Payment Methods</button>
+                    <button type="button" id="btnAddNewPayment" class="btn btn-default pull-right panel-btn-style" onclick="addNewPaymentMethod();">New Payment Method</button>
+                    <button type="button" id="btnViewPayment" class="btn btn-default pull-right panel-btn-style marg-r-10" onclick="viewPaymentMethods();">View Payment Methods</button>
                     </div>
                     <div class="panel-body">
                         <div class="col-lg-6 content-section-wrapper">
@@ -344,7 +354,7 @@
                 <div class="panel panel-default">
                     <!--TODO Update contact information-->
                     <div class="panel-heading panel-header">Contact Information 
-						<button type="button" class="btn btn-default pull-right panel-btn-style" onclick="updateContactInfo()">Update Contact Info</button>
+						<button type="button" id="btnUpdateContactInfo" class="btn btn-default pull-right panel-btn-style" onclick="updateContactInfo()">Update Contact Info</button>
                     </div>
                     <div class="panel-body">
                         <div class="col-lg-6 content-section-wrapper">
@@ -428,6 +438,7 @@
                         </table>
 					<div class="clearfix"></div>
 					<div class="paymentFooter" style="width:30%;  margin: -20px auto;"></div>
+					<input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudMgtURL%>" />
                     </div>
                 </div>
             </div>
