@@ -616,6 +616,8 @@ var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlan
 		var actualPaymentResult = getChangeSubscriptionPlanResult(accountId, newProductRatePlanId, ratePlans, serviceId, couponData, previewMode);
 		if (actualPaymentResult.success) {
 			return actualPaymentResult;
+		} else {
+			return null;
 		}
 	} catch (e) {
 		log.error("ERROR in getting actual payment amount in preview mode for account " + accountId + " : " + e.message);
