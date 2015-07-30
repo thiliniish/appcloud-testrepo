@@ -753,34 +753,31 @@ var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlan
 
 var setChangePlanEffectiveDate = function (isUpgrade) {
 
-    try {
-        if (!isUpgrade) {
-            var accountDetails = getAccountDetails();
-            if(accountDetails.success) {
-            var billCycleDay = accountDetails.billingAndPayment.billCycleDay;
+	try {
+		if (!isUpgrade) {
+			var accountDetails = getAccountDetails();
+			if (accountDetails.success) {
+				var billCycleDay = accountDetails.billingAndPayment.billCycleDay;
+				//to calculate effectiveDate
+				var cal = Packages.java.util.Calendar.getInstance();
+				//to get the current value
+				var tempCal = Packages.java.util.Calendar.getInstance();
+				var dayOfMonth = Packages.java.util.Calendar.DAY_OF_MONTH;
+				cal.set(dayOfMonth, billCycleDay);
 
-            //to calculate effectiveDate
-            var cal = Packages.java.util.Calendar.getInstance();
-            //to get the current value
-            var tempCal = Packages.java.util.Calendar.getInstance();
-
-            var dayOfMonth = Packages.java.util.Calendar.DAY_OF_MONTH;
-            cal.set(dayOfMonth, billCycleDay);
-
-            if (tempCal.get(dayOfMonth) >= cal.get(dayOfMonth)) {
-                cal.add(Packages.java.util.Calendar.MONTH, 1);
-            }
-            return cal.getTime();
-            }
-            return accountDetails;
-        } else {
-        return new Packages.java.util.Date();
-        }
-
-    } catch (e) {
-        log.error("Setting change plan effective date failed. "+ e);
-        throw Error(e);
-    }
+				if (tempCal.get(dayOfMonth) >= cal.get(dayOfMonth)) {
+					cal.add(Packages.java.util.Calendar.MONTH, 1);
+				}
+				return cal.getTime();
+			}
+			return accountDetails;
+		} else {
+			return new Packages.java.util.Date();
+		}
+	} catch (e) {
+		log.error("Setting change plan effective date failed. " + e);
+		throw Error(e);
+	}
 };
 
 var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
