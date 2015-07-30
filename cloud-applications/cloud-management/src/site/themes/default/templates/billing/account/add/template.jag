@@ -136,8 +136,10 @@
                     document.getElementById("payable-amount").innerHTML = Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2);
             },
             function (jqXHR, textStatus, errorThrown) {
+            var cloudmgtURL =  $("#cloudmgtURL").attr('value');
                 $('.message_box').empty();
-                jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                jagg.message({content:"Unable to get the coupon discount value at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
+                        window.location.href = cloudmgtURL +"/site/pages/contact-us.jag" ;
                     }
                 });
             });
@@ -183,7 +185,7 @@
             },
             function (jqXHR, textStatus, errorThrown) {
                 $('.message_box').empty();
-                jagg.message({content:"Unable to complete the task. Please contact WSO2 Cloud Team for help", type:'error',cbk:function(){
+                jagg.message({content:"Unable to complete the task at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function(){
                         window.location.href = cloudmgtURL +"/site/pages/contact-us.jag" ;
                     }
                 });
@@ -370,7 +372,9 @@
 	</div>
 </div>
 <!-- content/body -->
-<div class="container c-both wr-billing-white">
+<div class="container c-both wr-billing-white info-message-parent">
+<% jagg.includeBlock("page/billing_messages", null); %>
+
     <%if(responseFrom == IS_FROM_CHANGE_PLAN ){ %>
 	<div class="row wr-wizard">
 		<div class="col-md-4 col-xs-4">
