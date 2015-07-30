@@ -101,9 +101,17 @@ var getDisplayNameFromTenantDomain = function (tenantDomain){
 };
 
 var getCancelSubscriptionEffectiveDate = function (){
-    var effectiveDate = setChangePlanEffectiveDate(false);
-    var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
-    return dateFormatter.format(effectiveDate);
+	try {
+		var effectiveDate = setChangePlanEffectiveDate(false);
+		var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+		return dateFormatter.format(effectiveDate);
+	} catch (e) {
+		if (!effectiveDate.success) {
+			return dateFormatter.format(new Packages.java.util.Date());
+		}
+		log.error("Error getting cancel subscription effectiveDate " + e);
+		throw Error(e);
+	}
 };
 
 var cancelSubscription = function(serviceName) {
