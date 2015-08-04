@@ -77,7 +77,7 @@
                     $('.message_box').empty();
                     jagg.message({content:"Unable to load the Payment methods at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
                     var cloudMgtURL =  $("#cloudmgtURL").attr('value');
-                    window.location.href = cloudMgtURL+"/site/pages/contact-us.jag" ;
+                    window.location.href = cloudMgtURL+"/site/pages/contact-us.jag";
                         }
                     });
                 }
