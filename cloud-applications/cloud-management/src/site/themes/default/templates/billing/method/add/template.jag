@@ -90,7 +90,7 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
                     $('.message_box').empty();
                     jagg.message({content:"Unable to add a new payment method at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
                         var cloudMgtURL =  $("#cloudmgtURL").attr('value');
-                        window.location.href = cloudMgtURL+"/site/pages/contact-us.jag" ;
+                        window.location.href = cloudMgtURL+"/site/pages/contact-us.jag";
                         }
                     });
                 });
@@ -230,7 +230,7 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
 
 <!-- content/body -->
 <div class="container c-both wr-billing-white info-message-parent">
-<% jagg.includeBlock("page/billing_messages", null); %>
+<% jagg.includeBlock("page/billing-messages", null); %>
     <%if (accountId == ""){ %>
 	<div class="row wr-wizard">
 		<div class="col-md-3 col-xs-3">

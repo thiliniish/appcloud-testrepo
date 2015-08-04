@@ -139,7 +139,7 @@
             var cloudmgtURL =  $("#cloudmgtURL").attr('value');
                 $('.message_box').empty();
                 jagg.message({content:"Unable to get the coupon discount value at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
-                        window.location.href = cloudmgtURL +"/site/pages/contact-us.jag" ;
+                        window.location.href = cloudmgtURL +"/site/pages/contact-us.jag";
                     }
                 });
             });
@@ -373,7 +373,7 @@
 </div>
 <!-- content/body -->
 <div class="container c-both wr-billing-white info-message-parent">
-<% jagg.includeBlock("page/billing_messages", null); %>
+<% jagg.includeBlock("page/billing-messages", null); %>
 
     <%if(responseFrom == IS_FROM_CHANGE_PLAN ){ %>
 	<div class="row wr-wizard">

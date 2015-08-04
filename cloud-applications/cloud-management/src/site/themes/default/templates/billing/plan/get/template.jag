@@ -67,11 +67,6 @@ th, td {
 	margin-bottom: 20px;
 }
 
-/*.sticky-wrapper {
-	position: fixed;
-	height: auto !important;
-}*/
-
 span.error {
 	position: absolute;
 	margin-top: 71px;
@@ -226,7 +221,7 @@ var bttnLabel = "Go to " + cloudName;
 					enableButton(id);
 					$('.message_box').empty();
 					jagg.message({content:"Unable to change the Plan at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function(){
-						window.location.href = cloudmgtURL +"/site/pages/contact-us.jag" ;
+						window.location.href = cloudmgtURL +"/site/pages/contact-us.jag";
 					}
 					});
                 })
@@ -274,7 +269,7 @@ var bttnLabel = "Go to " + cloudName;
 
 <!-- content/body -->
 <div class="container c-both wr-billing-white info-message-parent">
-<% jagg.includeBlock("page/billing_messages", null); %>
+<% jagg.includeBlock("page/billing-messages", null); %>
 	<div class="row wr-wizard ">
 	    <%if(isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
