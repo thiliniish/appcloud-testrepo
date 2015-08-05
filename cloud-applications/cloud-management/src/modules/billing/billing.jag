@@ -100,10 +100,18 @@ var getDisplayNameFromTenantDomain = function (tenantDomain){
     }
 };
 
-var getCancelSubscriptionEffectiveDate = function (){
-    var effectiveDate = setChangePlanEffectiveDate(false);
-    var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
-    return dateFormatter.format(effectiveDate);
+var getCancelSubscriptionEffectiveDate = function () {
+	var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+	try {
+		var effectiveDate = setChangePlanEffectiveDate(false);
+		return dateFormatter.format(effectiveDate);
+	} catch (e) {
+		if (!(typeof effectiveDate === "undefined") && !effectiveDate.success) {
+			return dateFormatter.format(new Packages.java.util.Date());
+		}
+		log.error("Error getting cancel subscription effectiveDate " + e);
+		throw Error(e);
+	}
 };
 
 var cancelSubscription = function(serviceName) {
@@ -608,6 +616,8 @@ var getActualPaymentAmount = function (accountId, newProductRatePlanId, ratePlan
 		var actualPaymentResult = getChangeSubscriptionPlanResult(accountId, newProductRatePlanId, ratePlans, serviceId, couponData, previewMode);
 		if (actualPaymentResult.success) {
 			return actualPaymentResult;
+		} else {
+			return null;
 		}
 	} catch (e) {
 		log.error("ERROR in getting actual payment amount in preview mode for account " + accountId + " : " + e.message);
@@ -647,7 +657,7 @@ var calculateDiscountForCoupon = function (couponData) {
 			var pricingSummaryArray = pricingSummary.toString().split(" ");
 			if (pricingSummaryArray.length == 3 && pricingSummaryArray[0].indexOf("%")) {
 				// Get the discount percentage
-				var discountPercentage = pricingSummaryArray[0].substring(0, pricingSummaryArray.length - 1);
+				var discountPercentage = pricingSummaryArray[0].substring(0, pricingSummaryArray[0].length - 1);
 				discount = premium * (parseInt(discountPercentage) / 100);
 			} else if (pricingSummaryArray.length > 3 && pricingSummaryArray[1].indexOf("fixed")) {
 				// Get the discount fixed amount
@@ -743,32 +753,31 @@ var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlan
 
 var setChangePlanEffectiveDate = function (isUpgrade) {
 
-    try {
-        if (!isUpgrade) {
-            var accountDetails = getAccountDetails();
-            var billCycleDay = accountDetails.billingAndPayment.billCycleDay;
+	try {
+		if (!isUpgrade) {
+			var accountDetails = getAccountDetails();
+			if (accountDetails.success) {
+				var billCycleDay = accountDetails.billingAndPayment.billCycleDay;
+				//to calculate effectiveDate
+				var cal = Packages.java.util.Calendar.getInstance();
+				//to get the current value
+				var tempCal = Packages.java.util.Calendar.getInstance();
+				var dayOfMonth = Packages.java.util.Calendar.DAY_OF_MONTH;
+				cal.set(dayOfMonth, billCycleDay);
 
-            //to calculate effectiveDate
-            var cal = Packages.java.util.Calendar.getInstance();
-            //to get the current value
-            var tempCal = Packages.java.util.Calendar.getInstance();
-
-            var dayOfMonth = Packages.java.util.Calendar.DAY_OF_MONTH;
-            cal.set(dayOfMonth, billCycleDay);
-
-            if (tempCal.get(dayOfMonth) >= cal.get(dayOfMonth)) {
-                cal.add(Packages.java.util.Calendar.MONTH, 1);
-            }
-
-            return cal.getTime();
-        } else {
-            return new Packages.java.util.Date();
-        }
-
-    } catch (e) {
-        log.error("Setting change plan effective date failed. "+ e);
-        throw Error(e);
-    }
+				if (tempCal.get(dayOfMonth) >= cal.get(dayOfMonth)) {
+					cal.add(Packages.java.util.Calendar.MONTH, 1);
+				}
+				return cal.getTime();
+			}
+			return accountDetails;
+		} else {
+			return new Packages.java.util.Date();
+		}
+	} catch (e) {
+		log.error("Setting change plan effective date failed. " + e);
+		throw Error(e);
+	}
 };
 
 var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
@@ -1070,6 +1079,8 @@ var extendTrial = function (serviceId, customerRequest) {
     }
 };
 var getBillingInvoiceData= function (accountId,invoiceId){
+
+try {
 	var summary = billingService.getInvoices(accountId);
 	var invoiceObj = JSON.parse(summary);
 	var invoices = invoiceObj.invoices;
@@ -1113,6 +1124,11 @@ var getBillingInvoiceData= function (accountId,invoiceId){
 			}
 			return invoiceData;
 		}
+	}
+	} catch (e) {
+		log.error("ERROR in getting Billing invoice data for account Id : " + accountId + " : " + e.message);
+		log.error(e);
+		throw e;
 	}
 };
 

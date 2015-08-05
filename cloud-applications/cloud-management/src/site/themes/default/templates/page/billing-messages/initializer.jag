@@ -1,0 +1,7 @@
+<%
+jagg.initializer("page/billing-messages", {
+    preInitialize: function () {
+
+    }
+});
+%>
