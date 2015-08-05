@@ -67,6 +67,11 @@ th, td {
 	margin-bottom: 20px;
 }
 
+.sticky-wrapper {
+	position: fixed;
+	height: auto !important;
+}
+
 span.error {
 	position: absolute;
 	margin-top: 71px;
@@ -186,7 +191,6 @@ var bttnLabel = "Go to " + cloudName;
 
         function createAccount(id, currRatePlan, accounts, callsPerDay, callsAbovePlan, monthlyRental, isFromChangePlan){
             disableButton(id);
-            var cloudmgtURL =  $("#cloudmgtURL").attr('value');
 	     //   var couponData = null;
 	       // if(document.getElementById(id).checked){
 			//	couponData = document.getElementById("txt"+id).value;
@@ -218,12 +222,8 @@ var bttnLabel = "Go to " + cloudName;
 
                 },
                 function (jqXHR, textStatus, errorThrown) {
-					enableButton(id);
-					$('.message_box').empty();
-					jagg.message({content:"Unable to change the Plan at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function(){
-						window.location.href = cloudmgtURL +"/site/pages/contact-us.jag";
-					}
-					});
+                	 enableButton(id);
+                	 jagg.message({type:'error',content:'<strong>Error!</strong> Plan change failed. Please contact support.'});
                 })
         }
 
@@ -268,9 +268,9 @@ var bttnLabel = "Go to " + cloudName;
 </div>
 
 <!-- content/body -->
-<div class="container c-both wr-billing-white info-message-parent">
-<% jagg.includeBlock("page/billing-messages", null); %>
-	<div class="row wr-wizard ">
+<div class="container c-both wr-billing-white">
+
+	<div class="row wr-wizard">
 	    <%if(isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz itm-wiz-current"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
@@ -378,7 +378,6 @@ var bttnLabel = "Go to " + cloudName;
             <input type="hidden" name="secretKey" id="secretKey" value=""/>
             <input type="hidden" name="imagePath" id="imagePath" value=""/>
             <input type="hidden" name="isFromChangePlan" id="isFromChangePlan" value="true"/>
-            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
 
 		</div>
 	</div>
