@@ -1,0 +1,59 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod = jagg.module("customurl");
+    var action = request.getParameter("action");
+    var cloudType = request.getParameter("cloudType");
+
+    var log = new Log("/site/blocks/customurl/ajax/customurl.jag");
+
+    if(action == "publishVal"){
+        var tenantId = jagg.module("util").getDomainFromUsername(jagg.getUser());
+        var node = request.getParameter("node");
+        var customDomain = request.getParameter("customDomain");
+
+        var sslFile = request.getFile("sslFile");
+        var keyFile = request.getFile("keyFile");
+        var chainFile = request.getFile("chainFile");
+
+
+        sslFile.open("r");
+        var sslFileContent = sslFile.readAll();
+        sslFile.close();
+
+        keyFile.open("r");
+        var keyFileContent = keyFile.readAll();
+        keyFile.close();
+
+        chainFile.open("r");
+        var chainFileContent = chainFile.readAll();
+        chainFile.close();
+
+        var status = mod.publish(tenantId, cloudType, node, customDomain, sslFileContent, keyFileContent, chainFileContent);
+        print(status);
+    }
+    else if(action == "validateUrl"){
+        log.info("Custom domain is "+request.getParameter("customDomain"));
+    	//var value = mod.validateUrl('mail.spottedfig.org','ghs.google.com');
+    	print(true);
+    }
+    else if(action == "getCurrentMapping"){
+        var tenantDomain = request.getParameter("tenantDomain");
+    	var value = mod.getCurrentUserMapping(tenantDomain, cloudType);
+        if(value == null){
+            var jsonObj = {};
+            var storeMapping = {};
+            var gatewayMapping = {};
+            storeMapping.customUrl = "api.cloud.wso2.com/store/?tenant=" + tenantDomain;
+            gatewayMapping.customUrl = "gateway.api.cloud.wso2.com:8243/t/" + tenantDomain + "/"
+            jsonObj.store = storeMapping;
+            jsonObj.gateway = gatewayMapping;
+            value = jsonObj;
+        }
+    	print(value);
+    }
+
+}());
+%>
