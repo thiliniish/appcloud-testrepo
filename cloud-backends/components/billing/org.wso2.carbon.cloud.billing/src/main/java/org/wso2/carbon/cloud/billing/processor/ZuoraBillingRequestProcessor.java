@@ -100,11 +100,10 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
             // for a GET call, chase redirects
             get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
 
-            int response = 0;
+            int response;
             String result = null;
-            int maxIndex = 5;
 
-            for (int index = 0; index <= maxIndex; index++) {
+            for (int index = 0; index <= 10; index++) {
                 try {
                     if (log.isDebugEnabled() && index > 0) {
                         log.debug("Retrying : " + index + " to get data from " + url);
@@ -132,23 +131,23 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
                 } catch (HttpException e) {
                     String msg = "Error while getting data from " + url;
                     log.error(msg, e);
-                    if (index == maxIndex) {
+                    if (index == 10) {
                         throw new CloudBillingException(msg, e);
                     }
                 } catch (IOException e) {
                     String msg = "Error while getting data from " + url;
                     log.error(msg, e);
-                    if (index == maxIndex) {
+                    if (index == 10) {
                         throw new CloudBillingException(msg, e);
                     }
                 } catch (Exception e) {
                     String msg = "Error while getting data from " + url;
                     log.error(msg, e);
-                    if (index == maxIndex || response == 401 || response == 404) {
+                    if (index == 10) {
                         throw new CloudBillingException(msg, e);
                     }
                 }
-                get.releaseConnection();
+                index = index + 1;
             }
             return result;
         } catch (Exception e) {

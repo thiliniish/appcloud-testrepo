@@ -87,12 +87,7 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
                     }
                     showPage();
                 }, function (jqXHR, textStatus, errorThrown) {
-                    $('.message_box').empty();
-                    jagg.message({content:"Unable to add a new payment method at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
-                        var cloudMgtURL =  $("#cloudmgtURL").attr('value');
-                        window.location.href = cloudMgtURL+"/site/pages/contact-us.jag";
-                        }
-                    });
+                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to get params.'});
                 });
 }
 
@@ -155,12 +150,6 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
                  });
             $( "#redeembtn" ).click(function() {
                  calculateDiscount();
-            });
-            $('#coupon').keydown(function(event) {
-                if(event.keyCode === 13) {
-                     calculateDiscount();
-                     return false;
-                }
             });
             $('#submitbtn').mousedown(function(){
                   clickwithblur = true;
@@ -229,8 +218,8 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
 </div>
 
 <!-- content/body -->
-<div class="container c-both wr-billing-white info-message-parent">
-<% jagg.includeBlock("page/billing-messages", null); %>
+<div class="container c-both wr-billing-white">
+
     <%if (accountId == ""){ %>
 	<div class="row wr-wizard">
 		<div class="col-md-3 col-xs-3">
@@ -263,7 +252,7 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
                  } else {
                     buttonValue = "Continue";
                  }%>
-	    
+	    <% jagg.includeBlock("page/messages", null); %>
 	<div class="row">
 		<div class="container col-md-8 wr-text-gray">
 			<p>Please enter your card information</p>

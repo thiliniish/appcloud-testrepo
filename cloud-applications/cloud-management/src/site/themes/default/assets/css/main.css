@@ -653,23 +653,3 @@ ul.menu2 .dropdown-menu li a:hover{
 .home-h1{
     text-align: center;
 }
-
-.info-message-parent {
-    position: relative;
-}
-
-.info-message {
-    position: absolute;
-    margin-left: -25px;
-    top: -25px;
-}
-
-.info-message .container {
-    display: block;
-    position: absolute;
-    z-index: 999999999;
-}
-
-.info-message .col-lg-12 {
-    padding: 0;
-}
