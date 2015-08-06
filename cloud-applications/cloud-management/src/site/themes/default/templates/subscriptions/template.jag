@@ -93,7 +93,7 @@ function subscription(type,domain) {
 				<%  if(types[i].id=="integration_cloud") {%>
 				<i class="<%=types[i].id%>_disabled"></i>
 				<div class="helper_text">Coming Soon...</div>
-				<%} else { if (!isOnlySubscriber) {%>
+				<%} else { if (!isOnlySubscribedUser) {%>
 
 				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" onclick="subscription('<%=types[i].id%>','<%=domainName%>');return true"></i></a><%}
 							else{
