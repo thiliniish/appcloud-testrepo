@@ -112,5 +112,9 @@
           "app_cloud" : []
         }
       }
-    }
+    },
+    "commonRoles":[
+      "appfactoryusers",
+      "Internal/everyone"
+    ]
 }

@@ -3,6 +3,7 @@
 var log = new Log();
 var confirm = org.wso2.carbon.ui.util.CharacterEncoder.getSafeText(request.getParameter("confirmation"));
 var isInvitee = request.getParameter("isInvitee");
+var isStoreInvitee = request.getParameter("isStoreInvitee");
 log.info(confirm);
 %>
 
@@ -87,7 +88,8 @@ function generateResponse() {
             jagg.post("../blocks/tenant/register/confirm/ajax/confirm.jag", {
             		action:"confirmUser",
                         confirm:$("#confirm").attr('value'),
-                        isInvitee:$("#isInvitee").attr('value')
+                        isInvitee:$("#isInvitee").attr('value'),
+                        isStoreInvitee:$("#isStoreInvitee").attr('value')
               },
               function (result) {
                     var message = result.replace(/(\r\n|\n|\r)/gm,"");
@@ -121,12 +123,14 @@ function generateResponse() {
 				<div class="alert alert-error error" id="registerError"><% jagg.includeBlock("page/messages", null); %></div>
 				 
  <input type="hidden" name="confirm" id="confirm" value="<%=confirm%>"/>		
- <input type="hidden" name="isInvitee" id="isInvitee" value="<%=isInvitee%>"/>		
+ <input type="hidden" name="isInvitee" id="isInvitee" value="<%=isInvitee%>"/>
+ <input type="hidden" name="isStoreInvitee" id="isStoreInvitee" value="<%=isStoreInvitee%>"/>
+
       
                 
             
             </article>
-</div></wrapper >
+</div>
 
 <% }); %>
 

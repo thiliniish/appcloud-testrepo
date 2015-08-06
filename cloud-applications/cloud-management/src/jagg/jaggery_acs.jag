@@ -88,7 +88,17 @@ include("/modules/database/sql.jag");
 
             log.info("LOGGED_IN_USER " +ssoRelyingParty.getLoggedInUser(sessionId));
             log.info("Inside session "+  session.get("LOGGED_IN_USER"));
-            response.sendRedirect(requestedURI);
+            tenantDomain=(session.get("LOGGED_IN_USER").split("@"))[1];
+            session.put("TENANT_DOMAIN",tenantDomain);
+            var type = cloudConfig.subscriptions.type;
+            var storeUrl=type[1].urls.storeUrl + "?tenant=" + tenantDomain;
+            var isOnlySubscribedUser=jagg.module("util").hasOnlySubscriberRole(session.get("LOGGED_IN_USER"));
+            if(isOnlySubscribedUser)
+            {
+                response.sendRedirect(storeUrl);
+            }else{
+                response.sendRedirect(requestedURI);
+            }
 			createTenantInfoObject();
         } else {
             // if the saml response is log out request from IDP, we log out from web app.

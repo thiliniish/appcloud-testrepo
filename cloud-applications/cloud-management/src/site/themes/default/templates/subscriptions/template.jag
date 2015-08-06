@@ -4,13 +4,18 @@ include("/modules/database/dataaccess.jag");
 
 var log = new Log();
 var userName = session.get("LOGGED_IN_USER");
+var isOnlySubscribedUser=false;
+
 
 if (userName != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-	var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
-	if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
-		var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":")+1, isUnfinishedUpgrade.length);
-		var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
+	isOnlySubscribedUser=jagg.module("util").hasOnlySubscriberRole(userName);
+	if(isOnlySubscribedUser) {
+		var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
+		if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
+			var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
+			var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
+		}
 	}
 	 
 	var types = cloudConfig.subscriptions.type;
@@ -87,10 +92,15 @@ function subscription(type,domain) {
 			<div class="col-lg-3">
 				<%  if(types[i].id=="integration_cloud") {%>
 				<i class="<%=types[i].id%>_disabled"></i>
-				<div class="helper_text">Coming Soon...</div> 
-				<%} else {%>
+				<div class="helper_text">Coming Soon...</div>
+				<%} else { if (!isOnlySubscriber) {%>
 
-				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" onclick="subscription('<%=types[i].id%>','<%=domainName%>');return true"></i></a> <%} %>
+				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" onclick="subscription('<%=types[i].id%>','<%=domainName%>');return true"></i></a><%}
+							else{
+							log.info("Not adding store invitee user "+userName+" to rightwave");%>
+
+				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" ></i></a> <%}
+						} %>
 			</div>
 			<% }else{ %>
 			<div class="col-lg-3">
