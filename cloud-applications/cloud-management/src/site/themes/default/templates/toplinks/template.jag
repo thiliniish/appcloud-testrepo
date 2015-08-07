@@ -24,7 +24,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
     	var blockedSubscriptions= jagg.module("tenant").getBlockedSubscriptions(tenantDomain);
     }
     if(userName != null ){
-    %>
+%>
 
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 
@@ -160,6 +160,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
 </div>
 <!-- EOF cloud menu -->
 
-<%}
-
- }); %>
+<%
+    }
+});
+%>
