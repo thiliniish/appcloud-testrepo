@@ -65,7 +65,7 @@ ul
 <script type="text/javascript">
     initializeUserActivity("SignUp Page");
 
-	function disableSubmitEnableSpinner() {
+	function disableSubmitAndEnableSpinner() {
 		document.getElementById("spinner").style.display = '';
 		var submitButton = document.getElementById('submitbtn');
 		$('#submitbtn').css('background-color','#F9BFBB');
@@ -77,7 +77,7 @@ ul
 	}
 	
     function doSubmit() {
-    	disableSubmitEnableSpinner();
+    	disableSubmitAndEnableSpinner();
     	var adminPassword = $("#password").attr('value');
     	var cloudmgtURL =  $("#cloudmgtURL").attr('value');
     	var confirmationKey = $("#confirmationKey").attr('value');
