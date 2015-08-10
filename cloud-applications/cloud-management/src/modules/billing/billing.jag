@@ -7,7 +7,6 @@ var log = new Log("modules/billing/billing.jag");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var subscriptionsType = cloudConfig.subscriptions.type;
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-var zuoraObj = cloudConfig.billing.zuora;
 var modDb = jagg.module("database");
 var mdAlgorithm = "SHA-512";
 
@@ -18,6 +17,8 @@ var multitenancy = carbon.multitenancy;
 
 var userName =  session.get("LOGGED_IN_USER");
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+var zuoraObj = (JSON.parse(billingService.getConfigInJson())).zuoraConfig;
+
 
 var isPaidAccount = function() {
 	
@@ -62,7 +63,7 @@ var getCloudURL = function(serviceName) {
         }
     }
     return cloudmgtURL + "/site/pages/index.jag";
-}
+};
 
 var getAccountId = function() {
 	if((session.get("TENANT_INFO")) != null ){
@@ -121,7 +122,7 @@ var cancelSubscription = function(serviceName) {
 		data.cancellationPolicy = 'SpecificDate';
         data.cancellationEffectiveDate = dateFormatter.format(effectiveDate);
 		data.invoiceCollect = true;
-		var url = zuoraObj.apis.cancel;
+		var url = zuoraObj.apiConfigs.cancelSubscription;
 		url = url.replace("{subscription-key}", subscriptionId);
 		var response = sendHTTPRequest(url, "PUT", null, data);
 		if (response.success === true) {
@@ -164,7 +165,6 @@ var cancelSubscription = function(serviceName) {
 
 //Generate zuora HPM page parameters
 var generateParams = function (serviceId, productRatePlanId) {
-	billingService.loadConfig(zuoraObj.username, zuoraObj.password, JSON.stringify(zuoraObj.hostedPage));
 	var clientParams = JSON.parse(billingService.prepareParams());
 	session.put(ZUORA_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
 	clientParams.field_passthrough1 = clientParams.token;
@@ -237,7 +237,7 @@ var getTenantUsage = function (fromDate,toDate) {
 
 var updateContactInfo = function (accountData) {
     var accountId = getAccountId();
-    var url = zuoraObj.apis.accounts + "/" + accountId;
+    var url = zuoraObj.apiConfigs.accounts + "/" + accountId;
     var data = {};
     data.billToContact = accountData;
     var response = sendHTTPRequest(url, "PUT", null, data);
@@ -268,7 +268,7 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 		var result = post(URL,data,{
 			'Content-Type': 'application/json'}, 'text');
 			var msg = result['data'];
-			log.debug("Rightwave response "+msg)
+			log.debug("Rightwave response "+msg);
 			var actionString = "Rightwave-"+type+"-Upgrade:";
 			var page = "Rightwave";
 			var item = type;
@@ -289,12 +289,12 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 			events[events.length] = event;
 			modEvents.publishUserActivity(events,jagg.getUser(),email);
 	}
-}
+};
 
 //Create Zuora account for tenant
 var createAccount = function (accountData, metaData) {
 
-	var url = zuoraObj.apis.accounts;
+	var url = zuoraObj.apiConfigs.accounts;
 	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
 	try {
@@ -421,7 +421,7 @@ var createAccount = function (accountData, metaData) {
 //Validate rate plan Id with the service type
 var validateRatePlanId = function (serviceId , productRatePlanId) {
 	try {
-		return (zuoraObj.ratePlans[serviceId]).indexOf(productRatePlanId) > -1;
+		return billingService.validateRatePlanId(serviceId, productRatePlanId);
 	} catch (e) {
 		log.error("Rate Plan id invalid, service: " + serviceId + ", ratePlanId: " + productRatePlanId);
 		return false;
@@ -429,7 +429,12 @@ var validateRatePlanId = function (serviceId , productRatePlanId) {
 };
 
 var validateServiceId =function (serviceId){
-    return zuoraObj.ratePlans.hasOwnProperty(serviceId);
+    try {
+		return billingService.validateServiceId(serviceId);
+	} catch (e) {
+		log.error("Service id invalid, service: " + serviceId);
+		return false;
+	}
 };
 
 //add tenant to billing account tables at the tenant registration
@@ -597,7 +602,7 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 	var accInfoStr = billingService.getAccountSummary(accountId);
 	var accountSummary = JSON.parse(accInfoStr);
 	// Zuora api request URL
-	var url = zuoraObj.apis.subscriptions + "/" + accountSummary.subscriptions[0].subscriptionNumber;
+	var url = zuoraObj.apiConfigs.subscriptions + "/" + accountSummary.subscriptions[0].subscriptionNumber;
 	return sendHTTPRequest(url, "PUT", null, changePlanData);
 };
 
@@ -793,22 +798,22 @@ var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
 var getAccountDetails = function () {
 
     var accountId = getAccountId();
-    var url = zuoraObj.apis.accounts + "/" + accountId;
+    var url = zuoraObj.apiConfigs.accounts + "/" + accountId;
     return sendHTTPRequest(url, "GET", null, null);
 };
 
 var removePaymentMethod = function (methodId) {
-    var url = zuoraObj.apis.removePaymentMethod + "/" + methodId;
+    var url = zuoraObj.apiConfigs.removePaymentMethod + "/" + methodId;
     return sendHTTPRequest(url, "DELETE", null, null);
 };
 
 var getAllPaymentMethods = function (accountId) {
-    var url = zuoraObj.apis.methods + "/accounts/" + accountId;
+    var url = zuoraObj.apiConfigs.paymentMethods + "/accounts/" + accountId;
     return sendHTTPRequest(url, "GET", null, null);
 };
 
 var updateDefaultPaymentMethod = function (methodId) {
-    var url = zuoraObj.apis.methods + "/" + methodId;
+    var url = zuoraObj.apiConfigs.paymentMethods + "/" + methodId;
     var data = {
         "defaultPaymentMethod": true
     };
@@ -827,7 +832,7 @@ var getCurrentRatePlan = function (serviceId) {
 
 function addCloudSubmissionToRightwave(email,domain,type) {
 	var extensionStartDate = new Packages.java.util.Date();
-	var extendedEndDate = addDays(extensionStartDate,  parseInt(cloudConfig.billing.trialPeriod));
+	var extendedEndDate = addDays(extensionStartDate,  parseInt(JSON.parse(billingService.getConfigInJson()).trialPeriod));
 	var sqlDateFormat = dateTimeFormatter(RIGHTWAVE_DATE_FORMAT);
 	var expDate = sqlDateFormat.format(extendedEndDate);
 	var type = type.substring(0, type.indexOf("_"));
@@ -869,7 +874,7 @@ var headers = [
 ];
 */
 var sendHTTPRequest = function (url, type, headers, data) {
-	var username = zuoraObj.username;
+	var username = zuoraObj.user;
 	var password = zuoraObj.password;
 
 	var xhr = new XMLHttpRequest();
@@ -983,7 +988,7 @@ var extendTrial = function (serviceId, customerRequest) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
     var extensionStartDate = new Packages.java.util.Date();
-    var extendedEndDate = addDays(extensionStartDate,  parseInt(cloudConfig.billing.trialPeriod));
+    var extendedEndDate = addDays(extensionStartDate,  parseInt(JSON.parse(billingService.getConfigInJson()).trialPeriod));
 
     var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
 

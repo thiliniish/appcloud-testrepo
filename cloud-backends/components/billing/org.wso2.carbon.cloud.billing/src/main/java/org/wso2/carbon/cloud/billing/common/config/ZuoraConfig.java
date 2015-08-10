@@ -102,7 +102,7 @@ public class ZuoraConfig {
         this.httpClientConfig = httpClientConfig;
     }
 
-    @XmlElement(name = "HostedPageConfig", nillable = false)
+    @XmlElement(name = "HostedPage", nillable = false)
     public HostedPageConfig getHostedPageConfig() {
         return hostedPageConfig;
     }

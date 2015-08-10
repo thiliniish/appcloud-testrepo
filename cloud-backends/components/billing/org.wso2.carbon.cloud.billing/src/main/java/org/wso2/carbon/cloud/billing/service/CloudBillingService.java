@@ -17,7 +17,8 @@
 package org.wso2.carbon.cloud.billing.service;
 
 
-import org.json.JSONException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.beans.AccountUsage;
 import org.wso2.carbon.cloud.billing.common.CloudBillingException;
@@ -28,7 +29,6 @@ import org.wso2.carbon.cloud.billing.usage.CloudUsageManager;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.core.AbstractAdmin;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
@@ -38,7 +38,7 @@ import java.security.NoSuchProviderException;
 
 public class CloudBillingService extends AbstractAdmin {
 
-
+    private static final Log log = LogFactory.getLog(CloudBillingService.class);
     private static CloudUsageManager usageManager = new CloudUsageManager();
 
     public Plan[] getAllSubscriptions(String subscriptionId) throws CloudBillingException {
@@ -76,16 +76,6 @@ public class CloudBillingService extends AbstractAdmin {
         String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
         return (accountId != null && !"".equals(accountId)) ?
                ZuoraUtils.getCurrentRatePlan(ProductName, accountId) : null;
-    }
-
-    public void loadConfig(String username, String password, String configs) throws CloudBillingException {
-        try {
-            ZuoraHPMUtils.loadConfig(username, password, configs);
-        } catch (IOException e) {
-            throw new CloudBillingException(e);
-        } catch (JSONException e) {
-            throw new CloudBillingException(e);
-        }
     }
 
     public String prepareParams() throws CloudBillingException {
@@ -128,6 +118,17 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException e) {
             throw new CloudBillingException(e);
         }
+    }
 
+    public static String getConfigInJson() {
+        return CloudBillingUtils.getConfigInJson();
+    }
+
+    public boolean validateRatePlanId(String serviceId, String productRatePlanId) {
+        return CloudBillingUtils.validateRatePlanId(serviceId, productRatePlanId);
+    }
+
+    public boolean validateServiceId(String serviceId) {
+        return CloudBillingUtils.validateServiceId(serviceId);
     }
 }
