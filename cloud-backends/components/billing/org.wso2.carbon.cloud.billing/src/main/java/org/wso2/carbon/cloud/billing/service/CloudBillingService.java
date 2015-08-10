@@ -121,6 +121,7 @@ public class CloudBillingService extends AbstractAdmin {
             throw new CloudBillingException(e);
         }
     }
+
     public JSONArray getProductRatePlans(String productName) throws CloudBillingException {
         try {
             return ZuoraUtils.getProductRatePlans(productName);
