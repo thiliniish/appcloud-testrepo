@@ -82,5 +82,9 @@
 	    "username" : "username",
         "password": "password",
         "projectKey" : "projectkey"
-    }
+    },
+    "commonRoles":[
+      "appfactoryusers",
+      "Internal/everyone"
+    ]
 }

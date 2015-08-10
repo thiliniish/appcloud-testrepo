@@ -148,12 +148,18 @@ var bttnLabel = "Back to " + cloudName;
                              action:"cancelSubscription"
                 }, function (result) {
                   if(result == true || result == 'true') {
-                  	jagg.message({content:'Your have successfully  canceled your subscription',type:'success'});
+                  	jagg.message({content:'You have successfully  canceled your subscription',type:'success'});
                    } else {
-                        jagg.message({type:'error',content:'<strong>Error!</strong> Unable cancel subscription.'});
+                   	jagg.message({type:'error',content:'<strong>Error!</strong> Unable to cancel subscription.'});
                    }
                 }, function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable cancel subscription.'});
+                	var cloudMgtURL =  $("#cloudmgtURL").attr('value');
+                	$('.message_box').empty();
+                	jagg.message({content:"Unable to cancel the subscription at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function(){
+                		window.location.href = cloudMgtURL +"/site/pages/contact-us.jag";
+					}
+					});
+
                 });
 
    }
@@ -400,6 +406,7 @@ var bttnLabel = "Back to " + cloudName;
                     </div>
                 </section>
                 <div class="pagefooter" style="width: 30%; margin: 0 auto"></div>
+                <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
                 <div class="clearfix"></div>
 	            <br />
         	</article>
