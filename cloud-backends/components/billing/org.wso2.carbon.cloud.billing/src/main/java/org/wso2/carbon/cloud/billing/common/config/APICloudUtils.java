@@ -30,7 +30,11 @@ public class APICloudUtils {
     private String usageDisplayPeriod;
 
     @XmlElement(name = "UsageDisplayPeriod", nillable = false)
-    public String getApiCloud() { return usageDisplayPeriod; }
+    public String getApiCloud() {
+        return usageDisplayPeriod;
+    }
 
-    public void setApiCloud(String usageDisplayPeriod) { this.usageDisplayPeriod = usageDisplayPeriod; }
+    public void setApiCloud(String usageDisplayPeriod) {
+        this.usageDisplayPeriod = usageDisplayPeriod;
+    }
 }

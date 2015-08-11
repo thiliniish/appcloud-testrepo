@@ -99,12 +99,12 @@ public class CloudBillingUtils {
     }
 
     public static String getConfigInJson() {
-        if(configObj == null) {
-            synchronized(CloudBillingUtils.class) {
+        if (configObj == null) {
+            synchronized (CloudBillingUtils.class) {
                 if (configObj == null) {
                     Gson gson = new Gson();
                     configObj = gson.toJson(getBillingConfiguration());
-                    if(log.isDebugEnabled()) {
+                    if (log.isDebugEnabled()) {
                         log.debug("Configuration read to json: " + configObj);
                     }
                 }
@@ -113,17 +113,17 @@ public class CloudBillingUtils {
         return configObj;
     }
 
-    public static boolean validateRatePlanId(String serviceId, String productRatePlanId){
+    public static boolean validateRatePlanId(String serviceId, String productRatePlanId) {
         Plan[] plans = getSubscriptions(serviceId);
-        for(Plan plan: plans){
-            if (plan.getId().equals(productRatePlanId)){
+        for (Plan plan : plans) {
+            if (plan.getId().equals(productRatePlanId)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean validateServiceId(String serviceId){
+    public static boolean validateServiceId(String serviceId) {
         Subscription[] subscriptions = billingConfig.getZuoraConfig().getSubscriptions();
         for (Subscription subscription : subscriptions) {
             if (serviceId.equals(subscription.getId())) {

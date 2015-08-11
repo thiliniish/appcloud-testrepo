@@ -89,7 +89,7 @@ public final class BillingConstants {
     public static final String TENANT_DOMAIN_PARAM = "{tenantDomain}";
 
     //Zuora coupon details
-    public static final String COUPON_HEADER ="coupon";
+    public static final String COUPON_HEADER = "coupon";
 
     public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_MAX_CONNECTION_PER_HOST = 2;

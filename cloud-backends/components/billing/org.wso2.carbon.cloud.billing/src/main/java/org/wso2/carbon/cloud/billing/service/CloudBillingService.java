@@ -41,6 +41,10 @@ public class CloudBillingService extends AbstractAdmin {
     private static final Log log = LogFactory.getLog(CloudBillingService.class);
     private static CloudUsageManager usageManager = new CloudUsageManager();
 
+    public static String getConfigInJson() {
+        return CloudBillingUtils.getConfigInJson();
+    }
+
     public Plan[] getAllSubscriptions(String subscriptionId) throws CloudBillingException {
         return CloudBillingUtils.getSubscriptions(subscriptionId);
     }
@@ -118,10 +122,6 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException e) {
             throw new CloudBillingException(e);
         }
-    }
-
-    public static String getConfigInJson() {
-        return CloudBillingUtils.getConfigInJson();
     }
 
     public boolean validateRatePlanId(String serviceId, String productRatePlanId) {

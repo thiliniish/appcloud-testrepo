@@ -97,7 +97,7 @@ public class ZuoraHPMUtils {
 
     private static void loadConfig() throws IOException, JSONException {
 
-        ZuoraConfig zuoraConfig =  CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
+        ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
         username = zuoraConfig.getUser();
         password = zuoraConfig.getPassword();
         HostedPageConfig hostedPageConfig = zuoraConfig.getHostedPageConfig();

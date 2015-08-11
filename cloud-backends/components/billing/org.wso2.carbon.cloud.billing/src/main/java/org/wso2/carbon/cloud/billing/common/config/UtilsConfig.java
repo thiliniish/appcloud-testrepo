@@ -30,7 +30,11 @@ public class UtilsConfig {
     private APICloudUtils apiCloud;
 
     @XmlElement(name = "APICloud", nillable = false)
-    public APICloudUtils getApiCloud() { return apiCloud; }
+    public APICloudUtils getApiCloud() {
+        return apiCloud;
+    }
 
-    public void setApiCloud(APICloudUtils apiCloud) { this.apiCloud = apiCloud; }
+    public void setApiCloud(APICloudUtils apiCloud) {
+        this.apiCloud = apiCloud;
+    }
 }

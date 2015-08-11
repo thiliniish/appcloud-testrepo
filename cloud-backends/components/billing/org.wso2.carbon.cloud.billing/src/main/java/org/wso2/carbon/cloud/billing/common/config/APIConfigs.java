@@ -93,14 +93,22 @@ public class APIConfigs {
     }
 
     @XmlElement(name = "PaymentMethods", nillable = false, required = true)
-    public String getPaymentMethods() { return paymentMethods; }
+    public String getPaymentMethods() {
+        return paymentMethods;
+    }
 
-    public void setPaymentMethods(String paymentMethods) { this.paymentMethods = paymentMethods; }
+    public void setPaymentMethods(String paymentMethods) {
+        this.paymentMethods = paymentMethods;
+    }
 
     @XmlElement(name = "RemovePaymentMethod", nillable = false, required = true)
-    public String getRemovePaymentMethod() { return removePaymentMethod; }
+    public String getRemovePaymentMethod() {
+        return removePaymentMethod;
+    }
 
-    public void setRemovePaymentMethod(String removePaymentMethod) { this.removePaymentMethod = removePaymentMethod; }
+    public void setRemovePaymentMethod(String removePaymentMethod) {
+        this.removePaymentMethod = removePaymentMethod;
+    }
 
     @XmlElement(name = "InvoiceInfo", nillable = false, required = true)
     public String getInvoiceInfo() {
@@ -121,8 +129,12 @@ public class APIConfigs {
     }
 
     @XmlElement(name = "Products", nillable = false, required = true)
-    public String getProducts() { return products; }
+    public String getProducts() {
+        return products;
+    }
 
-    public void setProducts(String products) { this.products = products; }
+    public void setProducts(String products) {
+        this.products = products;
+    }
 
 }
