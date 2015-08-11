@@ -29,6 +29,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.wso2.carbon.cloud.billing.common.config.HostedPageConfig;
+import org.wso2.carbon.cloud.billing.common.config.ZuoraConfig;
 import org.wso2.carbon.cloud.billing.common.zuora.security.utils.BypassSSLSocketFactory;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
@@ -93,20 +95,18 @@ public class ZuoraHPMUtils {
         pemReader.close();
     }
 
-    //TODO modify to take values from billing.xml
-    public static void loadConfig(String adminUsername, String adminPassword, String configs)
-            throws IOException, JSONException {
+    private static void loadConfig() throws IOException, JSONException {
 
-        JSONObject configParams = new JSONObject(configs);
-
-        url = configParams.getString(URL);
-        endPoint = configParams.getString(ENDPOINT);
-        username = adminUsername;
-        password = adminPassword;
-        publicKeyString = configParams.getString(PUBLIC_KEY);
-        paymentGateway = configParams.getString(PAYMENT_GATEWAY);
-        pageId = configParams.getString(PAGE_ID);
-        locale = configParams.getString(LOCALE);
+        ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
+        username = zuoraConfig.getUser();
+        password = zuoraConfig.getPassword();
+        HostedPageConfig hostedPageConfig = zuoraConfig.getHostedPageConfig();
+        endPoint = hostedPageConfig.getEndPoint();
+        publicKeyString = hostedPageConfig.getPublicKey();
+        paymentGateway = hostedPageConfig.getPaymentGateway();
+        pageId = hostedPageConfig.getPageId();
+        locale = hostedPageConfig.getLocale();
+        url = hostedPageConfig.getUrl();
 
         generatePublicKeyObject();
     }
@@ -117,6 +117,8 @@ public class ZuoraHPMUtils {
      * @throws Exception
      */
     public static String prepareParams() throws Exception {
+
+        loadConfig();
 
         JSONObject result = generateSignature(pageId);
         JSONObject params = new JSONObject();

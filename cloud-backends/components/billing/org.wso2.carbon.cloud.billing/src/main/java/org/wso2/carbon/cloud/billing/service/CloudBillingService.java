@@ -17,7 +17,6 @@
 package org.wso2.carbon.cloud.billing.service;
 
 
-import org.json.JSONException;
 import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.beans.AccountUsage;
 import org.wso2.carbon.cloud.billing.common.CloudBillingException;
@@ -28,7 +27,6 @@ import org.wso2.carbon.cloud.billing.usage.CloudUsageManager;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.core.AbstractAdmin;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
@@ -38,8 +36,11 @@ import java.security.NoSuchProviderException;
 
 public class CloudBillingService extends AbstractAdmin {
 
-
     private static CloudUsageManager usageManager = new CloudUsageManager();
+
+    public static String getConfigInJson() {
+        return CloudBillingUtils.getConfigInJson();
+    }
 
     public Plan[] getAllSubscriptions(String subscriptionId) throws CloudBillingException {
         return CloudBillingUtils.getSubscriptions(subscriptionId);
@@ -78,16 +79,6 @@ public class CloudBillingService extends AbstractAdmin {
                ZuoraUtils.getCurrentRatePlan(ProductName, accountId) : null;
     }
 
-    public void loadConfig(String username, String password, String configs) throws CloudBillingException {
-        try {
-            ZuoraHPMUtils.loadConfig(username, password, configs);
-        } catch (IOException e) {
-            throw new CloudBillingException(e);
-        } catch (JSONException e) {
-            throw new CloudBillingException(e);
-        }
-    }
-
     public String prepareParams() throws CloudBillingException {
         try {
             return ZuoraHPMUtils.prepareParams();
@@ -121,12 +112,20 @@ public class CloudBillingService extends AbstractAdmin {
             throw new CloudBillingException(e);
         }
     }
+
     public JSONArray getProductRatePlans(String productName) throws CloudBillingException {
         try {
             return ZuoraUtils.getProductRatePlans(productName);
         } catch (CloudBillingException e) {
             throw new CloudBillingException(e);
         }
+    }
 
+    public boolean validateRatePlanId(String serviceId, String productRatePlanId) {
+        return CloudBillingUtils.validateRatePlanId(serviceId, productRatePlanId);
+    }
+
+    public boolean validateServiceId(String serviceId) {
+        return CloudBillingUtils.validateServiceId(serviceId);
     }
 }

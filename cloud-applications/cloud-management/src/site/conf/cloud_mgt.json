@@ -83,36 +83,6 @@
         "password": "password",
         "projectKey" : "projectkey"
     },
-    "billing" : {
-      "trialPeriod" : 14,
-      "usageDisplayPeriod" :30,
-      "zuora" : {
-        "username" : "email",
-        "password" : "pass",
-        "currency" : "USD",
-        "termType" : "EVERGREEN",
-        "signatureExpired" : 1800000,
-        "hostedPage" : {
-          "publicKey" : "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm4yPsSDQyC53F5iIKBcBskoZd5RII2i8Xo2tC1T1YpaWHLFLYv0WTPkVKNwi8aD5H94eHVc/q16sNlELTgSZHI30k1jQRzoSHr9cyXrgABSC2YVvF8aZPx+nQH6N1325jLxbcPZqQNvKyzMeCN7KqVGdZQ/NmYNPMG0wQ6KG+I9SaFyexHKCc/aY5NAtHcRjLZLxCyHK489n15pmp2euYQHypLU6dk05ruFYsNc6NceuJnY2+Q7WZYwKed1Af283D4VK9I68iLZgDelICKk5H0w0/RNDAAfAnFFfG1eBLxVML2O+hXMpcI9kPb5v5ba7CLuZzJbbY7efRgDMereu5wIDAQAB",
-          "url" : "https://apisandbox.zuora.com/apps/PublicHostedPageLite.do",
-          "endPoint" : "https://apisandbox.zuora.com/apps/v1/rsa-signatures",
-          "pageId" : "2c92c0f849f118b5014a09ca329b5df7",
-          "paymentGateway" : "test",
-          "locale" : "en"
-        },
-        "apis" : {
-          "accounts" : "https://apisandbox-api.zuora.com/rest/v1/accounts",
-          "cancel" : "https://apisandbox-api.zuora.com/rest/v1/subscriptions/{subscription-key}/cancel",
-          "subscriptions" : "https://apisandbox-api.zuora.com/rest/v1/subscriptions",
-          "methods" : "https://apisandbox-api.zuora.com/rest/v1/payment-methods/credit-cards",
-          "removePaymentMethod" : "https://apisandbox-api.zuora.com/rest/v1/payment-methods"
-        },
-        "ratePlans" : {
-          "api_cloud" : ["2c92c0f949ac00850149b856d515537b","2c92c0f949ac00830149b83db24f1b77","2c92c0f949ac00800149b8333c0502b8","2c92c0f84b079582014b0b2412bc143a","2c92c0f84b0795b8014b0b1ac63e6713"],
-          "app_cloud" : []
-        }
-      }
-    },
     "commonRoles":[
       "appfactoryusers",
       "Internal/everyone"
