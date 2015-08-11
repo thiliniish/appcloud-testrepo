@@ -12,9 +12,8 @@ var typeArr = new Array();
 for(var i=0;i<cloudConfig.subscriptions.type.length;i++) {
 	typeArr[i] =types[i].id;
 }
-var AFServerUrl = cloudConfig.ServerUrls.appfactory.toString();
+
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-var AFURL_TMP =  cloudConfig.ServerUrls.appfactory_tmp.toString();
 var eulaData = jagg.module("util").getObjFromFile("/site/conf/eula.xml");
 
 var eulaDoc= new XML(eulaData);
