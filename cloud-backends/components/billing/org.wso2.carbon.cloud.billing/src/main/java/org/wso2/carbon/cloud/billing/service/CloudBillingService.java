@@ -17,8 +17,6 @@
 package org.wso2.carbon.cloud.billing.service;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.beans.AccountUsage;
 import org.wso2.carbon.cloud.billing.common.CloudBillingException;
@@ -38,7 +36,6 @@ import java.security.NoSuchProviderException;
 
 public class CloudBillingService extends AbstractAdmin {
 
-    private static final Log log = LogFactory.getLog(CloudBillingService.class);
     private static CloudUsageManager usageManager = new CloudUsageManager();
 
     public static String getConfigInJson() {
