@@ -83,6 +83,12 @@ jagg.module("billing", {
 	},
 	isValidCoupon: function () {
 		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isValidCoupon.apply(this, arguments);
+	},
+	getTrialPeriod: function () {
+		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTrialPeriod.apply(this, arguments);
+	},
+	getAPICloudUsageDisplayPeriod: function () {
+		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAPICloudUsageDisplayPeriod.apply(this, arguments);
 	}
     
 });

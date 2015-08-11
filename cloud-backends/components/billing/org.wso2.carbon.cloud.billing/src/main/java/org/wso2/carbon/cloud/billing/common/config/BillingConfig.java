@@ -29,7 +29,7 @@ public class BillingConfig {
     private ZuoraConfig zuoraConfig;
     private SSOConfig ssoConfig;
     private UtilsConfig utilsConfig;
-    private TrialPeriodConfigs trialPeriodConfigs;
+    private int trialPeriod;
 
     @XmlElement(name = "DataServiceAPI", nillable = false, required = true)
     public DataServiceConfig getDSConfig() {
@@ -38,6 +38,15 @@ public class BillingConfig {
 
     public void setDSConfig(DataServiceConfig dsConfig) {
         this.dsConfig = dsConfig;
+    }
+
+    @XmlElement(name = "TrialPeriod", nillable = false, required = true)
+    public int getTrialPeriod() {
+        return trialPeriod;
+    }
+
+    public void setTrialPeriod(int trialPeriod) {
+        this.trialPeriod = trialPeriod;
     }
 
     @XmlElement(name = "Zoura", nillable = false, required = true)
@@ -65,14 +74,5 @@ public class BillingConfig {
 
     public void setUtilsConfig(UtilsConfig utilsConfig) {
         this.utilsConfig = utilsConfig;
-    }
-
-    @XmlElement(name = "TrialPeriods", nillable = false, required = true)
-    public TrialPeriodConfigs getTrialPeriodConfigs() {
-        return trialPeriodConfigs;
-    }
-
-    public void setTrialPeriodConfigs(TrialPeriodConfigs trialPeriodConfigs) {
-        this.trialPeriodConfigs = trialPeriodConfigs;
     }
 }

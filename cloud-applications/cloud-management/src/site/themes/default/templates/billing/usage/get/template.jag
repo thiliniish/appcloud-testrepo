@@ -91,7 +91,7 @@ var server = carbon.server;
 var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
 var  isBillingAccount = jagg.module("billing").isPaidAccount();
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var usageDisplayPeriod = cloudConfig.billing.usageDisplayPeriod.toString();
+var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 
 var dateFormatter = "yyyy-MM-dd";

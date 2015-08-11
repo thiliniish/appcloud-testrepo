@@ -34,10 +34,8 @@
             <MaxTotalConnections>50</MaxTotalConnections>
         </HttpClientConfig>
     </DataServiceAPI>
-    <!--Trial period in days-->
-    <TrialPeriods>
-        <APICloud>14</APICloud>
-    </TrialPeriods>
+    <!--Global Trial period in days-->
+    <TrialPeriod>14</TrialPeriod>
     <Zoura>
         <!--Zuora tenant credentials-->
         <User>USERNAME</User>

@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Zuora")
 public class ZuoraConfig {
 
-    private int trialPeriod;
     private String user;
     private String password;
     private String currency;
@@ -38,15 +37,6 @@ public class ZuoraConfig {
     private UsageConfig usageConfig;
     private SubscriptionCleanUp subscriptionCleanUp;
     private boolean sslCertificateValid;
-
-    @XmlElement(name = "TrialPeriod", nillable = false)
-    public int getTrialPeriod() {
-        return trialPeriod;
-    }
-
-    public void setTrialPeriod(int trialPeriod) {
-        this.trialPeriod = trialPeriod;
-    }
 
     @XmlElement(name = "User", nillable = false)
     public String getUser() {

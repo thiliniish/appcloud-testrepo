@@ -645,6 +645,15 @@ var isValidCoupon = function (couponData, serviceId) {
 	return couponValidity;
 };
 
+
+var getTrialPeriod = function () {
+	return (JSON.parse(billingService.getConfigInJson())).trialPeriod;
+};
+
+var getAPICloudUsageDisplayPeriod = function () {
+	return (JSON.parse(billingService.getConfigInJson())).utilsConfig.apiCloud.usageDisplayPeriod;
+};
+
 // Get the discount value for the coupon
 var calculateDiscountForCoupon = function (couponData) {
 	var serviceId = session.get("SERVICE_ID");
