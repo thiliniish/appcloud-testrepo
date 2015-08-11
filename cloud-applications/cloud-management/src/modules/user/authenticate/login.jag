@@ -7,7 +7,7 @@ var log = new Log();
 var modManager = jagg.module("manager");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
-var CLOUD_MGT_URL = cloudConfig.ServerUrls.appfactory.toString();
+var CLOUDMGT_SERVICES = cloudConfig.ServerUrls.cloudmgtServices.toString();
 function login(userName, password){
 
     log.info("user logs in module called");
@@ -15,7 +15,7 @@ function login(userName, password){
     var finalResult={};
     try{
         var xhr = new XMLHttpRequest();
-        var endPoint = CLOUD_MGT_URL + "AuthenticationAdmin";
+        var endPoint = CLOUDMGT_SERVICES + "AuthenticationAdmin";
         xhr.setRequestHeader('SOAPAction', 'urn:login');
         xhr.setRequestHeader('Content-Type', 'text/xml');
         xhr.open("POST", endPoint);
@@ -67,7 +67,7 @@ function validatePassword(userName, password){
     var finalResult={};
     try{
         var xhr = new XMLHttpRequest();
-        var endPoint = CLOUD_MGT_URL + "AuthenticationAdmin";
+        var endPoint = CLOUDMGT_SERVICES + "AuthenticationAdmin";
         xhr.setRequestHeader('SOAPAction', 'urn:login');
         xhr.setRequestHeader('Content-Type', 'text/xml');
         xhr.open("POST", endPoint);
