@@ -64,21 +64,20 @@ ul
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
     initializeUserActivity("SignUp Page");
-	function disable() {
+
+	function disableSubmitAndEnableSpinner() {
 		document.getElementById("spinner").style.display = '';
-		 var submitButton = document.getElementById('submitbtn');
-		 $('#submitbtn').css('background-color','#F9BFBB');
-		 submitButton.disabled = true;
+		var submitButton = document.getElementById('submitbtn');
+		$('#submitbtn').css('background-color','#F9BFBB');
+		submitButton.disabled = true;
+	}
+
+	function disableSpinner() {
+		document.getElementById("spinner").style.display = 'none';
 	}
 	
-	function enable() {
-		document.getElementById("spinner").style.display = 'none';
-		 var submitButton = document.getElementById('submitbtn');
-		 $('#submitbtn').css('background-color','#428BCA');
-		 submitButton.disabled = false;
-	}
     function doSubmit() {
-    	disable();
+    	disableSubmitAndEnableSpinner();
     	var adminPassword = $("#password").attr('value');
     	var cloudmgtURL =  $("#cloudmgtURL").attr('value');
     	var confirmationKey = $("#confirmationKey").attr('value');
@@ -98,14 +97,14 @@ ul
                           window.location.href = result;
                       }
                   });
-                  enable();
+                  disableSpinner();
               },
               function (jqXHR, textStatus, errorThrown) {
                   jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
                           window.location.href = cloudmgtURL;
                       }
                   });
-                  enable();
+                  disableSpinner();
               });
         } else {
              var companyName = $("#companyName").attr('value');
@@ -125,14 +124,14 @@ ul
                          window.location.href = cloudmgtURL;
                      }
                  });
-                 enable();
+                 disableSpinner();
              },
              function (jqXHR, textStatus, errorThrown) {
                  jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
                          window.location.href = cloudmgtURL;
                      }
                  });
-                 enable();
+                 disableSpinner();
              });
         }
     }
