@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<CloudMgt xmlns="http://www.wso2.org/cloud/">
+    <TenantRoles>
+        <Role name="default">
+            <Permission>
+                /permission/admin/login,
+                /permission/protected/manage/monitor/tenants
+            </Permission>
+        </Role>
+        <Role name="subscriber">
+            <DisplayName>Subscriber</DisplayName>
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/manage/api/subscribe
+            </Permission>
+        </Role>
+        <Role name="publisher">
+            <DisplayName>Publisher</DisplayName>
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/manage/api/create,
+                /permission/admin/manage/api/publish,
+                /_system/governance/apimgt:REGISTRY_GET,
+                /_system/governance/apimgt:REGISTRY_PUT,
+                /_system/governance/apimgt:REGISTRY_DELETE
+            </Permission>
+        </Role>
+        <Role name="globalAPIPublisher">
+            <Permission>
+                /_system/governance:REGISTRY_GET,
+                /_system/governance:REGISTRY_PUT,
+                /_system/governance:REGISTRY_DELETE,
+                /permission/admin/configure/governance,
+                /permission/admin/manage/api/create,
+                /permission/admin/manage/api/publish,
+                event/topics:subscribe,
+                event/topics:publish
+            </Permission>
+        </Role>
+    </TenantRoles>
+</CloudMgt>
