@@ -654,6 +654,10 @@ var getAPICloudUsageDisplayPeriod = function () {
 	return (JSON.parse(billingService.getConfigInJson())).utilsConfig.apiCloud.usageDisplayPeriod;
 };
 
+var getCurrencyUsed = function () {
+	return zuoraObj.currency;
+};
+
 // Get the discount value for the coupon
 var calculateDiscountForCoupon = function (couponData) {
 	var serviceId = session.get("SERVICE_ID");

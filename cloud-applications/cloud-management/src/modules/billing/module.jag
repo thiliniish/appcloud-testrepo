@@ -89,6 +89,9 @@ jagg.module("billing", {
 	},
 	getAPICloudUsageDisplayPeriod: function () {
 		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAPICloudUsageDisplayPeriod.apply(this, arguments);
+	},
+	getCurrencyUsed: function () {
+		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCurrencyUsed.apply(this, arguments);
 	}
     
 });
