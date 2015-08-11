@@ -121,7 +121,7 @@ public class ZuoraUtils {
         }
     }
 
-    public static String getInvoices (String accountId) throws CloudBillingException {
+    public static String getInvoices(String accountId) throws CloudBillingException {
         String url;
         try {
             url = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getInvoiceInfo();
@@ -135,7 +135,7 @@ public class ZuoraUtils {
         }
     }
 
-    public static String getPayments (String accountId) throws CloudBillingException {
+    public static String getPayments(String accountId) throws CloudBillingException {
         String url;
         try {
             url = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getPaymentInfo();
@@ -175,11 +175,11 @@ public class ZuoraUtils {
                         starterRatePlanList.add(ratePlan);
                     }
                 }
-                //if a coupon is added when creating the payment method (first time). should return both the coupon and payment plan.
-                if(currentRatePlanList.size() != 0) {
+                //if a coupon is added when creating the payment method (first time). should return both the coupon
+                // and payment plan.
+                if (currentRatePlanList.size() != 0) {
                     return currentRatePlanList;
-                }
-                else{
+                } else {
                     return starterRatePlanList;
                 }
             }
@@ -206,10 +206,10 @@ public class ZuoraUtils {
             // getting all subscriptions elements for accountId
             JSONArray products;
             products = ((JSONArray) jsonObject.get(BillingConstants.PRODUCTS));
-            for(Object product :products){
-                if(productName.equals(BillingConstants.API_CLOUD_SUBSCRIPTION_ID) &&
-                        ((JSONObject) product).get(BillingConstants.NAME).equals(BillingConstants.API_CLOUD)) {
-                        return (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCTRATEPLANS);
+            for (Object product : products) {
+                if (productName.equals(BillingConstants.API_CLOUD_SUBSCRIPTION_ID) &&
+                    ((JSONObject) product).get(BillingConstants.NAME).equals(BillingConstants.API_CLOUD)) {
+                    return (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCTRATEPLANS);
                 }
             }
 
@@ -220,7 +220,7 @@ public class ZuoraUtils {
         } catch (ParseException e) {
             String msg = "Error passing the response " + response + " to json object";
             log.error(msg, e);
-            throw new CloudBillingException(msg,e);
+            throw new CloudBillingException(msg, e);
         }
         return null;
     }

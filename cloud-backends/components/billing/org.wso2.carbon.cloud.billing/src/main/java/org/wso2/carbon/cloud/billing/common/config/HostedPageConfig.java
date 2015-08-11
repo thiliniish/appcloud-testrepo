@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the HostedPage xml object
  */
-@XmlRootElement(name = "HostedPageConfig")
+@XmlRootElement(name = "HostedPage")
 public class HostedPageConfig {
 
     private String publicKey;

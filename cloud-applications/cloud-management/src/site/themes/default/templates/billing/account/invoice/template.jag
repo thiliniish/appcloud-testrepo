@@ -2,7 +2,7 @@
 	
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-var currency = cloudConfig.billing.zuora.currency.toString();
+var currency = (jagg.module("billing").getCurrencyUsed()).toString();
 var invoiceId = request.getParameter("invoiceId");
 %>
 

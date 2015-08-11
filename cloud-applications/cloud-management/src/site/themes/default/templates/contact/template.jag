@@ -11,7 +11,7 @@ if (jagg.module("util").isUserInAdminRole()){
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-var trialPeriod = cloudConfig.billing.trialPeriod.toString();
+var trialPeriod = (jagg.module("billing").getTrialPeriod()).toString();
 var to = cloudConfig.supportContact.to;
 %>
 
