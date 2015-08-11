@@ -10,9 +10,9 @@ var typeArr = new Array();
 for(var i=0;i<cloudConfig.subscriptions.type.length;i++) {
    typeArr[i] =types[i].id;
 }
-var AFServerUrl = cloudConfig.ServerUrls.appfactory.toString();
+
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-var AFURL_TMP =  cloudConfig.ServerUrls.appfactory_tmp.toString();
+var AFURL =  cloudConfig.ServerUrls.appfactory.toString();
 var eulaData = jagg.module("util").getObjFromFile("/site/conf/eula.xml");
 var eulaDoc= new XML(eulaData);
 var eulaContent =  eulaDoc.EULA.text();
@@ -184,7 +184,7 @@ function showKaptcha(captcha) {
     document.getElementById("secretKey").val = captchaInfo.secretKey;
     document.getElementById("imagePath").val = captchaPath;
 
-    var AFServiceUrl = '<%=AFURL_TMP %>';
+    var AFServiceUrl = '<%=AFURL %>';
     var serverUrl = AFServiceUrl.split("services")[0];
     var captchaURL = serverUrl+captchaPath;
     var captchaImg = document.getElementById("captchaImgDiv");

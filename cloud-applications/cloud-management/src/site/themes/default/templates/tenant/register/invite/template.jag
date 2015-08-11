@@ -6,9 +6,6 @@ var log = new Log();
 var log = new Log();
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
-var AFServerUrl = cloudConfig.ServerUrls.appfactory.toString();
-
 var otEmail = request.getParameter("email");
 
 %>

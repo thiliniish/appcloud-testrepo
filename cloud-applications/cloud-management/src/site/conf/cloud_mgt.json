@@ -18,8 +18,8 @@
     },
     "ServerUrls": {
        "appfactory" :"https://milestones.appfactory.wso2.com:9443/services/",
+       "cloudmgtServices" :"https://milestones.appfactory.wso2.com:9443/services/",
        "cloudmgt" : "https://milestones.appfactory.wso2.com:9443/cloudmgt",
-       "appfactory_tmp": "https://milestones.appfactory.wso2.com:9443/services/",
        "bps": "https://milestones.appfactory.wso2.com:9543/services/",
        "greg": "https://milestones.appfactory.wso2.com:9443/services/",
        "identity": "https://milestones.appfactory.wso2.com:9444/services/"
