@@ -36,12 +36,13 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 					//allready added to right wave ignore
 				} else {
 					var response = billing.addCloudSubmissionToRightwave(userEmail,domainName,type);
-					var msg = response['data'];
-					if(msg === "Data Submitted Successfully") {
+					var msg = JSON.parse(response['data']);
+					if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 						queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
 						parameters = [type,1, domainName,userEmail];
 						modDb.executeQuery(queryString, parameters);
 						actionString =  actionString+"Success";
+						log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for "+email);
 					} else {
 						actionString =  actionString+"Failed";
 						log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
@@ -58,12 +59,13 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 				}
 			} else {
 				var response = billing.addCloudSubmissionToRightwave(userEmail,domainName,type);
-				var msg = response['data'];
-				if(msg === "Data Submitted Successfully") {
+				var msg = JSON.parse(response['data']);
+				if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 					queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
 					parameters = [type, domainName,1,userEmail];
 					modDb.executeQuery(queryString, parameters);
 					actionString =  actionString+"Success";
+					log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for "+email);
 				} else {
 					actionString =  actionString+"Failed";
 					log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
