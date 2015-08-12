@@ -39,13 +39,12 @@ import java.util.Set;
 
 public class CloudTenantCreationListener implements TenantMgtListener {
     private static final Log log = LogFactory.getLog(CloudTenantCreationListener.class);
-    private Set<RoleBean> roleBeanList = null;
 
     public void onTenantCreate(TenantInfoBean tenantInfoBean) throws StratosException {
         log.info("Adding Tenant Roles on tenant creation.");
+        Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
         try {
-            roleBeanList = new HashSet<RoleBean>();
-            roleBeanList.addAll(getRolePermissionConfigurations(CloudMgtConstants.TENANT_ROLES_ROLE,tenantInfoBean.getAdmin()));
+            roleBeanList.addAll(getRolePermissionConfigurations(CloudMgtConstants.TENANT_ROLES_ROLE, tenantInfoBean.getAdmin()));
         } catch (CloudMgtException e) {
             String message = "Failed to read default roles from cloud-mgt configuration.";
             log.error(message);
@@ -59,7 +58,7 @@ public class CloudTenantCreationListener implements TenantMgtListener {
             privilegedCarbonContext.setTenantDomain(tenantInfoBean.getTenantDomain());
             UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
                     getUserRealm().getUserStoreManager();
-            AuthorizationManager authorizationManager =  PrivilegedCarbonContext.getThreadLocalCarbonContext().
+            AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
                     getUserRealm().getAuthorizationManager();
             addRolePermissions(userStoreManager, authorizationManager, roleBeanList);
 
@@ -74,7 +73,7 @@ public class CloudTenantCreationListener implements TenantMgtListener {
                     + "(" + tenantInfoBean.getTenantId() + ")";
             log.error(message);
             throw new StratosException(message, e);
-        }finally {
+        } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
 
@@ -108,7 +107,7 @@ public class CloudTenantCreationListener implements TenantMgtListener {
         return 0;
     }
 
-    public static Set<RoleBean> getRolePermissionConfigurations(String rolePermissionConfigPath, String defaultUser)
+    private static Set<RoleBean> getRolePermissionConfigurations(String rolePermissionConfigPath, String defaultUser)
             throws CloudMgtException {
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
         CloudMgtConfiguration configuration = ServiceHolder.getCloudConfiguration();
@@ -171,7 +170,7 @@ public class CloudTenantCreationListener implements TenantMgtListener {
     }
 
     private static void addRolePermissions(UserStoreManager userStoreManager, AuthorizationManager authorizationManager,
-                                          Set<RoleBean> roleBeanList) throws UserStoreException {
+                                           Set<RoleBean> roleBeanList) throws UserStoreException {
         for (RoleBean roleBean : roleBeanList) {
             if (!userStoreManager.isExistingRole(roleBean.getRoleName())) {
                 // add role and authorize given authorized permission list
@@ -180,10 +179,12 @@ public class CloudTenantCreationListener implements TenantMgtListener {
                         roleBean.getPermissions(true)
                                 .toArray(new Permission[roleBean.getPermissions(true).size()]));
                 if (log.isDebugEnabled()) {
-                    StringBuilder permissionLog = new StringBuilder("Role:" + roleBean.getRoleName() + " is added with below permissions;");
+                    StringBuilder permissionLog = new StringBuilder("Role:" + roleBean.getRoleName()
+                            + " is added with below permissions;");
                     List<Permission> permissions = roleBean.getPermissions(true);
                     for (Permission permission : permissions) {
-                        permissionLog.append("resource:").append(permission.getResourceId()).append(" action:").append(permission.getAction()).append("\n");
+                        permissionLog.append("resource:").append(permission.getResourceId()).append(" action:")
+                                .append(permission.getAction()).append("\n");
                     }
                     log.debug(permissionLog.toString());
                 }
@@ -195,9 +196,8 @@ public class CloudTenantCreationListener implements TenantMgtListener {
                         authorizationManager.authorizeRole(roleBean.getRoleName(), permission.getResourceId(),
                                 permission.getAction());
                         if (log.isDebugEnabled()) {
-                            StringBuilder permissionLog = new StringBuilder("Role:" + roleBean.getRoleName() + " is authorized with permission;\n");
-                            permissionLog.append("resource:").append(permission.getResourceId()).append(" action:").append(permission.getAction()).append("\n");
-                            log.debug(permissionLog.toString());
+                            log.debug("Role:" + roleBean.getRoleName() + " is authorized with permission;\n" +
+                                    "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
                         }
                     }
                 }
@@ -208,9 +208,8 @@ public class CloudTenantCreationListener implements TenantMgtListener {
                 authorizationManager.denyRole(roleBean.getRoleName(), permission.getResourceId(),
                         permission.getAction());
                 if (log.isDebugEnabled()) {
-                    StringBuilder permissionLog = new StringBuilder("Role:" + roleBean.getRoleName() + " is denied with permissions;\n");
-                    permissionLog.append("resource:").append(permission.getResourceId()).append(" action:").append(permission.getAction()).append("\n");
-                    log.debug(permissionLog.toString());
+                    log.debug("Role:" + roleBean.getRoleName() + " is denied with permissions;\n" +
+                            "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
                 }
             }
         }

@@ -34,7 +34,7 @@ import java.io.InputStream;
 import java.util.*;
 
 /**
- * Configuration builder can be used to build cloud-mgt.xml file
+ * Configuration builder used to build cloud-mgt.xml file
  */
 public class CloudMgtConfigurationBuilder {
     private static final Log log = LogFactory.getLog(CloudMgtConfigurationBuilder.class);
@@ -48,8 +48,7 @@ public class CloudMgtConfigurationBuilder {
      * @param cloudMgtConfigFileLocation String value of the absolute path of the xml file
      * @throws CloudMgtException if the file is not there
      */
-    public CloudMgtConfigurationBuilder(String cloudMgtConfigFileLocation) throws
-            CloudMgtException {
+    public CloudMgtConfigurationBuilder(String cloudMgtConfigFileLocation) throws CloudMgtException {
         File cloudConfigFile = new File(cloudMgtConfigFileLocation);
         if (cloudConfigFile.exists()) {
             this.configFile = cloudConfigFile;
@@ -68,14 +67,10 @@ public class CloudMgtConfigurationBuilder {
      * @throws CloudMgtException
      */
     public CloudMgtConfiguration buildCloudMgtConfiguration() throws CloudMgtException {
-
         return loadCloudMgtConfiguration(this.configFile);
-
     }
 
-    private CloudMgtConfiguration loadCloudMgtConfiguration(File cloudConfigFile)
-            throws
-            CloudMgtException {
+    private CloudMgtConfiguration loadCloudMgtConfiguration(File cloudConfigFile) throws CloudMgtException {
         OMElement cloudElement = loadXML(cloudConfigFile);
 
         // Initialize secure vault
@@ -195,7 +190,7 @@ public class CloudMgtConfigurationBuilder {
     }
 
     private String getKey(Stack<String> nameStack) {
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         for (int i = 0; i < nameStack.size(); i++) {
             String name = nameStack.elementAt(i);
             key.append(name).append(".");
@@ -275,10 +270,6 @@ public class CloudMgtConfigurationBuilder {
         if (secretAliasAttr != null) {
             element.setText(loadFromSecureVault(secretAliasAttr));
         }
-        // Iterator<OMElement> childEls = (Iterator<OMElement>) dbsElement.getChildElements();
-        // while (childEls.hasNext()) {
-        // this.secureVaultResolve(childEls.next());
-        // }
     }
 
     public synchronized String loadFromSecureVault(String alias) {

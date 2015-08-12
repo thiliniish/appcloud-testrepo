@@ -23,14 +23,13 @@ import org.wso2.carbon.cloud.common.CloudMgtConfiguration;
 import org.wso2.carbon.cloud.common.CloudMgtConfigurationBuilder;
 import org.wso2.carbon.cloud.common.CloudMgtConstants;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
-import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 
 /**
- * @scr.component name="cloud.user.store.manager.dscomponent" immediate=true
+ * @scr.component name="cloud.common.component" immediate=true
  * @scr.reference name="user.realmservice.default"
  * interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
@@ -42,8 +41,6 @@ import java.io.File;
  */
 public class CloudCommonServiceComponent {
     private static Log log = LogFactory.getLog(CloudCommonServiceComponent.class);
-    private static RealmService realmService;
-    private static SecretCallbackHandlerService secretCallbackHandlerService;
 
     protected void activate(ComponentContext ctxt) {
         BundleContext bundleContext = ctxt.getBundleContext();
@@ -54,7 +51,6 @@ public class CloudCommonServiceComponent {
                     File.separator + CloudMgtConstants.CONFIG_FILE_NAME;
             configuration = new CloudMgtConfigurationBuilder(fileLocation).buildCloudMgtConfiguration();
             bundleContext.registerService(CloudMgtConfiguration.class.getName(), configuration, null);
-
             if (log.isDebugEnabled()) {
                 log.debug("Cloud common bundle is activated");
             }
