@@ -389,7 +389,7 @@ var createAccount = function (accountData, metaData) {
                         	var events = [];
                         	if(msg.message == "Data Submitted Successfully") {
                         		actionString =  actionString+"Success";
-								log.info("Rightwave api call Cloud Upgrade is success for "+email);
+					log.info("Rightwave api call Cloud Upgrade is success for "+email);
                         	} else {
                         		actionString =  actionString+"Failed";
                         		log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
