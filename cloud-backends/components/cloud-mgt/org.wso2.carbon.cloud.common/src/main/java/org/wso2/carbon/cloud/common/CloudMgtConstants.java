@@ -22,7 +22,7 @@ public class CloudMgtConstants {
     public static final String CONFIG_FOLDER = "cloud";
 
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/";
-	public static final String CONFIG_FILE_NAME = "cloud-mgt.xml";
+    public static final String CONFIG_FILE_NAME = "cloud-mgt.xml";
 
     public static final String SECURE_VAULT_NS = "http://org.wso2.securevault/configuration";
     public static final String SECRET_ALIAS_ATTR_NAME = "secretAlias";

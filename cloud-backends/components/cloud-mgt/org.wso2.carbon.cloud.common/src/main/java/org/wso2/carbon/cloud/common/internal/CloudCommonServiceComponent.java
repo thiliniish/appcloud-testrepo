@@ -57,7 +57,6 @@ public class CloudCommonServiceComponent {
         } catch (Throwable e) {
             log.error("Error in creating cloud-mgt configuration", e);
         }
-
     }
 
     protected void deactivate(ComponentContext ctxt) {
@@ -65,7 +64,6 @@ public class CloudCommonServiceComponent {
             log.debug("Cloud Common bundle is deactivated ");
         }
     }
-
 
     protected void setRealmService(RealmService rlmService) {
         ServiceHolder.setRealmService(rlmService);
@@ -81,7 +79,6 @@ public class CloudCommonServiceComponent {
             log.debug("SecretCallbackHandlerService acquired");
         }
         ServiceHolder.setSecretCallbackHandlerService(secretCallbackHandlerService);
-
     }
 
     protected void unsetSecretCallbackHandlerService(

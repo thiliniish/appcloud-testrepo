@@ -113,7 +113,6 @@ public class CloudMgtConfigurationBuilder {
         return configuration;
     }
 
-
     private OMElement loadXML(File configFile) throws CloudMgtException {
 
         InputStream inputStream = null;

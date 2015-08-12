@@ -62,7 +62,6 @@ public class CloudTenantCreationListener implements TenantMgtListener {
                     getUserRealm().getAuthorizationManager();
             addRolePermissions(userStoreManager, authorizationManager, roleBeanList);
 
-
         } catch (org.wso2.carbon.user.core.UserStoreException e) {
             String message = "Failed to add default roles to tenant : " + tenantInfoBean.getTenantDomain()
                     + "(" + tenantInfoBean.getTenantId() + ")";
