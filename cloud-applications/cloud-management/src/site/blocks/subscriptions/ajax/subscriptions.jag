@@ -37,7 +37,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 				} else {
 					var response = billing.addCloudSubmissionToRightwave(userEmail,domainName,type);
 					var msg = JSON.parse(response['data']);
-					if(msg.message == "Data Submitted Successfully") {
+					if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 						queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
 						parameters = [type,1, domainName,userEmail];
 						modDb.executeQuery(queryString, parameters);
@@ -60,7 +60,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 			} else {
 				var response = billing.addCloudSubmissionToRightwave(userEmail,domainName,type);
 				var msg = JSON.parse(response['data']);
-				if(msg.message == "Data Submitted Successfully") {
+				if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 					queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
 					parameters = [type, domainName,1,userEmail];
 					modDb.executeQuery(queryString, parameters);

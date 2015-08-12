@@ -570,12 +570,12 @@ var sendInvite = function(email) {
 			var result = post(URL,data,{
 				'Content-Type': 'application/json'}, 'text');
 			var type ="CloudMgt";
-			var msg = result['data'];
+			var msg = JSON.parse(result['data']);
 			var actionString = "Rightwave-"+type+"-cloudsignup:";
 			var page = "Rightwave";
 			var item = type;
 			var events = [];
-			if(msg === "Data Submitted Successfully") {
+			if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 				actionString =  actionString+"Success";
 			} else {
 				actionString =  actionString+"Failed";

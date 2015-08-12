@@ -280,7 +280,7 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 			var page = "Rightwave";
 			var item = type;
 			var events = [];
-			if(msg.message == "Data Submitted Successfully") {
+			if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 				actionString =  actionString+"Success";
 				session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
 				log.info("Rightwave api call Cloud Upgrade is success for "+email);
@@ -387,7 +387,7 @@ var createAccount = function (accountData, metaData) {
                         	var page = "Rightwave";
                         	var item = type;
                         	var events = [];
-                        	if(msg.message == "Data Submitted Successfully") {
+                        	if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
                         		actionString =  actionString+"Success";
 					log.info("Rightwave api call Cloud Upgrade is success for "+email);
                         	} else {
@@ -1061,7 +1061,7 @@ var extendTrial = function (serviceId, customerRequest) {
                         		var page = "Rightwave";
                         		var item = type;
                         		var events = [];
-                        		if(msg.message == "Data Submitted Successfully") {
+                        		if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
                         			actionString =  actionString+"Success";
                         			log.info("Rightwave api call Trial Extension is success for "+email);
                         		} else {

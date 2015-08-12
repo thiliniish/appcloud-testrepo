@@ -154,7 +154,7 @@ var sendInvite = function(email,tenant,roles) {
 				var page = "Rightwave";
 				var item = type;
 				var events = [];
-				if(msg.message == "Data Submitted Successfully") {
+				if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 					actionString =  actionString+"Success";
 					log.info("Rightwave api call Cloud Signup is success for "+email);
 				} else {
