@@ -275,15 +275,15 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 		var data = "json="+JSON.stringify(jsonData);
 		var result = post(URL,data,{
 			'Content-Type': 'application/json'}, 'text');
-			var msg = result['data'];
-			log.debug("Rightwave response "+msg);
+			var msg = JSON.parse(result['data']);
 			var actionString = "Rightwave-"+type+"-Upgrade:";
 			var page = "Rightwave";
 			var item = type;
 			var events = [];
-			if(msg === "Data Submitted Successfully") {
+			if(msg.message == "Data Submitted Successfully") {
 				actionString =  actionString+"Success";
 				session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
+				log.info("Rightwave api call Cloud Upgrade is success for "+email);
 			} else {
 				actionString =  actionString+"Failed";
 				log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
@@ -382,13 +382,14 @@ var createAccount = function (accountData, metaData) {
                         	var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
                         	var data = "json="+JSON.stringify(jsonData);
                         	var result = post(URL,data,{'Content-Type': 'application/json'}, 'text');
-							var msg = result['data'];
+							var msg = JSON.parse(result['data']);
                         	var actionString = "Rightwave-"+type+"-Upgrade:";
                         	var page = "Rightwave";
                         	var item = type;
                         	var events = [];
-                        	if(msg === "Data Submitted Successfully") {
+                        	if(msg.message == "Data Submitted Successfully") {
                         		actionString =  actionString+"Success";
+								log.info("Rightwave api call Cloud Upgrade is success for "+email);
                         	} else {
                         		actionString =  actionString+"Failed";
                         		log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
@@ -1055,13 +1056,14 @@ var extendTrial = function (serviceId, customerRequest) {
                         	var data = "json="+JSON.stringify(jsonData);
                         	var result = post(URL,data,{
                         		'Content-Type': 'application/json'}, 'text');
-                        		var msg = result['data'];
+                        		var msg = JSON.parse(result['data']);
                         		var actionString = "Rightwave-"+type+"-trialextension:";
                         		var page = "Rightwave";
                         		var item = type;
                         		var events = [];
-                        		if(msg === "Data Submitted Successfully") {
+                        		if(msg.message == "Data Submitted Successfully") {
                         			actionString =  actionString+"Success";
+                        			log.info("Rightwave api call Trial Extension is success for "+email);
                         		} else {
                         			actionString =  actionString+"Failed";
                         			log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);

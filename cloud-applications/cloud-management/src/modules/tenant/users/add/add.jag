@@ -149,13 +149,14 @@ var sendInvite = function(email,tenant,roles) {
 				var result = post(URL,data,{
 					'Content-Type': 'application/json'}, 'text');
 				var type ="CloudMgt";
-			    var msg = result['data'];
+			    var msg = JSON.parse(result['data']);
 				var actionString = "Rightwave-"+type+"-cloudsignup{Invite}:";
 				var page = "Rightwave";
 				var item = type;
 				var events = [];
-				if(msg === "Data Submitted Successfully") {
+				if(msg.message == "Data Submitted Successfully") {
 					actionString =  actionString+"Success";
+					log.info("Rightwave api call Cloud Signup is success for "+email);
 				} else {
 					actionString =  actionString+"Failed";
 					log.error("Rightwave api call failed for the user "+email);
