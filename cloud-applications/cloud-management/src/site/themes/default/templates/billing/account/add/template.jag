@@ -154,7 +154,7 @@
 
             var cloudmgtURL =  $("#cloudmgtURL").attr('value');
 
-            jagg.message({content:'Your request create billing account to WSO2 Cloud has been submitted. Please wait...',type:'success'});
+            jagg.message({content:'Please Wait. Your request is being processed..',type:'success'});
             jagg.post("../blocks/billing/account/add/ajax/add.jag", {
                 action:"createAccount",
                 firstName :$("#firstName").attr('value'),
