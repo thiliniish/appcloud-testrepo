@@ -34,10 +34,9 @@
             <MaxTotalConnections>50</MaxTotalConnections>
         </HttpClientConfig>
     </DataServiceAPI>
+    <!--Global Trial period in days-->
+    <TrialPeriod>14</TrialPeriod>
     <Zoura>
-        <!--Trial period in days-->
-        <TrialPeriod>30</TrialPeriod>
-
         <!--Zuora tenant credentials-->
         <User>USERNAME</User>
         <Password>PASSWORD</Password>
@@ -142,4 +141,10 @@
         <KeyStorePath>KEYSTORE_PATH</KeyStorePath>
         <TrustStorePassword>wso2carbon</TrustStorePassword>
     </SSORelyingParty>
+    <Utils>
+        <APICloud>
+            <!--This is for statistical purposes .Usage display period in days-->
+            <UsageDisplayPeriod>30</UsageDisplayPeriod>
+        </APICloud>
+    </Utils>
 </CloudBilling>

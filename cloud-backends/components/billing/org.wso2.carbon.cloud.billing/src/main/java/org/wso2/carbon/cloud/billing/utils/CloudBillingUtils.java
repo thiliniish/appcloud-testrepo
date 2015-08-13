@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.cloud.billing.utils;
 
+import com.google.gson.Gson;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
@@ -52,7 +53,8 @@ public class CloudBillingUtils {
 
     private static final Log log = LogFactory.getLog(CloudBillingUtils.class);
     private static SecretResolver secretResolver;
-    private static BillingConfig billingConfig = null;
+    private static volatile BillingConfig billingConfig;
+    private static volatile String configObj;
     private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getBillingRequestProcessor
             (BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
              CloudBillingUtils.getBillingConfiguration()
@@ -87,9 +89,48 @@ public class CloudBillingUtils {
 
     public static BillingConfig getBillingConfiguration() {
         if (billingConfig == null) {
-            billingConfig = loadBillingConfig();
+            synchronized (CloudBillingUtils.class) {
+                if (billingConfig == null) {
+                    billingConfig = loadBillingConfig();
+                }
+            }
         }
         return billingConfig;
+    }
+
+    public static String getConfigInJson() {
+        if (configObj == null) {
+            synchronized (CloudBillingUtils.class) {
+                if (configObj == null) {
+                    Gson gson = new Gson();
+                    configObj = gson.toJson(getBillingConfiguration());
+                    if (log.isDebugEnabled()) {
+                        log.debug("Configuration read to json: " + configObj);
+                    }
+                }
+            }
+        }
+        return configObj;
+    }
+
+    public static boolean validateRatePlanId(String serviceId, String productRatePlanId) {
+        Plan[] plans = getSubscriptions(serviceId);
+        for (Plan plan : plans) {
+            if (plan.getId().equals(productRatePlanId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean validateServiceId(String serviceId) {
+        Subscription[] subscriptions = billingConfig.getZuoraConfig().getSubscriptions();
+        for (Subscription subscription : subscriptions) {
+            if (serviceId.equals(subscription.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Plan getSubscriptionForId(String subscriptionId, String id) throws CloudBillingException {

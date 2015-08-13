@@ -104,11 +104,12 @@ public class UsageProcessorUtil {
             throw new CloudBillingException(msg, e);
         }
     }
-    private static String getCurrentRatePlanId(JSONArray ratePlans){
-        for(Object ratePlan : ratePlans){
-            JSONObject jsonObject= (JSONObject) ratePlan;
+
+    private static String getCurrentRatePlanId(JSONArray ratePlans) {
+        for (Object ratePlan : ratePlans) {
+            JSONObject jsonObject = (JSONObject) ratePlan;
             String ratePlanName = ((JSONObject) ratePlan).get(BillingConstants.RATE_PLAN_NAME).toString();
-            if(ratePlanName != null && !ratePlanName.contains(BillingConstants.COUPON_HEADER)){
+            if (ratePlanName != null && !ratePlanName.contains(BillingConstants.COUPON_HEADER)) {
                 return (String) jsonObject.get(BillingConstants.PRODUCT_RATE_PLAN_ID);
             }
         }

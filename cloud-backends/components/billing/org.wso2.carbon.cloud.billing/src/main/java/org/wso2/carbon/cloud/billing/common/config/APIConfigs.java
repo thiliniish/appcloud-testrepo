@@ -32,6 +32,8 @@ public class APIConfigs {
     private String accounts;
     private String cancelSubscription;
     private String subscriptions;
+    private String paymentMethods;
+    private String removePaymentMethod;
     private String invoiceInfo;
     private String paymentInfo;
     private String products;
@@ -90,6 +92,24 @@ public class APIConfigs {
         this.subscriptions = subscriptions;
     }
 
+    @XmlElement(name = "PaymentMethods", nillable = false, required = true)
+    public String getPaymentMethods() {
+        return paymentMethods;
+    }
+
+    public void setPaymentMethods(String paymentMethods) {
+        this.paymentMethods = paymentMethods;
+    }
+
+    @XmlElement(name = "RemovePaymentMethod", nillable = false, required = true)
+    public String getRemovePaymentMethod() {
+        return removePaymentMethod;
+    }
+
+    public void setRemovePaymentMethod(String removePaymentMethod) {
+        this.removePaymentMethod = removePaymentMethod;
+    }
+
     @XmlElement(name = "InvoiceInfo", nillable = false, required = true)
     public String getInvoiceInfo() {
         return invoiceInfo;
@@ -109,8 +129,12 @@ public class APIConfigs {
     }
 
     @XmlElement(name = "Products", nillable = false, required = true)
-    public String getProducts() { return products; }
+    public String getProducts() {
+        return products;
+    }
 
-    public void setProducts(String products) { this.products = products; }
+    public void setProducts(String products) {
+        this.products = products;
+    }
 
 }
