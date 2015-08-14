@@ -57,13 +57,12 @@ var checkIsUserAdmin = function () {
 	} catch (Exception) {
 		log.error("Error while checking, current user is tenant admin. User: "+ userName +". Error:" +e);
 		isUserAdmin= false;
-	}
-	finally {
+	} finally {
 		session.put("IS_USER_ADMIN", isUserAdmin);
 		context.endTenantFlow();
 	}
 }
-if(isUserAdmin == null){
+if (isUserAdmin == null) {
 	checkIsUserAdmin();
 }
 
