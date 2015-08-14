@@ -10,26 +10,7 @@
       "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/account-summary.jag",
       "icon": "fa fa-briefcase",
       "target": "_blank",
-      "dropDown": {
-        "Upgrade Now": {
-          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/payment-plans.jag?cloud-type=api_cloud",
-          "icon": "fa fa-level-up",
-          "isDropDown": "false",
-          "target" : "_self"
-        },
-        "Request Extension": {
-          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/contact-us.jag?cloud-type=api_cloud&request-extension=true",
-          "icon": "fa fa-envelope",
-          "isDropDown": "false",
-          "target" : "_blank"
-        },
-        "Usage data": {
-          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/tenant-usage.jag?cloud-type=api_cloud",
-          "icon": "fa fa-bar-chart",
-          "isDropDown": "false",
-          "target" : "_self"
-        }
-      }
+      "dropDown": "false"
     },
     "Documentation": {
       "url": "#",

@@ -27,6 +27,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
 %>
 
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+<!--<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-1.11.1/jquery.min.js'))%>"></script>-->
 
 <!-- BOF cloud menu -->
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -55,37 +56,39 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
                         if(attr == "Domain"){
                             attr = tenantDisplayName;
                         }
+                        if(attr == "Account" && (!isBillingAccount || !isUserAdmin)) {
+                            //we don't display the Account in this case
+                        }else{
                 %>
                 <li class="dropdown">
+                    <%
+                        if(dropDowns == "false"){
+                    %>
+                    <a href="<%=url%>"  target="<%=target%>"><i class="<%=icon%>"></i> <%=attr%></a>
+                    <%
+                        }else{
+                    %>
                     <a href="<%=url%>"  target="<%=target%>" class="dropdown-toggle" data-toggle="dropdown"><i class="<%=icon%>"></i> <%=attr%>
-                    <%
-                        if(dropDowns != "false"){
-                    %>
                         <i class="fa fa-chevron-circle-down"></i>
-                    <%
-                        }
-                    %>
                     </a>
-                    <%
-                        if(dropDowns != "false"){
-                    %>
                     <ul class="dropdown-menu" role="menu">
-                            <%
+                    <%
                             for (var dropsDown in dropDowns) {
                                 var dropDownUrl = dropDowns[dropsDown].url;
                                 var dropDownIcon = dropDowns[dropsDown].icon;
                                 var dropDownTarget = dropDowns[dropsDown].target;
-                            %>
-                            <li><a href="<%=dropDownUrl%>" target="<%=dropDownTarget%>"><i class="<%=dropDownIcon%>"></i> <%=dropsDown%></a></li>
-                            <%
+                    %>
+                        <li><a href="<%=dropDownUrl%>" target="<%=dropDownTarget%>"><i class="<%=dropDownIcon%>"></i> <%=dropsDown%></a></li>
+                    <%
                             }
-                            %>
+                    %>
                     </ul>
                     <%
                         }
                     %>
                 </li>
                 <%
+                        }
                     }
                 %>
                 <li class="dropdown user-name">
