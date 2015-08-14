@@ -1,0 +1,128 @@
+{
+  "Main": {
+    "Domain": {
+      "url": "#",
+      "icon": "fa fa-bank",
+      "dropDown": "false",
+      "target": "_parent"
+    },
+    "Account": {
+      "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/account-summary.jag",
+      "icon": "fa fa-briefcase",
+      "target": "_blank",
+      "dropDown": {
+        "Upgrade Now": {
+          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/payment-plans.jag?cloud-type=api_cloud",
+          "icon": "fa fa-level-up",
+          "isDropDown": "false",
+          "target" : "_self"
+        },
+        "Request Extension": {
+          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/contact-us.jag?cloud-type=api_cloud&request-extension=true",
+          "icon": "fa fa-envelope",
+          "isDropDown": "false",
+          "target" : "_blank"
+        },
+        "Usage data": {
+          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/tenant-usage.jag?cloud-type=api_cloud",
+          "icon": "fa fa-bar-chart",
+          "isDropDown": "false",
+          "target" : "_self"
+        }
+      }
+    },
+    "Documentation": {
+      "url": "#",
+      "icon": "fa fa-book",
+      "dropDown": {
+        "API Cloud": {
+          "id": "api_cloud",
+          "url": "https://docs.wso2.com/display/APICloud/WSO2+API+Cloud+Documentation",
+          "icon": "fw fw-api",
+          "target": "_blank"
+        },
+        "App Cloud": {
+          "id": "app_cloud",
+          "url": "https://docs.wso2.com/display/AppCloud/WSO2+App+Cloud+Documentation",
+          "icon": "fa fa-cubes",
+          "target": "_blank"
+        }
+      }
+    },
+    "Support": {
+      "url": "#",
+      "icon": "fa fa-envelope",
+      "dropDown": {
+        "Contact Us": {
+          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/contact-us.jag",
+          "icon": "fa fa-envelope",
+          "dropDown": "false",
+          "target": "_self"
+        },
+        "stackoverflow": {
+          "url": "http://stackoverflow.com/questions/tagged/wso2cloud",
+          "icon": "fa fa-stack-overflow",
+          "dropDown": "false",
+          "target": "_blank"
+        }
+      }
+    }
+  },
+  "User": {
+    "url": "#",
+    "icon": "fa fa-user",
+    "dropDown": {
+      "Profile": {
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/user-profile.jag",
+        "icon": "fa fa-user",
+        "dropDown": "false"
+      },
+      "Change Password": {
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/change-password.jag",
+        "icon": "fa fa-lock",
+        "dropDown": "false"
+      },
+      "Logout": {
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/logout.jag",
+        "icon": "fa fa-sign-out",
+        "dropDown": "false"
+      }
+    }
+  },
+  "Expand": {
+    "Navigate": {
+      "url": "#",
+      "icon": "fa fa-cloud",
+      "clouds": {
+        "API Cloud": {
+          "id": "api_cloud",
+          "url": "https://milestones.appfactory.wso2.com:9643/publisher/",
+          "icon": "fw fw-api fa-3x",
+          "dropDown": "false",
+          "target": "_blank"
+        },
+        "App Cloud": {
+          "id": "app_cloud",
+          "url": "https://milestones.appfactory.wso2.com:9443/appmgt/",
+          "icon": "fa fa-3x fa-cubes",
+          "dropDown": "false",
+          "target": "_blank"
+        }
+      }
+    },
+    "Manage" : {
+      "Organization": {
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/organization.jag",
+        "icon": "fa fa-3x  fa-institution",
+        "isDropDown": "false",
+        "target": "_self"
+      },
+      "Members": {
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/user.jag",
+        "icon": "fa fa-3x  fa-users",
+        "isDropDown": "false",
+        "target": "_self"
+      }
+    }
+  }
+}
