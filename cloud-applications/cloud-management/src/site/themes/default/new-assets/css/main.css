@@ -155,7 +155,7 @@ body {
     background: #00bff2 url(../img/cloud-main-bg.png) repeat-x center;
 }
 form,input,label,div{
-    font-size: 12px;
+    font-size: 14px;
 }
 
 /* Wrapper for page content to push down footer */
