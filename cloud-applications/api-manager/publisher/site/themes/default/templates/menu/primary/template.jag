@@ -1,6 +1,30 @@
 <% jagg.template("menu/primary", function(inputs, outputs, jagg) { %>
 <%var reqUrl = request.getRequestURI();var storeUrl;
  var inlineUrl=jagg.getAbsoluteUrl("/site/pages/inline-editor.jag");
+    var log = new Log("site/themes/default/templates/menu/primary/template.jag");
+
+    var isBillingEnable = session.get("IS_BILLING_ENABLE");
+    var checkIsBillingEnable = function () {
+        var isBillingEnable;
+        try {
+            // verify billing enable/disable mode
+            var billingConfigFile = new File("/site/conf/billing_conf.json");
+            billingConfigFile.open("r");
+            var configs = parse(billingConfigFile.readAll());
+            billingConfigFile.close();
+            var billing = configs.billing;
+            isBillingEnable = billing.enable;
+        } catch (e) {
+            log.error("Error while checking, billing functionality enable/disable status. Error:" + e);
+        } finally {
+            session.put("IS_BILLING_ENABLE", isBillingEnable);
+        }
+    };
+
+    if (isBillingEnable == null) {
+        checkIsBillingEnable();
+        isBillingEnable = session.get("IS_BILLING_ENABLE");
+    }
 
  var urlPrefix;
  var urlPostfix;
@@ -8,16 +32,10 @@
  if(tenant!='null') {urlPrefix="?tenant="+tenant;}else{urlPrefix='';}
  if(tenant!='null') {urlPostfix="&tenant="+tenant;}else{urlPostfix='';}
 
-//Billing properties
-var type = {PAID : "PAID", TRIAL: "TRIAL", FREE : "FREE"};
-var status = {ACTIVE : "ACTIVE", INACTIVE : "INACTIVE", EXTENDED : "EXTENDED", PENDING_DISABLE: "PENDING_DISABLE", DISABLED : "DISABLED"};
-var subscription = "api_cloud";
-
 var file = new File("/site/conf/toplink_menu.json");
 file.open("r");
 var data = file.readAll();
 file.close();
-var log = new Log("site/themes/default/templates/menu/primary/template.jag");
 var jsonObj = parse(data);
 var tenantDomain = outputs.user.username.split("@")[1];
 var cloudMgtPath = "https://milestones.appfactory.wso2.com:9443/cloudmgt/";
@@ -51,6 +69,19 @@ if(isUserAdmin == null){
 
 var mainMenu = jsonObj.Main;
 var leftMenu = jsonObj.Left_menu;
+
+if (isBillingEnable) {
+    //Billing properties
+    var type = {PAID: "PAID", TRIAL: "TRIAL", FREE: "FREE"};
+    var status = {
+        ACTIVE: "ACTIVE",
+        INACTIVE: "INACTIVE",
+        EXTENDED: "EXTENDED",
+        PENDING_DISABLE: "PENDING_DISABLE",
+        DISABLED: "DISABLED"
+    };
+    var subscription = "api_cloud";
+
 var isExpired = true;
 var trialPeriod = 14;
 var date;
@@ -114,6 +145,7 @@ db.close();
             }
         }
     }
+}
  %>
 
 <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("lib/bootstrap/css/bootstrap.css"))%>" rel="stylesheet">
@@ -266,6 +298,9 @@ ul.menu2 .dropdown-menu li a:hover {
 </style>
 <script type="text/javascript">
     $(document).ready(function($){
+    // Check for billing enable/disable mode
+    var isBillingEnable = $("#isBillingEnable").attr('value');
+    if (isBillingEnable) {
 	    var isExpired =<%=isExpired%>;
 	    var cloudMgtPath ="<%=cloudMgtPath%>";
 	    var subscription ="<%=subscription%>";
@@ -286,6 +321,7 @@ ul.menu2 .dropdown-menu li a:hover {
 		        	title:"Trial Expired"});
 		    }
         }
+    }
     });
 </script>
 <div class="container-fluid login-header">
@@ -306,7 +342,9 @@ ul.menu2 .dropdown-menu li a:hover {
 				     <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
 				     </span></a></li>
 				<%}else {
-				    if( attr =="Account" ) {
+                    if (!isBillingEnable && attr == "Account") {
+
+                    } else if (isBillingEnable && attr == "Account") {
 				        if(isUserAdmin){%>
 				            <li class="dropdown"><a data-toggle="dropdown"
 				               class="dropdown-toggle expired" href="#"><i class="<%=menuIcon%>"></i>
@@ -331,7 +369,7 @@ ul.menu2 .dropdown-menu li a:hover {
 						var subIcon  = dropDown[subAttr].icon;
 						var target  = dropDown[subAttr].target;
 						if(isUserAdmin == true){
-							if(accountContent == "Account") {
+                            if (isBillingEnable && accountContent == "Account") {
 								if(subAttr == "Request Extension") {
 								}else if (subAttr == "Upgrade Now") {
 									subURL = (subURL.split("?")[0]).replace("payment-plans","account-summary"); %>
@@ -341,7 +379,9 @@ ul.menu2 .dropdown-menu li a:hover {
 									<li><a href="<%=subURL%>"><i class="<%=subIcon%>"></i> <span> <%=subAttr%>
 									</span> </a></li>
 								<%}
-							} else { %>
+                            } else if (!isBillingEnable && (subAttr == "Request Extension" || subAttr == "Upgrade Now" || subAttr == "Usage")) {
+
+                            } else { %>
 								<li><a target="<%=target%>" href="<%=subURL%>"><i class="<%=subIcon%>"></i> <span> <%=subAttr%>
 								</span> </a></li>
 									<%
@@ -397,6 +437,7 @@ ul.menu2 .dropdown-menu li a:hover {
 				</div>
 				<% } %>
 			</div>
+			<input type="hidden" name="isBillingEnable" id="isBillingEnable"  value="<%= isBillingEnable %>" />
 		</div>
 	</div>
 </div>
