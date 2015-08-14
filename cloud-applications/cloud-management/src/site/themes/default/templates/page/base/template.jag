@@ -37,11 +37,10 @@
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/css/bootstrap-theme.css'))%>" rel="stylesheet">
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/css/bootstrap-missing.css'))%>" rel="stylesheet">
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/css/jquery.validate.password.css'))%>" rel="stylesheet">
-    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/font-awesome/css/font-awesome.min.css'))%>" rel="stylesheet">
-    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/css/bootstrap.min.css'))%>" rel="stylesheet">
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/css/common.css'))%>" rel="stylesheet">
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/css/custom.css'))%>" rel="stylesheet">
 
+    <!-- for new top menu bar -->
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/bootstrap-3.2.0/bootstrap.min.css'))%>" rel="stylesheet">
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2.css'))%>" rel="stylesheet" >
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2-extend.css'))%>" rel="stylesheet" >
@@ -88,7 +87,7 @@
 
 <div id="footer">
     <div class="container-fluid">
-        <div class="footer-text">WSO2 Cloud V: 1.2 . &copy; 2015 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.</div>
+        <div class="footer-text">WSO2 Cloud &copy; 2015 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.</div>
     </div>
 </div>
 
@@ -99,14 +98,13 @@
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/main.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.qtip.min.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('new-assets/js/vendor/bootstrap.min.js'))%>"></script>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-1.11.1/jquery.min.js'))%>"></script>
+
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
     <!-- include custom js functions -->
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom-header.js'))%>"></script>
+
 </body>
 </html>
 <% }); %>
