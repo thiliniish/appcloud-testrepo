@@ -49,6 +49,26 @@ var isUserInAdminRole = function () {
     }
 };
 
+//method to check if the session has been authenticated
+var isSessionAuthenticated = function () {
+
+    var isAuthenticated=false;
+    try {
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var SSO_NAME = cloudConfig.SSORelyingParty.name;
+        var security = require("sso");
+        var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+        var sessionId = session.getId();
+        isAuthenticated = ssoRelyingParty.isSessionAuthenticated(sessionId);
+    }
+    catch (e){
+        log.error("Error while retrieving the session \n" + e.message);
+        throw Error(e);
+    }
+
+    return isAuthenticated;
+};
+
 //method to check if the user is only a subscriber for a tenant
 
 var hasOnlySubscriberRole=function (userName)

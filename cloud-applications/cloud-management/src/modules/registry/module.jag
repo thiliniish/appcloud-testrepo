@@ -1,0 +1,16 @@
+<%
+jagg.module("registry", {
+
+    getResourceFromTenantSpace: function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").getResourceFromTenantSpace.apply(this, arguments);
+    },
+    configureRegistryParameters: function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").configureRegistryParameters.apply(this, arguments);
+    },
+    resourceExistsInTenantSpace: function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").resourceExistsInTenantSpace.apply(this, arguments);
+    }
+
+});
+%>
+
