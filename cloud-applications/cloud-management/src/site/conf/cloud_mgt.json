@@ -22,7 +22,8 @@
        "cloudmgt" : "https://milestones.appfactory.wso2.com:9443/cloudmgt",
        "bps": "https://milestones.appfactory.wso2.com:9543/services/",
        "greg": "https://milestones.appfactory.wso2.com:9443/services/",
-       "identity": "https://milestones.appfactory.wso2.com:9444/services/"
+       "identity": "https://milestones.appfactory.wso2.com:9444/services/",
+       "apiCloud": "https://milestones.appfactory.wso2.com:9643/services/"
     },
     "SSORelyingParty": {
         "name": "cloudmgt",
@@ -56,6 +57,10 @@
     "invitationEmail" : {
         "subject":"WSO2 Cloud Services - Invitation from: "
     },
+    "subscriberAccessEnabledEmail" : {
+      "subject":"Notification: Tenant enabled the self sign up feature for API Cloud",
+      "cloudEmail":"cloudEmail"
+    },
     "passwordResetEmail" : {
         "subject":"WSO2 Cloud Services - Password Reset"
     },
@@ -83,6 +88,9 @@
         "password": "password",
         "projectKey" : "projectkey"
     },
+    "documentation" : {
+        "selfSignUpDocumentationLink" : "https://docs.wso2.com/display/APICloud/WSO2+API+Cloud+Documentation"
+},
     "commonRoles":[
       "appfactoryusers",
       "Internal/everyone"

@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>Notification : Enabling subscriber sccess to  tenant store</title>
+</head>
+<body>
+
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
+                 Tenant <span style="color: #141414;">$tenant</span> has enabled the self sign up feature for the tenant store $tenantDomain of the API Cloud<span style="color: #141414;">
+                </p>
+		        </br>
+		        </br>
+ 		
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 20px 0px 5px;">
+                    Regards,
+                </p>
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
+                    WSO2 Cloud Team
+                </p>
+           
+
+</body>
+</html>

@@ -99,7 +99,7 @@ ul
                   disableSpinner();
               },
               function (jqXHR, textStatus, errorThrown) {
-                  jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                  jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
                           window.location.href = cloudmgtURL;
                       }
                   });
@@ -126,7 +126,7 @@ ul
                  disableSpinner();
              },
              function (jqXHR, textStatus, errorThrown) {
-                 jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                 jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
                          window.location.href = cloudmgtURL;
                      }
                  });

@@ -1,0 +1,78 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log('modules/registry/tenant/registry.jag');
+var carbon = require('carbon');
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var multitenancy = carbon.multitenancy;
+var sessionId = session.getId();
+var isAuthenticated = jagg.module("util").isSessionAuthenticated();
+var registry = "";
+var response = "error";
+var serverUrl = cloudConfig.ServerUrls.apiCloud.toString();
+
+
+var configureRegistryParameters = function (tenantDomain, userName) {
+    try {
+        var tenantManager = multitenancy.getTenantManager();
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        var options = {system: true, domain: tenantDomain, tenantId: tenantId};
+    }
+    catch (e) {
+        log.error("Error while configuring the registry properties for the tenant " + userName + "\n" + e.message);
+        throw Error(e);
+    }
+    return options;
+
+};
+
+var getResourceFromTenantSpace = function (path, tenantDomain, userName) {
+    if (isAuthenticated) {
+
+        try {
+            var resourcExists = resourceExistsInTenantSpace(path, tenantDomain, userName);
+            if (resourcExists) {
+
+                var options = configureRegistryParameters(tenantDomain, userName);
+                registry = new carbon.registry.Registry(serverUrl, options);
+                var response = registry.get(path);
+
+            }
+            else {
+                log.error("The resource does not exist in the path : " + path + " for the tenant " + userName);
+                response = "resourcePending";
+            }
+        } catch (e) {
+            log.error("Error while retrieving tenant space registry resource file: " + path + " for the tenant " + userName + "\n" + e.message);
+            throw Error(e);
+        }
+    } else {
+        log.warn("Tenant " + userName + " is not authenticated ");
+        response = "error";
+    }
+    return response;
+};
+
+var resourceExistsInTenantSpace = function (path, tenantDomain, userName) {
+    var resourceExistsInTenantSpace = false;
+    if (isAuthenticated) {
+        try {
+            var options = configureRegistryParameters(tenantDomain, userName);
+            registry = new carbon.registry.Registry(serverUrl, options);
+            resourceExistsInTenantSpace = registry.exists(path);
+        }
+        catch (e) {
+            log.error("Error while accessing tenant space registry resource file: " + path + " for the tenant " + userName + "\n" + e.message);
+            throw Error(e);
+        }
+    }
+    else {
+        log.warn("Tenant " + userName + " is not authenticated ");
+    }
+    return resourceExistsInTenantSpace;
+};
+
+
+%>
