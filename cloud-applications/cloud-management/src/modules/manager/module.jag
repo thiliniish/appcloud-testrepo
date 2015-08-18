@@ -45,6 +45,9 @@ jagg.module("manager", {
     },
     getOrganizationDisplayName:function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getOrganizationDisplayName.apply(this, arguments);
+    },
+    getAdminCookieBySAMLToken:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAdminCookieBySAMLToken.apply(this, arguments);
     }
 
 });

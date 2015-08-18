@@ -77,7 +77,9 @@ jagg.module("util", {
     },
     hasOnlySubscriberRole: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").hasOnlySubscriberRole.apply(this, arguments);
+    },
+    isSessionAuthenticated: function() {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").isSessionAuthenticated.apply(this, arguments);
     }
-
 });
 %>
