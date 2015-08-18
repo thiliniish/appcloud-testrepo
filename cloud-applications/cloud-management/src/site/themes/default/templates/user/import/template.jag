@@ -1,230 +1,148 @@
 <% jagg.template("user/import", function(inputs, outputs, jagg) { %>
 
 <%
-var hasTenantLevelUserMgtPermission = outputs.hasTenantLevelUserMgtPermission;
-var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var type = cloudConfig.subscriptions.type;
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var type = cloudConfig.subscriptions.type;
 %>
 
-<style>
-a {
-	color: black;
-}
-
-.dropdown dd,.dropdown dt {
-	margin: 0px;
-	padding: 0px;
-}
-
-.dropdown ul {
-	margin: -1px 0 0 0;
-}
-
-.dropdown dd {
-	position: relative;
-}
-
-.dropdown a,.dropdown a:visited {
-	color: black;
-	text-decoration: none;
-	outline: none;
-	font-size: 12px;
-}
-
-.dropdown dt a {
-	background-color: #F8FBFC;
-	display: block;
-	padding: 8px 20px 5px 10px;
-	min-height: 25px;
-	line-height: 24px;
-	overflow: hidden;
-	border: 1px solid #B0D1D8;
-	width: 272px;
-}
-
-.dropdown dt a span,.multiSel span {
-	cursor: pointer;
-	display: inline-block;
-	padding: 0 3px 2px 0;
-}
-
-.dropdown dd ul {
-	background-color: #F8FBFC;
-	border: 1px solid #B0D1D8;
-	color: black;
-	display: none;
-	left: 0px;
-	padding: 2px 15px 2px 5px;
-	position: absolute;
-	top: 2px;
-	width: 272px;
-	list-style: none;
-	height: 120px;
-	overflow: auto !important;
-	margin-left: 215px;
-}
-
-.dropdown span.value {
-	display: none;
-}
-
-.dropdown dd ul li a {
-	padding: 5px;
-	display: block;
-}
-
-.dropdown dd ul li a:hover {
-	background-color: black;
-}
-
-/*button {*/
-	/*background-color: #6BBE92;*/
-	/*width: 302px;*/
-	/*border: 0;*/
-	/*padding: 10px 0;*/
-	/*margin: 5px 0;*/
-	/*text-align: center;*/
-	/*color: black;*/
-	/*font-weight: bold;*/
-/*}*/
-</style>
 <script type="text/javascript">
-function disable() {
-	document.getElementById("spinner").style.display = '';
-	 var submitButton = document.getElementById('btnImport');
-	 $('#submitbtn').css('background-color','#F9BFBB');
-	 submitButton.disabled = true;
-}
-function updateMultiSelectRoles(){
-    var type = <%=type%>;
-	//getting the roles of each subscriptions
 
-	var jsonData = [];
-	var blockSubscriptions= getBlcokedSubscriptions();
-	for(var index in type){
-		if(blockSubscriptions.indexOf(type[index].id) <0 || blockSubscriptions==null){
-		 var tempRoleArray= type[index].roleTypes;
-		 var tempChildRole=[];
-		for(var indexInTemp in tempRoleArray){
-			tempChildRole.push({
-				"id": tempRoleArray[indexInTemp].roleName,
-				"text": tempRoleArray[indexInTemp].displayRoles});
-		}
-		jsonData.push({
-			"id": "",
-			 "text": type[index].name,
-			 "children":tempChildRole });
-		}
-	}
-	roleList= jsonData;
-	
-	$('#multiSelect').select2({
-		multiple: true,
-	    placeholder: "Select roles",
-	 	data:roleList,
-		query: function(options) {
-		//checking if the all the roles in the role group is selected
-		  var selectedIds = options.element.select2('val');
-		  var data = $.map(this.data, function(group) {
-     	  var containsAll = true;
-	       $.each(group.children, function(i, child) {
-	           if (selectedIds.indexOf(child.id) < 0) {
-	               containsAll = false;
-	               return false;
-	           }
-       		});
-       		return !containsAll ? group : null;
- 		  });
-   		options.callback({ results: data });
-   		}
-	}).on('select2-selecting', function(e) {
-	    var $select = $(this);
-	  //checking if the role group is selected
-	    if (e.val == "") { 
-	        e.preventDefault();
-	        $select.select2('data', $select.select2('data').concat(e.object.children));
-	        $select.select2('close');
-	    }
-	});	
-	      
-}
-function getBlcokedSubscriptions(){
-	var tenantDomain = '<%=session.get("TENANT_INFO").tenantDomain%>';
-    var blockedSubs;
-    jagg.syncPost("../blocks/tenant/users/add/ajax/add.jag", {
-        action:"getBlockedSubscriptions",
-        tenantDomain:tenantDomain
-    },
-    function (result) {
-      blockedSubs=result;
-    });
-   return blockedSubs; 
-}
-function enable() {
-	document.getElementById("spinner").style.display = 'none';
-	 var submitButton = document.getElementById('btnImport');
-	 $('#submitbtn').css('background-color','#428BCA');
-	 submitButton.disabled = false;
-}
+    function disable() {
+        document.getElementById("spinner").style.display = '';
+        var submitButton = document.getElementById('btnImport');
+        $('#submitbtn').css('background-color','#F9BFBB');
+        submitButton.disabled = true;
+    }
+
+    function updateMultiSelectRoles(){
+        var type = <%=type%>;
+        //getting the roles of each subscriptions
+        var jsonData = [];
+        var blockSubscriptions= getBlcokedSubscriptions();
+        for(var index in type){
+            if(blockSubscriptions.indexOf(type[index].id) <0 || blockSubscriptions==null){
+            var tempRoleArray= type[index].roleTypes;
+            var tempChildRole=[];
+            for(var indexInTemp in tempRoleArray){
+                tempChildRole.push({
+                    "id": tempRoleArray[indexInTemp].roleName,
+                    "text": tempRoleArray[indexInTemp].displayRoles});
+            }
+            jsonData.push({
+                "id": "",
+                "text": type[index].name,
+                "children":tempChildRole });
+            }
+        }
+        roleList= jsonData;
+
+        $('#multiSelect').select2({
+            multiple: true,
+            placeholder: "Select roles",
+            data:roleList,
+            query: function(options) {
+                //checking if the all the roles in the role group is selected
+                var selectedIds = options.element.select2('val');
+                var data = $.map(this.data, function(group) {
+                    var containsAll = true;
+                    $.each(group.children, function(i, child) {
+                        if (selectedIds.indexOf(child.id) < 0) {
+                            containsAll = false;
+                            return false;
+                        }
+                    });
+                    return !containsAll ? group : null;
+                });
+                options.callback({ results: data });
+            }
+        }).on('select2-selecting', function(e) {
+            var $select = $(this);
+            //checking if the role group is selected
+            if (e.val == "") {
+                e.preventDefault();
+                $select.select2('data', $select.select2('data').concat(e.object.children));
+                $select.select2('close');
+            }
+        });
+    }
+
+    function getBlcokedSubscriptions(){
+        var tenantDomain = '<%=session.get("TENANT_INFO").tenantDomain%>';
+        var blockedSubs;
+        jagg.syncPost("../blocks/tenant/users/add/ajax/add.jag", {
+            action:"getBlockedSubscriptions",
+            tenantDomain:tenantDomain
+        },
+        function (result) {
+            blockedSubs=result;
+        });
+        return blockedSubs;
+    }
+
+    function enable() {
+        document.getElementById("spinner").style.display = 'none';
+        var submitButton = document.getElementById('btnImport');
+        $('#submitbtn').css('background-color','#428BCA');
+        submitButton.disabled = false;
+    }
 
     function importUsers(){
-    	disable();
-        var users = $('#users').attr('value');
+        disable();
+        var users = document.getElementById("users").value;
         var allUsersValid = validateUserNames(users);
         var isUserAdded = getUsers(users) ;
         var selected = [];
-   	 	var roles = "";
+        var roles = "";
 
-   	 	var multiSelectDataArray = $("#multiSelect").select2('data');
-   	 	for(var i=0;i<multiSelectDataArray.length;i++){
-   	 	    var selectedId = multiSelectDataArray[i].id;
-   	 	    selected.push(selectedId);
-  	        roles = selectedId+","+roles;
-   	 	}
+        var multiSelectDataArray = $("#multiSelect").select2('data');
+        for(var i=0;i<multiSelectDataArray.length;i++){
+            var selectedId = multiSelectDataArray[i].id;
+            selected.push(selectedId);
+            roles = selectedId+","+roles;
+        }
         if(allUsersValid == false) {
-        jagg.message({
-                content: "Member list contains invalid user name/s. User name should be a valid email of length 3-30 in alphanumeric characters except '+'",
+            jagg.message({
+                content: "Member list contains invalid user name/s. " +
+                 "User name should be a valid email of length 3-30 in alphanumeric characters except '+'",
                 type: 'error',
                 id:'reposBuild'
             });
-        }  else if(isUserAdded == true) {
-        jagg.message({
+        }else if(isUserAdded == true) {
+            jagg.message({
                 content: "Invited member is already in the system.",
                 type: 'error',
                 id:'reposBuild'
             });
-        } else if(roles == "") {
-        jagg.message({
+        }else if(roles == "") {
+            jagg.message({
                 content: "Atleast one role must be selected from member roles",
                 type: 'error',
                 id:'reposBuild'
             });
-        }   else {
-			roles = roles.substring(0,(roles.length-1));
+        }else {
+            roles = roles.substring(0,(roles.length-1));
             jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
                 action: "sendUserInvite",
                 users:users,
                 roles:roles
-            }, function (result) {
+            },  function (result) {
                 var json = jQuery.parseJSON(result);
                 var error =  json.error.toString();
                 error = error.replace(/[\r\n]/g, "");
                 if(error== "false"){
                     tenantUsers= <%=session.get("tenantUsers")%>;
-                     jagg.message({
+                    jagg.message({
                         content: "Members invited successfully",
                         type: 'success', id:'importUsersPage'
                     });
                     window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/user.jag?invitaton=true")%>");
-                  
-                } else if(error == "true") {
-					var errorMsg = json.message;
-					jagg.message({content:json.message, type:'error',cbk:function(){
-                                window.location.href = "index.jag";
-                            }
+                }else if(error == "true") {
+                    var errorMsg = json.message;
+                    jagg.message({content:json.message, type:'error',cbk:function(){
+                            window.location.href = "index.jag";
+                        }
                     });
-				}
-
+                }
             }, function (jqXHR, textStatus, errorThrown) {
                 tenantUsers= <%=session.get("tenantUsers")%>;
             });
@@ -232,39 +150,24 @@ function enable() {
     }
 
     function getUsers(nameString){
-         var names = nameString.split(",");
-    	var allTenantUsers= <%=session.get("tenantUsers")%>; 
+        var names = nameString.split(",");
+        var allTenantUsers= <%=session.get("tenantUsers")%>;
         for(var x = 0; x < names.length; x++) {
-        for (var i in allTenantUsers) {
-            var userEmails = allTenantUsers[i];
-            if(userEmails.email == names[x]) {
-              return true;
-           }
+            for (var i in allTenantUsers) {
+                var userEmails = allTenantUsers[i];
+                if(userEmails.email == names[x]) {
+                    return true;
+                }
+            }
         }
-       }
-      return false;
-
-    }
-
-    function passwordComparisonHandling(isMatching){
-        if(!isMatching){
-            //show error message
-            $('#pwdError').css("display","inline");
-            $('#password2').addClass('error');
-            //add error class to passowrd 2 textbox
-        }else{
-            $('#pwdError').css("display","none");
-            $('#password2').removeClass('error');
-        }
-
-
+        return false;
     }
 
     function validateUserNames(nameString) {
         var names = nameString.split(",");
         var allUserNamesMatch = true;
-        //var pattern = /^(\d{1,2}\.){2}(\d{1,5})$/;	// validate version of format: '0.0.0', each can contain atmost 10 characters.
-        var pattern = /[a-zA-Z0-9._-|//]{3,30}$/;	// validate version of format: '0.0.0', each can contain atmost 10 characters.
+        //var pattern = /^(\d{1,2}\.){2}(\d{1,5})$/;    // validate version of format: '0.0.0', each can contain atmost 10 characters.
+        var pattern = /[a-zA-Z0-9._-|//]{3,30}$/;   // validate version of format: '0.0.0', each can contain atmost 10 characters.
         for(var i = 0; i < names.length; i++) {
             var match = pattern.test(names[i]);
             if(match == false){
@@ -276,130 +179,102 @@ function enable() {
         return allUserNamesMatch;
     }
 
- 
-
     $(document).ready(function(){
-    	initializeUserActivity("User Import Page");
-    	updateMultiSelectRoles();
-    	  $('#saveUserRoles').click(function(){
-        	});
-        	$(".dropdown dt a").on('click', function () {
-        	          $(".dropdown dd ul").slideToggle('fast');
-        	      });
+        initializeUserActivity("User Import Page");
+        updateMultiSelectRoles();
 
-        	      $(".dropdown dd ul li a").on('click', function () {
-        	          $(".dropdown dd ul").hide();
-        	      });
+        $('#saveUserRoles').click(function(){});
 
-        	      function getSelectedValue(value) {
-        	          
-        	           return $("#" + value).find("dt a span.value").html();
-        	      }
+        $(".dropdown dt a").on('click', function () {
+            $(".dropdown dd ul").slideToggle('fast');
+        });
 
-        	      $(document).bind('click', function (e) {
-        	          var $clicked = $(e.target);
-        	          if (!$clicked.parents().hasClass("dropdown")) $(".dropdown dd ul").hide();
-        	      });
+        $(".dropdown dd ul li a").on('click', function () {
+            $(".dropdown dd ul").hide();
+        });
 
+        function getSelectedValue(value) {
+            return $("#" + value).find("dt a span.value").html();
+        }
 
-        	       
+        $(document).bind('click', function (e) {
+            var $clicked = $(e.target);
+            if (!$clicked.parents().hasClass("dropdown")) $(".dropdown dd ul").hide();
+        });
 
+        $('#btnImport').click(function(){
+            importUsers();
+        });
 
-    $('#btnImport').click(function(){
-        importUsers();
+        $("#checkbox").click(function(){
+            if($("#checkbox").is(':checked') ){
+                $('#multiSelect').select2("val", "");
+                for(var index in roleList){
+                    $('#multiSelect').select2('data', $('#multiSelect').select2('data').concat(roleList[index].children));
+                }
+            }else{
+                $('#multiSelect').select2("val", "");
+            }
+        });
     });
-     $('#password2').focusout(function(){
-        passwordComparisonHandling($('#password').attr('value')==this.value)
-     });
-});
-
-
-  
-
 
 </script>
 
 
 <div class="container content-starter">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1>Invite Members</h1>
-			<div class="helper_text" id="helper_text">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>Invite Members</h1>
+            <div class="helper_text" id="helper_text">
                 <p>You can invite new team members by giving their email addresses<p>
             </div>
-		</div>
-	</div>
+        </div>
+    </div>
 </div>
 
 <% jagg.includeBlock("page/messages", null); %>
 
 <div class="container content-section-wrapper">
-	<div class="row">
-		<div class="col-lg-12 content-section">
+    <div class="row">
+        <div class="col-lg-12 content-section">
+        <section class="separator">
+            <div class="mini_content">
+                <div class="form-container" name="#">
+                    <form class="right_label hold" onsubmit="return(false)" >
+                        <fieldset>
 
-			<section class="separator">
-				<div class="mini_content">
-					<div class="form-container" name="#">
+                            <div class="input_row">
+                                <label for="users">Member List</label>
+                                    <textarea class="full" cols="10" rows="5" name="users" id="users" required></textarea>
+                                    <p class="note">Enter comma separated email list to invite multiple members.</p>
+                            </div>
 
-						<!--  <select class="select_list_custom select2-input" id="allUsersList" type="text"></select>     -->
-						<form class="right_label hold" onsubmit="return(false)" >
-							<fieldset>
-								<div class="input_row">
-									<label for="users">Member List</label>
-									<textarea class="full" cols="10" rows="5"
-										name="users" id="users" required></textarea>
-									<p class="note">Enter comma separated email list to invite multiple
-										members.</p>
-								</div>
-								<div class="input_row">
-									<label>Member Roles</label>
-                                    <input type="hidden" id="multiSelect" value="" style="width: 380px; padding: 10px;" />
-                                    <label class="checkbox" style="line-height: 23px;margin-top: 0;width: 82px;float:right"><input type="checkbox" id="checkbox" >Select All</label>
+                            <div class="input_row">
+                                <label>Member Roles</label>
+                                <input type="hidden" id="multiSelect" value="" style="width: 380px; padding: 10px;" />
+                                <label class="checkbox" style="line-height: 23px;margin-top: 0;width: 100px;float:right">
+                                    <input type="checkbox" id="checkbox"/>
+                                    Select All
+                                </label>
+                            </div>
 
-					<script type="text/javascript">
-	                                    $(document).ready(
-	                                        function(){
-	                                        	  $("#checkbox").click(function(){
-	                                                  if($("#checkbox").is(':checked') ){
-								$('#multiSelect').select2("val", "");
-		                                                for(var index in roleList){
-		                                                  	$('#multiSelect').select2('data', $('#multiSelect').
-		                                                          	select2('data').concat(roleList[index].children));
-		                                                }
-	                                                  }else{
-	                                                  	$('#multiSelect').select2("val", "");
-	                                                 	}
-	                                            });
-	                                        }
-	                                    );
-                                    </script>
-
-								</div>
-
-
-
-								<div class="buttonrow">
-									<button class="btn btn-primary" id="btnImport">Invite Members</button>
-									<a id="btn_cancel"
-										href="javascript:location.href='/cloudmgt/site/pages/user.jag'">Cancel</a>
-									<i class="fa fa-spinner fa-spin fa-4x" id="spinner" class="spinner" style="display:none; margin-left: 10px;"></i>
-								</div>
-							</fieldset>
-						</form>
-
-					</div>
-
-
-					<div class="clearfix"></div>
-				</div>
-			</section>
-
-			<div class="clearfix"></div>
-		</div>
-	</div>
+                            <div class="buttonrow">
+                                <button class="btn btn-primary" id="btnImport">Invite Members</button>
+                                    <a id="btn_cancel"
+                                        href="javascript:location.href='/cloudmgt/site/pages/user.jag'">Cancel</a>
+                                    <i class="fa fa-spinner fa-spin fa-4x"
+                                        id="spinner" class="spinner" style="display:none; margin-left: 10px;"></i>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="clearfix"></div>
+                </div>
+            </section>
+        </div>
+    </div>
 </div>
-<input type="hidden"
-	id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
-<input
-	type="hidden" id="applicationKey" value='<%= applicationKey %>' />
-<% }); %>
+<input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+<%
+});
+%>
