@@ -54,6 +54,9 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
             tmpUser.lastName=tmplastName;
             var allRoles="";
             for(var j=0;j<tmproles.length;j++) {
+               if(tmproles[j] == "default"){
+                 continue;
+               }
                if(allRoles != ""){
                  allRoles= tmproles[j]+"\n"+allRoles;
                } else {
