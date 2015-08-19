@@ -1,5 +1,7 @@
 <% jagg.template("user/reset", function(inputs, outputs, jagg) { %>
 <%
+include("/jagg/constants.jag");
+
 var log = new Log();
 var confirm = org.wso2.carbon.ui.util.CharacterEncoder.getSafeText(request.getParameter("confirmation"));
 var id = org.wso2.carbon.ui.util.CharacterEncoder.getSafeText(request.getParameter("id"));
@@ -96,7 +98,7 @@ span.error {
 
         },
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:'An error occurred while processing the request. Please contact WSO2 Cloud Team for help', type:'error',cbk:function(){
+            jagg.message({content:COMMON_ERROR_MESSAGE, type:'error',cbk:function(){
             		window.location.href = "index.jag";
                 }
             });
