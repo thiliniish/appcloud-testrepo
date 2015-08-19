@@ -182,4 +182,8 @@ var EDIT_USER_INFO = "Edit_User_Info";
 var IS_FROM_CHANGE_PLAN = "isFromChangePlan";
 
 var CLOUD_DEFAULT_ROLE = "default";
+
+//Error messages
+var COMMON_ERROR_MESSAGE = "An error occurred while processing the request. Please contact WSO2 Cloud Team for help.";
+
 %>

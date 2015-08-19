@@ -111,7 +111,7 @@
     }
 
     function enable() {
-        document.getElementById("spinner").style.display = 'none';
+         document.getElementById("spinner").style.display = 'none';
          var submitButton = document.getElementById('submitbtn');
          $('#submitbtn').css('background-color','#428BCA');
          submitButton.disabled = false;

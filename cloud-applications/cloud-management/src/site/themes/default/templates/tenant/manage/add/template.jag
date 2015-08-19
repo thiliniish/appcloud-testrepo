@@ -1,5 +1,6 @@
 <% jagg.template("tenant/manage/add", function(inputs, outputs, jagg) { %>
 <%
+include("/jagg/constants.jag");
 
 var log = new Log();
 
@@ -51,7 +52,7 @@ function enable() {
         },
         function (jqXHR, textStatus, errorThrown) {
             $('.message_box').empty();
-            jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+            jagg.message({content:COMMON_ERROR_MESSAGE, type:'error',cbk:function(){
                     window.location.href = cloudmgtURL ;
                 }
             });

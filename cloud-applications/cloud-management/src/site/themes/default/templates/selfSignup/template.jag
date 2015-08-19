@@ -1,5 +1,7 @@
 <% jagg.template("selfSignup", function (inputs, outputs, jagg) {
 
+    include("/jagg/constants.jag");
+
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt;
     var isSessionAuthenticated = jagg.module("util").isSessionAuthenticated();
@@ -66,7 +68,7 @@
                         }
                     },
                   function (jqXHR, textStatus, errorThrown) {
-                      jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                      jagg.message({content:'An error occurred while processing the request.', type:'error',cbk:function(){
                               window.location.href = cloudmgtURL;
                           }
                       });
@@ -90,7 +92,7 @@
                    }
                    },
                   function (jqXHR, textStatus, errorThrown) {
-                      jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                      jagg.message({content:COMMON_ERROR_MESSAGE, type:'error',cbk:function(){
                               window.location.href = cloudmgtURL;
                           }
                       });

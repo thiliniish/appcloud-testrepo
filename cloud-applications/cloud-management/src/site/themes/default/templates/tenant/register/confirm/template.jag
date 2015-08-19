@@ -1,5 +1,7 @@
 <% jagg.template("tenant/register/confirm", function(inputs, outputs, jagg) { %>
 <%
+include("/jagg/constants.jag");
+
 var log = new Log();
 var confirm = org.wso2.carbon.ui.util.CharacterEncoder.getSafeText(request.getParameter("confirmation"));
 var isInvitee = request.getParameter("isInvitee");
@@ -107,7 +109,7 @@ function generateResponse() {
                     }
               },
               function (jqXHR, textStatus, errorThrown) {
-                 jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                 jagg.message({content:COMMON_ERROR_MESSAGE, type:'error',cbk:function(){
             		window.location.href = "index.jag";
                   	}
                   });
