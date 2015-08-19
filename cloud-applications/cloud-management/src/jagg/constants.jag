@@ -179,5 +179,5 @@ var USER_ACTIVITY_STREAM_VERSION = "1.0.0";
 var EDIT_USER_INFO = "Edit_User_Info";
 var IS_FROM_CHANGE_PLAN = "isFromChangePlan";
 
-var CLOUD_DEFAULT_ROLE= "default";
+var CLOUD_DEFAULT_ROLE = "default";
 %>

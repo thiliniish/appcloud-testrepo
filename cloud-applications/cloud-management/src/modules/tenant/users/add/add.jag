@@ -273,7 +273,7 @@ var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassw
         if (!isUserExist) {
             server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
             jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
-        }else{
+        } else{
             assignedRoles.push(CLOUD_DEFAULT_ROLE);  //Need to add default role for users who exists already; hence adding default role here
         }
         log.info("Updating the user roles of user "+userName);
