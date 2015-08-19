@@ -99,6 +99,11 @@ input:checked+input.txtCoupon {
 
 <%
 var log = new Log("site/themes/default/templates/billing/plan/get/template.jag");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+var isBillingEnabled = jagg.module("billing").isBillingEnable();
+	if(isBillingEnabled == "true") {
 var serviceId = session.get("SERVICE_ID");
 var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
 var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
@@ -127,12 +132,10 @@ var isFromChangePlan = request.getParameter("is-from-change-plan");
 if(isFromChangePlan == null || isFromChangePlan == 'null'){
     isFromChangePlan = false;
 }
-var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 
 var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
 var cloudName =serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
-var bttnLabel = "Go to " + cloudName;
+var bttnLabel = "Go to " + cloudName;}
 
 %>
 
@@ -144,6 +147,9 @@ var bttnLabel = "Go to " + cloudName;
 
 
        $(document).ready(function(){
+       // Check for billing enable/disable mode
+       var isBillingEnabled = $("#isBillingEnabled").attr('value');
+       if (isBillingEnabled == "true") {
        	$(".tiny").hover(function(e){
        		$(".tiny").removeClass("selected");
        		$(this).addClass("selected");
@@ -172,6 +178,11 @@ var bttnLabel = "Go to " + cloudName;
        	        top: $('header').height()
        	      }
        	});
+       } else {
+            var cloudMgtURL = $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+        }
         });
 
         function disableButton(id) {
@@ -331,7 +342,10 @@ var bttnLabel = "Go to " + cloudName;
                 </div>
 			</div>
 
-			<% for(var i=0;i<paymentPlans.length;i++) {
+			<%
+			// Check for billing enable/disable mode
+			if (isBillingEnabled == "true") {
+			for(var i=0;i<paymentPlans.length;i++) {
 			var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
 			var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
 			var maxUsageStr = numFormat.format(maxUsageAmmount);
@@ -374,12 +388,13 @@ var bttnLabel = "Go to " + cloudName;
 			</div>
 
 			 <% } %><%if(!isFromChangePlan) { %> <button id="goToCloudType" type="button" class="btn btn-default btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
-			 
+			 <% }%>
             <input type="hidden" name="secretKey" id="secretKey" value=""/>
             <input type="hidden" name="imagePath" id="imagePath" value=""/>
             <input type="hidden" name="isFromChangePlan" id="isFromChangePlan" value="true"/>
             <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
-
+            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
+            <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
 		</div>
 	</div>
 	<div class="row pad-bot-50">
