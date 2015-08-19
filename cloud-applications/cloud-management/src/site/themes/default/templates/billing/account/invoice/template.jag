@@ -2,6 +2,8 @@
 	
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+var isBillingEnabled = jagg.module("billing").isBillingEnable();
 var currency = (jagg.module("billing").getCurrencyUsed()).toString();
 var invoiceId = request.getParameter("invoiceId");
 %>
@@ -33,6 +35,9 @@ th, td {
 <script type="text/javascript">
         var accountId;
        $(document).ready(function(){
+       // Check for billing enable/disable mode
+        var isBillingEnabled = $("#isBillingEnabled").attr('value');
+        if (isBillingEnabled == "true") {
         	jagg.post("../blocks/billing/account/invoice/ajax/get.jag", {
                 action:"gotInvoice",
                 id:"<%=invoiceId%>"
@@ -99,6 +104,12 @@ th, td {
 	   }
 	   });
 	   });
+	   } else {
+            var cloudMgtURL =  $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+        }
+
   	   });
 </script>
 
@@ -192,6 +203,8 @@ th, td {
 			<div class="col-lg-12 ">
 			<a class="btn btn-primary" href="<%=jagg.getAbsoluteUrl("/site/pages/account-summary.jag")%>"> Back </a>
 			<input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudMgtURL%>" />
+			<input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%= isBillingEnabled %>" />
+			<input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
 			</div>
 		</div>
 	</div>
