@@ -96,7 +96,7 @@ span.error {
 
         },
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:'Error occurred while processing the request. Please contact WSO2 Cloud Team for help', type:'error',cbk:function(){
+            jagg.message({content:'An error occurred while processing the request. Please contact WSO2 Cloud Team for help', type:'error',cbk:function(){
             		window.location.href = "index.jag";
                 }
             });
