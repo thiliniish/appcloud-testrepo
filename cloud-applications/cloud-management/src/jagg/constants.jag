@@ -1,4 +1,7 @@
 <%
+
+var CLOUD_DEFAULT_ROLE= "default";
+
 // collection names
 var APPLICATIONS = "repository/applications/";
 var USER_APPLICATIONS_MAPPING = "userApplicationMapping/";
