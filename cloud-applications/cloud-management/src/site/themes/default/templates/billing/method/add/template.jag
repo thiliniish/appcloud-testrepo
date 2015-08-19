@@ -5,6 +5,9 @@
 
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+    var isBillingEnabled = jagg.module("billing").isBillingEnable();
+    if (isBillingEnabled == "true") {
     var errorMessage = "NA";
     var userName =  session.get("LOGGED_IN_USER");
     var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
@@ -37,7 +40,8 @@
     var paymentPlanName;
     if (accountId == ""){
         paymentPlanName = jagg.module("billing").getPaymentPlanFromId(serviceId, productRatePlanId);
-    }
+    }}
+
 
     %>
 
@@ -146,6 +150,9 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
 
 
         $(document).ready(function($){
+        // Check for billing enable/disable mode
+        var isBillingEnabled = $("#isBillingEnabled").attr('value');
+        if (isBillingEnabled == "true") {
             showErrorMessage();
             generateParameters();
             var clickwithblur = false;
@@ -198,6 +205,12 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
             	        top: $('header').height()
             	      }
             	});
+        } else {
+            var cloudMgtURL = $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+        }
+
         });
     </script>
 
@@ -272,12 +285,14 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
                     <div class="form-group">
                         <div id="zuora_payment"></div>
                     </div>
+                    <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
                     <input type="hidden" name="monthlyRental" id="monthlyRental"  value="<%=monthlyRental%>" />
                     <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
                     <input type="hidden" name="errorMessage" id="errorMessage" value="<%=errorMessage%>" />
                     <input type="hidden" name="serviceId" id="serviceId" value="<%=serviceId%>" />
                     <input type="hidden" name="productRatePlanId" id="productRatePlanId" value="<%=productRatePlanId%>" />
                     <input type="hidden" name="accountId" id="accountId" value="<%=accountId%>" />
+                    <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
                 </form>
                 <div class="signin"></div>
 			</div>
