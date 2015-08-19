@@ -103,40 +103,40 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
 var isBillingEnabled = jagg.module("billing").isBillingEnable();
-	if(isBillingEnabled == "true") {
-var serviceId = session.get("SERVICE_ID");
-var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
-var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
-session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "true:"+serviceId);
-var currRatePlanId = null;
-var currRatePlan = null;
-var accounts = null;
-var callsPerDay = null;
-var callsAbovePlan = null;
-if(ratePlans != null){
-    for(var i = 0; i < ratePlans.length; i++){
-        if((ratePlans[i]["ratePlanName"].indexOf("coupon") < 0)){
-            currRatePlan = ratePlans[i];
-            break;
-        }
-    }
- 	currRatePlanId = currRatePlan.productRatePlanId;
+if (isBillingEnabled == "true") {
+	var serviceId = session.get("SERVICE_ID");
+	var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
+	var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
+	session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "true:" + serviceId);
+	var currRatePlanId = null;
+	var currRatePlan = null;
+	var accounts = null;
+	var callsPerDay = null;
+	var callsAbovePlan = null;
+	if (ratePlans != null) {
+		for (var i = 0; i < ratePlans.length; i++) {
+			if ((ratePlans[i]["ratePlanName"].indexOf("coupon") < 0)) {
+				currRatePlan = ratePlans[i];
+				break;
+			}
+		}
+		currRatePlanId = currRatePlan.productRatePlanId;
+	}
+	var paymentPlans = ratePlansObj.entry;
+	var l = Packages.java.util.Locale.getDefault();
+	var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+
+	session.put("RATE_PLANS", paymentPlans);
+	session.put("OLD_PLAN_ID", currRatePlanId);
+	var isFromChangePlan = request.getParameter("is-from-change-plan");
+	if (isFromChangePlan == null || isFromChangePlan == 'null') {
+		isFromChangePlan = false;
+	}
+
+	var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
+	var cloudName = serviceId.replace("_", " ").toUpperCase().replace("CLOUD", "Cloud");
+	var bttnLabel = "Go to " + cloudName;
 }
-var paymentPlans = ratePlansObj.entry;
-var l = Packages.java.util.Locale.getDefault();
-var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-
-session.put("RATE_PLANS", paymentPlans);
-session.put("OLD_PLAN_ID",currRatePlanId);
-var isFromChangePlan = request.getParameter("is-from-change-plan");
-if(isFromChangePlan == null || isFromChangePlan == 'null'){
-    isFromChangePlan = false;
-}
-
-var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
-var cloudName =serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
-var bttnLabel = "Go to " + cloudName;}
-
 %>
 
 

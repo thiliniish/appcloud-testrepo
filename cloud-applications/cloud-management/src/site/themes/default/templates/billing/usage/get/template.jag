@@ -94,27 +94,27 @@ var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
 var isBillingEnabled = jagg.module("billing").isBillingEnable();
 if (isBillingEnabled == "true") {
-var isBillingAccount = jagg.module("billing").isPaidAccount();
-var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();
+	var isBillingAccount = jagg.module("billing").isPaidAccount();
+	var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();
 
-var dateFormatter = "yyyy-MM-dd";
-var dateFormat = new Packages.java.text.SimpleDateFormat(dateFormatter);
+	var dateFormatter = "yyyy-MM-dd";
+	var dateFormat = new Packages.java.text.SimpleDateFormat(dateFormatter);
 
-var cal = Packages.java.util.Calendar.getInstance();
-var todayDate  = cal.getTime();
-var defaultEndDate = dateFormat.format(todayDate)
-cal.add(Packages.java.util.Calendar.DATE, -(usageDisplayPeriod));
-var monthBeforeDate = cal.getTime();
-var defaultStartDate = dateFormat.format(monthBeforeDate)
-var l = Packages.java.util.Locale.getDefault();
-var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+	var cal = Packages.java.util.Calendar.getInstance();
+	var todayDate = cal.getTime();
+	var defaultEndDate = dateFormat.format(todayDate)
+	cal.add(Packages.java.util.Calendar.DATE, -(usageDisplayPeriod));
+	var monthBeforeDate = cal.getTime();
+	var defaultStartDate = dateFormat.format(monthBeforeDate)
+	var l = Packages.java.util.Locale.getDefault();
+	var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
 
-var serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
-var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
-var cloudName =serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
-var bttnLabel = "Back to " + cloudName;}
+	var serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
+	var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
+	var cloudName = serviceId.replace("_", " ").toUpperCase().replace("CLOUD", "Cloud");
+	var bttnLabel = "Back to " + cloudName;
 
-
+}
     
 %>
 <script type="text/javascript">
