@@ -223,4 +223,13 @@ public class CloudBillingUtils {
         }
     }
 
+    /**
+     * Method to get that the billing functionality enable/disable status
+     *
+     * @return billing enable/disable status
+     */
+    public static boolean isBillingEnable() {
+        return billingConfig.isBillingEnable();
+    }
+
 }

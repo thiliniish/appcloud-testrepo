@@ -2,6 +2,8 @@
 <%
     var secondaryCCStatus = request.getParameter("secondary-card");
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+    var isBillingEnabled = jagg.module("billing").isBillingEnable();
 %>
 
     <style type="text/css">
@@ -22,6 +24,9 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
+        // Check for billing enable/disable mode
+        var isBillingEnabled = $("#isBillingEnabled").attr('value');
+        if (isBillingEnabled == "true") {
             //call backend and load data
             $.ajax({
                 url: "../blocks/billing/method/info/ajax/get.jag",
@@ -90,6 +95,12 @@
                     type:'success'
                 });
             }
+        } else {
+            var cloudMgtURL = $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+        }
+
         });
 
         function makeDefaultMethod(methodId) {
@@ -182,7 +193,11 @@
 					<a class="btn btn-primary" href="<%=jagg.getAbsoluteUrl("/site/pages/account-summary.jag")%>"> Back </a>
 				</div>
             </div>
-            <div><input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudMgtURL%>" /></div>
+            <div>
+            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudMgtURL%>" />
+            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
+            <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
+            </div>
             </form>
         </div>
     </div>

@@ -16,6 +16,8 @@
   -->
 
 <CloudBilling xmlns="http://www.wso2.org/cloud/billing">
+    <!--Billing functionality enable/disable status-->
+    <BillingEnable>true</BillingEnable>
     <DataServiceAPI>
         <RequestCount>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/requestcount</RequestCount>
         <Usage>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/usage</Usage>

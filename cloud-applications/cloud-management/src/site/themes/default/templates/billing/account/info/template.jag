@@ -1,12 +1,16 @@
 <% jagg.template("billing/account/info", function(inputs, outputs, jagg) {%>
 <%
+    include("/jagg/constants.jag");
+    var log = new Log("site/themes/default/templates/billing/method/add/template.jag");
     var carbon = require('carbon');
     var server = carbon.server;
     //getting the max items per page
     var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-%>
+    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+    var isBillingEnabled = jagg.module("billing").isBillingEnable();
+    %>
 
     <style type="text/css">
         .label-style {
@@ -37,9 +41,18 @@
         var totalPaymentPages = 1;
         var invoicePageNumber = 1;
         var paymentPageNumber = 1;
-        var maxNumberOfItems =  <%=itemsPerPage%>;;
+        var maxNumberOfItems =  <%=itemsPerPage%>;
         $(document).ready(function(){
-			updateAccountInfo();
+        // Check for billing enable/disable mode
+        var isBillingEnabled = $("#isBillingEnabled").attr('value');
+        if (isBillingEnabled == "true") {
+            updateAccountInfo();
+        } else {
+            var cloudMgtURL = $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+        }
+
         });
         
 		function updateAccountInfo(){
@@ -439,6 +452,8 @@
 					<div class="clearfix"></div>
 					<div class="paymentFooter" style="width:30%;  margin: -20px auto;"></div>
 					<input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudMgtURL%>" />
+					<input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%= isBillingEnabled %>" />
+					<input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
                     </div>
                 </div>
             </div>

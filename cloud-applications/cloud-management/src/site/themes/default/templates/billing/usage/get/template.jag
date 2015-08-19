@@ -89,29 +89,32 @@ var log = new Log("site/themes/default/templates/billing/usage/get/template.jag"
 var carbon = require('carbon');
 var server = carbon.server;
 var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
-var  isBillingAccount = jagg.module("billing").isPaidAccount();
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+var isBillingEnabled = jagg.module("billing").isBillingEnable();
+if (isBillingEnabled == "true") {
+	var isBillingAccount = jagg.module("billing").isPaidAccount();
+	var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();
 
-var dateFormatter = "yyyy-MM-dd";
-var dateFormat = new Packages.java.text.SimpleDateFormat(dateFormatter);
+	var dateFormatter = "yyyy-MM-dd";
+	var dateFormat = new Packages.java.text.SimpleDateFormat(dateFormatter);
 
-var cal = Packages.java.util.Calendar.getInstance();
-var todayDate  = cal.getTime();
-var defaultEndDate = dateFormat.format(todayDate)
-cal.add(Packages.java.util.Calendar.DATE, -(usageDisplayPeriod));
-var monthBeforeDate = cal.getTime();
-var defaultStartDate = dateFormat.format(monthBeforeDate)
-var l = Packages.java.util.Locale.getDefault();
-var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+	var cal = Packages.java.util.Calendar.getInstance();
+	var todayDate = cal.getTime();
+	var defaultEndDate = dateFormat.format(todayDate)
+	cal.add(Packages.java.util.Calendar.DATE, -(usageDisplayPeriod));
+	var monthBeforeDate = cal.getTime();
+	var defaultStartDate = dateFormat.format(monthBeforeDate)
+	var l = Packages.java.util.Locale.getDefault();
+	var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
 
-var serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
-var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
-var cloudName =serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
-var bttnLabel = "Back to " + cloudName;
+	var serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
+	var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
+	var cloudName = serviceId.replace("_", " ").toUpperCase().replace("CLOUD", "Cloud");
+	var bttnLabel = "Back to " + cloudName;
 
-
+}
     
 %>
 <script type="text/javascript">
@@ -164,7 +167,10 @@ var bttnLabel = "Back to " + cloudName;
 
    }
    $(document).ready(function(){
-    $('.usageTable').hide();
+   // Check for billing enable/disable mode
+   var isBillingEnabled = $("#isBillingEnabled").attr('value');
+   if (isBillingEnabled == "true") {
+	$('.usageTable').hide();
     var defaultStartDate =    $("#defaultStartDate").val();
     var defaultEndDate =    $("#defaultEndDate").val();
     $(function () {
@@ -194,6 +200,12 @@ var bttnLabel = "Back to " + cloudName;
         $("#to_date").datepicker('setDate',defaultEndDate);
     });
     getUsageData(defaultStartDate,defaultEndDate);
+    } else {
+            var cloudMgtURL = $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+	}
+
 });
 
 
@@ -406,7 +418,9 @@ var bttnLabel = "Back to " + cloudName;
                     </div>
                 </section>
                 <div class="pagefooter" style="width: 30%; margin: 0 auto"></div>
+                <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
                 <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
+                <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
                 <div class="clearfix"></div>
 	            <br />
         	</article>
