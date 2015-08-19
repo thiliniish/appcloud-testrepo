@@ -119,29 +119,29 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
         }
         }
     function calculateDiscount() {
-            jagg.post("../blocks/billing/account/add/ajax/add.jag", {
-                action:"calculateDiscount",
-                couponData : $("#coupon").attr('value')
-            },
-            function (result) {
-                    document.getElementById("spinner").style.display = 'none';
-                    couponDiscount = result;
-                    if(result <= 0) {
-                        document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
-                    } else {
-                        document.getElementById('couponValidator').innerHTML = " ";
-                    }
+        jagg.post("../blocks/billing/account/add/ajax/add.jag", {
+            action:"calculateDiscount",
+            couponData : $("#coupon").attr('value')
+        },
+        function (result) {
+            document.getElementById("spinner").style.display = 'none';
+            couponDiscount = result;
+            if(result <= 0) {
+                document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
+            } else {
+                document.getElementById('couponValidator').innerHTML = " ";
+            }
 
-                    $('#discountPara').text(Number(couponDiscount).toFixed(2));
-                    document.getElementById("payable-ammount").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                    $('.message_box').empty();
-                    jagg.message({content:'Error in calculating discount. Please contact WSO2 Cloud Team for help', type:'error',cbk:function(){
-                            window.location.href = cloudmgtURL;
-                        }
-                    });
+            $('#discountPara').text(Number(couponDiscount).toFixed(2));
+            document.getElementById("payable-ammount").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
+        },
+        function (jqXHR, textStatus, errorThrown) {
+            $('.message_box').empty();
+            jagg.message({content:'Error in calculating discount. Please contact WSO2 Cloud Team for help', type:'error',cbk:function(){
+                    window.location.href = cloudmgtURL;
+                }
             });
+        });
     }
 
 
