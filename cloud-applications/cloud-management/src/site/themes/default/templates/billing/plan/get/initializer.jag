@@ -1,6 +1,8 @@
 <%
 jagg.initializer("billing/plan/get", {
     preInitialize : function () {
+        var isBillingEnabled = jagg.module("billing").isBillingEnable();
+        if (isBillingEnabled) {
         var serviceId = session.get("SERVICE_ID");
         var tenantInfo = session.get("TENANT_INFO");
         if (serviceId == null && request.getParameter("cloud-type") != null) {
@@ -16,6 +18,10 @@ jagg.initializer("billing/plan/get", {
         if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) {
             response.sendRedirect("../pages/index.jag");
         }
+        } else {
+            response.sendRedirect("../pages/error-pages/unavailable-error.html");
+        }
+
     }
 });
 %>

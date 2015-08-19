@@ -146,6 +146,8 @@ var type = {PAID : "PAID", TRIAL: "TRIAL", FREE : "FREE"};
 var status = {ACTIVE : "ACTIVE", INACTIVE : "INACTIVE", EXTENDED : "EXTENDED", PENDING_DISABLE :"PENDING_DISABLE", DISABLED : "DISABLED", EXPIRED: "EXPIRED"};
 var service = {COMMERCIAL : "commercial", FREE : "free"};
 
+var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
+
 var productIdFromServiceId = {api_cloud: "API Cloud", app_cloud: "APP Cloud"};
 
 var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";

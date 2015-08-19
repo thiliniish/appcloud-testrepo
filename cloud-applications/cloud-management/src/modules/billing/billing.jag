@@ -1152,4 +1152,9 @@ try {
 	}
 };
 
+// Checking whether the Billing functionality is enable/disable
+var isBillingEnable = function () {
+	return billingService.isBillingEnable();
+};
+
 %>

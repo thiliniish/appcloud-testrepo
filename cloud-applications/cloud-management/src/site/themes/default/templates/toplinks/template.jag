@@ -19,6 +19,8 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
 
     var jsonObjCloudmgt = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
     var typeList = jsonObjCloudmgt.subscriptions.type;
+    var isBillingEnabled = jagg.module("billing").isBillingEnable();
+
     if((session.get("TENANT_INFO")) != null ){
     	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     	var blockedSubscriptions= jagg.module("tenant").getBlockedSubscriptions(tenantDomain);
@@ -56,7 +58,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
                         if(attr == "Domain"){
                             attr = tenantDisplayName;
                         }
-                        if(attr == "Account" && (!isBillingAccount || !isUserAdmin)) {
+                        if ((attr == "Account" && (!isBillingAccount || !isUserAdmin)) || (attr == "Account" && !isBillingEnabled)) {
                             //we don't display the Account in this case
                         }else{
                 %>
