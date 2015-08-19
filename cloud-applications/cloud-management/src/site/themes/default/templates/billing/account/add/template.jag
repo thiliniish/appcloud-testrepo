@@ -109,40 +109,36 @@
     }
 
     function enable() {
-        document.getElementById("spinner").style.display = 'none';
+         document.getElementById("spinner").style.display = 'none';
          var submitButton = document.getElementById('submitbtn');
          $('#submitbtn').css('background-color','#428BCA');
          submitButton.disabled = false;
     }
 
     function calculateDiscount() {
-            jagg.post("../blocks/billing/account/add/ajax/add.jag", {
-                action:"calculateDiscount",
-                couponData : $("#coupon").attr('value')
-            },
-            function (result) {
-                    document.getElementById("spinner").style.display = 'none';
-                    couponDiscount = result;
-                    if(result <= 0) {
-                        document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
-                    } else {
-                        document.getElementById('couponValidator').innerHTML = " ";
-                    }
+        jagg.post("../blocks/billing/account/add/ajax/add.jag", {
+            action:"calculateDiscount",
+            couponData : $("#coupon").attr('value')
+        },
+        function (result) {
+            document.getElementById("spinner").style.display = 'none';
+            couponDiscount = result;
+            if(result <= 0) {
+                document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
+            } else {
+                document.getElementById('couponValidator').innerHTML = " ";
+            }
 
-                    $('#discountPara').text(Number(couponDiscount).toFixed(2));
-                    $('#actual-payable-amount-txt').text(Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2));
-                    $('#monthly-payable-amount-txt').text(Number(<%= monthlyRental %> - couponDiscount).toFixed(2));
-                    $('#payable-amount-txt').text(Number(<%= monthlyRental %> - couponDiscount).toFixed(2));
-                    document.getElementById("payable-amount").innerHTML = Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2);
-            },
-            function (jqXHR, textStatus, errorThrown) {
-            var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-                $('.message_box').empty();
-                jagg.message({content:"Unable to get the coupon discount value at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
-                        window.location.href = cloudmgtURL +"/site/pages/contact-us.jag";
-                    }
-                });
+            $('#discountPara').text(Number(couponDiscount).toFixed(2));
+            document.getElementById("payable-ammount").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
+        },
+        function (jqXHR, textStatus, errorThrown) {
+            $('.message_box').empty();
+            jagg.message({content:'Error in calculating discount. Please contact WSO2 Cloud Team for help', type:'error',cbk:function(){
+                    window.location.href = cloudmgtURL;
+                }
             });
+        });
     }
 
 
