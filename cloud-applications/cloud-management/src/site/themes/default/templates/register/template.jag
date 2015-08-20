@@ -101,7 +101,7 @@ var eulaContent =  eulaDoc.EULA.text();
                     });
             },
             function (jqXHR, textStatus, errorThrown) {
-                jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                jagg.message({content:'An error occurred while registering the organization. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
                         window.location.href = "register.jag";
                     }
                 });

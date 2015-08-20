@@ -128,4 +128,8 @@ public class CloudBillingService extends AbstractAdmin {
     public boolean validateServiceId(String serviceId) {
         return CloudBillingUtils.validateServiceId(serviceId);
     }
+
+    public boolean isBillingEnable() {
+        return CloudBillingUtils.isBillingEnable();
+    }
 }

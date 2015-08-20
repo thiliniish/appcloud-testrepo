@@ -6,6 +6,8 @@
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+    var isBillingEnabled = jagg.module("billing").isBillingEnable();
     var userName =  session.get("LOGGED_IN_USER");
     var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
     var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3;
@@ -109,7 +111,7 @@
     }
 
     function enable() {
-        document.getElementById("spinner").style.display = 'none';
+         document.getElementById("spinner").style.display = 'none';
          var submitButton = document.getElementById('submitbtn');
          $('#submitbtn').css('background-color','#428BCA');
          submitButton.disabled = false;
@@ -205,8 +207,10 @@
         return isEmailValid;
     }
 
-        $(document).ready(function($){
-           
+        $(document).ready(function($) {
+        // Check for billing enable/disable mode
+        var isBillingEnabled = $("#isBillingEnabled").attr('value');
+        if (isBillingEnabled == "true") {
             var clickwithblur = false;
             var responseFrom = '<%= responseFrom %>';
             var EDIT_USER_INFO = '<%= EDIT_USER_INFO %>';
@@ -333,6 +337,12 @@
             	        top: $('header').height()
             	      }
             	});
+        } else {
+            var cloudMgtURL = $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+        }
+
         });
     </script>
 
@@ -545,7 +555,9 @@
 		</div>
 		<br class="c-both" />
 	</div>
+            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
             <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
+            <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
             <input type="hidden" name="userName" id="userName" value="<%=userName%>" />
             <input type="hidden" name="refId" id="refId" value="<%=refId%>" />
             <input type="hidden" name="signature" id="signature" value="<%=signature%>" />

@@ -5,38 +5,42 @@
 
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-    var errorMessage = "NA";
-    var userName =  session.get("LOGGED_IN_USER");
-    var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
+    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+    var isBillingEnabled = jagg.module("billing").isBillingEnable();
+    if (isBillingEnabled == "true") {
+        var errorMessage = "NA";
+        var userName = session.get("LOGGED_IN_USER");
+        var userEmail = session.get("LOGGED_IN_USER_EMAIL");
 
-    var currRatePlan =  session.get("CURRENT_RATE_PLAN");
-    var accounts =  session.get("ACCOUNTS");
-    var callsPerDay =  session.get("CALLS_PER_DAY");
-    var callsAbovePlan =  session.get("CALLS_ABOVE_PLAN");
-    var monthlyRental =  session.get("MONTHLY_RENTAL");
-    var couponDiscount =  session.get("COUPON_DISCOUNT");
-    var l = Packages.java.util.Locale.getDefault();
-    var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-    if(callsPerDay != null) {
-        callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
-    }
-    //TODO improve error handling
-    if("Response_From_Submit_Page" == (request.getParameter("responseFrom"))) {
-        if("false" == jagg.module("util").escapeSpecialChars(request.getParameter("success")[0])) {
-            errorMessage = "Invalid in your payment information The reason is: " + request.getParameter("errorMessage");
+        var currRatePlan = session.get("CURRENT_RATE_PLAN");
+        var accounts = session.get("ACCOUNTS");
+        var callsPerDay = session.get("CALLS_PER_DAY");
+        var callsAbovePlan = session.get("CALLS_ABOVE_PLAN");
+        var monthlyRental = session.get("MONTHLY_RENTAL");
+        var couponDiscount = session.get("COUPON_DISCOUNT");
+        var l = Packages.java.util.Locale.getDefault();
+        var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+        if (callsPerDay != null) {
+            callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
         }
-    }
-    var accountId = "";
-    if(request.getParameter("accountId") != null) {
-        accountId = jagg.module("util").escapeSpecialChars(request.getParameter("accountId"));
-    }
+        //TODO improve error handling
+        if ("Response_From_Submit_Page" == (request.getParameter("responseFrom"))) {
+            if ("false" == jagg.module("util").escapeSpecialChars(request.getParameter("success")[0])) {
+                errorMessage = "Invalid in your payment information The reason is: " + request.getParameter("errorMessage");
+            }
+        }
+        var accountId = "";
+        if (request.getParameter("accountId") != null) {
+            accountId = jagg.module("util").escapeSpecialChars(request.getParameter("accountId"));
+        }
 
-    var productRatePlanId = session.get("PRODUCT_PLAN_ID");
-    session.remove("PRODUCT_PLAN_ID");
-    var serviceId = session.get("SERVICE_ID");
-    var paymentPlanName;
-    if (accountId == ""){
-        paymentPlanName = jagg.module("billing").getPaymentPlanFromId(serviceId, productRatePlanId);
+        var productRatePlanId = session.get("PRODUCT_PLAN_ID");
+        session.remove("PRODUCT_PLAN_ID");
+        var serviceId = session.get("SERVICE_ID");
+        var paymentPlanName;
+        if (accountId == "") {
+            paymentPlanName = jagg.module("billing").getPaymentPlanFromId(serviceId, productRatePlanId);
+        }
     }
 
     %>
@@ -119,33 +123,35 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
         }
         }
     function calculateDiscount() {
-            jagg.post("../blocks/billing/account/add/ajax/add.jag", {
-                action:"calculateDiscount",
-                couponData : $("#coupon").attr('value')
-            },
-            function (result) {
-                    document.getElementById("spinner").style.display = 'none';
-                    couponDiscount = result;
-                    if(result <= 0) {
-                        document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
-                    } else {
-                        document.getElementById('couponValidator').innerHTML = " ";
-                    }
+        jagg.post("../blocks/billing/account/add/ajax/add.jag", {
+            action:"calculateDiscount",
+            couponData : $("#coupon").attr('value')
+        },
+        function (result) {
+            document.getElementById("spinner").style.display = 'none';
+            couponDiscount = result;
+            if(result <= 0) {
+                document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
+            } else {
+                document.getElementById('couponValidator').innerHTML = " ";
+            }
 
-                    $('#discountPara').text(Number(couponDiscount).toFixed(2));
-                    document.getElementById("payable-ammount").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                $('.message_box').empty();
-                jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
-                    jagg.message({type:'error',content:'Error in calculating discount.'});
-                    }
-                });
+            $('#discountPara').text(Number(couponDiscount).toFixed(2));
+            document.getElementById("payable-ammount").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
+        },
+        function (jqXHR, textStatus, errorThrown) {
+            $('.message_box').empty();
+            jagg.message({content:'Error in calculating discount. Please contact WSO2 Cloud Team for help', type:'error',cbk:function(){
+                    window.location.href = cloudmgtURL;
+                }
             });
+        });
     }
 
-
         $(document).ready(function($){
+        // Check for billing enable/disable mode
+        var isBillingEnabled = $("#isBillingEnabled").attr('value');
+        if (isBillingEnabled == "true") {
             showErrorMessage();
             generateParameters();
             var clickwithblur = false;
@@ -198,6 +204,12 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
             	        top: $('header').height()
             	      }
             	});
+        } else {
+            var cloudMgtURL = $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+        }
+
         });
     </script>
 
@@ -272,12 +284,14 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
                     <div class="form-group">
                         <div id="zuora_payment"></div>
                     </div>
+                    <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
                     <input type="hidden" name="monthlyRental" id="monthlyRental"  value="<%=monthlyRental%>" />
                     <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
                     <input type="hidden" name="errorMessage" id="errorMessage" value="<%=errorMessage%>" />
                     <input type="hidden" name="serviceId" id="serviceId" value="<%=serviceId%>" />
                     <input type="hidden" name="productRatePlanId" id="productRatePlanId" value="<%=productRatePlanId%>" />
                     <input type="hidden" name="accountId" id="accountId" value="<%=accountId%>" />
+                    <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
                 </form>
                 <div class="signin"></div>
 			</div>
