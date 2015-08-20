@@ -95,6 +95,12 @@ input:checked+input.txtCoupon {
 	color: #FFFFFF;
 	font-size: 15px;
 }
+
+#goToCloudType {
+    background-color: #6E6E6E;
+    color: #fff;
+}
+
 </style>
 
 <%

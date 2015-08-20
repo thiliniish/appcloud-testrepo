@@ -45,6 +45,23 @@
 
     %>
 
+    <style type="text/css">
+        #backbtn{
+            background-color: #6E6E6E;
+            color: #fff;
+        }
+
+        #redeembtn{
+            background: #0395d0 none repeat scroll 0 0;
+            color: #fff;
+        }
+
+        #submitbtn{
+            background: #0395d0 none repeat scroll 0 0;
+            margin-left: 0;
+        }
+    </style>
+
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
      <script type="text/javascript">

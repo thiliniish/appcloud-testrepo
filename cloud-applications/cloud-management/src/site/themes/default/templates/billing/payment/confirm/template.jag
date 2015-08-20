@@ -30,6 +30,13 @@
     session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
     %>
 
+    <style type="text/css">
+        #goToAPICloudbtn {
+            background-color: #6E6E6E;
+            color: #fff;
+        }
+    </style>
+
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript">
