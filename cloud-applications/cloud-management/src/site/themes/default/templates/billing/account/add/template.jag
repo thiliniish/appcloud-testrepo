@@ -210,7 +210,7 @@
         $(document).ready(function($) {
         // Check for billing enable/disable mode
         var isBillingEnabled = $("#isBillingEnabled").attr('value');
-        if (isBillingEnabled == "true") {
+        if (isBillingEnabled) {
             var clickwithblur = false;
             var responseFrom = '<%= responseFrom %>';
             var EDIT_USER_INFO = '<%= EDIT_USER_INFO %>';
