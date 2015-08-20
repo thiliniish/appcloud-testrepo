@@ -37,7 +37,7 @@ th, td {
        $(document).ready(function(){
        // Check for billing enable/disable mode
         var isBillingEnabled = $("#isBillingEnabled").attr('value');
-        if (isBillingEnabled == "true") {
+        if (isBillingEnabled) {
         	jagg.post("../blocks/billing/account/invoice/ajax/get.jag", {
                 action:"gotInvoice",
                 id:"<%=invoiceId%>"
