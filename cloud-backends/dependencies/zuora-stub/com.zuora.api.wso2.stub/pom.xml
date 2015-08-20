@@ -133,12 +133,12 @@
                         <Private-Package>
                         </Private-Package>
                         <Export-Package>
-                            com.zuora.api.*
+                            com.zuora.api.*;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            !com.zuora.api.*
+                            !com.zuora.api.*,
+                            *;resolution:=optional
                         </Import-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
