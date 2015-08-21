@@ -103,7 +103,7 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
 var isBillingEnabled = jagg.module("billing").isBillingEnable();
-if (isBillingEnabled == "true") {
+if (isBillingEnabled) {
 	var serviceId = session.get("SERVICE_ID");
 	var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
 	var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
@@ -149,7 +149,7 @@ if (isBillingEnabled == "true") {
        $(document).ready(function(){
        // Check for billing enable/disable mode
        var isBillingEnabled = $("#isBillingEnabled").attr('value');
-       if (isBillingEnabled == "true") {
+       if (isBillingEnabled) {
        	$(".tiny").hover(function(e){
        		$(".tiny").removeClass("selected");
        		$(this).addClass("selected");
@@ -344,7 +344,7 @@ if (isBillingEnabled == "true") {
 
 			<%
 			// Check for billing enable/disable mode
-			if (isBillingEnabled == "true") {
+			if (isBillingEnabled) {
 			for(var i=0;i<paymentPlans.length;i++) {
 			var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
 			var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);

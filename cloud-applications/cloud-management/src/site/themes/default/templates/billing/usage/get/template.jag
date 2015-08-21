@@ -93,7 +93,7 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
 var isBillingEnabled = jagg.module("billing").isBillingEnable();
-if (isBillingEnabled == "true") {
+if (isBillingEnabled) {
 	var isBillingAccount = jagg.module("billing").isPaidAccount();
 	var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();
 
@@ -169,7 +169,7 @@ if (isBillingEnabled == "true") {
    $(document).ready(function(){
    // Check for billing enable/disable mode
    var isBillingEnabled = $("#isBillingEnabled").attr('value');
-   if (isBillingEnabled == "true") {
+   if (isBillingEnabled) {
 	$('.usageTable').hide();
     var defaultStartDate =    $("#defaultStartDate").val();
     var defaultEndDate =    $("#defaultEndDate").val();

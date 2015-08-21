@@ -45,7 +45,7 @@
         $(document).ready(function(){
         // Check for billing enable/disable mode
         var isBillingEnabled = $("#isBillingEnabled").attr('value');
-        if (isBillingEnabled == "true") {
+        if (isBillingEnabled) {
             updateAccountInfo();
         } else {
             var cloudMgtURL = $("#cloudmgtURL").attr('value');

@@ -7,7 +7,7 @@
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
     var isBillingEnabled = jagg.module("billing").isBillingEnable();
-    if (isBillingEnabled == "true") {
+    if (isBillingEnabled) {
         var errorMessage = "NA";
         var userName = session.get("LOGGED_IN_USER");
         var userEmail = session.get("LOGGED_IN_USER_EMAIL");
@@ -151,7 +151,7 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
         $(document).ready(function($){
         // Check for billing enable/disable mode
         var isBillingEnabled = $("#isBillingEnabled").attr('value');
-        if (isBillingEnabled == "true") {
+        if (isBillingEnabled) {
             showErrorMessage();
             generateParameters();
             var clickwithblur = false;
