@@ -154,7 +154,7 @@
     function enable() {
          document.getElementById("spinner").style.display = 'none';
          var submitButton = document.getElementById('submitbtn');
-         $('#submitbtn').css('background-color','#428BCA');
+         $('#submitbtn').css('background-color','#0395d0');
          submitButton.disabled = false;
     }
 

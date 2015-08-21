@@ -81,6 +81,18 @@ select.datepick-month-year {
 	-khtml-border-radius: 5px;
 	border-radius: 5px;
 }
+
+#gotoCloud {
+    background-color: #5e5e5e;
+color: #fff;
+}
+#gotoCloud:hover {
+    background-color: #7d7d7d;
+}
+#gotoCloud:active {
+    background-color: #e6e6e6;
+}
+
 </style>
 
 <%
