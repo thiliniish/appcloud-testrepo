@@ -92,8 +92,16 @@
 
     <style type="text/css">
             #backbtn{
-                background-color: #6E6E6E;
+                background-color: #5e5e5e;
                 color: #fff;
+            }
+
+            #backbtn:hover {
+                background-color: #7d7d7d;
+            }
+
+            #backbtn:active {
+                background-color: #e6e6e6;
             }
 
             #redeembtn{
@@ -101,9 +109,26 @@
                 color: #fff;
             }
 
+            #redeembtn:hover {
+                background: #00a1e2 none repeat scroll 0 0;
+            }
+
+            #redeembtn:active {
+                background: #95D0FF;
+            }
+
             #submitbtn{
                 background: #0395d0 none repeat scroll 0 0;
+                color: #fff;
                 margin-left: 0;
+            }
+
+            #submitbtn:hover {
+                background: #00a1e2 none repeat scroll 0 0;
+            }
+
+            #submitbtn:active{
+                background: #95D0FF;
             }
     </style>
     <script type="text/javascript">
