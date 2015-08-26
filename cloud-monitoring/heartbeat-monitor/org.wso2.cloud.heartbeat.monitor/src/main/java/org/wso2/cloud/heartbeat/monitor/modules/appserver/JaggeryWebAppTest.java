@@ -28,6 +28,8 @@ import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
 import org.wso2.cloud.heartbeat.monitor.utils.ModuleUtils;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.io.File;
@@ -75,6 +77,11 @@ public class JaggeryWebAppTest implements Job {
 
     private String tenantUserSecondary;
     private boolean isFirstTenant;
+    private String loginTestSeverity;
+    private String serviceName;
+
+    TestInfo testInfo;
+    TestStateHandler testStateHandler;
 
     /**
      * @param jobExecutionContext
