@@ -29,6 +29,45 @@
         .title-label {
             font-weight: bold !important;
         }
+        #btnViewPayment {
+            background: #0395d0 none repeat scroll 0 0;
+            color: #fff;
+        }
+
+        #btnViewPayment:hover {
+	        background: #00a1e2 none repeat scroll 0 0;
+        }
+
+        #btnViewPayment:active {
+	        background: #95D0FF;
+        }
+
+        #btnUpdateContactInfo {
+            background: #0395d0 none repeat scroll 0 0;
+            color: #fff;
+        }
+
+        #btnUpdateContactInfo:hover {
+            background: #00a1e2 none repeat scroll 0 0;
+        }
+
+        #btnUpdateContactInfo:active {
+            background: #95D0FF;
+        }
+
+        #btnAddNewPayment {
+            background: #0395d0 none repeat scroll 0 0;
+            color: #fff;
+        }
+
+        #btnAddNewPayment:hover {
+            background: #00a1e2 none repeat scroll 0 0;
+        }
+
+        #btnAddNewPayment:active {
+            background: #95D0FF none repeat scroll 0 0;
+        }
+
     </style>
     
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js'))%>"></script>
