@@ -90,6 +90,47 @@
     }
 %>
 
+    <style type="text/css">
+            #backbtn{
+                background-color: #5e5e5e;
+                color: #fff;
+            }
+
+            #backbtn:hover {
+                background-color: #7d7d7d;
+            }
+
+            #backbtn:active {
+                background-color: #e6e6e6;
+            }
+
+            #redeembtn{
+                background: #0395d0 none repeat scroll 0 0;
+                color: #fff;
+            }
+
+            #redeembtn:hover {
+                background: #00a1e2 none repeat scroll 0 0;
+            }
+
+            #redeembtn:active {
+                background: #95D0FF;
+            }
+
+            #submitbtn{
+                background: #0395d0 none repeat scroll 0 0;
+                color: #fff;
+                margin-left: 0;
+            }
+
+            #submitbtn:hover {
+                background: #00a1e2 none repeat scroll 0 0;
+            }
+
+            #submitbtn:active{
+                background: #95D0FF;
+            }
+    </style>
     <script type="text/javascript">
 
     function disable() {
@@ -113,7 +154,7 @@
     function enable() {
          document.getElementById("spinner").style.display = 'none';
          var submitButton = document.getElementById('submitbtn');
-         $('#submitbtn').css('background-color','#428BCA');
+         $('#submitbtn').css('background-color','#0395d0');
          submitButton.disabled = false;
     }
 
