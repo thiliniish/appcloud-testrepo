@@ -137,7 +137,11 @@
                         </Export-Package>
                         <Import-Package>
                             !com.zuora.api.*,
-                            *;resolution:=optional
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
+                            javax.xml.stream; version="1.0.1",
+                            javax.xml.namespace,
+                            javax.activation
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -145,4 +149,3 @@
         </plugins>
     </build>
 </project>
-
