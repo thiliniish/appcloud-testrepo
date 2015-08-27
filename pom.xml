@@ -246,5 +246,6 @@
         <imp.pkg.version.commons-logging>[1.1.1, 1.2.0)</imp.pkg.version.commons-logging>
         <imp.pkg.version.com.google.code.gson>[2.1, 2.2)</imp.pkg.version.com.google.code.gson>
         <imp.pkg.version.commons-lang>[2.6.0, 2.7.0)</imp.pkg.version.commons-lang>
+        <imp.pkg.version.javax.activation>[0.0.0, 0.1.0)</imp.pkg.version.javax.activation>
       </properties>
 </project>

@@ -139,9 +139,9 @@
                             !com.zuora.api.*,
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
-                            javax.xml.stream; version="1.0.1",
-                            javax.xml.namespace,
-                            javax.activation
+                            javax.xml.stream; version="${imp.pkg.version.javax.xml.stream}",
+                            javax.activation; version="${imp.pkg.version.javax.activation}",
+                            javax.xml.namespace
                         </Import-Package>
                     </instructions>
                 </configuration>
