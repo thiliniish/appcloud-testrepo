@@ -116,10 +116,10 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>org.wso2.carbon.cloud.billing.internal</Private-Package>
                         <Export-Package>
+                            !org.wso2.carbon.cloud.billing.internal,
                             org.wso2.carbon.cloud.billing.*; version="${project.version}"
                         </Export-Package>
                         <Import-Package>
-                            !org.wso2.carbon.cloud.billing.internal,
                             org.wso2.carbon.user.core.*; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.utils; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.securevault; version="${imp.pkg.version.carbon.platform}",
