@@ -11,8 +11,7 @@ var sessionId = session.getId();
 var isAuthenticated = jagg.module("util").isSessionAuthenticated();
 var registry = "";
 var response = "error";
-var serverUrl = cloudConfig.ServerUrls.appfactory.toString();
-log.info(serverUrl);
+var serverUrl = cloudConfig.ServerUrls.cloudmgtServices.toString();
 
 var checkSignupConfiguredInRegistry= function(userName)
 {
