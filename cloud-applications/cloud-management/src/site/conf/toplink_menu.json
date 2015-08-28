@@ -40,7 +40,7 @@
           "dropDown": "false",
           "target": "_self"
         },
-        "stackoverflow": {
+        "Stackoverflow": {
           "url": "http://stackoverflow.com/questions/tagged/wso2cloud",
           "icon": "fa fa-stack-overflow",
           "dropDown": "false",
