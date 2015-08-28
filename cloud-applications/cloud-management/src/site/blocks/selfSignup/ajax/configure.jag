@@ -4,41 +4,14 @@ include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 (function () {
     var mod, obj, result,
-    action = request.getParameter("action");
+            action = request.getParameter("action");
     userName = request.getParameter("userName"),
-    site = require("/site/conf/site.json");
+            site = require("/site/conf/site.json");
     var log = new Log("site/blocks/selfSignup/ajax/configure.jag");
 
     if (action == "checkSignUpConfiguredForUser") {
 
-        var carbon = require('carbon');
-        var server = carbon.server;
-        var tenantDomain=(userName.split("@"))[1];
-
-        try {
-            var regPath = "/_system/governance/apimgt/applicationdata/sign-up-config.xml";
-            var response = jagg.module("registry").getResourceFromTenantSpace(regPath,tenantDomain,userName);
-            if(response!="error" && response!="resourcePending") {
-                response.contentType = "text/xml";
-                var configContent = (response.content).toString();
-                var selfSignUp = new XML(configContent);
-                result = selfSignUp.EnableSignup.toString();
-            }
-            else if(response=="resourcePending")
-            {
-                result="resourcePending";
-            }
-            else
-            {
-                result="error";
-            }
-
-
-        } catch (e) {
-            log.error("Error while loading the registry file for the tenant "+userName+ "\n" + e.message);
-            throw Error(e);
-
-        }
+        var result=jagg.module("registry").checkSignupConfiguredInRegistry(userName);
 
     }
 
