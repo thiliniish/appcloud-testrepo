@@ -1,4 +1,7 @@
 {
+  "Cloud":{
+    "url": "https://cloudmgt.cloud.wso2.com/cloudmgt/site/pages/index.jag"
+  },
   "Main": {
     "Domain": {
       "url": "#",
