@@ -90,7 +90,10 @@
     },
     "documentation" : {
         "selfSignUpDocumentationLink" : "https://docs.wso2.com/display/APICloud/WSO2+API+Cloud+Documentation"
-},
+    },
+    "LeadSourceCapture":{
+      "url" : "http://connect.wso2.com/wso2/getformdata/reg/wso2cloud_api_signup"
+    },
     "commonRoles":[
       "appfactoryusers",
       "Internal/everyone"
