@@ -28,7 +28,6 @@ import org.wso2.carbon.user.core.ldap.LDAPConnectionContext;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -135,17 +134,19 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             throws UserStoreException {
         String userDN;
 
+        Tenant convertedTenant = tenant;
+        convertedTenant.setAdminName(doConvert(tenant.getAdminName()));
         //************ Cloud Specific Implementation ******************
-        if(doCheckExistingUser(tenant.getAdminName(),initialDirContext)){
+        if(doCheckExistingUser(convertedTenant.getAdminName(),initialDirContext)){
             String userNameAttribute = realmConfig.getUserStoreProperty(
                     LDAPConstants.USER_NAME_ATTRIBUTE);
-            String userRDN = userNameAttribute + "=" + tenant.getAdminName();
+            String userRDN = userNameAttribute + "=" + convertedTenant.getAdminName();
             userDN = userRDN + "," + dnOfUserContext;
             return userDN;
         }
         //*************************************************************
 
-        return super.createAdminEntry(dnOfUserContext, tenant, initialDirContext);
+        return super.createAdminEntry(dnOfUserContext, convertedTenant, initialDirContext);
     }
 
     /**
@@ -156,6 +157,8 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @throws UserStoreException
      */
     public boolean doCheckExistingUser(String userName, DirContext initialDirContext) throws UserStoreException {
+
+        userName = doConvert(userName);
 
         boolean bFound = false;
         boolean debug = logger.isDebugEnabled();
@@ -258,5 +261,21 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         }
         return name;
     }
+
+    /**
+     * converts the <code>@</code> symbol in the user name to a <code>.</code> symbol
+     *
+     * @param userName - user name to be converted
+     * @return converted user Name
+     */
+    public String doConvert(String userName){
+        StringBuilder convertedUser = new StringBuilder(userName);
+        if (userName.contains("@")) {
+            int index = userName.indexOf("@");
+            convertedUser.setCharAt(index, '.');
+        }
+        return convertedUser.toString();
+    }
+
 
 }
