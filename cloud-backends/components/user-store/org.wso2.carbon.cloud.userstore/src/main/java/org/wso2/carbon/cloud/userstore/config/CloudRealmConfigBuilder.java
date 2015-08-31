@@ -41,57 +41,6 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
 
     private static Log logger = LogFactory.getLog(CloudRealmConfigBuilder.class);
 
-    public RealmConfiguration getRealmConfigForTenantToCreateRealm(
-            RealmConfiguration bootStrapConfig, RealmConfiguration persistedConfig, int tenantId)
-            throws UserStoreException {
-        RealmConfiguration realmConfig;
-        //clone the bootstrap realm and insert tenant specific properties taken from tenant's user-mgt.xml
-        try {
-            // when we are creating tenant, we do not need to add secondary user stores of tenant
-            realmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
-            realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
-            realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
-            realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
-            realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());
-            realmConfig.setTenantId(persistedConfig.getTenantId());
-
-            Map<String, String> authz = realmConfig.getAuthzProperties();
-            authz.put(UserCoreConstants.RealmConfig.PROPERTY_ADMINROLE_AUTHORIZATION,
-                    CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);
-
-            if (persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_SEARCH_BASE) != null) {
-                realmConfig.getUserStoreProperties().put(
-                        LDAPConstants.USER_SEARCH_BASE,
-                        persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_SEARCH_BASE));
-            }
-            if (persistedConfig.getUserStoreProperties().get(LDAPConstants.GROUP_SEARCH_BASE) != null) {
-                realmConfig.getUserStoreProperties().put(
-                        LDAPConstants.GROUP_SEARCH_BASE,
-                        persistedConfig.getUserStoreProperties().get(LDAPConstants.GROUP_SEARCH_BASE));
-            }
-            if (persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_DN_PATTERN) != null) {
-                realmConfig.getUserStoreProperties().put(
-                        LDAPConstants.USER_DN_PATTERN,
-                        persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_DN_PATTERN));
-            }
-            if (persistedConfig.getUserStoreProperties().get(LDAPConstants.ROLE_DN_PATTERN) != null) {
-                realmConfig.getUserStoreProperties().put(
-                        LDAPConstants.ROLE_DN_PATTERN,
-                        persistedConfig.getUserStoreProperties().get(LDAPConstants.ROLE_DN_PATTERN));
-            }
-            realmConfig.setSecondaryRealmConfig(persistedConfig.getSecondaryRealmConfig());
-        } catch (Exception e) {
-            String errorMessage =
-                    "Error while building tenant specific realm configuration when creating tenant's realm" +
-                            " for tenant id : " + tenantId;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        }
-        return realmConfig;
-    }
-
     public RealmConfiguration getRealmConfigForTenantToPersist(RealmConfiguration bootStrapConfig,
             TenantMgtConfiguration tenantMgtConfig,
             Tenant tenantInfo, int tenantId)
@@ -197,13 +146,6 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
             }
             throw new UserStoreException(errorMessage, e);
         }
-    }
-
-    public RealmConfiguration getRealmConfigForTenantToCreateRealmOnTenantCreation(
-            RealmConfiguration bootStrapConfig, RealmConfiguration persistedConfig, int tenantId)
-            throws UserStoreException {
-
-        return persistedConfig;
     }
 
     private void removePropertiesFromTenantRealmConfig(
