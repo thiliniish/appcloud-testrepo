@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.carbon.cloud.userstore.config;
 
 import org.apache.commons.logging.Log;
