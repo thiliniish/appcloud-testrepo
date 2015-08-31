@@ -43,19 +43,15 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
 
-    public WSO2CloudUserStoreManager(RealmConfiguration realmConfig,
-                                     Map<String, Object> properties, ClaimManager claimManager,
-                                     ProfileConfigurationManager profileManager, UserRealm realm,
-                                     Integer tenantId) throws UserStoreException {
-        super(realmConfig, properties, claimManager, profileManager, realm,
-                tenantId);
+    public WSO2CloudUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
+            ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
+            throws UserStoreException {
+        super(realmConfig, properties, claimManager, profileManager, realm, tenantId);
         cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
 
-    public WSO2CloudUserStoreManager(RealmConfiguration realmConfig,
-                                     ClaimManager claimManager,
-                                     ProfileConfigurationManager profileManager)
-            throws UserStoreException {
+    public WSO2CloudUserStoreManager(RealmConfiguration realmConfig, ClaimManager claimManager,
+            ProfileConfigurationManager profileManager) throws UserStoreException {
         super(realmConfig, claimManager, profileManager);
         cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
@@ -64,115 +60,88 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     // ==================================== DOWN WAY METHODS =======================================================
     // =============================================================================================================
 
-    @Override
-    public void doAddUser(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName) throws UserStoreException {
+    @Override public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName) throws UserStoreException {
         super.doAddUser(doConvert(userName), credential, roleList, claims, profileName);
     }
 
-    @Override
-    public void doAddUser(String userName, Object credential, String[] roleList,
-            Map<String, String> claims, String profileName, boolean requirePasswordChange)
+    @Override public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
+        super.doAddUser(doConvert(userName), credential, roleList, claims, profileName, requirePasswordChange);
+    }
+
+    @Override protected void doAddUserValidityChecks(String userName, Object credential) throws UserStoreException {
+        super.doAddUserValidityChecks(doConvert(userName), credential);
+    }
+
+    @Override protected BasicAttributes getAddUserBasicAttributes(String userName) {
+        return super.getAddUserBasicAttributes(doConvert(userName));
+    }
+
+    @Override protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes, String userName)
             throws UserStoreException {
-		super.doAddUser(doConvert(userName), credential, roleList, claims, profileName,
-                requirePasswordChange);
-    }
-
-    @Override
-    protected void doAddUserValidityChecks(String userName, Object credential)
-            throws UserStoreException {
-       super.doAddUserValidityChecks(doConvert(userName), credential);
-    }
-
-    @Override
-    protected BasicAttributes getAddUserBasicAttributes(String userName) {
-       return super.getAddUserBasicAttributes(doConvert(userName));
-    }
-
-    @Override
-    protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes,
-            String userName) throws UserStoreException {
         super.setUserClaims(claims, basicAttributes, doConvert(userName));
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void doDeleteUser(String userName) throws UserStoreException {
+    @SuppressWarnings("deprecation") @Override public void doDeleteUser(String userName) throws UserStoreException {
         super.doDeleteUser(doConvert(userName));
     }
 
-    @SuppressWarnings("rawtypes")
-    @Override
-    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
-            throws UserStoreException {
+    @SuppressWarnings("rawtypes") @Override public void doUpdateCredential(String userName, Object newCredential,
+            Object oldCredential) throws UserStoreException {
         super.doUpdateCredential(doConvert(userName), newCredential, oldCredential);
     }
 
-
-    @Override
-    public void doUpdateCredentialByAdmin(String userName, Object newCredential)
-            throws UserStoreException {
+    @Override public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         if (newCredential != null && !newCredential.equals("")) {
             super.doUpdateCredentialByAdmin(doConvert(userName), newCredential);
         }
     }
 
-    @Override
-    protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
+    @Override protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
             throws UserStoreException {
         super.doUpdateCredentialsValidityChecks(doConvert(userName), newCredential);
     }
 
-    @Override
-    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+    @Override public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
         super.doSetUserClaimValues(doConvert(userName), claims, profileName);
     }
 
-    @Override
-    public void doSetUserClaimValue(String userName, String claimURI, String value,
-            String profileName) throws UserStoreException {
+    @Override public void doSetUserClaimValue(String userName, String claimURI, String value, String profileName)
+            throws UserStoreException {
         super.doSetUserClaimValue(doConvert(userName), claimURI, value, profileName);
     }
 
-
-    @Override
-    public void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
+    @Override public void doDeleteUserClaimValue(String userName, String claimURI, String profileName)
+            throws UserStoreException {
 
         super.doDeleteUserClaimValue(doConvert(userName), claimURI, profileName);
     }
 
-    @Override
-    public void doDeleteUserClaimValues(String userName, String[] claims, String profileName) throws UserStoreException {
+    @Override public void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
+            throws UserStoreException {
         super.doDeleteUserClaimValues(doConvert(userName), claims, profileName);
     }
 
-    @Override
-    public void doAddRole(String roleName, String[] userList, boolean shared)
-            throws UserStoreException {
+    @Override public void doAddRole(String roleName, String[] userList, boolean shared) throws UserStoreException {
 
         super.doAddRole(roleName, doConvertUserList(userList), shared);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
-            throws UserStoreException {
+    @SuppressWarnings("deprecation") @Override public void doUpdateRoleListOfUser(String userName,
+            String[] deletedRoles, String[] newRoles) throws UserStoreException {
         super.doUpdateRoleListOfUser(doConvert(userName), deletedRoles, newRoles);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
-            throws UserStoreException {
-        super.doUpdateUserListOfRole(roleName, doConvertUserList(deletedUsers),
-                doConvertUserList(newUsers));
+    @SuppressWarnings("deprecation") @Override public void doUpdateUserListOfRole(String roleName,
+            String[] deletedUsers, String[] newUsers) throws UserStoreException {
+        super.doUpdateUserListOfRole(roleName, doConvertUserList(deletedUsers), doConvertUserList(newUsers));
     }
 
-    @Override
-    public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
+    @Override public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
         userName = doConvert(userName);
-        if(!(isUserInRole(userName,"default")) && (getTenantId() == MultitenantConstants.SUPER_TENANT_ID) ){
+        if (!(isUserInRole(userName, "default")) && (getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
             String[] roles = { "default" };
             updateRoleListOfUser(userName, null, roles);
             log.info("Default Role assigned for user : " + userName);
@@ -180,83 +149,68 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         return super.doAuthenticate(userName, credential);
     }
 
-    @Override
-    public String[] getProfileNames(String userName) throws UserStoreException {
+    @Override public String[] getProfileNames(String userName) throws UserStoreException {
         return super.getProfileNames(doConvert(userName));
     }
 
-    @Override
-    public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames,
+    @Override public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames,
             String profileName) throws UserStoreException {
         return super.getUserPropertyValues(doConvert(userName), propertyNames, profileName);
     }
 
-    @Override
-    public boolean doCheckExistingUser(String userName) throws UserStoreException {
+    @Override public boolean doCheckExistingUser(String userName) throws UserStoreException {
 
         return super.doCheckExistingUser(doConvert(userName));
     }
 
-    @Override
-    protected String[] doGetDisplayNamesForInternalRole(String[] userNames)
-            throws UserStoreException {
+    @Override protected String[] doGetDisplayNamesForInternalRole(String[] userNames) throws UserStoreException {
         return super.doGetDisplayNamesForInternalRole(doConvertUserList(userNames));
     }
 
-    @Override
-    protected String[] getLDAPRoleListOfUser(String userName, String filter, String searchBase,
+    @Override protected String[] getLDAPRoleListOfUser(String userName, String filter, String searchBase,
             boolean shared) throws UserStoreException {
         return super.getLDAPRoleListOfUser(doConvert(userName), filter, searchBase, shared);
     }
 
-    @Override
-    protected String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
+    @Override protected String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         return super.doGetExternalRoleListOfUser(doConvert(userName), filter);
     }
 
-
-    @Override
-    protected String[] doGetSharedRoleListOfUser(String userName,
-            String tenantDomain, String filter) throws UserStoreException {
+    @Override protected String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
+            throws UserStoreException {
         return super.doGetSharedRoleListOfUser(doConvert(userName), tenantDomain, filter);
     }
 
-    @Override
-    protected String getNameInSpaceForUserName(String userName) throws UserStoreException {
+    @Override protected String getNameInSpaceForUserName(String userName) throws UserStoreException {
         return super.getNameInSpaceForUserName(doConvert(userName));
     }
 
-    @Override
-    protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter) throws UserStoreException {
+    @Override protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter)
+            throws UserStoreException {
 
         return super.getNameInSpaceForUserName(doConvert(userName), searchBase, searchFilter);
     }
 
-    @Override
-    public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
+    @Override public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
         return super.doCheckIsUserInRole(doConvert(userName), roleName);
     }
 
-    @Override
-    public void addRememberMe(String userName, String token)
+    @Override public void addRememberMe(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
         super.addRememberMe(doConvert(userName), token);
     }
 
-    @Override
-    public boolean isValidRememberMeToken(String userName, String token)
+    @Override public boolean isValidRememberMeToken(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
-        return super.isValidRememberMeToken(doConvert(userName),token);
+        return super.isValidRememberMeToken(doConvert(userName), token);
     }
-
 
     // =============================================================================================================
     // ====================================== UP WAY METHODS =======================================================
     // =============================================================================================================
 
-    @Override
-    public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
+    @Override public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
         String[] users = super.doGetUserListOfRole(roleName, filter);
         for (int i = 0; i < users.length; i++) {
             users[i] = doConvertUserNameToEmail(users[i]);
@@ -264,8 +218,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         return users;
     }
 
-    @Override
-    public String[] getUserListFromProperties(String property, String value, String profileName)
+    @Override public String[] getUserListFromProperties(String property, String value, String profileName)
             throws UserStoreException {
         String[] users = super.getUserListFromProperties(property, value, profileName);
         for (int i = 0; i < users.length; i++) {
@@ -274,9 +227,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         return users;
     }
 
-    @Override
-    public String[] doListUsers(String filter, int maxItemLimit)
-            throws UserStoreException {
+    @Override public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
         String[] users = super.doListUsers(filter, maxItemLimit);
         for (int i = 0; i < users.length; i++) {
             users[i] = doConvertUserNameToEmail(users[i]);
@@ -294,7 +245,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
      * @param userName - user name to be converted
      * @return converted user Name
      */
-    public String doConvert(String userName){
+    public String doConvert(String userName) {
         StringBuilder convertedUser = new StringBuilder(userName);
         if (userName.contains("@")) {
             int index = userName.indexOf("@");

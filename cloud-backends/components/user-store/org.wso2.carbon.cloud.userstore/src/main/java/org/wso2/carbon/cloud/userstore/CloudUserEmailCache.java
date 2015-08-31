@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.userstore;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,7 +35,6 @@ public class CloudUserEmailCache {
     public static final String USER_EMAIL_CACHE_MANAGER = "CLOUD_USER_EMAIL_CACHE_MANAGER";
 
     private static CloudUserEmailCache cloudUserEmailCache = new CloudUserEmailCache();
-
 
     private CloudUserEmailCache() {
     }
@@ -60,23 +58,23 @@ public class CloudUserEmailCache {
             if (log.isDebugEnabled()) {
                 StackTraceElement[] elements = Thread.currentThread().getStackTrace();
                 String traceString = "";
-                for (int i=1; i<elements.length; ++i) {
+                for (int i = 1; i < elements.length; ++i) {
                     traceString += elements[i] + System.getProperty("line.separator");
                 }
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("USER_EMAIL_CACHE doesn't exist in CacheManager:\n" + traceString);
                 }
             }
             return true;
-        }       
+        }
         return false;
     }
 
     /**
      * Adds an entry to the cache.
      *
-     * @param userName      Name of the user
-     * @param email         Email of the user
+     * @param userName Name of the user
+     * @param email    Email of the user
      */
     protected void addToCache(String userName, String email) {
         Cache<String, String> cache = this.getUserEmailCache();
@@ -113,9 +111,9 @@ public class CloudUserEmailCache {
         if (isCacheNull(cache)) {
             return;
         }
-        if(cache.containsKey(userName)){
+        if (cache.containsKey(userName)) {
             cache.remove(userName);
         }
     }
-    
+
 }

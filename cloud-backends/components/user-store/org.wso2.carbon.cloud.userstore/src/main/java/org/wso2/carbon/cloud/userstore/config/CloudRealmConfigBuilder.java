@@ -20,7 +20,6 @@ package org.wso2.carbon.cloud.userstore.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.TenantMgtConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -43,9 +42,7 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
     private static Log logger = LogFactory.getLog(CloudRealmConfigBuilder.class);
 
     public RealmConfiguration getRealmConfigForTenantToPersist(RealmConfiguration bootStrapConfig,
-            TenantMgtConfiguration tenantMgtConfig,
-            Tenant tenantInfo, int tenantId)
-            throws UserStoreException {
+            TenantMgtConfiguration tenantMgtConfig, Tenant tenantInfo, int tenantId) throws UserStoreException {
 
         try {
             RealmConfiguration ldapRealmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
@@ -61,16 +58,16 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
 
             Map<String, String> userStoreProperties = ldapRealmConfig.getUserStoreProperties();
 
-            String partitionDN = tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ROOT_PARTITION);
+            String partitionDN = tenantMgtConfig.getTenantStoreProperties()
+                    .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ROOT_PARTITION);
             String organizationName = tenantInfo.getDomain();
             //eg: o=cse.rog
-            String organizationRDN = tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORGANIZATIONAL_ATTRIBUTE) + "=" +
+            String organizationRDN = tenantMgtConfig.getTenantStoreProperties()
+                    .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORGANIZATIONAL_ATTRIBUTE) + "=" +
                     organizationName;
             //eg: ou=users
-            String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
+            String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties()
+                    .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
             //************ Cloud Specific Implementation ******************
             String userContextRDN = orgSubContextAttribute + "=" +
                     LDAPConstants.USER_CONTEXT_NAME;
@@ -81,12 +78,10 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
             //replace the tenant specific user search base.
             userStoreProperties.put(LDAPConstants.USER_SEARCH_BASE, userSearchBase);
 
-
             //if UserDNPattern is mentioned, replace it to align with tenant's user store.
             if (bootStrapConfig.getUserStoreProperties().containsKey(LDAPConstants.USER_DN_PATTERN)) {
                 //get userDN pattern from super tenant realm config
-                String userDNPattern = bootStrapConfig.getUserStoreProperties().get(
-                        LDAPConstants.USER_DN_PATTERN);
+                String userDNPattern = bootStrapConfig.getUserStoreProperties().get(LDAPConstants.USER_DN_PATTERN);
                 //obtain the identifier - eg: uid={0}
                 String userIdentifier = userDNPattern.split(",")[0];
                 //build tenant specific one - eg:uid={0},ou=Users,ou=cse.org,dc=wso2,dc=org
@@ -149,8 +144,7 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
         }
     }
 
-    private void removePropertiesFromTenantRealmConfig(
-            RealmConfiguration tenantRealmConfiguration) {
+    private void removePropertiesFromTenantRealmConfig(RealmConfiguration tenantRealmConfiguration) {
         //remove sensitive information from realm properties before persisting
         // tenant specific user-mgt.xml
         tenantRealmConfiguration.getRealmProperties().clear();

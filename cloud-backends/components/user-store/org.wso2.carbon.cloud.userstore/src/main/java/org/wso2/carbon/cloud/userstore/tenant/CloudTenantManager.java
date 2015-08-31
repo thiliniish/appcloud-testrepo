@@ -44,23 +44,16 @@ import java.util.Map;
  * per tenant under one DIT.
  */
 public class CloudTenantManager extends CommonHybridLDAPTenantManager {
-    //constants
-    private static final String USER_PASSWORD_ATTRIBUTE_NAME = "userPassword";
-    private static final String EMAIL_ATTRIBUTE_NAME = "mail";
-    //TODO move the following configurations and constants to relevant files.
-    private static final String SN_ATTRIBUTE_NAME = "sn";
-    private static final String CN_ATTRIBUTE_NAME = "cn";
+
     private static Log logger = LogFactory.getLog(CloudTenantManager.class);
     private LDAPConnectionContext ldapConnectionSource;
     private TenantMgtConfiguration tenantMgtConfig = null;
     private RealmConfiguration realmConfig = null;
 
-    public CloudTenantManager(OMElement omElement, Map<String, Object> properties)
-            throws Exception {
+    public CloudTenantManager(OMElement omElement, Map<String, Object> properties) throws Exception {
         super(omElement, properties);
 
-        tenantMgtConfig = (TenantMgtConfiguration) properties.get(
-                UserCoreConstants.TENANT_MGT_CONFIGURATION);
+        tenantMgtConfig = (TenantMgtConfiguration) properties.get(UserCoreConstants.TENANT_MGT_CONFIGURATION);
 
         realmConfig = (RealmConfiguration) properties.get(UserCoreConstants.REALM_CONFIGURATION);
         if (realmConfig == null) {
@@ -68,7 +61,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         }
 
         if (ldapConnectionSource == null) {
-        	ldapConnectionSource = new LDAPConnectionContext(realmConfig);
+            ldapConnectionSource = new LDAPConnectionContext(realmConfig);
         }
 
     }
@@ -85,17 +78,16 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @param initialDirContext The directory connection.
      * @throws UserStoreException If an error occurred while creating.
      */
-    protected void createOrganizationalUnit(String orgName, Tenant tenant,
-            DirContext initialDirContext)
+    protected void createOrganizationalUnit(String orgName, Tenant tenant, DirContext initialDirContext)
             throws UserStoreException {
         //e.g: ou=wso2.com
-        String partitionDN = tenantMgtConfig.getTenantStoreProperties().get(
-                UserCoreConstants.TenantMgtConfig.PROPERTY_ROOT_PARTITION);
+        String partitionDN = tenantMgtConfig.getTenantStoreProperties()
+                .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ROOT_PARTITION);
         createOrganizationalContext(partitionDN, orgName, initialDirContext);
 
         //create user store
-        String organizationNameAttribute = tenantMgtConfig.getTenantStoreProperties().get(
-                UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
+        String organizationNameAttribute = tenantMgtConfig.getTenantStoreProperties()
+                .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
         //eg:o=cse.org,dc=wso2,dc=com
         String dnOfOrganizationalContext = organizationNameAttribute + "=" + orgName + "," +
                 partitionDN;
@@ -114,8 +106,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
                     get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
             //************ Cloud Specific Implementation ******************
             //eg: ou=users, dc=wso2,dc=com
-            String dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME
-                    + "," + partitionDN;
+            String dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME + "," + partitionDN;
             //            String dnOfUserContext = orgSubContextAttribute + "=user" + "," + partitionDN;
             //*************************************************************
             String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
@@ -130,17 +121,15 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         }
     }
 
-    protected String createAdminEntry(String dnOfUserContext, Tenant tenant,
-            DirContext initialDirContext)
+    protected String createAdminEntry(String dnOfUserContext, Tenant tenant, DirContext initialDirContext)
             throws UserStoreException {
         String userDN;
 
         Tenant convertedTenant = tenant;
         convertedTenant.setAdminName(doConvert(tenant.getAdminName()));
         //************ Cloud Specific Implementation ******************
-        if(doCheckExistingUser(convertedTenant.getAdminName(),initialDirContext)){
-            String userNameAttribute = realmConfig.getUserStoreProperty(
-                    LDAPConstants.USER_NAME_ATTRIBUTE);
+        if (doCheckExistingUser(convertedTenant.getAdminName(), initialDirContext)) {
+            String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
             String userRDN = userNameAttribute + "=" + convertedTenant.getAdminName();
             userDN = userRDN + "," + dnOfUserContext;
             return userDN;
@@ -152,8 +141,9 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
 
     /**
      * Cloud Specific implementation : Checks if the user is already existing
-     * @param userName userName
-     * @param initialDirContext  initialDirContext
+     *
+     * @param userName          userName
+     * @param initialDirContext initialDirContext
      * @return true if the user is existing
      * @throws UserStoreException
      */
@@ -165,10 +155,10 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         boolean debug = logger.isDebugEnabled();
 
         try {
-            if(debug) {
+            if (debug) {
                 logger.debug("Searching for user " + userName);
             }
-            String name = getNameInSpaceForUserName(userName,initialDirContext);
+            String name = getNameInSpaceForUserName(userName, initialDirContext);
             if (name != null && name.length() > 0) {
                 bFound = true;
             }
@@ -176,7 +166,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             throw new UserStoreException(e.getMessage(), e);
         }
 
-        if(debug) {
+        if (debug) {
             logger.debug("User: " + userName + " exist: " + bFound);
         }
 
@@ -185,69 +175,74 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
 
     /**
      *
-     * @param userName
-     * @param initialDirContext
-     * @return
+     * @param userName          userName
+     * @param initialDirContext initialDirContext
+     * @return name
      * @throws UserStoreException
      */
-    protected String getNameInSpaceForUserName(String userName, DirContext initialDirContext) throws UserStoreException {
+    protected String getNameInSpaceForUserName(String userName, DirContext initialDirContext)
+            throws UserStoreException {
         String searchBase;
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
         userSearchFilter = userSearchFilter.replace("?", userName);
         String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-        if(userDNPattern != null && userDNPattern.trim().length() > 0){
-            if(userDNPattern.contains("#")){
-                String[] patterns =  userDNPattern.split("#");
-                for(String pattern : patterns){
-                    searchBase =  MessageFormat.format(pattern, userName);
-                    String userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter,initialDirContext);
+        if (userDNPattern != null && userDNPattern.trim().length() > 0) {
+            if (userDNPattern.contains("#")) {
+                String[] patterns = userDNPattern.split("#");
+                for (String pattern : patterns) {
+                    searchBase = MessageFormat.format(pattern, userName);
+                    String userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter,
+                            initialDirContext);
                     // check in another DN pattern
-                    if(userDN != null){
+                    if (userDN != null) {
                         return userDN;
                     }
                 }
                 return null;
             } else {
-                searchBase =  MessageFormat.format(userDNPattern, userName);
+                searchBase = MessageFormat.format(userDNPattern, userName);
             }
         } else {
             searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         }
 
-        return getNameInSpaceForUserName(userName, searchBase, userSearchFilter,initialDirContext);
+        return getNameInSpaceForUserName(userName, searchBase, userSearchFilter, initialDirContext);
 
     }
 
     /**
      *
-     * @param userName
-     * @param searchBase
-     * @param searchFilter
-     * @return
+     * @param userName     userName
+     * @param searchBase   searchBase
+     * @param searchFilter searchFilter
+     * @return name
      * @throws UserStoreException
      */
-    protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter, DirContext dirContext) throws UserStoreException {
+    protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter,
+            DirContext dirContext) throws UserStoreException {
         boolean debug = logger.isDebugEnabled();
         String name = null;
 
-        NamingEnumeration<SearchResult> answer = null;
+        NamingEnumeration<SearchResult> answer;
         try {
             SearchControls searchCtls = new SearchControls();
             searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-            if(logger.isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
                 try {
-                    logger.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext.getNameInNamespace());
+                    logger.debug(
+                            "Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext
+                                    .getNameInNamespace());
                 } catch (NamingException e) {
                     logger.debug("Error while getting DN of search base", e);
                 }
             }
-            SearchResult userObj = null;
+            SearchResult userObj;
             String[] searchBases = searchBase.split("#");
             for (String base : searchBases) {
                 answer = dirContext.search(base, searchFilter, searchCtls);
                 if (answer.hasMore()) {
-                    userObj = (SearchResult) answer.next();
+                    userObj = answer.next();
                     if (userObj != null) {
                         name = userObj.getNameInNamespace();
                         break;
@@ -269,7 +264,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @param userName - user name to be converted
      * @return converted user Name
      */
-    public String doConvert(String userName){
+    public String doConvert(String userName) {
         StringBuilder convertedUser = new StringBuilder(userName);
         if (userName.contains("@")) {
             int index = userName.indexOf("@");
@@ -277,6 +272,5 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         }
         return convertedUser.toString();
     }
-
 
 }
