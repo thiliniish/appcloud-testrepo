@@ -7,6 +7,8 @@ var log = new Log();
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var otEmail = request.getParameter("email");
+var sourceToken = request.getParameter("sourceToken");
+
 
 %>
 
@@ -152,6 +154,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 function doSubmit() {
     var email = $("#email").attr('value');
+    var token = $("#sourceToken").attr('value');
     disable();
     var isValidMail= validateEmail();
      if(isValidMail){
@@ -164,7 +167,8 @@ function doSubmit() {
 	            	  if(result=="false"){
 	            	        jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
 	            	                         action:"sendInvite",
-	            	                         email:email
+	            	                         email:email,
+	            	                         token: token
 	            	                  },
 	            	                  function (result) {
 	            	                        $(".content-starter h1").text("Check Your Email");
@@ -246,6 +250,9 @@ function doSubmit() {
 
 				<input type="hidden" name="otEmail" id="otEmail"
 					value="<%=otEmail%>" /> <input type="hidden" name="imagePath"
+					id="imagePath" value="" />
+				<input type="hidden" name="sourceToken" id="sourceToken"
+					value="<%=sourceToken%>" /> <input type="hidden" name="imagePath"
 					id="imagePath" value="" />
 			</form>
 		</div>

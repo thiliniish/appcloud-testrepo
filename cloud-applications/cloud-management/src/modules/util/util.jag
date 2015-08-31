@@ -382,7 +382,21 @@ function addUserToOT (email, pass, firstName, lastName) {
 	} catch (e){
 		log.error(e)
 	}
+};
 
+
+function getLeadSourceToken () {
+    try {
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var URL = cloudConfig.LeadSourceCapture.url;
+        var result = get(URL);
+        var data = parse(result.data);
+        var tokenId = data.tokenid;
+    }
+    catch(e){
+        log.error(e);
+    }
+    return tokenId;
 };
 
 function changeOTUserPass (email,pass) {
