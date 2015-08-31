@@ -35,34 +35,33 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is the tenant manager for any external LDAP and based on the "ou" partitioning
  * per tenant under one DIT.
  */
 public class CloudTenantManager extends CommonHybridLDAPTenantManager {
-    private static Log logger = LogFactory.getLog(CloudTenantManager.class);
-    private LDAPConnectionContext ldapConnectionSource;
-
-    private TenantMgtConfiguration tenantMgtConfig = null;
-    private RealmConfiguration realmConfig = null;
-
-    //TODO move the following configurations and constants to relevant files.
     //constants
     private static final String USER_PASSWORD_ATTRIBUTE_NAME = "userPassword";
     private static final String EMAIL_ATTRIBUTE_NAME = "mail";
+    //TODO move the following configurations and constants to relevant files.
     private static final String SN_ATTRIBUTE_NAME = "sn";
     private static final String CN_ATTRIBUTE_NAME = "cn";
-
-    private final int MAX_USER_CACHE = 200;
-    // Todo: use a cache provided by carbon kernel
-    Map<String, String> userCache = new ConcurrentHashMap<String, String>(MAX_USER_CACHE);
+    private static Log logger = LogFactory.getLog(CloudTenantManager.class);
+    private LDAPConnectionContext ldapConnectionSource;
+    private TenantMgtConfiguration tenantMgtConfig = null;
+    private RealmConfiguration realmConfig = null;
 
     public CloudTenantManager(OMElement omElement, Map<String, Object> properties)
             throws Exception {
@@ -75,7 +74,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         if (realmConfig == null) {
             throw new UserStoreException("Tenant Manager can not function without a bootstrap realm config");
         }
-        
+
         if (ldapConnectionSource == null) {
         	ldapConnectionSource = new LDAPConnectionContext(realmConfig);
         }
@@ -113,12 +112,15 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             userSearchResults = initialDirContext.search(partitionDN, searchFilter, userSearchControl);
             return userSearchResults.hasMore();
         } catch (NamingException e) {
-            String errorMessage = "Error occurred while searching in root partition.";
+            String errorMessage = "Error occurred while searching in root partition for organization : " + orgName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
     }
 
-/**
+    /**
      * Create a space for tenant in LDAP.
      *
      * @param orgName           Organization name.
@@ -127,7 +129,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @throws UserStoreException If an error occurred while creating.
      */
     protected void createOrganizationalUnit(String orgName, Tenant tenant,
-                                            DirContext initialDirContext)
+            DirContext initialDirContext)
             throws UserStoreException {
         //e.g: ou=wso2.com
         String partitionDN = tenantMgtConfig.getTenantStoreProperties().get(
@@ -139,31 +141,35 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
                 UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
         //eg:o=cse.org,dc=wso2,dc=com
         String dnOfOrganizationalContext = organizationNameAttribute + "=" + orgName + "," +
-                                           partitionDN;
+                partitionDN;
+        //************ Cloud Specific Implementation ******************
+        //We don't create the users ou inside the tenant ou
+        //        createOrganizationalSubContext(dnOfOrganizationalContext,
+        //                LDAPConstants.USER_CONTEXT_NAME, initialDirContext);
+        //*************************************************************
 
         //create group store
-        createOrganizationalSubContext(dnOfOrganizationalContext,
-                                       LDAPConstants.GROUP_CONTEXT_NAME, initialDirContext);
+        createOrganizationalSubContext(dnOfOrganizationalContext, LDAPConstants.GROUP_CONTEXT_NAME, initialDirContext);
 
-        //create admin entry
-        String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
-                UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
+        if (("false").equals(realmConfig.getAddAdmin())) {
+            //create admin entry
+            String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().
+                    get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
+            //************ Cloud Specific Implementation ******************
+            //eg: ou=users, dc=wso2,dc=com
+            String dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME
+                    + "," + partitionDN;
+            //            String dnOfUserContext = orgSubContextAttribute + "=user" + "," + partitionDN;
+            //*************************************************************
+            String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
 
-        // Cloud Specific Implementation : use of partitionDN instead of dnOfOrganizationalContext
-        //dc=wso2,dc=com
-//        String dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME
-//                                 + "," + partitionDN;
-        String dnOfUserContext = orgSubContextAttribute + "=user" + "," + partitionDN;
-        String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
-
-        //create admin group if write ldap group is enabled
-        if (("true").equals(realmConfig.getUserStoreProperty(
-                UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
-            //construct dn of group context: eg:ou=groups,o=cse.org,dc=wso2,dc=com
-            String dnOfGroupContext = orgSubContextAttribute + "=" +
-                                      LDAPConstants.GROUP_CONTEXT_NAME + "," +
-                                      dnOfOrganizationalContext;
-            createAdminGroup(dnOfGroupContext, dnOfUserEntry, initialDirContext);
+            //create admin group if write ldap group is enabled
+            if (("true").equals(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
+                //construct dn of group context: eg:ou=groups,o=cse.org,dc=wso2,dc=com
+                String dnOfGroupContext = orgSubContextAttribute + "=" + LDAPConstants.GROUP_CONTEXT_NAME + "," +
+                        dnOfOrganizationalContext;
+                createAdminGroup(dnOfGroupContext, dnOfUserEntry, initialDirContext);
+            }
         }
     }
 
@@ -176,7 +182,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @throws UserStoreException If an error occurred while creating context.
      */
     protected void createOrganizationalContext(String rootDN, String orgName,
-                                               DirContext initialDirContext)
+            DirContext initialDirContext)
             throws UserStoreException {
 
         DirContext subContext = null;
@@ -204,19 +210,21 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             String rdnOfOrganizationalContext = organizationalNameAttribute + "=" + orgName;
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding sub context: " + rdnOfOrganizationalContext + " under " +
-                             rootDN + " ...");
+                        rootDN + " ...");
             }
             //create organization sub context
             organizationalContext = subContext.createSubcontext(rdnOfOrganizationalContext, contextAttributes);
             if (logger.isDebugEnabled()) {
                 logger.debug("Sub context: " + rdnOfOrganizationalContext + " was added under "
-                             + rootDN + " successfully.");
+                        + rootDN + " successfully.");
             }
 
         } catch (NamingException e) {
             String errorMsg = "Error occurred while adding the organizational unit " +
-                              "sub context.";
-            logger.error(errorMsg, e);
+                    "sub context.";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMsg, e);
+            }
             throw new UserStoreException(errorMsg, e);
         } finally {
             closeContext(organizationalContext);
@@ -243,8 +251,8 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @throws UserStoreException if an error occurs while creating context.
      */
     protected void createOrganizationalSubContext(String dnOfParentContext,
-                                                  String nameOfCurrentContext,
-                                                  DirContext initialDirContext)
+            String nameOfCurrentContext,
+            DirContext initialDirContext)
             throws UserStoreException {
 
         DirContext subContext = null;
@@ -270,22 +278,24 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
 
             //construct the rdn of org sub context
             String rdnOfOrganizationalContext = orgSubUnitAttributeName + "=" +
-                                                nameOfCurrentContext;
+                    nameOfCurrentContext;
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding sub context: " + rdnOfOrganizationalContext + " under " +
-                             dnOfParentContext + " ...");
+                        dnOfParentContext + " ...");
             }
             //create sub context
             organizationalContext = subContext.createSubcontext(rdnOfOrganizationalContext, contextAttributes);
             if (logger.isDebugEnabled()) {
                 logger.debug("Sub context: " + rdnOfOrganizationalContext + " was added under "
-                             + dnOfParentContext + " successfully.");
+                        + dnOfParentContext + " successfully.");
             }
 
         } catch (NamingException e) {
             String errorMsg = "Error occurred while adding the organizational unit " +
-                              "sub context.";
-            logger.error(errorMsg, e);
+                    "sub context.";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMsg, e);
+            }
             throw new UserStoreException(errorMsg, e);
         } finally {
             closeContext(organizationalContext);
@@ -294,12 +304,12 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
     }
 
     protected String createAdminEntry(String dnOfUserContext, Tenant tenant,
-                                      DirContext initialDirContext)
+            DirContext initialDirContext)
             throws UserStoreException {
         String userDN = null;
         DirContext organizationalUsersContext = null;
 
-        //Cloud Specific implementation : Allows to create multiple tenants per user
+        //************ Cloud Specific Implementation ******************
         if(doCheckExistingUser(tenant.getAdminName(),initialDirContext)){
             String userNameAttribute = realmConfig.getUserStoreProperty(
                     LDAPConstants.USER_NAME_ATTRIBUTE);
@@ -307,6 +317,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             userDN = userRDN + "," + dnOfUserContext;
             return userDN;
         }
+        //*************************************************************
 
         try {
             //get connection to tenant's user context
@@ -322,26 +333,28 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             	objClass.add("krb5principal");
             	objClass.add("krb5kdcentry");
             	objClass.add("subschema");
-            	
+
                 String principal = tenant.getAdminName() + UserCoreConstants.PRINCIPAL_USERNAME_SEPARATOR + tenant.getDomain() + UserCoreConstants.TENANT_DOMAIN_COMBINER + getRealmName();
                 Attribute kerberosPrincipalName = new BasicAttribute("krb5PrincipalName");
                 kerberosPrincipalName.add(principal);
-                
+
                 Attribute keyVersionNumber = new BasicAttribute("krb5KeyVersionNumber");
                 keyVersionNumber.add("0");
-                
+
                 userAttributes.put(kerberosPrincipalName);
                 userAttributes.put(keyVersionNumber);
     		}
             userAttributes.put(objClass);
-            
-           
+
+
             //create user password attribute
             Attribute password = new BasicAttribute(USER_PASSWORD_ATTRIBUTE_NAME);
+            String passwordHashMethod = realmConfig.getUserStoreProperty(LDAPConstants.PASSWORD_HASH_METHOD);
+            if (passwordHashMethod == null) {
+                passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
+            }
             String passwordToStore = UserCoreUtil.getPasswordToStore(
-                    tenant.getAdminPassword(),
-                    realmConfig.getUserStoreProperties().get(LDAPConstants.PASSWORD_HASH_METHOD),
-                    isKDCEnabled());
+                    tenant.getAdminPassword(), passwordHashMethod, isKDCEnabled());
             password.add(passwordToStore);
             userAttributes.put(password);
 
@@ -349,7 +362,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             Attribute adminEmail = new BasicAttribute(EMAIL_ATTRIBUTE_NAME);
             adminEmail.add(tenant.getEmail());
             userAttributes.put(adminEmail);
-			
+
             //create compulsory attribute: sn-last name
             Attribute lastName = new BasicAttribute(SN_ATTRIBUTE_NAME);
             lastName.add(tenant.getAdminLastName());
@@ -371,13 +384,143 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             //return (userRDN + dnOfUserContext);
         } catch (NamingException e) {
             String errorMsg = "Error occurred while creating Admin entry";
-            logger.error(errorMsg, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMsg, e);
+            }
             throw new UserStoreException(errorMsg, e);
         } finally {
             closeContext(organizationalUsersContext);
         }
 
         return userDN;
+    }
+
+    protected void createAdminGroup(String dnOfGroupContext, String adminUserDN,
+            DirContext initialDirContext)
+            throws UserStoreException {
+        //create set of attributes required to create admin group
+        Attributes adminGroupAttributes = new BasicAttributes(true);
+        //admin entry object class
+        Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
+        objectClassAttribute.add(realmConfig.getUserStoreProperty(
+                LDAPConstants.GROUP_ENTRY_OBJECT_CLASS));
+        adminGroupAttributes.put(objectClassAttribute);
+
+        //group name attribute
+        String groupNameAttributeName = realmConfig.getUserStoreProperty(
+                LDAPConstants.GROUP_NAME_ATTRIBUTE);
+        Attribute groupNameAttribute = new BasicAttribute(groupNameAttributeName);
+        String adminRoleName = realmConfig.getAdminRoleName();
+        groupNameAttribute.add(UserCoreUtil.removeDomainFromName(adminRoleName));
+        adminGroupAttributes.put(groupNameAttribute);
+
+        //membership attribute
+        Attribute membershipAttribute = new BasicAttribute(realmConfig.getUserStoreProperty(
+                LDAPConstants.MEMBERSHIP_ATTRIBUTE));
+        membershipAttribute.add(adminUserDN);
+        adminGroupAttributes.put(membershipAttribute);
+
+        DirContext groupContext = null;
+        try {
+            groupContext = (DirContext) initialDirContext.lookup(dnOfGroupContext);
+            String rdnOfAdminGroup = groupNameAttributeName + "=" + UserCoreUtil.removeDomainFromName(adminRoleName);
+            groupContext.bind(rdnOfAdminGroup, null, adminGroupAttributes);
+
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while creating the admin group.";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            closeContext(groupContext);
+        }
+    }
+
+    private boolean isKDCEnabled() {
+        return UserCoreUtil.isKdcEnabled(realmConfig);
+    }
+
+    public boolean isSharedGroupEnabled() {
+        String value = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.SHARED_GROUPS_ENABLED);
+        return realmConfig.isPrimary() && "true".equalsIgnoreCase(value);
+    }
+
+    public void addSharedGroupForTenant(Tenant tenant, DirContext mainDirContext) throws UserStoreException {
+
+        if (!isSharedGroupEnabled()) {
+            return;
+        }
+        Attributes groupAttributes = new BasicAttributes(true);
+
+        String domainName = tenant.getDomain();
+        // create ou attribute
+        String groupNameAttributeName =
+                realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE);
+
+        // create group entry's object class attribute
+        Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
+        objectClassAttribute.add(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_OBJECT_CLASS));
+        groupAttributes.put(objectClassAttribute);
+
+        DirContext groupContext = null;
+
+        String searchBase =
+                realmConfig.getUserStoreProperties()
+                        .get(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
+
+        try {
+            groupContext = (DirContext) mainDirContext.lookup(searchBase);
+            NameParser ldapParser = groupContext.getNameParser("");
+            Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" + domainName);
+            groupContext.bind(compoundGroupName, null, groupAttributes);
+
+        } catch (Exception e) {
+            String errorMsg = "Shared tenant: " + domainName + " could not be added.";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMsg, e);
+            }
+            throw new UserStoreException(errorMsg, e);
+        } finally {
+            JNDIUtil.closeContext(groupContext);
+        }
+
+    }
+
+    /**
+     * @return
+     */
+    protected String getRealmName() {
+
+        // First check whether realm name is defined in the configuration
+        String defaultRealmName = this.realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.DEFAULT_REALM_NAME);
+
+        if (defaultRealmName != null) {
+            return defaultRealmName;
+        }
+
+        // If not build the realm name from the search base.
+        // Here the realm name will be a concatenation of dc components in the
+        // search base.
+        String searchBase = this.realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+
+        String[] domainComponents = searchBase.split("dc=");
+
+        StringBuilder builder = new StringBuilder();
+
+        for (String dc : domainComponents) {
+            if (!dc.contains("=")) {
+                String trimmedDc = dc.trim();
+                if (trimmedDc.endsWith(",")) {
+                    builder.append(trimmedDc.replace(',', '.'));
+                } else {
+                    builder.append(trimmedDc);
+                }
+            }
+        }
+
+        return builder.toString().toUpperCase(Locale.ENGLISH);
     }
 
     /**
@@ -419,12 +562,6 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @throws UserStoreException
      */
     protected String getNameInSpaceForUserName(String userName, DirContext initialDirContext) throws UserStoreException {
-        // check the cache first
-        String name = userCache.get(userName);
-        if (name != null) {
-            return name;
-        }
-
         String searchBase;
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
         userSearchFilter = userSearchFilter.replace("?", userName);
@@ -462,12 +599,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      */
     protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter, DirContext dirContext) throws UserStoreException {
         boolean debug = logger.isDebugEnabled();
-
-        // check the cache first
-        String name = userCache.get(userName);
-        if (name != null) {
-            return name;
-        }
+        String name = null;
 
         NamingEnumeration<SearchResult> answer = null;
         try {
@@ -493,9 +625,6 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
                     }
                 }
             }
-            if (name != null) {
-                userCache.put(userName, name);
-            }
             if (debug) {
                 logger.debug("Name in space for " + userName + " is " + name);
             }
@@ -505,128 +634,4 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         return name;
     }
 
-    protected void createAdminGroup(String dnOfGroupContext, String adminUserDN,
-                                    DirContext initialDirContext)
-            throws UserStoreException {
-        //create set of attributes required to create admin group
-        Attributes adminGroupAttributes = new BasicAttributes(true);
-        //admin entry object class
-        Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
-        objectClassAttribute.add(realmConfig.getUserStoreProperty(
-                LDAPConstants.GROUP_ENTRY_OBJECT_CLASS));
-        adminGroupAttributes.put(objectClassAttribute);
-
-        //group name attribute
-        String groupNameAttributeName = realmConfig.getUserStoreProperty(
-                LDAPConstants.GROUP_NAME_ATTRIBUTE);
-        Attribute groupNameAttribute = new BasicAttribute(groupNameAttributeName);
-        String adminRoleName = realmConfig.getAdminRoleName();
-        groupNameAttribute.add(UserCoreUtil.removeDomainFromName(adminRoleName));
-        adminGroupAttributes.put(groupNameAttribute);
-
-        //membership attribute
-        Attribute membershipAttribute = new BasicAttribute(realmConfig.getUserStoreProperty(
-                LDAPConstants.MEMBERSHIP_ATTRIBUTE));
-        membershipAttribute.add(adminUserDN);
-        adminGroupAttributes.put(membershipAttribute);
-
-        DirContext groupContext = null;
-        try {
-            groupContext = (DirContext) initialDirContext.lookup(dnOfGroupContext);
-            String rdnOfAdminGroup = groupNameAttributeName + "=" + UserCoreUtil.removeDomainFromName(adminRoleName);
-            groupContext.bind(rdnOfAdminGroup, null, adminGroupAttributes);
-
-        } catch (NamingException e) {
-            String errorMessage = "Error occurred while creating the admin group.";
-            logger.error(errorMessage);
-            throw new UserStoreException(errorMessage, e);
-        } finally {
-            closeContext(groupContext);
-        }
-    }
-
-    private boolean isKDCEnabled() {
-        return UserCoreUtil.isKdcEnabled(realmConfig);
-    }
-
-	public boolean isSharedGroupEnabled() {
-		String value = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.SHARED_GROUPS_ENABLED);
-		return realmConfig.isPrimary() && "true".equalsIgnoreCase(value);
-	}
-
-	public void addSharedGroupForTenant(Tenant tenant, DirContext mainDirContext) throws UserStoreException {
-
-		if(!isSharedGroupEnabled()){
-			return;
-		}
-		Attributes groupAttributes = new BasicAttributes(true);
-
-		String domainName = tenant.getDomain();
-		// create ou attribute
-		String groupNameAttributeName =
-                        realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE);
-
-		// create group entry's object class attribute
-		Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
-		objectClassAttribute.add(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_OBJECT_CLASS));
-		groupAttributes.put(objectClassAttribute);
-
-		DirContext groupContext = null;
-
-		String searchBase =
-		                    realmConfig.getUserStoreProperties()
-		                               .get(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
-
-		try {
-			groupContext = (DirContext) mainDirContext.lookup(searchBase);
-			NameParser ldapParser = groupContext.getNameParser("");
-			Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" + domainName);
-			groupContext.bind(compoundGroupName, null, groupAttributes);
-
-		} catch (Exception e) {
-			String errorMsg = "Shared tenant: " + domainName + "could not be added.";
-			throw new UserStoreException(errorMsg, e);
-		} finally {
-			JNDIUtil.closeContext(groupContext);
-		}
-
-	}
-    
-	/**
-	 * 
-	 * @return
-	 */
-	protected String getRealmName() {
-
-		// First check whether realm name is defined in the configuration
-		String defaultRealmName = this.realmConfig
-				.getUserStoreProperty(UserCoreConstants.RealmConfig.DEFAULT_REALM_NAME);
-
-		if (defaultRealmName != null) {
-			return defaultRealmName;
-		}
-
-		// If not build the realm name from the search base.
-		// Here the realm name will be a concatenation of dc components in the
-		// search base.
-		String searchBase = this.realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-
-		String[] domainComponents = searchBase.split("dc=");
-
-		StringBuilder builder = new StringBuilder();
-
-		for (String dc : domainComponents) {
-			if (!dc.contains("=")) {
-				String trimmedDc = dc.trim();
-				if (trimmedDc.endsWith(",")) {
-					builder.append(trimmedDc.replace(',', '.'));
-				} else {
-					builder.append(trimmedDc);
-				}
-			}
-		}
-
-		return builder.toString().toUpperCase(Locale.ENGLISH);
-	}
-    
 }
