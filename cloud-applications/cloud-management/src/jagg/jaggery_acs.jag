@@ -1,7 +1,7 @@
 <html>
     <body>
     Waiting for responses from identity server and validate response and forward to requested URI.
-        <%
+<%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/modules/database/dataaccess.jag");
@@ -46,11 +46,13 @@ include("/modules/database/sql.jag");
                 response.sendRedirect("../site/pages/error-pages/error.jag");
                 return;
             }
+
             samlResponse = samlResponse.replace('<?xml version="1.0" encoding="UTF-8"?>', "");
             session.put("SAML_TOKEN", samlResponse);
             ssoRelyingParty.setSessionAuthenticated(sessionId, samlResponse);
             jagg.setUser(ssoRelyingParty.getLoggedInUser(sessionId));
             session.put("LOGGED_IN_USER", ssoRelyingParty.getLoggedInUser(sessionId));
+
             //Getting the Email Address of the user
             var userName = ssoRelyingParty.getLoggedInUser(sessionId);
             var modManager = jagg.module("manager");
@@ -69,37 +71,38 @@ include("/modules/database/sql.jag");
                     tenantDomain = userName.substring(atIndex + 1, userName.length);
                 }
             }
-            if(session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME")==null){
-                var queryString  = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-             var parameters =[tenantDomain];
-               var results = jagg.module("database").executeQuery(queryString, parameters);
-                if(results.length >= 1){
-                   tenantDisplayName=results[0]["displayName"];
-                  session.put("LOGGED_IN_USER_TENANT_DISPLAY_NAME", tenantDisplayName);
-               }
+            if (session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME") == null) {
+                var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
+                var parameters = [tenantDomain];
+                var results = jagg.module("database").executeQuery(queryString, parameters);
+                if (results.length >= 1) {
+                    tenantDisplayName = results[0]["displayName"];
+                    session.put("LOGGED_IN_USER_TENANT_DISPLAY_NAME", tenantDisplayName);
+                }
             }
             var tenantManager = multitenancy.getTenantManager();
-            var context=multitenancy.getPrivilegedCarbonContext();
+            var context = multitenancy.getPrivilegedCarbonContext();
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
             context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
             var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
             var email = tenantMgtService.getUserEmail(tenantLessUserName);
             session.put("LOGGED_IN_USER_EMAIL", email);
+            session.put("TENANT_DOMAIN", tenantDomain);
 
-            log.info("LOGGED_IN_USER " +ssoRelyingParty.getLoggedInUser(sessionId));
-            log.info("Inside session "+  session.get("LOGGED_IN_USER"));
-            tenantDomain=(session.get("LOGGED_IN_USER").split("@"))[1];
-            session.put("TENANT_DOMAIN",tenantDomain);
+            log.info("TENANT_DOMAIN : " + session.get("TENANT_DOMAIN"));
+            log.info("LOGGED_IN_USER : " + session.get("LOGGED_IN_USER"));
+            log.info("LOGGED_IN_USER_EMAIL : " + session.get("LOGGED_IN_USER_EMAIL"));
+            log.info("LOGGED_IN_USER_TENANT_DISPLAY_NAME : " + session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME"));
+
             var type = cloudConfig.subscriptions.type;
-            var storeUrl=type[1].urls.storeUrl + "?tenant=" + tenantDomain;
-            var isOnlySubscribedUser=jagg.module("util").hasOnlySubscriberRole(session.get("LOGGED_IN_USER"));
-            if(isOnlySubscribedUser)
-            {
+            var storeUrl = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
+            var isOnlySubscribedUser = jagg.module("util").hasOnlySubscriberRole(session.get("LOGGED_IN_USER"));
+            if (isOnlySubscribedUser) {
                 response.sendRedirect(storeUrl);
-            }else{
+            } else {
                 response.sendRedirect(requestedURI);
             }
-			createTenantInfoObject();
+            createTenantInfoObject();
         } else {
             // if the saml response is log out request from IDP, we log out from web app.
             ssoRelyingParty.invalidateSessionBySessionId(sessionId);
@@ -107,7 +110,6 @@ include("/modules/database/sql.jag");
             response.sendRedirect("../");
             return;
         }
-
     }
 
     // if saml request is a log out request, then invalidate session.
@@ -122,16 +124,15 @@ include("/modules/database/sql.jag");
 
 }());
 
-function createTenantInfoObject(){
+function createTenantInfoObject() {
     var modManager = jagg.module("manager");
-    var tenantInfo={};
-    tenantInfo.tenantDomain=modManager.getTenantDomain();
-    tenantInfo.tenantId=modManager.getTenantId();
-    tenantInfo.isOTTenant=modManager.getOTtenantProperty();
-    session.put("TENANT_INFO",tenantInfo);
+    var tenantInfo = {};
+    tenantInfo.tenantDomain = modManager.getTenantDomain();
+    tenantInfo.tenantId = modManager.getTenantId();
+    tenantInfo.isOTTenant = modManager.getOTtenantProperty();
+    session.put("TENANT_INFO", tenantInfo);
 }
 
 %>
-
-</body>
+    </body>
 </html>

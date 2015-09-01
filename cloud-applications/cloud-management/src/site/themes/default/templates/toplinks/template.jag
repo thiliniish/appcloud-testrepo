@@ -6,7 +6,6 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
     var userName =  session.get("LOGGED_IN_USER");
     var tenantDisplayName = session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME");
     var userEmail = session.get("LOGGED_IN_USER_EMAIL");
-    var loggedOrg = session.get("LOGGED_IN_ORGANIZATION");
     var requestURI = request.getRequestURI();
     var isBillingAccount = jagg.module("billing").isPaidAccount();
     var isUserAdmin = jagg.module("util").isUserInAdminRole();
