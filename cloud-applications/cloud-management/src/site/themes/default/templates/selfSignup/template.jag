@@ -32,7 +32,6 @@
 
                   if(result.trim() == "configured"){
                   $('#btn_submit').attr('disabled',true);
-                  document.getElementById("spinner").style.display = 'none';
                          jagg.message({content:'Self signup is already enabled.',type:'error',cbk:function(){
                           window.location.href=storeUrl;
                           }
