@@ -55,7 +55,8 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
         super(realmConfig, claimManager, profileManager);
     }
 
-    @Override public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
+    @Override
+    public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
         // this method will list the users only in the current tenant.
         // if the users in at least one of the roles, that users are included in
         // results
