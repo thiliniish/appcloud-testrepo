@@ -23,20 +23,18 @@
     var tls = cloudConfig.registrationEmail.tls.toString();
 
     var body = jagg.module("util").getObjFromFile("/site/conf/emails/password_reset_email_body.txt");
-    var initiatePasswordReset = function(username) {
+
+    var initiatePasswordReset = function(email) {
         try {
-            var user = username;
-            if (username.indexOf("@") > 0) {
-                user = jagg.module("util").getUserNameFromEmail(username);
-            }
-            var key = verifyUser(user);
+            var userName = jagg.module("util").getUserNameFromEmail(email);
+            var key = verifyUser(userName);
             if(key != null){
-                sendRecoveryNotification(user,key);
+                sendRecoveryNotification(userName,key);
             }
-            return username;
+            return userName;
         }catch (e){
-            log.error("Error while initiating password reset for " + username + " : " + e);
-            throw "Error while initiating password reset for " + username + " : " + e;
+            log.error("Error while initiating password reset for " + userName + " : " + e);
+            throw "Error while initiating password reset for " + userName + " : " + e;
         }
     };
 

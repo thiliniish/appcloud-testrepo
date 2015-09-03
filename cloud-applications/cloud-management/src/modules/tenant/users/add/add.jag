@@ -206,11 +206,11 @@ var sendEmail = function(to,link,domain,roles) {
 	log.info("Email successfully sent to " + to);
 }
 
-var sendUserInvite = function sendUserInvite(users,roles){
+var sendUserInvite = function sendUserInvite(emails,roles){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
         var userNames;
-        userNames = getUserNamesFromEmail(users);
+        userNames = jagg.module("util").getUserNamesFromEmails(emails);
         var loggedInUser = jagg.module("util").getDomainLessUserName(String(session.get("LOGGED_IN_USER")));
 
         var isSuccess = "true";
@@ -220,7 +220,7 @@ var sendUserInvite = function sendUserInvite(users,roles){
 
         try {
             for(var i =0; i< userNames.length; i++){
-             sendInvite(users[i],tenantDomain,roles);
+             sendInvite(emails[i],tenantDomain,roles);
              }
             context.startTenantFlow();
             context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
@@ -257,7 +257,7 @@ var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassw
 		session.put("TENANT_DOMAIN", tenantDomain.toString());
 
 
-		var userName = getUserNameFromEmail(email);
+		var userName = jagg.module("util").getUserNameFromEmail(email);
 		isUserExist = tenantMod.isExistingUser(userName);
 		log.info("Adding new user " + userName + " firstName= " + firstName + " lastname = " + lastName);
 
@@ -297,24 +297,7 @@ var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassw
         throw "Error while adding the user to tenant "+e;
     }
 	return roles;
-}
-
-
-var getUserNameFromEmail = function getUserNameFromEmail(user){
-	var userName =  user.replace(/@/g, ".");
-	return userName;
-}
-
-
-var getUserNamesFromEmail = function getUserNamesFromEmail(users){
-	var userNames = [];
-
-	for(var i =0; i< users.length; i++){
-		userNames[i] =  users[i].replace(/@/g, ".");
-	}
-	return userNames;
-}
-
+};
 
 
 var changePassword=function(oldPassword,newPassword){
