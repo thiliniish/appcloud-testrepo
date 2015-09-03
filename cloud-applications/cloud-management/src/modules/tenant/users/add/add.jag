@@ -15,27 +15,8 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 var from = cloudConfig.registrationEmail.from;
 var subject =  cloudConfig.invitationEmail.subject;
-var senderEmail = cloudConfig.registrationEmail.username;
-var senderPort = parseInt(cloudConfig.registrationEmail.port);
-var senderPassword= cloudConfig.registrationEmail.password;
-var senderHost= cloudConfig.registrationEmail.host;
-var tls = cloudConfig.registrationEmail.tls.toString();
 var targetEpr = cloudConfig.registrationEmail.targetEpr.toString();
 
-//var appfactory = require('appFactory');
-//var multitenancy = carbon.multitenancy;
-//var server = require('/modules/server.js');
-
-/*Add user to the tenant domain with a particlualr role*/
-var addRolestoUserinTenantDomain = function addUserToTenantDomain(requestersUsername,username,userRole) {
-
-	/*  var tenantDomain=session.get("APPLICATION_INFO").tenantDomain;
-	 var userManager = server.userManager(server,tenantDomain);
-	var user=userManager.getUser(username);
-	user.addRoles(userRole);
-	*/
-
-};
 var addUserRoles = function addUserRoles(username,userRoles) {
 	//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
 	log.info("addUserRoles "+username);
@@ -54,7 +35,7 @@ var addUserRoles = function addUserRoles(username,userRoles) {
 
 };
 
-var updateUserRoles = function updateUserRoles(userName,addRoles,removeRols) {
+var updateUserRoles = function (userName,addRoles,removeRols) {
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
         var paraAddRoles,paraRemoveRoles;
@@ -85,8 +66,7 @@ var updateUserRoles = function updateUserRoles(userName,addRoles,removeRols) {
     }
 };
 
-
-var deleteUserFromTenant = function deleteUserFromTenant(userName){
+var deleteUserFromTenant = function (userName){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
         userName = jagg.module("util").getUserNameFromEmail(userName);
@@ -111,8 +91,7 @@ var deleteUserFromTenant = function deleteUserFromTenant(userName){
     }
 };
 
-
-var sendInvite = function(email,tenant,roles) {
+var sendInvite = function (email,tenant,roles) {
 	log.info("Sending invitation for invited user "+email);
     var displayName = jagg.module("util").getTenantDisplayName(tenant);
 	var uuid = generateUUId ();
@@ -160,9 +139,9 @@ var sendInvite = function(email,tenant,roles) {
 			} ,0);
 		}
 	return email;
-}
+};
 
-var sendEmail = function(to,link,domain,roles) {
+var sendEmail = function (to,link,domain,roles) {
     var userRoleArray = roles.split(",");
     var displayRoles="";
     for(var i=0;i<userRoleArray.length;i++){
@@ -192,9 +171,9 @@ var sendEmail = function(to,link,domain,roles) {
 	var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
 	jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
 	log.info("Email successfully sent to " + to);
-}
+};
 
-var sendUserInvite = function sendUserInvite(emails,roles){
+var sendUserInvite = function (emails,roles){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
         var userNames;
@@ -227,11 +206,8 @@ var sendUserInvite = function sendUserInvite(emails,roles){
     }
 };
 
-
-
-var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassword, firstName,
+var importInvitedUser = function (confirmationKey, defaultPassword, firstName,
                                                    lastName) {
-
 	try {
 		var tenantMod = jagg.module("tenant");
 		var isUserExist = false;
@@ -247,9 +223,7 @@ var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassw
 
 		var userName = jagg.module("util").getUserNameFromEmail(email);
 		isUserExist = tenantMod.isExistingUser(userName);
-		log.info("Adding new user " + userName + " firstName= " + firstName + " lastname = " + lastName);
 
-		
 		var context=multitenancy.getPrivilegedCarbonContext();
 		var tenantManager= multitenancy.getTenantManager();
 		var assignedRoles;
@@ -259,6 +233,7 @@ var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassw
 		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
 
         if (!isUserExist) {
+            log.info("Adding new user, " + userName + " FirstName : " + firstName + " LastName : " + lastName);
             server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
             jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
         } else{
@@ -281,12 +256,11 @@ var importInvitedUser = function importInvitedUser(confirmationKey, defaultPassw
         parameters =[confirmationKey];
         results = jagg.module("database").executeQuery(deleteString, parameters);
     }catch(e){
-        log.error("Error while adding the user to tenant "+e); 
-        throw "Error while adding the user to tenant "+e;
+        log.error("Error while adding the user to tenant : "+ tenantDomain + ". " + e);
+        throw "Error while adding the user to tenant " + e;
     }
 	return roles;
 };
-
 
 var changePassword=function(oldPassword,newPassword){
 	var username = session.get('LOGGED_IN_USER');
@@ -313,7 +287,8 @@ var changePassword=function(oldPassword,newPassword){
 	}finally{
 		context.endTenantFlow();
 	}
-}
+};
+
 var getBlockedSubscriptions = function(tenantDomain) {
 	var roleList= new Array();
 	//var tenantId = modManager.getTenantId(tenantDomain);
@@ -325,7 +300,7 @@ var getBlockedSubscriptions = function(tenantDomain) {
 	        	roleList.push(results[i]["SUBSCRIPTION"]);
 	        }
 	return roleList;
-}
+};
 
 var generateUUId = function() {
 	log.info("generating the UUID ");
@@ -336,6 +311,6 @@ var generateUUId = function() {
 		return (c=='x' ? r : (r&0x7|0x8)).toString(16);
 	});
 	return uuid;
-}
+};
 
 %>
