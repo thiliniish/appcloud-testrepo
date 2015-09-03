@@ -73,10 +73,15 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         super.doAddUser(doConvert(userName), credential, roleList, claims, profileName, requirePasswordChange);
     }
 
-    //We convert back to email because we use EmailUserNameEnabled=true
+    /**
+     * We convert back to email because we use EmailUserNameEnabled=true, if the email is null we ignore the check
+     * since this check is already performed in AbstractUserStoreManager
+     */
     @Override
     protected void doAddUserValidityChecks(String userName, Object credential) throws UserStoreException {
-        super.doAddUserValidityChecks(doConvertUserNameToEmail(userName), credential);
+        if(doConvertUserNameToEmail(userName) != null){
+            super.doAddUserValidityChecks(doConvertUserNameToEmail(userName), credential);
+        }
     }
 
     @Override
