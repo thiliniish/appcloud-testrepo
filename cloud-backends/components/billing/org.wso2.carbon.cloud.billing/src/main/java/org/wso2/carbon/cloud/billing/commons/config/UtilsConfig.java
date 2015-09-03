@@ -16,25 +16,25 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.common.config;
+package org.wso2.carbon.cloud.billing.commons.config;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Config element that represent the APICloud xml object under Utils
+ * Config element that represent the Utils xml object
  */
-@XmlRootElement(name = "APICloud")
-public class APICloudUtils {
+@XmlRootElement(name = "Utils")
+public class UtilsConfig {
 
-    private String usageDisplayPeriod;
+    private APICloudUtils apiCloud;
 
-    @XmlElement(name = "UsageDisplayPeriod", nillable = false)
-    public String getApiCloud() {
-        return usageDisplayPeriod;
+    @XmlElement(name = "APICloud", nillable = false)
+    public APICloudUtils getApiCloud() {
+        return apiCloud;
     }
 
-    public void setApiCloud(String usageDisplayPeriod) {
-        this.usageDisplayPeriod = usageDisplayPeriod;
+    public void setApiCloud(APICloudUtils apiCloud) {
+        this.apiCloud = apiCloud;
     }
 }

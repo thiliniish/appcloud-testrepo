@@ -17,10 +17,10 @@ package org.wso2.carbon.cloud.billing.usage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.billing.beans.AccountUsage;
-import org.wso2.carbon.cloud.billing.beans.Usage;
-import org.wso2.carbon.cloud.billing.common.BillingConstants;
-import org.wso2.carbon.cloud.billing.common.CloudBillingException;
+import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
+import org.wso2.carbon.cloud.billing.beans.usage.Usage;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.util.UsageCSVParser;

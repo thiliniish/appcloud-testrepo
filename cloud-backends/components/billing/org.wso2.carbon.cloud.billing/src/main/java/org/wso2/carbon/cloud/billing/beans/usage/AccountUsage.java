@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.beans;
+package org.wso2.carbon.cloud.billing.beans.usage;
 
 /**
  * Bean that represent the account usage for a tenant

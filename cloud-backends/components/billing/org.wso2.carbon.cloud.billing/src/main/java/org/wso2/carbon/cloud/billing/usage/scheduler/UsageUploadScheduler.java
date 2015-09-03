@@ -17,7 +17,7 @@ package org.wso2.carbon.cloud.billing.usage.scheduler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.billing.common.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.ntask.common.TaskException;

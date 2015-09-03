@@ -13,25 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.common;
 
-public class CloudBillingException extends Exception {
+package org.wso2.carbon.cloud.billing.commons.config;
 
-    private static final long serialVersionUID = 154545457898L;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-    public CloudBillingException() {
+/**
+ * Subscription specific rate plan holding element
+ */
+@XmlRootElement(name = "Subscription")
+public class Subscription {
+
+    //id uniquely identifies subscriptions ex: api_cloud, app_cloud
+    @XmlAttribute(name = "id")
+    private String id;
+
+    @XmlElement(name = "Plan")
+    private Plan[] plans;
+
+    public String getId() {
+        return id;
     }
 
-    public CloudBillingException(String s) {
-        super(s);
+    public Plan[] getPlans() {
+        return plans;
     }
-
-    public CloudBillingException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
-
-    public CloudBillingException(Throwable throwable) {
-        super(throwable);
-    }
-
 }

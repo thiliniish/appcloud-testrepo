@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.billing.common.config;
+package org.wso2.carbon.cloud.billing.commons.config;
+
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingConfigurationException;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -45,7 +47,7 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
         } /*else {
             //APPCloud specific
         }*/ else {
-            throw new Exception("Error in configuration");
+            throw new CloudBillingConfigurationException("Error in configuration");
         }
     }
 

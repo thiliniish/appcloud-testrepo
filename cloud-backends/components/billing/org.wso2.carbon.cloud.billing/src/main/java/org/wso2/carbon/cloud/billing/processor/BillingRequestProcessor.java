@@ -17,7 +17,7 @@ package org.wso2.carbon.cloud.billing.processor;
 
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.wso2.carbon.cloud.billing.common.CloudBillingException;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
 /**
  * Represents the API invocation methods which are needed for cloud billing

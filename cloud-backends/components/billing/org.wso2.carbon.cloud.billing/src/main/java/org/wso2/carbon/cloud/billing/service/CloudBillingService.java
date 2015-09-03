@@ -18,11 +18,11 @@ package org.wso2.carbon.cloud.billing.service;
 
 
 import org.json.simple.JSONArray;
-import org.wso2.carbon.cloud.billing.beans.AccountUsage;
-import org.wso2.carbon.cloud.billing.common.CloudBillingException;
-import org.wso2.carbon.cloud.billing.common.config.Plan;
-import org.wso2.carbon.cloud.billing.common.zuora.ZuoraUtils;
-import org.wso2.carbon.cloud.billing.common.zuora.security.ZuoraHPMUtils;
+import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.commons.config.Plan;
+import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraUtils;
+import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.usage.CloudUsageManager;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.core.AbstractAdmin;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.common;
+package org.wso2.carbon.cloud.billing.commons;
 
 public final class BillingConstants {
 
