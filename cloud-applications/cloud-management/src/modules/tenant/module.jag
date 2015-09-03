@@ -42,17 +42,17 @@ jagg.module("tenant", {
 	},
 	registerOrg:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").registerOrg.apply(this, arguments);
-	},generateCaptchaFromCloud:function () {
-		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").generateCaptchaFromCloud.apply(this, arguments);
-	},sendInvite:function () {
+	},
+    sendInvite:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").sendInvite.apply(this, arguments);
-	},confirmUser:function () {
+	},
+    confirmUser:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").confirmUser.apply(this, arguments);
-	},isExistingUser:function () {
-		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").isExistingUser.apply(this, arguments);
-	},getApplicatioinKeysOfUser:function () {
+	},
+    getApplicatioinKeysOfUser:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getApplicatioinKeysOfUser.apply(this, arguments);
-	},getOrganizations:function () {
+	},
+    getOrganizations:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/manage/manage.jag").getOrganizations.apply(this, arguments);
 	},
 	getBlockedSubscriptions:function () {
