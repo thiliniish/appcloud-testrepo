@@ -28,6 +28,7 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 
 import javax.naming.directory.BasicAttributes;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -183,7 +184,6 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
     @Override
     public boolean doCheckExistingUser(String userName) throws UserStoreException {
-
         return super.doCheckExistingUser(doConvert(userName));
     }
 
@@ -200,14 +200,23 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
     @Override
     protected String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
-
         return super.doGetExternalRoleListOfUser(doConvert(userName), filter);
+    }
+
+    @Override
+    protected String[] doGetInternalRoleListOfUser(String userName, String filter) throws UserStoreException {
+        return super.doGetInternalRoleListOfUser(doConvert(userName), filter);
     }
 
     @Override
     protected String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
             throws UserStoreException {
         return super.doGetSharedRoleListOfUser(doConvert(userName), tenantDomain, filter);
+    }
+
+    @Override
+    public Date getPasswordExpirationTime(String username) throws UserStoreException {
+        return super.getPasswordExpirationTime(doConvert(username));
     }
 
     @Override
@@ -218,7 +227,6 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     @Override
     protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter)
             throws UserStoreException {
-
         return super.getNameInSpaceForUserName(doConvert(userName), searchBase, searchFilter);
     }
 
