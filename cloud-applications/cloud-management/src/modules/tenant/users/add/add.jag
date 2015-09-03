@@ -54,18 +54,6 @@ var addUserRoles = function addUserRoles(username,userRoles) {
 
 };
 
-var getTenantDisplayName = function getTenantDisplayName(tenantKey) {
-	var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-    var parameters =[tenantKey];
-    var results = jagg.module("database").executeQuery(queryString, parameters);
-
-	var displayName = results[0]["displayName"];
-	log.info("displayName "+displayName);
-
-	return displayName;
-
-};
-
 var updateUserRoles = function updateUserRoles(userName,addRoles,removeRols) {
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
@@ -126,7 +114,7 @@ var deleteUserFromTenant = function deleteUserFromTenant(userName){
 
 var sendInvite = function(email,tenant,roles) {
 	log.info("Sending invitation for invited user "+email);
-    var displayName = getTenantDisplayName(tenant);
+    var displayName = jagg.module("util").getTenantDisplayName(tenant);
 	var uuid = generateUUId ();
 	log.info("uuid "+uuid);
 	log.info("Adding temp registration for user");

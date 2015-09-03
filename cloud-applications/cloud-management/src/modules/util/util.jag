@@ -19,7 +19,7 @@ var getUserNameFromEmail = function (email){
     }else {
         return email.replace(/@/g, ".");
     }
-}
+};
 
 var getUserNamesFromEmails = function (emails){
     var userNames = [];
@@ -27,6 +27,16 @@ var getUserNamesFromEmails = function (emails){
         userNames[i] =  getUserNameFromEmail(emails[i]);
     }
     return userNames;
+};
+
+var getTenantDisplayName = function (tenantDomain) {
+    var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
+    var parameters =[tenantDomain];
+    var results = jagg.module("database").executeQuery(queryString, parameters);
+
+    var displayName = results[0]["displayName"];
+    return displayName;
+
 };
 
 var isUserInAdminRole = function () {

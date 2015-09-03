@@ -72,13 +72,8 @@ include("/modules/database/sql.jag");
                 }
             }
             if (session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME") == null) {
-                var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-                var parameters = [tenantDomain];
-                var results = jagg.module("database").executeQuery(queryString, parameters);
-                if (results.length >= 1) {
-                    tenantDisplayName = results[0]["displayName"];
-                    session.put("LOGGED_IN_USER_TENANT_DISPLAY_NAME", tenantDisplayName);
-                }
+                tenantDisplayName = jagg.module("util").getTenantDisplayName(tenantDomain);
+                session.put("LOGGED_IN_USER_TENANT_DISPLAY_NAME", tenantDisplayName);
             }
             var tenantManager = multitenancy.getTenantManager();
             var context = multitenancy.getPrivilegedCarbonContext();
