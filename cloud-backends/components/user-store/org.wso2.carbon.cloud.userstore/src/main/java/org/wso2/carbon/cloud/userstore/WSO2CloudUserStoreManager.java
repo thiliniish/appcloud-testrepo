@@ -73,9 +73,10 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         super.doAddUser(doConvert(userName), credential, roleList, claims, profileName, requirePasswordChange);
     }
 
+    //We convert back to email because we use EmailUserNameEnabled=true
     @Override
     protected void doAddUserValidityChecks(String userName, Object credential) throws UserStoreException {
-        super.doAddUserValidityChecks(doConvert(userName), credential);
+        super.doAddUserValidityChecks(doConvertUserNameToEmail(userName), credential);
     }
 
     @Override
@@ -294,6 +295,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         if (userName.contains("@")) {
             int index = userName.indexOf("@");
             convertedUser.setCharAt(index, '.');
+            cloudUserEmailCache.addToCache(convertedUser.toString(), userName);
         }
         return convertedUser.toString();
     }
