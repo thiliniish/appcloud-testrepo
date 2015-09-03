@@ -17,6 +17,7 @@ package org.wso2.carbon.cloud.billing.common.config;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.File;
 
 /**
  * Config element that represent the SSORelyingParty xml object
@@ -33,7 +34,7 @@ public class SSOConfig {
     }
 
     public void setKeyStorePath(String keyStorePath) {
-        this.keyStorePath = keyStorePath;
+        this.keyStorePath = new File(System.getProperty("basedir", ".")).getAbsolutePath() + File.separator + keyStorePath;
     }
 
     @XmlElement(name = "TrustStorePassword")

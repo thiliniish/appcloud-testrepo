@@ -140,7 +140,7 @@
         </SubscriptionCleanUp>
     </Zoura>
     <SSORelyingParty>
-        <KeyStorePath>KEYSTORE_PATH</KeyStorePath>
+        <KeyStorePath>repository/resources/security/client-truststore.jks</KeyStorePath>
         <TrustStorePassword>wso2carbon</TrustStorePassword>
     </SSORelyingParty>
     <Utils>
