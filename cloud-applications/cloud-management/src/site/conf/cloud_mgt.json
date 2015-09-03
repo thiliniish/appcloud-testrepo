@@ -1,4 +1,5 @@
 {
+  "isEmailUserNameEnabled" : "true",
   "subscriptions": {
     "type": [
       {

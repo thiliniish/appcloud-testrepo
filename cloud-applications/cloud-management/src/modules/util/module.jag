@@ -3,6 +3,9 @@ jagg.module("util", {
     getUserNameFromEmail: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserNameFromEmail.apply(this, arguments);
     },
+    getUserNamesFromEmails: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserNamesFromEmails.apply(this, arguments);
+    },
     getDomainLessUserName: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getDomainLessUserName.apply(this, arguments);
     },

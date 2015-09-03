@@ -11,9 +11,23 @@ var multitenancy = carbon.multitenancy;
 
 var userName =  session.get("LOGGED_IN_USER");
 
-function getUserNameFromEmail(email){
-	return email.replace(/@/g, ".");
+var getUserNameFromEmail = function (email){
+    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var isEmailUserNameEnabled = Boolean(cloudConfig.isEmailUserNameEnabled);
+    if(isEmailUserNameEnabled){
+        return email;
+    }else {
+        return email.replace(/@/g, ".");
+    }
 }
+
+var getUserNamesFromEmails = function (emails){
+    var userNames = [];
+    for(var i =0; i< emails.length; i++){
+        userNames[i] =  getUserNameFromEmail(emails[i]);
+    }
+    return userNames;
+};
 
 var isUserInAdminRole = function () {
 
