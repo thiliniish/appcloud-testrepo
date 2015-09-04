@@ -82,9 +82,9 @@ include("/modules/database/sql.jag");
             var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
             var email = tenantMgtService.getUserEmail(tenantLessUserName);
             session.put("LOGGED_IN_USER_EMAIL", email);
-            session.put("TENANT_DOMAIN", tenantDomain);
+            session.put("LOGGED_IN_USER_TENANT_DOMAIN", tenantDomain);
 
-            log.info("TENANT_DOMAIN : " + session.get("TENANT_DOMAIN"));
+            log.info("LOGGED_IN_USER_TENANT_DOMAIN : " + session.get("LOGGED_IN_USER_TENANT_DOMAIN"));
             log.info("LOGGED_IN_USER : " + session.get("LOGGED_IN_USER"));
             log.info("LOGGED_IN_USER_EMAIL : " + session.get("LOGGED_IN_USER_EMAIL"));
             log.info("LOGGED_IN_USER_TENANT_DISPLAY_NAME : " + session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME"));
