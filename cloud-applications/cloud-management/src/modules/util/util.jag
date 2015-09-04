@@ -631,11 +631,16 @@ var getUserActivityStreamId = function(){
 };
 
 var getDomainFromUsername = function(userName){
-	if(userName.lastIndexOf('@') > 0) {
-		return userName.substring((userName.lastIndexOf('@') + 1), userName.length);
-	} else{
-		return null;
-	}
+	if(isEmailUserNameEnabled()){
+        if(userName.split("@").length > 2){
+            return userName.substring((userName.lastIndexOf('@') + 1), userName.length);    //sumedhas@wso2.com@wso2cloud
+        }
+    }else{
+        if(userName.lastIndexOf('@') > 0) {
+            return userName.substring((userName.lastIndexOf('@') + 1), userName.length);    //sumedhas.wso2.com@wso2cloud
+        }
+    }
+	return null;
 };
 
 var getUserRoleDisplayName = function(userRoleKey){
