@@ -5,8 +5,11 @@ include("/modules/database/dataaccess.jag");
 
 // used for logging
 var log = new Log("modules/manager/manager.jag");
+
+//To access carbon functionality
 var carbon = require('carbon');
 var server = carbon.server;
+var multitenancy = carbon.multitenancy;
 
 var clock = new Date();
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
@@ -20,6 +23,136 @@ var SSO_KEYSTORE_NAME =  cloudConfig.SSORelyingParty.keyStoreName;
 var COOKIE_REFRESH_INTERVAL =  cloudConfig.SSORelyingParty.cookieRefreshInterval;
 var CLOUDMGT_SERVICES = cloudConfig.ServerUrls.cloudmgtServices.toString();
 var cookieRefreshInterval = COOKIE_REFRESH_INTERVAL;
+
+/**
+ * Returns boolean value of isEmailUserNameEnabled
+ * @return boolean isEmailUserNameEnabled
+ */
+var isEmailUserNameEnabled = function(){
+    if(application.get("isEmailUserNameEnabled") != null){
+        return Boolean(application.get("isEmailUserNameEnabled"));
+    }
+    application.put("isEmailUserNameEnabled",cloudConfig.isEmailUserNameEnabled);
+    return Boolean(application.get("isEmailUserNameEnabled"));
+};
+
+/**
+ * Returns the userName from the given email
+ * @param email
+ * @return String userName
+ */
+var getUserNameFromEmail = function (email){
+    if(isEmailUserNameEnabled()){
+        return email;
+    }else {
+        return email.replace(/@/g, ".");
+    }
+};
+
+/**
+ * Returns the userNames from the given emails
+ * @param emails
+ * @return Array userNames
+ */
+var getUserNamesFromEmails = function (emails){
+    var userNames = [];
+    for(var i =0; i< emails.length; i++){
+        userNames[i] =  getUserNameFromEmail(emails[i]);
+    }
+    return userNames;
+};
+
+/**
+ * Returns the Tenant Aware Use rName from the given userName (i.e. domain less user name)
+ * @param userName
+ * @return String tenantAwareUsername
+ */
+var getTenantAwareUsername = function(userName){
+    if(userName.indexOf("@") != -1 && !isEmailUserNameEnabled()) {
+        userName = userName.substring(0, userName.lastIndexOf("@"));
+    } else if(isEmailUserNameEnabled() && userName.indexOf("@") != userName.lastIndexOf("@")) {
+        userName = userName.substring(0, userName.lastIndexOf(64));
+    }
+    return userName;
+};
+
+/**
+ * Returns the email of the given user
+ * @param userName
+ * @return String email
+ */
+var getEmailOfUser = function (userName) {
+    var tenantAwareUserName = getTenantAwareUsername(userName);
+    var context;
+    if(isEmailUserNameEnabled()){
+        return tenantAwareUserName;
+    }else {
+        try{
+            var tenantDomain = getTenantDomain(userName);
+            var tenantManager = multitenancy.getTenantManager();
+            context = multitenancy.getPrivilegedCarbonContext();
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            var userManagementService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+            return userManagementService.getUserEmail(tenantAwareUserName);
+        } catch (e) {
+            log.error("Error while getting email of user :  " + userName + "\n" + e.message);
+            throw "Error while getting email of user :  " + userName
+        }finally{
+            context.endTenantFlow();
+        }
+    }
+};
+
+/**
+ * Returns the Tenant Domain of the given user
+ * @param userName
+ * @return String tenantDomain
+ */
+var getTenantDomain = function(){
+    var userName = jagg.getUser();
+    var tenantDomain = "carbon.super";
+    if(userName != null) {
+        if(userName.indexOf("@") != -1 && !isEmailUserNameEnabled()) {
+            tenantDomain = userName.substring(userName.lastIndexOf("@") + 1);
+        } else if(isEmailUserNameEnabled() && userName.indexOf("@") != userName.lastIndexOf("@")) {
+            tenantDomain = userName.substring(userName.lastIndexOf("@") + 1);
+        }
+    }
+
+    if(tenantDomain == null || tenantDomain == "") {
+        tenantDomain = "carbon.super";
+    }
+    return tenantDomain;
+};
+
+/**
+ * Returns the Tenant Display name of the given Tenant
+ * @param tenantDomain
+ * @return String tenantDisplayName
+ */
+var getTenantDisplayName = function (tenantDomain) {
+    log.info("######  From Session" + session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME"));
+    if (session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME") != null) {
+        log.info("######  From Session" + session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME"));
+        return session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME");
+    }else{
+        var displayName = jagg.module("util").getTenantDisplayName(tenantDomain);
+        session.put("LOGGED_IN_USER_TENANT_DISPLAY_NAME", displayName);
+        return session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME");
+    }
+};
+
+/**
+ * Returns tenantId from tenantDomain by using carbon TenantManager.
+ * @param tenantDomain
+ * @return  tenantId
+ */
+var getTenantId = function (tenantDomain) {
+    var tenantManager = multitenancy.getTenantManager();
+    return tenantManager.getTenantId(tenantDomain);
+};
 
 var getAdminCookie = function (serverUrl) {
 	var timeNow = clock.getTime();
@@ -311,95 +444,5 @@ var getBackendCookie = function () {
 	} 
    	return session.get(APPFAC_BACKEND_COOKIE);   
 }
-
-/*
- *   getTenantDomain is used to logged user's domain name.
- */
-var getTenantDomain = function() {
-
-	if(session.get(TENANT_DOMAIN_NAME) == null){
-	    var username=jagg.getUser();
-		var tenantDomain = SUPER_TENANT_DOMAIN_NAME;
-
-        if (username != null) {
-            if(username.indexOf("@")!=-1){
-                tenantDomain = username.substring(username.lastIndexOf('@')+1);
-            }
-        }
-		session.put(TENANT_DOMAIN_NAME, tenantDomain.toString().toLowerCase());
-	}
-       return session.get(TENANT_DOMAIN_NAME);
-}
-var getTenantAwareUsername = function(username) {
-         var tenantAwareUsername='null';
-                if (username.indexOf("@")!=-1) {
-                    tenantAwareUsername= username.substring(0,username.lastIndexOf('@'));
-                } else {        // else assume super tenant
-                    tenantAwareUsername = SUPER_TENANT_DOMAIN_NAME;
-                }
-        return tenantAwareUsername;
-} ;
-
-/*
- *   getDomainlessUserName is used to get the user name without the domain name.
- */
-var getDomainlessUserName = function (username) {
-    var seperator = "@";
-    var strippedUserName = "";
-    var index = userName.lastIndexOf(seperator);
-    if (index == -1)
-        strippedUserName = userName;
-    else
-        strippedUserName = userName.substring(0, index);
-
-    return strippedUserName;
-};
-
-
-/**
- * Resolve tenantId from tenantDomain by using carbon TenantManager.
- * @param tenantDomain
- * @return {*}
- */
-var getTenantId = function (tenantDomain) {
-    var carbon = require('carbon');
-    var tenantManager = carbon.multitenancy.getTenantManager();
-    return tenantManager.getTenantId(tenantDomain);
-};
-
-var getOrganizationDisplayName = function (tenantDomain){
-     var queryString  = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-     var parameters =[tenantDomain];
-     var results = jagg.module("database").executeQuery(queryString, parameters);
-    if(results !=null){
-        return results[0]["displayName"];
-    }else{
-        return null;
-    }
-};
-
-var getOTtenantProperty=function(){
-    var tenantDomain=getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
-    var tenantId=tenantManager.getTenantId(tenantDomain);
-    var index=-1;
-    try{
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantId);
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var tenant=tenantManager.getTenant(tenantId);
-        var realm = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
-        var properties=realm.getRealmConfiguration().getUserStoreProperties();
-        var sProp=properties.toString();
-        var propString ="OTTenant=true";
-        index=sProp.indexOf(propString);
-
-    }finally{
-        context.endTenantFlow();
-    }
-     return index>0;;
-}
-
 
 %>

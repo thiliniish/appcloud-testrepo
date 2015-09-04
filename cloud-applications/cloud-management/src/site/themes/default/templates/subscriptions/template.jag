@@ -19,7 +19,7 @@ if (userName != null) {
 	}
 
 	var types = cloudConfig.subscriptions.type;
-	var domainName = userName.substring(userName.lastIndexOf('@') + 1);
+	var domainName = jagg.module("manager").getTenantDomain(userName);
 	var subscriptionInfo = {
 	};
 	for (var i = 0; i < types.length; i++) {

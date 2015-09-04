@@ -26,7 +26,7 @@
 
     var initiatePasswordReset = function(email) {
         try {
-            var userName = jagg.module("util").getUserNameFromEmail(email);
+            var userName = modManager.getUserNameFromEmail(email);
             var key = verifyUser(userName);
             if(key != null){
                 sendRecoveryNotification(userName,key);

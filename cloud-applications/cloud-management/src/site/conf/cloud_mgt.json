@@ -1,5 +1,5 @@
 {
-  "isEmailUserNameEnabled" : "true",
+  "isEmailUserNameEnabled" : false,
   "subscriptions": {
     "type": [
       {

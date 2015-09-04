@@ -21,7 +21,7 @@ var eulaContent =  eulaDoc.EULA.text();
 
 var confirmationKey = session.get("registration-intermediate-data");
 var email = session.get("registration-email");
-var userName = jagg.module("util").getUserNameFromEmail(email);
+var userName = jagg.module("manager").getUserNameFromEmail(email);
 var isInvitee = session.get("isInvitee");
 var isUserAvail = session.get("isUserAvail");
 %>

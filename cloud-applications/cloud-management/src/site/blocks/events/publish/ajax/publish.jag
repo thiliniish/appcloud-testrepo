@@ -15,7 +15,7 @@ include("/jagg/config_reader.jag");
        if(cloudConfig.userActivityMonitor.enable == "true"){
              if (action == "userActivity") {
                  var events = request.getParameter("events");
-                 var domainName = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
+                 var domainName = session.get("TENANT_INFO").tenantDomain;
                  var parseJSON = JSON.parse(events);
                  mod.publishUserActivity(parseJSON, session.get("LOGGED_IN_USER_EMAIL"), domainName);
              } else {

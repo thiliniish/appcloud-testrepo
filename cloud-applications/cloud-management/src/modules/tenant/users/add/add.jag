@@ -69,7 +69,7 @@ var updateUserRoles = function (userName,addRoles,removeRols) {
 var deleteUserFromTenant = function (userName){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
-        userName = jagg.module("util").getUserNameFromEmail(userName);
+        userName = modManager.getUserNameFromEmail(userName);
         var isSuccess = "false";
         var context=multitenancy.getPrivilegedCarbonContext();
         var tenantManager= multitenancy.getTenantManager();
@@ -93,7 +93,7 @@ var deleteUserFromTenant = function (userName){
 
 var sendInvite = function (email,tenant,roles) {
 	log.info("Sending invitation for invited user "+email);
-    var displayName = jagg.module("util").getTenantDisplayName(tenant);
+    var displayName = modManager.getTenantDisplayName(tenant);
 	var uuid = generateUUId ();
 	log.info("uuid "+uuid);
 	log.info("Adding temp registration for user");
@@ -177,7 +177,7 @@ var sendUserInvite = function (emails,roles){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
         var userNames;
-        userNames = jagg.module("util").getUserNamesFromEmails(emails);
+        userNames = modManager.getUserNamesFromEmails(emails);
         var isSuccess = "true";
 
         try {
@@ -210,7 +210,7 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName,
 		session.put("TENANT_DOMAIN", tenantDomain.toString());
 
 
-		var userName = jagg.module("util").getUserNameFromEmail(email);
+		var userName = modManager.getUserNameFromEmail(email);
 		isUserExist = tenantMod.isExistingUser(userName);
 
 		var context=multitenancy.getPrivilegedCarbonContext();
@@ -252,9 +252,9 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName,
 };
 
 var changePassword=function(oldPassword,newPassword){
-	var username = session.get('LOGGED_IN_USER');
+	var userName = session.get('LOGGED_IN_USER');
 	var userEmail = session.get("LOGGED_IN_USER_EMAIL");
-	var user = username.substring(0,userName.lastIndexOf('@'));
+	var tenantAwareUserName = modManager.getTenantAwareUsername(userName);
 	var tenantDomain=modManager.getTenantDomain();
 	var context=multitenancy.getPrivilegedCarbonContext();
 	var tenantManager = multitenancy.getTenantManager();
@@ -265,8 +265,8 @@ var changePassword=function(oldPassword,newPassword){
 		var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
 		var realm = realmService.getTenantUserRealm(tenantId);
 		var userStoreManager=realm.getUserStoreManager();
-		var result=userStoreManager.updateCredential(user,newPassword,oldPassword);
-		var claimValue=userStoreManager.setUserClaimValue(user,"http://wso2.org/claims/firstlogin","false",null);
+		var result=userStoreManager.updateCredential(tenantAwareUserName,newPassword,oldPassword);
+		var claimValue=userStoreManager.setUserClaimValue(tenantAwareUserName,"http://wso2.org/claims/firstlogin","false",null);
 
         jagg.module("util").changeOTUserPass(userEmail,newPassword);
 

@@ -1,16 +1,7 @@
 <%
 jagg.module("util", {
-    getUserNameFromEmail: function () {
-        return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserNameFromEmail.apply(this, arguments);
-    },
-    getUserNamesFromEmails: function () {
-        return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserNamesFromEmails.apply(this, arguments);
-    },
     getTenantDisplayName: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getTenantDisplayName.apply(this, arguments);
-    },
-    getDomainLessUserName: function () {
-        return jagg.require(jagg.getModulesDir() + "util/util.jag").getDomainLessUserName.apply(this, arguments);
     },
     escapeSpecialChars: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").escapeSpecialChars.apply(this, arguments);

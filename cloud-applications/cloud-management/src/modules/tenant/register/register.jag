@@ -48,7 +48,7 @@ var confirmUser = function(confirm,isInvitee,isStoreInvitee) {
         var results = jagg.module("database").executeQuery(queryString, parameters);
         if(results.length >= 1){
             var email =   results[0]["email"];
-            var userName =  jagg.module("util").getUserNameFromEmail(email);
+            var userName =  modManager.getUserNameFromEmail(email);
             var isUserAvail = isExistingUser(userName);
             if((isUserAvail && isStoreInvitee) || (isUserAvail && isUserInvitee)){
                 var tenantMod = jagg.module("tenant");
@@ -96,10 +96,10 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     var adminUserName;
     if(confirmationKey != null){
         email = getConfirmationEmail(confirmationKey);
-        adminUserName = jagg.module("util").getUserNameFromEmail(email.toString());
+        adminUserName = modManager.getUserNameFromEmail(email.toString());
     } else {
         var fullUserName = String(session.get("LOGGED_IN_USER"));
-        adminUserName = jagg.module("util").getDomainLessUserName(fullUserName);
+        adminUserName = modManager.getTenantAwareUsername(fullUserName);
         var tmpUser = jagg.module("tenant").getUserInfo(adminUserName);
         firstName = tmpUser.firstName;
         lastName = tmpUser.lastName;
@@ -213,7 +213,7 @@ var isExistingUser = function( userName ) {
         	 	throw "Invalid Email Address "+userName;
         	 }
             log.info("Checking user existence for: " + userName);
-            user = jagg.module("util").getUserNameFromEmail(userName);
+            user = modManager.getUserNameFromEmail(userName);
         }
         isExist = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').isExistingUser(user);
     } catch (e) {
