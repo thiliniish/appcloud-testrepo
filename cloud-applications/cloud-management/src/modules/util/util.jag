@@ -20,8 +20,12 @@ var getUserNameFromEmail = function (email){
 };
 
 var isEmailUserNameEnabled = function(){
+    if(application.get("isEmailUserNameEnabled") != null){
+        return Boolean(application.get("isEmailUserNameEnabled"));
+    }
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    return Boolean(cloudConfig.isEmailUserNameEnabled);
+    application.put("isEmailUserNameEnabled",cloudConfig.isEmailUserNameEnabled);
+    return Boolean(application.get("isEmailUserNameEnabled"));
 };
 
 var getUserNamesFromEmails = function (emails){
