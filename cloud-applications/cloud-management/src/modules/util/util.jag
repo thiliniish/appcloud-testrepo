@@ -377,11 +377,19 @@ var getInviteeDirectUrl = function(userRoles) {
 
 
 function getDomainLessUserName(userName){
-	if(userName.lastIndexOf('@') > 0) {
-		return userName.substring(0, userName.lastIndexOf('@'));
-	} else{
-		return userName;
-	}
+    if(isEmailUserNameEnabled()){
+        if(userName.split("@").length > 2){
+            return userName.substring(0, userName.lastIndexOf('@'));    //sumedhas@wso2.com@wso2cloud
+        } else{
+            return userName;                                            //sumedhas@wso2.com
+        }
+    }else{
+        if(userName.lastIndexOf('@') > 0) {
+            return userName.substring(0, userName.lastIndexOf('@'));    //sumedhas.wso2.com@wso2cloud
+        } else{
+            return userName;                                            //sumedhas.wso2.com
+        }
+    }
 };
 
 function addUserToOT (email, pass, firstName, lastName) {
