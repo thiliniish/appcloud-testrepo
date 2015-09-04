@@ -1,6 +1,7 @@
 <% jagg.template("contact", function(inputs, outputs, jagg) { %>
 <%
  var userName =  session.get("LOGGED_IN_USER");
+ var email =  session.get("LOGGED_IN_USER_EMAIL");
 var log = new Log();
 session.put("wso2carbon.admin.logged.in", userName);
 
@@ -136,30 +137,9 @@ section.start_content div.subs-cont{
                  }); $('#userForm').hide();
         }
     } 
- 
- 
-  function getEmailAddress() {
-            jagg.post("../blocks/contact/ajax/contact.jag", {
-            		action:"getEmailForUser"
-              },
-              function (result) {
-            		showEmail(result);
-              },
-              function (jqXHR, textStatus, errorThrown) {
-                  jagg.message({content:'Error getting the email address',type:'info', cbk:function(){
-            		window.location.href = "#";
-                  	}
-                  });
-        });
-    }
-
-    function showEmail(emailVal) {
-        document.getElementById("from").value = emailVal.trim();
-    }
 
     $(document).ready(function($){
         initializeUserActivity("Contact-Us Page");
-        getEmailAddress();
         jQuery.validator.setDefaults({
                 errorElement:'span'
             });
@@ -215,7 +195,7 @@ section.start_content div.subs-cont{
           <div class="form-group">
             <label for="from" class="col-sm-2 control-label">From</label>
             <div class="col-sm-8">
-              <input type="text" id="from" name="from" readonly size="50" style="width:60%" />
+              <input type="text" id="from" name="from" readonly size="50" style="width:60%" value="<%=email%>" />
             </div>
           </div>
 
