@@ -50,7 +50,7 @@
                             });
 
                    } else if(result.trim()=="resourcePending"){
-                        jagg.message({content:'Some configuration files needed for the feature have not been created. Please go to the api cloud and try this again.',type:'success',cbk:function(){
+                        jagg.message({content:'Some configuration files needed for the feature have not been created. Please go to the API cloud and try this again.',type:'success',cbk:function(){
                           window.location.href=storeUrl;
                           }
                         });

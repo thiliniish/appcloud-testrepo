@@ -3,11 +3,10 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 (function () {
-    var mod, obj;
     var statusMessage = "error";
-    action = request.getParameter("action");
-    userName = request.getParameter("userName"),
-            site = require("/site/conf/site.json");
+    var action = request.getParameter("action");
+    var userName = request.getParameter("userName"),
+    var site = require("/site/conf/site.json");
     var log = new Log("site/blocks/selfSignup/ajax/configure.jag");
 
     if (action == "checkSignUpConfiguredForUser") {
@@ -50,7 +49,7 @@ include("/jagg/config_reader.jag");
                 statusMessage = "uploadCompleted"
             }
             catch (e) {
-                log.error("Error while sending the email to the cloud team regarding the enabling of the self sign up feature for the tenant " + tenantEmail + "\n" + e.message);
+                log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail + "\n" + e.message);
                 throw Error(e);
             }
         }
