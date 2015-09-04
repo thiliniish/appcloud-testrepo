@@ -178,25 +178,14 @@ var sendUserInvite = function (emails,roles){
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
         var userNames;
         userNames = jagg.module("util").getUserNamesFromEmails(emails);
-        var loggedInUser = jagg.module("util").getDomainLessUserName(String(session.get("LOGGED_IN_USER")));
-
         var isSuccess = "true";
-
-        var context=multitenancy.getPrivilegedCarbonContext();
-        var tenantManager= multitenancy.getTenantManager();
 
         try {
             for(var i =0; i< userNames.length; i++){
-             sendInvite(emails[i],tenantDomain,roles);
-             }
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+				sendInvite(emails[i],tenantDomain,roles);
+			}
         }catch (e){
             log.error(e);
-
-        }finally{
-            context.endTenantFlow();
         }
         return isSuccess;
     }else{
