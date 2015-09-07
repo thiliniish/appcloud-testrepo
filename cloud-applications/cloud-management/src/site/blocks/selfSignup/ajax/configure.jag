@@ -3,86 +3,68 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 (function () {
-    var mod, obj, result,
-    action = request.getParameter("action");
-    userName = request.getParameter("userName"),
-    site = require("/site/conf/site.json");
+    var statusMessage = "error";
+    var action = request.getParameter("action");
+    var userName = request.getParameter("userName");
+    var site = require("/site/conf/site.json");
     var log = new Log("site/blocks/selfSignup/ajax/configure.jag");
 
     if (action == "checkSignUpConfiguredForUser") {
 
-        var carbon = require('carbon');
-        var server = carbon.server;
-        var tenantDomain=(userName.split("@"))[1];
 
-        try {
-            var regPath = "/_system/governance/apimgt/applicationdata/sign-up-config.xml";
-            var response = jagg.module("registry").getResourceFromTenantSpace(regPath,tenantDomain,userName);
-            if(response!="error" && response!="resourcePending") {
-                response.contentType = "text/xml";
-                var configContent = (response.content).toString();
-                var selfSignUp = new XML(configContent);
-                result = selfSignUp.EnableSignup.toString();
-            }
-            else if(response=="resourcePending")
-            {
-                result="resourcePending";
-            }
-            else
-            {
-                result="error";
-            }
+        var isSignUpConfigured = jagg.module("registry").checkSignupConfiguredInRegistry(userName);
 
-
-        } catch (e) {
-            log.error("Error while loading the registry file for the tenant "+userName+ "\n" + e.message);
-            throw Error(e);
+        if (isSignUpConfigured == true || isSignUpConfigured.trim() == "true") {
+            statusMessage = "configured";
 
         }
+        else if (isSignUpConfigured == false || isSignUpConfigured.trim() == "false") {
+            log.debug("Since the sign up is not configured, adding the files to the BPS Server for the user " + userName);
+            var tenantEmail;
+            try {
+                var carbon = require('carbon');
+                var server = carbon.server;
+                var utilModule = jagg.module("util");
+                var cloudConfig = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+                var BPSURL = cloudConfig.ServerUrls.bps.toString();
+                var cookie = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
 
-    }
+                //calling the service to upload the files to the BPS server
+                result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUplader.BPSFileUploader').bpsFileUploader(userName, cookie);
 
-    else if (action == "uploadBpsFiles") {
-        log.debug("Since the sign up is not configured, adding the files to the BPS Server for the user "+userName);
-        var tenantEmail;
-        try {
-            var carbon = require('carbon');
-            var server = carbon.server;
-            var utilModule=jagg.module("util");
-            var cloudConfig = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-            var BPSURL = cloudConfig.ServerUrls.bps.toString();
-            var cookie = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
+                //Sending an email to the cloud team to inform the sign up of the user.
+                tenantEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
+                var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+                var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
 
-            //calling the service to upload the files to the BPS server
-            result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUplader.BPSFileUploader').bpsFileUploader(userName, cookie);
+                body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
+                var subject = cloudConfig.subscriberAccessEnabledEmail.subject;
+                var recepient = cloudConfig.subscriberAccessEnabledEmail.cloudEmail;
+                utilModule.sendEmail(body, subject, recepient);
 
-            //Sending an email to the cloud team to inform the sign up of the user.
-            tenantEmail=String(session.get("LOGGED_IN_USER_EMAIL"));
-            var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-            var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
-
-            body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
-            var subject = cloudConfig.subscriberAccessEnabledEmail.subject;
-            var recepient = cloudConfig.subscriberAccessEnabledEmail.cloudEmail;
-            utilModule.sendEmail(body, subject, recepient);
-
-            if (log.isDebugEnabled()) {
-                log.debug("Notification sent to the cloud team regarding the tenant " + userName + " enabling the self sign up feature for the tenant store " + tenantDomain);
+                if (log.isDebugEnabled()) {
+                    log.debug("Notification sent to the cloud team regarding the tenant " + userName + " enabling the self sign up feature for the tenant store " + tenantDomain);
+                }
+                log.info("Completed the uploading process for the user " + userName);
+                statusMessage = "uploadCompleted";
             }
-            log.info("Completed the uploading process for the user " + userName);
+            catch (e) {
+                log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail + "\n" + e.message);
+                throw Error(e);
+            }
         }
-        catch(e)
-        {
-            log.error("Error while sending the email to the cloud team regarding the enabling of the self sign up feature for the tenant "+tenantEmail+ "\n" + e.message);
-            throw Error(e);
+        else if (isSignUpConfigured.trim() == "resourcePending") {
+            statusMessage = "resourcePending";
+        }
+        else {
+            statusMessage = "error";
         }
     }
 
-    else
-    {
+    else {
         log.error("No action specified");
     }
-    print(result);
+    print(statusMessage);
 
 }());
 %>

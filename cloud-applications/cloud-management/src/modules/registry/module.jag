@@ -9,6 +9,9 @@ jagg.module("registry", {
     },
     resourceExistsInTenantSpace: function () {
         return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").resourceExistsInTenantSpace.apply(this, arguments);
+    },
+    checkSignupConfiguredInRegistry: function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").checkSignupConfiguredInRegistry.apply(this, arguments);
     }
 
 });
