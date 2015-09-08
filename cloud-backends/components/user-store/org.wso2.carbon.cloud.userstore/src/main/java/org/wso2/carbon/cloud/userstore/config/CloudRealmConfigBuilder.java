@@ -69,9 +69,9 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
             String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties()
                     .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
             //************ Cloud Specific Implementation ******************
-            String userContextRDN = orgSubContextAttribute + "=" +
-                    LDAPConstants.USER_CONTEXT_NAME;
-            //            String userContextRDN = orgSubContextAttribute + "=user" ;
+//            String userContextRDN = orgSubContextAttribute + "=" +
+//                    LDAPConstants.USER_CONTEXT_NAME;
+            String userContextRDN = orgSubContextAttribute + "=user" ;
             //eg: ou=users,dc=cloud, dc=com
             String userSearchBase = userContextRDN + "," + partitionDN;
             //*************************************************************
