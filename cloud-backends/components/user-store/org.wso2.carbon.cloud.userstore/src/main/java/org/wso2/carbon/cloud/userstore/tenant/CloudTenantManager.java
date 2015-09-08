@@ -125,9 +125,10 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             throws UserStoreException {
         String userDN;
 
+        //************ Cloud Specific Implementation ******************
+        //We allow a user to be admin of Multiple organizations
         Tenant convertedTenant = tenant;
         convertedTenant.setAdminName(doConvert(tenant.getAdminName()));
-        //************ Cloud Specific Implementation ******************
         if (doCheckExistingUser(convertedTenant.getAdminName(), initialDirContext)) {
             String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
             String userRDN = userNameAttribute + "=" + convertedTenant.getAdminName();
