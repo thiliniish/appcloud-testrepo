@@ -24,14 +24,14 @@ jagg.module("manager", {
     getTenantId: function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getTenantId.apply(this, arguments);
     },
-    getAdminCookie:function () {
+    getAdminCookie: function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAdminCookie.apply(this, arguments);
     },
-    updateAdminCookie:function () {
+    updateAdminCookie: function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").updateAdminCookie.apply(this, arguments);
     },
-    getAdminCookieBySAMLToken:function () {
-            return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAdminCookieBySAMLToken.apply(this, arguments);
+    getAdminCookieBySAMLToken: function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAdminCookieBySAMLToken.apply(this, arguments);
     }
 });
 %>
