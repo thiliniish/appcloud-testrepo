@@ -1,6 +1,8 @@
 <% jagg.template("customurl", function(inputs, outputs, jagg) { %>
 <%
     var tenantId = "";
+    include("/jagg/constants.jag");
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 	var tenantDomain =  request.getParameter("tenant");
 	if(tenantDomain == null || tenantDomain == ''){
         var userName =  session.get("LOGGED_IN_USER");
@@ -46,14 +48,14 @@
             $("#storeSSLFileUploadLocation").css("display", "block");
             $("#storeDomainVerifyBtn").prop("disabled", true);
             $("#storeDomain").prop("disabled", true);
-            $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified</span>");
+            $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully.</span>");
             $("#storeProcessBtn").prop("disabled", false);
         }
         else{
             $("#gatewaySSLFileUploadLocation").css("display", "block");
             $("#gatewayDomainVerifyBtn").prop("disabled", true);
             $("#gatewayDomain").prop("disabled", true);
-            $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified</span>");
+            $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully.</span>");
             $("#gatewayProcessBtn").prop("disabled", false);
         }
     }
@@ -108,7 +110,8 @@
             contentType: false,
             async: false,
             success: function(response) {
-                if(response.error != true){
+                var result = JSON.parse(response);
+                if(result.error != true){
                     if(node == "store"){
                         $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom-Url mapping have been added successfully</span>");
                     }else{
@@ -118,9 +121,9 @@
                     setTimeout(function(){ defaultUIView() }, 10000);
                 }else{
                     if(node == "store"){
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ response.message +"</span>");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ result.message +"</span>");
                     }else{
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ response.message +"</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ result.message +"</span>");
                     }
                 }
             },
@@ -177,7 +180,7 @@
 <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/styles.css'))%>" rel="stylesheet">
  <div class="container2 padding-double">
      <section class="padding-top-double padding-bottom ">
-         <h1 >Custom URL mapping</h1>
+         <h1 >Custom URL Mapping</h1>
          <p>This will serve as the base URL for all your public APIs </p>
      </section><!-- end of Title section-->
     <hr>
@@ -199,8 +202,8 @@
                     <button class="blue-button-sm" id="storeDomainVerifyBtn" onclick="verifyCustomDomain('store')">Verify</button>
                     <div id="storeVerifyUrlNotificationArea">
                         <h4 class="italic light-grey"> <b>IMPORTANT:</b> before specifying the new URL here, go to your
-                        domain registrar’s DNS panel and add a CNAME record pointing to <%=tenantDomain%>.
-                        <span class="blue">Show me how >></span></h4>
+                        domain registrar’s DNS panel and add a CNAME record pointing to <strong>api.cloud.wso2.com</strong>.
+                        <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>">Show me how >></a></span></h4>
                     </div>
                 </div>
 
@@ -276,8 +279,8 @@
                     <button class="blue-button-sm" id="gatewayDomainVerifyBtn" onclick="verifyCustomDomain('gateway')">Verify</button>
                     <div id="gatewayVerifyUrlNotificationArea">
                         <h4 class="italic light-grey"> <b>IMPORTANT:</b> before specifying the new URL here, go to your
-                        domain registrar’s DNS panel and add a CNAME record pointing to <%=tenantDomain%>.
-                        <span class="blue">Show me how >></span></h4>
+                        domain registrar’s DNS panel and add a CNAME record pointing to <strong>api.cloud.wso2.com</strong>.
+                        <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>">Show me how >></a></span></h4>
                     </div>
                 </div>
 

@@ -309,57 +309,65 @@ function resolveDNS(domain, environmentConfigs){
  * File Encryption and validation
  */
 function initializeSSLFileContent(sslFileContent, keyfileContent, chainFileContent, customUrl){
-	var fileValidatingService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileAnalyzer');
-	fileValidatingService.init(sslFileContent, chainFileContent);
-	
 	var status = {};
 	status.error = false;
-	//var isSSLFileDateVerified = fileValidatingService.isSSLFileDateVerified();
 
-	/*if(isSSLFileDateVerified.error != 'false'){
-		var isSelfSigned = fileValidatingService.isCertificateSelfSigned();
+	try {
+		var fileValidatingService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileAnalyzer');
+		fileValidatingService.init(sslFileContent, chainFileContent);
 
-		if(isSelfSigned.error != 'false'){
-			var isPublicKeyValid = fileValidatingService.isPublicKeyValid();
+		var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
 
-			if(isPublicKeyValid.error != 'false'){
-				var isUrlValidated = fileValidatingService.validateIssuedUrl(customUrl);
+		if (isSSLFileDateVerified.error == 'false') {
+			var isSelfSigned = parse(String(fileValidatingService.isCertificateSelfSigned()));
 
-				if(isUrlValidated.error != 'false'){
-					status.error = false;
-				}
-				else{
+			if (isSelfSigned.error == 'false') {
+				var isPublicKeyValid = parse(String(fileValidatingService.isPublicKeyValid()));
+
+				if (isPublicKeyValid.error == 'false') {
+					var isUrlValidated = parse(String(fileValidatingService.validateIssuedUrl(customUrl)));
+
+					if (isUrlValidated.error == 'false') {
+						status.error = false;
+					}
+					else {
+						status.error = true;
+						status.message = isUrlValidated.message;
+					}
+				} else {
 					status.error = true;
-					status.message = isUrlValidated.message;
+					status.message = isPublicKeyValid.message;
 				}
-			}else{
+			}
+			else {
 				status.error = true;
-				status.message = isPublicKeyValid.message;
+				status.message = isSelfSigned.message;
 			}
 		}
-		else{
+		else {
 			status.error = true;
-			status.message = isSelfSigned.message;
+			status.message = isSSLFileDateVerified.message;
 		}
-	}
-	else{
+
+		if (!status.error) {
+			log.info("File encrypting started");
+			var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileEncrypter');
+			fileEncryptService.init();
+
+			encryptedSSLFileContent = fileEncryptService.encryptData(sslFileContent);
+			encryptedKeyFileContent = fileEncryptService.encryptData(keyfileContent);
+			encryptedChainFileContent = fileEncryptService.encryptData(chainFileContent);
+			encodedIndexingVectorContent = fileEncryptService.getIndexingVector();
+			log.info("File encrypting done");
+		}
+
+		return status;
+	}catch(e){
+		log.error("Error occurred while file encrypting." +e);
 		status.error = true;
-		status.message = isSSLFileDateVerified.message;
-	}*/
-
-	if(!status.error){
-		log.info("File encrypting started");
-		var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileEncrypter');
-		fileEncryptService.init();
-
-		encryptedSSLFileContent = fileEncryptService.encryptData(sslFileContent);
-		encryptedKeyFileContent = fileEncryptService.encryptData(keyfileContent);
-		encryptedChainFileContent = fileEncryptService.encryptData(chainFileContent);
-		encodedIndexingVectorContent = fileEncryptService.getIndexingVector();
-		log.info("File encrypting done");
+		status.message = "HTTP 500 : Internal Server error occurred. Please contact wso2 cloud team.";
+		return status;
 	}
-
-	return status;
 	
 }
 
