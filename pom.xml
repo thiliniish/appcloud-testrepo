@@ -207,5 +207,7 @@
 	<imp.pkg.version.axiom>[1.2.11.wso2v4, 1.3.0)</imp.pkg.version.axiom>
 	<org.wso2.appfactory.version>2.2.0-SNAPSHOT</org.wso2.appfactory.version>
 	<org.json.wso2.version>3.0.0.wso2v1</org.json.wso2.version>
+	<org.wso2.carbon.jaggery.app.mgt.stub.version>1.0.0</org.wso2.carbon.jaggery.app.mgt.stub.version>
+	<org.wso2.carbon.integration.common.utils.version>4.3.0</org.wso2.carbon.integration.common.utils.version>
       </properties>
 </project>
