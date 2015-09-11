@@ -46,6 +46,8 @@ public class IntegrationTest implements Job {
     private String completeTestName;
     private int deploymentWaitTime;
     private String severity;
+    private TestStateHandler testStateHandler;
+    private TestInfo testInfo;
 
     @Override public void execute(JobExecutionContext jobExecutionContext)
             throws JobExecutionException {
@@ -53,22 +55,31 @@ public class IntegrationTest implements Job {
         log.info("Started test execution :" + TEST_NAME);
         try {
             runTestSuite();
+            testStateHandler.onSuccess(testInfo);
         } catch (AutomationFrameworkException e) {
             log.info("Integration Test Failed :" + e);
+            testStateHandler.onFailure(testInfo,
+                                       "App Factory Integration Test AutomationFrameworkException",
+                                       e);
+        } catch (Exception e) {
+            log.info("Exception Integration Test : " + e);
+            testStateHandler.onFailure(testInfo, "App Factory Integration Test exception", e);
         }
     }
 
     public void runTestSuite() throws AutomationFrameworkException {
-        System.setProperty("AFIntegrationTestSeverity",severity);
+        System.setProperty("AFIntegrationTestSeverity", severity);
         System.setProperty("framework.resource.location", "resources/");
         System.setProperty(ARG_VERBOSE, "0");
         System.setProperty(ARG_SUITE_XML_FILES, "resources/testng.xml");
         TestListenerAdapter tla = new TestListenerAdapter();
+        String verbose = System.getProperty(ARG_VERBOSE);
+
         TestNG testNg = new TestNG();
         testNg.addListener(tla);
         testNg.setParallel(Boolean.FALSE.toString());
         testNg.setUseDefaultListeners(true);
-        String verbose = System.getProperty(ARG_VERBOSE);
+
         if (verbose == null || verbose.isEmpty()) {
             testNg.setVerbose(2);
         } else {
@@ -87,7 +98,6 @@ public class IntegrationTest implements Job {
 
         testNg.setTestSuites(files);
         testNg.run();
-
     }
 
     public void setCompleteTestName(String completeTestName) {

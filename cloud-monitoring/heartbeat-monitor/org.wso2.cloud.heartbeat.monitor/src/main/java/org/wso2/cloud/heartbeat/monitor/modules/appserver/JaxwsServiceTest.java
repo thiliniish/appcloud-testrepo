@@ -35,6 +35,8 @@ import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
 import org.wso2.cloud.heartbeat.monitor.utils.ModuleUtils;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.io.File;
@@ -80,6 +82,11 @@ public class JaxwsServiceTest implements Job {
     private String tenantUserSecondary;
     private boolean isFirstTenant;
 
+    private TestStateHandler testStateHandler;
+    private TestInfo testInfo;
+    private String severity;
+    private String serviceName;
+
     /**
      * @param jobExecutionContext
      * "managementHostName", "hostName" ,"tenantUser", "tenantUserPwd" "httpPort"
@@ -89,6 +96,8 @@ public class JaxwsServiceTest implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         isFirstTenant =true;
+        testStateHandler = TestStateHandler.getInstance();
+        testInfo = new TestInfo(serviceName, TEST_NAME, hostName, severity);
         initJAXWSServiceTest();
 
         deployJAXWSService();
@@ -168,9 +177,9 @@ public class JaxwsServiceTest implements Job {
                 countNoOfRequests("ResponseError",null);
             }
         } catch (AxisFault axisFault) {
-            countNoOfRequests("AxisFault",axisFault);
+            countNoOfRequests("AxisFault", axisFault);
         } catch (Exception e) {
-            countNoOfRequests("Exception",e);
+            countNoOfRequests("Exception", e);
         }
     }
 
@@ -192,7 +201,8 @@ public class JaxwsServiceTest implements Job {
 
     private void handleError(String type, Object obj) {
         if(type.equals("ResponseError")) {
-            log.error("Application Server - JAXWS Service: Response doesn't contain required values.");
+            log.error(
+                    "Application Server - JAXWS Service: Response doesn't contain required values.");
             onFailure("Response doesn't contain required values");
         }else if(type.equals("AxisFault")) {
             AxisFault axisFault = (AxisFault) obj;
@@ -215,7 +225,7 @@ public class JaxwsServiceTest implements Job {
             deleteWarFile();
             //if no errors reported and the response is correct service is healthy
             if(!errorsReported && responseCorrect){
-                onSuccess();
+                testStateHandler.onSuccess(testInfo);
             }
         } catch (RemoteException e) {
             log.error("Application Server - JAXWS Service: RemoteException thrown while undeploying " +
@@ -296,19 +306,6 @@ public class JaxwsServiceTest implements Job {
         return options;
     }
 
-    /**
-     * On test success
-     */
-    private void onSuccess() {
-        boolean success = true;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, "ApplicationServer", TEST_NAME, success);
-
-        log.info("Application Server - JAXWS Service: SUCCESS");
-    }
 
     /**
      * On test failure
@@ -327,20 +324,7 @@ public class JaxwsServiceTest implements Job {
         }
 
         else if(!errorsReported){
-            boolean success = false;
-            DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-            Connection connection = dbConnectionManager.getConnection();
-
-            long timestamp  = System.currentTimeMillis();
-            DbConnectionManager.insertLiveStatus(connection, timestamp, "ApplicationServer", TEST_NAME, success);
-            DbConnectionManager.insertFailureDetail(connection, timestamp, "ApplicationServer", TEST_NAME, msg);
-
-            Mailer mailer = Mailer.getInstance();
-            mailer.send("Application Server: FAILURE", CaseConverter.splitCamelCase(TEST_NAME)+": " + msg, "");
-
-            SMSSender smsSender = SMSSender.getInstance();
-            smsSender.send("Application Server: "+ CaseConverter.splitCamelCase(TEST_NAME) +": Failure");
-            errorsReported = true;
+           testStateHandler.onFailure(testInfo,msg);
         }
     }
 
@@ -398,5 +382,21 @@ public class JaxwsServiceTest implements Job {
      */
     public void setDeploymentWaitTime(String deploymentWaitTime) {
         this.deploymentWaitTime = Integer.parseInt(deploymentWaitTime.split("s")[0].replace(" ", ""))*1000;
+    }
+
+    /**
+     * Sets Service name
+     * @param serviceName Service name
+     */
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    /**
+     * Sets severity
+     * @param severity
+     */
+    public void setSeverity(String severity){
+        this.severity = severity;
     }
 }
