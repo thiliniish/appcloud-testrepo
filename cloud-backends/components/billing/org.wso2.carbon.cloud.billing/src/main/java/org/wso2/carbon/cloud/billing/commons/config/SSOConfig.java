@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.common.config;
+package org.wso2.carbon.cloud.billing.commons.config;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.File;
 
 /**
  * Config element that represent the SSORelyingParty xml object
@@ -33,7 +34,7 @@ public class SSOConfig {
     }
 
     public void setKeyStorePath(String keyStorePath) {
-        this.keyStorePath = keyStorePath;
+        this.keyStorePath = new File(System.getProperty("basedir", ".")).getAbsolutePath() + File.separator + keyStorePath;
     }
 
     @XmlElement(name = "TrustStorePassword")

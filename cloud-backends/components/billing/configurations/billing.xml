@@ -129,8 +129,6 @@
             <Cron>0 57 11 ? * * *</Cron>
             <UsageUploadFileLocation>USAGE_CSV_PATH</UsageUploadFileLocation>
         </Usage>
-        <!--For testing purposes change the value to false-->
-        <SSLCertificateValid>false</SSLCertificateValid>
         <SubscriptionCleanUp>
             <EnableCleanUp>true</EnableCleanUp>
             <Cron>0 57 23 ? * * *</Cron>
@@ -140,7 +138,7 @@
         </SubscriptionCleanUp>
     </Zoura>
     <SSORelyingParty>
-        <KeyStorePath>KEYSTORE_PATH</KeyStorePath>
+        <KeyStorePath>repository/resources/security/client-truststore.jks</KeyStorePath>
         <TrustStorePassword>wso2carbon</TrustStorePassword>
     </SSORelyingParty>
     <Utils>

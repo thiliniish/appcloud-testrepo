@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.billing.common.config;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+package org.wso2.carbon.cloud.billing.exceptions;
 
 /**
- * Rate plan abstract class. extend this class to introduce rate plans for subscriptions
- * ex: API Cloud rate plans, APP Cloud rate plans
+ * Configuration exceptions
  */
-@XmlJavaTypeAdapter(PlanAdaptor.class)
-public abstract class Plan {
-    protected String id;
-
-    public String getId() {
-        return id;
-    }
+public class CloudBillingConfigurationException extends CloudBillingException {
 }

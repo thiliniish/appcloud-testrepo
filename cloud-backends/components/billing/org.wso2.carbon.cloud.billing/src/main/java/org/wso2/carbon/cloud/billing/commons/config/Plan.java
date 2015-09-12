@@ -13,10 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@XmlSchema(namespace = BillingConstants.CONFIG_NAMESPACE, elementFormDefault = XmlNsForm.QUALIFIED) package org.wso2
-        .carbon.cloud.billing.common.config;
 
-import org.wso2.carbon.cloud.billing.common.BillingConstants;
+package org.wso2.carbon.cloud.billing.commons.config;
 
-import javax.xml.bind.annotation.XmlNsForm;
-import javax.xml.bind.annotation.XmlSchema;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+/**
+ * Rate plan abstract class. extend this class to introduce rate plans for subscriptions
+ * ex: API Cloud rate plans, APP Cloud rate plans
+ */
+@XmlJavaTypeAdapter(PlanAdaptor.class)
+public abstract class Plan {
+    protected String id;
+
+    public String getId() {
+        return id;
+    }
+}

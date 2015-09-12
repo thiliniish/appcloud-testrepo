@@ -27,9 +27,9 @@ import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.billing.common.BillingConstants;
-import org.wso2.carbon.cloud.billing.common.CloudBillingException;
-import org.wso2.carbon.cloud.billing.common.config.HttpClientConfig;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import java.io.File;

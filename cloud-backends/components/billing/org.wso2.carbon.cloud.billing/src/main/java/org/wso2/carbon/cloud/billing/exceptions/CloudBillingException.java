@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.usage;
+package org.wso2.carbon.cloud.billing.exceptions;
 
-import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.usage.util.UsageProcessorUtil;
+public class CloudBillingException extends Exception {
 
-/**
- * Represents the default usage processor
- */
-public class DefaultUsageProcessor implements UsageProcessor {
+    private static final long serialVersionUID = 154545457898L;
 
-    public AccountUsage[] process(UsageProcessorContext context) throws CloudBillingException {
-        return UsageProcessorUtil.getTenantUsageFromAPIM(context.getResponse());
+    public CloudBillingException() {
+    }
+
+    public CloudBillingException(String s) {
+        super(s);
+    }
+
+    public CloudBillingException(String s, Throwable throwable) {
+        super(s, throwable);
+    }
+
+    public CloudBillingException(Throwable throwable) {
+        super(throwable);
     }
 
 }

@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.cloud.billing.processor;
 
-import org.wso2.carbon.cloud.billing.common.config.HttpClientConfig;
+import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 
 /**
  * Represents the Billing Request processor factory which pick the processor type for a given request.

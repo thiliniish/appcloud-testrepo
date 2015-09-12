@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.billing.common.zuora.security;
+package org.wso2.carbon.cloud.billing.commons.zuora.security;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,9 +28,10 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.wso2.carbon.cloud.billing.common.config.HostedPageConfig;
-import org.wso2.carbon.cloud.billing.common.config.ZuoraConfig;
-import org.wso2.carbon.cloud.billing.common.zuora.security.utils.BypassSSLSocketFactory;
+import org.wso2.carbon.cloud.billing.commons.config.HostedPageConfig;
+import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingSecurityException;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import javax.crypto.Cipher;
@@ -51,10 +51,8 @@ import java.util.StringTokenizer;
  */
 public class ZuoraHPMUtils {
 
-    private static final int DEFAULT_HTTPS_PORT = 443;
     private static final String TENANT_ID = "tenantId";
     private static final String ID = "id";
-    private static final String PAGE_ID = "pageId";
     private static final String TOKEN = "token";
     private static final String SIGNATURE = "signature";
     private static final String KEY = "key";
@@ -64,8 +62,6 @@ public class ZuoraHPMUtils {
     private static final String SUBMIT_ENABLED = "submitEnabled";
     private static final String LOCALE = "locale";
     private static final String RETAIN_VALUES = "retainValues";
-    private static final String ENDPOINT = "endPoint";
-    private static final String PUBLIC_KEY = "publicKey";
     private static final String API_ACCESS_KEY_ID = "apiAccessKeyId";
     private static final String API_SECRET_ACCESS_KEY = "apiSecretAccessKey";
     private static final String ENCODER = "UTF-8";
@@ -75,41 +71,15 @@ public class ZuoraHPMUtils {
 
     private static final Log log = LogFactory.getLog(ZuoraHPMUtils.class);
 
-    private static String url = "";
-    private static String endPoint = "";
-    private static String username = "";
-    private static String password = "";
-    private static String publicKeyString = "";
-    private static String pageId = "";
-    private static String locale = "";
-    private static String paymentGateway = "";
+    private static String url;
+    private static String endPoint;
+    private static String username;
+    private static String password;
+    private static String publicKeyString;
+    private static String pageId;
+    private static String locale;
+    private static String paymentGateway;
     private static Key publicKeyObject = null;
-
-    private static boolean sslCertificateValid = CloudBillingUtils.getBillingConfiguration().getZuoraConfig()
-            .isSslCertificateValid();
-
-    private static void generatePublicKeyObject() throws IOException {
-        PEMReader pemReader = new PEMReader(new StringReader("-----BEGIN PUBLIC KEY-----\n"
-                                                             + publicKeyString + "\n-----END PUBLIC KEY-----"));
-        publicKeyObject = (Key) pemReader.readObject();
-        pemReader.close();
-    }
-
-    private static void loadConfig() throws IOException, JSONException {
-
-        ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
-        username = zuoraConfig.getUser();
-        password = zuoraConfig.getPassword();
-        HostedPageConfig hostedPageConfig = zuoraConfig.getHostedPageConfig();
-        endPoint = hostedPageConfig.getEndPoint();
-        publicKeyString = hostedPageConfig.getPublicKey();
-        paymentGateway = hostedPageConfig.getPaymentGateway();
-        pageId = hostedPageConfig.getPageId();
-        locale = hostedPageConfig.getLocale();
-        url = hostedPageConfig.getUrl();
-
-        generatePublicKeyObject();
-    }
 
     /**
      * Fill params.
@@ -119,6 +89,7 @@ public class ZuoraHPMUtils {
     public static String prepareParams() throws Exception {
 
         loadConfig();
+        generatePublicKeyObject();
 
         JSONObject result = generateSignature(pageId);
         JSONObject params = new JSONObject();
@@ -136,64 +107,6 @@ public class ZuoraHPMUtils {
         params.put(RETAIN_VALUES, "true");
 
         return params.toString();
-    }
-
-    //TODO take out
-    private static JSONObject generateSignature(String pageId) throws Exception {
-        HttpClient httpClient = new HttpClient();
-        PostMethod postRequest = new PostMethod(endPoint);
-        postRequest.addRequestHeader(API_ACCESS_KEY_ID, username);
-        postRequest.addRequestHeader(API_SECRET_ACCESS_KEY, password);
-        postRequest.addRequestHeader("Accept", TYPE_JSON);
-
-        RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), TYPE_JSON, ENCODER);
-        postRequest.setRequestEntity(requestEntity);
-
-        // Re-try 10 times in case the server is too busy to give you response in time.
-        int loop = 0;
-        while (loop++ < 10) {
-            int response = httpClient.executeMethod(postRequest);
-
-            if (response == 404) {
-                throw new Exception("Failed with HTTP error code : " + response + ". ZUORA Signature API End Point is" +
-                                    " incorrect.");
-            } else if (response == 401) {
-                throw new Exception("Failed with HTTP error code : " + response + ". ZUORA Login's Username or " +
-                                    "Password is incorrect.");
-            } else if (response != 200) {
-                throw new Exception("Failed with HTTP error code : " + response + ". ZUORA Login's Username or " +
-                                    "Password is incorrect.");
-            }
-
-            if (postRequest.getResponseBody().length > 0) {
-                break;
-            }
-        }
-
-        // Parse the response returned from ZUORA Signature API End Point
-        byte[] res = postRequest.getResponseBody();
-        String s = new String(res);
-        JSONObject result = new JSONObject(s);
-        if (!result.getBoolean("success")) {
-            throw new Exception("Fail to generate signature. The reason is " + result.getString("reasons"));
-        }
-        return result;
-    }
-
-    private static String buildJsonRequest(String pageId) throws NullPointerException, JSONException {
-        JSONObject json = new JSONObject();
-
-        //Remove to use the default certificate
-        if (!sslCertificateValid && url.toLowerCase().contains("https")) {
-            log.warn("Bypassing self-signed certificate. " +
-                     "if you have a valid certificate under the jdk. Please set the 'SSLCertificateValid' to true in" +
-                     " billing.xml");
-            Protocol.registerProtocol("https", new Protocol("https", new BypassSSLSocketFactory(), DEFAULT_HTTPS_PORT));
-        }
-        json.put("uri", url);
-        json.put("method", "POST");
-        json.put("pageId", pageId);
-        return json.toString();
     }
 
     /**
@@ -214,7 +127,7 @@ public class ZuoraHPMUtils {
 
         // Validate signature.
         if (StringUtils.isBlank(decryptedSignature)) {
-            throw new Exception("Signature is empty.");
+            throw new CloudBillingSecurityException("Signature is empty.");
         }
 
         StringTokenizer st = new StringTokenizer(decryptedSignature, "#");
@@ -270,4 +183,74 @@ public class ZuoraHPMUtils {
         return (MessageDigest.isEqual(digestData, Base64.decodeBase64(hash.getBytes(Charset.forName(ENCODER)))));
     }
 
+    private static void generatePublicKeyObject() throws IOException {
+        PEMReader pemReader = new PEMReader(new StringReader("-----BEGIN PUBLIC KEY-----\n"
+                                                             + publicKeyString + "\n-----END PUBLIC KEY-----"));
+        publicKeyObject = (Key) pemReader.readObject();
+        pemReader.close();
+    }
+
+    private static void loadConfig() throws IOException, JSONException {
+
+        ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
+        username = zuoraConfig.getUser();
+        password = zuoraConfig.getPassword();
+        HostedPageConfig hostedPageConfig = zuoraConfig.getHostedPageConfig();
+        endPoint = hostedPageConfig.getEndPoint();
+        publicKeyString = hostedPageConfig.getPublicKey();
+        paymentGateway = hostedPageConfig.getPaymentGateway();
+        pageId = hostedPageConfig.getPageId();
+        locale = hostedPageConfig.getLocale();
+        url = hostedPageConfig.getUrl();
+    }
+
+    private static JSONObject generateSignature(String pageId) throws Exception {
+        HttpClient httpClient = new HttpClient();
+        PostMethod postRequest = new PostMethod(endPoint);
+        postRequest.addRequestHeader(API_ACCESS_KEY_ID, username);
+        postRequest.addRequestHeader(API_SECRET_ACCESS_KEY, password);
+        postRequest.addRequestHeader("Accept", TYPE_JSON);
+
+        RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), TYPE_JSON, ENCODER);
+        postRequest.setRequestEntity(requestEntity);
+
+        // Re-try 10 times in case the server is too busy to give you response in time.
+        int loop = 0;
+        while (loop++ < 10) {
+            int response = httpClient.executeMethod(postRequest);
+
+            if (response == 404) {
+                throw new Exception("Failed with HTTP error code : " + response + ". ZUORA Signature API End Point is" +
+                                    " incorrect.");
+            } else if (response == 401) {
+                throw new Exception("Failed with HTTP error code : " + response + ". ZUORA Login's Username or " +
+                                    "Password is incorrect.");
+            } else if (response != 200) {
+                throw new Exception("Failed with HTTP error code : " + response + ". ZUORA Login's Username or " +
+                                    "Password is incorrect.");
+            }
+
+            if (postRequest.getResponseBody().length > 0) {
+                break;
+            }
+        }
+
+        // Parse the response returned from ZUORA Signature API End Point
+        byte[] res = postRequest.getResponseBody();
+        String s = new String(res);
+        JSONObject result = new JSONObject(s);
+        if (!result.getBoolean("success")) {
+            throw new CloudBillingException("Fail to generate signature. The reason is " + result.getString("reasons"));
+        }
+        return result;
+    }
+
+    private static String buildJsonRequest(String pageId) throws NullPointerException, JSONException {
+        JSONObject json = new JSONObject();
+
+        json.put("uri", url);
+        json.put("method", "POST");
+        json.put("pageId", pageId);
+        return json.toString();
+    }
 }

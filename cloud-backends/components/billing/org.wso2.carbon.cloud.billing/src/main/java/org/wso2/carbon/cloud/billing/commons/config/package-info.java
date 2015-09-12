@@ -13,31 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@XmlSchema(namespace = BillingConstants.CONFIG_NAMESPACE, elementFormDefault = XmlNsForm.QUALIFIED) package org.wso2
+        .carbon.cloud.billing.commons.config;
 
-package org.wso2.carbon.cloud.billing.common.config;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-/**
- * Subscription specific rate plan holding element
- */
-@XmlRootElement(name = "Subscription")
-public class Subscription {
-
-    //id uniquely identifies subscriptions ex: api_cloud, app_cloud
-    @XmlAttribute(name = "id")
-    private String id;
-
-    @XmlElement(name = "Plan")
-    private Plan[] plans;
-
-    public String getId() {
-        return id;
-    }
-
-    public Plan[] getPlans() {
-        return plans;
-    }
-}
+import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlSchema;

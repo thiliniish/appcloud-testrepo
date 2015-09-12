@@ -21,8 +21,8 @@ import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.billing.common.BillingConstants;
-import org.wso2.carbon.cloud.billing.common.CloudBillingException;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
@@ -69,11 +69,6 @@ public class RemoveAssociatedRolesTask implements Task {
 
     @Override
     public void execute() {
-        String tenantDomain = null;
-        String subscription = null;
-        String endDateString = null;
-        String startDateString = null;
-
         try {
             String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY));
             OMElement elements = AXIOMUtil.stringToOM(response);
@@ -81,15 +76,15 @@ public class RemoveAssociatedRolesTask implements Task {
             Iterator<?> entries = elements.getChildrenWithName(new QName(BillingConstants.ENTRY));
             while (entries.hasNext()) {
                 OMElement entry = (OMElement) entries.next();
-                tenantDomain = ((OMElement) entry
+                String tenantDomain = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_TENANT_DOMAIN)).next())
                         .getText();
-                subscription = ((OMElement) entry
+                String subscription = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_SUBSCRIPTION)).next())
                         .getText();
-                startDateString = ((OMElement) entry
+                String startDateString = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_START_DATE)).next()).getText();
-                endDateString = ((OMElement) entry
+                String endDateString = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_END_DATE)).next()).getText();
 
                 int tenantId = ServiceDataHolder.getInstance()
@@ -97,14 +92,17 @@ public class RemoveAssociatedRolesTask implements Task {
                 UserStoreManager userStoreManager = ServiceDataHolder.getInstance().getRealmService()
                         .getTenantUserRealm(tenantId).getUserStoreManager();
                 for (String role : rolesToRemove) {
-                    userStoreManager.deleteRole(role);
+                    if(userStoreManager.isExistingRole(role)) {
+                        userStoreManager.deleteRole(role);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Successfully removed "+ role +" role from roles to remove list: " + rolesToRemove
+                                      + " with the subscription: " + subscription + " for tenant: " + tenantDomain);
+                        }
+                    } else {
+                        log.warn("Role: " + role +" doesn't exists when removing subscription: "+ subscription
+                                 + " for tenant: " + tenantDomain);
+                    }
                 }
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Successfully removed associated roles: " + rolesToRemove + " with the subscription: "
-                              + subscription + " for tenant: " + tenantDomain);
-                }
-
                 updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString);
             }
             if (log.isDebugEnabled()) {
@@ -113,16 +111,7 @@ public class RemoveAssociatedRolesTask implements Task {
             }
 
         } catch (UserStoreException e) {
-            if (e.getMessage().equals("Can not delete non exiting role")) {
-                //Already deleted roles database is not updated yet.
-                try {
-                    updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString);
-                } catch (CloudBillingException e1) {
-                    log.error(ERROR_MSG + " while executing post request: ", e1);
-                }
-            } else {
-                log.error(ERROR_MSG + " while role removing: ", e);
-            }
+            log.error(ERROR_MSG + " while role removing: ", e);
         } catch (CloudBillingException e) {
             log.error(ERROR_MSG + " while executing http request: ", e);
         } catch (XMLStreamException e) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.common.config;
+package org.wso2.carbon.cloud.billing.commons.config;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -36,7 +36,6 @@ public class ZuoraConfig {
     private Subscription[] subscriptions;
     private UsageConfig usageConfig;
     private SubscriptionCleanUp subscriptionCleanUp;
-    private boolean sslCertificateValid;
 
     @XmlElement(name = "User", nillable = false)
     public String getUser() {
@@ -127,15 +126,6 @@ public class ZuoraConfig {
 
     public void setUsageConfig(UsageConfig usageConfig) {
         this.usageConfig = usageConfig;
-    }
-
-    @XmlElement(name = "SSLCertificateValid", nillable = false, required = true)
-    public boolean isSslCertificateValid() {
-        return sslCertificateValid;
-    }
-
-    public void setSslCertificateValid(boolean sslCertificateValid) {
-        this.sslCertificateValid = sslCertificateValid;
     }
 
     @XmlElement(name = "SubscriptionCleanUp", nillable = false, required = true)

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.common.zuora;
+package org.wso2.carbon.cloud.billing.commons.zuora;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,8 +21,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.cloud.billing.common.BillingConstants;
-import org.wso2.carbon.cloud.billing.common.CloudBillingException;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
