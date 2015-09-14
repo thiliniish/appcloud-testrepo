@@ -222,8 +222,8 @@ var validateUrl = function(customUrl,pointedUrl){
 	    
 	var Hashtable = java.util.Hashtable;
 	var env = new Hashtable();
-    var success;
-	        // set environment configurations
+	var success;
+    // set environment configurations
 	env.put(JNDI_KEY_NAMING_FACTORY_INITIAL, "com.sun.jndi.dns.DnsContextFactory");
 	env.put(JNDI_KEY_DNS_TIMEOUT, "10000");
 	env.put(JDNI_KEY_DNS_RETRIES, "1");

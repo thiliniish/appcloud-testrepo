@@ -36,23 +36,22 @@ include("/jagg/config_reader.jag");
     }
     else if(action == "validateUrl"){
         log.info("Custom domain is "+request.getParameter("customDomain"));
-        var tenantDomain = session.get("TENANT_DOMAIN");
-        var cloudType = request.getParameter("type");
+        var nodeType = request.getParameter("nodeType");
         var customUrl = request.getParameter("customDomain");
         var cname = "";
-        if(cloudType == "store"){
-         cname = "api.cloud.wso2.com";
-         }
-         else{
-         cname = "gateway.api.cloud.wso2.com";
-         }
+        if(nodeType == "store"){
+            cname = "api.cloud.wso2.com";
+        }
+        else{
+            cname = "gateway.api.cloud.wso2.com";
+        }
 
         var value = mod.validateUrl(customUrl, cname);
-    	print(value);
+        print(value);
     }
     else if(action == "getCurrentMapping"){
         var tenantDomain = request.getParameter("tenantDomain");
-    	var value = mod.getCurrentUserMapping(tenantDomain, cloudType);
+        var value = mod.getCurrentUserMapping(tenantDomain, cloudType);
         if(value == null){
             var jsonObj = {};
             var storeMapping = {};
