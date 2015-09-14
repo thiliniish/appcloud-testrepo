@@ -108,11 +108,12 @@ ul
                          confirmationKey:confirmationKey
         },
         function (result) {
-            jagg.message({content:'You have successfully reset the password.',type:'success',cbk:function(){
+            jagg.message({content:'You have successfully reset your password. Please log in using your new password.',type:'success',cbk:function(){
                         window.location.href = "index.jag";
                     }
             });
             $('#userForm').hide();
+            $('#helper_text').hide();
             },
         function (jqXHR, textStatus, errorThrown) {
             jagg.message({content:' Error resetting the password', type:'error',cbk:function(){
@@ -120,6 +121,7 @@ ul
                     }
             });
             $('#userForm').hide();
+            $('#helper_text').hide();
         });
     }
 
