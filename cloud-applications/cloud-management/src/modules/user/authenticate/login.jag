@@ -61,7 +61,7 @@ function login(userName, password){
 
 function validatePassword(userName, password){
     log.info("Password validating...");
-    var user = jagg.module("util").getDomainLessUserName(userName);
+    var user = modManager.getTenantAwareUsername(userName);
     var userPass = jagg.module("util").escapeSpecialCharsXML(password);
     var ws = require('ws');
     var finalResult={};
