@@ -95,7 +95,7 @@ ul
               function (result) {
                   jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
                           window.location.href = result;
-                      }
+                      }, cbkBtnText:'Login'
                   });
                   disableSpinner();
               },
@@ -122,7 +122,7 @@ ul
              function (result) {
                  jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
                          window.location.href = cloudmgtURL;
-                     }
+                     }, cbkBtnText:'Login'
                  });
                  disableSpinner();
              },
