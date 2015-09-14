@@ -12,7 +12,7 @@
 
         (i) Apache Maven 3.0.5 or above.
         (ii) Oracle JDK 1.6.
-        (iii) Need to compile and build the patch0004 of Carbon Kernel 4.2.0 patches prior compiling any
+        (iii) Need to compile and build the patch0012 of Carbon Kernel 4.2.0 patches prior compiling any
              of WSO2 Cloud components. ( svn location : https://svn.wso2.org/repos/wso2/carbon/kernel/branches/4.2.0/patches )
 
-(5.) Compile and build from the root pom.xml in the initial attemptss.
+(5.) Compile and build from the root pom.xml in the initial attempt.

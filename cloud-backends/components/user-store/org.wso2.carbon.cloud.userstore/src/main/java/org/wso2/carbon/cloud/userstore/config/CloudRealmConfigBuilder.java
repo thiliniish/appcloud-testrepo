@@ -1,30 +1,30 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package org.wso2.carbon.cloud.userstore.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.TenantMgtConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.config.multitenancy.MultiTenantRealmConfigBuilder;
+import org.wso2.carbon.user.core.config.multitenancy.CommonLDAPRealmConfigBuilder;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -37,62 +37,12 @@ import java.util.Map;
  * which supports any external ldap server.
  */
 
-public class CloudRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
+public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
 
     private static Log logger = LogFactory.getLog(CloudRealmConfigBuilder.class);
 
-    public RealmConfiguration getRealmConfigForTenantToCreateRealm(
-            RealmConfiguration bootStrapConfig, RealmConfiguration persistedConfig, int tenantId)
-            throws UserStoreException {
-        RealmConfiguration realmConfig;
-        //clone the bootstrap realm and insert tenant specific properties taken from tenant's user-mgt.xml
-        try {
-            // when we are creating tenant, we do not need to add secondary user stores of tenant
-            realmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
-            realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
-            realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
-            realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
-            realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());
-            realmConfig.setTenantId(persistedConfig.getTenantId());
-
-            Map<String, String> authz = realmConfig.getAuthzProperties();
-            authz.put(UserCoreConstants.RealmConfig.PROPERTY_ADMINROLE_AUTHORIZATION,
-                      CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);
-
-            if (persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_SEARCH_BASE) != null) {
-                realmConfig.getUserStoreProperties().put(
-                        LDAPConstants.USER_SEARCH_BASE,
-                        persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_SEARCH_BASE));
-            }
-            if (persistedConfig.getUserStoreProperties().get(LDAPConstants.GROUP_SEARCH_BASE) != null) {
-                realmConfig.getUserStoreProperties().put(
-                        LDAPConstants.GROUP_SEARCH_BASE,
-                        persistedConfig.getUserStoreProperties().get(LDAPConstants.GROUP_SEARCH_BASE));
-            }
-            if (persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_DN_PATTERN) != null) {
-                realmConfig.getUserStoreProperties().put(
-                        LDAPConstants.USER_DN_PATTERN,
-                        persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_DN_PATTERN));
-            }
-            if (persistedConfig.getUserStoreProperties().get(LDAPConstants.ROLE_DN_PATTERN) != null) {
-                realmConfig.getUserStoreProperties().put(
-                        LDAPConstants.ROLE_DN_PATTERN,
-                        persistedConfig.getUserStoreProperties().get(LDAPConstants.ROLE_DN_PATTERN));
-            }
-            realmConfig.setSecondaryRealmConfig(persistedConfig.getSecondaryRealmConfig());
-        } catch (Exception e) {
-            String errorMessage = "Error while building tenant specific realm configuration" +
-                                  "when creating tenant's realm.";
-            logger.error(errorMessage, e);
-            throw new UserStoreException(errorMessage, e);
-        }
-        return realmConfig;
-    }
-
     public RealmConfiguration getRealmConfigForTenantToPersist(RealmConfiguration bootStrapConfig,
-                                                               TenantMgtConfiguration tenantMgtConfig,
-                                                               Tenant tenantInfo, int tenantId)
-            throws UserStoreException {
+            TenantMgtConfiguration tenantMgtConfig, Tenant tenantInfo, int tenantId) throws UserStoreException {
 
         try {
             RealmConfiguration ldapRealmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
@@ -108,30 +58,30 @@ public class CloudRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
 
             Map<String, String> userStoreProperties = ldapRealmConfig.getUserStoreProperties();
 
-            String partitionDN = tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ROOT_PARTITION);
+            String partitionDN = tenantMgtConfig.getTenantStoreProperties()
+                    .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ROOT_PARTITION);
             String organizationName = tenantInfo.getDomain();
             //eg: o=cse.rog
-            String organizationRDN = tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORGANIZATIONAL_ATTRIBUTE) + "=" +
-                                     organizationName;
+            String organizationRDN = tenantMgtConfig.getTenantStoreProperties()
+                    .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORGANIZATIONAL_ATTRIBUTE) + "=" +
+                    organizationName;
             //eg: ou=users
-            String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
+            String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties()
+                    .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
+            //************ Cloud Specific Implementation ******************
 //            String userContextRDN = orgSubContextAttribute + "=" +
-//                                    LDAPConstants.USER_CONTEXT_NAME;
+//                    LDAPConstants.USER_CONTEXT_NAME;
             String userContextRDN = orgSubContextAttribute + "=user" ;
-            //eg: ou=users,o=cse.org, dc=cloud, dc=com
+            //eg: ou=users,dc=cloud, dc=com
             String userSearchBase = userContextRDN + "," + partitionDN;
+            //*************************************************************
             //replace the tenant specific user search base.
             userStoreProperties.put(LDAPConstants.USER_SEARCH_BASE, userSearchBase);
-
 
             //if UserDNPattern is mentioned, replace it to align with tenant's user store.
             if (bootStrapConfig.getUserStoreProperties().containsKey(LDAPConstants.USER_DN_PATTERN)) {
                 //get userDN pattern from super tenant realm config
-                String userDNPattern = bootStrapConfig.getUserStoreProperties().get(
-                        LDAPConstants.USER_DN_PATTERN);
+                String userDNPattern = bootStrapConfig.getUserStoreProperties().get(LDAPConstants.USER_DN_PATTERN);
                 //obtain the identifier - eg: uid={0}
                 String userIdentifier = userDNPattern.split(",")[0];
                 //build tenant specific one - eg:uid={0},ou=Users,ou=cse.org,dc=wso2,dc=org
@@ -153,7 +103,7 @@ public class CloudRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
                     getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
                 //eg: ou=groups
                 String groupContextRDN = orgSubContextAttribute + "=" +
-                                         LDAPConstants.GROUP_CONTEXT_NAME;
+                        LDAPConstants.GROUP_CONTEXT_NAME;
                 //eg: ou=users,o=cse.org, dc=cloud, dc=com
                 String groupSearchBase = groupContextRDN + "," + organizationRDN + "," + partitionDN;
 
@@ -163,7 +113,7 @@ public class CloudRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
                 if (bootStrapConfig.getUserStoreProperties().containsKey(LDAPConstants.ROLE_DN_PATTERN)) {
                     //get userDN pattern from super tenant realm config
                     String roleDNPattern = bootStrapConfig.getUserStoreProperties().
-                                                                get(LDAPConstants.ROLE_DN_PATTERN);
+                            get(LDAPConstants.ROLE_DN_PATTERN);
                     //obtain the identifier - eg: uid={0}
                     String roleIdentifier = roleDNPattern.split(",")[0];
                     //build tenant specific one - eg:uid={0},ou=Users,ou=cse.org,dc=wso2,dc=org
@@ -186,21 +136,15 @@ public class CloudRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
 
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration " +
-                                  "to be persisted.";
-            logger.error(errorMessage, e);
+                    "to be persisted for tenant id : " + tenantId;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
     }
 
-    public RealmConfiguration getRealmConfigForTenantToCreateRealmOnTenantCreation(
-            RealmConfiguration bootStrapConfig, RealmConfiguration persistedConfig, int tenantId)
-            throws UserStoreException {
-
-        return persistedConfig;
-    }
-
-    private void removePropertiesFromTenantRealmConfig(
-            RealmConfiguration tenantRealmConfiguration) {
+    private void removePropertiesFromTenantRealmConfig(RealmConfiguration tenantRealmConfiguration) {
         //remove sensitive information from realm properties before persisting
         // tenant specific user-mgt.xml
         tenantRealmConfiguration.getRealmProperties().clear();
@@ -217,6 +161,7 @@ public class CloudRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.CONNECTION_PASSWORD);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.CONNECTION_URL);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.PASSWORD_HASH_METHOD);
+        tenantRealmConfiguration.getUserStoreProperties().remove("passwordHashMethod");
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.USER_SEARCH_BASE);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.GROUP_SEARCH_BASE);
         tenantRealmConfiguration.getUserStoreProperties().put(tenantManagerKey, tenantManagerValue);

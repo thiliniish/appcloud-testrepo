@@ -99,7 +99,7 @@ var multitenancy = carbon.multitenancy;
     };
     var checkUserAuthorization =function (permission) {
        var username = checkUserAuthenticated();
-       var authUser=username.substring(0,username.lastIndexOf('@'));
+       var authUser = modManager.getTenantAwareUsername(username);
        var checkCachedPermission=checkTenantPermissionFromCache(authUser,permission);
        if(checkCachedPermission!=null | checkCachedPermission!=undefined){
             return checkCachedPermission;
@@ -224,7 +224,7 @@ var multitenancy = carbon.multitenancy;
 
     var hasOrganizationMgtPermission=function(organization){
         var username = checkUserAuthenticated();
-        var authUser=username.substring(0,username.lastIndexOf('@'));
+        var authUser = modManager.getTenantAwareUsername(username);
         var checkCachedPermission=checkTenantPermissionFromCache(authUser,PERMISSION_ORGANIZATION_MGT +"/"+ organization);
         if(checkCachedPermission!=null | checkCachedPermission!=undefined){
             return checkCachedPermission;
