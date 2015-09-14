@@ -138,7 +138,7 @@
   },
   "documentation": {
     "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/",
-    "customUrlDocumentationLink" : "#"
+    "customUrlDocumentationLink" : "https://docs.wso2.com/display/APICloud/Customize+the+API+Store+and+Gateway+URLs"
   },
   "commonRoles": [
     "appfactoryusers",

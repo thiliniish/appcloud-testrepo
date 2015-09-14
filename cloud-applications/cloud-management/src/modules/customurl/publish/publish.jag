@@ -33,7 +33,7 @@ var publish = function(tenantId, cloudtype, node, customUrl, sslCertificateConte
 		var fileEncryptionStatus = initializeSSLFileContent(sslCertificateContent, keyFileContent, chainFileContent, customUrl);
 
 		if (fileEncryptionStatus.error == true){
-			return fileEncriptionStatus;
+			return fileEncryptionStatus;
 		}
 
 		var customUrlMappingStatus = fileEncryptionStatus;
@@ -166,7 +166,6 @@ function initializeBroker(){
 }
 
 function publishToMessageBroker(payload,cloudType){
-	var tenantDomain, customDomain;
 
 	var jsonPayload = {};
 
@@ -184,10 +183,9 @@ function publishToMessageBroker(payload,cloudType){
 		}
 	}
 	try{
-		var session = messageBrokerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        var session = messageBrokerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	    var topic = session.createTopic(topicName);
 	    var message = session.createTextMessage();
-	    //change domainName to tenantDomain
 	    var messageProducer = session.createProducer(topic);
 	    var text = stringify(jsonPayload);
 	    message.setText(text);
@@ -252,9 +250,6 @@ function resolveDNS(domain, environmentConfigs){
 	var ArrayListMultimap = com.google.common.collect.ArrayListMultimap;
 	//import InitialDirContext
 	var InitialDirContext = javax.naming.directory.InitialDirContext;
-	//var DNS_CNAME_RECORD = "CNAME";
-
-	var Multimap = com.google.common.collect.Multimap;
 	
 	var dnsRecordsResult = ArrayListMultimap.create();
 	
@@ -271,8 +266,8 @@ function resolveDNS(domain, environmentConfigs){
 	
 	            // looking for CNAME records
 	            var cnameRecords = dnsRecords.get(DNS_CNAME_RECORD);
-	            if (cnameRecords != null && cnameRecords.size() > 0) {              // if CNAME record exists
-	                var cnameRecordHosts = cnameRecords.getAll();     // get all resolved CNAME entries for hostname
+	            if (cnameRecords != null && cnameRecords.size() > 0){
+	                var cnameRecordHosts = cnameRecords.getAll();
 	                var cnameHost;
 	                while (cnameRecordHosts.hasMore()) {
 	                    isCNAMEFound = true;
