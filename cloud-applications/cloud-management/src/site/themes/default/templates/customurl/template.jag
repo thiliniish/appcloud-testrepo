@@ -1,6 +1,5 @@
 <% jagg.template("customurl", function(inputs, outputs, jagg) { %>
 <%
-    var tenantId = "";
     include("/jagg/constants.jag");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 	var tenantDomain =  request.getParameter("tenant");
@@ -65,8 +64,9 @@
     */
 
 	$(document).ready(function() {
-	    defaultUIView();
+        defaultUIView();
         getCurrentUserMaping();
+        initializeUserActivity("Custom URL Page");
 	});
 
     function publishCustomUrl(node){
@@ -113,9 +113,9 @@
                 var result = JSON.parse(response);
                 if(result.error != true){
                     if(node == "store"){
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom-Url mapping have been added successfully</span>");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added.</span>");
                     }else{
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>Custom-Url mapping have been added successfully</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added.</span>");
                     }
                     getCurrentUserMaping();
                     setTimeout(function(){ defaultUIView() }, 10000);
@@ -181,17 +181,17 @@
  <div class="container2 padding-double">
      <section class="padding-top-double padding-bottom ">
          <h1 >Custom URL Mapping</h1>
-         <p>This will serve as the base URL for all your public APIs </p>
+         <p>This serves as the base URL for all your public APIs.</p>
      </section><!-- end of Title section-->
     <hr>
     <section class="padding-top-double padding-bottom ">
         <div class="col-x-small inline-block top padding-top">
-            <h3 class="uppercase">API Store:</h3>
+            <h3>API Store Domain:</h3>
         </div>
         <div class="col-large inline-block">
-            <input type="text" placeholder="Enter URL" id="currentStoreMapping">
-            <button class="blue-button" id="storeModifyBtn" onclick="showModifyUrlContentArea('store')"> Modify</button>
-            <h4 class="italic light-grey">This is the URL of the website your subscribers will use as their portal</h4>
+            <input type="text" placeholder="Enter URL" id="currentStoreMapping" disabled>
+            <button class="blue-button" id="storeModifyBtn" onclick="showModifyUrlContentArea('store')">Modify</button>
+            <h4 class="italic light-grey transform-none">This is the URL of the API Store that your subscribers will use as their portal.</h4>
             <!--== modify section starts here ==-->
             <div class="box" id="storeUrlChangeArea" style="display:none;">
                 <div class="col-small inline-block top padding-top">
@@ -201,8 +201,8 @@
                     <input type="text" placeholder="Enter URL" name="url" id="storeDomain" autocomplete="off">
                     <button class="blue-button-sm" id="storeDomainVerifyBtn" onclick="verifyCustomDomain('store')">Verify</button>
                     <div id="storeVerifyUrlNotificationArea">
-                        <h4 class="italic light-grey"> <b>IMPORTANT:</b> before specifying the new URL here, go to your
-                        domain registrar’s DNS panel and add a CNAME record pointing to <strong>api.cloud.wso2.com</strong>.
+                        <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the new URL here,
+                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong>api.cloud.wso2.com</strong>.
                         <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>">Show me how >></a></span></h4>
                     </div>
                 </div>
@@ -218,11 +218,10 @@
                             <input type="file" id="storeSslFile" name="myfiles[]" autocomplete="off" multiple />
                         </div>
                         <div class="float-left">
-                            <h2>Note : </h2><br>
                             <ul>
-                                <li>SSL file should be in PEM format.</li>
-                                <li>Public key shouldn't be embeded in ssl file.</li>
-                                <li>SSL file shouldn't be self-signed.</li>
+                                <li>Give the SSL file in PEM format.</li>
+                                <li>Do not embed the public key in the SSL file.</li>
+                                <li>Do not self sign the SSL file.</li>
                             </ul>
                         </div >    
                     </div>
@@ -243,17 +242,16 @@
                             <input type="file" id="storeChainFile" name="myfiles[]" autocomplete="off" multiple />
                         </div>
                         <div class="float-left">
-                            <h2>Note : </h2><br>
                             <ul>
-                                <li>Public key should be encrypt in RSA format.</li>
+                                <li>Encrypt the public key in the RSA format.</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
                 <div class="right">
-                    <button class="uppercase grey-button margin-right" onclick="defaultUIView()">Cancel</button>
-                    <button class="uppercase blue-button margin-right" id="storeProcessBtn" onclick="publishCustomUrl('store');">Proceed</button>
+                    <button class="grey-button margin-right" onclick="defaultUIView()">Cancel</button>
+                    <button class="blue-button margin-right" id="storeProcessBtn" onclick="publishCustomUrl('store');">Proceed</button>
                 </div>
 
             </div>
@@ -263,12 +261,12 @@
 
     <section class="padding-top-double padding-bottom-double ">
         <div class="col-x-small inline-block top padding-top">
-            <h3 class="uppercase">Gateway:</h3>
+            <h3>Gateway Domain</h3>
         </div>
         <div class="col-large inline-block">
-            <input type="text" placeholder="Enter URL" id="currentGatewayMapping">
+            <input type="text" placeholder="Enter URL" id="currentGatewayMapping" disabled>
             <button class="blue-button" id="gatewayModifyBtn" onclick="showModifyUrlContentArea('gateway')">Modify</button>
-            <h4 class="italic light-grey">This is the URL of the website your subscribers will use as their portal</h4>
+            <h4 class="italic light-grey transform-none">This is the URL of the Gateway through which your subscribers will consume the APIs.</h4>
             <!--== modify section starts here ==-->
             <div class="box" id="gatewayUrlChangeArea" style="display:none;">
                 <div class="col-small inline-block top padding-top">
@@ -278,8 +276,8 @@
                     <input type="text" placeholder="Enter URL" name="url" id="gatewayDomain" autocomplete="off" />
                     <button class="blue-button-sm" id="gatewayDomainVerifyBtn" onclick="verifyCustomDomain('gateway')">Verify</button>
                     <div id="gatewayVerifyUrlNotificationArea">
-                        <h4 class="italic light-grey"> <b>IMPORTANT:</b> before specifying the new URL here, go to your
-                        domain registrar’s DNS panel and add a CNAME record pointing to <strong>api.cloud.wso2.com</strong>.
+                        <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the new URL here,
+                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong>api.cloud.wso2.com</strong>.
                         <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>">Show me how >></a></span></h4>
                     </div>
                 </div>
@@ -287,7 +285,7 @@
                 <div style="display:none;" id="gatewaySSLFileUploadLocation">
 
                 <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                    <h2 class="uppercase">SSL certificate:</h2>
+                    <h2 class="uppercase">SSL Certificate:</h2>
                 </div>
 
 
@@ -297,17 +295,16 @@
                         <input type="file" id="gatewaySslFile" name="myfiles[]" autocomplete="off" multiple />
                     </div>
                      <div class="float-left">
-                        <h2>Note : </h2><br>
                         <ul>
-                            <li>SSL file should be in PEM format.</li>
-                            <li>Public key shouldn't be embeded in ssl file.</li>
-                            <li>SSL file shouldn't be self-signed.</li>
+                            <li>Give the SSL file in PEM format.</li>
+                            <li>Do not embed the public key in the SSL file.</li>
+                            <li>Do not self sign the SSL file.</li>
                         </ul>
-                    </div >   
+                    </div>
                 </div>
 
                 <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                    <h2 class="uppercase">SSL key file:</h2>
+                    <h2 class="uppercase">SSL Key File:</h2>
                 </div>
                 <div class="col-medium inline-block margin-top-double margin-bottom-double">
                     <div class="custom-file-upload">
@@ -315,24 +312,23 @@
                     </div>
                 </div>
                 <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                    <h2 class="uppercase">Chain file:</h2>
+                    <h2 class="uppercase">Chain File:</h2>
                 </div>
                 <div class="col-medium inline-block margin-top-double margin-bottom-double">
                     <div class="custom-file-upload">
                         <input type="file" id="gatewayChainFile" name="myfiles[]" autocomplete="off" multiple />
                     </div>
                     <div class="float-left">
-                        <h2>Note : </h2><br>
                         <ul>
-                            <li>Public key should be encrypt in RSA format.</li>
+                            <li>Encrypt the public key in the RSA format.</li>
                         </ul>
                     </div>
                 </div>
 
                 </div>
                 <div class="right">
-                    <button class="uppercase grey-button margin-right" onclick="defaultUIView()">Cancel</button>
-                    <button class="uppercase blue-button margin-right " id="gatewayProcessBtn" onclick="publishCustomUrl('gateway')">Proceed</button>
+                    <button class="grey-button margin-right" onclick="defaultUIView()">Cancel</button>
+                    <button class="blue-button margin-right " id="gatewayProcessBtn" onclick="publishCustomUrl('gateway')">Proceed</button>
                 </div>
 
             </div>

@@ -30,7 +30,7 @@ var publish = function(tenantId, cloudtype, node, customUrl, sslCertificateConte
 
 	try{
 		var status = "initial";
-		var fileEncryptionStatus = initializeSSLFileContent(sslCertificateContent, keyFileContent, chainFileContent);
+		var fileEncryptionStatus = initializeSSLFileContent(sslCertificateContent, keyFileContent, chainFileContent, customUrl);
 
 		if (fileEncryptionStatus.error == true){
 			return fileEncriptionStatus;
@@ -48,10 +48,6 @@ var publish = function(tenantId, cloudtype, node, customUrl, sslCertificateConte
 		}
 
 		var payload = getPayLoad(node,customUrl,status,tenantId);
-
-		/*if(status == "update"){
-			registry.delete(registryPath + cloudtype + "/" + tenantId + "/urlMapping/");
-		}*/
 
 		var urlMappingContent = '{"tenantDomain" : "'+payload.tenantId+'", "store" : {"customUrl" : "'+payload.store.customUrl+'"}, "gateway" : {"customUrl" : "'+payload.gateway.customUrl+'"}}';
 		/**
@@ -264,7 +260,7 @@ function resolveDNS(domain, environmentConfigs){
 	
 	try {
 	            if (log.isDebugEnabled()) {
-	                log.debug("DNS validation: resolving DNS for " + domain + " " + "(A/CNAME)");
+	                log.debug("DNS validation: resolving DNS for " + domain);
 	            }
 	            
 	            var isCNAMEFound = false;
@@ -290,13 +286,12 @@ function resolveDNS(domain, environmentConfigs){
 	                    if (log.isDebugEnabled()) {
 	                        log.debug("DNS validation: recurring on CNAME record towards host " + cnameHost);
 	                    }
-	                    log.info("cname host "+cnameHost);
 	                    dnsRecordsResult.putAll(resolveDNS(cnameHost, environmentConfigs)); // recursively resolve cnameHost
 	                }
 	            }
 	
 	            if (!isCNAMEFound) {
-	                log.info("DNS validation: No CNAME or A record found for domain: '" + domain);
+	                log.info("DNS validation: No CNAME found for domain: '" + domain);
 	            }
 	            return dnsRecordsResult;
 	        } catch (e) {

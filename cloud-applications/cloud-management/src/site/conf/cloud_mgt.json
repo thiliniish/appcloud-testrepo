@@ -91,6 +91,17 @@
   "userActivityMonitor": {
     "enable": "false"
   },
+  "customUrl" : {
+    "registry" : {
+      "registryPath" : "/customurl/",
+      "registryUsername" : "admin",
+      "registryPassword" : "admin"
+    },
+    "messageBroker" : {
+      "topicName" : "Sample-Topic",
+      "messageBrokerUrl" : "tcp://localhost:61616"
+    }
+  },
   "invitationEmail": {
     "subject": "WSO2 Cloud Services - Invitation from: "
   },
@@ -126,7 +137,8 @@
     "projectKey": "projectkey"
   },
   "documentation": {
-    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/"
+    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/",
+    "customUrlDocumentationLink" : "#"
   },
   "commonRoles": [
     "appfactoryusers",

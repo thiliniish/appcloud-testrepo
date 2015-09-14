@@ -103,6 +103,7 @@ h4{font-size:0.9em; line-height:24px; color:#898989; font-weight: 300;}
 .uppercase{text-transform:uppercase;}
 .capitalize{text-transform:capitalize;}
 .lowercase{text-transform:lowercase;}
+.transform-none{text-transform:none;}
 
 
 .light-grey{color:#898989;}
@@ -264,33 +265,6 @@ button{  background: inherit;
 .grey-button:hover{ background: #7e7d7d;
     text-decoration: none;
 }
-/*-- .fileUpload {
-     position: relative;
-     overflow: hidden;
-     margin: 10px;
-     -webkit-border-radius: 0;
-     -moz-border-radius: 0;
-     border-radius: 0px;
-     color: #ffffff;
-     background:  repeat scroll 0 0 #4cbcd3;
-     padding: 10px 20px 10px 20px;
-     text-decoration: none;     width: 130px;
-     border: 0px;
- }
-.fileUpload :hover{ background: #037dae;
-    text-decoration: none;
-}
-.fileUpload input.upload {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-    padding: 0;
-    font-size: 20px;
-    cursor: pointer;
-    opacity: 0;
-    filter: alpha(opacity=0);
-}*/
 .custom-file-upload-hidden {
     display: none;
     visibility: hidden;
@@ -338,7 +312,6 @@ button{  background: inherit;
     display: inline-block;
     color: #fff;
     font-size: 16px;
-    text-transform: uppercase;
     padding: 11px 20px;
     border: none;
     margin-left: -1px;

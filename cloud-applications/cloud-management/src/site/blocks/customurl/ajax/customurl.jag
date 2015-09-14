@@ -36,8 +36,19 @@ include("/jagg/config_reader.jag");
     }
     else if(action == "validateUrl"){
         log.info("Custom domain is "+request.getParameter("customDomain"));
-    	//var value = mod.validateUrl('mail.spottedfig.org','ghs.google.com');
-    	print(true);
+        var tenantDomain = session.get("TENANT_DOMAIN");
+        var cloudType = request.getParameter("type");
+        var customUrl = request.getParameter("customDomain");
+        var cname = "";
+        if(cloudType == "store"){
+         cname = "api.cloud.wso2.com";
+         }
+         else{
+         cname = "gateway.api.cloud.wso2.com";
+         }
+
+        var value = mod.validateUrl(customUrl, cname);
+    	print(value);
     }
     else if(action == "getCurrentMapping"){
         var tenantDomain = request.getParameter("tenantDomain");
@@ -46,8 +57,8 @@ include("/jagg/config_reader.jag");
             var jsonObj = {};
             var storeMapping = {};
             var gatewayMapping = {};
-            storeMapping.customUrl = "api.cloud.wso2.com/store/?tenant=" + tenantDomain;
-            gatewayMapping.customUrl = "gateway.api.cloud.wso2.com:8243/t/" + tenantDomain + "/"
+            storeMapping.customUrl = "api.cloud.wso2.com";
+            gatewayMapping.customUrl = "gateway.api.cloud.wso2.com"
             jsonObj.store = storeMapping;
             jsonObj.gateway = gatewayMapping;
             value = jsonObj;
