@@ -26,6 +26,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.naming.directory.BasicAttributes;
 import java.util.Date;
@@ -260,8 +261,10 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     @Override
     public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
         String[] users = super.doGetUserListOfRole(roleName, filter);
-        for (int i = 0; i < users.length; i++) {
-            users[i] = doConvertUserNameToEmail(users[i]);
+        if(MultitenantUtils.isEmailUserName()){
+            for (int i = 0; i < users.length; i++) {
+                users[i] = doConvertUserNameToEmail(users[i]);
+            }
         }
         return users;
     }
@@ -270,8 +273,10 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     public String[] getUserListFromProperties(String property, String value, String profileName)
             throws UserStoreException {
         String[] users = super.getUserListFromProperties(property, value, profileName);
-        for (int i = 0; i < users.length; i++) {
-            users[i] = doConvertUserNameToEmail(users[i]);
+        if(MultitenantUtils.isEmailUserName()){
+            for (int i = 0; i < users.length; i++) {
+                users[i] = doConvertUserNameToEmail(users[i]);
+            }
         }
         return users;
     }
@@ -279,8 +284,10 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     @Override
     public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
         String[] users = super.doListUsers(filter, maxItemLimit);
-        for (int i = 0; i < users.length; i++) {
-            users[i] = doConvertUserNameToEmail(users[i]);
+        if(MultitenantUtils.isEmailUserName()){
+            for (int i = 0; i < users.length; i++) {
+                users[i] = doConvertUserNameToEmail(users[i]);
+            }
         }
         return users;
     }
