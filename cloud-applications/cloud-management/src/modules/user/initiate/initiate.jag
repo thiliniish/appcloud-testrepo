@@ -116,14 +116,9 @@
     var sendRecoveryEmail = function(notificationCode,userName,emailAddress) {
         log.info("Sending Email to " + emailAddress);
         var userInfo = jagg.module("tenant").getUserInfo(userName);
-        var firstName = userInfo.firstName;
-        if(firstName == "$1" || (firstName == null))  {
-            firstName = "";
-        }
         var link = CLOUDMGT_URL + "/site/pages/reset.jag?id=" + userName +"&confirmation=" + notificationCode;
         try{
             body = body.replace("$passwordRestLink",link).replace("$passwordRestLink",link);
-            body = body.replace("$fisrtName",firstName);
             body = body.replace("$userName",emailAddress.toString()).replace("$userName",emailAddress.toString());
             var email = require('email');
             var sender;

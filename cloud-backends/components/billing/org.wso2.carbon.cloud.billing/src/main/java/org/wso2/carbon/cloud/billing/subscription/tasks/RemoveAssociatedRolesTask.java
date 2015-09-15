@@ -23,19 +23,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.ntask.core.Task;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.api.UserStoreManager;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,7 +42,6 @@ public class RemoveAssociatedRolesTask implements Task {
     private static final Log log = LogFactory.getLog(RemoveAssociatedRolesTask.class);
     private static final String ERROR_MSG = "Error while executing disabled tenant roles, removal task: ";
     private Map<String, String> properties;
-    private List<String> rolesToRemove;
     private BillingRequestProcessor requestProcessor;
 
     @Override
@@ -57,10 +51,6 @@ public class RemoveAssociatedRolesTask implements Task {
 
     @Override
     public void init() {
-        String roles = properties.get(BillingConstants.REMOVE_ROLES_PROPERTY_KEY);
-        //regex to split by comma and remove white spaces
-        rolesToRemove = Arrays.asList(roles.split("\\s*,\\s*"));
-
         requestProcessor = BillingRequestProcessorFactory
                 .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
                                             CloudBillingUtils.getBillingConfiguration().getDSConfig()
@@ -87,31 +77,12 @@ public class RemoveAssociatedRolesTask implements Task {
                 String endDateString = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_END_DATE)).next()).getText();
 
-                int tenantId = ServiceDataHolder.getInstance()
-                        .getRealmService().getTenantManager().getTenantId(tenantDomain);
-                UserStoreManager userStoreManager = ServiceDataHolder.getInstance().getRealmService()
-                        .getTenantUserRealm(tenantId).getUserStoreManager();
-                for (String role : rolesToRemove) {
-                    if(userStoreManager.isExistingRole(role)) {
-                        userStoreManager.deleteRole(role);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Successfully removed "+ role +" role from roles to remove list: " + rolesToRemove
-                                      + " with the subscription: " + subscription + " for tenant: " + tenantDomain);
-                        }
-                    } else {
-                        log.warn("Role: " + role +" doesn't exists when removing subscription: "+ subscription
-                                 + " for tenant: " + tenantDomain);
-                    }
-                }
                 updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Tenant subscriptions disabling task executed successfully, information " +
                           "is as follows: " + elements);
             }
-
-        } catch (UserStoreException e) {
-            log.error(ERROR_MSG + " while role removing: ", e);
         } catch (CloudBillingException e) {
             log.error(ERROR_MSG + " while executing http request: ", e);
         } catch (XMLStreamException e) {

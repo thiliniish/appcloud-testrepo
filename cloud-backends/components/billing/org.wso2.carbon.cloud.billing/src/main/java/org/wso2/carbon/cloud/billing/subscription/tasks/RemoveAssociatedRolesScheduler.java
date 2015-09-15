@@ -47,9 +47,6 @@ public class RemoveAssociatedRolesScheduler {
             info.setTaskClass(BillingConstants.REMOVE_ROLES_TASK_CLASS_NAME);
 
             Map<String, String> properties = new HashMap<String, String>();
-            String rolesToRemove = CloudBillingUtils.getBillingConfiguration()
-                    .getZuoraConfig().getSubscriptionCleanUp().getRoles();
-            properties.put(BillingConstants.REMOVE_ROLES_PROPERTY_KEY, rolesToRemove);
 
             String pendingDisableTenantsDSUrl = CloudBillingUtils.getBillingConfiguration().getDSConfig()
                     .getPendingDisableTenants();
