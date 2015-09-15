@@ -55,8 +55,7 @@ public class Agent {
                     vHostManager.restoreVirtualHosts();
             }
 
-            new MessageBrokerConsumer(configReader.getProperty("messageBrokerUrl"), vHostManager, templateManager,
-                                      configReader, registryManager);
+            new MessageBrokerConsumer(vHostManager, templateManager, configReader, registryManager);
 
         } catch (IOException | RegistryException e) {
             String errorMessage = "Error occurred when starting the Domain-Mapping agent";

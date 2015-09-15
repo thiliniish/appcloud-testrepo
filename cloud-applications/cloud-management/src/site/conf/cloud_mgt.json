@@ -98,9 +98,11 @@
       "registryPassword" : "admin"
     },
     "messageBroker" : {
-      "topicName" : "Sample-Topic",
+      "topicName" : "custom-url-topic",
       "messageBrokerUrl" : "tcp://localhost:61616"
-    }
+    },
+    "defaultStoreUrl" : "api.cloud.wso2.com/store/?tenant=",
+    "defaultGatewayUrl" : "gateway.api.cloud.wso2.com:8243/t/"
   },
   "invitationEmail": {
     "subject": "WSO2 Cloud Services - Invitation from: "

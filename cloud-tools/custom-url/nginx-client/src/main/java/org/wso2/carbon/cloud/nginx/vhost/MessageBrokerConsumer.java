@@ -50,15 +50,17 @@ public class MessageBrokerConsumer implements MessageListener {
 	private TemplateManager templateManager;
 	private ConfigReader configReader;
 	private RegistryManager registryManager;
+	private String messageBrokerTopicName;
 
-	public MessageBrokerConsumer(String messageBrokerUrl, VHostManager vHostManager, TemplateManager templateManager,
-	                             ConfigReader configReader, RegistryManager registryManager) throws JMSException {
+	public MessageBrokerConsumer(VHostManager vHostManager, TemplateManager templateManager, ConfigReader configReader,
+	                             RegistryManager registryManager) throws JMSException {
 		this.vHostManager = vHostManager;
 		this.templateManager = templateManager;
 		this.configReader = configReader;
 		this.registryManager = registryManager;
+		this.messageBrokerTopicName = configReader.getProperty("messageBrokerTopicName");
 		try {
-			setConnection(messageBrokerUrl);
+			setConnection(configReader.getProperty("messageBrokerUrl"));
 			init();
 		} catch (JMSException ex) {
 			String errorMessage = "Error occurred when initializing Message Consumer";
@@ -92,7 +94,7 @@ public class MessageBrokerConsumer implements MessageListener {
 	public void init() throws JMSException {
 		try {
 			Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
-			Topic topic = session.createTopic(Constants.TOPIC_NAME);
+			Topic topic = session.createTopic(messageBrokerTopicName);
 			MessageConsumer messageConsumer = session.createConsumer(topic);
 			messageConsumer.setMessageListener(this);
 		} catch (JMSException e) {
