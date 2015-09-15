@@ -34,7 +34,7 @@ var getUserRolesOfTenant = function (userName, tenantDomain) {
 
 var getOrganizations = function() {
     var user =  String(session.get("LOGGED_IN_USER"));
-    var userName =  jagg.module("util").getDomainLessUserName(user);
+    var userName =  modManager.getTenantAwareUsername(user);
     var queryString  = SQL_QUERY_STRINGS.SELECT_ORGANIZATION_OF_TENANT_DOMAIN;
     var parameters =[userName];
     var results = jagg.module("database").executeQuery(queryString, parameters);

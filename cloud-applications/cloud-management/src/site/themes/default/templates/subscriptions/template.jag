@@ -17,9 +17,9 @@ if (userName != null) {
 			var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
 		}
 	}
-	 
+
 	var types = cloudConfig.subscriptions.type;
-	var domainName = userName.substring(userName.lastIndexOf('@') + 1);
+	var domainName = jagg.module("manager").getTenantDomain(userName);
 	var subscriptionInfo = {
 	};
 	for (var i = 0; i < types.length; i++) {
@@ -35,13 +35,6 @@ if (userName != null) {
 			log.error("Subscription details were not found for "+ columnName + " of tenant "+ domainName );
             }
 	}
-	var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-	var parameters =[domainName];
-	var results = jagg.module("database").executeQuery(queryString, parameters);
-	if(results !=null){
-            session.put("LOGGED_IN_ORGANIZATION",results[0]["displayName"])
-        }
-        log.info("Logged in Organization : " + session.get("LOGGED_IN_ORGANIZATION") ) ;
         %>
 
         

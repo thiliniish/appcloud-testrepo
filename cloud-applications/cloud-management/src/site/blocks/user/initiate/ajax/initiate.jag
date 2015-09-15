@@ -9,9 +9,9 @@ mod = jagg.module("user/initiate"),
 site = require("/site/conf/site.json");
 
 if (action == "initiatePasswordReset") {
-     var username = request.getParameter("username");
+     var email = request.getParameter("email");
     try {
-        var result = mod.initiatePasswordReset(username);
+        var result = mod.initiatePasswordReset(email);
         if (result != null) {
             print(result);
         } else {

@@ -34,19 +34,7 @@ if (action == "sendExtensionRequest") {
         throw "Error while sending the support request for " + from + "  " +e;
     }
 
-} else if (action == "getEmailForUser") {
-
-    try {
-        var result = mod.getEmailForUser();
-        if (result != null) {
-            print(result);
-        } else {
-            throw "Error while resetting the password ";
-        }
-    } catch(e) {
-        throw "Error while changing the password "+e.message;
-    }
-} else {
+}else {
     throw new Error("No action specified");
 }
 
