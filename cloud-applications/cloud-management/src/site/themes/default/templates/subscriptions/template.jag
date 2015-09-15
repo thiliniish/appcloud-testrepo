@@ -99,7 +99,7 @@ function subscription(type,domain) {
 			<div class="col-lg-3">
 				<i class="<%=types[i].id%>_disabled"></i>
 				<div class="<%=types[i].id%>_disabled_helper helper_text" style= "color:black; font-size: 13px;">
-						Subscription has being disabled. Please contact WSO2 Cloud Team</div> 	
+						subscription has been disabled. Please contact WSO2 Cloud team if you need any help</div>
 			</div>
 
 			<% }
