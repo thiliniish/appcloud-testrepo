@@ -7,7 +7,7 @@
 					<div class="login-box-top">
 						<div class="login-box-top-inside">
 							<h2 class="login-sub-title">Select an Organization</h2>
-						
+
 							<form method="post" action="../../commonauth" id="loginForm">
 								<div class="domain-wrapper">
 									<select name="tenant" id="tenant" style="width: 100%">
@@ -24,6 +24,7 @@
 										   value="<%=URLEncoder.encode((String)password,"UTF-8")%>" />
 									<input type="hidden" name="sessionDataKey"
 										   value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
+									<input type="hidden" id="chkRemember" name="chkRemember" value="on">
 								</div>
 								<div class="login-button-wrapper">
 									<div class="loginError" id="loginError"></div>
