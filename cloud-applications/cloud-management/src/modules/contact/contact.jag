@@ -40,26 +40,6 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
       return true;
     }
 
-var getEmailForUser = function() {
-    var user = userName.substring(0,userName.lastIndexOf('@'));
-    var tenantDomain=modManager.getTenantDomain();
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-
-    try {
-        var tenantId = tenantManager.getTenantId(tenantDomain);
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
-        var tmpemail = tenantMgtService.getUserEmail(user);
-    }catch (e){
-    	log.error(e);
-    }finally{
-        context.endTenantFlow();
-    }    
-      return tmpemail;
-  }
 
 /*
  * create a jira ticket by using jira soap api

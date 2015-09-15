@@ -102,10 +102,10 @@ function generateResponse() {
                     } else if(message == "add-tenant.jag"){
                     	 window.location.href = result;
                     }else{
-          				 jagg.message({content:'You have successfully joined the Organization. Please login in <a href='+message+
-              				 '>here</a>',type:'success',cbk:function(){
+          				 jagg.message({content:'You have successfully joined the Organization. Please login <a href='+message+
+              				 '>here</a>.',type:'success',cbk:function(){
                        	  window.location.href = message;
-                         }});
+                         },cbkBtnText:'Login'});
                     }
               },
               function (jqXHR, textStatus, errorThrown) {

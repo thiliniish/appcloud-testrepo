@@ -16,7 +16,7 @@ var userName =  session.get("LOGGED_IN_USER");
 
 
 var changePassword = function(oldPassword, newPassword) {
-    var user = jagg.module("util").getDomainLessUserName(userName);
+    var user = modManager.getTenantAwareUsername(userName);
     var tenantDomain=modManager.getTenantDomain();
       var userEmail = session.get("LOGGED_IN_USER_EMAIL");
     var context=multitenancy.getPrivilegedCarbonContext();
