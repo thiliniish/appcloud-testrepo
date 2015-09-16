@@ -17,5 +17,49 @@
  */
 package org.wso2.carbon.cloud.testlisteners;
 
-public class CloudTestManagerListener {
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.wso2.carbon.automation.engine.testlisteners.TestManagerListener;
+
+public class CloudTestManagerListener extends TestManagerListener {
+    private static final Log log = LogFactory.getLog(CloudTestManagerListener.class);
+
+    @Override
+    public void onTestStart(ITestResult iTestResult) {
+        super.onTestStart(iTestResult);
+    }
+
+    @Override
+    public void onTestSuccess(ITestResult iTestResult) {
+        super.onTestSuccess(iTestResult);
+    }
+
+    @Override
+    public void onTestFailure(ITestResult iTestResult) {
+        super.onTestFailure(iTestResult);
+    }
+
+    @Override
+    public void onTestSkipped(ITestResult iTestResult) {
+        super.onTestSkipped(iTestResult);
+    }
+
+    @Override
+    public void onTestFailedButWithinSuccessPercentage(ITestResult iTestResult) {
+        super.onTestFailedButWithinSuccessPercentage(iTestResult);
+    }
+
+    @Override
+    public void onStart(ITestContext iTestContext) {
+        super.onStart(iTestContext);
+
+    }
+
+    @Override
+    public void onFinish(ITestContext iTestContext) {
+        super.onFinish(iTestContext);
+
+    }
 }

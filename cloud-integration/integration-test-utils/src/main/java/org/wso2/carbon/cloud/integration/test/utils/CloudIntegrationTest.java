@@ -15,27 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.cloud.test.scenarios;
+package org.wso2.carbon.cloud.integration.test.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTest;
 
-public class TenantLoginTestCase extends CloudIntegrationTest {
-    private static final Log log = LogFactory.getLog(TenantLoginTestCase.class);
+public class CloudIntegrationTest {
+    private static final Log log = LogFactory.getLog(CloudIntegrationTest.class);
 
-    @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
+    public CloudIntegrationTest(){
+
     }
 
-    @Test() public void loginTest() throws Exception {
-        log.info("started running test case");
-    }
-
-    @AfterClass(alwaysRun = true) public void unDeployService() throws Exception {
-        // undeploying deployed artifact
-        super.cleanup();
+    protected void cleanup(){
+        log.info("cleanup called");
     }
 }
