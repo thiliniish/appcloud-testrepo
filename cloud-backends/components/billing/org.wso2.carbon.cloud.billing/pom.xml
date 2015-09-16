@@ -54,6 +54,11 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.user.core</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.ws.client</artifactId>
             <version>${wso2carbon.version}</version>
         </dependency>
@@ -115,6 +120,7 @@
                             org.wso2.carbon.cloud.billing.*; version="${project.version}"
                         </Export-Package>
                         <Import-Package>
+                            org.wso2.carbon.user.core.*; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.utils; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.securevault; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.core; version="${imp.pkg.version.carbon.platform}",
