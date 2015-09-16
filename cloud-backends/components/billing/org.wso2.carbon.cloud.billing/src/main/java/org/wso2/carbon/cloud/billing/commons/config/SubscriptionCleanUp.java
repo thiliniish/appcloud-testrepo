@@ -25,18 +25,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "SubscriptionCleanUp")
 public class SubscriptionCleanUp {
 
-    private String roles;
     private boolean isEnabled;
     private String cron;
-
-    @XmlElement(name = "Roles", nillable = false, required = true)
-    public String getRoles() {
-        return roles;
-    }
-
-    public void setRoles(String roles) {
-        this.roles = roles;
-    }
 
     public boolean isEnabled() {
         return isEnabled;
