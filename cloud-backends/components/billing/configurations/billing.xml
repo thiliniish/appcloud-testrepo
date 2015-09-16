@@ -134,9 +134,6 @@
         <SubscriptionCleanUp>
             <EnableCleanUp>true</EnableCleanUp>
             <Cron>0 57 23 ? * * *</Cron>
-            <!--Roles to be removed once the service subscription is suspended.
-             Please add the roles in a comma separated manner-->
-            <Roles>publisher, subscriber</Roles>
         </SubscriptionCleanUp>
     </Zoura>
     <SSORelyingParty>
