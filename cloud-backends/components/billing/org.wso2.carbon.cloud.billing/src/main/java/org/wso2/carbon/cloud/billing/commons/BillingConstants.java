@@ -52,9 +52,9 @@ public final class BillingConstants {
                                                                 ".UsageUploaderTask";
     public static final String USAGE_UPLOADER_TASK_TENANT_ID_KEY = "__TENANT_ID_PROP__";
 
-    public static final String REMOVE_ROLES_TASK_NAME = "associatedRolesRemover";
-    public static final String REMOVE_ROLES_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks" +
-                                                              ".RemoveAssociatedRolesTask";
+    public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
+    public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks" +
+                                                              ".BillingDbUpdateTask";
     public static final String REMOVE_ROLES_PROPERTY_KEY = "__ROLES_";
     public static final String PENDING_DISABLES_URL_KEY = "__PENDING_DISABLES__";
     public static final String DISABLE_TENANT_URL_KEY = "__DISABLE_TENANT__";
@@ -127,6 +127,7 @@ public final class BillingConstants {
 
     //Should generalize
     public static final String TENANT_DOMAIN_QUERY_PARAM = "TENANT_DOMAIN";
+    public static final String TENANT_ID_QUERY_PARAM = "TENANT_ID";
     public static final String END_DATE_QUERY_PARAM = "END_DATE";
     public static final String SUBSCRIPTION_QUERY_PARAM = "SUBSCRIPTION";
     public static final String ACCOUNT_NUMBER_QUERY_PARAM = "ACCOUNT_NUMBER";

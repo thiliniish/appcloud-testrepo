@@ -23,10 +23,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.ntask.core.Task;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -37,10 +39,10 @@ import java.util.Map;
  *
  *
  */
-public class RemoveAssociatedRolesTask implements Task {
+public class BillingDbUpdateTask implements Task {
 
-    private static final Log log = LogFactory.getLog(RemoveAssociatedRolesTask.class);
-    private static final String ERROR_MSG = "Error while executing disabled tenant roles, removal task: ";
+    private static final Log log = LogFactory.getLog(BillingDbUpdateTask.class);
+    private static final String ERROR_MSG = "Error while executing task: Billing database update for un-subscribed tenants ";
     private Map<String, String> properties;
     private BillingRequestProcessor requestProcessor;
 
@@ -77,7 +79,9 @@ public class RemoveAssociatedRolesTask implements Task {
                 String endDateString = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_END_DATE)).next()).getText();
 
-                updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString);
+                int tenantId = ServiceDataHolder.getInstance().getRealmService().getTenantManager().getTenantId(tenantDomain);
+
+                updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString, tenantId);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Tenant subscriptions disabling task executed successfully, information " +
@@ -87,15 +91,17 @@ public class RemoveAssociatedRolesTask implements Task {
             log.error(ERROR_MSG + " while executing http request: ", e);
         } catch (XMLStreamException e) {
             log.error(ERROR_MSG + " while response parsing: ", e);
+        } catch (UserStoreException e) {
+            log.error(ERROR_MSG + " while acquiring tenantId: ", e);
         }
     }
 
-    private void updateDatabaseEntry(String tenantDomain, String subscription, String startDate, String endDate)
+    private void updateDatabaseEntry(String tenantDomain, String subscription, String startDate, String endDate, int tenantId)
             throws CloudBillingException {
 
         updateSubscriptionsTable(tenantDomain, subscription);
         updateBillingStatusTable(tenantDomain, subscription, endDate);
-        addToHistoryTable(tenantDomain, subscription, startDate, endDate);
+        addToHistoryTable(tenantDomain, subscription, startDate, endDate, tenantId);
     }
 
     /**
@@ -105,7 +111,7 @@ public class RemoveAssociatedRolesTask implements Task {
      * @param endDate      String subscription end date
      * @throws CloudBillingException
      */
-    private void addToHistoryTable(String tenantDomain, String subscription, String startDate, String endDate)
+    private void addToHistoryTable(String tenantDomain, String subscription, String startDate, String endDate,int tenantId)
             throws CloudBillingException {
         String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
         String url = properties.get(BillingConstants.BILLING_HISTORY_URL_KEY);
@@ -117,7 +123,8 @@ public class RemoveAssociatedRolesTask implements Task {
                 new NameValuePair(BillingConstants.TYPE_QUERY_PARAM, "PAID"),
                 new NameValuePair(BillingConstants.STATUS_QUERY_PARAM, "DISABLED"),
                 new NameValuePair(BillingConstants.START_DATE, startDate),
-                new NameValuePair(BillingConstants.END_DATE, endDate)
+                new NameValuePair(BillingConstants.END_DATE, endDate),
+                new NameValuePair(BillingConstants.TENANT_ID_QUERY_PARAM, Integer.toString(tenantId))
         };
 
         String response = requestProcessor.doPost(url, payload);

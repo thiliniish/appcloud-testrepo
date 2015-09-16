@@ -24,17 +24,22 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.service.CloudBillingService;
-import org.wso2.carbon.cloud.billing.subscription.tasks.RemoveAssociatedRolesScheduler;
+import org.wso2.carbon.cloud.billing.subscription.tasks.BillingDbUpdateScheduler;
 import org.wso2.carbon.cloud.billing.usage.scheduler.UsageUploadScheduler;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.service.TaskService;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
+import org.wso2.carbon.user.core.service.RealmService;
 
 /**
  * @scr.component name="org.wso2.carbon.cloud.billing"
  * immediate="true"
+ * @scr.reference name="realm.service"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  * @scr.reference name="ntask.component"
  * interface="org.wso2.carbon.ntask.core.service.TaskService"
  * cardinality="1..1" policy="dynamic" bind="setTaskService"
@@ -72,10 +77,10 @@ public class CloudBillingServiceComponent {
             }
             boolean enableSubscriptionCleanUp = configuration.getZuoraConfig().getSubscriptionCleanUp().isEnabled();
             if (enableSubscriptionCleanUp) {
-                RemoveAssociatedRolesScheduler removeAssociatedRolesScheduler = new RemoveAssociatedRolesScheduler();
+                BillingDbUpdateScheduler billingDbUpdateScheduler = new BillingDbUpdateScheduler();
                 String cronExpression = configuration.getZuoraConfig().getSubscriptionCleanUp().getCron();
 
-                removeAssociatedRolesScheduler.invokeRoleRemovalTask(cronExpression);
+                billingDbUpdateScheduler.invokeBillingDbUpdateTask(cronExpression);
             } else {
                 log.warn("Subscription cleanup disabled");
             }
@@ -97,7 +102,7 @@ public class CloudBillingServiceComponent {
     protected void deactivate(ComponentContext context) {
         this.billingServiceRef.unregister();
         if (log.isDebugEnabled()) {
-            log.debug("DefaultRolesCreatorServiceComponent Service  bundle is deactivated ");
+            log.debug("Cloud billingService  bundle is deactivated ");
         }
     }
 
@@ -121,5 +126,16 @@ public class CloudBillingServiceComponent {
 
     protected void unsetSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
         ServiceDataHolder.getInstance().setSecretCallbackHandlerService(null);
+    }
+
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.debug("UserManagementService is acquired");
+        }
+        ServiceDataHolder.getInstance().setRealmService(realmService);
+    }
+
+    protected void unsetRealmService(RealmService realmService) {
+        ServiceDataHolder.getInstance().setRealmService(null);
     }
 }
