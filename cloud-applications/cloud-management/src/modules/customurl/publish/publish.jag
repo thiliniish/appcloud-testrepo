@@ -78,7 +78,6 @@ var publish = function(tenantId, cloudtype, node, customUrl, sslCertificateConte
 		publishToMessageBroker(payload, cloudtype);
 		
 
-		///_system/governance/customurl/api-cloud/klm5655/securityCertificates/store
 		registry.put(registryPath + cloudtype + "/" + tenantId + "/urlMapping/" +tenantId, urlMappingresource);
 		registry.put(registryPath + cloudtype + "/" + tenantId + "/securityCertificates/"+node+"/"+tenantId+"-"+node+".pem", sslFileresource);
 		registry.put(registryPath + cloudtype + "/" + tenantId + "/securityCertificates/"+node+"/"+tenantId+"-"+node+".key", keyFileResource);
@@ -344,7 +343,7 @@ function initializeSSLFileContent(sslFileContent, keyfileContent, chainFileConte
 
 		if (!status.error) {
 			log.info("File encrypting started");
-			var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileEncrypter');
+			var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileEncryptService');
 			fileEncryptService.init();
 
 			encryptedSSLFileContent = fileEncryptService.encryptData(sslFileContent);
