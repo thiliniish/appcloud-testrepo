@@ -1026,7 +1026,8 @@ var extendTrial = function (serviceId, customerRequest) {
             var trialEndDate = result[0]["END_DATE"];
 
             queryString = SQL_QUERY_STRINGS.INSERT_BILLING_STATUS_HISTORY;
-            parameters = [serviceId, null, tenantDomain, type.TRIAL, status.EXPIRED, trialStartDate, trialEndDate];
+            var tenantId = modManager.getTenantId(tenantDomain);
+            parameters = [serviceId, null, tenantDomain, type.TRIAL, status.EXPIRED, trialStartDate, trialEndDate, tenantId];
             modDb.executeQuery(queryString, parameters);
 
             queryString = SQL_QUERY_STRINGS.UPDATE_BILLING_STATUS;
