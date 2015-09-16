@@ -19,4 +19,8 @@ package org.wso2.carbon.cloud.integration.test.utils;
 
 public class CloudConstants {
     public static final String CLOUD_PRODUCT_GROUP = "cloud";
+
+    public static final String LOGIN_URL_SFX  = "/appmgt/site/blocks/user/login/ajax/login.jag";
+    public static final String LOGOUT_URL_SFX  = "/appmgt/site/blocks/user/logout/ajax/logout.jag";
+    public static final String CLOUD_LOGIN_URL_SFX = "/cloudmgt/site/blocks/user/authenticate/ajax/login.jag";
 }
