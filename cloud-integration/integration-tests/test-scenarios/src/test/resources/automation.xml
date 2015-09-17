@@ -559,7 +559,7 @@
 
         <tenantDetails>
             <tenantId>tenant.wso2.com@tenantorg</tenantId>
-            <tenantPassword>tenanatpassword</tenantPassword>
+            <tenantPassword>tenantpassword</tenantPassword>
         </tenantDetails>
 
     </cloudProperties>
