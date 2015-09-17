@@ -44,9 +44,7 @@ public class TenantLoginTestCase extends CloudIntegrationTest {
         errorsReported = false;
         try {
             authenticatorClient = new JaggeryAppAuthenticatorClient("https://cloudmgt.cloud.wso2.com", "cloudmgt");
-            loginStatus = authenticatorClient.login("malithm@wso2.com", "Baki:123#");
-
-
+            loginStatus = authenticatorClient.login("malithm@wso2.com", "Baki:123");
         } catch (Exception ee) {
 
         }
