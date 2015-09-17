@@ -97,8 +97,7 @@ public class HttpsJaggeryClient {
         return respond;
     }
 
-    @SuppressWarnings("deprecation") public static HttpClient wrapClient(HttpClient base,
-                                                                         String urlStr) {
+    static HttpClient wrapClient(HttpClient base, String urlStr) {
         try {
             SSLContext ctx = SSLContext.getInstance("TLS");
             X509TrustManager tm = new X509TrustManager() {

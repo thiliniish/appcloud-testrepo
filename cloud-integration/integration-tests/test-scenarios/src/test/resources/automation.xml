@@ -554,15 +554,12 @@
     <!--Cloud Related proeprties-->
     <cloudProperties>
         <urls>
-            <!--<cloudMgt>https://milestones.appfactory.wso2.com:9443</cloudMgt>-->
-            <cloudMgt>https://cloudmgt.cloud.wso2.com</cloudMgt>
+          <cloudMgt>https://cloudmgturl.com<cloudMgt>
         </urls>
 
         <tenantDetails>
-            <!--<tenantId>malithm.wso2.com@localcompany1</tenantId>-->
-            <tenantId>malithm.wso2.com@company1</tenantId>
-            <!--<tenantPassword>Malithm123#</tenantPassword>-->
-            <tenantPassword>Baki:123</tenantPassword>
+            <tenantId>tenant.wso2.com@tenataorg</tenantId>
+            <tenantPassword>tenanatpassword</tenantPassword>
         </tenantDetails>
 
     </cloudProperties>
