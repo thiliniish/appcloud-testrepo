@@ -536,10 +536,28 @@
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="cloudProperties">
-                    <!--<xs:complexType>-->
-                        <!--<xs:sequence>-->
-                        <!--</xs:sequence>-->
-                    <!--</xs:complexType>-->
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="urls">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="cloudMgt"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="tenantDetails">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="tenantId"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="tenantPassword"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
                 </xs:element>
 
             </xs:sequence>

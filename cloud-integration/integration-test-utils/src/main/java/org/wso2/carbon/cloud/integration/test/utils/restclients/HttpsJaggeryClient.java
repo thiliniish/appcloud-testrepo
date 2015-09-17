@@ -72,7 +72,8 @@ public class HttpsJaggeryClient {
             response = client.execute(post);
             if (200 == response.getStatusLine().getStatusCode()) {
                 HttpEntity entityGetAppsOfUser = response.getEntity();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(entityGetAppsOfUser.getContent()));
+                BufferedReader rd =
+                        new BufferedReader(new InputStreamReader(entityGetAppsOfUser.getContent()));
                 StringBuilder sb = new StringBuilder();
                 String line = "";
                 while ((line = rd.readLine()) != null) {
@@ -96,24 +97,25 @@ public class HttpsJaggeryClient {
         return respond;
     }
 
-    @SuppressWarnings("deprecation")
-    public static HttpClient wrapClient(HttpClient base, String urlStr) {
+    @SuppressWarnings("deprecation") public static HttpClient wrapClient(HttpClient base,
+                                                                         String urlStr) {
         try {
             SSLContext ctx = SSLContext.getInstance("TLS");
             X509TrustManager tm = new X509TrustManager() {
 
-                public void checkClientTrusted(X509Certificate[] xcs, String string) throws
-                                                                                     CertificateException {
+                public void checkClientTrusted(X509Certificate[] xcs, String string)
+                        throws CertificateException {
                 }
 
-                public void checkServerTrusted(X509Certificate[] xcs, String string) throws CertificateException {
+                public void checkServerTrusted(X509Certificate[] xcs, String string)
+                        throws CertificateException {
                 }
 
                 public X509Certificate[] getAcceptedIssuers() {
                     return null;
                 }
             };
-            ctx.init(null, new TrustManager[]{tm}, null);
+            ctx.init(null, new TrustManager[] { tm }, null);
             SSLSocketFactory ssf = new SSLSocketFactory(ctx);
             ssf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 

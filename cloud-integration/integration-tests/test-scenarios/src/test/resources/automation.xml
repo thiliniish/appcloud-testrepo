@@ -95,7 +95,6 @@
             <remoteDriverUrl enable="true">http://10.100.2.51:4444/wd/hub/</remoteDriverUrl>
 
 
-
             <!-- Type of the browser selenium tests are running" -->
 
             <browser>
@@ -220,7 +219,6 @@
         </truststore>
 
     </security>
-
 
 
     <featureManagement>
@@ -385,7 +383,6 @@
         <productGroup name="cloud" clusteringEnabled="false" default="true">
 
 
-
             <instance name="lbw001" type="lb_worker_manager" nonBlockingTransportEnabled="true">
 
                 <hosts>
@@ -405,7 +402,6 @@
                 </ports>
 
                 <properties>
-
 
 
                 </properties>
@@ -439,7 +435,6 @@
             </instance>
 
 
-
             <instance name="afs001" type="standalone" nonBlockingTransportEnabled="true">
 
                 <hosts>
@@ -457,7 +452,6 @@
                 </ports>
 
                 <properties>
-
 
 
                 </properties>
@@ -495,7 +489,6 @@
     </platform>
 
 
-
     <listenerExtensions>
 
         <!---->
@@ -515,9 +508,6 @@
         </platformExecutionManager>
 
 
-
-
-
         <PlatformSuiteManager>
 
             <extentionClasses>
@@ -527,7 +517,6 @@
             </extentionClasses>
 
         </PlatformSuiteManager>
-
 
 
         <PlatformAnnotationTransferManager>
@@ -541,17 +530,14 @@
         </PlatformAnnotationTransferManager>
 
 
-
         <PlatformTestManager>
 
             <extentionClasses>
 
 
-
             </extentionClasses>
 
         </PlatformTestManager>
-
 
 
         <PlatformReportManager>
@@ -565,11 +551,19 @@
     </listenerExtensions>
 
 
-
+    <!--Cloud Related proeprties-->
     <cloudProperties>
         <urls>
-            <cloudmgt>https://milestones.appfactory.wso2.com:9443</cloudmgt>
+            <!--<cloudMgt>https://milestones.appfactory.wso2.com:9443</cloudMgt>-->
+            <cloudMgt>https://cloudmgt.cloud.wso2.com</cloudMgt>
         </urls>
+
+        <tenantDetails>
+            <!--<tenantId>malithm.wso2.com@localcompany1</tenantId>-->
+            <tenantId>malithm.wso2.com@company1</tenantId>
+            <!--<tenantPassword>Malithm123#</tenantPassword>-->
+            <tenantPassword>Baki:123</tenantPassword>
+        </tenantDetails>
 
     </cloudProperties>
 

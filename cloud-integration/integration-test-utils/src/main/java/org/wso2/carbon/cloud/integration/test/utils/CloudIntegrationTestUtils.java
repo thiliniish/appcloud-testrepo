@@ -30,9 +30,10 @@ public class CloudIntegrationTestUtils {
 
     static {
         try {
-            context = new AutomationContext(CloudConstants.CLOUD_PRODUCT_GROUP, TestUserMode.SUPER_TENANT_ADMIN);
+            context = new AutomationContext(CloudConstants.CLOUD_PRODUCT_GROUP,
+                                            TestUserMode.SUPER_TENANT_ADMIN);
         } catch (XPathExpressionException e) {
-            log.error("Error occurred while initializing automation context",e);
+            log.error("Error occurred while initializing automation context", e);
         }
     }
 

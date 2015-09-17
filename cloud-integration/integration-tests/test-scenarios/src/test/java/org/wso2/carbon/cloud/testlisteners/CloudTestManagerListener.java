@@ -26,38 +26,31 @@ import org.wso2.carbon.automation.engine.testlisteners.TestManagerListener;
 public class CloudTestManagerListener extends TestManagerListener {
     private static final Log log = LogFactory.getLog(CloudTestManagerListener.class);
 
-    @Override
-    public void onTestStart(ITestResult iTestResult) {
+    @Override public void onTestStart(ITestResult iTestResult) {
         super.onTestStart(iTestResult);
     }
 
-    @Override
-    public void onTestSuccess(ITestResult iTestResult) {
+    @Override public void onTestSuccess(ITestResult iTestResult) {
         super.onTestSuccess(iTestResult);
     }
 
-    @Override
-    public void onTestFailure(ITestResult iTestResult) {
+    @Override public void onTestFailure(ITestResult iTestResult) {
         super.onTestFailure(iTestResult);
     }
 
-    @Override
-    public void onTestSkipped(ITestResult iTestResult) {
+    @Override public void onTestSkipped(ITestResult iTestResult) {
         super.onTestSkipped(iTestResult);
     }
 
-    @Override
-    public void onTestFailedButWithinSuccessPercentage(ITestResult iTestResult) {
+    @Override public void onTestFailedButWithinSuccessPercentage(ITestResult iTestResult) {
         super.onTestFailedButWithinSuccessPercentage(iTestResult);
     }
 
-    @Override
-    public void onStart(ITestContext iTestContext) {
+    @Override public void onStart(ITestContext iTestContext) {
         super.onStart(iTestContext);
     }
 
-    @Override
-    public void onFinish(ITestContext iTestContext) {
+    @Override public void onFinish(ITestContext iTestContext) {
         super.onFinish(iTestContext);
     }
 }

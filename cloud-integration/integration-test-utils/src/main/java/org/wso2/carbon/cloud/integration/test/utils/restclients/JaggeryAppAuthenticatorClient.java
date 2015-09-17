@@ -27,19 +27,19 @@ public class JaggeryAppAuthenticatorClient {
     private String loginUrl;
     private String logOutUrl;
 
-
     public JaggeryAppAuthenticatorClient(String hostName) {
         loginUrl = hostName + CloudConstants.LOGIN_URL_SFX;
         logOutUrl = hostName + CloudConstants.LOGOUT_URL_SFX;
     }
+
     public JaggeryAppAuthenticatorClient(String hostName, String appName) {
-        if(appName.equals("cloudmgt")){
+        if (appName.equals("cloudmgt")) {
             loginUrl = hostName + CloudConstants.CLOUD_LOGIN_URL_SFX;
             logOutUrl = loginUrl;
         }
     }
 
-    public boolean login(String userName, String password){
+    public boolean login(String userName, String password) {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "login");
         params.put("userName", userName);
@@ -47,13 +47,13 @@ public class JaggeryAppAuthenticatorClient {
         String value = HttpsJaggeryClient.httpPostLogin(loginUrl, params);
         if (!"false".equals(value)) {
             return true;
-        }else{
+        } else {
             return false;
         }
 
     }
 
-    public void logout(){
+    public void logout() {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "logout");
         HttpsJaggeryClient.httpPost(logOutUrl, params);

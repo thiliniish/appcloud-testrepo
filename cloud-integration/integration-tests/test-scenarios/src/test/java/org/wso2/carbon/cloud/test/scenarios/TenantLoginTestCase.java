@@ -24,35 +24,22 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTest;
-import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 import org.wso2.carbon.cloud.integration.test.utils.restclients.JaggeryAppAuthenticatorClient;
 
 public class TenantLoginTestCase extends CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(TenantLoginTestCase.class);
-    private boolean errorsReported;
-    private JaggeryAppAuthenticatorClient authenticatorClient;
-    private String hostName;
-    private String testUser;
-    private String testUserPassword;
-    private boolean loginStatus = false;
 
+    private JaggeryAppAuthenticatorClient authenticatorClient;
+    private boolean loginStatus = false;
 
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
     }
 
     @Test() public void loginTest() throws Exception {
         log.info("started running test case");
-        errorsReported = false;
-        String abc = CloudIntegrationTestUtils.getPropertyValue("//cloudProperties/urls/cloudmgt");
-        try {
-            authenticatorClient = new JaggeryAppAuthenticatorClient(CloudIntegrationTestUtils.getPropertyValue("//cloudProperties/urls/cloudmgt"), "cloudmgt");
-            loginStatus = authenticatorClient.login("malithm.wso2.com@localcompany1", "Malithm123#");
-        } catch (Exception e) {
-            log.info("Exception occurred while authenticating user" + e);
-
-        }
-        Assert.assertEquals(loginStatus,true);
-
+        authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtUrl, "cloudmgt");
+        loginStatus = authenticatorClient.login(tenantUserName, tenantPassword);
+        Assert.assertEquals(loginStatus, true);
     }
 
     @AfterClass(alwaysRun = true) public void unDeployService() throws Exception {

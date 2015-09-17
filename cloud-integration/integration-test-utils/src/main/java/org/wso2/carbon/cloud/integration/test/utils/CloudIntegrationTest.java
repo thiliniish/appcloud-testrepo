@@ -23,11 +23,17 @@ import org.apache.commons.logging.LogFactory;
 public class CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(CloudIntegrationTest.class);
 
-    public CloudIntegrationTest(){
+    protected String cloudMgtUrl;
+    protected String tenantUserName;
+    protected String tenantPassword;
 
+    public CloudIntegrationTest() {
+        cloudMgtUrl = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.CLOUD_MGT_URL);
+        tenantUserName = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_USER_ID);
+        tenantPassword = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_PASSWORD);
     }
 
-    protected void cleanup(){
+    protected void cleanup() {
         log.info("cleanup called");
     }
 }
