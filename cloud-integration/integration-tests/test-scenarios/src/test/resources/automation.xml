@@ -554,7 +554,7 @@
     <!--Cloud Related proeprties-->
     <cloudProperties>
         <urls>
-          <cloudMgt>https://cloudmgturl.com<cloudMgt>
+          <cloudMgt>https://cloudmgturl.com</cloudMgt>
         </urls>
 
         <tenantDetails>
