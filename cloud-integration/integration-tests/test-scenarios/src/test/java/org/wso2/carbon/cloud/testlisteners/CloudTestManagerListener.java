@@ -54,12 +54,10 @@ public class CloudTestManagerListener extends TestManagerListener {
     @Override
     public void onStart(ITestContext iTestContext) {
         super.onStart(iTestContext);
-
     }
 
     @Override
     public void onFinish(ITestContext iTestContext) {
         super.onFinish(iTestContext);
-
     }
 }
