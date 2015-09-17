@@ -558,7 +558,7 @@
         </urls>
 
         <tenantDetails>
-            <tenantId>tenant.wso2.com@tenataorg</tenantId>
+            <tenantId>tenant.wso2.com@tenantorg</tenantId>
             <tenantPassword>tenanatpassword</tenantPassword>
         </tenantDetails>
 
