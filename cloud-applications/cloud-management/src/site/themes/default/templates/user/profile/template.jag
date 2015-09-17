@@ -23,9 +23,15 @@
 
        function displayClaims(claims){
             if(claims.firstname !=  null ){
+                if (claims.firstname ==  "undefined" || claims.firstname == "$1" || claims.firstname ==  "") {
+                    jagg.message({type:'success',content:'Please update your First Name.'});
+                }
                 document.getElementById("firstName").value = claims.firstname;
             }
             if(claims.lastname != null){
+                if (claims.lastname ==  "undefined" || claims.lastname == "$1" || claims.lastname == "") {
+                    jagg.message({type:'success',content:'Please update your Last Name.'});
+                }
                 document.getElementById("lastName").value = claims.lastname;
             }
             if(claims.email !=  null){
