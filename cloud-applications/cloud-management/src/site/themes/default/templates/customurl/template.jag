@@ -2,11 +2,11 @@
 <%
     include("/jagg/constants.jag");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-	var tenantDomain =  request.getParameter("tenant");
+    var tenantDomain =  request.getParameter("tenant");
 	if(tenantDomain == null || tenantDomain == ''){
         var userName =  session.get("LOGGED_IN_USER");
         if(userName != null){
-            tenantDomain =  userName.substring(userName.lastIndexOf("@")+1);
+            tenantDomain = session.get(TENANT_DOMAIN_NAME);
         }
     }
 

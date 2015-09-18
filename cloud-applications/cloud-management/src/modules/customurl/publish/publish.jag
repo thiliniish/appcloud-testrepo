@@ -29,7 +29,7 @@
     var encryptedChainFileContent;
     var encodedIndexingVectorContent;
 
-var publish = function(tenantId, cloudtype, node, customUrl, sslCertificateContent, keyFileContent, chainFileContent){
+var publish = function(tenantDomain, cloudtype, node, customUrl, sslCertificateContent, keyFileContent, chainFileContent){
 
 	try{
 		var status = "initial";
@@ -43,16 +43,16 @@ var publish = function(tenantId, cloudtype, node, customUrl, sslCertificateConte
 
 		registry.beginTransaction();
 
-		if (registry.resourceExists(registryPath + cloudtype + "/" + tenantId)) {
+		if (registry.resourceExists(registryPath + cloudtype + "/" + tenantDomain)) {
 			status = "update";
-			if(registry.resourceExists(registryPath + cloudtype + "/" + tenantId + "/securityCertificates/" + node)){
-				registry.delete(registryPath + cloudtype + "/" + tenantId + "/securityCertificates/" + node);
+			if(registry.resourceExists(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/" + node)){
+				registry.delete(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/" + node);
 			}
 		}
 
-		var payload = getPayLoad(node,customUrl,status,tenantId);
+		var payload = getPayLoad(node,customUrl,status,tenantDomain);
 
-		var urlMappingContent = '{"tenantDomain" : "'+payload.tenantId+'", "store" : {"customUrl" : "'+payload.store.customUrl+'"}, "gateway" : {"customUrl" : "'+payload.gateway.customUrl+'"}}';
+		var urlMappingContent = '{"tenantDomain" : "'+payload.tenantDomain+'", "store" : {"customUrl" : "'+payload.store.customUrl+'"}, "gateway" : {"customUrl" : "'+payload.gateway.customUrl+'"}}';
 		/**
 		 * Setting resources
 		 */
@@ -78,11 +78,11 @@ var publish = function(tenantId, cloudtype, node, customUrl, sslCertificateConte
 		publishToMessageBroker(payload, cloudtype);
 		
 
-		registry.put(registryPath + cloudtype + "/" + tenantId + "/urlMapping/" +tenantId, urlMappingresource);
-		registry.put(registryPath + cloudtype + "/" + tenantId + "/securityCertificates/"+node+"/"+tenantId+"-"+node+".pem", sslFileresource);
-		registry.put(registryPath + cloudtype + "/" + tenantId + "/securityCertificates/"+node+"/"+tenantId+"-"+node+".key", keyFileResource);
-		registry.put(registryPath + cloudtype + "/" + tenantId + "/securityCertificates/"+node+"/"+tenantId+"-"+node+".pub", chainFileResource);
-		registry.put(registryPath + cloudtype + "/" + tenantId + "/securityCertificates/"+node+"/"+tenantId+"-"+node+".iv", indexingVectorResource);
+		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/urlMapping/" +tenantDomain, urlMappingresource);
+		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".pem", sslFileresource);
+		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".key", keyFileResource);
+		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".pub", chainFileResource);
+		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".iv", indexingVectorResource);
 
 		registry.commitTransaction();
 		return customUrlMappingStatus;
@@ -94,24 +94,24 @@ var publish = function(tenantId, cloudtype, node, customUrl, sslCertificateConte
 	}
 	
 };
-function getPayLoad(node,customUrl,status,tenantId){
+function getPayLoad(node,customUrl,status,tenantDomain){
 	log.info("initial node : "+node+" customUrl "+customUrl+" status : "+status);
 	var payload = {};
 	if(status == "initial"){
 		if(node == "store"){
 			payload.type = 'initial';
-			var storelPayload = {};
-			storelPayload.customUrl = customUrl;
+			var storePayload = {};
+			storePayload.customUrl = customUrl;
 			var gatewayPayload = {};
-			gatewayPayload.customUrl = defaultGatewayURL + tenantId + "/";
+			gatewayPayload.customUrl = defaultGatewayURL + ":8243/t/" + tenantDomain + "/";
 
 			payload.store = storelPayload;
 			payload.gateway = gatewayPayload;
 		}
 		else{
 			payload.type = 'initial';
-			var storelPayload = {};
-			storelPayload.customUrl = defaultStoreURL + tenantId;
+			var storePayload = {};
+			storePayload.customUrl = defaultStoreURL + "/store/?tenant=" + tenantDomain;
 			var gatewayPayload = {};
 			gatewayPayload.customUrl = customUrl;
 			
@@ -119,39 +119,39 @@ function getPayLoad(node,customUrl,status,tenantId){
 			payload.gateway = gatewayPayload;
 		}
 	}else{
-		var currentMapping = this.getCurrentUserMapping(tenantId,'api-cloud');
+		var currentMapping = this.getCurrentUserMapping(tenantDomain,'api-cloud');
 		if(node == 'store'){
-			if(currentMapping.store.customUrl == (defaultStoreURL + tenantId)){
+			if(currentMapping.store.customUrl == (defaultStoreURL + "/store/?tenant=" + tenantDomain)){
 				payload.type = 'initial';
 			} else{
 				payload.type = 'update';
 			}
 			
-			var storelPayload = {};
+			var storePayload = {};
 			storelPayload.customUrl = customUrl;
 			var gatewayPayload = {};
 			gatewayPayload.customUrl = currentMapping.gateway.customUrl;					
-			payload.store = storelPayload;
+			payload.store = storePayload;
 			payload.gateway = gatewayPayload;
 		}else{
-			if(currentMapping.gateway.customUrl == (defaultGatewayURL + tenantId + "/")){
+			if(currentMapping.gateway.customUrl == (defaultGatewayURL + ":8243/t/" + tenantDomain + "/")){
 				payload.type = 'initial';
 			} else{
 				payload.type = 'update';
 			}
 						
-			var storelPayload = {};
-			storelPayload.customUrl = currentMapping.store.customUrl;
+			var storePayload = {};
+			storePayload.customUrl = currentMapping.store.customUrl;
 			var gatewayPayload = {};
 			gatewayPayload.customUrl = customUrl;						
-			payload.store = storelPayload;
+			payload.store = storePayload;
 			payload.gateway = gatewayPayload;
 		}
 	}
 	
 
 	payload.node = node;
-	payload.tenantId = tenantId;
+	payload.tenantDomain = tenantDomain;
 	
 	return payload;
 }
@@ -175,7 +175,7 @@ function publishToMessageBroker(payload,cloudType){
 		jsonPayload.cloudType = cloudType;
 		jsonPayload.status = payload.type;
 		jsonPayload.node = payload.node;
-		jsonPayload.tenantDomain = payload.tenantId;
+		jsonPayload.tenantDomain = payload.tenantDomain;
 
 		if(payload.node == "store"){
 			jsonPayload.customUrl = payload.store.customUrl;
@@ -185,7 +185,7 @@ function publishToMessageBroker(payload,cloudType){
 		}
 	}
 	try{
-        var session = messageBrokerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+	    var session = messageBrokerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	    var topic = session.createTopic(topicName);
 	    var message = session.createTextMessage();
 	    var messageProducer = session.createProducer(topic);
@@ -203,9 +203,9 @@ function publishToMessageBroker(payload,cloudType){
 	}
 }
 
-var getCurrentUserMapping = function(tenantId, cloudType){
-	if(registry.resourceExists(registryPath + cloudType + "/" + tenantId + "/urlMapping/"+tenantId)){
-		var registryLocation =registryPath + cloudType + "/" + tenantId + "/urlMapping/"+tenantId;
+var getCurrentUserMapping = function(tenantDomain, cloudType){
+	if(registry.resourceExists(registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain)){
+		var registryLocation =registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain;
 		var resource = registry.get(registryLocation);
 	
 		var stringOBj = String((new java.lang.String(resource.getContent())));

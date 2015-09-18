@@ -6,6 +6,7 @@ include("/jagg/config_reader.jag");
     var mod = jagg.module("customurl");
     var action = request.getParameter("action");
     var cloudType = request.getParameter("cloudType");
+    var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
 
     var log = new Log("/site/blocks/customurl/ajax/customurl.jag");
 
@@ -36,14 +37,16 @@ include("/jagg/config_reader.jag");
     }
     else if(action == "validateUrl"){
         log.info("Custom domain is "+request.getParameter("customDomain"));
+        var defaultStoreURL = cloudConfigFile.customUrl.defaultStoreUrl;
+        var defaultGatewayURL = cloudConfigFile.customUrl.defaultGatewayUrl;
         var nodeType = request.getParameter("nodeType");
         var customUrl = request.getParameter("customDomain");
         var cname = "";
         if(nodeType == "store"){
-            cname = "api.cloud.wso2.com";
+            cname = defaultStoreURL;
         }
         else{
-            cname = "gateway.api.cloud.wso2.com";
+            cname = defaultGatewayURL;
         }
 
         var value = mod.validateUrl(customUrl, cname);
@@ -56,8 +59,8 @@ include("/jagg/config_reader.jag");
             var jsonObj = {};
             var storeMapping = {};
             var gatewayMapping = {};
-            storeMapping.customUrl = "api.cloud.wso2.com";
-            gatewayMapping.customUrl = "gateway.api.cloud.wso2.com"
+            storeMapping.customUrl = cloudConfigFile.customUrl.defaultStoreUrl;
+            gatewayMapping.customUrl = cloudConfigFile.customUrl.defaultGatewayUrl;
             jsonObj.store = storeMapping;
             jsonObj.gateway = gatewayMapping;
             value = jsonObj;

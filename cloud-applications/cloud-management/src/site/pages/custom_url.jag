@@ -2,10 +2,9 @@
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
 (function () {
-
-	    var userName = session.get("LOGGED_IN_USER");
-        var sessionId = session.getId();
-   jagg.render({
+    var userName = session.get("LOGGED_IN_USER");
+    var sessionId = session.getId();
+    jagg.render({
         "name":"page/base",
         "inputs":{
             "title":"WSO2 Cloud Custom Url",

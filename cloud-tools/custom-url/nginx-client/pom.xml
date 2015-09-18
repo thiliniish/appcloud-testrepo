@@ -4,26 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wso2.carbon</groupId>
+    <parent>
+        <groupId>org.wso2.carbon.cloud</groupId>
+        <artifactId>custom-url</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <artifactId>org.wso2.carbon.cloud.nginx.vhost</artifactId>
     <version>1.0.0</version>
-    <name>WSO2 Cloud - Domain Mapper</name>
-
-    <repositories>
-        <repository>
-            <id>wso2-maven2-repository</id>
-            <name>WSO2 Maven2 Repository</name>
-            <url>http://dist.wso2.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </releases>
-        </repository>
-    </repositories>
+    <name>Cloud - Domain Mapper</name>
 
     <dependencies>
         <dependency>
@@ -34,17 +24,17 @@
         <dependency>
             <groupId>wsdl4j.wso2</groupId>
             <artifactId>wsdl4j</artifactId>
-            <version>1.6.2.wso2v4</version>
+            <version>${wsdl4j.wso2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.core</artifactId>
-            <version>4.2.0</version>
+            <version>${wso2carbon.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.ws.client</artifactId>
-            <version>4.2.0</version>
+            <version>${wso2carbon.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json.wso2</groupId>
@@ -54,7 +44,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.9</version>
+            <version>${commons.codec.version}</version>
         </dependency>
     </dependencies>
 

@@ -4,10 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wso2carbon</groupId>
+    <parent>
+        <groupId>org.wso2.carbon.cloud</groupId>
+        <artifactId>custom-url</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <artifactId>org.wso2.carbon.cloud.ssl.securitycomponent</artifactId>
     <version>1.0.0</version>
     <packaging>bundle</packaging>
+    <name>Cloud - SSL Security Component</name>
 
     <dependencies>
         <dependency>
@@ -18,12 +25,12 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
+            <version>${commons.logging.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>4.2.0</version>
+            <version>${wso2carbon.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -33,22 +40,9 @@
         <dependency>
             <groupId>commons-codec.wso2</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.4.0.wso2v1</version>
+            <version>${commons.codec.wso2.version}</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>wso2-nexus</id>
-            <name>WSO2 internal Repository</name>
-            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-    </repositories>
 
     <build>
         <plugins>
