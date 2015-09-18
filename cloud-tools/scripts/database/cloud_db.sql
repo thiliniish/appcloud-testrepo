@@ -25,10 +25,11 @@ CREATE TABLE ORGANIZATIONS (
 );
 
 CREATE TABLE TEMP_INVITEE (
-  tenantDomain VARCHAR(255) NOT NULL,
-  email        VARCHAR(255) NOT NULL,
-  uuid         VARCHAR(500) NOT NULL,
-  roles        VARCHAR(500) NOT NULL
+  tenantDomain varchar(255) NOT NULL,
+  email varchar(255) NOT NULL,
+  uuid varchar(500) NOT NULL,
+  roles varchar(500) NOT NULL,
+  dateTime datetime NOT NULL
 );
 
 CREATE TABLE BILLING_ACCOUNT (
