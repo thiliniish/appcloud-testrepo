@@ -57,7 +57,7 @@ include("/modules/database/sql.jag");
             var userName = ssoRelyingParty.getLoggedInUser(sessionId);
             var modManager = jagg.module("manager");
             var domainLessUserName = modManager.getTenantAwareUsername(userName);
-            var userInfo = getUserInfo(domainLessUserName);
+            var userInfo = jagg.module("tenant").getUserInfo(domainLessUserName);
             var firstName = userInfo.firstName;
             var lastName = userInfo.lastName;
             var tenantDomain = modManager.getTenantDomain();
@@ -78,7 +78,7 @@ include("/modules/database/sql.jag");
                 response.sendRedirect(storeUrl);
             } else {
                 var firstNameCheckList = firstName == "$1" || firstName == "undefined" || firstName == undefined || firstName == "";
-                var lastNameCheckList = lastName == "$1" || lastName == "undefined" || lastName == undefined || lastName == "";
+                var lastNameCheckList = lastName == "$2" || lastName == "undefined" || lastName == undefined || lastName == "";
 
                 if (firstNameCheckList || lastNameCheckList) {
                     response.sendRedirect("../" + PROFILE_PAGE);
@@ -116,11 +116,6 @@ function createTenantInfoObject() {
     session.put("TENANT_INFO", tenantInfo);
 }
 
-// Get the user profile information
-function getUserInfo(domainLessUserName) {
-    var userInfo = jagg.module("tenant").getUserInfo(domainLessUserName);
-    return userInfo;
-}
 
 %>
     </body>
