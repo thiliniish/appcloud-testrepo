@@ -34,6 +34,7 @@
         <module>cloud-backends/components</module>
         <module>cloud-applications</module>
         <module>cloud-monitoring</module>
+        <module>cloud-integration</module>
     </modules>
      
     <repositories>
@@ -207,6 +208,9 @@
         <gitblit.version>1.2.0</gitblit.version>
         <log4j.version>1.2.17</log4j.version>
         <xalan.version>2.7.1</xalan.version>
+        <org.wso2.carbon.cloud.integration.version>1.0.0</org.wso2.carbon.cloud.integration.version>
+        <org.wso2.carbon.automation.engine.version>4.3.1</org.wso2.carbon.automation.engine.version>
+        <org.wso2.carbon.integration.common.utils.version>4.3.0</org.wso2.carbon.integration.common.utils.version>
 
         <imp.pkg.version.axiom>[1.2.11.wso2v4, 1.3.0)</imp.pkg.version.axiom>
         <imp.pkg.version.axis2>[1.6.1.wso2v10, 1.7.0)</imp.pkg.version.axis2>
@@ -225,8 +229,6 @@
         <imp.pkg.version.commons-logging>[1.1.1, 1.2.0)</imp.pkg.version.commons-logging>
         <imp.pkg.version.com.google.code.gson>[2.1, 2.2)</imp.pkg.version.com.google.code.gson>
         <imp.pkg.version.commons-lang>[2.6.0, 2.7.0)</imp.pkg.version.commons-lang>
-        <org.wso2.carbon.cloud.integration.version>1.0.0</org.wso2.carbon.cloud.integration.version>
-        <org.wso2.carbon.automation.engine.version>4.3.1</org.wso2.carbon.automation.engine.version>
-        <org.wso2.carbon.integration.common.utils.version>4.3.0</org.wso2.carbon.integration.common.utils.version>
+
       </properties>
 </project>
