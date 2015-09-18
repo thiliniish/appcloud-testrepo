@@ -3,18 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>cloud-integration</artifactId>
         <groupId>org.wso2.carbon.cloud</groupId>
-        <version>${org.wso2.carbon.cloud.integration.version}</version>
+        <artifactId>cloud-integration</artifactId>
+        <version>1.0.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.cloud.test.scenarios</artifactId>
-    <version>${org.wso2.carbon.cloud.integration.version}</version>
+    <artifactId>test-scenarios</artifactId>
+    <name>Cloud - Integration Test Scenarios</name>
     <packaging>jar</packaging>
-    <name>WSO2 Cloud - Integration - Integration Tests - Test Scenarios</name>
+    <version>1.0.0</version>
 
     <dependencies>
         <dependency>
@@ -24,8 +24,8 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.cloud</groupId>
-            <artifactId>org.wso2.carbon.cloud.integration.test.utils</artifactId>
-            <version>${org.wso2.carbon.cloud.integration.version}</version>
+            <artifactId>integration-test-utils</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>xalan</groupId>
@@ -42,10 +42,10 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <inherited>false</inherited>
                 <configuration>
-                    <!--argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=128m -Xmx1024m -XX:PermSize=256m
+                    <!-- argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=128m -Xmx1024m -XX:PermSize=256m
                          -XX:MaxPermSize=512m -Xdebug -Xnoagent -Djava.compiler=NONE
                          -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 -Dhttps.protocols=TLSv1,SSLv3
-                     </argLine-->
+                     </argLine -->
                     <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=128m -Dhttps.protocols=TLSv1,SSLv3</argLine>
                     <testFailureIgnore>false</testFailureIgnore>
                     <disableXmlReport>false</disableXmlReport>
