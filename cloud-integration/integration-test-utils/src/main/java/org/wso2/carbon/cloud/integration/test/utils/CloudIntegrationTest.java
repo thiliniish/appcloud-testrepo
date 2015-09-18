@@ -23,14 +23,14 @@ import org.apache.commons.logging.LogFactory;
 public class CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(CloudIntegrationTest.class);
 
-    protected String cloudMgtUrl;
-    protected String tenantUserName;
-    protected String tenantPassword;
+    protected String cloudMgtServerUrl;
+    protected String tenantAdminUserName;
+    protected String tenantAdminPassword;
 
     public CloudIntegrationTest() {
-        cloudMgtUrl = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.CLOUD_MGT_URL);
-        tenantUserName = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_USER_ID);
-        tenantPassword = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_PASSWORD);
+        cloudMgtServerUrl = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.CLOUD_MGT_SERVER_URL);
+        tenantAdminUserName = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_ADMIN_USER_NAME);
+        tenantAdminPassword = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_ADMIN_PASSWORD);
     }
 
     protected void cleanup() {
