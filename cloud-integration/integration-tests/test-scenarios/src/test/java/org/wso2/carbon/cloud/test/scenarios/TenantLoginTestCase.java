@@ -37,8 +37,8 @@ public class TenantLoginTestCase extends CloudIntegrationTest {
 
     @Test() public void loginTest() throws Exception {
         log.info("started running test case");
-        authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtUrl, "cloudmgt");
-        loginStatus = authenticatorClient.login(tenantUserName, tenantPassword);
+        authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl, "cloudmgt");
+        loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
         Assert.assertEquals(loginStatus, true);
     }
 

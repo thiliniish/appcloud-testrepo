@@ -281,11 +281,13 @@
     <!--Cloud Related properties-->
     <cloudProperties>
         <urls>
-            <cloudMgt>https://cloudmgturl.com</cloudMgt>
+            <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
         </urls>
         <tenantDetails>
-            <tenantId>tenant.wso2.com@tenantorg</tenantId>
-            <tenantPassword>tenantpassword</tenantPassword>
+            <tenantId>1</tenantId>
+            <tenantDomain>tenantdomain</tenantDomain>
+            <adminUser>admin.wso2.com@tenantdomain</adminUser>
+            <adminPassword>Admin@123</adminPassword>
         </tenantDetails>
     </cloudProperties>
 

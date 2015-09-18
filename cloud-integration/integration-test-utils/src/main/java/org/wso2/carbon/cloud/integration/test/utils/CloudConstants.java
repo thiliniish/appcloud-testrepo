@@ -26,7 +26,7 @@ public class CloudConstants {
             "/cloudmgt/site/blocks/user/authenticate/ajax/login.jag";
 
     //Automation xml parameters
-    public static final String CLOUD_MGT_URL = "//cloudProperties/urls/cloudMgt";
-    public static final String TENANT_USER_ID = "//cloudProperties/tenantDetails/tenantId";
-    public static final String TENANT_PASSWORD = "//cloudProperties/tenantDetails/tenantPassword";
+    public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
+    public static final String TENANT_ADMIN_USER_NAME = "//cloudProperties/tenantDetails/adminUser";
+    public static final String TENANT_ADMIN_PASSWORD = "//cloudProperties/tenantDetails/adminPassword";
 }
