@@ -23,7 +23,7 @@
       <param name="day" sqlType="SMALLINT"/>
    </query>
    <query id="getUsageDataQ" useConfig="apim_stat">
-      <sql>select SUM(total_request_count) AS totalCount, apiPublisher,time,day,year,month From API_REQUEST_SUMMARY WHERE apiPublisher=:apiPublisher AND (time BETWEEN  DATE(:startDate)  AND  DATE(:endDate))  GROUP BY apiPublisher,day,year,month;</sql>
+      <sql>select SUM(total_request_count) AS totalCount, apiPublisher,time,day,year,month From API_REQUEST_SUMMARY WHERE apiPublisher=:apiPublisher AND (time BETWEEN  DATE(:startDate)  AND  DATE(:endDate))  GROUP BY apiPublisher,day,year,month ORDER BY time;</sql>
       <result element="Entries" rowName="Entry">
          <element column="totalCount" name="totalCount" xsdType="string"/>
          <element column="apiPublisher" name="apiPublisher" xsdType="string"/>
@@ -79,7 +79,7 @@
       <param name="TENANT_DOMAIN" sqlType="STRING"/>
    </query>
    <query id="insertBillingHistoryQ" useConfig="cloud_mgt">
-      <sql>INSERT INTO BILLING_STATUS_HISTORY(TENANT_DOMAIN,SUBSCRIPTION,ACCOUNT_NUMBER,TYPE,STATUS,START_DATE,END_DATE) VALUES (:TENANT_DOMAIN,:SUBSCRIPTION,:ACCOUNT_NUMBER,:TYPE,:STATUS,:START_DATE,:END_DATE)</sql>
+      <sql>INSERT INTO BILLING_STATUS_HISTORY(TENANT_DOMAIN,SUBSCRIPTION,ACCOUNT_NUMBER,TYPE,STATUS,START_DATE,END_DATE,TENANT_ID) VALUES (:TENANT_DOMAIN,:SUBSCRIPTION,:ACCOUNT_NUMBER,:TYPE,:STATUS,:START_DATE,:END_DATE,:TENANT_ID)</sql>
       <param name="TENANT_DOMAIN" sqlType="STRING"/>
       <param name="SUBSCRIPTION" sqlType="STRING"/>
       <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
@@ -87,6 +87,7 @@
       <param name="STATUS" sqlType="STRING"/>
       <param name="START_DATE" sqlType="DATE"/>
       <param name="END_DATE" sqlType="DATE"/>
+      <param name="TENANT_ID" sqlType="INTEGER"/>
    </query>
    <operation name="getTotalRequestCountPerDay">
       <call-query href="getTotalRequestCountPerDayQ">
@@ -139,6 +140,7 @@
          <with-param name="STATUS" query-param="STATUS"/>
          <with-param name="START_DATE" query-param="START_DATE"/>
          <with-param name="END_DATE" query-param="END_DATE"/>
+         <with-param name="TENANT_ID" query-param="TENANT_ID"/>
       </call-query>
    </operation>
    <resource method="GET" path="requestcount">
@@ -192,6 +194,7 @@
          <with-param name="STATUS" query-param="STATUS"/>
          <with-param name="START_DATE" query-param="START_DATE"/>
          <with-param name="END_DATE" query-param="END_DATE"/>
+         <with-param name="TENANT_ID" query-param="TENANT_ID"/>
       </call-query>
    </resource>
 </data>

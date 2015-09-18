@@ -22,6 +22,7 @@ import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.TaskManager;
 import org.wso2.carbon.ntask.core.service.TaskService;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
+import org.wso2.carbon.user.core.service.RealmService;
 
 /**
  * Represent the data holder for the service component
@@ -31,6 +32,7 @@ public class ServiceDataHolder {
     private static Log log = LogFactory.getLog(ServiceDataHolder.class);
     private TaskService taskService;
     private SecretCallbackHandlerService secretCallbackHandlerService;
+    private RealmService realmService;
 
     private ServiceDataHolder() {
     }
@@ -65,4 +67,11 @@ public class ServiceDataHolder {
         this.secretCallbackHandlerService = secretCallbackHandlerService;
     }
 
+    public RealmService getRealmService() {
+        return realmService;
+    }
+
+    public void setRealmService(RealmService realmService) {
+        this.realmService = realmService;
+    }
 }
