@@ -6,7 +6,7 @@
     <input type="hidden" name="username" id='username' value="<%=userName%>"/>
     <input type="hidden" name="password" id='password' value="<%=URLEncoder.encode((String)request.getParameter("password"),"UTF-8")%>"/>
     <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
-    <input type="hidden" id="chkRemember" name="chkRemember" value="on">
+    <input type="hidden" name="chkRemember" id="chkRemember" value="on">
 
 </form>
 <body>

@@ -24,7 +24,7 @@
 										   value="<%=URLEncoder.encode((String)password,"UTF-8")%>" />
 									<input type="hidden" name="sessionDataKey"
 										   value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
-									<input type="hidden" id="chkRemember" name="chkRemember" value="on">
+									<input type="hidden" name="chkRemember" id="chkRemember" value="on">
 								</div>
 								<div class="login-button-wrapper">
 									<div class="loginError" id="loginError"></div>
