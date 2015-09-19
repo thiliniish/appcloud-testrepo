@@ -17,19 +17,20 @@
 package org.wso2.carbon.cloud.billing.exceptions;
 
 /**
- * Configuration exceptions
+ *
+ * Cloud security exceptions
  */
-public class CloudBillingConfigurationException extends CloudBillingException {
+public class CloudBillingSecurityException extends CloudBillingException{
 
-    public CloudBillingConfigurationException(String s) {
+    public CloudBillingSecurityException(String s) {
         super(s);
     }
 
-    public CloudBillingConfigurationException(String s, Throwable throwable) {
+    public CloudBillingSecurityException(String s, Throwable throwable) {
         super(s, throwable);
     }
 
-    public CloudBillingConfigurationException(Throwable throwable) {
+    public CloudBillingSecurityException(Throwable throwable) {
         super(throwable);
     }
 }
