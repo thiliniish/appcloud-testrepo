@@ -45,9 +45,7 @@ public class HttpHandler {
             public boolean verify(String hostname, SSLSession session) {
                 String deploymentContext = CloudIntegrationTestUtils
                         .getPropertyValue(CloudConstants.DEPLOYMENT_CONTEXT);
-                if (deploymentContext.equals("local"))
-                    return true;
-                return false;
+                return deploymentContext.equals("local");
             }
         });
     }
@@ -66,8 +64,8 @@ public class HttpHandler {
         HttpEntity entity = response.getEntity();
         InputStream content = entity.getContent();
         BufferedReader in = new BufferedReader(new InputStreamReader(content));
-        StringBuffer responseBuffer = new StringBuffer();
-        String line = "";
+        StringBuilder responseBuffer = new StringBuilder();
+        String line;
         while ((line = in.readLine()) != null) {
             responseBuffer.append(line);
         }
@@ -108,7 +106,7 @@ public class HttpHandler {
         if (responseCode == 200) {
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
@@ -127,7 +125,6 @@ public class HttpHandler {
      * @throws IOException Throws this when failed to fulfill a https post request
      */
     public static String doPostHttps(String url, Map<String, String> params) throws IOException {
-        URL obj = new URL(url);
         String payLoad = mapToString(params);
         return doPostHttps(url, payLoad, null, MediaType.APPLICATION_FORM_URLENCODED);
     }
@@ -142,7 +139,7 @@ public class HttpHandler {
      * @return response
      * @throws java.io.IOException Throws this when failed to fulfill a http get request
      */
-    public String doGet(String url, String trackingCode, String appmSamlSsoTokenId, String refer)
+    public static String doGet(String url, String trackingCode, String appmSamlSsoTokenId, String refer)
             throws IOException {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -162,7 +159,7 @@ public class HttpHandler {
         int responseCode = con.getResponseCode();
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String inputLine;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
         }
@@ -177,14 +174,11 @@ public class HttpHandler {
      * @return String of parameters ready for execution
      */
     public static String mapToString(Map<String, String> params) {
-        String parameterString;
         StringBuilder sb = new StringBuilder();
         Set<String> keySet = params.keySet();
         for (String paramKey : keySet) {
-            sb.append(paramKey + "=" + params.get(paramKey) + "&");
+            sb.append(paramKey).append("=").append(params.get(paramKey)).append("&");
         }
-        parameterString = sb.toString();
-
-        return parameterString;
+        return sb.substring(0, sb.length() - 1);
     }
 }

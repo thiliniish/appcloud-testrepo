@@ -30,8 +30,6 @@ public class TenantLoginTestCase extends CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(TenantLoginTestCase.class);
 
     private JaggeryAppAuthenticatorClient authenticatorClient;
-    private boolean loginStatus = false;
-    private boolean logOutStatus = false;
 
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
     }
@@ -41,7 +39,7 @@ public class TenantLoginTestCase extends CloudIntegrationTest {
     public void loginTest() throws Exception {
         log.info("started running test case login");
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl, "cloudmgt");
-        loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
+        boolean loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
         Assert.assertEquals(loginStatus, true);
     }
 
@@ -49,8 +47,8 @@ public class TenantLoginTestCase extends CloudIntegrationTest {
     public void logoutTest() throws Exception {
         log.info("started running test case log out");
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl, "cloudmgt");
-        logOutStatus = authenticatorClient.logout();
-        Assert.assertEquals(loginStatus, true);
+        boolean logOutStatus = authenticatorClient.logout();
+        Assert.assertEquals(logOutStatus, true);
     }
 
     @AfterClass(alwaysRun = true) public void unDeployService() throws Exception {
