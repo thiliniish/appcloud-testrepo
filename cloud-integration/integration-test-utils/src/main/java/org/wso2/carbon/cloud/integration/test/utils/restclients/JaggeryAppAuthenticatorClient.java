@@ -44,7 +44,6 @@ public class JaggeryAppAuthenticatorClient {
 
     public boolean login(String userName, String password) throws IOException {
         HttpHandler httpHandler = new HttpHandler();
-//        String value = httpHandler.doPostHttps(loginUrl, "action=login&userName="+userName+"&password="+password,"","application/x-www-form-urlencoded");
         Map<String,String> params = new HashMap<String, String>();
         params.put("action","login");
         params.put("userName",userName);
