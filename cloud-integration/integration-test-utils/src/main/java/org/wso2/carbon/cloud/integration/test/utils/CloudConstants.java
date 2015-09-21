@@ -29,4 +29,5 @@ public class CloudConstants {
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
     public static final String TENANT_ADMIN_USER_NAME = "//cloudProperties/tenantDetails/adminUser";
     public static final String TENANT_ADMIN_PASSWORD = "//cloudProperties/tenantDetails/adminPassword";
+    public static final String DEPLOYMENT_CONTEXT = "//cloudProperties/deploymentContext";
 }

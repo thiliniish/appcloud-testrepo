@@ -560,6 +560,8 @@
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
+                            <xs:element name="deploymentContext" type="xs:string" maxOccurs="1" minOccurs="0">
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
