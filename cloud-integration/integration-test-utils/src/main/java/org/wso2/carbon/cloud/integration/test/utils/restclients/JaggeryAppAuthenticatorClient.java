@@ -18,7 +18,10 @@
 package org.wso2.carbon.cloud.integration.test.utils.restclients;
 
 import org.wso2.carbon.cloud.integration.test.utils.CloudConstants;
+import org.wso2.carbon.cloud.integration.test.utils.external.HttpHandler;
 
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,12 +42,10 @@ public class JaggeryAppAuthenticatorClient {
         }
     }
 
-    public boolean login(String userName, String password) {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "login");
-        params.put("userName", userName);
-        params.put("password", password);
-        String value = HttpsJaggeryClient.httpPostLogin(loginUrl, params);
+    public boolean login(String userName, String password) throws IOException {
+        HttpHandler httpHandler = new HttpHandler();
+        String value = httpHandler.doPostHttps(loginUrl, "action=login&userName="+userName+"&password="+password,"none","application/x-www-form-urlencoded");
+
         if (!"false".equals(value)) {
             return true;
         } else {
@@ -53,10 +54,17 @@ public class JaggeryAppAuthenticatorClient {
 
     }
 
-    public void logout() {
+    public boolean logout() throws IOException{
         Map<String, String> params = new HashMap<String, String>();
+        HttpHandler httpHandler = new HttpHandler();
         params.put("action", "logout");
-        HttpsJaggeryClient.httpPost(logOutUrl, params);
+        String logoutValue = httpHandler.doPostHttps(logOutUrl, "action=logout", "none",
+                                                     "application/x-www-form-urlencoded");
+        if (!"false".equals(logoutValue)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
