@@ -34,6 +34,7 @@ function login(userName, password){
         if (result.indexOf("false") === -1 && result.indexOf("faultstring") === -1) {
             log.info("user logs in");
             jagg.setUser(userName);
+            createTenantInfoObject();
             log.info("user set in the jagg");
             var cookie = (xhr.getAllResponseHeaders());
             var cookieString = cookie.split(";")[0].split(":")[1];
@@ -112,5 +113,14 @@ function logout(){
 
 }
 
+function createTenantInfoObject() {
+    if (session.get("TENANT_INFO") == null) {
+        var modManager = jagg.module("manager");
+        var tenantInfo = {};
+        tenantInfo.tenantDomain = modManager.getTenantDomain();
+        tenantInfo.tenantId = modManager.getTenantId();
+        session.put("TENANT_INFO", tenantInfo);
+    }
+}
 
 %>

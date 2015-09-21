@@ -24,10 +24,21 @@ public class CloudConstants {
     public static final String LOGOUT_URL_SFX = "/cloudmgt/site/blocks/user/logout/ajax/logout.jag";
     public static final String CLOUD_LOGIN_URL_SFX =
             "/cloudmgt/site/blocks/user/authenticate/ajax/login.jag";
+    public static final String CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX =
+            "/cloudmgt/site/blocks/billing/method/info/ajax/get.jag";
+    public static final String CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX =
+            "/cloudmgt/site/blocks/billing/method/add/ajax/add.jag";
 
     //Automation xml parameters
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
     public static final String TENANT_ADMIN_USER_NAME = "//cloudProperties/tenantDetails/adminUser";
     public static final String TENANT_ADMIN_PASSWORD = "//cloudProperties/tenantDetails/adminPassword";
     public static final String DEPLOYMENT_CONTEXT = "//cloudProperties/deploymentContext";
+
+
+    public static final String BILLING_PAYMENT_SERVICE_ID = "//cloudProperties/billing/payments/serviceId";
+    public static final String BILLING_PAYMENT_PRODUCT_RATE_PLAN_ID = "//cloudProperties/billing/payments/productRatePlanId";
+
+    public static final String CLOUD_MGT_APP = "cloudmgt";
+
 }
