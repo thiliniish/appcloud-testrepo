@@ -1,5 +1,4 @@
-/*
- *
+ /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.wso2.carbon.cloud.integration.test.utils.external;
 
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -94,18 +94,6 @@ public class HttpHandler {
         }
         return null;
     }
-
-    /**
-     * This method is use get a html file for given url
-     *
-     * @param url
-     *          Web page url
-     *
-     * @return response
-     *
-     * @throws  java.io.IOException
-     *            Throws this when failed to retrieve web page
-     */
 
 
     /**

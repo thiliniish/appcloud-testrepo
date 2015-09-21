@@ -82,7 +82,7 @@
         <keystore name="wso2">
             <!--  Keystore file location -->
             <!--<fileName>keystores/products/wso2carbon.jks</fileName>-->
-            <fileName>keystores/wso2carbon.jks</fileName>
+            <fileName>security/keystores/wso2carbon.jks</fileName>
 
             <!--  Keystore type (JKS/PKCS12 etc.) -->
             <type>JKS</type>
@@ -102,7 +102,7 @@
         <truststore name="wso2">
 
             <!--  trust-store file location  -->
-            <fileName>truststores/client-truststore.jks</fileName>
+            <fileName>security/truststores/client-truststore.jks</fileName>
 
             <!--  trust-store type (JKS/PKCS12 etc.)  -->
             <type>JKS</type>
