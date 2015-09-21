@@ -36,14 +36,15 @@ public class TenantLoginTestCase extends CloudIntegrationTest {
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
     }
 
-    @Test() public void loginTest() throws Exception {
+
+    @Test(description = "Login test for the tenant", priority = 1) public void loginTest() throws Exception {
         log.info("started running test case login");
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl, "cloudmgt");
         loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
         Assert.assertEquals(loginStatus, true);
     }
 
-    @Test() public void logoutTest() throws Exception {
+    @Test(description = "logout test", priority = 2) public void logoutTest() throws Exception {
         log.info("started running test case log out");
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl, "cloudmgt");
         logOutStatus = authenticatorClient.logout();

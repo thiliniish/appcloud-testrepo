@@ -44,8 +44,12 @@ public class JaggeryAppAuthenticatorClient {
 
     public boolean login(String userName, String password) throws IOException {
         HttpHandler httpHandler = new HttpHandler();
-        String value = httpHandler.doPostHttps(loginUrl, "action=login&userName="+userName+"&password="+password,"none","application/x-www-form-urlencoded");
-
+//        String value = httpHandler.doPostHttps(loginUrl, "action=login&userName="+userName+"&password="+password,"","application/x-www-form-urlencoded");
+        Map<String,String> params = new HashMap<String, String>();
+        params.put("action","login");
+        params.put("userName",userName);
+        params.put("password",password);
+        String value = httpHandler.doPostHttps(loginUrl,params);
         if (!"false".equals(value)) {
             return true;
         } else {
@@ -58,8 +62,7 @@ public class JaggeryAppAuthenticatorClient {
         Map<String, String> params = new HashMap<String, String>();
         HttpHandler httpHandler = new HttpHandler();
         params.put("action", "logout");
-        String logoutValue = httpHandler.doPostHttps(logOutUrl, "action=logout", "none",
-                                                     "application/x-www-form-urlencoded");
+        String logoutValue = httpHandler.doPostHttps(logOutUrl, params);
         if (!"false".equals(logoutValue)) {
             return true;
         } else {

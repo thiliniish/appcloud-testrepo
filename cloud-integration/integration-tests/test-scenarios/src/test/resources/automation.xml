@@ -82,7 +82,7 @@
         <keystore name="wso2">
             <!--  Keystore file location -->
             <!--<fileName>keystores/products/wso2carbon.jks</fileName>-->
-            <fileName>security/keystores/wso2carbon.jks</fileName>
+            <fileName>keystores/wso2carbon.jks</fileName>
 
             <!--  Keystore type (JKS/PKCS12 etc.) -->
             <type>JKS</type>
@@ -102,7 +102,7 @@
         <truststore name="wso2">
 
             <!--  trust-store file location  -->
-            <fileName>security/truststores/client-truststore.jks</fileName>
+            <fileName>truststores/client-truststore.jks</fileName>
 
             <!--  trust-store type (JKS/PKCS12 etc.)  -->
             <type>JKS</type>
@@ -281,14 +281,15 @@
     <!--Cloud Related properties-->
     <cloudProperties>
         <urls>
-            <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
+            <cloudMgtServerUrl>https://cloudmgt.cloud.wso2.com</cloudMgtServerUrl>
         </urls>
         <tenantDetails>
             <tenantId>1</tenantId>
-            <tenantDomain>tenantdomain</tenantDomain>
-            <adminUser>admin.wso2.com@tenantdomain</adminUser>
+            <tenantDomain>company1</tenantDomain>
+            <adminUser>admin.wso2.com@company1</adminUser>
             <adminPassword>Admin@123</adminPassword>
         </tenantDetails>
+        <deploymentContext>local</deploymentContext>
     </cloudProperties>
 
 </automation>
