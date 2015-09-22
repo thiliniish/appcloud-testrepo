@@ -290,6 +290,12 @@
             <adminPassword>password</adminPassword>
         </tenantDetails>
         <deploymentContext>local</deploymentContext>
+        <billing>
+            <payments>
+                <serviceId>api_cloud</serviceId>
+                <productRatePlanId>2c92c0f949ac00850149b856d515537b</productRatePlanId>
+            </payments>
+        </billing>
     </cloudProperties>
 
 </automation>

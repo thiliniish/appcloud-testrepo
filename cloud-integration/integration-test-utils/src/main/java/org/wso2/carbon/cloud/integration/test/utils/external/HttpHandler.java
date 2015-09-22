@@ -109,7 +109,7 @@ public class HttpHandler {
         if (responseCode == 200) {
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
@@ -186,7 +186,6 @@ public class HttpHandler {
      * @return String of parameters ready for execution
      */
     public static String mapToString(Map<String, String> params) {
-        String parameterString;
         StringBuilder sb = new StringBuilder();
         Set<String> keySet = params.keySet();
         for (String paramKey : keySet) {
