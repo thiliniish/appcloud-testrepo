@@ -22,7 +22,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.wso2.carbon.cloud.integration.test.utils.CloudConstants;
+import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 
 import javax.net.ssl.HostnameVerifier;
@@ -32,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,14 +41,14 @@ import java.util.Set;
  */
 public class HttpHandler {
 
+    public static String cookie = null;
+
     static {
         HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
             public boolean verify(String hostname, SSLSession session) {
                 String deploymentContext = CloudIntegrationTestUtils
-                        .getPropertyValue(CloudConstants.DEPLOYMENT_CONTEXT);
-                if (deploymentContext.equals("local"))
-                    return true;
-                return false;
+                        .getPropertyValue(CloudIntegrationConstants.DEPLOYMENT_CONTEXT);
+                return deploymentContext.equals("local");
             }
         });
     }
@@ -66,8 +67,8 @@ public class HttpHandler {
         HttpEntity entity = response.getEntity();
         InputStream content = entity.getContent();
         BufferedReader in = new BufferedReader(new InputStreamReader(content));
-        StringBuffer responseBuffer = new StringBuffer();
-        String line = "";
+        StringBuilder responseBuffer = new StringBuilder();
+        String line;
         while ((line = in.readLine()) != null) {
             responseBuffer.append(line);
         }
@@ -79,19 +80,19 @@ public class HttpHandler {
      *
      * @param url         request url
      * @param payload     Content of the post request
-     * @param sessionId   sessionId for authentication
+     * @param authCookie  authCookie for authentication
      * @param contentType content type of the post request
      * @return response
      * @throws java.io.IOException - Throws this when failed to fulfill a https post request
      */
-    public static String doPostHttps(String url, String payload, String sessionId,
+    public static String doPostHttps(String url, String payload, String authCookie,
                                      String contentType) throws IOException {
         URL obj = new URL(url);
 
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
-        if (sessionId != null && !"".equals(sessionId)) {
-            con.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
+        if (authCookie != null && !"".equals(authCookie)) {
+            con.setRequestProperty("Cookie", authCookie);
         }
         if (contentType != null && !"".equals(contentType)) {
             con.setRequestProperty(HttpHeaders.CONTENT_TYPE, contentType);
@@ -113,6 +114,15 @@ public class HttpHandler {
                 response.append(inputLine);
             }
             in.close();
+            if (authCookie == null || authCookie.equals("")) {
+                Map<String, List<String>> headers = con.getHeaderFields();
+                List<String> cookies = headers.get("Set-Cookie");
+                StringBuilder sb = new StringBuilder();
+                for (String s : cookies) {
+                    sb.append(s).append("; ");
+                }
+                cookie = sb.substring(0, sb.length() - 1);
+            }
             return response.toString();
         }
         return null;
@@ -127,9 +137,8 @@ public class HttpHandler {
      * @throws IOException Throws this when failed to fulfill a https post request
      */
     public static String doPostHttps(String url, Map<String, String> params) throws IOException {
-        URL obj = new URL(url);
         String payLoad = mapToString(params);
-        return doPostHttps(url, payLoad, null, MediaType.APPLICATION_FORM_URLENCODED);
+        return doPostHttps(url, payLoad, cookie, MediaType.APPLICATION_FORM_URLENCODED);
     }
 
     /**
@@ -142,7 +151,7 @@ public class HttpHandler {
      * @return response
      * @throws java.io.IOException Throws this when failed to fulfill a http get request
      */
-    public String doGet(String url, String trackingCode, String appmSamlSsoTokenId, String refer)
+    public static String doGet(String url, String trackingCode, String appmSamlSsoTokenId, String refer)
             throws IOException {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -162,7 +171,7 @@ public class HttpHandler {
         int responseCode = con.getResponseCode();
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String inputLine;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
         }
@@ -181,10 +190,8 @@ public class HttpHandler {
         StringBuilder sb = new StringBuilder();
         Set<String> keySet = params.keySet();
         for (String paramKey : keySet) {
-            sb.append(paramKey + "=" + params.get(paramKey) + "&");
+            sb.append(paramKey).append("=").append(params.get(paramKey)).append("&");
         }
-        parameterString = sb.toString();
-
-        return parameterString;
+        return sb.substring(0, sb.length() - 1);
     }
 }

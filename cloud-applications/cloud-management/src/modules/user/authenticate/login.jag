@@ -95,19 +95,20 @@ function validatePassword(userName, password){
 function logout(){
     var log = new Log();
     var username = jagg.getUser();
+    log.info("username =" + username);
     var finalResult={};
 
     if(username!=null){
-        jagg.setUser(null)
-        print(" error:false message:'User successfully logged out username:"+username);
+        jagg.setUser(null);
         finalResult.error="false";
         finalResult.message="User successfully logged out";
-        // print('error:false message:User successfully logged out');
+        if(log.isDebugEnabled()) {
+            log.debug("User logged out successfully" + username);
+        }
         return stringify(finalResult);
     }
     finalResult.error="true";
     finalResult.message="User already logged out";
-    print('error:true message:already logged out');
     return stringify(finalResult);
 
 }

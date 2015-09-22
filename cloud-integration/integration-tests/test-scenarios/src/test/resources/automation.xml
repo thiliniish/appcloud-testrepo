@@ -285,9 +285,9 @@
         </urls>
         <tenantDetails>
             <tenantId>1</tenantId>
-            <tenantDomain>tenantdomain</tenantDomain>
-            <adminUser>admin.wso2.com@tenantdomain</adminUser>
-            <adminPassword>Admin@123</adminPassword>
+            <tenantDomain>company</tenantDomain>
+            <adminUser>user.wso2.com@company</adminUser>
+            <adminPassword>password</adminPassword>
         </tenantDetails>
         <deploymentContext>local</deploymentContext>
     </cloudProperties>
