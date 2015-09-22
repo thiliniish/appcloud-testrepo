@@ -35,29 +35,32 @@ public class TenantManagementTestCase extends CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(TenantManagementTestCase.class);
 
     private JaggeryAppAuthenticatorClient authenticatorClient;
+    private String signUpUrl =  cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
 
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
     }
 
     @Test(priority = 1)
-    public void signupTest() throws Exception {
-        log.info("started tenant creation ");
+    public void checkUsernameExistenceTest() throws Exception {
+        log.info("started username exsitence test case ");
         Map<String,String> params = new HashMap<String, String>();
         params.put("action","isExistingUser");
         params.put("username", "jusid1931@einrot.com");
-        String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
         String checkExistenceStatus = HttpHandler.doPostHttps(signUpUrl, params);
         Assert.assertEquals("false".equals(checkExistenceStatus), true);
-        params.clear();
+    }
+
+    @Test(priority = 2)
+    public void checkSendInviteTest() throws Exception {
+        log.info("started sending invite for user");
+        Map<String,String> params = new HashMap<String, String>();
         params.put("action", "sendInvite");
         params.put("email","jusid1931@einrot.com");
         String checkInviteStatus = HttpHandler.doPostHttps(signUpUrl, params);
         Assert.assertEquals("true".equals(checkInviteStatus), true);
-
     }
 
-
-    @Test(description = "Login test for the tenant", priority = 2)
+    @Test(description = "Login test for the tenant", priority = 3)
     public void loginTest() throws Exception {
         log.info("started running test case login");
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
@@ -65,7 +68,7 @@ public class TenantManagementTestCase extends CloudIntegrationTest {
         Assert.assertEquals(loginStatus, true);
     }
 
-    @Test(description = "logout test", priority = 3)
+    @Test(description = "logout test", priority = 4)
     public void logoutTest() throws Exception {
         log.info("started running test case log out");
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
