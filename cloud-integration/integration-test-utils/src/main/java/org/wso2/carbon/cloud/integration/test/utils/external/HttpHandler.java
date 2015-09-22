@@ -16,12 +16,7 @@
 
 package org.wso2.carbon.cloud.integration.test.utils.external;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 
@@ -29,9 +24,12 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 import javax.ws.rs.core.MediaType;
-import java.io.*;
-import java.net.HttpURLConnection;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,8 +38,6 @@ import java.util.Set;
  * This class is used as a http client
  */
 public class HttpHandler {
-
-    public static String cookie = null;
 
     static {
         HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
@@ -54,40 +50,19 @@ public class HttpHandler {
     }
 
     /**
-     * This method is use get a html file for given url
-     *
-     * @param url Web page url
-     * @return response
-     * @throws java.io.IOException Throws this when failed to retrieve web page
-     */
-    public static String getHtml(String url) throws IOException {
-        HttpClient httpclient = HttpClientBuilder.create().build();
-        HttpGet httpget = new HttpGet(url);
-        HttpResponse response = httpclient.execute(httpget);
-        HttpEntity entity = response.getEntity();
-        InputStream content = entity.getContent();
-        BufferedReader in = new BufferedReader(new InputStreamReader(content));
-        StringBuilder responseBuffer = new StringBuilder();
-        String line;
-        while ((line = in.readLine()) != null) {
-            responseBuffer.append(line);
-        }
-        return responseBuffer.toString();
-    }
-
-    /**
      * This method is used to do a https post request
      *
      * @param url         request url
      * @param payload     Content of the post request
      * @param authCookie  authCookie for authentication
      * @param contentType content type of the post request
-     * @return response
+     * @return response and if cookie is null returns the cookie in a Map
      * @throws java.io.IOException - Throws this when failed to fulfill a https post request
      */
-    public static String doPostHttps(String url, String payload, String authCookie,
-                                     String contentType) throws IOException {
+    public static Map doPostHttps(String url, String payload, String authCookie, String contentType)
+            throws IOException {
         URL obj = new URL(url);
+        Map<String, String> responseMap = new HashMap<String, String>();
 
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
@@ -121,9 +96,10 @@ public class HttpHandler {
                 for (String s : cookies) {
                     sb.append(s).append("; ");
                 }
-                cookie = sb.substring(0, sb.length() - 1);
+                responseMap.put(CloudIntegrationConstants.COOKIE, sb.substring(0, sb.length() - 1));
             }
-            return response.toString();
+            responseMap.put(CloudIntegrationConstants.RESPONSE, response.toString());
+            return responseMap;
         }
         return null;
     }
@@ -136,47 +112,10 @@ public class HttpHandler {
      * @return String reponse with the post value
      * @throws IOException Throws this when failed to fulfill a https post request
      */
-    public static String doPostHttps(String url, Map<String, String> params) throws IOException {
-        String payLoad = mapToString(params);
-        return doPostHttps(url, payLoad, cookie, MediaType.APPLICATION_FORM_URLENCODED);
-    }
-
-    /**
-     * This method is used to do a http get request
-     *
-     * @param url                request url
-     * @param trackingCode       tracking code of the web application
-     * @param appmSamlSsoTokenId appmSamlSsoTokenId id of the web application
-     * @param refer              web page url
-     * @return response
-     * @throws java.io.IOException Throws this when failed to fulfill a http get request
-     */
-    public static String doGet(String url, String trackingCode, String appmSamlSsoTokenId, String refer)
+    public static Map doPostHttps(String url, Map<String, String> params, String authCookie)
             throws IOException {
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        //add request header
-        if (trackingCode.equals("")) {
-            con.setRequestProperty("Accept",
-                                   "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-            con.setRequestProperty("Accept-Encoding", "gzip, deflate, sdch");
-            con.setRequestProperty("Accept-Language", "en-US,en;q=0.8");
-            con.setRequestProperty("Cookie", "JSESSIONID=" + appmSamlSsoTokenId);
-        } else {
-            con.setRequestProperty("Cookie", "appmSamlSsoTokenId=" + appmSamlSsoTokenId);
-            con.setRequestProperty("trackingCode", trackingCode);
-            con.setRequestProperty("Referer", refer);
-        }
-        int responseCode = con.getResponseCode();
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        return response.toString();
+        String payLoad = mapToString(params);
+        return doPostHttps(url, payLoad, authCookie, MediaType.APPLICATION_FORM_URLENCODED);
     }
 
     /**

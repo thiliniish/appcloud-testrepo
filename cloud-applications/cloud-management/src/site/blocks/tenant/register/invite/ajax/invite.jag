@@ -26,6 +26,7 @@ var log = new Log();
 			var result = mod.sendInvite(email);
 			if (result != null) {
 				print(result);
+				log.info(result);
 			}
 		} catch(e) {
 			throw "Error sending email to the user  "+userName;

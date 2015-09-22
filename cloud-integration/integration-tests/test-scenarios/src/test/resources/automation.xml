@@ -69,9 +69,9 @@
             <driverClassName>org.h2.Driver</driverClassName>
         </datasource>
         <datasource name="mysql">
-            <url>jdbc:mysql://localhost:3306/</url>
+            <url>jdbc:mysql://localhost:3306/dbCloudMgt?autoReconnect=true</url>
             <username>root</username>
-            <password>admin</password>
+            <password>root</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
         </datasource>
     </datasources>
@@ -284,18 +284,27 @@
             <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
         </urls>
         <tenantDetails>
-            <tenantId>1</tenantId>
-            <tenantDomain>company</tenantDomain>
-            <adminUser>user.wso2.com@company</adminUser>
-            <adminPassword>password</adminPassword>
-        </tenantDetails>
-        <deploymentContext>local</deploymentContext>
-        <billing>
-            <payments>
-                <serviceId>api_cloud</serviceId>
-                <productRatePlanId>2c92c0f949ac00850149b856d515537b</productRatePlanId>
-            </payments>
-        </billing>
-    </cloudProperties>
+            <defaultTenant>
+                <tenantId>1</tenantId>
+                <tenantDomain>localcompany1</tenantDomain>
+                <adminUser>jusid1931.einrot.com@localcompany1</adminUser>
+                <adminPassword>password</adminPassword>
+            </defaultTenant>
+            <newTenant>
+                <tenantId>1</tenantId>
+                <tenantDomain>localcompany1</tenantDomain>
+                <tenantEmail>jusid1931@einrot.com</tenantEmail>
+                <tenantUser>jusid1931.einrot.com@localcompany1</tenantUser>
+                <tenantPassword>password</tenantPassword>
+            </newTenant>
+    </tenantDetails>
+    <deploymentContext>local</deploymentContext>
+    <billing>
+        <payments>
+            <serviceId>api_cloud</serviceId>
+            <productRatePlanId>2c92c0f949aasdc00850149b856d515537b</productRatePlanId>
+        </payments>
+    </billing>
+</cloudProperties>
 
-</automation>
+        </automation>

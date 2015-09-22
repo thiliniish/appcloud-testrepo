@@ -51,4 +51,5 @@ public class CloudIntegrationTestUtils {
             throw new IllegalArgumentException("Error reading " + xPath, e);
         }
     }
+
 }

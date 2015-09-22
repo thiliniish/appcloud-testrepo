@@ -32,10 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * This is to test adding, viewing, changing and deleting
  * functionalities of the cloud billing feature.
- *
+ * <p/>
  * Since it checks only the added payments it's require to have a valid payment
  * subscription for that tenant.
  */
@@ -49,8 +48,7 @@ public class PaymentMethodsTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @BeforeClass(alwaysRun = true)
-    public void setEnvironment() throws Exception {
+    @BeforeClass(alwaysRun = true) public void setEnvironment() throws Exception {
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
         loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
     }
@@ -62,9 +60,10 @@ public class PaymentMethodsTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "This will check generated parameters to get the iframe.")
-    public void addPaymentMethod() throws Exception {
-        String serviceId = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.BILLING_PAYMENT_SERVICE_ID);
+    @Test(description = "This will check generated parameters to get the iframe.") public void addPaymentMethod()
+            throws Exception {
+        String serviceId = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.BILLING_PAYMENT_SERVICE_ID);
         String productPlanId = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.BILLING_PAYMENT_PRODUCT_RATE_PLAN_ID);
 
@@ -74,9 +73,12 @@ public class PaymentMethodsTestCase extends CloudIntegrationTest {
         //put into the configuration
         params.put("serviceId", serviceId);
         params.put("productRatePlanId", productPlanId);
-        String paymentMethodAddUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX;
-        String result = HttpHandler.doPostHttps(paymentMethodAddUrl, params);
-        JSONObject resultObj = new JSONObject(result);
+        String paymentMethodAddUrl = cloudMgtServerUrl +
+                                     CloudIntegrationConstants.CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX;
+        Map resultMap = HttpHandler
+                .doPostHttps(paymentMethodAddUrl, params, authenticatorClient.getSessionCookie());
+        JSONObject resultObj =
+                new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
 
         //validate parameter values
         Assert.assertNotNull(resultObj.getString("token"));
@@ -100,16 +102,21 @@ public class PaymentMethodsTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "View payment methods of the tenant")
-    public void viewPaymentMethods() throws Exception {
+    @Test(description = "View payment methods of the tenant") public void viewPaymentMethods()
+            throws Exception {
         Assert.assertTrue(loginStatus, "Tenant login failed.");
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "get-payment-methods");
-        String paymentMethodInfoUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX;
-        String result = HttpHandler.doPostHttps(paymentMethodInfoUrl, params);
-        JSONObject resultObj = new JSONObject(result);
-        Assert.assertEquals(resultObj.getString("success"), "true", "Value mismatch should be true.");
-        Assert.assertNotNull(resultObj.getJSONArray("creditCards"), "Json array of credit cards should not be null.");
+        String paymentMethodInfoUrl = cloudMgtServerUrl +
+                                      CloudIntegrationConstants.CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX;
+        Map resultMap = HttpHandler
+                .doPostHttps(paymentMethodInfoUrl, params, authenticatorClient.getSessionCookie());
+        JSONObject resultObj =
+                new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+        Assert.assertEquals(resultObj.getString("success"), "true",
+                            "Value mismatch should be true.");
+        Assert.assertNotNull(resultObj.getJSONArray("creditCards"),
+                             "Json array of credit cards should not be null.");
     }
 
 /*    @Test(priority = 2, description = "Change payment method.")
@@ -135,8 +142,7 @@ public class PaymentMethodsTestCase extends CloudIntegrationTest {
         }
     }*/
 
-    @AfterClass(alwaysRun = true)
-    public void destroy() throws IOException {
+    @AfterClass(alwaysRun = true) public void destroy() throws IOException {
         authenticatorClient.logout();
         super.cleanup();
     }
