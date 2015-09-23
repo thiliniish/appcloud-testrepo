@@ -34,7 +34,7 @@ var getProfile = function (user) {
     } finally {
         context.endTenantFlow();
     }
-    log.info("Successfully retrieved profile");
+    log.info("Successfully retrieved profile for user : " + user);
     return convertClaims(result);
 }
 
@@ -55,7 +55,7 @@ var updateProfile = function (firstName, lastName) {
         userStoreManager.setUserClaimValue(user, "http://wso2.org/claims/lastname", lastName, "default");
         var fullName = firstName + " " +lastName;
         userStoreManager.setUserClaimValue(user, "http://wso2.org/claims/fullname", fullName, "default");
-        log.info("Successfully updated profile");
+        log.info("Successfully updated profile for user : " + user);
         return true;
     } catch (e) {
         log.error("Error while updating user profile " + userName + " " + e.message);

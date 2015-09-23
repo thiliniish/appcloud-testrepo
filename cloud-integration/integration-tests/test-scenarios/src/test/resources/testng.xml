@@ -35,4 +35,10 @@
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase"/>
         </classes>
     </test>
+
+    <test name="User-Management" preserve-order="true" verbose="2">
+        <classes>
+            <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.UserProfileManagementTestCase"/>
+        </classes>
+    </test>
 </suite>

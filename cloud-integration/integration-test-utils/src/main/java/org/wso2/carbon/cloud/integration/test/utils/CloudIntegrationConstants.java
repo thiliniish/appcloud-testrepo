@@ -29,6 +29,11 @@ public class CloudIntegrationConstants {
     public static final String CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX =
             "/cloudmgt/site/blocks/billing/method/add/ajax/add.jag";
 
+    //User Management
+    public static final String CHANGE_PASSWORD_URL_SFX = "/cloudmgt/site/blocks/user/change/ajax/user.jag";
+    public static final String USER_PROFILE_URL_SFX = "/cloudmgt/site/blocks/user/profile/ajax/profile.jag";
+    public static final String INITIATE_PASSWORD_RESET_URL_SFX = "/cloudmgt/site/blocks/user/initiate/ajax/initiate.jag";
+
     //Automation xml parameters
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
     public static final String TENANT_ADMIN_USER_NAME =
@@ -53,5 +58,18 @@ public class CloudIntegrationConstants {
     public static final String CLOUD_MGT_APP = "cloudmgt";
     public static final String RESPONSE = "Response";
     public static final String COOKIE = "Cookie";
+
+    //default tenant users
+    public static final String TENANT_USER_USERNAME =
+            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/userName";
+    public static final String TENANT_USER_PASSWORD =
+            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/password";
+    public static final String TENANT_USER_EMAIL =
+            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/email";
+
+    public static final String TENANT_USER_FIRST_NAME =
+            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/@firstName";
+    public static final String TENANT_USER_LAST_NAME =
+            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/@lastName";
 
 }
