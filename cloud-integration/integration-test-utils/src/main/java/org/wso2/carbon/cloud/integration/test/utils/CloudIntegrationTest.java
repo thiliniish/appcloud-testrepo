@@ -20,6 +20,9 @@ package org.wso2.carbon.cloud.integration.test.utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * Parent class used to initilaize test cases
+ */
 public class CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(CloudIntegrationTest.class);
 

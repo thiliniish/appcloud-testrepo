@@ -34,9 +34,10 @@ public class CloudIntegrationConstants {
             "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
 
     //User Management
-    public static final String CHANGE_PASSWORD_URL_SFX = "/cloudmgt/site/blocks/user/change/ajax/user.jag";
-    public static final String USER_PROFILE_URL_SFX = "/cloudmgt/site/blocks/user/profile/ajax/profile.jag";
-    public static final String INITIATE_PASSWORD_RESET_URL_SFX = "/cloudmgt/site/blocks/user/initiate/ajax/initiate.jag";
+    public static final String CHANGE_PASSWORD_URL_SFX =
+            "/cloudmgt/site/blocks/user/change/ajax/user.jag";
+    public static final String USER_PROFILE_URL_SFX =
+            "/cloudmgt/site/blocks/user/profile/ajax/profile.jag";
 
     //Automation xml parameters
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
@@ -62,6 +63,7 @@ public class CloudIntegrationConstants {
     public static final String BILLING_PAYMENT_PRODUCT_RATE_PLAN_ID =
             "//cloudProperties/billing/payments/productRatePlanId";
 
+    //mysql parameters
     public static final String MYSQL_DATA_SOURCE_URL =
             "//datasources/datasource[@name='mysql']/url";
     public static final String MYSQL_USERNAME = "//datasources/datasource[@name='mysql']/username";
@@ -69,7 +71,6 @@ public class CloudIntegrationConstants {
     public static final String MYSQL_DRIVER_CLASS_NAME =
             "//datasources/datasource[@name='mysql']/driverClassName";
 
-    public static final String CLOUD_MGT_APP = "cloudmgt";
     public static final String RESPONSE = "Response";
     public static final String COOKIE = "Cookie";
 
@@ -87,8 +88,7 @@ public class CloudIntegrationConstants {
             "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/@lastName";
 
     //SQL Queries
-    public static final String GET_TEMP_UUID_FOR_USER =
+    public static final String GET_TEMP_UUID_FOR_REGISTRATION =
             "SELECT uuid FROM TEMP_REGISTRATION where email=(?)";
-
 
 }

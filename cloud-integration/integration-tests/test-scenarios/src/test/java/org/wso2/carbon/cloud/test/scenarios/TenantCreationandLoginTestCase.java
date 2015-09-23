@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.cloud.test.scenarios;
 
 import org.apache.commons.logging.Log;
@@ -33,13 +34,21 @@ import org.wso2.carbon.cloud.integration.test.utils.restclients.JaggeryAppAuthen
 import java.sql.ResultSet;
 import java.util.*;
 
-public class TenantManagementTestCase extends CloudIntegrationTest {
-    private static final Log log = LogFactory.getLog(TenantManagementTestCase.class);
+/**
+ * This class is to test user existence, send invitation, create user
+ * and organization and test first login for that specific user
+ * </p>
+ * This tenant is created appending timestamp to the given tenantDomain
+ * it is required to provide only two characters to tenant domain
+ */
+public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
+    private static final Log log = LogFactory.getLog(TenantCreationandLoginTestCase.class);
 
     private JaggeryAppAuthenticatorClient authenticatorClient;
     private String uuid;
     private String tenantEmail;
     private String currentTimeStamp;
+
     private String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
     private String confirmVerificationUrl =
             cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_CONFIRM_URL_SFX;
@@ -59,6 +68,11 @@ public class TenantManagementTestCase extends CloudIntegrationTest {
         tenantEmail = tenantDomainPrefix + currentTimeStamp + "@" + tenantEmailSuffix;
     }
 
+    /**
+     * Checks the user existence in cloudmgt
+     *
+     * @throws Exception
+     */
     @Test(description = "Check for existence of username", priority = 1) public void checkUsernameExistenceTest()
             throws Exception {
         log.info("started username exsitence test case ");
@@ -70,6 +84,13 @@ public class TenantManagementTestCase extends CloudIntegrationTest {
                             "failed to check the user existence");
     }
 
+    /**
+     * Sending invitation to the user and getting the uuid which was set for the transaction
+     * Assert 1 : checks whether the email is sent successful
+     * Assert 2 : When provided with confirm verification url checks whether it redirects to add-tenant.jag
+     *
+     * @throws Exception
+     */
     @Test(description = "send the invitaion for user", priority = 2, dependsOnMethods = {
             "checkUsernameExistenceTest" }) public void checkSendInviteTest() throws Exception {
         log.info("started sending invite for user");
@@ -81,15 +102,18 @@ public class TenantManagementTestCase extends CloudIntegrationTest {
         Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
         Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), tenantEmail,
                             "user invitation sending failed");
+
         DbConnectionManager con = new DbConnectionManager();
         queryParameters.add(tenantEmail);
         ResultSet queryResult =
-                con.runQuery(CloudIntegrationConstants.GET_TEMP_UUID_FOR_USER, queryParameters);
+                con.runQuery(CloudIntegrationConstants.GET_TEMP_UUID_FOR_REGISTRATION,
+                             queryParameters);
         if (queryResult.next()) {
             uuid = queryResult.getString(1);
         }
         con.closeConnection();
         params.clear();
+
         params.put("action", "confirmUser");
         params.put("confirm", uuid);
         Map confirmMap = HttpHandler.doPostHttps(confirmVerificationUrl, params, null);
@@ -97,6 +121,11 @@ public class TenantManagementTestCase extends CloudIntegrationTest {
                             "Adding the user to ldap failed");
     }
 
+    /**
+     * After invitation send is successfull tenant creation is tested
+     *
+     * @throws Exception
+     */
     @Test(description = "", priority = 3, dependsOnMethods = {
             "checkSendInviteTest" }) public void addTenant() throws Exception {
         log.info("Adding new Tenant Started");
@@ -117,6 +146,11 @@ public class TenantManagementTestCase extends CloudIntegrationTest {
 
     }
 
+    /**
+     * Checks login status for the newly created user and organization
+     *
+     * @throws Exception
+     */
     @Test(description = "Login test for the tenant", priority = 4, dependsOnMethods = {
             "addTenant" }) public void loginTest() throws Exception {
         log.info("started running test case login");
@@ -129,6 +163,11 @@ public class TenantManagementTestCase extends CloudIntegrationTest {
         Assert.assertTrue(loginStatus, "tenant login failed");
     }
 
+    /**
+     * Checks logout status for the newly created user and organization
+     *
+     * @throws Exception
+     */
     @Test(description = "logout test", priority = 5, dependsOnMethods = {
             "loginTest" }) public void logoutTest() throws Exception {
         log.info("started running test case log out");

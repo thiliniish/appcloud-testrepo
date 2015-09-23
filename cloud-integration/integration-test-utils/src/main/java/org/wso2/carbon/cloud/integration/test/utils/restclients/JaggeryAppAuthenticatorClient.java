@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Authenticator client used for login and logout to cloudmgt
+ */
 public class JaggeryAppAuthenticatorClient {
 
     public static final Log log = LogFactory.getLog(JaggeryAppAuthenticatorClient.class);

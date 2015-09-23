@@ -24,6 +24,9 @@ import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 import java.sql.*;
 import java.util.List;
 
+/**
+ * Used to create and handle the database queries
+ */
 public class DbConnectionManager {
     private static final Log log = LogFactory.getLog(DbConnectionManager.class);
 
@@ -58,6 +61,14 @@ public class DbConnectionManager {
 
     }
 
+    /**
+     * returns the result set after executing the query
+     *
+     * @param query      query with values to be replaced
+     * @param parameters List<String> of parameter values to use within the query
+     * @return java.sql.Resulset
+     * @throws SQLException
+     */
     public ResultSet runQuery(String query, List<String> parameters) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         for (int i = 0; i < parameters.size(); i++) {
@@ -66,13 +77,14 @@ public class DbConnectionManager {
         return preparedStatement.executeQuery();
     }
 
-
+    /**
+     * After the connection is used closing the connection
+     *
+     * @throws SQLException
+     */
     public void closeConnection() throws SQLException {
         connection.close();
     }
-
-
-
 
 }
 
