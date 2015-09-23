@@ -17,13 +17,13 @@
  */
 package org.wso2.carbon.cloud.integration.test.utils;
 
-public class CloudConstants {
+public class CloudIntegrationConstants {
     public static final String CLOUD_PRODUCT_GROUP = "cloud";
 
-    public static final String LOGIN_URL_SFX = "/cloudmgt/site/blocks/user/login/ajax/login.jag";
-    public static final String LOGOUT_URL_SFX = "/cloudmgt/site/blocks/user/logout/ajax/logout.jag";
     public static final String CLOUD_LOGIN_URL_SFX =
             "/cloudmgt/site/blocks/user/authenticate/ajax/login.jag";
+    public static final String CLOUD_SIGNUP_URL_SFX =
+            "/cloudmgt/site/blocks/tenant/register/invite/ajax/invite.jag";
     public static final String CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX =
             "/cloudmgt/site/blocks/billing/method/info/ajax/get.jag";
     public static final String CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX =
@@ -31,14 +31,27 @@ public class CloudConstants {
 
     //Automation xml parameters
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
-    public static final String TENANT_ADMIN_USER_NAME = "//cloudProperties/tenantDetails/adminUser";
-    public static final String TENANT_ADMIN_PASSWORD = "//cloudProperties/tenantDetails/adminPassword";
+    public static final String TENANT_ADMIN_USER_NAME =
+            "//cloudProperties/tenantDetails/defaultTenant/adminUser";
+    public static final String TENANT_ADMIN_PASSWORD =
+            "//cloudProperties/tenantDetails/defaultTenant/adminPassword";
+    public static final String NEW_TENANT_EMAIL =
+            "//cloudProperties/tenantDetails/newTenant/tenantEmail";
     public static final String DEPLOYMENT_CONTEXT = "//cloudProperties/deploymentContext";
+    public static final String BILLING_PAYMENT_SERVICE_ID =
+            "//cloudProperties/billing/payments/serviceId";
+    public static final String BILLING_PAYMENT_PRODUCT_RATE_PLAN_ID =
+            "//cloudProperties/billing/payments/productRatePlanId";
 
-
-    public static final String BILLING_PAYMENT_SERVICE_ID = "//cloudProperties/billing/payments/serviceId";
-    public static final String BILLING_PAYMENT_PRODUCT_RATE_PLAN_ID = "//cloudProperties/billing/payments/productRatePlanId";
+    public static final String MYSQL_DATA_SOURCE_URL =
+            "//datasources/datasource[@name='mysql']/url";
+    public static final String MYSQL_USERNAME = "//datasources/datasource[@name='mysql']/username";
+    public static final String MYSQL_PASSWORD = "//datasources/datasource[@name='mysql']/password";
+    public static final String MYSQL_DRIVER_CLASS_NAME =
+            "//datasources/datasource[@name='mysql']/driverClassName";
 
     public static final String CLOUD_MGT_APP = "cloudmgt";
+    public static final String RESPONSE = "Response";
+    public static final String COOKIE = "Cookie";
 
 }

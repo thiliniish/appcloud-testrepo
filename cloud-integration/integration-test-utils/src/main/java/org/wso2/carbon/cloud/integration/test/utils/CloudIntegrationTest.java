@@ -28,9 +28,12 @@ public class CloudIntegrationTest {
     protected String tenantAdminPassword;
 
     public CloudIntegrationTest() {
-        cloudMgtServerUrl = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.CLOUD_MGT_SERVER_URL);
-        tenantAdminUserName = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_ADMIN_USER_NAME);
-        tenantAdminPassword = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_ADMIN_PASSWORD);
+        cloudMgtServerUrl = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.CLOUD_MGT_SERVER_URL);
+        tenantAdminUserName = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_USER_NAME);
+        tenantAdminPassword = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_PASSWORD);
     }
 
     protected void cleanup() {

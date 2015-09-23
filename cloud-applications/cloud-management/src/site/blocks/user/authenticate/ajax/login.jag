@@ -45,14 +45,11 @@ var log = new Log();
             result=mod.logout();
             var parsedJSON = eval('('+result+')');
             var errorStatus=parsedJSON.error;
-            print('errorStatus:'+errorStatus);
             if(errorStatus === "false"){
-                print('Logout succesfully inside json parse');
-                return true;
+                print('true');
             }
             else{
-                print('Already logged out');
-                return false;
+                print('false');
             }
 
         } catch (e) {
