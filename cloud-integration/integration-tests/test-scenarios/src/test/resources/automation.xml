@@ -289,6 +289,13 @@
                 <tenantDomain>localcompany1</tenantDomain>
                 <adminUser>jusid1931.einrot.com@localcompany1</adminUser>
                 <adminPassword>password</adminPassword>
+                <users>
+                    <user firstName="User" lastName="One" key="user1">
+                        <userName>user1.wso2.com@localcompany1</userName>
+                        <password>Admin@123</password>
+                        <email>user1@wso2.com</email>
+                    </user>
+                </users>
             </defaultTenant>
             <newTenant>
                 <tenantId>1</tenantId>
@@ -297,14 +304,14 @@
                 <tenantUser>jusid1931.einrot.com@localcompany1</tenantUser>
                 <tenantPassword>password</tenantPassword>
             </newTenant>
-    </tenantDetails>
-    <deploymentContext>local</deploymentContext>
-    <billing>
-        <payments>
-            <serviceId>api_cloud</serviceId>
-            <productRatePlanId>2c92c0f949aasdc00850149b856d515537b</productRatePlanId>
-        </payments>
-    </billing>
-</cloudProperties>
+        </tenantDetails>
+        <deploymentContext>local</deploymentContext>
+        <billing>
+            <payments>
+                <serviceId>api_cloud</serviceId>
+                <productRatePlanId>2c92c0f949aasdc00850149b856d515537b</productRatePlanId>
+            </payments>
+        </billing>
+    </cloudProperties>
 
-        </automation>
+</automation>

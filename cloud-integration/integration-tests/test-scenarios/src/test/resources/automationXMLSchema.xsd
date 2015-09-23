@@ -565,6 +565,41 @@
                                                                 name="adminPassword"
                                                                 maxOccurs="unbounded"
                                                                 minOccurs="0"/>
+                                                    <xs:element name="users">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element name="user"
+                                                                            maxOccurs="unbounded"
+                                                                            minOccurs="0">
+                                                                    <xs:complexType>
+                                                                        <xs:sequence>
+                                                                            <xs:element
+                                                                                    type="xs:string"
+                                                                                    name="userName"/>
+                                                                            <xs:element
+                                                                                    type="xs:string"
+                                                                                    name="password"/>
+                                                                            <xs:element
+                                                                                    type="xs:string"
+                                                                                    name="email"/>
+                                                                        </xs:sequence>
+                                                                        <xs:attribute
+                                                                                type="xs:string"
+                                                                                name="key"
+                                                                                use="optional"/>
+                                                                        <xs:attribute
+                                                                                type="xs:string"
+                                                                                name="firstName"
+                                                                                use="optional"/>
+                                                                        <xs:attribute
+                                                                                type="xs:string"
+                                                                                name="lastName"
+                                                                                use="optional"/>
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                            </xs:sequence>
+                                                        </xs:complexType>
+                                                    </xs:element>
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
