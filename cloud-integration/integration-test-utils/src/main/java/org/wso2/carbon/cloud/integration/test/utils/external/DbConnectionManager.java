@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.wso2.carbon.cloud.integration.test.utils.external;
 
 import org.apache.commons.logging.Log;
@@ -21,9 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.List;
 
 public class DbConnectionManager {
     private static final Log log = LogFactory.getLog(DbConnectionManager.class);
@@ -59,6 +58,13 @@ public class DbConnectionManager {
 
     }
 
+    public ResultSet runQuery(String query, List<String> parameters) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        for (int i = 0; i < parameters.size(); i++) {
+            preparedStatement.setString(i + 1, parameters.get(i));
+        }
+        return preparedStatement.executeQuery();
+    }
 
 
     public void closeConnection() throws SQLException {
@@ -69,3 +75,4 @@ public class DbConnectionManager {
 
 
 }
+

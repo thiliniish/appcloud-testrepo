@@ -45,6 +45,7 @@ var confirmUser = function(confirm,isInvitee,isStoreInvitee) {
             queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
         }
         var parameters =[confirm];
+        log.info("~~~~~~~~~~~~~~~ uuid"+confirm);
         var results = jagg.module("database").executeQuery(queryString, parameters);
         if(results.length >= 1){
             var email =   results[0]["email"];
@@ -171,6 +172,7 @@ var hasATenant = function (userName) {
 };
 
 var getCompanyId = function (organizationName){
+    log.info("******************** org name"+organizationName);
 	var companyId =  organizationName.replace(/\s/g, "").replace(/([^a-zA-Z0-9\-])/gi, "").trim().toLowerCase();
 	var length = companyId.length;
 	var str;
