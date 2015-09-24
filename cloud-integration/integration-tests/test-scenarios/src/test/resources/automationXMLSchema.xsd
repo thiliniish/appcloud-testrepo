@@ -543,6 +543,8 @@
                                     <xs:sequence>
                                         <xs:element type="xs:string" name="cloudMgtServerUrl"
                                                     maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="identityServerUrl"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
