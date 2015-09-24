@@ -56,7 +56,24 @@ var log = new Log();
             log.error("Error while logout user" + e.message);
             throw "Error while logout user";
         }
-    } else {
+    } else if (action === "loginWithSAMLToken") {
+        var samlToken = request.getParameter("samlToken");
+        try {
+            result = mod.loginWithSAMLToken(samlToken);
+            if(!result.error){
+                print(true)
+            } else {
+                log.warn("Authentication failure while login with saml token");
+                log.warn(result.message);
+                print(false);
+            }
+        } catch (e) {
+            var errResponseMessage = "Error occurred while login with saml token";
+            log.error(errResponseMessage);
+            log.error(e);
+            throw errResponseMessage;
+        }
+    }else {
         throw new Error("No action specified");
     }
 
