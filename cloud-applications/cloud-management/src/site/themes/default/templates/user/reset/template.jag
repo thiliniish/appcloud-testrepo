@@ -86,10 +86,8 @@ span.error {
             id:$("#id").attr('value')
         },
         function (result) {
-            console.log(result);
             var json = JSON.parse(result.replace(/[\r\n]/g, ""));
             var verified = Boolean(json.verified);
-            console.log(json.verified);
             if(!verified){
                 jagg.message({content:"You have either already clicked the link that was emailed to you or it must have been expired", type:'error',cbk:function(){
                         window.location.href = "index.jag";
