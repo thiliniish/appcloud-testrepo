@@ -61,8 +61,9 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
         loginStatus = authenticatorClient.login(userName, password);
         if (!loginStatus) {
-            String msg = "Authentication failure for cloudmgt app before Change Password test for user : " + userName;
-            log.warn(msg);
+            String msg = "Authentication failure for CloudMgt app before Edit Profile & Change Password tests"
+                    + " for user : " + userName;
+            log.error(msg);
             throw new Exception(msg);
         }
     }
@@ -133,7 +134,7 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
         params.put("lastName", lastName);
         responseMap = HttpHandler.doPostHttps(profileUrl, params, authenticatorClient.getSessionCookie());
         result = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
-        if (!result.equals("true")) {
+        if (!"true".equals(result)) {
             String msg = "Error occurred while reverting the user profile changes after profile update";
             log.warn(msg);
         }
@@ -144,7 +145,7 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
         params.put("password", password);
         responseMap = HttpHandler.doPostHttps(passwordUrl, params, authenticatorClient.getSessionCookie());
         result = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
-        if (!result.equals("true")) {
+        if (!"true".equals(result)) {
             String msg = "Error occurred while resetting to the old password after change password";
             log.warn(msg);
         }
