@@ -37,7 +37,6 @@ import java.util.*;
 /**
  * This class is to test user existence, send invitation, create user
  * and organization and test first login for that specific user
- * </p>
  * This tenant is created appending timestamp to the given tenantDomain
  * it is required to provide only two characters to tenant domain
  */
@@ -49,14 +48,14 @@ public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
     private String tenantEmail;
     private String currentTimeStamp;
 
-    private String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
-    private String confirmVerificationUrl =
+    private static final String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
+    private static final String confirmVerificationUrl =
             cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_CONFIRM_URL_SFX;
-    private String addTenantUrl =
+    private static final String addTenantUrl =
             cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_ADD_TENANT_URL_SFX;
-    private String tenantDomainPrefix =
+    private static final String tenantDomainPrefix =
             CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_DOMAIN);
-    private String tenantEmailSuffix = CloudIntegrationTestUtils
+    private static final String tenantEmailSuffix = CloudIntegrationTestUtils
             .getPropertyValue(CloudIntegrationConstants.NEW_TENANT_ADMINUSER);
 
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
@@ -73,7 +72,7 @@ public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "Check for existence of username", priority = 1) public void checkUsernameExistenceTest()
+    @Test(description = "Check for existence of username") public void checkUsernameExistenceTest()
             throws Exception {
         log.info("started username exsitence test case ");
         Map<String, String> params = new HashMap<String, String>();
@@ -91,7 +90,7 @@ public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "send the invitaion for user", priority = 2, dependsOnMethods = {
+    @Test(description = "send the invitaion for user", dependsOnMethods = {
             "checkUsernameExistenceTest" }) public void checkSendInviteTest() throws Exception {
         log.info("started sending invite for user");
         Map<String, String> params = new HashMap<String, String>();
@@ -126,7 +125,7 @@ public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "", priority = 3, dependsOnMethods = {
+    @Test(description = "", dependsOnMethods = {
             "checkSendInviteTest" }) public void addTenant() throws Exception {
         log.info("Adding new Tenant Started");
         Map<String, String> params = new HashMap<String, String>();
@@ -151,7 +150,7 @@ public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "Login test for the tenant", priority = 4, dependsOnMethods = {
+    @Test(description = "Login test for the tenant", dependsOnMethods = {
             "addTenant" }) public void loginTest() throws Exception {
         log.info("started running test case login");
         boolean loginStatus = authenticatorClient
@@ -168,7 +167,7 @@ public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "logout test", priority = 5, dependsOnMethods = {
+    @Test(description = "logout test", dependsOnMethods = {
             "loginTest" }) public void logoutTest() throws Exception {
         log.info("started running test case log out");
         boolean logOutStatus = authenticatorClient.logout();

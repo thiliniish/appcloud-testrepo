@@ -34,8 +34,8 @@ public class JaggeryAppAuthenticatorClient {
 
     public static final Log log = LogFactory.getLog(JaggeryAppAuthenticatorClient.class);
 
-    private String loginUrl;
-    private String logOutUrl;
+    private static String loginUrl;
+    private static String logOutUrl;
     private String sessionCookie;
 
     public JaggeryAppAuthenticatorClient(String hostName) {
