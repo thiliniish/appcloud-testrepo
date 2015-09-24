@@ -94,6 +94,85 @@ var log = new Log();
             print(stringify(response));
         }
 
+    }else if(action=="inviteUsers"){
+
+        		var userRoleList=request.getParameter("userRoleList");
+        		var defaultRoles=request.getParameter("defaultRoles");
+        		var message=request.getParameter("message");
+
+                var response = {};
+                var tenantDomain = jagg.module("manager").getTenantDomain();
+
+                if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
+
+                	for(var i =0; i < userRoleList.length; i++){
+						userRoleList[i].id=userRoleList[i].id.replace(/^\s+|\s+$/g, '');
+				}
+
+                    try {
+                        var result = mod.inviteUsers(userRoleList,defaultRoles,message);
+                        if (result != null) {
+                            response.error = false;
+                            response.message = result;
+                            print(stringify(response));
+                        }
+                    } catch(e) {
+                        throw "Error while sending user invitations";
+                    }
+                } else{
+                    response.error = true;
+                    response.message = "You don't have permission to invite users";
+                    print(stringify(response));
+                }
+
+	}else if(action=="resendInvite"){
+		var email=request.getParameter("email");
+		var roles=request.getParameter("roles");
+		var response = {};
+		var tenantDomain = jagg.module("manager").getTenantDomain();
+		if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
+			email=email.replace(/^\s+|\s+$/g, '');
+		try {
+			var result = mod.resendInvite(email,roles);
+			if (result != null) {
+				response.error = false;
+				response.message = result;
+				print(stringify(response));
+			}
+			} catch(e) {
+				throw "Error while re-sending invitation to "+email;
+			}
+			} else{
+				response.error = true;
+				response.message = "You don't have permission to invite users";
+				print(stringify(response));
+			}
+
+	}else if(action=="sendEmailWithCustomMessage"){
+			var to=request.getParameter("to");
+			var message=request.getParameter("message");
+			var response = {};
+			var tenantDomain = jagg.module("manager").getTenantDomain();
+			if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
+				to=to.replace(/^\s+|\s+$/g, '');
+			try {
+				var result = mod.sendEmailWithCustomMessage(to,message);
+				if (result != null) {
+					response.error = false;
+					response.message = result;
+					print(stringify(response));
+				}
+				} catch(e) {
+					throw "Error while sending email to "+email;
+				}
+				} else{
+					response.error = true;
+					response.message = "You don't have permission to send custom emails";
+					print(stringify(response));
+				}
+
+
+
 	}else if(action=="importInvitedUser"){
 		var confirmationKey=request.getParameter("confirmationKey");
 		var password=request.getParameter("adminPassword");

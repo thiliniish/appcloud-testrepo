@@ -10,9 +10,21 @@ jagg.module("tenant", {
 	getUsersofTenant:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersofTenant.apply(this, arguments);
 	},
+	getUsersofTenantByCloudType:function () {
+    	return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersofTenantByCloudType.apply(this, arguments);
+    },
+    getRolesofCloudType:function () {
+    	return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getRolesofCloudType.apply(this, arguments);
+    },
 	getUserInfo:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserInfo.apply(this, arguments);
 	},
+	getUserRolesByCloudType:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserRolesByCloudType.apply(this, arguments);
+          },
+    getPendingUsersofRole:function () {
+    	return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersofRole.apply(this, arguments);
+    },
 	updateUserRoles:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRoles.apply(this, arguments);
 	},
@@ -25,6 +37,15 @@ jagg.module("tenant", {
 	sendUserInvite:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").sendUserInvite.apply(this, arguments);
 	},
+	resendInvite:function () {
+    	return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").resendInvite.apply(this, arguments);
+    },
+    sendEmailWithCustomMessage:function () {
+    	return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").sendEmailWithCustomMessage.apply(this, arguments);
+    },
+    inviteUsers:function () {
+    	return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").inviteUsers.apply(this, arguments);
+    },
 	isFirstLogin:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").isFirstLogin.apply(this, arguments);
 	},
