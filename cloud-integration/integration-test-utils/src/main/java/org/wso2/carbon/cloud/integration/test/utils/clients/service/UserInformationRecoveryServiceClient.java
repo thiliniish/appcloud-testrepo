@@ -17,13 +17,11 @@
  */
 package org.wso2.carbon.cloud.integration.test.utils.clients.service;
 
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.client.Stub;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 import org.wso2.carbon.cloud.integration.test.utils.clients.authentication.CarbonAuthenticatorClient;
@@ -33,6 +31,11 @@ import org.wso2.carbon.identity.mgt.stub.beans.VerificationBean;
 
 import java.rmi.RemoteException;
 
+/**
+ * Service client for UserInformationRecoveryService.
+ *
+ * @See <a href="https://docs.wso2.com/display/IS500/Recover+with+Notification">Recover with Notification</a>
+ */
 public class UserInformationRecoveryServiceClient {
     UserInformationRecoveryServiceStub stub;
     private static final Log log = LogFactory.getLog(UserInformationRecoveryServiceClient.class);
@@ -41,36 +44,38 @@ public class UserInformationRecoveryServiceClient {
         init();
     }
 
+    /**
+     * Initialize the Client. UserInformationRecoveryServiceStub is authenticated using Super Admin (A session cookie
+     * is obtained by login in using CarbonAuthenticatorClient)
+     *
+     * @throws Exception
+     */
     private void init() throws Exception {
         try {
-            String identityServerUrl = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.IDENTITY_SERVER_URL);
+            String identityServerUrl = CloudIntegrationTestUtils
+                    .getPropertyValue(CloudIntegrationConstants.IDENTITY_SERVER_URL);
             String endpoint = identityServerUrl + "/services/UserInformationRecoveryService";
             stub = new UserInformationRecoveryServiceStub(endpoint);
             CarbonAuthenticatorClient authenticatorClient = new CarbonAuthenticatorClient(identityServerUrl);
-            String adminUserName = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.SUPER_ADMIN_USER_NAME);
-            String adminPassword = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.SUPER_ADMIN_PASSWORD);
-            String sessionCookie = authenticatorClient.login(adminUserName,adminPassword,"localhost");
-            authenticateStub(sessionCookie,stub);
-        } catch (AxisFault axisFault) {
-            String msg = "UserInformationRecoveryServiceClient initialization failed.";
-            log.error(msg, axisFault);
-            throw new Exception(msg,axisFault);
-        } catch (RemoteException e) {
+            String adminUserName = CloudIntegrationTestUtils
+                    .getPropertyValue(CloudIntegrationConstants.SUPER_ADMIN_USER_NAME);
+            String adminPassword = CloudIntegrationTestUtils
+                    .getPropertyValue(CloudIntegrationConstants.SUPER_ADMIN_PASSWORD);
+            String sessionCookie = authenticatorClient.login(adminUserName, adminPassword, "localhost");
+            authenticateStub(sessionCookie, stub);
+        } catch (Exception e) {
             String msg = "UserInformationRecoveryServiceClient initialization failed.";
             log.error(msg, e);
-            throw new Exception(msg,e);
-        } catch (LoginAuthenticationExceptionException e) {
-            String msg = "UserInformationRecoveryServiceClient initialization failed.";
-            log.error(msg, e);
-            throw new Exception(msg,e);
+            throw new Exception(msg, e);
         }
 
     }
 
     /**
      * Authenticates stubs
+     *
      * @param sessionCookie Authorized session cookie
-     * @param stub Axis2 service stub which needs to be authenticated
+     * @param stub          Axis2 service stub which needs to be authenticated
      */
     private void authenticateStub(String sessionCookie, Stub stub) {
         long soTimeout = 5 * 60 * 1000; // Three minutes
@@ -85,33 +90,42 @@ public class UserInformationRecoveryServiceClient {
         }
     }
 
+    /**
+     * Verify the given user for initiating password reset
+     *
+     * @param userName userName
+     * @return VerificationBean - contains the NotificationDataDTO which has verification key used for
+     * sendRecoveryNotification
+     * @throws Exception
+     */
     public VerificationBean verifyUser(String userName) throws Exception {
         try {
-            return stub.verifyUser(userName,null);
-        } catch (RemoteException e) {
+            return stub.verifyUser(userName, null);
+        } catch (Exception e) {
             String msg = "Error Occurred while verifying user.";
             log.error(msg, e);
-            throw new Exception(msg,e);
-        } catch (UserInformationRecoveryServiceIdentityMgtServiceExceptionException e) {
-            String msg = "Error Occurred while verifying user.";
-            log.error(msg, e);
-            throw new Exception(msg,e);
+            throw new Exception(msg, e);
         }
     }
 
-    public VerificationBean sendRecoveryNotification(String userName, String key, String notificationType) throws Exception {
+    /**
+     * Returns user information, and confirmation code required for sending email
+     *
+     * @param userName         userName
+     * @param key              verification key from verifyUser method
+     * @param notificationType email
+     * @return contains the NotificationDataDTO which has confirmation code and user information for sending the email
+     * @throws Exception
+     */
+    public VerificationBean sendRecoveryNotification(String userName, String key, String notificationType)
+            throws Exception {
         try {
             return stub.sendRecoveryNotification(userName, key, notificationType);
-        } catch (RemoteException e) {
-            String msg = "Error Occurred while verifying user.";
+        } catch (Exception e) {
+            String msg = "Error Occurred while sendRecoveryNotification for user.";
             log.error(msg, e);
-            throw new Exception(msg,e);
-        } catch (UserInformationRecoveryServiceIdentityMgtServiceExceptionException e) {
-            String msg = "Error Occurred while verifying user.";
-            log.error(msg, e);
-            throw new Exception(msg,e);
+            throw new Exception(msg, e);
         }
     }
-
 
 }
