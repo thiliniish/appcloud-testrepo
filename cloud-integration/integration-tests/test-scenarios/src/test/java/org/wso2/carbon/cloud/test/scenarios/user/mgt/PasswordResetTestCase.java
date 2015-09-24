@@ -100,7 +100,7 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test() public void resetPasswordTest() throws Exception {
+    @Test(description = "Password Reset Test for User") public void resetPasswordTest() throws Exception {
         log.info("Running Reset password test");
 
         //Initiating password reset
