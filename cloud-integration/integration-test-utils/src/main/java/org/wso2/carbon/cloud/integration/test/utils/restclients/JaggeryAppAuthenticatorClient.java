@@ -56,7 +56,7 @@ public class JaggeryAppAuthenticatorClient {
         params.put("action", "login");
         params.put("userName", userName);
         params.put("password", password);
-        Map resultMap = HttpHandler.doPostHttps(loginUrl, params, "");
+        Map resultMap = HttpHandler.doPostHttps(loginUrl, params, null);
         sessionCookie = (String) resultMap.get(CloudIntegrationConstants.COOKIE);
         return "true".equals(resultMap.get(CloudIntegrationConstants.RESPONSE));
     }

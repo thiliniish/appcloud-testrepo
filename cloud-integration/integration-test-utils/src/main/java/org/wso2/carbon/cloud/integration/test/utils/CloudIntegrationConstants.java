@@ -76,16 +76,16 @@ public class CloudIntegrationConstants {
 
     //default tenant users
     public static final String TENANT_USER_USERNAME =
-            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/userName";
+            "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/users/user[@key='user1']/userName";
     public static final String TENANT_USER_PASSWORD =
-            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/password";
+            "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/users/user[@key='user1']/password";
     public static final String TENANT_USER_EMAIL =
-            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/email";
+            "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/users/user[@key='user1']/email";
 
     public static final String TENANT_USER_FIRST_NAME =
-            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/@firstName";
+            "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/users/user[@key='user1']/@firstName";
     public static final String TENANT_USER_LAST_NAME =
-            "//cloudProperties/tenantDetails/defaultTenant/users/user[@key='user1']/@lastName";
+            "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/users/user[@key='user1']/@lastName";
 
     //SQL Queries
     public static final String GET_TEMP_UUID_FOR_REGISTRATION =
