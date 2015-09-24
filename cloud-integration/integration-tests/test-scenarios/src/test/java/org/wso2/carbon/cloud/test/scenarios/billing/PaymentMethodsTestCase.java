@@ -34,7 +34,6 @@ import java.util.Map;
 /**
  * This is to test adding, viewing, changing and deleting
  * functionalities of the cloud billing feature.
- * <p/>
  * Since it checks only the added payments it's require to have a valid payment
  * subscription for that tenant.
  */

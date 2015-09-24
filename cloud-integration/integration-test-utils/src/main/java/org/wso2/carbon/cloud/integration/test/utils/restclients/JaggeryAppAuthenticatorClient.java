@@ -27,12 +27,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Authenticator client used for login and logout to cloudmgt
+ */
 public class JaggeryAppAuthenticatorClient {
 
     public static final Log log = LogFactory.getLog(JaggeryAppAuthenticatorClient.class);
 
-    private String loginUrl;
-    private String logOutUrl;
+    private static String loginUrl;
+    private static String logOutUrl;
     private String sessionCookie;
 
     public JaggeryAppAuthenticatorClient(String hostName) {
@@ -53,7 +56,7 @@ public class JaggeryAppAuthenticatorClient {
         params.put("action", "login");
         params.put("userName", userName);
         params.put("password", password);
-        Map resultMap = HttpHandler.doPostHttps(loginUrl, params, "");
+        Map resultMap = HttpHandler.doPostHttps(loginUrl, params, null);
         sessionCookie = (String) resultMap.get(CloudIntegrationConstants.COOKIE);
         return "true".equals(resultMap.get(CloudIntegrationConstants.RESPONSE));
     }

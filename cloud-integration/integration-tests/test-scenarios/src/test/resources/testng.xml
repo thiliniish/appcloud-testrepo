@@ -31,7 +31,7 @@
 
     <test name="CloudMgt-Tests" preserve-order="true" verbose="2">
         <classes>
-            <class name="org.wso2.carbon.cloud.test.scenarios.TenantManagementTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.TenantCreationandLoginTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase"/>
         </classes>
     </test>
