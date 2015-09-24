@@ -36,6 +36,11 @@
             <version>4.4.3</version>
         </dependency>
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.6</version>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.automationutils</groupId>
             <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
             <version>${org.wso2.carbon.integration.common.utils.version}</version>

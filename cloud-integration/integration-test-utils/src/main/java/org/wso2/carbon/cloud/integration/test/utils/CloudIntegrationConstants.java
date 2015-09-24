@@ -29,12 +29,19 @@ public class CloudIntegrationConstants {
     public static final String CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX =
             "/cloudmgt/site/blocks/billing/method/add/ajax/add.jag";
 
+
+    public static final String CLOUD_SEND_USER_INVITE_URL_SFX = "/cloudmgt/site/blocks/tenant/users/add/ajax/add.jag";
+    public static final String CLOUD_CONFIRM_USER_URL_SFX = "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
+    public static final String CLOUD_TENANT_USERS_URL_SFX = "/cloudmgt/site/blocks/tenant/users/add/ajax/add.jag";
+
     //Automation xml parameters
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
     public static final String TENANT_ADMIN_USER_NAME =
             "//cloudProperties/tenantDetails/defaultTenant/adminUser";
     public static final String TENANT_ADMIN_PASSWORD =
             "//cloudProperties/tenantDetails/defaultTenant/adminPassword";
+    public static final String TENANT_DOMAIN =
+            "//cloudProperties/tenantDetails/defaultTenant/tenantDomain";
     public static final String NEW_TENANT_EMAIL =
             "//cloudProperties/tenantDetails/newTenant/tenantEmail";
     public static final String DEPLOYMENT_CONTEXT = "//cloudProperties/deploymentContext";
@@ -50,8 +57,20 @@ public class CloudIntegrationConstants {
     public static final String MYSQL_DRIVER_CLASS_NAME =
             "//datasources/datasource[@name='mysql']/driverClassName";
 
+    public static final String ALL_CLOUD_USER_ROLES = "//cloudProperties/allTenantRoles";
+    public static final String NEW_CLOUD_USER_EMAILS = "//cloudProperties/tenantNewUserEmails";
+
     public static final String CLOUD_MGT_APP = "cloudmgt";
     public static final String RESPONSE = "Response";
     public static final String COOKIE = "Cookie";
+    public static final String COMMON_USER_PASSWORD = "Admin@123#";
+    public static final String COMMON_USER_FIRST_NAME = "First";
+    public static final String COMMON_USER_LAST_NAME = "Last";
 
+
+
+
+
+    //SQL Queries
+    public static final String GER_UUID_FOR_TEMP_INVITEE = "SELECT uuid FROM TEMP_INVITEE WHERE tenantDomain=(?) AND email=(?)";
 }
