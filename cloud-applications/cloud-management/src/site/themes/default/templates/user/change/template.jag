@@ -107,9 +107,11 @@
                              password:password
                       },
                       function (result) {
-                            jagg.message({type:'success',content:'You have successfully changed your password.',type:'success',cbk:function(){
+                            jagg.message({type:'success',content:'You have successfully reset your password.',type:'success',cbk:function(){
                                 window.location.href = "../pages/index.jag";
                             }});
+                            $('#userForm').hide();
+                            $('#helper_text').hide();
                       },
                       function (jqXHR, textStatus, errorThrown) {
                         jagg.message({type:'error',content:'<strong>Error!</strong> Old credential does not match with the existing credentials.'});

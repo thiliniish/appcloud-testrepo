@@ -11,9 +11,15 @@ var multitenancy = carbon.multitenancy;
 
 var userName =  session.get("LOGGED_IN_USER");
 
-function getUserNameFromEmail(email){
-	return email.replace(/@/g, ".");
-}
+var getTenantDisplayName = function (tenantDomain) {
+    var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
+    var parameters =[tenantDomain];
+    var results = jagg.module("database").executeQuery(queryString, parameters);
+
+    var displayName = results[0]["displayName"];
+    return displayName;
+
+};
 
 var isUserInAdminRole = function () {
 
@@ -28,13 +34,13 @@ var isUserInAdminRole = function () {
                 try {
                   context.startTenantFlow();
                   var tenantManager = multitenancy.getTenantManager();
-                  var userNameWithoutTenant = userName.substring(0, userName.lastIndexOf('@'));
+                  var tenantAwareUserName = modManager.getTenantAwareUsername(userName);
                   var tenantDomain=tenantInfo.tenantDomain;
                   var tenantId = tenantManager.getTenantId(tenantDomain);
                   context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
                   context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
                   var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
-                  isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(userNameWithoutTenant, ROLE_ADMIN);
+                  isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(tenantAwareUserName, ROLE_ADMIN);
                   session.put("IS_USER_ADMIN", String(isAdmin));
                   return isAdmin;
                 } catch (e) {
@@ -82,15 +88,15 @@ var hasOnlySubscriberRole=function (userName)
     var cloudConfig =getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     //the default roles assigned for all users
     var types = cloudConfig.commonRoles;
-    var tenantDomain=session.get("TENANT_DOMAIN");
+    var tenantDomain=session.get("LOGGED_IN_USER_TENANT_DOMAIN");
     context.startTenantFlow();
-    var userNameWithoutTenant = userName.substring(0, userName.lastIndexOf('@'));
+    var tenantAwareUserName = modManager.getTenantAwareUsername(userName);
     var tenantManager = multitenancy.getTenantManager();
     var tenantId = tenantManager.getTenantId(tenantDomain);
     context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
     context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
     var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
-    roles = realmService.getTenantUserRealm(tenantId).getUserStoreManager().doGetRoleListOfUser(userNameWithoutTenant, "*");
+    roles = realmService.getTenantUserRealm(tenantId).getUserStoreManager().doGetRoleListOfUser(tenantAwareUserName, "*");
     context.endTenantFlow();
 
     //to change the java array to a javascript array
@@ -349,14 +355,6 @@ var getInviteeDirectUrl = function(userRoles) {
 };
 
 
-function getDomainLessUserName(userName){
-	if(userName.lastIndexOf('@') > 0) {
-		return userName.substring(0, userName.lastIndexOf('@'));
-	} else{
-		return userName;
-	}
-};
-
 function addUserToOT (email, pass, firstName, lastName) {
 	try {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
@@ -603,14 +601,6 @@ var getUserActivityStreamId = function(){
                      "}";
 
      return streamId;
-};
-
-var getDomainFromUsername = function(userName){
-	if(userName.lastIndexOf('@') > 0) {
-		return userName.substring((userName.lastIndexOf('@') + 1), userName.length);
-	} else{
-		return null;
-	}
 };
 
 var getUserRoleDisplayName = function(userRoleKey){

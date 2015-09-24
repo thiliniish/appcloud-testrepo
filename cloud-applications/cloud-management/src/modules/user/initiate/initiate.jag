@@ -23,20 +23,18 @@
     var tls = cloudConfig.registrationEmail.tls.toString();
 
     var body = jagg.module("util").getObjFromFile("/site/conf/emails/password_reset_email_body.txt");
-    var initiatePasswordReset = function(username) {
+
+    var initiatePasswordReset = function(email) {
         try {
-            var user = username;
-            if (username.indexOf("@") > 0) {
-                user = jagg.module("util").getUserNameFromEmail(username);
-            }
-            var key = verifyUser(user);
+            var userName = modManager.getUserNameFromEmail(email);
+            var key = verifyUser(userName);
             if(key != null){
-                sendRecoveryNotification(user,key);
+                sendRecoveryNotification(userName,key);
             }
-            return username;
+            return userName;
         }catch (e){
-            log.error("Error while initiating password reset for " + username + " : " + e);
-            throw "Error while initiating password reset for " + username + " : " + e;
+            log.error("Error while initiating password reset for " + userName + " : " + e);
+            throw "Error while initiating password reset for " + userName + " : " + e;
         }
     };
 
@@ -118,14 +116,9 @@
     var sendRecoveryEmail = function(notificationCode,userName,emailAddress) {
         log.info("Sending Email to " + emailAddress);
         var userInfo = jagg.module("tenant").getUserInfo(userName);
-        var firstName = userInfo.firstName;
-        if(firstName == "$1" || (firstName == null))  {
-            firstName = "";
-        }
         var link = CLOUDMGT_URL + "/site/pages/reset.jag?id=" + userName +"&confirmation=" + notificationCode;
         try{
             body = body.replace("$passwordRestLink",link).replace("$passwordRestLink",link);
-            body = body.replace("$fisrtName",firstName);
             body = body.replace("$userName",emailAddress.toString()).replace("$userName",emailAddress.toString());
             var email = require('email');
             var sender;

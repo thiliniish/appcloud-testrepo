@@ -31,25 +31,22 @@ import java.util.Map;
  *
  *
  */
-public class RemoveAssociatedRolesScheduler {
+public class BillingDbUpdateScheduler {
 
-    private static final Log log = LogFactory.getLog(RemoveAssociatedRolesScheduler.class);
+    private static final Log log = LogFactory.getLog(BillingDbUpdateScheduler.class);
 
-    public void invokeRoleRemovalTask(String cron) {
+    public void invokeBillingDbUpdateTask(String cron) {
         if (cron != null && !"".equals(cron)) {
             TaskInfo.TriggerInfo triggerInfo = new TaskInfo.TriggerInfo();
             triggerInfo.setCronExpression(cron);
             @SuppressWarnings("deprecation")
             TaskInfo info = new TaskInfo();
 
-            info.setName(BillingConstants.REMOVE_ROLES_TASK_NAME);
+            info.setName(BillingConstants.BILLING_DB_UPDATE_TASK_NAME);
             info.setTriggerInfo(triggerInfo);
-            info.setTaskClass(BillingConstants.REMOVE_ROLES_TASK_CLASS_NAME);
+            info.setTaskClass(BillingConstants.BILLING_DB_UPDATE_TASK_CLASS_NAME);
 
             Map<String, String> properties = new HashMap<String, String>();
-            String rolesToRemove = CloudBillingUtils.getBillingConfiguration()
-                    .getZuoraConfig().getSubscriptionCleanUp().getRoles();
-            properties.put(BillingConstants.REMOVE_ROLES_PROPERTY_KEY, rolesToRemove);
 
             String pendingDisableTenantsDSUrl = CloudBillingUtils.getBillingConfiguration().getDSConfig()
                     .getPendingDisableTenants();
@@ -68,13 +65,13 @@ public class RemoveAssociatedRolesScheduler {
             info.setProperties(properties);
 
             try {
-                log.info("Registering Task " + BillingConstants.REMOVE_ROLES_TASK_NAME);
+                log.info("Registering Task " + BillingConstants.BILLING_DB_UPDATE_TASK_NAME);
                 ServiceDataHolder serviceDataHolder = ServiceDataHolder.getInstance();
 
-                serviceDataHolder.getTaskManager(BillingConstants.REMOVE_ROLES_TASK_CLASS_NAME).registerTask(info);
-                serviceDataHolder.getTaskManager(BillingConstants.REMOVE_ROLES_TASK_CLASS_NAME).rescheduleTask(info.getName());
+                serviceDataHolder.getTaskManager(BillingConstants.BILLING_DB_UPDATE_TASK_CLASS_NAME).registerTask(info);
+                serviceDataHolder.getTaskManager(BillingConstants.BILLING_DB_UPDATE_TASK_CLASS_NAME).rescheduleTask(info.getName());
             } catch (TaskException e) {
-                log.error("Error while scheduling role removal task : " + info.getName(), e);
+                log.error("Error while scheduling billing database update for disabled subscriptions task : " + info.getName(), e);
             }
         }
     }

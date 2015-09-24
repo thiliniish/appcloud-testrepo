@@ -9,11 +9,7 @@ var modManager = jagg.module("manager");
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
-var ADMIN_USERNAME = cloudConfig.SSORelyingParty.adminUser;
-var ADMIN_PASSWORD = cloudConfig.SSORelyingParty.adminPassword;
-
 var CLOUDMGT_SERVICES =  cloudConfig.ServerUrls.cloudmgtServices.toString();
-var AFURL =  cloudConfig.ServerUrls.appfactory.toString();
 
 var body = jagg.module("util").getObjFromFile("/site/conf/emails/new_registration_email.body.txt");
 
@@ -52,7 +48,7 @@ var confirmUser = function(confirm,isInvitee,isStoreInvitee) {
         var results = jagg.module("database").executeQuery(queryString, parameters);
         if(results.length >= 1){
             var email =   results[0]["email"];
-            var userName =  jagg.module("util").getUserNameFromEmail(email);
+            var userName =  modManager.getUserNameFromEmail(email);
             var isUserAvail = isExistingUser(userName);
             if((isUserAvail && isStoreInvitee) || (isUserAvail && isUserInvitee)){
                 var tenantMod = jagg.module("tenant");
@@ -73,7 +69,7 @@ var confirmUser = function(confirm,isInvitee,isStoreInvitee) {
         log.error(e);
         throw (e);
     }
-}
+};
 
 var getConfirmationEmail = function(confirm){
     try {
@@ -91,7 +87,7 @@ var getConfirmationEmail = function(confirm){
         log.error(e);
         throw (e);
     }
-}
+};
 
 var registerOrg = function (organizationName, password, usagePlan, confirmationKey, firstName, lastName) {
     log.info("Registering Organization: " + organizationName) ;
@@ -100,23 +96,24 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     var adminUserName;
     if(confirmationKey != null){
         email = getConfirmationEmail(confirmationKey);
-        adminUserName = jagg.module("util").getUserNameFromEmail(email.toString());
+        adminUserName = modManager.getUserNameFromEmail(email.toString());
     } else {
         var fullUserName = String(session.get("LOGGED_IN_USER"));
-        adminUserName = jagg.module("util").getDomainLessUserName(fullUserName);
+        adminUserName = modManager.getTenantAwareUsername(fullUserName);
         var tmpUser = jagg.module("tenant").getUserInfo(adminUserName);
         firstName = tmpUser.firstName;
         lastName = tmpUser.lastName;
         email = tmpUser.email;
         newUser = false;
     }
-    log.info("User Information [ adminUserName: " + adminUserName +", FirstName: " + firstName +", LastName: " + lastName + ", Email: " + email + " ]");
+    log.info("User Information [ adminUserName: " + adminUserName +", FirstName: " + firstName +", LastName: "
+            + lastName + ", Email: " + email + " ]");
     newUser = !isExistingUser(adminUserName);
     var organizationDomain = getCompanyId(organizationName);
-    log.info("Organization Information [ Name: " + organizationName + ", Domain: " + organizationDomain);
+    log.info("Organization Information [ Display Name: " + organizationName + ", Platform Tenant Domain: " + organizationDomain + " ]");
     var adminPassword = jagg.module("util").escapeSpecialCharsXML(password);
     var id =registerTenantForTrustedUser(organizationDomain,adminUserName,adminPassword, firstName,lastName,email,usagePlan);
-    log.info("Created Tenant in platform");
+    log.info("Created Tenant in platform.");
     var isUserInCloud = hasATenant(adminUserName);
         if(!isUserInCloud){
         log.info("Sending tenant creation events to BAM");
@@ -153,9 +150,9 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     jagg.module("billing").addTenantToBilling(tenantId, organizationDomain);
     log.info("Billing account created for tenant: " + organizationDomain);
 
-    log.info("Tenant Registration completed ");
+    log.info("Tenant Registration completed.");
     return true;
-}
+};
 
 var hasATenant = function (userName) {
     try {
@@ -171,9 +168,9 @@ var hasATenant = function (userName) {
     }catch (e){
         log.error(e)
     }
-}
+};
 
-function getCompanyId(organizationName){
+var getCompanyId = function (organizationName){
 	var companyId =  organizationName.replace(/\s/g, "").replace(/([^a-zA-Z0-9\-])/gi, "").trim().toLowerCase();
 	var length = companyId.length;
 	var str;
@@ -187,7 +184,6 @@ function getCompanyId(organizationName){
 	}
 
 	var avail = checkTenantDomainAvailability(companyId);
-    log.info("Availability : " + avail);
 	if(avail){
 		return companyId;
 	}else {
@@ -199,13 +195,12 @@ function getCompanyId(organizationName){
         }
 		return getCompanyId(tmpId);
 	}
-}
+};
+
 var isValidEmail = function(userName){
-    var isValid=true;
     var patternForEmailValidation = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    var isValid = patternForEmailValidation.test(userName);
-    return isValid;
-}
+    return patternForEmailValidation.test(userName);
+};
 
 var isExistingUser = function( userName ) {
     log.info("Checking if the email is valid for:  " + userName);
@@ -218,7 +213,7 @@ var isExistingUser = function( userName ) {
         	 	throw "Invalid Email Address "+userName;
         	 }
             log.info("Checking user existence for: " + userName);
-            user = jagg.module("util").getUserNameFromEmail(userName);
+            user = modManager.getUserNameFromEmail(userName);
         }
         isExist = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').isExistingUser(user);
     } catch (e) {
@@ -228,7 +223,7 @@ var isExistingUser = function( userName ) {
     }
     log.info("User " + userName + " exist : " + isExist)
     return isExist;
-}
+};
 
 var addDefaultLoginRole = function(userName) {
     log.info("Adding default login role for user " + userName);
@@ -239,7 +234,7 @@ var addDefaultLoginRole = function(userName) {
         log.error(e);
         throw (e);
     }
-}
+};
 
 var storeSubscription = function( domain) {
     try{
@@ -254,10 +249,11 @@ var storeSubscription = function( domain) {
         throw (e);
     }
 
-}
+};
 
-var registerTenantForTrustedUser = function (organizationDomain,adminUser,adminPassword, firstName,lastName,email,usagePlan) {
-    log.info("Creating tenant in platform - user info: firstName= " + firstName + ", lastName= " + lastName + " email= " + email);
+var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPassword, firstName,lastName,email,usagePlan) {
+    log.info("Creating tenant in platform - Tenant info: TenantDomain : " + tenantDomain + " , AdminUser : " + adminUser + " UsagePlan : " + usagePlan);
+    log.info("Creating tenant in platform - User info: FirstName : " + firstName + " , LastName : " + lastName + " , Email : " + email);
 	var ws = require("ws");
 	var creatTenant = new ws.WSRequest();
 	var options = new Array();
@@ -278,7 +274,7 @@ var registerTenantForTrustedUser = function (organizationDomain,adminUser,adminP
 		'<firstname xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + firstName + '</firstname>' +
 		'<lastname xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + lastName + '</lastname>' +
 		'<originatedService xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">WSO2 Cloud Manager</originatedService>' +
-		'<tenantDomain xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + organizationDomain + '</tenantDomain>' +
+		'<tenantDomain xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + tenantDomain + '</tenantDomain>' +
 		'<tenantId xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">-1</tenantId>' +
 		'<usagePlan xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + usagePlan + '</usagePlan>' +
 		'</tenantInfoBean>' +
@@ -292,7 +288,7 @@ var registerTenantForTrustedUser = function (organizationDomain,adminUser,adminP
 			result = creatTenant.responseE4X;
 			return result;
 		} catch (e) {
-			log.error("Error while registering organization: " + organizationDomain + " for trusted user: " + email);
+			log.error("Error while registering organization: " + tenantDomain + " for trusted user: " + email);
 			log.error(e);
 			throw (e);
 		}
@@ -313,7 +309,7 @@ var checkDomainAvailability = function (domainName) {
         throw (e);
     }
     return isDomainAvailable;
-}
+};
 
 var checkTenantDomainAvailability = function (domainName) {
     log.info("Checking domain availability for: " + domainName);
@@ -326,92 +322,9 @@ var checkTenantDomainAvailability = function (domainName) {
         log.error(e);
         throw (e);
     }
-    log.info("Domain " + domainName + " availability: " + availability);
+    log.info("Domain " + domainName + " ,availability: " + availability);
     return availability;
-}
-
-
-var sendRegisterOrganizationEmail = function (organizationDomain,firstName,email, uuid) {
-
-	var ws = require("ws");
-	var creatTenant = new ws.WSRequest();
-	var options = new Array();
-	options.useSOAP = 1.1;
-	options.action = "urn:sendOrganizationRegistrationConfirmationEmail";
-	options.timeout = 1000000;
-
-	options["HTTPHeaders"] = [
-	{
-		name : "Cookie", value :modManager.getAdminCookie(AFURL)}
-		];
-
-		var payload ='<p:sendOrganizationRegistrationConfirmationEmail xmlns:p="http://services.registration.user.appfactory.carbon.wso2.org">'+
-		'<userName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">testusername***</userName>'+
-		'<firstName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+firstName+'</firstName>'+
-		'<uuid xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+uuid+'</uuid>'+
-		'<email xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+email+'</email>'+
-		'<organizationName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+organizationDomain+'</organizationName>'+
-		'</p:sendOrganizationRegistrationConfirmationEmail>';
-
-		var result;
-		try {
-			var endPoint = AFURL + "EmailSenderService";
-			creatTenant.open(options,endPoint, false);
-			creatTenant.send(payload);
-			result = creatTenant.responseE4X;
-
-			return result;
-		} catch (e) {
-			log.error("Error while sending organization registration confirmation email " + organizationDomain + " to " + email );
-			log.error(e);
-			throw (e) ;
-		}
-}
-
-
-var generateCaptchaFromCloud = function() {
-
-	log.info("Generating Captcha From Cloud")
-	var ws = require('ws');
-	var request = new ws.WSRequest();
-	var options = new Array();
-	options.useSOAP = 1.1;
-	options.timeout = 1000000;
-	options.action = "urn:generateRandomCaptcha";
-	options["HTTPHeaders"] = [
-	{
-		name : "Cookie", value :modManager.getAdminCookie(CLOUDMGT_SERVICES) }
-		];
-		var payload = '<generateRandomCaptcha xmlns="http://services.mgt.tenant.carbon.wso2.org"></generateRandomCaptcha>';
-		var result;
-		var captchaInfo = {
-		};
-		try {
-			var endPoint = CLOUDMGT_SERVICES + "TenantMgtService";
-			request.open(options,endPoint, false);
-			request.send(payload);
-			result=request.responseE4X;
-			log.info("Captcha result : ");
-			log.info(result);
-			var entry = result.*::["return"];
-
-			var path = entry.*::imagePath.text();
-			var secretKey = entry.*::secretKey.text();
-
-			captchaInfo.path = path;
-			captchaInfo.secretKey = secretKey;
-
-
-			if (log.isDebugEnabled()) {
-				log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
-			}
-		} catch (e) {
-			log.error("Error while checking for application key ");
-			log.error(e);
-			throw (e);
-		}
-		return captchaInfo;
-}
+};
 
 var storeTenantMGTRegistration = function (userName,tenantDomain) {
     try {
@@ -427,7 +340,8 @@ var storeTenantMGTRegistration = function (userName,tenantDomain) {
         log.error(e);
         throw (e);
     }
-}
+};
+
 var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
     try {
 
@@ -443,7 +357,7 @@ var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
         log.error(e);
         throw (e);
     }
-}
+};
 
 var storeTempRegistration = function (email,uuid,isInvitee) {
 	log.info("Adding temp registration for user: " + email);
@@ -457,7 +371,7 @@ var storeTempRegistration = function (email,uuid,isInvitee) {
         throw (e);
     }
 	log.info("Sucessfully added to the temp registration user: " + email);
-}
+};
 
 var sendInvite = function(email,token) {
 	log.info("Sending invitation for self signed user: "+email);
@@ -509,7 +423,7 @@ var sendInvite = function(email,token) {
 		} ,0);
 	}
 	return email;
-}
+};
 
 var sendEmail = function(to,link) {
 	try{
@@ -533,6 +447,5 @@ var sendEmail = function(to,link) {
 		log.error(e);
 		throw (e);
 	}
-}
-;
+};
 %>
