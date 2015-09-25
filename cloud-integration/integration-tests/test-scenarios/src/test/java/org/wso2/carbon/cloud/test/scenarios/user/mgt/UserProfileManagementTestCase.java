@@ -49,6 +49,7 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
 
     /**
      * Before test, Getting user information and authenticating the user
+     *
      * @throws Exception
      */
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
@@ -70,8 +71,12 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
 
     /**
      * Testing Edit Profile.
-     * Assert 1: Change the first name and last name and check weather its successful.
-     * Assert 2,3: Retrieve first name and and last name and verify they are changed
+     * <p/>
+     * <ul>
+     * <li>Step 1: Change the first name and last name and check weather its successful.</li>
+     * <li>Step 2: Retrieve first name and and last name and verify they are changed.</li>
+     * <ul/>
+     *
      * @throws Exception
      */
     @Test(description = "Edit Profile Test for User") public void editProfileTest() throws Exception {
@@ -97,8 +102,12 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
 
     /**
      * Testing Change Password
-     * Assert 1: Change the password and check weather its successful
-     * Assert 2: Login using new password and check weather its successful
+     * <p/>
+     * <ul>
+     * <li>Step 1: Change the password and check weather its successful</li>
+     * <li>Step 2: Login using new password and check weather its successful</li>
+     * </ul>
+     *
      * @throws Exception
      */
     @Test(description = "Change Password Test for User") public void changePasswordTest() throws Exception {
@@ -119,6 +128,7 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
 
     /**
      * Reverting profile update and password change
+     *
      * @throws Exception
      */
     @AfterClass(alwaysRun = true) public void unDeployService() throws Exception {
