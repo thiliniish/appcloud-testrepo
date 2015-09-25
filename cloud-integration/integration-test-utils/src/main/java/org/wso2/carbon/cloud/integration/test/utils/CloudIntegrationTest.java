@@ -20,17 +20,23 @@ package org.wso2.carbon.cloud.integration.test.utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * Parent class used to initilaize test cases
+ */
 public class CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(CloudIntegrationTest.class);
 
-    protected String cloudMgtServerUrl;
+    protected static String cloudMgtServerUrl;
     protected String tenantAdminUserName;
     protected String tenantAdminPassword;
 
     public CloudIntegrationTest() {
-        cloudMgtServerUrl = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.CLOUD_MGT_SERVER_URL);
-        tenantAdminUserName = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_ADMIN_USER_NAME);
-        tenantAdminPassword = CloudIntegrationTestUtils.getPropertyValue(CloudConstants.TENANT_ADMIN_PASSWORD);
+        cloudMgtServerUrl = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.CLOUD_MGT_SERVER_URL);
+        tenantAdminUserName = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_USER_NAME);
+        tenantAdminPassword = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_PASSWORD);
     }
 
     protected void cleanup() {

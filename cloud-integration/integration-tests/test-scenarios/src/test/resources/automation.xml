@@ -69,9 +69,9 @@
             <driverClassName>org.h2.Driver</driverClassName>
         </datasource>
         <datasource name="mysql">
-            <url>jdbc:mysql://localhost:3306/</url>
+            <url>jdbc:mysql://localhost:3306/dbCloudMgt</url>
             <username>root</username>
-            <password>admin</password>
+            <password>root</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
         </datasource>
     </datasources>
@@ -82,7 +82,7 @@
         <keystore name="wso2">
             <!--  Keystore file location -->
             <!--<fileName>keystores/products/wso2carbon.jks</fileName>-->
-            <fileName>keystores/wso2carbon.jks</fileName>
+            <fileName>security/keystores/wso2carbon.jks</fileName>
 
             <!--  Keystore type (JKS/PKCS12 etc.) -->
             <type>JKS</type>
@@ -102,7 +102,7 @@
         <truststore name="wso2">
 
             <!--  trust-store file location  -->
-            <fileName>truststores/client-truststore.jks</fileName>
+            <fileName>security/truststores/client-truststore.jks</fileName>
 
             <!--  trust-store type (JKS/PKCS12 etc.)  -->
             <type>JKS</type>
@@ -284,11 +284,34 @@
             <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
         </urls>
         <tenantDetails>
-            <tenantId>1</tenantId>
-            <tenantDomain>tenantdomain</tenantDomain>
-            <adminUser>admin.wso2.com@tenantdomain</adminUser>
-            <adminPassword>Admin@123</adminPassword>
+            <Tenant key="defaultTenant">
+                <tenantId>1</tenantId>
+                <tenantDomain>company1</tenantDomain>
+                <adminUser>test.wso2.com@company1</adminUser>
+                <adminPassword>testPassword</adminPassword>
+                <users>
+                    <user firstName="User" lastName="One" key="user1">
+                        <userName>user1.wso2.com@localcompany1</userName>
+                        <password>Admin@123</password>
+                        <email>user1@wso2.com</email>
+                    </user>
+                </users>
+            </Tenant>
+            <Tenant key="newTenant">
+                <firstName>testFirstName</firstName>
+                <lastName>testLastName</lastName>
+                <tenantDomain>hb</tenantDomain>
+                <adminUser>testdomain.com</adminUser>
+                <adminPassword>Hbtenant</adminPassword>
+                <usagePlan>Demo</usagePlan>
+            </Tenant>
         </tenantDetails>
+        <deploymentContext>local</deploymentContext>
+        <billing>
+            <payments>
+                <serviceId>api_cloud</serviceId>
+                <productRatePlanId>2c92c0f949aasdc00850149b856d515537b</productRatePlanId>
+            </payments>
+        </billing>
     </cloudProperties>
-
 </automation>

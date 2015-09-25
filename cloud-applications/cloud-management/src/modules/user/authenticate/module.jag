@@ -9,6 +9,9 @@ jagg.module("user/authenticate", {
     },
     logout:function () {
         return jagg.require(jagg.getModulesDir() + "user/authenticate/login.jag").logout.apply(this, arguments);
+    },
+    loginWithSAMLToken: function () {
+        return jagg.require(jagg.getModulesDir() + "user/authenticate/login.jag").loginWithSAMLToken.apply(this, arguments);
     }
 
 });
