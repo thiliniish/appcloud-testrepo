@@ -281,6 +281,7 @@
     <cloudProperties>
         <urls>
             <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
+            <identityServerUrl>https://milestones.identity.wso2.com:9444</identityServerUrl>
         </urls>
         <tenantDetails>
             <Tenant key="defaultTenant">

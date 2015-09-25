@@ -1,9 +1,6 @@
 <%
     include("/jagg/jagg.jag");
     include("/jagg/constants.jag");
-     //importPackage(Packages.org.wso2.carbon.captcha.mgt.beans.CaptchaInfoBean);
-     //importPackage(Packages.org.wso2.carbon.admin.mgt.beans.AdminMgtInfoBean);
-    //importPackage(java.io)
     var log = new Log();
     var modManager = jagg.module("manager");
     var carbon = require('carbon');
@@ -27,11 +24,15 @@
     var initiatePasswordReset = function(email) {
         try {
             var userName = modManager.getUserNameFromEmail(email);
-            var key = verifyUser(userName);
-            if(key != null){
-                sendRecoveryNotification(userName,key);
+            log.info("Password reset - Initiating password reset for : " + userName);
+            var verifyResult = verifyUser(userName);
+            var isNotificationSend = false;
+            if(verifyResult.verified){
+                isNotificationSend = sendRecoveryNotification(userName,verifyResult.confirmationKey);
+            }else{
+                log.warn("Error while verifying user : " + userName);
             }
-            return userName;
+            return isNotificationSend;
         }catch (e){
             log.error("Error while initiating password reset for " + userName + " : " + e);
             throw "Error while initiating password reset for " + userName + " : " + e;
@@ -39,8 +40,6 @@
     };
 
     var verifyUser = function(userName) {
-
-        log.info("Password reset - Verifying User:" + userName);
         var ws = require('ws');
         var request = new ws.WSRequest();
         var options = new Array();
@@ -50,8 +49,10 @@
         options["HTTPHeaders"] = [
             { name : "Cookie", value :modManager.getAdminCookie(IS_URL) }
         ];
-        var payload = '<verifyUser xmlns="http://services.mgt.identity.carbon.wso2.org"><username>'+userName+'</username></verifyUser>';
-        var result;
+        var payload = '<verifyUser xmlns="http://services.mgt.identity.carbon.wso2.org">'+
+                        '<username>'+userName+'</username>'+
+                      '</verifyUser>';
+        var result = {};
         try {
             var endPoint = IS_URL + "UserInformationRecoveryService";
             request.open(options,endPoint, false);
@@ -62,24 +63,26 @@
             var verified = entry.*::verified.text();
             var error = entry.*::error.text();
             if(verified == true){
-                return key;
+                log.info("Password reset - User : " + userName + " verified.");
+                result.verified = true;
+                result.confirmationKey = String(key);
+                return result;
             }else{
                 if(error == "18003"){
-                    log.error("Invalid user name is provided.");
-                    return null;
+                    log.warn("Password reset - Invalid user name provided.");
                 }else{
-                    log.error(error);
-                    throw error;
+                    log.warn("Password reset - " + error);
                 }
+                result.verified = false;
+                return result;
             }
         } catch (e) {
-            log.error("Error while verifying user \n" + e.message);
-            throw "Error while verifying user \n" + e.message;
+            log.error("Error while verifying user \n" + e);
+            throw "Error while verifying user \n" + e;
         }
     };
 
     var sendRecoveryNotification = function(userName,key) {
-        log.info("Sending recovery notification");
         var ws = require('ws');
         var request = new ws.WSRequest();
         var options = new Array();
@@ -89,7 +92,11 @@
         options["HTTPHeaders"] = [
             { name : "Cookie", value :modManager.getAdminCookie(IS_URL) }
         ];
-        var payload = '<sendRecoveryNotification xmlns="http://services.mgt.identity.carbon.wso2.org"><username>' + userName +'</username><key>' + key + '</key><notificationType>email</notificationType></sendRecoveryNotification>';
+        var payload = '<sendRecoveryNotification xmlns="http://services.mgt.identity.carbon.wso2.org">'+
+                        '<username>' + userName +'</username>'+
+                        '<key>' + key + '</key>'+
+                        '<notificationType>email</notificationType>'+
+                      '</sendRecoveryNotification>';
         var result;
         try {
             var endPoint = IS_URL + "UserInformationRecoveryService";
@@ -102,14 +109,17 @@
             var notificationCode = entry.*::notificationData.*::notificationCode.text();
             var email = entry.*::notificationData.*::notificationAddress.text();
             if (verified == true) {
+                log.info("Recovery notification code retrieved successfully for user : " + userName
+                        + " with email : " + email);
                 sendRecoveryEmail(notificationCode,userName,email);
+                return true;
             } else {
                 log.error(error);
-                throw error;
+                return false;
             }
         } catch (e) {
-            log.error("Error while sending recovery notification \n" + e.message);
-            throw "Error while sending recovery notification \n" + e.message;
+            log.error("Error while sending recovery notification \n" + e);
+            throw "Error while sending recovery notification \n" + e;
         }
     };
 
@@ -134,12 +144,10 @@
             sender.send();
             log.info("Email successfully sent to " + userInfo.email.toString());
         } catch (e) {
-            log.error("Error while sending email \n" + e.message);
+            log.error("Error while sending email \n" + e);
             throw e;
         }
     };
-
-
 
 %>
 
