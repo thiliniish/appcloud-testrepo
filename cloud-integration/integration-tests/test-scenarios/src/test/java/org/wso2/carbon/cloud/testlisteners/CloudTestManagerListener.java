@@ -17,14 +17,11 @@
  */
 package org.wso2.carbon.cloud.testlisteners;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.wso2.carbon.automation.engine.testlisteners.TestManagerListener;
 
 public class CloudTestManagerListener extends TestManagerListener {
-    private static final Log log = LogFactory.getLog(CloudTestManagerListener.class);
 
     @Override public void onTestStart(ITestResult iTestResult) {
         super.onTestStart(iTestResult);
