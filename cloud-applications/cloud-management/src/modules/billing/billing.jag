@@ -376,7 +376,7 @@ var createAccount = function (accountData, metaData) {
                         	var type =metaData.serviceId.toUpperCase();
                         	type = type.substring(0, type.indexOf("_"));
                         	var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-							var tokenId = jagg.module("util").getLeadSourceToken("upgrade");
+				var tokenId = jagg.module("util").getLeadSourceToken("upgrade");
                         	var jsonData={
                         		"email" : email,
                         		"cloudtype" : type,
