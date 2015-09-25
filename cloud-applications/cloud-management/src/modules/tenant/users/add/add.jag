@@ -100,7 +100,7 @@ var sendInvite = function (email,tenant,roles) {
 	var queryString =SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
 	var parameters =[tenant,email,uuid,roles];
     	var results = jagg.module("database").executeQuery(queryString, parameters);
-	var tokenId = jagg.module("util").getLeadSourceToken();
+	var tokenId = jagg.module("util").getLeadSourceToken("signUp");
 	log.info("Sucessfully added the temp registration");
 	var link = targetEpr+"?confirmation="+uuid+"&isInvitee=true";
 	sendEmail(email,link,displayName,roles);

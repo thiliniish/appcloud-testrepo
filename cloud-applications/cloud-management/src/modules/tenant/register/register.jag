@@ -384,7 +384,7 @@ var sendInvite = function(email,token) {
     	if(token != "null" && token != ''){
        		tokenId = token;
     	}else{
-        	tokenId = jagg.module("util").getLeadSourceToken();
+        	tokenId = jagg.module("util").getLeadSourceToken("signUp");
     	}
     	//adding selfsign user to rightwave
 	var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
@@ -409,8 +409,8 @@ var sendInvite = function(email,token) {
 				actionString =  actionString+"Success";
 		} else {
 				actionString =  actionString+"Failed";
-				log.error("Rightwave api call failed for the user "+email);
-				log.error("Rightwave api call failed for the user "+msg);
+				log.error("Rightwave cloud signup api call failed for the user "+email);
+				log.error("Rightwave cloud signup api call failed for the user "+msg);
 			}
 			var event={
 			};

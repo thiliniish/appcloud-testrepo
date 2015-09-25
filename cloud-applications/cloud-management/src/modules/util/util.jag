@@ -383,10 +383,22 @@ function addUserToOT (email, pass, firstName, lastName) {
 };
 
 
-function getLeadSourceToken () {
+function getLeadSourceToken (campaign) {
     try {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-        var URL = cloudConfig.LeadSourceCapture.url;
+        var types = cloudConfig.subscriptions.type;
+        var URL;
+        if(campaign == "signUp"){
+            URL = cloudConfig.RightWaveAddUserApi.signupLeadSource;
+        } else if(campaign=="upgrade"){
+            URL =   cloudConfig.RightWaveAddUserApi.upgradeLeadSource;
+        }
+        else if (campaign == convertValue(types[0].id)){
+            URL = cloudConfig.RightWaveAddUserApi.appCloudSelectLeadSource;
+        }
+        else if(campaign == convertValue(types[1].id)){
+            URL = cloudConfig.RightWaveAddUserApi.apiCloudSelectLeadSource;
+        }
         var result = get(URL);
         var data = parse(result.data);
         var tokenId = data.tokenid;
@@ -395,6 +407,11 @@ function getLeadSourceToken () {
         log.error(e);
     }
     return tokenId;
+};
+
+function convertValue(value){
+    var val = value.toUpperCase();
+    return val.substring(0, val.indexOf("_"))
 };
 
 function changeOTUserPass (email,pass) {
