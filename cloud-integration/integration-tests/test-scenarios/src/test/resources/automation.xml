@@ -285,14 +285,21 @@
         </urls>
         <tenantDetails>
             <Tenant key="defaultTenant">
+
                 <tenantId>1</tenantId>
                 <tenantDomain>company1</tenantDomain>
                 <adminUser>test.wso2.com@company1</adminUser>
-                <adminPassword>password</adminPassword>
+                <adminPassword>testPassword</adminPassword>
                 <users>
                     <user firstName="User" lastName="One" key="user1">
                         <userName>user1.wso2.com@localcompany1</userName>
                         <password>Admin@123</password>
+                        <email>user1@wso2.com</email>
+                    </user>
+
+                    <user firstName="firstname" lastName="lastname" key="commonUser">
+                        <userName>commonuser</userName>
+                        <password>Admin@123#</password>
                         <email>user1@wso2.com</email>
                     </user>
                 </users>
@@ -305,12 +312,6 @@
                 <adminPassword>Hbtenant</adminPassword>
                 <usagePlan>Demo</usagePlan>
             </Tenant>
-            <Tenant key="superTenant">
-                <tenantDomain>carbon.super</tenantDomain>
-                <adminUser>admin@carbon.super</adminUser>
-                <adminPassword>admin</adminPassword>
-                <usagePlan>Demo</usagePlan>
-            </Tenant>
         </tenantDetails>
         <deploymentContext>local</deploymentContext>
         <billing>
@@ -319,7 +320,7 @@
                 <productRatePlanId>2c92c0f949aasdc00850149b856d515537b</productRatePlanId>
             </payments>
         </billing>
-        <tenantNewUserEmails>testmail1@email.com,testmail2@email.com</tenantNewUserEmails>
+        <tenantNewUserEmails>aaar@discard.email,bbbr@discard.email</tenantNewUserEmails>
         <allTenantRoles>devops,cxo,appowner,qa,developer,subscriber,publisher</allTenantRoles>
     </cloudProperties>
 </automation>

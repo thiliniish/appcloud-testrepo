@@ -45,7 +45,6 @@ public class LoginAdminServiceClient {
         String sessionCookie = null;
 
         if (authenticationAdminStub.login(userName, password, "localhost")) {
-            log.info("Login Successful");
             ServiceContext serviceContext =
                     authenticationAdminStub._getServiceClient().getLastOperationContext()
                                            .getServiceContext();

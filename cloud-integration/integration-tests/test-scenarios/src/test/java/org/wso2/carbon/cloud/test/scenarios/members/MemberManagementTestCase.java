@@ -1,18 +1,21 @@
 /*
-* Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.cloud.test.scenarios.members;
 
 import org.apache.commons.logging.Log;
@@ -25,8 +28,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTest;
-import org.wso2.carbon.cloud.integration.test.utils.adminserviceclients.LoginAdminServiceClient;
-import org.wso2.carbon.cloud.integration.test.utils.adminserviceclients.UserAdminClient;
+import org.wso2.carbon.cloud.integration.test.utils.clients.authentication.CarbonAuthenticatorClient;
+import org.wso2.carbon.cloud.integration.test.utils.clients.service.UserAdminClient;
 import org.wso2.carbon.cloud.integration.test.utils.external.DbConnectionManager;
 import org.wso2.carbon.cloud.integration.test.utils.external.HttpHandler;
 import org.wso2.carbon.cloud.integration.test.utils.restclients.JaggeryAppAuthenticatorClient;
@@ -52,9 +55,9 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
         loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
         users = CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.NEW_CLOUD_USER_EMAILS);
+                .getPropertyValue(CloudIntegrationConstants.NEW_CLOUD_USER_EMAILS).trim();
         roles = CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.ALL_CLOUD_USER_ROLES);
+                .getPropertyValue(CloudIntegrationConstants.ALL_CLOUD_USER_ROLES).trim();
         usersEmailArray = users.split(",");
     }
 
@@ -63,17 +66,15 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "This will check existence of username", groups = {
-            "member creation" }) public void checkUsernameExistenceTest() throws Exception {
-        log.info("started username existence test case ");
+    @Test(description = "This will check existence of username")
+    public void checkUsernameExistenceTest() throws Exception {
         Assert.assertTrue(loginStatus, "Tenant login failed.");
         String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
         for (String userEmail : usersEmailArray) {
-            log.info("started user existence test case for " + userEmail);
             Map<String, String> params = new HashMap<String, String>();
             Map resultMap;
             params.put("action", "isExistingUser");
-            params.put("username", userEmail);
+            params.put("username", userEmail.trim());
             resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
             Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "false",
                                 "user already exists");
@@ -85,9 +86,8 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(dependsOnMethods = {
-            "checkUsernameExistenceTest" }, description = "This will check invite single or more members to an organization", groups = {
-            "member creation" }) public void inviteMembers() throws Exception {
+    @Test(dependsOnMethods = {"checkUsernameExistenceTest" }, description = "This will check invite single or more members to an organization")
+    public void inviteMembers() throws Exception {
 
         Assert.assertTrue(loginStatus, "Tenant login failed.");
         Map<String, String> params = new HashMap<String, String>();
@@ -110,10 +110,8 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      * @throws IOException
      * @throws JSONException
      */
-    @Test(dependsOnMethods = { "checkUsernameExistenceTest",
-                               "inviteMembers" }, description = "This will check confirm invited users", groups = {
-            "member creation" }) public void confirmInvitedMembers()
-            throws SQLException, IOException, JSONException {
+    @Test(dependsOnMethods = { "inviteMembers" }, description = "This will check confirm invited users")
+    public void confirmInvitedMembers() throws Exception {
 
         String tenantDomain = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_DOMAIN);
@@ -123,38 +121,52 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                 cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_TENANT_USERS_URL_SFX;
         String query = CloudIntegrationConstants.GER_UUID_FOR_TEMP_INVITEE;
         DbConnectionManager connectionManager = new DbConnectionManager();
-
-        for (String user : usersEmailArray) {
-            List<String> queryParameters = new ArrayList<String>();
-            queryParameters.add(tenantDomain);
-            queryParameters.add(user);
-            ResultSet results = connectionManager.runQuery(query, queryParameters);
-            if (results.next()) {
-                String uuid = results.getString(1);
-                Map<String, String> confirmUserParams = new HashMap<String, String>();
-                confirmUserParams.put("action", "confirmUser");
-                confirmUserParams.put("confirm", uuid);
-                confirmUserParams.put("isInvitee", "true");
-                Map confirmUserResultMap =
-                        HttpHandler.doPostHttps(confirmUserUrl, confirmUserParams, null);
-                Assert.assertEquals(
-                        confirmUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
-                        "add-tenant.jag");
-                Map<String, String> addUserParams = new HashMap<String, String>();
-                addUserParams.put("action", "importInvitedUser");
-                addUserParams.put("adminPassword", CloudIntegrationConstants.COMMON_USER_PASSWORD);
-                addUserParams.put("confirmationKey", uuid);
-                addUserParams.put("firstName", CloudIntegrationConstants.COMMON_USER_FIRST_NAME);
-                addUserParams.put("lastName", CloudIntegrationConstants.COMMON_USER_LAST_NAME);
-                Map addUserResultMap = HttpHandler.doPostHttps(addUserUrl, addUserParams, null);
-                Assert.assertEquals(
-                        addUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
-                        "../pages/index.jag");
-            } else {
-                Assert.fail("Sending user invitation has been failed");
+        try {
+            for (String user : usersEmailArray) {
+                user = user.trim();
+                List<String> queryParameters = new ArrayList<String>();
+                queryParameters.add(tenantDomain);
+                queryParameters.add(user);
+                ResultSet results = connectionManager.runQuery(query, queryParameters);
+                if (results.next()) {
+                    String uuid = results.getString(1);
+                    Map<String, String> confirmUserParams = new HashMap<String, String>();
+                    confirmUserParams.put("action", "confirmUser");
+                    confirmUserParams.put("confirm", uuid);
+                    confirmUserParams.put("isInvitee", "true");
+                    Map confirmUserResultMap =
+                            HttpHandler.doPostHttps(confirmUserUrl, confirmUserParams, null);
+                    Assert.assertEquals(
+                            confirmUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
+                            "add-tenant.jag");
+                    Map<String, String> addUserParams = new HashMap<String, String>();
+                    addUserParams.put("action", "importInvitedUser");
+                    addUserParams.put("adminPassword", CloudIntegrationTestUtils
+                            .getPropertyValue(CloudIntegrationConstants.TENANT_USER_PASSWORD));
+                    addUserParams.put("confirmationKey", uuid);
+                    addUserParams.put("firstName", CloudIntegrationTestUtils
+                            .getPropertyValue(CloudIntegrationConstants.TENANT_USER_FIRST_NAME));
+                    addUserParams.put("lastName", CloudIntegrationTestUtils
+                            .getPropertyValue(CloudIntegrationConstants.TENANT_USER_LAST_NAME));
+                    Map addUserResultMap = HttpHandler.doPostHttps(addUserUrl, addUserParams, null);
+                    Assert.assertEquals(
+                            addUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
+                            "../pages/index.jag");
+                } else {
+                    Assert.fail("Sending user invitation has been failed");
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error occurred when getting the daat", e);
+            throw e;
+        } finally {
+            try {
+                connectionManager.closeConnection();
+            } catch (Exception e) {
+                log.error("Error occurred when closing the connection", e);
+                throw e;
             }
         }
-        connectionManager.closeConnection();
     }
 
     /**
@@ -164,13 +176,11 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      * @throws IOException
      * @throws JSONException
      */
-    @Test(dependsOnMethods = {
-            "confirmInvitedMembers" }, description = "This will check update roles of members", groups = {
-            "member creation" }) public void updateMemberRoles()
-            throws SQLException, IOException, JSONException {
+    @Test(dependsOnMethods = {"confirmInvitedMembers" }, description = "This will check update roles of members")
+    public void updateMemberRoles() throws SQLException, IOException, JSONException {
 
         //test for only one user
-        String userName = usersEmailArray[0].replace('@', '.');
+        String userName = usersEmailArray[0].replace('@', '.').trim();
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "updateUserRoles");
         params.put("userName", userName);
@@ -192,19 +202,20 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(dependsOnGroups = {
-            "member creation" }, description = "This will check remove members") public void removeMembers()
-            throws Exception {
+    @Test(alwaysRun = true, dependsOnMethods = {"confirmInvitedMembers","updateMemberRoles" }, description = "This will check remove members")
+    public void removeMembers() throws Exception {
 
         //login admin service client to access admin services
-        LoginAdminServiceClient adminServiceClient = new LoginAdminServiceClient(cloudMgtServerUrl);
-        String session = adminServiceClient.authenticate(superAdminUserName, superAdminPassword);
+        CarbonAuthenticatorClient adminServiceClient =
+                new CarbonAuthenticatorClient(cloudMgtServerUrl);
+        String session =
+                adminServiceClient.login(superAdminUserName, superAdminPassword, "localhost");
         //user admin client to access user admin service which is used to
         // remove user from user store
         UserAdminClient userAdminClient = new UserAdminClient(cloudMgtServerUrl, session);
 
         for (String userEmail : usersEmailArray) {
-            String userName = userEmail.replace('@', '.');
+            String userName = userEmail.replace('@', '.').trim();
             Map<String, String> params = new HashMap<String, String>();
             params.put("action", "deleteUserFromTenant");
             params.put("userName", userName);
@@ -220,7 +231,8 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
         adminServiceClient.logOut();
     }
 
-    @AfterClass(alwaysRun = true) public void destroy() throws IOException {
+    @AfterClass(alwaysRun = true)
+    public void destroy() throws IOException {
         authenticatorClient.logout();
         super.cleanup();
     }

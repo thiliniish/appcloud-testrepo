@@ -41,6 +41,7 @@
         <classes>
             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.UserProfileManagementTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>
+
         </classes>
     </test>
 </suite>
