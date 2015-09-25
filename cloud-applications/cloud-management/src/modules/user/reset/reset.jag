@@ -35,28 +35,31 @@ include("/jagg/constants.jag");
             var key = entry.*::key.text();
             var verified = entry.*::verified.text();
             var error = entry.*::error.text();
+            var data = {};
             if(verified == true){
                 var userInfo = jagg.module("tenant").getUserInfo(id);
-                var data = {};
+                data.verified = true;
                 data.confirmationKey = key;
                 data.userName = id;
                 data.email = userInfo.email.toString();
                 session.put('intermediate-data',stringify(data));
-                return "password-verifier.jag";
+                return stringify(data);
             }else {
                 if(error == "18001"){
-                    log.error("Invalid code provided to validate.");
-                    return "18001";
+                    log.warn("Invalid code provided to validate.");
+                }if(error == "18002"){
+                    log.warn("Expired code provided to validate.");
                 }else{
-                    log.error(error);
-                    throw error;
+                    log.warn(error);
                 }
+                data.verified = false;
+                return stringify(data);
             }
         } catch (e) {
             log.error("Error while verifying user \n" + e.message);
             throw "Error while verifying user \n" + e.message;
         }
-    }
+    };
 
 
 

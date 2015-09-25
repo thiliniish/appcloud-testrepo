@@ -36,11 +36,24 @@ public class CloudIntegrationConstants {
     //User Management
     public static final String CHANGE_PASSWORD_URL_SFX =
             "/cloudmgt/site/blocks/user/change/ajax/user.jag";
+    public static final String INITIATE_PASSWORD_RESET_SFX =
+            "/cloudmgt/site/blocks/user/initiate/ajax/initiate.jag";
+    public static final String PASSWORD_RESET_VERIFY_SFX =
+            "/cloudmgt/site/blocks/user/reset/ajax/reset.jag";
+    public static final String PASSWORD_UPDATE_SFX =
+            "/cloudmgt/site/blocks/user/change/ajax/user.jag";
     public static final String USER_PROFILE_URL_SFX =
             "/cloudmgt/site/blocks/user/profile/ajax/profile.jag";
 
     //Automation xml parameters
+    //Super admin credentials
+    public static final String SUPER_ADMIN_USER_NAME = "//userManagement/superTenant/tenant/admin/user/userName";
+    public static final String SUPER_ADMIN_PASSWORD = "//userManagement/superTenant/tenant/admin/user/password";
+
+    //Cloud Related URLs
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
+    public static final String IDENTITY_SERVER_URL = "//cloudProperties/urls/identityServerUrl";
+
     public static final String TENANT_ADMIN_USER_NAME =
             "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/adminUser";
     public static final String TENANT_ADMIN_PASSWORD =
