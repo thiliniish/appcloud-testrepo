@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 public class CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(CloudIntegrationTest.class);
 
-
     protected static String cloudMgtServerUrl;
     protected String tenantAdminUserName;
     protected String tenantAdminPassword;
