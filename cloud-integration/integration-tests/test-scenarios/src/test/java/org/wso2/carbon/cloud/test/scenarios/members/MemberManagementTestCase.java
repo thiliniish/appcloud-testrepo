@@ -77,7 +77,6 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
             resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
             Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "false",
                                 "user already exists");
-
         }
     }
 
@@ -102,7 +101,6 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
         Assert.assertEquals(resultObj.get("error").toString(), "false");
-
     }
 
     /**
@@ -152,15 +150,11 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                 Assert.assertEquals(
                         addUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
                         "../pages/index.jag");
-
-            }
-            else{
+            } else {
                 Assert.fail("Sending user invitation has been failed");
             }
         }
-
         connectionManager.closeConnection();
-
     }
 
     /**
@@ -174,13 +168,14 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
             "confirmInvitedMembers" }, description = "This will check update roles of members", groups = {
             "member creation" }) public void updateMemberRoles()
             throws SQLException, IOException, JSONException {
+
+        //test for only one user
         String userName = usersEmailArray[0].replace('@', '.');
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "updateUserRoles");
         params.put("userName", userName);
         params.put("rolesToAdd", "");//no roles will be added since user has all the roles
         params.put("rolesToDelete", "qa,cxo");
-
         String updateUserInviteUrl =
                 cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_TENANT_USERS_URL_SFX;
         Map resultMap = HttpHandler
@@ -188,7 +183,6 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
         Assert.assertEquals(resultObj.get("error").toString(), "false");
-
     }
 
     /**
@@ -223,7 +217,6 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
             Assert.assertEquals(resultObj.get("error").toString(), "false");
             userAdminClient.deleteUser(userName);
         }
-
         adminServiceClient.logOut();
     }
 

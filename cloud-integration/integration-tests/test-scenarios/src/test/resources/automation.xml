@@ -284,7 +284,6 @@
         </urls>
         <tenantDetails>
             <Tenant key="defaultTenant">
-
                 <tenantId>1</tenantId>
                 <tenantDomain>company1</tenantDomain>
                 <adminUser>test.wso2.com@company1</adminUser>
