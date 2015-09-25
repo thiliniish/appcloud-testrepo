@@ -549,45 +549,63 @@
                             <xs:element name="tenantDetails">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element name="defaultTenant">
+                                        <xs:element name="Tenant" maxOccurs="unbounded"
+                                                    minOccurs="0">
                                             <xs:complexType>
                                                 <xs:sequence>
-                                                    <xs:element type="xs:int" name="tenantId"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
-                                                    <xs:element type="xs:string" name="tenantDomain"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
-                                                    <xs:element type="xs:string" name="adminUser"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
+                                                    <xs:element type="xs:int" minOccurs="0" name="tenantId"/>
+                                                    <xs:element type="xs:string" minOccurs="0" name="firstName"/>
+                                                    <xs:element type="xs:string" minOccurs="0" name="lastName"/>
+                                                    <xs:element type="xs:string" name="tenantDomain"/>
+                                                    <xs:element type="xs:string" name="adminUser"/>
                                                     <xs:element type="xs:string"
-                                                                name="adminPassword"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
+                                                                name="adminPassword"/>
+                                                    <xs:element type="xs:string" minOccurs="0" name="usagePlan"/>
+                                                    <xs:element name="users" maxOccurs="unbounded"
+                                                                minOccurs="0">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element name="user"
+                                                                            maxOccurs="unbounded"
+                                                                            minOccurs="0">
+                                                                    <xs:complexType>
+                                                                        <xs:sequence>
+                                                                            <xs:element
+                                                                                    type="xs:string"
+                                                                                    name="userName"/>
+                                                                            <xs:element
+                                                                                    type="xs:string"
+                                                                                    name="password"/>
+                                                                            <xs:element
+                                                                                    type="xs:string"
+                                                                                    name="email"/>
+                                                                        </xs:sequence>
+                                                                        <xs:attribute
+                                                                                type="xs:string"
+                                                                                name="key"
+                                                                                use="optional"/>
+                                                                        <xs:attribute
+                                                                                type="xs:string"
+                                                                                name="firstName"
+                                                                                use="optional"/>
+                                                                        <xs:attribute
+                                                                                type="xs:string"
+                                                                                name="lastName"
+                                                                                use="optional"/>
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                            </xs:sequence>
+                                                            <xs:attribute
+                                                                    type="xs:string"
+                                                                    name="key"
+                                                                    use="optional"/>
+                                                        </xs:complexType>
+                                                    </xs:element>
                                                 </xs:sequence>
-                                            </xs:complexType>
-                                        </xs:element>
-                                        <xs:element name="newTenant">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element type="xs:int" name="tenantId"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
-                                                    <xs:element type="xs:string" name="tenantDomain"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
-                                                    <xs:element type="xs:string" name="tenantEmail"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
-                                                    <xs:element type="xs:string" name="tenantUser"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
-                                                    <xs:element type="xs:string"
-                                                                name="tenantPassword"
-                                                                maxOccurs="unbounded"
-                                                                minOccurs="0"/>
-                                                </xs:sequence>
+                                                <xs:attribute
+                                                        type="xs:string"
+                                                        name="key"
+                                                        use="optional"/>
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>
@@ -612,6 +630,12 @@
                                         </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
+                            </xs:element>
+                            <xs:element name ="tenantNewUserEmails" type="xs:string" maxOccurs="1"
+                                        minOccurs="0">
+                            </xs:element>
+                            <xs:element name ="allTenantRoles" type="xs:string" maxOccurs="1"
+                                        minOccurs="0">
                             </xs:element>
                         </xs:sequence>
                     </xs:complexType>

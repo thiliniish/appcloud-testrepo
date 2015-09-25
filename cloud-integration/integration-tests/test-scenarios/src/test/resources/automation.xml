@@ -69,7 +69,7 @@
             <driverClassName>org.h2.Driver</driverClassName>
         </datasource>
         <datasource name="mysql">
-            <url>jdbc:mysql://localhost:3306/cloud_mgt?autoReconnect=true</url>
+            <url>jdbc:mysql://localhost:3306/dbCloudMgt</url>
             <username>root</username>
             <password>root</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
@@ -277,26 +277,40 @@
         </PlatformReportManager>
     </listenerExtensions>
 
-
     <!--Cloud Related properties-->
     <cloudProperties>
         <urls>
             <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
         </urls>
         <tenantDetails>
-            <defaultTenant>
+            <Tenant key="defaultTenant">
+
                 <tenantId>1</tenantId>
-                <tenantDomain>ch9999</tenantDomain>
-                <adminUser>chalithasanyuja.yahoo.com@ch9999</adminUser>
-                <adminPassword>Sanyuja@1989</adminPassword>
-            </defaultTenant>
-            <newTenant>
-                <tenantId>1</tenantId>
-                <tenantDomain>localcompany1</tenantDomain>
-                <tenantEmail>jusid1931@einrot.com</tenantEmail>
-                <tenantUser>jusid1931.einrot.com@localcompany1</tenantUser>
-                <tenantPassword>password</tenantPassword>
-            </newTenant>
+                <tenantDomain>company1</tenantDomain>
+                <adminUser>test.wso2.com@company1</adminUser>
+                <adminPassword>password</adminPassword>
+                <users>
+                    <user firstName="User" lastName="One" key="user1">
+                        <userName>user1.wso2.com@localcompany1</userName>
+                        <password>Admin@123</password>
+                        <email>user1@wso2.com</email>
+                    </user>
+                </users>
+            </Tenant>
+            <Tenant key="newTenant">
+                <firstName>testFirstName</firstName>
+                <lastName>testLastName</lastName>
+                <tenantDomain>hb</tenantDomain>
+                <adminUser>testdomain.com</adminUser>
+                <adminPassword>Hbtenant</adminPassword>
+                <usagePlan>Demo</usagePlan>
+            </Tenant>
+            <Tenant key="superTenant">
+                <tenantDomain>carbon.super</tenantDomain>
+                <adminUser>admin@carbon.super</adminUser>
+                <adminPassword>admin</adminPassword>
+                <usagePlan>Demo</usagePlan>
+            </Tenant>
         </tenantDetails>
         <deploymentContext>local</deploymentContext>
         <billing>
@@ -305,8 +319,7 @@
                 <productRatePlanId>2c92c0f949aasdc00850149b856d515537b</productRatePlanId>
             </payments>
         </billing>
-        <tenantNewUserEmails>tino1111@discard.email,tino2222@discard.email</tenantNewUserEmails>
+        <tenantNewUserEmails>testmail1@email.com,testmail2@email.com</tenantNewUserEmails>
         <allTenantRoles>devops,cxo,appowner,qa,developer,subscriber,publisher</allTenantRoles>
     </cloudProperties>
-
 </automation>

@@ -59,8 +59,8 @@ public class HttpHandler {
      * @return response and if cookie is null returns the cookie in a Map
      * @throws java.io.IOException - Throws this when failed to fulfill a https post request
      */
-    public static Map doPostHttps(String url, String payload, String authCookie, String contentType)
-            throws IOException {
+    public static Map<String, String> doPostHttps(String url, String payload, String authCookie,
+                                                  String contentType) throws IOException {
         URL obj = new URL(url);
         Map<String, String> responseMap = new HashMap<String, String>();
 

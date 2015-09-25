@@ -8,9 +8,9 @@ var modManager = jagg.module("manager");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 var CLOUDMGT_SERVICES = cloudConfig.ServerUrls.cloudmgtServices.toString();
+
 function login(userName, password){
 
-    log.info("user logs in module called");
     var ws = require('ws');
     var finalResult={};
     try{
@@ -32,10 +32,8 @@ function login(userName, password){
         var result = xhr.responseText;
 
         if (result.indexOf("false") === -1 && result.indexOf("faultstring") === -1) {
-            log.info("user logs in");
             jagg.setUser(userName);
             createTenantInfoObject();
-            log.info("user set in the jagg");
             var cookie = (xhr.getAllResponseHeaders());
             var cookieString = cookie.split(";")[0].split(":")[1];
             if(cookieString!=null){
@@ -46,13 +44,16 @@ function login(userName, password){
             finalResult.username=userName;
             finalResult.cookie=cookieString;
             session.put("LOGGED_IN_USER",userName);
+            session.put("LOGGED_IN_USER_EMAIL", jagg.module("manager").getEmailOfUser(userName));
+            log.info("User: " + userName + " successfully logged in from Login API.");
             return stringify(finalResult);
         }
+        log.warn("Failed login attempt by user: " + userName + " for Login API.");
         finalResult.error="true";
         finalResult.message="Authentication failure";
         return stringify(finalResult);
     } catch(e){
-        log.error("Error while authenticating user: "+ e.message());
+        log.error("Error while login from Login API for user: " + userName + "\n" + e.message());
         finalResult.error="true";
         finalResult.message="Internal Error Occured";
         return stringify(finalResult);
@@ -93,10 +94,10 @@ function validatePassword(userName, password){
     }
 
 }
+
 function logout(){
     var log = new Log();
     var username = jagg.getUser();
-    log.info("username =" + username);
     var finalResult={};
 
     if(username!=null){
@@ -123,5 +124,52 @@ function createTenantInfoObject() {
         session.put("TENANT_INFO", tenantInfo);
     }
 }
+
+var loginWithSAMLToken = function (token) {
+    var security =require("sso");
+    var SSO_NAME =  cloudConfig.SSORelyingParty.name;
+    var CLOUDMGT_SERVICES = cloudConfig.ServerUrls.cloudmgtServices.toString();
+    var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+    var encodedToken = ssoRelyingParty.xmlEncode(token);
+    var xhr = new XMLHttpRequest();
+    var endPoint = CLOUDMGT_SERVICES + "SAML2SSOAuthenticationService";
+    xhr.open("POST", endPoint);
+
+    var payload =   '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" ' +
+                    'xmlns:sso="http://sso.saml2.authenticator.identity.carbon.wso2.org" ' +
+                    'xmlns:xsd="http://dto.sso.saml2.authenticator.identity.carbon.wso2.org/xsd">' +
+                        '<soap:Body>' +
+                            '<sso:login>' +
+                            '<sso:authDto>' +
+                            '<xsd:response>'+encodedToken+'</xsd:response>' +
+                            '</sso:authDto>' +
+                            '</sso:login>' +
+                        '</soap:Body>' +
+                    '</soap:Envelope>';
+
+    xhr.setRequestHeader('SOAPAction','urn:login');
+    xhr.setRequestHeader('Content-Type','application/soap+xml');
+    xhr.send(payload);
+    var result = xhr.responseText;
+
+    var finalResult={};
+    if (result.indexOf("false") === -1 && result.indexOf("faultstring") === -1) {
+        var cookieString = xhr.getResponseHeader("Set-Cookie").split(";")[0];
+        var userName = ssoRelyingParty.getSAMLResponseNameId(token);
+        log.info("User :"+userName +" is successfully logged in with saml token");
+        jagg.setUser(userName);
+        session.put("LOGGED_IN_USER", userName);
+        finalResult.error=false;
+        finalResult.message="User successfully logged in";
+        finalResult.username=userName;
+        finalResult.cookie=cookieString;
+    } else {
+        log.warn("Error occurred while login with saml token");
+        log.warn("Authentication Server response status:"+xhr.status+". responseText:"+ xhr.responseText);
+        finalResult.error=true;
+        finalResult.message="Authentication failure";
+    }
+    return finalResult;
+};
 
 %>
