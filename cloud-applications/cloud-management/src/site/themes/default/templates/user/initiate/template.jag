@@ -88,7 +88,7 @@ function enable() {
         },
         function (result) {
             var msg = result.replace(/[\r\n]/g, "");
-            jagg.message({content:'Password recovery instructions have been sent to'+ result+' Please check your email.',type:'success',cbk:function(){
+            jagg.message({content:'Password recovery instructions have been sent to '+ email+'. Please check your email.',type:'success',cbk:function(){
                     window.location.href = "index.jag";
                 }
             });

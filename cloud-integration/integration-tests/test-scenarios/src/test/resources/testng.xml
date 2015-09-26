@@ -31,8 +31,15 @@
 
     <test name="CloudMgt-Tests" preserve-order="true" verbose="2">
         <classes>
-            <class name="org.wso2.carbon.cloud.test.scenarios.TenantLoginTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.TenantCreationandLoginTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase"/>
+        </classes>
+    </test>
 
+    <test name="User-Management" preserve-order="true" verbose="2">
+        <classes>
+            <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.UserProfileManagementTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>
         </classes>
     </test>
 </suite>

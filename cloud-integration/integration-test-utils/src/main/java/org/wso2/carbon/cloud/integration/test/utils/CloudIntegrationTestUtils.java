@@ -24,13 +24,16 @@ import org.wso2.carbon.automation.engine.context.TestUserMode;
 
 import javax.xml.xpath.XPathExpressionException;
 
+/**
+ * Utility class for test related ustils used within automation framework
+ */
 public class CloudIntegrationTestUtils {
     private static AutomationContext context;
     private static final Log log = LogFactory.getLog(CloudIntegrationTest.class);
 
     static {
         try {
-            context = new AutomationContext(CloudConstants.CLOUD_PRODUCT_GROUP,
+            context = new AutomationContext(CloudIntegrationConstants.CLOUD_PRODUCT_GROUP,
                                             TestUserMode.SUPER_TENANT_ADMIN);
         } catch (XPathExpressionException e) {
             log.error("Error occurred while initializing automation context", e);
@@ -51,4 +54,5 @@ public class CloudIntegrationTestUtils {
             throw new IllegalArgumentException("Error reading " + xPath, e);
         }
     }
+
 }
