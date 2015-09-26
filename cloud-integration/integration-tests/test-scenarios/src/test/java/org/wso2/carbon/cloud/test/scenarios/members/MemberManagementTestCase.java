@@ -77,7 +77,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
             params.put("username", userEmail.trim());
             resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
             Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "false",
-                                "user already exists");
+                                "user already exists.");
         }
     }
 
@@ -89,7 +89,6 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
     @Test(dependsOnMethods = {"checkUsernameExistenceTest" }, description = "This will check invite single or more members to an organization")
     public void inviteMembers() throws Exception {
 
-        Assert.assertTrue(loginStatus, "Tenant login failed.");
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "sendUserInvite");
         params.put("users", users);
@@ -100,7 +99,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                 .doPostHttps(sendUserInviteUrl, params, authenticatorClient.getSessionCookie());
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-        Assert.assertEquals(resultObj.get("error").toString(), "false");
+        Assert.assertEquals(resultObj.get("error").toString(), "false","Value mismatch, Should be false.");
     }
 
     /**
@@ -138,7 +137,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                             HttpHandler.doPostHttps(confirmUserUrl, confirmUserParams, null);
                     Assert.assertEquals(
                             confirmUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
-                            "add-tenant.jag");
+                            "add-tenant.jag","Value mismatch, Should be add-tenant.jag");
                     Map<String, String> addUserParams = new HashMap<String, String>();
                     addUserParams.put("action", "importInvitedUser");
                     addUserParams.put("adminPassword", CloudIntegrationTestUtils
@@ -151,7 +150,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                     Map addUserResultMap = HttpHandler.doPostHttps(addUserUrl, addUserParams, null);
                     Assert.assertEquals(
                             addUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
-                            "../pages/index.jag");
+                            "../pages/index.jag","Value mismatch, Should be ../pages/index.jag.");
                 } else {
                     Assert.fail("Sending user invitation has been failed");
                 }
@@ -192,7 +191,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                 .doPostHttps(updateUserInviteUrl, params, authenticatorClient.getSessionCookie());
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-        Assert.assertEquals(resultObj.get("error").toString(), "false");
+        Assert.assertEquals(resultObj.get("error").toString(), "false","Value mismatch, Should be false.");
     }
 
     /**
@@ -225,7 +224,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                     .doPostHttps(removeUserUrl, params, authenticatorClient.getSessionCookie());
             JSONObject resultObj =
                     new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-            Assert.assertEquals(resultObj.get("error").toString(), "false");
+            Assert.assertEquals(resultObj.get("error").toString(), "false","Value mismatch, Should be false.");
             userAdminClient.deleteUser(userName);
         }
         adminServiceClient.logOut();
