@@ -56,11 +56,11 @@ var publish = function(tenantDomain, cloudtype, node, customUrl, sslCertificateC
 		/**
 		 * Setting resources
 		 */
-		var urlMappingresource = registry.newResource();
-		urlMappingresource.setContent(urlMappingContent);
+		var urlMappingResource = registry.newResource();
+		urlMappingResource.setContent(urlMappingContent);
 		
-		var sslFileresource = registry.newResource();
-		sslFileresource.setContent(encryptedSSLFileContent);
+		var sslFileResource = registry.newResource();
+		sslFileResource.setContent(encryptedSSLFileContent);
 		
 		var keyFileResource = registry.newResource();
 		keyFileResource.setContent(encryptedKeyFileContent);
@@ -78,8 +78,8 @@ var publish = function(tenantDomain, cloudtype, node, customUrl, sslCertificateC
 		publishToMessageBroker(payload, cloudtype);
 		
 
-		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/urlMapping/" +tenantDomain, urlMappingresource);
-		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".pem", sslFileresource);
+		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/urlMapping/" +tenantDomain, urlMappingResource);
+		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".pem", sslFileResource);
 		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".key", keyFileResource);
 		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".pub", chainFileResource);
 		registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".iv", indexingVectorResource);
@@ -209,12 +209,63 @@ var getCurrentUserMapping = function(tenantDomain, cloudType){
 		var resource = registry.get(registryLocation);
 	
 		var stringOBj = String((new java.lang.String(resource.getContent())));
-		var jsonObj = parse(stringOBj);
-	
-		return jsonObj;	
+		return parse(stringOBj);
 	}
 	return null;
 	
+};
+
+var isUrlAvailable = function(newUrl, node, tenantDomain){
+    var currentUrlMapping = getCurrentUserMapping(tenantDomain, "api-cloud");
+    if(currentUrlMapping != null){
+		log.info("Custom url mapping found.");
+		var currentUrl;
+		if(node == "store"){
+			currentUrl = currentUrlMapping.store.customUrl
+		}else{
+			currentUrl = currentUrlMapping.gateway.customUrl;
+		}
+
+		//checking whether the current-mapping is identical
+		if(currentUrl == newUrl){
+			log.info("Current url mapping is identical. hence authorizing to add a custom url.");
+			return true;
+		}
+		else {
+			log.info("Current url does not match each other. Hence checking entire mappings.");
+			return checkMappingAvailable(newUrl);
+		}
+	}
+	else{
+		log.info("Custom url mapping not found. Checking the entire mappings.");
+		return checkMappingAvailable(newUrl);
+	}
+};
+
+var checkMappingAvailable = function (newUrl) {
+	var registryLocation =registryPath + "/api-cloud";
+	var tenantCollection = registry.get(registryLocation);
+
+	for(i = 0; i < tenantCollection.getChildCount(); i++){
+		var tenantId = tenantCollection.getChildren()[i].substring(tenantCollection.getChildren()[i]
+						.lastIndexOf("/") + 1, tenantCollection.getChildren()[i].length());
+		var urlMappingPath = tenantCollection.getChildren()[i] + "/urlMapping/" + tenantId;
+		var domainResource = registry.get(urlMappingPath);
+		var urlMappingJson = parse(String((new java.lang.String(domainResource.getContent()))));
+		var urlMapping;
+		if(node == "store"){
+			urlMapping = urlMappingJson.store.customUrl;
+		}else{
+			urlMapping = urlMappingJson.gateway.customUrl;
+		}
+
+		if(urlMapping == newUrl){
+			log.info("Url is not available.");
+			return false;
+		}
+	}
+	log.info("Url is available.");
+	return true;
 };
 
 var validateUrl = function(customUrl,pointedUrl){

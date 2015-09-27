@@ -5,10 +5,13 @@ jagg.module("customurl", {
 		return jagg.require(jagg.getModulesDir() + "customurl/publish/publish.jag").publish.apply(this, arguments);
 	},
 	validateUrl:function () {
-			return jagg.require(jagg.getModulesDir() + "customurl/publish/publish.jag").validateUrl.apply(this, arguments);
+		return jagg.require(jagg.getModulesDir() + "customurl/publish/publish.jag").validateUrl.apply(this, arguments);
 	},
 	getCurrentUserMapping:function () {
-			return jagg.require(jagg.getModulesDir() + "customurl/publish/publish.jag").getCurrentUserMapping.apply(this, arguments);
+		return jagg.require(jagg.getModulesDir() + "customurl/publish/publish.jag").getCurrentUserMapping.apply(this, arguments);
+	},
+	isUrlAvailable:function () {
+		return jagg.require(jagg.getModulesDir() + "customurl/publish/publish.jag").isUrlAvailable.apply(this, arguments);
 	}
 });
 %>

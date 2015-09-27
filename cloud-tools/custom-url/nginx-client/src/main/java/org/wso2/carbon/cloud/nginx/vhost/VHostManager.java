@@ -54,10 +54,8 @@ public class VHostManager {
 	private String apiStoreVHostTemplate;
 	private String apiHttpGatewayVHostTemplate;
 	private String apiHttpsGatewayVHostTemplate;
-	private RegistryManager registryManager;
 
-	public VHostManager(ConfigReader config, TemplateManager templateManager, RegistryManager registryManager)
-			throws IOException {
+	public VHostManager(ConfigReader config, TemplateManager templateManager) throws IOException {
 		this.configReader = config;
 		//Reading store vhost template
 		apiStoreVHostTemplate = templateManager.getTemplate(Constants.API_STORE_TEMPLATE_NAME);
@@ -65,8 +63,6 @@ public class VHostManager {
 		apiHttpGatewayVHostTemplate = templateManager.getTemplate(Constants.HTTP_API_GATEWAY_TEMPLATE_NAME);
 		//Reading https gateway vhost template
 		apiHttpsGatewayVHostTemplate = templateManager.getTemplate(Constants.HTTPS_API_GATEWAY_TEMPLATE_NAME);
-
-		this.registryManager = registryManager;
 	}
 
 	/**
@@ -287,6 +283,7 @@ public class VHostManager {
 			       CertificateException, UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
 			       BadPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, InterruptedException {
 		String registryPath = this.configReader.getProperty("remoteregistry.path");
+		RegistryManager registryManager = new RegistryManager(configReader, Constants.AXIS2_CONF_FILE_PATH);
 		SSLFileHandler sslFileHandler = new SSLFileHandler(registryManager, configReader);
 
 		List<VHostEntry> apiGatewayHosts = new ArrayList<VHostEntry>();

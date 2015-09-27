@@ -152,13 +152,13 @@
             customDomain : customUrl,
             nodeType : node
             }, function (result) {
-                if (result) {
+                if (result.error == "false") {
                     enableSSLFileUpload(node);
                 }else{
                     if(node == "store"){
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>CNAME verifing failed. Please follow this <a href='#'>doumentation</a> to add new CANME in domain registar.</span>");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>result.message</span>");
                     }else{
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>CNAME verifing failed. Please follow this <a href='#'>doumentation</a> to add new CANME in domain registar.</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>result.message</span>");
                     }
                 }
             }, function (jqXHR, textStatus, errorThrown) {

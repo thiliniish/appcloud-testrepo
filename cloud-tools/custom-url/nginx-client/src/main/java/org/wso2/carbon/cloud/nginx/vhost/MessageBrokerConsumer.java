@@ -49,15 +49,13 @@ public class MessageBrokerConsumer implements MessageListener {
 	private VHostManager vHostManager;
 	private TemplateManager templateManager;
 	private ConfigReader configReader;
-	private RegistryManager registryManager;
 	private String messageBrokerTopicName;
 
-	public MessageBrokerConsumer(VHostManager vHostManager, TemplateManager templateManager, ConfigReader configReader,
-	                             RegistryManager registryManager) throws JMSException {
+	public MessageBrokerConsumer(VHostManager vHostManager, TemplateManager templateManager, ConfigReader configReader
+	                             ) throws JMSException {
 		this.vHostManager = vHostManager;
 		this.templateManager = templateManager;
 		this.configReader = configReader;
-		this.registryManager = registryManager;
 		this.messageBrokerTopicName = configReader.getProperty("messageBrokerTopicName");
 		try {
 			setConnection(configReader.getProperty("messageBrokerUrl"));
@@ -114,6 +112,7 @@ public class MessageBrokerConsumer implements MessageListener {
 			TextMessage textMessage = (TextMessage) message;
 
 			try {
+				RegistryManager registryManager = new RegistryManager(configReader, Constants.AXIS2_CONF_FILE_PATH);
 				JSONObject jsonObject = new JSONObject(textMessage.getText());
 				if (jsonObject.getString(Constants.CLOUD_TYPE).equals(Constants.API_CLOUD_TYPE)) {
 					String status = jsonObject.getString(Constants.PAYLOAD_STATUS);

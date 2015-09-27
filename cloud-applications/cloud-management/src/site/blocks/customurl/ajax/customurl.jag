@@ -7,11 +7,11 @@ include("/jagg/config_reader.jag");
     var action = request.getParameter("action");
     var cloudType = request.getParameter("cloudType");
     var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
+    var tenantDomain = jagg.module("util").getDomainFromUsername(jagg.getUser());
 
     var log = new Log("/site/blocks/customurl/ajax/customurl.jag");
 
     if(action == "publishVal"){
-        var tenantId = jagg.module("util").getDomainFromUsername(jagg.getUser());
         var node = request.getParameter("node");
         var customDomain = request.getParameter("customDomain");
 
@@ -32,7 +32,7 @@ include("/jagg/config_reader.jag");
         var chainFileContent = chainFile.readAll();
         chainFile.close();
 
-        var status = mod.publish(tenantId, cloudType, node, customDomain, sslFileContent, keyFileContent, chainFileContent);
+        var status = mod.publish(tenantDomain, cloudType, node, customDomain, sslFileContent, keyFileContent, chainFileContent);
         print(status);
     }
     else if(action == "validateUrl"){
@@ -49,8 +49,23 @@ include("/jagg/config_reader.jag");
             cname = defaultGatewayURL;
         }
 
-        var value = mod.validateUrl(customUrl, cname);
-        print(value);
+        var urlValidation = {};
+
+        if(mod.validateUrl(customUrl, cname)){
+            if(mod.isUrlAvailable(customUrl, nodeType, tenantDomain)){
+                urlValidation.error = "false";
+            }
+            else{
+                urlValidation.error = "true";
+                urlValidation.message = "Url mapping is not available.";
+            }
+        }
+        else{
+            urlValidation.error = "true";
+            urlValidation.message = "CNAME verifying failed. Please follow this <a href='"+cloudConfigFile.documentation.customUrlDocumentationLink
+                    +"'>documentation</a> to add new CANME in domain registrar.";
+        }
+        print(urlValidation);
     }
     else if(action == "getCurrentMapping"){
         var tenantDomain = request.getParameter("tenantDomain");

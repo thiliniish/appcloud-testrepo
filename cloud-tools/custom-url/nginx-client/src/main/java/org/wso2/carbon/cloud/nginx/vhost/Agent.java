@@ -48,14 +48,13 @@ public class Agent {
             TemplateManager templateManager = new TemplateManager();
             PropertyConfigurator.configure(Constants.LOG4J_PROPERTY_PATH);
             ConfigReader configReader = new ConfigReader();
-            RegistryManager registryManager = new RegistryManager(configReader, Constants.AXIS2_CONF_FILE_PATH);
-            VHostManager vHostManager = new VHostManager(configReader, templateManager, registryManager);
+            VHostManager vHostManager = new VHostManager(configReader, templateManager);
 
             if (args.length > 0 && SETUP_MODE.equals(args[0])) {
                     vHostManager.restoreVirtualHosts();
             }
 
-            new MessageBrokerConsumer(vHostManager, templateManager, configReader, registryManager);
+            new MessageBrokerConsumer(vHostManager, templateManager, configReader);
 
         } catch (IOException | RegistryException e) {
             String errorMessage = "Error occurred when starting the Domain-Mapping agent";
