@@ -1,0 +1,19 @@
+<serviceGroup>
+    <service name="SSLFileEncriptorService" scope="transportsession">
+        <transports>
+            <transport>https</transport>
+        </transports>
+        <parameter name="ServiceClass">org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileEncryptService</parameter>
+    </service>
+    tcp://messaging.cloudstaging.wso2.com:61616
+    <service name="SSLFileAnalyzerService" scope="transportsession">
+        <transports>
+            <transport>https</transport>
+        </transports>
+        <parameter name="ServiceClass">org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileAnalyzer</parameter>
+    </service>
+
+    <parameter name="adminService" locked="true">true</parameter>
+    <parameter name="hiddenService" locked="true">true</parameter>
+    <parameter name="AuthorizationAction" locked="true">/permission/protected/manage</parameter>
+</serviceGroup>
