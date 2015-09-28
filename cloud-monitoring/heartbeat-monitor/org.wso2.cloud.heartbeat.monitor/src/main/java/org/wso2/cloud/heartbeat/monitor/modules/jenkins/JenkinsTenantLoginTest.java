@@ -40,6 +40,8 @@ import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
 import org.wso2.cloud.heartbeat.monitor.utils.ModuleUtils;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -71,6 +73,10 @@ public class JenkinsTenantLoginTest implements Job{
     private DefaultHttpClient httpClient;
     private BasicHttpContext context;
 
+    private TestInfo testInfo;
+    private TestStateHandler testStateHandler;
+    private String loginTestSeverity="2";
+
     /**
      * @param jobExecutionContext
      * "hostName" ,"tenantUser", "tenantUserPwd" "serviceName" params passed via JobDataMap.
@@ -86,6 +92,8 @@ public class JenkinsTenantLoginTest implements Job{
     private void initializeLoginTest() {
         jenkinsTenantUrl = "https://" + hostName +  "/t/" + ModuleUtils.getDomainName(tenantUser)
                 + "/webapps/jenkins";
+        testStateHandler = TestStateHandler.getInstance();
+        testInfo = new TestInfo(serviceName, TEST_NAME, hostName, loginTestSeverity);
 
         httpClient = new DefaultHttpClient();
         //provide the credentials
@@ -117,7 +125,7 @@ public class JenkinsTenantLoginTest implements Job{
             String body = handler.handleResponse(response);
             if(code == HTTP_SUCCESS && body!= null){
                 if(checkValidity(body)){
-                    onSuccess();
+                    testStateHandler.onSuccess(testInfo);
                 }else {
                     countNoOfLoginRequests("LoginError",null);
                 }
@@ -126,7 +134,7 @@ public class JenkinsTenantLoginTest implements Job{
             }
         }
         catch (IOException e) {
-            countNoOfLoginRequests("IOException",e);
+            countNoOfLoginRequests("IOException", e);
         }
     }
 
@@ -175,49 +183,13 @@ public class JenkinsTenantLoginTest implements Job{
         if(type.equals("LoginError")) {
             log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
                     ": Login failure. Returned false as a login status by Server");
-            onFailure("Tenant login failure");
+            testStateHandler.onFailure(testInfo, "Tenant login failure");
         }else if(type.equals("IOException")) {
             IOException ioException = (IOException) obj;
             log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
                     ": IOException thrown while login from Heartbeat tenant : ", ioException);
-            onFailure(ioException.getMessage());
+            testStateHandler.onFailure(testInfo, ioException.getMessage());
         }
-    }
-
-    /**
-     * On test success
-     */
-    private void onSuccess() {
-        boolean success = true;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-
-        log.info(CaseConverter.splitCamelCase(serviceName)+ " - Tenant Login: SUCCESS");
-    }
-
-    /**
-     * On test failure
-     * @param msg error message
-     */
-    private void onFailure(String msg) {
-
-        boolean success = false;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-        DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME, msg);
-
-        Mailer mailer = Mailer.getInstance();
-        mailer.send(CaseConverter.splitCamelCase(serviceName) + " :FAILURE",
-                CaseConverter.splitCamelCase(TEST_NAME) + ": " + msg, "");
-        SMSSender smsSender = SMSSender.getInstance();
-        smsSender.send(CaseConverter.splitCamelCase(serviceName) + ": " +
-                CaseConverter.splitCamelCase(TEST_NAME) + ": Failure");
     }
 
     /**
@@ -284,5 +256,13 @@ public class JenkinsTenantLoginTest implements Job{
      */
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    /**
+     * set severity of login test
+     * @param loginTestSeverity
+     */
+    public void setLoginTestSeverity(String loginTestSeverity){
+        this.loginTestSeverity = loginTestSeverity;
     }
 }

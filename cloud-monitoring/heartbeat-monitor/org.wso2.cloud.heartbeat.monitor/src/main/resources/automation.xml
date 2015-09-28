@@ -572,19 +572,30 @@
 
             <appFactory>https://apps.cloud.wso2.com:443/</appFactory>
 
-            <cloudMgt>https://cloudmgt.cloud.wso2.com:443/</cloudMgt>
-
             <prodStratosController>https://sc.prod.cloud.wso2.com:443/</prodStratosController>
 
             <bps>https://process.cloud.wso2.com:443/</bps>
 
             <git>https://git.cloud.wso2.com:443/</git>
 
+            <s2git>https://s2git.cloud.wso2.com:443/</s2git>
+
             <bam>https://bam.cloud.wso2.com:443/</bam>
 
             <api>http://apimanager.cloud.wso2.com:80/</api>
 
+            <jenkins>https://jenkins.cloud.wso2.com:443/</jenkins>
+
         </urls>
+
+        <credentials>
+            <gituser>gituser</gituser>
+            <gituserpass>gituserpassword</gituserpass>
+            <jenkinsuser>jenkinsuser</jenkinsuser>
+            <jenkinsuserpass>lenkinsuserpassword</jenkinsuserpass>
+            <s2gituser>s2gituser</s2gituser>
+            <s2gituserpass>s2gituserpassword</s2gituserpass>
+        </credentials>
 
 
 
@@ -602,6 +613,8 @@
 
             <tenantDomain>tenantDomains</tenantDomain>
 
+            <tenantID>4350</tenantID>
+
             <usagePlan>Demo</usagePlan>
 
         </defaultTenant>
@@ -617,6 +630,16 @@
             <applicationType>war</applicationType>
 
             <applicationDescription>applicationDescription</applicationDescription>
+
+            <defaultVersion>trunk</defaultVersion>
+
+            <defaultArtifactVersion>default-SNAPSHOT</defaultArtifactVersion>
+
+            <runtimeAlias>as</runtimeAlias>
+
+            <defaultStage>Development</defaultStage>
+
+            <extension>war</extension>
 
             <versions>
 

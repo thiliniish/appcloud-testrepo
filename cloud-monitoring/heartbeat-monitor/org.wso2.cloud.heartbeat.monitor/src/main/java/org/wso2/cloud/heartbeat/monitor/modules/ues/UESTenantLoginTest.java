@@ -25,6 +25,8 @@ import org.wso2.cloud.heartbeat.monitor.core.clients.authentication.CarbonAuthen
 import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.rmi.RemoteException;
@@ -46,6 +48,10 @@ public class UESTenantLoginTest implements Job{
     private String serviceName;
     private int requestCount = 0;
 
+    private TestInfo testInfo;
+    private TestStateHandler testStateHandler;
+    private String loginTestSeverity;
+
     private CarbonAuthenticatorClient carbonAuthenticatorClient;
 
     /**
@@ -63,6 +69,8 @@ public class UESTenantLoginTest implements Job{
     private void initializeLoginTest() {
         try {
             carbonAuthenticatorClient = new CarbonAuthenticatorClient(hostName + "/admin");
+            testStateHandler = TestStateHandler.getInstance();
+            testInfo = new TestInfo(serviceName, TEST_NAME, hostName, loginTestSeverity);
         } catch (AxisFault axisFault) {
             log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
                     ": AxisFault thrown while initiating the test : ", axisFault);
@@ -77,7 +85,7 @@ public class UESTenantLoginTest implements Job{
             boolean loginStatus=
                     carbonAuthenticatorClient.checkLogin(tenantUser, tenantUserPwd, hostName);
             if(loginStatus){
-                onSuccess();
+                testStateHandler.onSuccess(testInfo);
             } else {
                 countNoOfLoginRequests("LoginError", null);
             }
@@ -108,66 +116,30 @@ public class UESTenantLoginTest implements Job{
 
     private void handleError(String type, Object obj) {
         if(type.equals("LoginError")) {
-            log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
-                    ": Login failure. Returned false as a login status by Server");
-            onFailure("Tenant login failure");
+            log.error(CaseConverter.splitCamelCase(serviceName) + " - Tenant Login: " + hostName +
+                      ": Login failure. Returned false as a login status by Server");
+            testStateHandler.onFailure(testInfo, "Tenant login failure");
         }else if(type.equals("AxisFault")) {
             AxisFault axisFault = (AxisFault) obj;
             log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
                     ": AxisFault thrown while authenticating the stub : ", axisFault);
-            onFailure(axisFault.getMessage());
+            testStateHandler.onFailure(testInfo, axisFault.getMessage());
         }else if(type.equals("RemoteException")) {
             RemoteException remoteException = (RemoteException) obj;
             log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
                     ": RemoteException thrown while login from Heartbeat tenant : ", remoteException);
-            onFailure(remoteException.getMessage());
+            testStateHandler.onFailure(testInfo, remoteException.getMessage());
         }else if(type.equals("LoginAuthenticationExceptionException")) {
             LoginAuthenticationExceptionException e = (LoginAuthenticationExceptionException) obj;
             log.error(CaseConverter.splitCamelCase(serviceName)+" - Tenant Login: " + hostName +
                     ": LoginAuthenticationException thrown while login from Heartbeat tenant : ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         }else if(type.equals("Exception")) {
             Exception e = (Exception) obj;
             log.error(CaseConverter.splitCamelCase(serviceName)+" - Tenant Login: " + hostName +
                     ": Exception thrown while login from Heartbeat tenant : ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         }
-    }
-
-    /**
-     * On test success
-     */
-    private void onSuccess() {
-        boolean success = true;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-
-        log.info(CaseConverter.splitCamelCase(serviceName)+ " - Tenant Login: SUCCESS");
-    }
-
-    /**
-     * On test failure
-     * @param msg error message
-     */
-    private void onFailure(String msg) {
-
-        boolean success = false;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-        DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME, msg);
-
-        Mailer mailer = Mailer.getInstance();
-        mailer.send(CaseConverter.splitCamelCase(serviceName) + " :FAILURE",
-                CaseConverter.splitCamelCase(TEST_NAME) + ": " + msg, "");
-        SMSSender smsSender = SMSSender.getInstance();
-        smsSender.send(CaseConverter.splitCamelCase(serviceName) + ": " +
-                CaseConverter.splitCamelCase(TEST_NAME) + ": Failure");
     }
 
     /**
@@ -200,5 +172,13 @@ public class UESTenantLoginTest implements Job{
      */
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    /**
+     * Set severity level
+     * @param loginTestSeverity  Test Severity
+     */
+    public void setLoginTestSeverity(String loginTestSeverity) {
+        this.loginTestSeverity = loginTestSeverity;
     }
 }
