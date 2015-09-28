@@ -262,9 +262,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
         String[] users = super.doGetUserListOfRole(roleName, filter);
         if(MultitenantUtils.isEmailUserName()){
-            for (int i = 0; i < users.length; i++) {
-                users[i] = doConvertUserNameToEmail(users[i]);
-            }
+            doConvertUserNameListToEmail(users);
         }
         return users;
     }
@@ -274,9 +272,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
             throws UserStoreException {
         String[] users = super.getUserListFromProperties(property, value, profileName);
         if(MultitenantUtils.isEmailUserName()){
-            for (int i = 0; i < users.length; i++) {
-                users[i] = doConvertUserNameToEmail(users[i]);
-            }
+            doConvertUserNameListToEmail(users);
         }
         return users;
     }
@@ -285,9 +281,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
         String[] users = super.doListUsers(filter, maxItemLimit);
         if(MultitenantUtils.isEmailUserName()){
-            for (int i = 0; i < users.length; i++) {
-                users[i] = doConvertUserNameToEmail(users[i]);
-            }
+            doConvertUserNameListToEmail(users);
         }
         return users;
     }
@@ -297,7 +291,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     //=============================================================================================================
 
     /**
-     * converts the <code>@</code> symbol in the user name to a <code>.</code> symbol
+     * Converts the <code>@</code> symbol in the user name to a <code>.</code> symbol
      *
      * @param userName - user name to be converted
      * @return converted user Name
@@ -313,7 +307,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     }
 
     /**
-     * converts the <code>@</code> symbol in a list of user names to a <code>.</code> symbol
+     * Converts the <code>@</code> symbol in a list of user names to a <code>.</code> symbol
      *
      * @param users - list of user names to be converted
      * @return - converted list of user names
@@ -328,6 +322,12 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         return users;
     }
 
+    /**
+     * Converts the user name to email, uses a cache to keep converted names
+     *
+     * @param userName - user name to be converted
+     * @return email of the particular use name
+     */
     private String doConvertUserNameToEmail(String userName) throws UserStoreException {
         String email = cloudUserEmailCache.getEmail(userName);
         if (email != null && !email.isEmpty()) {
@@ -336,6 +336,22 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         email = getUserClaimValue(userName, EMAIL_CLAIM_URI, null);
         cloudUserEmailCache.addToCache(userName, email);
         return email;
+    }
+
+    /**
+     * Converts a list of user names into emails
+     *
+     * @param users list of users
+     * @return list of emails
+     * @throws UserStoreException
+     */
+    private String[] doConvertUserNameListToEmail(String[] users) throws UserStoreException {
+        if ((users != null) && (users.length > 0)) {
+            for (int i = 0; i < users.length; i++) {
+                users[i] = doConvertUserNameToEmail(users[i]);
+            }
+        }
+        return  users;
     }
 
 }
