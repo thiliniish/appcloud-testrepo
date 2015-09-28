@@ -407,7 +407,7 @@ var sendInvite = function(email,token) {
 			var events = [];
 			if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 				actionString =  actionString+"Success";
-		} else {
+			} else {
 				actionString =  actionString+"Failed";
 				log.error("Rightwave cloud signup api call failed for the user "+email);
 				log.error("Rightwave cloud signup api call failed for the user "+msg);

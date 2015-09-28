@@ -27,7 +27,9 @@
             "displayRoles": "Developer"
           }
         ],
-        "urls": {"cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/"}
+        "urls": {
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/"
+        }
       },
       {
         "id": "api_cloud",
@@ -127,7 +129,7 @@
     "projectKey": "projectkey"
   },
   "documentation": {
-    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/WSO2+API+Cloud+Documentation"
+    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/
   },
   "commonRoles": [
     "appfactoryusers",

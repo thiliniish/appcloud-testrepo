@@ -381,7 +381,7 @@ var createAccount = function (accountData, metaData) {
                         		"email" : email,
                         		"cloudtype" : type,
                         		"upgrade" : "1",
-								"tokenId" : tokenId
+					"tokenId" : tokenId
                         	};
                         	var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
                         	var data = "json="+JSON.stringify(jsonData);
@@ -877,8 +877,7 @@ function addCloudSubmissionToRightwave(email,domain,type) {
 			"expiryts" : ""+expDate+"",
 			"firstname" : ""+firstName+"",
 			"lastname" : ""+lastName+"",
-			"tokenId" : tokenId
-			
+			"tokenId" : tokenId	
 		};
 	} else {
 		jsonData={
