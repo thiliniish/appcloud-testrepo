@@ -15,7 +15,7 @@
 <script>
 
     var urlVerification = false;
-    function defaultUIView(){
+    function defaultUIView() {
         //Store
         $("#storeModifyBtn").prop("disabled", false);
         $("#storeDomainVerifyBtn").prop("disabled", false);
@@ -31,26 +31,24 @@
         $("#gatewayUrlChangeArea").css("display","none");
     }
 
-    function showModifyUrlContentArea(node){
-        if(node == 'store'){
+    function showModifyUrlContentArea(node) {
+        if (node == 'store') {
             $("#storeUrlChangeArea").css("display" , "block");
             $("#storeModifyBtn").prop("disabled", true);
-        }
-        else{
+        } else {
             $("#gatewayUrlChangeArea").css("display" , "block");
             $("#gatewayModifyBtn").prop("disabled", true);
         }
     }
 
-    function enableSSLFileUpload(node){
-        if(node == "store"){
+    function enableSSLFileUpload(node) {
+        if (node == "store") {
             $("#storeSSLFileUploadLocation").css("display", "block");
             $("#storeDomainVerifyBtn").prop("disabled", true);
             $("#storeDomain").prop("disabled", true);
             $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully.</span>");
             $("#storeProcessBtn").prop("disabled", false);
-        }
-        else{
+        } else {
             $("#gatewaySSLFileUploadLocation").css("display", "block");
             $("#gatewayDomainVerifyBtn").prop("disabled", true);
             $("#gatewayDomain").prop("disabled", true);
@@ -69,28 +67,27 @@
         initializeUserActivity("Custom URL Page");
 	});
 
-    function publishCustomUrl(node){
+    function publishCustomUrl(node) {
 
-        if(node == "store"){
-            if($("#storeSslFile")[0].files.length == 0 || $("#storeKeyFile")[0].files.length == 0 || $("#storeChainFile")[0].files.length == 0){
+        if (node == "store") {
+            if ($("#storeSslFile")[0].files.length == 0 || $("#storeKeyFile")[0].files.length == 0 || $("#storeChainFile")[0].files.length == 0) {
                 $("#storeVerifyUrlNotificationArea").html("<span class='label label-warning'>Please provide all required ssl files.</span>");
                 return false;
             }
-        }else{
-            if($("#gatewaySslFile")[0].files.length == 0 || $("#gatewayKeyFile")[0].files.length == 0 || $("#gatewayChainFile")[0].files.length == 0){
+        } else {
+            if ($("#gatewaySslFile")[0].files.length == 0 || $("#gatewayKeyFile")[0].files.length == 0 || $("#gatewayChainFile")[0].files.length == 0) {
                 $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-warning'>Please provide all required ssl files.</span>");
                 return false;
             }
         }
 
         var formData = new FormData();
-        if(node == 'store'){
+        if (node == 'store') {
             formData.append("customDomain", $("#storeDomain").val());
             formData.append("sslFile", $("#storeSslFile")[0].files[0]);
             formData.append("keyFile", $("#storeKeyFile")[0].files[0]);
             formData.append("chainFile", $("#storeChainFile")[0].files[0]);
-        }
-        else{
+        } else {
             formData.append("customDomain", $("#gatewayDomain").val());
             formData.append("sslFile", $("#gatewaySslFile")[0].files[0]);
             formData.append("keyFile", $("#gatewayKeyFile")[0].files[0]);
@@ -111,38 +108,37 @@
             async: false,
             success: function(response) {
                 var result = JSON.parse(response);
-                if(result.error != true){
-                    if(node == "store"){
+                if (result.error != true) {
+                    if (node == "store") {
                         $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added.</span>");
-                    }else{
+                    } else {
                         $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added.</span>");
                     }
                     getCurrentUserMaping();
                     setTimeout(function(){ defaultUIView() }, 10000);
-                }else{
-                    if(node == "store"){
+                } else {
+                    if (node == "store") {
                         $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ result.message +"</span>");
-                    }else{
+                    } else {
                         $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ result.message +"</span>");
                     }
                 }
             },
             error: function(jqXHR, textStatus, errorMessage) {
-                if(node == "store"){
+                if (node == "store") {
                         $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Internal Server error occurred.</span>");
-                    }else{
+                    } else {
                         $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Internal Server error occured.</span>");
                     }
             }         
         });
     }
 
-    function verifyCustomDomain(node){
+    function verifyCustomDomain(node) {
         var customUrl = "";
-        if(node == 'store'){
+        if(node == 'store') {
             customUrl = $('#storeDomain').val();
-        }
-        else{
+        } else {
             customUrl = $('#gatewayDomain').val();
         }
 
@@ -154,10 +150,10 @@
             }, function (result) {
                 if (result.error == "false") {
                     enableSSLFileUpload(node);
-                }else{
-                    if(node == "store"){
+                } else {
+                    if (node == "store") {
                         $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>result.message</span>");
-                    }else{
+                    } else {
                         $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>result.message</span>");
                     }
                 }
@@ -166,7 +162,7 @@
             });
     }
 
-    function getCurrentUserMaping(){
+    function getCurrentUserMaping() {
         jagg.syncPost('../../site/blocks/customurl/ajax/customurl.jag', {
             action: 'getCurrentMapping',
             tenantDomain : "<%=tenantDomain%>",

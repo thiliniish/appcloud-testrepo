@@ -9,9 +9,7 @@ include("/jagg/config_reader.jag");
     var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
     var tenantDomain = jagg.module("util").getDomainFromUsername(jagg.getUser());
 
-    var log = new Log("/site/blocks/customurl/ajax/customurl.jag");
-
-    if(action == "publishVal"){
+    if (action == "publishVal") {
         var node = request.getParameter("node");
         var customDomain = request.getParameter("customDomain");
 
@@ -34,43 +32,37 @@ include("/jagg/config_reader.jag");
 
         var status = mod.publish(tenantDomain, cloudType, node, customDomain, sslFileContent, keyFileContent, chainFileContent);
         print(status);
-    }
-    else if(action == "validateUrl"){
-        log.info("Custom domain is "+request.getParameter("customDomain"));
+    } else if (action == "validateUrl") {
         var defaultStoreURL = cloudConfigFile.customUrl.defaultStoreUrl;
         var defaultGatewayURL = cloudConfigFile.customUrl.defaultGatewayUrl;
         var nodeType = request.getParameter("nodeType");
         var customUrl = request.getParameter("customDomain");
         var cname = "";
-        if(nodeType == "store"){
+        if (nodeType == "store") {
             cname = defaultStoreURL;
-        }
-        else{
+        } else {
             cname = defaultGatewayURL;
         }
 
         var urlValidation = {};
 
-        if(mod.validateUrl(customUrl, cname)){
-            if(mod.isUrlAvailable(customUrl, nodeType, tenantDomain)){
+        if (mod.validateUrl(customUrl, cname)) {
+            if (mod.isUrlAvailable(customUrl, nodeType, tenantDomain)) {
                 urlValidation.error = "false";
-            }
-            else{
+            } else {
                 urlValidation.error = "true";
                 urlValidation.message = "Url mapping is not available.";
             }
-        }
-        else{
+        } else {
             urlValidation.error = "true";
             urlValidation.message = "CNAME verifying failed. Please follow this <a href='"+cloudConfigFile.documentation.customUrlDocumentationLink
                     +"'>documentation</a> to add new CANME in domain registrar.";
         }
         print(urlValidation);
-    }
-    else if(action == "getCurrentMapping"){
+    } else if (action == "getCurrentMapping") {
         var tenantDomain = request.getParameter("tenantDomain");
         var value = mod.getCurrentUserMapping(tenantDomain, cloudType);
-        if(value == null){
+        if (value == null) {
             var jsonObj = {};
             var storeMapping = {};
             var gatewayMapping = {};
