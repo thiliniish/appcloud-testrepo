@@ -5,7 +5,7 @@
     var isSessionAuthenticated = jagg.module("util").isSessionAuthenticated();
     if (isSessionAuthenticated) {
         var userName = session.get("LOGGED_IN_USER");
-        var tenantDomain = userName.split('@')[1];
+        var tenantDomain = jagg.module("manager").getTenantDomain();
         var documentationLink = cloudConfig.documentation.selfSignUpDocumentationLink;
         var type = cloudConfig.subscriptions.type;
         var publisherUrl = type[1].urls.cloudTypeUrl;
@@ -73,7 +73,7 @@
                           }
                         });
                    } else {
-                        jagg.message({content:'An error occurred.',type:'error',cbk:function(){
+                        jagg.message({content:'An error occurred while configuring the self signup feature for your organization.',type:'error',cbk:function(){
                           window.location.href=publisherUrl;
                           }
                         });

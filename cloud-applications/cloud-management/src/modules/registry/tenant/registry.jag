@@ -19,7 +19,7 @@ var workflowFileRegPath = "/_system/governance/apimgt/applicationdata/workflow-e
 var checkSignupConfiguredInRegistry = function (userName) {
 
     var carbon = require('carbon');
-    var tenantDomain = (userName.split("@"))[1];
+    var tenantDomain = jagg.module("manager").getTenantDomain();
     var result = "error";
 
     try {
@@ -60,10 +60,9 @@ var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, u
                                       tenantDomain, approvalStatus) {
     try {
         var registryUpdateResult = "error";
-        var jsonObjCloudmgt = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
-        var bpsBackendURL = jsonObjCloudmgt.selfSignUpProperties.ServerUrls.bpsServiceURL;
+        var bpsBackendURL = cloudConfig.selfSignUpProperties.ServerUrls.bpsServiceURL;
         var serviceEndpoint = bpsBackendURL + "t/" + tenantDomain + "/UserSignupProcess/";
-        var callbackURL = jsonObjCloudmgt.selfSignUpProperties.ServerUrls.gatewayCallback;
+        var callbackURL = cloudConfig.selfSignUpProperties.ServerUrls.gatewayCallback;
         var selfSignUpClass;
 
         //configuring details to populate the sign up config registry file
@@ -74,9 +73,9 @@ var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, u
 
         //configuring details to populate the workflow extensions registry file
         if (approvalStatus == "notApproved") {
-            selfSignUpClass = jsonObjCloudmgt.selfSignUpProperties.selfSignUpDefaultClass;
+            selfSignUpClass = cloudConfig.selfSignUpProperties.selfSignUpDefaultClass;
         } else {
-            selfSignUpClass = jsonObjCloudmgt.selfSignUpProperties.selfSignUpApprovalClass;
+            selfSignUpClass = cloudConfig.selfSignUpProperties.selfSignUpApprovalClass;
         }
 
         var workflowFileBody = jagg.module("util").getObjFromFile("/site/conf/registryFiles/workflow-extensions.xml");
