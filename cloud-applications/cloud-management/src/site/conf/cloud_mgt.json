@@ -91,13 +91,36 @@
   "userActivityMonitor": {
     "enable": "false"
   },
+  "customUrl" : {
+    "registry" : {
+      "registryPath" : "/customurl/",
+      "registryUsername" : "admin",
+      "registryPassword" : "admin"
+    },
+    "messageBroker" : {
+      "topicName" : "custom-url-topic",
+      "messageBrokerUrl" : "tcp://localhost:61616"
+    },
+    "defaultStoreUrl" : "api.cloud.wso2.com",
+    "defaultGatewayUrl" : "gateway.api.cloud.wso2.com",
+    "httpsGatewayPort" : "8243"
+  },
   "invitationEmail": {
     "subject": "WSO2 Cloud Services - Invitation from: "
   },
-  "subscriberAccessEnabledEmail": {
-    "subject": "Notification: Tenant enabled the self sign up feature for API Cloud",
-    "cloudEmail": "cloudEmail"
-  },
+  "selfSignUpProperties": {
+    "subscriberAccessEnabledEmail": {
+      "subject": "Notification: Tenant enabled the self sign up feature for API Cloud",
+      "cloudEmail": "cloudEmail"
+    },
+    "ServerUrls": {
+      "gatewayCallback": "https://localhost:8443/services/WorkflowCallbackService",
+      "bpsServiceURL": "http://localhost:9863/services/"
+    },
+    "selfSignUpApprovalClass":"org.wso2.carbon.cloud.signup.workflow.SignUpWorkflowExecuter",
+    "selfSignUpDefaultClass":"org.wso2.carbon.cloud.signup.workflow.SimpleSignUpWorkflowExecuter"
+  }
+,
   "passwordResetEmail": {
     "subject": "WSO2 Cloud Services - Password Reset"
   },
@@ -126,7 +149,8 @@
     "projectKey": "projectkey"
   },
   "documentation": {
-    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/"
+    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/",
+    "customUrlDocumentationLink" : "https://docs.wso2.com/display/APICloud/Customize+the+API+Store+and+Gateway+URLs"
   },
   "commonRoles": [
     "appfactoryusers",
