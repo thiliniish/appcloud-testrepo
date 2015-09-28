@@ -26,6 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.authenticator.stub.LogoutAuthenticationExceptionException;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTest;
 import org.wso2.carbon.cloud.integration.test.utils.clients.authentication.CarbonAuthenticatorClient;
@@ -46,10 +47,12 @@ import java.util.Map;
 public class MemberManagementTestCase extends CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(MemberManagementTestCase.class);
     private JaggeryAppAuthenticatorClient authenticatorClient;
+    private CarbonAuthenticatorClient adminServiceClient;
     private boolean loginStatus;
     private String users;
     private String roles;
     private String[] usersEmailArray;
+    private String session;
 
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
@@ -59,6 +62,9 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
         roles = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.ALL_CLOUD_USER_ROLES).trim();
         usersEmailArray = users.split(",");
+        //login admin service client to access admin services
+        adminServiceClient = new CarbonAuthenticatorClient(cloudMgtServerUrl);
+        session = adminServiceClient.login(superAdminUserName, superAdminPassword, "localhost");
     }
 
     /**
@@ -77,7 +83,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
             params.put("username", userEmail.trim());
             resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
             Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "false",
-                                "user already exists.");
+                                "User already exists.");
         }
     }
 
@@ -86,7 +92,8 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(dependsOnMethods = {"checkUsernameExistenceTest" }, description = "This will check invite single or more members to an organization")
+    @Test(dependsOnMethods = {"checkUsernameExistenceTest" },
+            description = "This will check invite single or more members to an organization")
     public void inviteMembers() throws Exception {
 
         Map<String, String> params = new HashMap<String, String>();
@@ -99,7 +106,8 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                 .doPostHttps(sendUserInviteUrl, params, authenticatorClient.getSessionCookie());
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-        Assert.assertEquals(resultObj.get("error").toString(), "false","Value mismatch, Should be false.");
+        Assert.assertEquals(resultObj.get("error").toString(), "false",
+                            "Value mismatch, Should be false.");
     }
 
     /**
@@ -109,7 +117,8 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      * @throws IOException
      * @throws JSONException
      */
-    @Test(dependsOnMethods = { "inviteMembers" }, description = "This will check confirm invited users")
+    @Test(dependsOnMethods = {"inviteMembers" },
+            description = "This will check confirm invited users")
     public void confirmInvitedMembers() throws Exception {
 
         String tenantDomain = CloudIntegrationTestUtils
@@ -137,7 +146,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                             HttpHandler.doPostHttps(confirmUserUrl, confirmUserParams, null);
                     Assert.assertEquals(
                             confirmUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
-                            "add-tenant.jag","Value mismatch, Should be add-tenant.jag");
+                            "add-tenant.jag", "Value mismatch, Should be add-tenant.jag");
                     Map<String, String> addUserParams = new HashMap<String, String>();
                     addUserParams.put("action", "importInvitedUser");
                     addUserParams.put("adminPassword", CloudIntegrationTestUtils
@@ -150,13 +159,13 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                     Map addUserResultMap = HttpHandler.doPostHttps(addUserUrl, addUserParams, null);
                     Assert.assertEquals(
                             addUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
-                            "../pages/index.jag","Value mismatch, Should be ../pages/index.jag.");
+                            "../pages/index.jag", "Value mismatch, Should be ../pages/index.jag.");
                 } else {
                     Assert.fail("Sending user invitation has been failed");
                 }
             }
         } catch (Exception e) {
-            log.error("Error occurred when getting the daat", e);
+            log.error("Error occurred when getting the data", e);
             throw e;
         } finally {
             try {
@@ -175,7 +184,8 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      * @throws IOException
      * @throws JSONException
      */
-    @Test(dependsOnMethods = {"confirmInvitedMembers" }, description = "This will check update roles of members")
+    @Test(dependsOnMethods = {"confirmInvitedMembers" },
+            description = "This will check update roles of members")
     public void updateMemberRoles() throws SQLException, IOException, JSONException {
 
         //test for only one user
@@ -191,48 +201,63 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                 .doPostHttps(updateUserInviteUrl, params, authenticatorClient.getSessionCookie());
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-        Assert.assertEquals(resultObj.get("error").toString(), "false","Value mismatch, Should be false.");
+        Assert.assertEquals(resultObj.get("error").toString(), "false",
+                            "Value mismatch, Should be false.");
     }
 
     /**
-     * This method checks removing uses from tenant
+     * This method checks remove uses from tenant
      * Added users have to be removed from user store therefore UserAdmin service is called
      * to remove users from the user store
      *
      * @throws Exception
      */
-    @Test(alwaysRun = true, dependsOnMethods = {"confirmInvitedMembers","updateMemberRoles" }, description = "This will check remove members")
+    @Test(alwaysRun = true, dependsOnMethods = { "confirmInvitedMembers","updateMemberRoles" },
+            description = "This will check remove members")
     public void removeMembers() throws Exception {
 
-        //login admin service client to access admin services
-        CarbonAuthenticatorClient adminServiceClient =
-                new CarbonAuthenticatorClient(cloudMgtServerUrl);
-        String session =
-                adminServiceClient.login(superAdminUserName, superAdminPassword, "localhost");
         //user admin client to access user admin service which is used to
-        // remove user from user store
+        //remove user from user store
         UserAdminClient userAdminClient = new UserAdminClient(cloudMgtServerUrl, session);
-
-        for (String userEmail : usersEmailArray) {
-            String userName = userEmail.replace('@', '.').trim();
-            Map<String, String> params = new HashMap<String, String>();
-            params.put("action", "deleteUserFromTenant");
-            params.put("userName", userName);
-            String removeUserUrl =
-                    cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_TENANT_USERS_URL_SFX;
-            Map resultMap = HttpHandler
-                    .doPostHttps(removeUserUrl, params, authenticatorClient.getSessionCookie());
-            JSONObject resultObj =
-                    new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-            Assert.assertEquals(resultObj.get("error").toString(), "false","Value mismatch, Should be false.");
-            userAdminClient.deleteUser(userName);
+        try {
+            for (String userEmail : usersEmailArray) {
+                //check the user existence before removing the user.
+                Map<String, String> checkExistenceParams = new HashMap<String, String>();
+                Map checkExistenceResultMap;
+                String signUpUrl =
+                        cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
+                checkExistenceParams.put("action", "isExistingUser");
+                checkExistenceParams.put("username", userEmail.trim());
+                checkExistenceResultMap =
+                        HttpHandler.doPostHttps(signUpUrl, checkExistenceParams, null);
+                Assert.assertEquals(checkExistenceResultMap.get(CloudIntegrationConstants.RESPONSE),
+                                    "true", "User does not exist.");
+                //remove user from the tenant
+                String userName = userEmail.replace('@', '.').trim();
+                Map<String, String> deleteUserParams = new HashMap<String, String>();
+                deleteUserParams.put("action", "deleteUserFromTenant");
+                deleteUserParams.put("userName", userName);
+                String removeUserUrl =
+                        cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_TENANT_USERS_URL_SFX;
+                Map deleteUserResultMap = HttpHandler.doPostHttps(removeUserUrl, deleteUserParams,
+                                                        authenticatorClient.getSessionCookie());
+                JSONObject resultObj = new JSONObject(
+                        deleteUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+                Assert.assertEquals(resultObj.get("error").toString(), "false",
+                                    "Value mismatch, Should be false.");
+                //remove user form the user store
+                userAdminClient.deleteUser(userName);
+            }
+        } catch (Exception e) {
+            log.error("Error occurred when deleting the users", e);
+            throw e;
         }
-        adminServiceClient.logOut();
     }
 
-    @AfterClass(alwaysRun = true)
-    public void destroy() throws IOException {
+    @AfterClass(alwaysRun = true) public void destroy()
+            throws IOException, LogoutAuthenticationExceptionException {
         authenticatorClient.logout();
+        adminServiceClient.logOut();
         super.cleanup();
     }
 
