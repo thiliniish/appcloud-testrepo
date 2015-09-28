@@ -22,8 +22,7 @@ include("/jagg/config_reader.jag");
         if (isSignUpConfigured == true || isSignUpConfigured.trim() == "true") {
             statusMessage = "configured";
 
-        }
-        else if (isSignUpConfigured == false || isSignUpConfigured.trim() == "false") {
+        } else if (isSignUpConfigured == false || isSignUpConfigured.trim() == "false") {
             log.debug("Since the sign up is not configured, adding the files to the BPS Server for the user " + userName);
             var tenantEmail;
             try {
@@ -37,7 +36,7 @@ include("/jagg/config_reader.jag");
                 //calling the service to upload the files to the BPS server
                 result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader').bpsFileUploader(userName, cookie);
 
-                if(result) {
+                if (result) {
                     //Sending an email to the cloud team to inform the enabling of the self sign up feature of the tenant's API Store.
                     tenantEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
                     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
@@ -56,28 +55,21 @@ include("/jagg/config_reader.jag");
                     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
                     statusMessage = jagg.module("registry").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
 
-                }
-                else
-                {
+                } else {
                     log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail);
                     statusMessage="error";
                 }
 
-            }
-            catch (e) {
+            } catch (e) {
                 log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail + "\n" + e.message);
                 throw Error(e);
             }
-        }
-        else if (isSignUpConfigured.trim() == "resourcePending") {
+        } else if (isSignUpConfigured.trim() == "resourcePending") {
             statusMessage = "resourcePending";
-        }
-        else {
+        } else {
             statusMessage = "error";
         }
-    }
-
-    else {
+    } else {
         log.error("No action specified");
     }
     print(statusMessage);

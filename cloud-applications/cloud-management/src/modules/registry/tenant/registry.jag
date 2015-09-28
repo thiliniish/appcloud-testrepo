@@ -16,36 +16,29 @@ var signupConfigFilePath = "/_system/governance/apimgt/applicationdata/sign-up-c
 var workflowFileRegPath = "/_system/governance/apimgt/applicationdata/workflow-extensions.xml";
 
 
-var checkSignupConfiguredInRegistry= function(userName)
-{
+var checkSignupConfiguredInRegistry = function (userName) {
 
     var carbon = require('carbon');
-    var tenantDomain=(userName.split("@"))[1];
-    var result="error";
+    var tenantDomain = (userName.split("@"))[1];
+    var result = "error";
 
     try {
 
-        var response = getResourceFromTenantSpace(signupConfigFilePath,tenantDomain,userName);
-        if (response!="error" && response!="resourcePending") {
+        var response = getResourceFromTenantSpace(signupConfigFilePath, tenantDomain, userName);
+        if (response != "error" && response != "resourcePending") {
             response.contentType = "text/xml";
             var configContent = (response.content).toString();
             var selfSignUp = new XML(configContent);
             result = selfSignUp.EnableSignup.toString();
+        } else if (response == "resourcePending") {
+            result = "resourcePending";
+        } else {
+            result = "error";
         }
-        else if(response=="resourcePending")
-        {
-            result="resourcePending";
-        }
-        else
-        {
-            result="error";
-        }
-
 
     } catch (e) {
-        log.error("Error while loading the registry file for the tenant "+userName+ "\n" + e.message);
+        log.error("Error while loading the registry file for the tenant " + userName + "\n" + e.message);
         throw Error(e);
-
     }
     return result;
 };
@@ -55,8 +48,7 @@ var configureRegistryParameters = function (tenantDomain, userName) {
         var tenantManager = multitenancy.getTenantManager();
         var tenantId = tenantManager.getTenantId(tenantDomain);
         var options = {system: true, domain: tenantDomain, tenantId: tenantId};
-    }
-    catch (e) {
+    } catch (e) {
         log.error("Error while configuring the registry properties for the tenant " + userName + "\n" + e.message);
         throw Error(e);
     }
@@ -64,52 +56,49 @@ var configureRegistryParameters = function (tenantDomain, userName) {
 
 };
 
-var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, userName,tenantDomain,approvalStatus) {
+var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, userName,
+                                      tenantDomain, approvalStatus) {
     try {
-        var registryUpdateResult="error";
+        var registryUpdateResult = "error";
         var jsonObjCloudmgt = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
-        var bpsBackendURL=jsonObjCloudmgt.selfSignUpProperties.ServerUrls.bpsServiceURL;
-        var serviceEndpoint=bpsBackendURL+"t/"+tenantDomain+"/UserSignupProcess/";
-        var callbackURL=jsonObjCloudmgt.selfSignUpProperties.ServerUrls.gatewayCallback;
+        var bpsBackendURL = jsonObjCloudmgt.selfSignUpProperties.ServerUrls.bpsServiceURL;
+        var serviceEndpoint = bpsBackendURL + "t/" + tenantDomain + "/UserSignupProcess/";
+        var callbackURL = jsonObjCloudmgt.selfSignUpProperties.ServerUrls.gatewayCallback;
         var selfSignUpClass;
 
         //configuring details to populate the sign up config registry file
-        var mediaType="signup-config";
+        var mediaType = "signup-config";
         var signupConfigBody = jagg.module("util").getObjFromFile("/site/conf/registryFiles/sign-up-config.xml");
         signupConfigBody = signupConfigBody.replace("$adminUsername", userName).replace("$adminPassword", userPassword);
-        var singUpFileAddedToRegistry= updateRegistryFile(signupConfigFilePath,signupConfigBody,mediaType,tenantDomain,userName);
+        var singUpFileAddedToRegistry = updateRegistryFile(signupConfigFilePath, signupConfigBody, mediaType, tenantDomain, userName);
 
         //configuring details to populate the workflow extensions registry file
-        if(approvalStatus == "notApproved")
-        {
-            selfSignUpClass=jsonObjCloudmgt.selfSignUpProperties.selfSignUpDefaultClass;
-        }
-        else{
-            selfSignUpClass=jsonObjCloudmgt.selfSignUpProperties.selfSignUpApprovalClass;
+        if (approvalStatus == "notApproved") {
+            selfSignUpClass = jsonObjCloudmgt.selfSignUpProperties.selfSignUpDefaultClass;
+        } else {
+            selfSignUpClass = jsonObjCloudmgt.selfSignUpProperties.selfSignUpApprovalClass;
         }
 
-        var workflowFileBody= jagg.module("util").getObjFromFile("/site/conf/registryFiles/workflow-extensions.xml");
+        var workflowFileBody = jagg.module("util").getObjFromFile("/site/conf/registryFiles/workflow-extensions.xml");
         workflowFileBody = workflowFileBody.replace("$adminUsername", userName).replace("$adminPassword", userPassword).replace("$fromAddress", fromAddress).replace("$contactEmail", contactEmail).replace("$serviceEndpoint", serviceEndpoint).replace("$callbackURL", callbackURL).replace("$selfSignUpClass", selfSignUpClass);
-        mediaType="workflow-config";
-        var workflowFileAddedToRegistry=updateRegistryFile(workflowFileRegPath,workflowFileBody,mediaType,tenantDomain,userName);
+        mediaType = "workflow-config";
+        var workflowFileAddedToRegistry = updateRegistryFile(workflowFileRegPath, workflowFileBody, mediaType, tenantDomain, userName);
 
-        if(singUpFileAddedToRegistry && workflowFileAddedToRegistry)
-        {
-            registryUpdateResult="signUpConfigured";
+        if (singUpFileAddedToRegistry && workflowFileAddedToRegistry) {
+            registryUpdateResult = "signUpConfigured";
         }
 
-    }
-    catch (e) {
-        log.error("Error while populating the registry files for the user "+userName+"\n" + e.message);
+    } catch (e) {
+        log.error("Error while populating the registry files for the user " + userName + "\n" + e.message);
         throw Error(e);
     }
     return registryUpdateResult;
 
-
 };
+
 var getResourceFromTenantSpace = function (path, tenantDomain, userName) {
 
-    var response="error";
+    var response = "error";
 
     if (isAuthenticated) {
 
@@ -138,28 +127,25 @@ var getResourceFromTenantSpace = function (path, tenantDomain, userName) {
 
 //adding a file to the registry
 
-var updateRegistryFile=function (path,contentToAdd,mediaType,tenantDomain,userName)
-{
+var updateRegistryFile = function (path, contentToAdd, mediaType, tenantDomain, userName) {
 
-    var resourceAddedToRegistry=false;
+    var resourceAddedToRegistry = false;
     if (isAuthenticated) {
         try {
             var options = configureRegistryParameters(tenantDomain, userName);
             registry = new carbon.registry.Registry(serverUrl, options);
-            var resource ={
+            var resource = {
                 content: contentToAdd,
-                mediaType : mediaType
+                mediaType: mediaType
             };
-            registry.put(path,resource);
-            log.info("Successfully updated the registry file "+mediaType+" for the tenant "+userName);
-            resourceAddedToRegistry=true;
-        }
-        catch (e) {
+            registry.put(path, resource);
+            log.info("Successfully updated the registry file " + mediaType + " for the tenant " + userName);
+            resourceAddedToRegistry = true;
+        } catch (e) {
             log.error("Error while adding the resource file: " + path + " to the tenant space registry for the tenant " + userName + "\n" + e.message);
             throw Error(e);
         }
-    }
-    else {
+    } else {
         log.warn("Tenant " + userName + " is not authenticated ");
     }
     return resourceAddedToRegistry;
@@ -175,13 +161,11 @@ var resourceExistsInTenantSpace = function (path, tenantDomain, userName) {
             var options = configureRegistryParameters(tenantDomain, userName);
             registry = new carbon.registry.Registry(serverUrl, options);
             resourceExistsInTenantSpace = registry.exists(path);
-        }
-        catch (e) {
+        } catch (e) {
             log.error("Error while accessing tenant space registry resource file: " + path + " for the tenant " + userName + "\n" + e.message);
             throw Error(e);
         }
-    }
-    else {
+    } else {
         log.warn("Tenant " + userName + " is not authenticated ");
     }
     return resourceExistsInTenantSpace;

@@ -175,15 +175,15 @@
 		});
 
 		  $('#password').blur(function(){
-              if(!clickwithblur)
+              if (!clickwithblur)
                   $('#password').valid();
          });
           $('#fromAddress').blur(function(){
-              if(!clickwithblur)
+              if (!clickwithblur)
                   $('#fromAddress').valid();
          });
          $('#contactEmail').blur(function(){
-              if(!clickwithblur)
+              if (!clickwithblur)
                   $('#contactEmail').valid();
          });
           $('#btn_submit').mousedown(function(){
