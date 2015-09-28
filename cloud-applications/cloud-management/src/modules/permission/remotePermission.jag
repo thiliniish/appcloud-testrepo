@@ -16,7 +16,7 @@ var authorizeRole = function (stage, role, permission, action) {
 
     var remoteServerServiceURL = getRemoteServerServiceURL(stage);
     var manager = jagg.module("manager");
-    var cookie = manager.getBackendCookie(remoteServerServiceURL);
+    var cookie = manager.getAdminCookie(remoteServerServiceURL);
 
     if (!(cookie)) {
         throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
@@ -67,7 +67,7 @@ var isRoleAuthorized = function (stage, role, permission, action) {
 
     var remoteServerServiceURL = getRemoteServerServiceURL(stage);
     var manager = jagg.module("manager");
-    var cookie = manager.getBackendCookie(remoteServerServiceURL);
+    var cookie = manager.getAdminCookie(remoteServerServiceURL);
 
     if (!(cookie)) {
         throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
@@ -115,7 +115,7 @@ var denyRole = function (stage, role, permission, action) {
 
     var remoteServerServiceURL = getRemoteServerServiceURL(stage);
     var manager = jagg.module("manager");
-    var cookie = manager.getBackendCookie(remoteServerServiceURL);
+    var cookie = manager.getAdminCookie(remoteServerServiceURL);
 
     if (!(cookie)) {
         throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;

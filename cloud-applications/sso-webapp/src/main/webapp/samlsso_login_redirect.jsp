@@ -78,7 +78,7 @@ logged into that tenant
 
         if(userName.equals("") || userName == null || password.equals("") || password == null){
             loginFailed = "true";
-            errorMessage = "empty.field.message";
+            errorMessage = "Login failed. username and password cannot be empty.";
         } else{
             String email = userName;
 

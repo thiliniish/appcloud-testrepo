@@ -1,98 +1,150 @@
 {
-    "subscriptions": {
-       "type": [{
-	 "id": "app_cloud",
-	 "name": "App Cloud",
-     "serviceType": "free",
-	 "roleTypes" : [{"roleName":"devops", "displayRoles":"DevOps"},{"roleName":"cxo", "displayRoles":"CXO"},
-		 			{"roleName":"appowner", "displayRoles":"Application Owner"},{"roleName":"qa", "displayRoles":"QA"},
-		 			{"roleName":"developer", "displayRoles":"Developer"}],
-     "urls":  {"cloudTypeUrl" : "https://milestones.appfactory.wso2.com:9443/appmgt/"}
-	},{
-	 "id": "api_cloud",
-	 "name": "API Cloud",
-     "serviceType": "commercial",
-	 "roleTypes" : [{"roleName":"subscriber", "displayRoles":"Subscriber"},{"roleName":"publisher", "displayRoles":"Publisher"}],
-     "urls" : { "cloudTypeUrl" : "https://milestones.appfactory.wso2.com:9643/publisher/","storeUrl" : "https://milestones.appfactory.wso2.com:9643/store"}
-	}]
-    },
-    "ServerUrls": {
-       "appfactory" :"https://milestones.appfactory.wso2.com:9443/services/",
-       "cloudmgtServices" :"https://milestones.appfactory.wso2.com:9443/services/",
-       "cloudmgt" : "https://milestones.appfactory.wso2.com:9443/cloudmgt",
-       "bps": "https://milestones.appfactory.wso2.com:9543/services/",
-       "greg": "https://milestones.appfactory.wso2.com:9443/services/",
-       "identity": "https://milestones.appfactory.wso2.com:9444/services/",
-       "apiCloud": "https://milestones.appfactory.wso2.com:9643/services/"
-    },
-    "SSORelyingParty": {
-        "name": "cloudmgt",
-        "dashboardName": "WSO2 Cloud Dashboard",
-        "identityProviderURL":"https://milestones.appfactory.wso2.com:9444/samlsso",
-        "keyStorePassword" : "wso2carbon",
-        "identityKeyAlias" : "wso2carbon",
-        "keyStoreName" : "../../../../../../resources/security/wso2carbon.jks",
-        "cookieRefreshInterval":300000,
-        "adminUser":"admin",
-        "adminPassword":"admin"
-    },
-  "registrationEmail" : {
-        "from":"WSO2 Cloud Team <cloud@wso2.com>",
-        "subject":"WSO2 Cloud Services - Registration completed",
-        "username":"email",
-        "password":"pass",
-        "host":"smtp.gmail.com",
-        "port":"25",
-	    "tls":"true",
-	    "targetEpr" :"https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/confirm-verification.jag"
-    },
-  "bamConfiguration" : {
-         "hostUrls" : "tcp://localhost:7613,tcp://localhost:7617",
-         "username" : "admin",
-         "password" : "admin"
-  },
-     "userActivityMonitor" :{
-       "enable" : "false"
-     },
-    "invitationEmail" : {
-        "subject":"WSO2 Cloud Services - Invitation from: "
-    },
-    "subscriberAccessEnabledEmail" : {
-      "subject":"Notification: Tenant enabled the self sign up feature for API Cloud",
-      "cloudEmail":"cloudEmail"
-    },
-    "passwordResetEmail" : {
-        "subject":"WSO2 Cloud Services - Password Reset"
-    },
-    "OTUserApi" : {
-        "enable" :"false",
-        "auth_email":"cloud_emai@wso2.com",
-        "auth_pass":"pass",
-        "add_url":"add_url",
-        "edit_pwd_url":"edit_pwd_url"
-     },
-     "RightWaveAddUserApi" : {
-        "enable_RightWaveAddUserApi" :"false",
-        "cloudSignup":"http://sbox.rw001.com/wso2test/srv/api/cloudsignup",
-        "cloudSubmission":"http://sbox.rw001.com/wso2test/srv/api/cloudsbmt",
-        "trialExtension":"http://sbox.rw001.com/wso2test/srv/api/cldtrialext",
-        "cloudUpgrade":"http://sbox.rw001.com/wso2test/srv/api/cldupgrade"
-     },
-    "supportContact" : {
-        "to":"cloudpreview-noreply@wso2.com"
-    },
-    "JIRAContact" : {
-	    "enable" : "false",
-        "url":"http://wso2.com/jira/rpc/soap/jirasoapservice-v2",
-	    "username" : "username",
-        "password": "password",
-        "projectKey" : "projectkey"
-    },
-    "documentation" : {
-        "selfSignUpDocumentationLink" : "https://docs.wso2.com/display/APICloud/WSO2+API+Cloud+Documentation"
-},
-    "commonRoles":[
-      "appfactoryusers",
-      "Internal/everyone"
+  "isEmailUserNameEnabled" : false,
+  "subscriptions": {
+    "type": [
+      {
+        "id": "app_cloud",
+        "name": "App Cloud",
+        "serviceType": "free",
+        "roleTypes": [
+          {
+            "roleName": "devops",
+            "displayRoles": "DevOps"
+          },
+          {
+            "roleName": "cxo",
+            "displayRoles": "CXO"
+          },
+          {
+            "roleName": "appowner",
+            "displayRoles": "Application Owner"
+          },
+          {
+            "roleName": "qa",
+            "displayRoles": "QA"
+          },
+          {
+            "roleName": "developer",
+            "displayRoles": "Developer"
+          }
+        ],
+        "urls": {
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/"
+        }
+      },
+      {
+        "id": "api_cloud",
+        "name": "API Cloud",
+        "serviceType": "commercial",
+        "roleTypes": [
+          {
+            "roleName": "subscriber",
+            "displayRoles": "Subscriber"
+          },
+          {
+            "roleName": "publisher",
+            "displayRoles": "Publisher"
+          }
+        ],
+        "urls": {
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9643/publisher/",
+          "storeUrl": "https://milestones.appfactory.wso2.com:9643/store"
+        }
+      }
     ]
+  },
+  "ServerUrls": {
+    "appfactory": "https://milestones.appfactory.wso2.com:9443/services/",
+    "cloudmgtServices": "https://milestones.appfactory.wso2.com:9443/services/",
+    "cloudmgt": "https://milestones.appfactory.wso2.com:9443/cloudmgt",
+    "bps": "https://milestones.appfactory.wso2.com:9543/services/",
+    "greg": "https://milestones.appfactory.wso2.com:9443/services/",
+    "identity": "https://milestones.appfactory.wso2.com:9444/services/",
+    "apiCloud": "https://milestones.appfactory.wso2.com:9643/services/"
+  },
+  "SSORelyingParty": {
+    "name": "cloudmgt",
+    "dashboardName": "WSO2 Cloud Dashboard",
+    "identityProviderURL": "https://milestones.appfactory.wso2.com:9444/samlsso",
+    "keyStorePassword": "wso2carbon",
+    "identityKeyAlias": "wso2carbon",
+    "keyStoreName": "../../../../../../resources/security/wso2carbon.jks",
+    "cookieRefreshInterval": 300000,
+    "adminUser": "admin",
+    "adminPassword": "admin"
+  },
+  "registrationEmail": {
+    "from": "WSO2 Cloud Team <cloud@wso2.com>",
+    "subject": "WSO2 Cloud Services - Registration completed",
+    "username": "email",
+    "password": "pass",
+    "host": "smtp.gmail.com",
+    "port": "25",
+    "tls": "true",
+    "targetEpr": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/confirm-verification.jag"
+  },
+  "bamConfiguration": {
+    "hostUrls": "tcp://localhost:7613,tcp://localhost:7617",
+    "username": "admin",
+    "password": "admin"
+  },
+  "userActivityMonitor": {
+    "enable": "false"
+  },
+  "customUrl" : {
+    "registry" : {
+      "registryPath" : "/customurl/",
+      "registryUsername" : "admin",
+      "registryPassword" : "admin"
+    },
+    "messageBroker" : {
+      "topicName" : "custom-url-topic",
+      "messageBrokerUrl" : "tcp://localhost:61616"
+    },
+    "defaultStoreUrl" : "api.cloud.wso2.com",
+    "defaultGatewayUrl" : "gateway.api.cloud.wso2.com",
+    "httpsGatewayPort" : "8243"
+  },
+  "invitationEmail": {
+    "subject": "WSO2 Cloud Services - Invitation from: "
+  },
+  "subscriberAccessEnabledEmail": {
+    "subject": "Notification: Tenant enabled the self sign up feature for API Cloud",
+    "cloudEmail": "cloudEmail"
+  },
+  "passwordResetEmail": {
+    "subject": "WSO2 Cloud Services - Password Reset"
+  },
+  "OTUserApi": {
+    "enable": "false",
+    "auth_email": "cloud_emai@wso2.com",
+    "auth_pass": "pass",
+    "add_url": "add_url",
+    "edit_pwd_url": "edit_pwd_url"
+  },
+  "RightWaveAddUserApi": {
+    "enable_RightWaveAddUserApi": "false",
+    "cloudSignup": "http://sbox.rw001.com/wso2test/srv/api/cloudsignup",
+    "cloudSubmission": "http://sbox.rw001.com/wso2test/srv/api/cloudsbmt",
+    "trialExtension": "http://sbox.rw001.com/wso2test/srv/api/cldtrialext",
+    "cloudUpgrade": "http://sbox.rw001.com/wso2test/srv/api/cldupgrade"
+  },
+  "supportContact": {
+    "to": "cloudpreview-noreply@wso2.com"
+  },
+  "JIRAContact": {
+    "enable": "false",
+    "url": "http://wso2.com/jira/rpc/soap/jirasoapservice-v2",
+    "username": "username",
+    "password": "password",
+    "projectKey": "projectkey"
+  },
+  "documentation": {
+    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/",
+    "customUrlDocumentationLink" : "https://docs.wso2.com/display/APICloud/Customize+the+API+Store+and+Gateway+URLs"
+  },
+  "commonRoles": [
+    "appfactoryusers",
+    "Internal/everyone"
+  ]
 }

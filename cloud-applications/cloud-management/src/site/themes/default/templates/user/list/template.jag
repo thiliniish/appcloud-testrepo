@@ -10,7 +10,7 @@ if (user != null) {
     if(tenantDomain == null || tenantDomain == ''){
         var userName =  session.get("LOGGED_IN_USER");
         if(userName != null){
-            tenantDomain =  userName.substring(userName.lastIndexOf("@")+1);
+            tenantDomain =  jagg.module("manager").getTenantDomain(userName);
         }
     }
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);

@@ -6,13 +6,13 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
     var userName =  session.get("LOGGED_IN_USER");
     var tenantDisplayName = session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME");
     var userEmail = session.get("LOGGED_IN_USER_EMAIL");
-    var loggedOrg = session.get("LOGGED_IN_ORGANIZATION");
     var requestURI = request.getRequestURI();
     var isBillingAccount = jagg.module("billing").isPaidAccount();
     var isUserAdmin = jagg.module("util").isUserInAdminRole();
 
     var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/toplink_menu.json");
 
+    var cloudMgtUrl = jsonObj.Cloud.url;
     var mainMenu = jsonObj.Main;
     var userMenu = jsonObj.User;
     var expandMenu = jsonObj.Expand;
@@ -45,7 +45,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
                class="hidden-md hidden-sm hidden-lg cloud-menu-popover">
                 <i class="fw fw-tiles"></i>
             </a>
-            <a class="navbar-brand" href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" ><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/logo.png'))%>" alt="wso2-logo" > Cloud</a>
+            <a class="navbar-brand" href="<%=cloudMgtUrl%>" ><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/logo.png'))%>" alt="wso2-logo" > Cloud</a>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav menu-right">

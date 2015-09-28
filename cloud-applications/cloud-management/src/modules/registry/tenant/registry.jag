@@ -11,8 +11,41 @@ var sessionId = session.getId();
 var isAuthenticated = jagg.module("util").isSessionAuthenticated();
 var registry = "";
 var response = "error";
-var serverUrl = cloudConfig.ServerUrls.apiCloud.toString();
+var serverUrl = cloudConfig.ServerUrls.cloudmgtServices.toString();
 
+var checkSignupConfiguredInRegistry= function(userName)
+{
+
+    var carbon = require('carbon');
+    var server = carbon.server;
+    var tenantDomain=(userName.split("@"))[1];
+
+    try {
+        var regPath = "/_system/governance/apimgt/applicationdata/sign-up-config.xml";
+        var response = getResourceFromTenantSpace(regPath,tenantDomain,userName);
+        if(response!="error" && response!="resourcePending") {
+            response.contentType = "text/xml";
+            var configContent = (response.content).toString();
+            var selfSignUp = new XML(configContent);
+            result = selfSignUp.EnableSignup.toString();
+        }
+        else if(response=="resourcePending")
+        {
+            result="resourcePending";
+        }
+        else
+        {
+            result="error";
+        }
+
+
+    } catch (e) {
+        log.error("Error while loading the registry file for the tenant "+userName+ "\n" + e.message);
+        throw Error(e);
+
+    }
+    return result;
+};
 
 var configureRegistryParameters = function (tenantDomain, userName) {
     try {
@@ -56,7 +89,9 @@ var getResourceFromTenantSpace = function (path, tenantDomain, userName) {
 };
 
 var resourceExistsInTenantSpace = function (path, tenantDomain, userName) {
+
     var resourceExistsInTenantSpace = false;
+
     if (isAuthenticated) {
         try {
             var options = configureRegistryParameters(tenantDomain, userName);

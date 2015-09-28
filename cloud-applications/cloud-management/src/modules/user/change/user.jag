@@ -16,9 +16,9 @@ var userName =  session.get("LOGGED_IN_USER");
 
 
 var changePassword = function(oldPassword, newPassword) {
-    var user = jagg.module("util").getDomainLessUserName(userName);
+    var user = modManager.getTenantAwareUsername(userName);
     var tenantDomain=modManager.getTenantDomain();
-      var userEmail = session.get("LOGGED_IN_USER_EMAIL");
+    var userEmail = session.get("LOGGED_IN_USER_EMAIL");
     var context=multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();
     try {
@@ -30,9 +30,8 @@ var changePassword = function(oldPassword, newPassword) {
         var realm = realmService.getTenantUserRealm(tenantId);
         var userStoreManager=realm.getUserStoreManager();
         var result=userStoreManager.updateCredential(user,newPassword,oldPassword);
-        log.info("Sucessfully changed password");
-        log.info("changePassword "+userEmail);
         jagg.module("util").changeOTUserPass(userEmail,newPassword);
+        log.info("Successfully changed password for user : " + user);
         return true;
     }catch (e){
         log.error("Error while changing password for the user " + userName + e.message);
@@ -41,7 +40,7 @@ var changePassword = function(oldPassword, newPassword) {
         context.endTenantFlow();
     }
         
-    }
+};
 
 var updatePasswordWithUserInput = function(userName,email, newPassword,confirmationKey) {
     log.info("Updating user password by Password reset");

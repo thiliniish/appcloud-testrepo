@@ -29,25 +29,21 @@ import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.ntask.core.Task;
 import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.api.UserStoreManager;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
  *
  *
  */
-public class RemoveAssociatedRolesTask implements Task {
+public class BillingDbUpdateTask implements Task {
 
-    private static final Log log = LogFactory.getLog(RemoveAssociatedRolesTask.class);
-    private static final String ERROR_MSG = "Error while executing disabled tenant roles, removal task: ";
+    private static final Log log = LogFactory.getLog(BillingDbUpdateTask.class);
+    private static final String ERROR_MSG = "Error while executing task: Billing database update for un-subscribed tenants ";
     private Map<String, String> properties;
-    private List<String> rolesToRemove;
     private BillingRequestProcessor requestProcessor;
 
     @Override
@@ -57,10 +53,6 @@ public class RemoveAssociatedRolesTask implements Task {
 
     @Override
     public void init() {
-        String roles = properties.get(BillingConstants.REMOVE_ROLES_PROPERTY_KEY);
-        //regex to split by comma and remove white spaces
-        rolesToRemove = Arrays.asList(roles.split("\\s*,\\s*"));
-
         requestProcessor = BillingRequestProcessorFactory
                 .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
                                             CloudBillingUtils.getBillingConfiguration().getDSConfig()
@@ -69,11 +61,6 @@ public class RemoveAssociatedRolesTask implements Task {
 
     @Override
     public void execute() {
-        String tenantDomain = null;
-        String subscription = null;
-        String endDateString = null;
-        String startDateString = null;
-
         try {
             String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY));
             OMElement elements = AXIOMUtil.stringToOM(response);
@@ -81,61 +68,40 @@ public class RemoveAssociatedRolesTask implements Task {
             Iterator<?> entries = elements.getChildrenWithName(new QName(BillingConstants.ENTRY));
             while (entries.hasNext()) {
                 OMElement entry = (OMElement) entries.next();
-                tenantDomain = ((OMElement) entry
+                String tenantDomain = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_TENANT_DOMAIN)).next())
                         .getText();
-                subscription = ((OMElement) entry
+                String subscription = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_SUBSCRIPTION)).next())
                         .getText();
-                startDateString = ((OMElement) entry
+                String startDateString = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_START_DATE)).next()).getText();
-                endDateString = ((OMElement) entry
+                String endDateString = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_END_DATE)).next()).getText();
 
-                int tenantId = ServiceDataHolder.getInstance()
-                        .getRealmService().getTenantManager().getTenantId(tenantDomain);
-                UserStoreManager userStoreManager = ServiceDataHolder.getInstance().getRealmService()
-                        .getTenantUserRealm(tenantId).getUserStoreManager();
-                for (String role : rolesToRemove) {
-                    userStoreManager.deleteRole(role);
-                }
+                int tenantId = ServiceDataHolder.getInstance().getRealmService().getTenantManager().getTenantId(tenantDomain);
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Successfully removed associated roles: " + rolesToRemove + " with the subscription: "
-                              + subscription + " for tenant: " + tenantDomain);
-                }
-
-                updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString);
+                updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString, tenantId);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Tenant subscriptions disabling task executed successfully, information " +
                           "is as follows: " + elements);
             }
-
-        } catch (UserStoreException e) {
-            if (e.getMessage().equals("Can not delete non exiting role")) {
-                //Already deleted roles database is not updated yet.
-                try {
-                    updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString);
-                } catch (CloudBillingException e1) {
-                    log.error(ERROR_MSG + " while executing post request: ", e1);
-                }
-            } else {
-                log.error(ERROR_MSG + " while role removing: ", e);
-            }
         } catch (CloudBillingException e) {
             log.error(ERROR_MSG + " while executing http request: ", e);
         } catch (XMLStreamException e) {
             log.error(ERROR_MSG + " while response parsing: ", e);
+        } catch (UserStoreException e) {
+            log.error(ERROR_MSG + " while acquiring tenantId: ", e);
         }
     }
 
-    private void updateDatabaseEntry(String tenantDomain, String subscription, String startDate, String endDate)
+    private void updateDatabaseEntry(String tenantDomain, String subscription, String startDate, String endDate, int tenantId)
             throws CloudBillingException {
 
         updateSubscriptionsTable(tenantDomain, subscription);
         updateBillingStatusTable(tenantDomain, subscription, endDate);
-        addToHistoryTable(tenantDomain, subscription, startDate, endDate);
+        addToHistoryTable(tenantDomain, subscription, startDate, endDate, tenantId);
     }
 
     /**
@@ -145,7 +111,7 @@ public class RemoveAssociatedRolesTask implements Task {
      * @param endDate      String subscription end date
      * @throws CloudBillingException
      */
-    private void addToHistoryTable(String tenantDomain, String subscription, String startDate, String endDate)
+    private void addToHistoryTable(String tenantDomain, String subscription, String startDate, String endDate,int tenantId)
             throws CloudBillingException {
         String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
         String url = properties.get(BillingConstants.BILLING_HISTORY_URL_KEY);
@@ -157,7 +123,8 @@ public class RemoveAssociatedRolesTask implements Task {
                 new NameValuePair(BillingConstants.TYPE_QUERY_PARAM, "PAID"),
                 new NameValuePair(BillingConstants.STATUS_QUERY_PARAM, "DISABLED"),
                 new NameValuePair(BillingConstants.START_DATE, startDate),
-                new NameValuePair(BillingConstants.END_DATE, endDate)
+                new NameValuePair(BillingConstants.END_DATE, endDate),
+                new NameValuePair(BillingConstants.TENANT_ID_QUERY_PARAM, Integer.toString(tenantId))
         };
 
         String response = requestProcessor.doPost(url, payload);

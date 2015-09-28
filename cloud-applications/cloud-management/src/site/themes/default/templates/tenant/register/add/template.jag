@@ -21,6 +21,7 @@ var eulaContent =  eulaDoc.EULA.text();
 
 var confirmationKey = session.get("registration-intermediate-data");
 var email = session.get("registration-email");
+var userName = jagg.module("manager").getUserNameFromEmail(email);
 var isInvitee = session.get("isInvitee");
 var isUserAvail = session.get("isUserAvail");
 %>
@@ -94,7 +95,7 @@ ul
               function (result) {
                   jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
                           window.location.href = result;
-                      }
+                      }, cbkBtnText:'Login'
                   });
                   disableSpinner();
               },
@@ -121,7 +122,7 @@ ul
              function (result) {
                  jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
                          window.location.href = cloudmgtURL;
-                     }
+                     }, cbkBtnText:'Login'
                  });
                  disableSpinner();
              },
@@ -149,10 +150,10 @@ ul
 
     function getProfile() {
         var email = '<%=email%>';
-        var user = email.replace(/@/g, ".");
+        var userName = '<%=userName%>';
         jagg.post("../blocks/user/profile/ajax/profile.jag", {
                 action:"getProfile",
-                user:user
+                user:userName
             },
             function (result) {
                 json = JSON.parse(result);
@@ -207,7 +208,7 @@ ul
                 return true;
             }
             var email = '<%=email%>';
-            var userName = email.replace(/@/g, ".");
+            var userName = '<%=userName%>';
             var isValid = false;
             $.ajax({ url: "../blocks/user/authenticate/ajax/login.jag",
             	type: "POST",

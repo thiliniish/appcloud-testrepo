@@ -24,7 +24,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.billing.common.BillingConstants;
 import org.wso2.carbon.cloud.billing.common.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.service.CloudBillingService;
-import org.wso2.carbon.cloud.billing.subscription.tasks.RemoveAssociatedRolesScheduler;
+import org.wso2.carbon.cloud.billing.subscription.tasks.BillingDbUpdateScheduler;
 import org.wso2.carbon.cloud.billing.usage.scheduler.UsageUploadScheduler;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.ntask.common.TaskException;
@@ -77,10 +77,10 @@ public class CloudBillingServiceComponent {
             }
             boolean enableSubscriptionCleanUp = configuration.getZuoraConfig().getSubscriptionCleanUp().isEnabled();
             if (enableSubscriptionCleanUp) {
-                RemoveAssociatedRolesScheduler removeAssociatedRolesScheduler = new RemoveAssociatedRolesScheduler();
+                BillingDbUpdateScheduler billingDbUpdateScheduler = new BillingDbUpdateScheduler();
                 String cronExpression = configuration.getZuoraConfig().getSubscriptionCleanUp().getCron();
 
-                removeAssociatedRolesScheduler.invokeRoleRemovalTask(cronExpression);
+                billingDbUpdateScheduler.invokeBillingDbUpdateTask(cronExpression);
             } else {
                 log.warn("Subscription cleanup disabled");
             }
@@ -102,7 +102,7 @@ public class CloudBillingServiceComponent {
     protected void deactivate(ComponentContext context) {
         this.billingServiceRef.unregister();
         if (log.isDebugEnabled()) {
-            log.debug("DefaultRolesCreatorServiceComponent Service  bundle is deactivated ");
+            log.debug("Cloud billingService  bundle is deactivated ");
         }
     }
 

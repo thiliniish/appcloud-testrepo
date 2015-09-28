@@ -1,7 +1,5 @@
 <% jagg.template("selfSignup", function (inputs, outputs, jagg) {
 
-    include("/jagg/constants.jag");
-
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt;
     var isSessionAuthenticated = jagg.module("util").isSessionAuthenticated();
@@ -11,6 +9,7 @@
         var documentationLink = cloudConfig.documentation.selfSignUpDocumentationLink;
         var type = cloudConfig.subscriptions.type;
         var storeUrl = type[1].urls.storeUrl + "/?tenant=" + tenantDomain;
+        var isSignupConfigured = jagg.module("registry").checkSignupConfiguredInRegistry(userName);
         jagg.includeBlock("page/messages", null);
         %>
 
@@ -21,79 +20,51 @@
             userName = $("#userName").attr('value');
             storeUrl= $("#storeUrl").attr('value');
             cloudMgtURL= $("#cloudMgtURL").attr('value');
+            document.getElementById("spinner").style.display = '';
+            $('#btn_submit').attr('disabled',true);
+
                   jagg.post("../blocks/selfSignup/ajax/configure.jag", {
                       action:"checkSignUpConfiguredForUser",
                       userName:userName
                   },
                   function (result) {
-                  if( result==true || result.trim() == "true"){
+                  document.getElementById("spinner").style.display = 'none';
+
+                  if(result.trim() == "configured"){
                   $('#btn_submit').attr('disabled',true);
-                         jagg.message({content:'You have already configured the self sign up feature.',type:'error',cbk:function(){
-                          window.location=storeUrl;
+                         jagg.message({content:'Self signup is already enabled.',type:'error',cbk:function(){
+                          window.location.href=storeUrl;
                           }
                       });
 
                   }
-                   else if(result == false || result.trim() == "false"){
-
-                  jagg.message({content:'Please click on the button for the startup of the self sign up feature.',type:'success',id:'configureMessage',
-                    cbk:function(){
-                        jagg.removeMessage('configureMessage');
-                        document.getElementById("spinner").style.display = '';
-                        jagg.post("../blocks/selfSignup/ajax/configure.jag", {
-                        action:"uploadBpsFiles",
-                        userName:userName
-
-                    },
-                    function (result) {
-                        document.getElementById("spinner").style.display = 'none';
+                   else if(result.trim() == "uploadCompleted"){
                         var message="documentation";
                         var docLink=$("#docLink").attr('value');
-                        storeUrl= $("#storeUrl").attr('value');
+                        var messageContent = "The files were copied successfully. Next, enable self signup by following the steps in <a target='_blank' href='"+ docLink +"'>documentation.</a>";
                         docLink=message.link(docLink);
-                        if( result==true || result.trim() == "true") {
-                            $('#btn_submit').attr('disabled',true);
-                            jagg.message({content:'Please carry out the steps mentioned in this '+docLink+' to complete the configuration of the signup feature',type:'success',
+                         jagg.message({content:messageContent,type:'success',
                             cbk:function(){
                             window.location.href=storeUrl;
                             }
                             });
 
-                        }else {
-                            jagg.message({content:'An error occured',type:'error',
-                            cbk:function(){
-                            window.location=storeUrl;
-                            }
-                            });
-                        }
-                    },
-                  function (jqXHR, textStatus, errorThrown) {
-                      jagg.message({content:'An error occurred while processing the request.', type:'error',cbk:function(){
-                              window.location.href = cloudmgtURL;
-                          }
-                      });
-
-                  });
-
-                          }
-                      });
                    } else if(result.trim()=="resourcePending"){
-                        jagg.message({content:'Configuration files are still being created, Please try again in a while.',type:'success',cbk:function(){
-                          window.location=storeUrl;
+                        jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.',type:'success',cbk:function(){
+                          window.location.href=storeUrl;
                           }
                         });
 
                    }else {
-                        jagg.message({content:'An error occured.',type:'error',cbk:function(){
-                          window.location=storeUrl;
+                        jagg.message({content:'An error occurred.',type:'error',cbk:function(){
+                          window.location.href=storeUrl;
                           }
                         });
-
                    }
                    },
                   function (jqXHR, textStatus, errorThrown) {
-                      jagg.message({content:COMMON_ERROR_MESSAGE, type:'error',cbk:function(){
-                              window.location.href = cloudmgtURL;
+                      jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                              window.location.href = cloudMgtURL;
                           }
                       });
 
@@ -105,52 +76,74 @@
     <div class="container content-starter">
         <div class="row">
             <div class="col-lg-12">
-                <h1>Configure Self Sign Up</h1>
-                <div class="helper_text" id="helper_text">
-                    <p>By clicking this button you will be able to carry out the configurations needed for the self sign up feature.</p>
-                </div>
+                <h1>Configure Self Signup</h1>
+
+
+    <%
+        if (isSignupConfigured == true || isSignupConfigured.trim() == "true") {%>
+
             </div>
         </div>
     </div>
-
-
     <div class="container content-section-wrapper">
-    <form>
-        <div class="row">
-            <div class="col-lg-12 content-section">
+        <form>
+            <div class="row">
+                <div class="col-lg-12 content-section">
 
+                    <div class="content">
+                        <div class="center-block">
+                             <div><h3>You have already configured the self signup feature for the tenant API Store.</h3></div>
+                        </div>
 
-
-                                <div class="content">
-                                    <div class="center-block">
-                                        <input type="button" class='btn btn-primary' id="btn_submit" name="btn_submit" value="Configure" onclick="doSubmit();">
-                                        <i class="fa fa-spinner fa-spin fa-4x" id="spinner" class="spinner" style="display:none; margin-left:10px; color:blue;"></i>
-                                    </div>
-
-                                </div>
-
-    <input type="hidden" name="userName" id="userName" value="<%=
-        userName
-        %>"/>
-      <input type="hidden" name="docLink" id="docLink" value="<%=
-        documentationLink
-        %>"/>
-      <input type="hidden" name="storeUrl" id="storeUrl" value="<%=
-        storeUrl
-        %>"/>
-      <input type="hidden" name="cloudMgtURL" id="cloudMgtURL" value="<%=
-        cloudMgtURL
-        %>"/>
-
-
+                    </div>
+                  </div>
               </div>
+
+          </form>
+    </div>
+
+        <%
+        } else {%>
+
+            </div>
+        </div>
+    </div>
+        <div class="container content-section-wrapper">
+        <form>
+            <div class="row">
+                <div class="col-lg-12 content-section">
+                   <p>First, copy all the files required by the self signup configuration to the BPS server.</p>
+
+                     <div class="content">
+                          <div class="center-block">
+                               <input type="button" class='btn btn-primary' id="btn_submit" name="btn_submit" value="Copy Files" onclick="doSubmit();">
+                               <i class="fa fa-spinner fa-spin fa-4x" id="spinner" class="spinner" style="display:none; margin-left:10px; color:blue;"></i>
+                          </div>
+
+                     </div>
+
+        <input type="hidden" name="userName" id="userName" value="<%=
+            userName
+            %>"/>
+          <input type="hidden" name="docLink" id="docLink" value="<%=
+            documentationLink
+            %>"/>
+          <input type="hidden" name="storeUrl" id="storeUrl" value="<%=
+            storeUrl
+            %>"/>
+          <input type="hidden" name="cloudMgtURL" id="cloudMgtURL" value="<%=
+            cloudMgtURL
+            %>"/>
+
+                  </div>
+              </div>
+
+          </form>
           </div>
 
-      </form>
-      </div>
 
-
-      <%
+          <%
+        }
     }
     else {
         log.error("Session is not authenticated, Prompted to log in");

@@ -81,14 +81,14 @@ function enable() {
 
     function doSubmit() {
 	    disable();
-        var username = $("#username").attr('value');
+        var email = $("#email").attr('value');
         jagg.post("../blocks/user/initiate/ajax/initiate.jag", {
             action:"initiatePasswordReset",
-            username:username
+            email:email
         },
         function (result) {
             var msg = result.replace(/[\r\n]/g, "");
-            jagg.message({content:'Password recovery instructions have been sent to'+ result+' Please check your email.',type:'success',cbk:function(){
+            jagg.message({content:'Password recovery instructions have been sent to '+ email+'. Please check your email.',type:'success',cbk:function(){
                     window.location.href = "index.jag";
                 }
             });
@@ -109,7 +109,7 @@ function enable() {
             });
 	    $('#userForm').validate({
 	    rules : {
-            username: {
+            email: {
                 required: true,
                 email: true
             }
@@ -140,9 +140,9 @@ function enable() {
        <div class="col-lg-12 content-section">
            <form method='post' name="inputData" class='form-horizontal' id='userForm' action="javascript:doSubmit()"  role="form">
              <div class="form-group">
-                 <label for="username" class="col-sm-2 control-label">Email</label>
+                 <label for="email" class="col-sm-2 control-label">Email</label>
                <div class="col-sm-8">
-                 <input type="text" id="username" name="username" class="required"  />
+                 <input type="text" id="email" name="email" class="required"  />
                </div>
              </div>
 
