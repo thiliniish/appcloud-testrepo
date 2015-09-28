@@ -1,34 +1,34 @@
 <%
 
-    var log = new Log("modules/customurl/publish/publish.jag");
+	var log = new Log("modules/customurl/publish/publish.jag");
     
-    var ActiveMQConnectionFactory = org.apache.activemq.ActiveMQConnectionFactory;
-    var Session = javax.jms.Session;
+	var ActiveMQConnectionFactory = org.apache.activemq.ActiveMQConnectionFactory;
+	var Session = javax.jms.Session;
     
-    var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
+	var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
     
-    var registryPath = cloudConfigFile.customUrl.registry.registryPath;
-    var registryUsername = cloudConfigFile.customUrl.registry.registryUsername;
-    var registryPassword = cloudConfigFile.customUrl.registry.registryPassword;
+	var registryPath = cloudConfigFile.customUrl.registry.registryPath;
+	var registryUsername = cloudConfigFile.customUrl.registry.registryUsername;
+	var registryPassword = cloudConfigFile.customUrl.registry.registryPassword;
     
-    var topicName = cloudConfigFile.customUrl.messageBroker.topicName;
-    var messageBrokerUrl = cloudConfigFile.customUrl.messageBroker.messageBrokerUrl;
+	var topicName = cloudConfigFile.customUrl.messageBroker.topicName;
+	var messageBrokerUrl = cloudConfigFile.customUrl.messageBroker.messageBrokerUrl;
 
-    var defaultStoreURL = cloudConfigFile.customUrl.defaultStoreUrl;
-    var defaultGatewayURL = cloudConfigFile.customUrl.defaultGatewayUrl;
-    var httpsGatewayPort = cloudConfigFile.customUrl.httpsGatewayPort;
+	var defaultStoreURL = cloudConfigFile.customUrl.defaultStoreUrl;
+	var defaultGatewayURL = cloudConfigFile.customUrl.defaultGatewayUrl;
+	var httpsGatewayPort = cloudConfigFile.customUrl.httpsGatewayPort;
 
-    var carbon = require('carbon');
-    var registry = carbon.server.osgiService('org.wso2.carbon.registry.core.service.RegistryService')
+	var carbon = require('carbon');
+	var registry = carbon.server.osgiService('org.wso2.carbon.registry.core.service.RegistryService')
     											.getGovernanceUserRegistry(registryUsername, registryPassword);
 
-    var DNS_CNAME_RECORD = "CNAME";
-    var messageBrokerConnection;
+	var DNS_CNAME_RECORD = "CNAME";
+	var messageBrokerConnection;
     
-    var encryptedSSLFileContent;
-    var encryptedKeyFileContent;
-    var encryptedChainFileContent;
-    var encodedIndexingVectorContent;
+	var encryptedSSLFileContent;
+	var encryptedKeyFileContent;
+	var encryptedChainFileContent;
+	var encodedIndexingVectorContent;
 
 	var publish = function(tenantDomain, cloudtype, node, customUrl, sslCertificateContent, keyFileContent, chainFileContent) {
 
