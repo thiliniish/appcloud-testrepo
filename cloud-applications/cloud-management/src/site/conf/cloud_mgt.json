@@ -129,7 +129,7 @@
     "projectKey": "projectkey"
   },
   "documentation": {
-    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/
+    "selfSignUpDocumentationLink": "https://docs.wso2.com/display/APICloud/Enable+Self+Signup+to+the+API+Store/"
   },
   "commonRoles": [
     "appfactoryusers",
