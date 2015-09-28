@@ -108,10 +108,19 @@
   "invitationEmail": {
     "subject": "WSO2 Cloud Services - Invitation from: "
   },
-  "subscriberAccessEnabledEmail": {
-    "subject": "Notification: Tenant enabled the self sign up feature for API Cloud",
-    "cloudEmail": "cloudEmail"
-  },
+  "selfSignUpProperties": {
+    "subscriberAccessEnabledEmail": {
+      "subject": "Notification: Tenant enabled the self sign up feature for API Cloud",
+      "cloudEmail": "cloudEmail"
+    },
+    "ServerUrls": {
+      "gatewayCallback": "https://localhost:8443/services/WorkflowCallbackService",
+      "bpsServiceURL": "http://localhost:9863/services/"
+    },
+    "selfSignUpApprovalClass":"org.wso2.carbon.cloud.signup.workflow.SignUpWorkflowExecuter",
+    "selfSignUpDefaultClass":"org.wso2.carbon.cloud.signup.workflow.SimpleSignUpWorkflowExecuter"
+  }
+,
   "passwordResetEmail": {
     "subject": "WSO2 Cloud Services - Password Reset"
   },
