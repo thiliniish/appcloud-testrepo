@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.cloud.nginx.vhost;
 
-public class Constants {
+public class NginxVhostConstants {
 
     public static final String LOG4J_PROPERTY_PATH = "resources/log4j.properties";
     public static final String CONFIG_FILE_PATH = "resources/config.properties";

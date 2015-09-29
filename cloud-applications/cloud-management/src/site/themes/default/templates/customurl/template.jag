@@ -199,7 +199,7 @@
                     <button class="blue-button-sm" id="storeDomainVerifyBtn" onclick="verifyCustomDomain('store')">Verify</button>
                     <div id="storeVerifyUrlNotificationArea">
                         <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the new URL here,
-                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong>api.cloud.wso2.com</strong>.
+                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.pointingUrl%></strong>
                         <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>">Show me how >></a></span></h4>
                     </div>
                 </div>
@@ -274,7 +274,7 @@
                     <button class="blue-button-sm" id="gatewayDomainVerifyBtn" onclick="verifyCustomDomain('gateway')">Verify</button>
                     <div id="gatewayVerifyUrlNotificationArea">
                         <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the new URL here,
-                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong>gateway.api.cloud.wso2.com</strong>.
+                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.pointingUrl%></strong>.
                         <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>">Show me how >></a></span></h4>
                     </div>
                 </div>

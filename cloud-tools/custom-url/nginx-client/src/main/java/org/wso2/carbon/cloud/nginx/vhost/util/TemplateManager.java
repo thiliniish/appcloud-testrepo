@@ -20,7 +20,7 @@ package org.wso2.carbon.cloud.nginx.vhost.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.nginx.vhost.Constants;
+import org.wso2.carbon.cloud.nginx.vhost.NginxVhostConstants;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -40,13 +40,13 @@ public class TemplateManager {
 		this.templateMap = new HashMap<String, String>();
 		//Setting api-store template
 		templateMap
-				.put(Constants.API_STORE_TEMPLATE_NAME, getTemplateContent(Constants.VHOST_STORE_TEMPLATE_FILE_PATH));
+				.put(NginxVhostConstants.API_STORE_TEMPLATE_NAME, getTemplateContent(NginxVhostConstants.VHOST_STORE_TEMPLATE_FILE_PATH));
 		//Setting api-gateway(http) template
-		templateMap.put(Constants.HTTP_API_GATEWAY_TEMPLATE_NAME,
-		                this.getTemplateContent(Constants.VHOST_GATEWAY_HTTP_TEMPLATE_FILE_PATH));
+		templateMap.put(NginxVhostConstants.HTTP_API_GATEWAY_TEMPLATE_NAME,
+		                this.getTemplateContent(NginxVhostConstants.VHOST_GATEWAY_HTTP_TEMPLATE_FILE_PATH));
 		//Setting api-gateway(https) template
-		templateMap.put(Constants.HTTPS_API_GATEWAY_TEMPLATE_NAME,
-		                this.getTemplateContent(Constants.VHOST_GATEWAY_HTTPS_TEMPLATE_FILE_PATH));
+		templateMap.put(NginxVhostConstants.HTTPS_API_GATEWAY_TEMPLATE_NAME,
+		                this.getTemplateContent(NginxVhostConstants.VHOST_GATEWAY_HTTPS_TEMPLATE_FILE_PATH));
 	}
 
 	/**

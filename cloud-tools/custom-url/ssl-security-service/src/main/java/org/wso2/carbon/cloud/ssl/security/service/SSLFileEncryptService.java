@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.ssl.securitycomponent;
+package org.wso2.carbon.cloud.ssl.security.service;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.ssl.securitycomponent.util.AESCipher;
-import org.wso2.carbon.cloud.ssl.securitycomponent.util.KeyStoreUtil;
+import org.wso2.carbon.cloud.ssl.security.service.util.AESCipher;
+import org.wso2.carbon.cloud.ssl.security.service.util.KeyStoreUtil;
 import org.wso2.carbon.core.AbstractAdmin;
 
 import javax.crypto.BadPaddingException;

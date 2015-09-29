@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.ssl.securitycomponent.util;
+package org.wso2.carbon.cloud.ssl.security.service.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.ssl.securitycomponent.Constants;
+import org.wso2.carbon.cloud.ssl.security.service.FileEncryptionServiceConstants;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -43,18 +43,18 @@ public class AESCipher {
 
 	public AESCipher(Key key) throws NoSuchAlgorithmException, NoSuchPaddingException {
 		try {
-			this.secretKeySpec = new SecretKeySpec(key.getEncoded(), Constants.SECRET_KEY_SPEC_ALGORITHM);
+			this.secretKeySpec = new SecretKeySpec(key.getEncoded(), FileEncryptionServiceConstants.SECRET_KEY_SPEC_ALGORITHM);
 			//Generating random iv(indexing vector)
 			SecureRandom secureRandom = new SecureRandom();
 			byte[] iv = new byte[16];
 			secureRandom.nextBytes(iv);
 			this.ivParameterSpec = new IvParameterSpec(iv);
-			this.cipher = Cipher.getInstance(Constants.AES256_ALGORITHM);
+			this.cipher = Cipher.getInstance(FileEncryptionServiceConstants.AES256_ALGORITHM);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 			String errorMessage =
 					"Error occurred while initializing the cipher.Provided algorithm or padding mechanism" +
 					" is not supported by the environment. Provide algorithm/padding is : " +
-					Constants.AES256_ALGORITHM;
+					FileEncryptionServiceConstants.AES256_ALGORITHM;
 			log.error(errorMessage, e);
 			throw e;
 		}
@@ -108,11 +108,11 @@ public class AESCipher {
 			       IllegalBlockSizeException, BadPaddingException {
 		try {
 			Cipher cipher = getCipher(ivParameterSpec);
-			byte[] encryptedTextBytes = cipher.doFinal(message.getBytes(Constants.ENCODING_MECHANISM));
+			byte[] encryptedTextBytes = cipher.doFinal(message.getBytes(FileEncryptionServiceConstants.ENCODING_MECHANISM));
 			return new String(new Base64().encode(encryptedTextBytes));
 		} catch (UnsupportedEncodingException e) {
 			String errorMessage = "Error occurred when encrypting the data. Provided encoding mechanism " +
-			                      Constants.ENCODING_MECHANISM + " is not supporting in the environment.";
+			                      FileEncryptionServiceConstants.ENCODING_MECHANISM + " is not supporting in the environment.";
 			log.error(errorMessage, e);
 			throw new UnsupportedEncodingException(errorMessage);
 		} catch (IllegalBlockSizeException e) {

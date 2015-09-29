@@ -22,7 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.nginx.vhost.Constants;
+import org.wso2.carbon.cloud.nginx.vhost.NginxVhostConstants;
 import org.wso2.carbon.cloud.nginx.vhost.conf.ConfigReader;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
@@ -82,7 +82,7 @@ public class SSLFileHandler {
 		indexingVectorArray = new Base64().decode(byteContentOfIVResource);
 
 		try {
-			if (Constants.CERTIFICATE_FILE.equals(fileType)) {
+			if (NginxVhostConstants.CERTIFICATE_FILE.equals(fileType)) {
 				filePath = defaultFilePath + "-certificate.pem";
 				String publicKeyFileLocation = defaultRegistryLocation + ".pub";
 				registryLocation = defaultRegistryLocation + ".pem";
@@ -93,7 +93,7 @@ public class SSLFileHandler {
 				//Appending chain file content to ssl file
 				fileContent = sslFileContent + "\n" + sslPublicKeyContent;
 
-			} else if (Constants.KEY_FILE.equals(fileType)) {
+			} else if (NginxVhostConstants.KEY_FILE.equals(fileType)) {
 				registryLocation = defaultRegistryLocation + ".key";
 				filePath = defaultFilePath + ".key";
 				fileContent = getDecryptContent(new String(this.retrieveFileFromRegistry(registryLocation)));

@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.ssl.securitycomponent;
+package org.wso2.carbon.cloud.ssl.security.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.ssl.securitycomponent.module.X509CertificateManager;
+import org.wso2.carbon.cloud.ssl.security.service.module.X509CertificateManager;
 import org.wso2.carbon.core.AbstractAdmin;
 
 import java.io.IOException;
