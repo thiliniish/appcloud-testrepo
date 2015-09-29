@@ -7,7 +7,7 @@ include("/jagg/config_reader.jag");
     var action = request.getParameter("action");
     var cloudType = request.getParameter("cloudType");
     var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
-    var tenantDomain = jagg.module("util").getDomainFromUsername(jagg.getUser());
+    var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
 
     if (action == "publishVal") {
         var node = request.getParameter("node");
