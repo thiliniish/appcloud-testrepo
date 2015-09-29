@@ -154,7 +154,7 @@
                     if (node == "store") {
                         $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>" +result.message+ "</span>");
                     } else {
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>+" result.message+ "</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>" +result.message+ "</span>");
                     }
                 }
             }, function (jqXHR, textStatus, errorThrown) {
