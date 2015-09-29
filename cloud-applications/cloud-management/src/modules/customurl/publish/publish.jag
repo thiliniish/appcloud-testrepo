@@ -344,7 +344,7 @@
 		status.error = false;
 
 		try {
-			var fileValidatingService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileAnalyzer');
+			var fileValidatingService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
 			fileValidatingService.init(sslFileContent, chainFileContent);
 
 			var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
@@ -378,7 +378,7 @@
 			}
 
 			if (!status.error) {
-				var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileEncryptService');
+				var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
 				fileEncryptService.init();
 
 				encryptedSSLFileContent = fileEncryptService.encryptData(sslFileContent);

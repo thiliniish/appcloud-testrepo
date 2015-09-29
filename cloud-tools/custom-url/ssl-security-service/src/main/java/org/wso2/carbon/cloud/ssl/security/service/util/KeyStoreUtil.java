@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.ssl.securitycomponent.util;
+package org.wso2.carbon.cloud.ssl.security.service.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

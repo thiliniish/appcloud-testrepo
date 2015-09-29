@@ -1,7 +1,7 @@
 ## Tenant Domain: ${tenant-domain} --- Custom Domain: ${custom-domain}
 
 server {
-        listen   8290;
+        listen   80;
         server_name ${custom-domain};
 
         location / {

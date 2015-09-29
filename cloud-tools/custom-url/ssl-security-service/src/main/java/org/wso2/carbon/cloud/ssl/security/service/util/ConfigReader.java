@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.cloud.ssl.securitycomponent.util;
+package org.wso2.carbon.cloud.ssl.security.service.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.ssl.securitycomponent.Constants;
+import org.wso2.carbon.cloud.ssl.security.service.FileEncryptionServiceConstants;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class ConfigReader {
         Properties properties = new Properties();
         InputStream input = null;
         try {
-            input = new FileInputStream(Constants.KEY_STORE_CONFIG_FILE);
+            input = new FileInputStream(FileEncryptionServiceConstants.KEY_STORE_CONFIG_FILE);
             properties.load(input);
             Enumeration<?> e = properties.propertyNames();
             while (e.hasMoreElements()) {

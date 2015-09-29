@@ -19,7 +19,7 @@ package org.wso2.carbon.cloud.nginx.vhost.conf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.nginx.vhost.Constants;
+import org.wso2.carbon.cloud.nginx.vhost.NginxVhostConstants;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class ConfigReader {
         Properties properties = new Properties();
         InputStream input = null;
         try {
-            input = new FileInputStream(Constants.CONFIG_FILE_PATH);
+            input = new FileInputStream(NginxVhostConstants.CONFIG_FILE_PATH);
             properties.load(input);
             Enumeration<?> e = properties.propertyNames();
             while (e.hasMoreElements()) {
@@ -66,7 +66,7 @@ public class ConfigReader {
             }
 
         } catch (IOException e) {
-            String msg = "Error while reading configuration file on " + Constants.CONFIG_FILE_PATH;
+            String msg = "Error while reading configuration file on " + NginxVhostConstants.CONFIG_FILE_PATH;
             LOG.error(msg, e);
             throw e;
         } finally {

@@ -112,35 +112,35 @@ public class MessageBrokerConsumer implements MessageListener {
 			TextMessage textMessage = (TextMessage) message;
 
 			try {
-				RegistryManager registryManager = new RegistryManager(configReader, Constants.AXIS2_CONF_FILE_PATH);
+				RegistryManager registryManager = new RegistryManager(configReader, NginxVhostConstants.AXIS2_CONF_FILE_PATH);
 				JSONObject jsonObject = new JSONObject(textMessage.getText());
-				if (jsonObject.getString(Constants.CLOUD_TYPE).equals(Constants.API_CLOUD_TYPE)) {
-					String status = jsonObject.getString(Constants.PAYLOAD_STATUS);
-					String node = jsonObject.getString(Constants.PAYLOAD_NODE);
+				if (jsonObject.getString(NginxVhostConstants.CLOUD_TYPE).equals(NginxVhostConstants.API_CLOUD_TYPE)) {
+					String status = jsonObject.getString(NginxVhostConstants.PAYLOAD_STATUS);
+					String node = jsonObject.getString(NginxVhostConstants.PAYLOAD_NODE);
 
 					log.info("Custom Url-mapping request received : " + jsonObject.toString());
 					SSLFileHandler sslFileHandler = new SSLFileHandler(registryManager, configReader);
 					if (UPDATE_STATUS.equals(status)) {
-						vHostManager.removeHostMapping(jsonObject.getString(Constants.PAYLOAD_TENANT_DOMAIN),
-						                               jsonObject.getString(Constants.CLOUD_TYPE), node);
+						vHostManager.removeHostMapping(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
+						                               jsonObject.getString(NginxVhostConstants.CLOUD_TYPE), node);
 						sslFileHandler
-								.removeSecurityFilesFromLocal(jsonObject.getString(Constants.PAYLOAD_TENANT_DOMAIN),
+								.removeSecurityFilesFromLocal(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
 								                              node);
 					}
 
-					File securityCertificate = sslFileHandler.storeFileInLocal(Constants.CERTIFICATE_FILE, jsonObject
-							.getString(Constants.PAYLOAD_TENANT_DOMAIN), node);
+					File securityCertificate = sslFileHandler.storeFileInLocal(NginxVhostConstants.CERTIFICATE_FILE, jsonObject
+							.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN), node);
 					File securityPrivateKey = sslFileHandler
-							.storeFileInLocal(Constants.KEY_FILE, jsonObject.getString(Constants.PAYLOAD_TENANT_DOMAIN),
+							.storeFileInLocal(NginxVhostConstants.KEY_FILE, jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
 							                  node);
-					String cloudType = jsonObject.getString(Constants.PAYLOAD_CLOUD_TYPE);
-					String tenantDomain = jsonObject.getString(Constants.PAYLOAD_TENANT_DOMAIN);
-					String customUrl = jsonObject.getString(Constants.PAYLOAD_CUSTOM_URL);
+					String cloudType = jsonObject.getString(NginxVhostConstants.PAYLOAD_CLOUD_TYPE);
+					String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
+					String customUrl = jsonObject.getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL);
 					String template;
 
 					//Creating store
 					if (STORE.equals(node)) {
-						template = templateManager.getTemplate(Constants.API_STORE_TEMPLATE_NAME);
+						template = templateManager.getTemplate(NginxVhostConstants.API_STORE_TEMPLATE_NAME);
 						VHostEntry storeEntry = vHostManager.buildVhostEntry(cloudType, tenantDomain, customUrl,
 						                                                     securityCertificate.getAbsolutePath(),
 						                                                     securityPrivateKey.getAbsolutePath(),
@@ -151,12 +151,12 @@ public class MessageBrokerConsumer implements MessageListener {
 					//Creating gateway
 					else if (GATEWAY.equals(node)) {
 						//Creating gateway
-						template = templateManager.getTemplate(Constants.HTTP_API_GATEWAY_TEMPLATE_NAME);
+						template = templateManager.getTemplate(NginxVhostConstants.HTTP_API_GATEWAY_TEMPLATE_NAME);
 						VHostEntry gatewayEntry =
 								vHostManager.buildVhostEntry(cloudType, tenantDomain, customUrl, "", "", template);
 
 						//Creating gateway https
-						template = templateManager.getTemplate(Constants.HTTPS_API_GATEWAY_TEMPLATE_NAME);
+						template = templateManager.getTemplate(NginxVhostConstants.HTTPS_API_GATEWAY_TEMPLATE_NAME);
 						VHostEntry gatewayHttpsEntry = vHostManager.buildVhostEntry(cloudType, tenantDomain, customUrl,
 						                                                            securityCertificate
 								                                                            .getAbsolutePath(),
