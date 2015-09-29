@@ -39,16 +39,18 @@ import java.util.Map;
 public class UserProfileManagementTestCase extends CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(UserProfileManagementTestCase.class);
 
-    protected String userName;
-    protected String password;
-    protected String firstName;
-    protected String lastName;
+    private String userName;
+    private String password;
+    private String firstName;
+    private String lastName;
+
+    private static final String TEMP_PASSWORD = "Admin@321";
 
     private JaggeryAppAuthenticatorClient authenticatorClient;
-    private boolean loginStatus = false;
 
     /**
      * Before test, Getting user information and authenticating the user
+     *
      * @throws Exception
      */
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
@@ -59,7 +61,7 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
         lastName = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_USER_LAST_NAME);
 
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
-        loginStatus = authenticatorClient.login(userName, password);
+        boolean loginStatus = authenticatorClient.login(userName, password);
         if (!loginStatus) {
             String msg = "Authentication failure for CloudMgt app before Edit Profile & Change Password tests"
                     + " for user : " + userName;
@@ -70,8 +72,12 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
 
     /**
      * Testing Edit Profile.
-     * Assert 1: Change the first name and last name and check weather its successful.
-     * Assert 2,3: Retrieve first name and and last name and verify they are changed
+     * <p/>
+     * <ul>
+     * <li>Step 1: Change the first name and last name and check weather its successful.</li>
+     * <li>Step 2: Retrieve first name and and last name and verify they are changed.</li>
+     * <ul/>
+     *
      * @throws Exception
      */
     @Test(description = "Edit Profile Test for User") public void editProfileTest() throws Exception {
@@ -97,8 +103,12 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
 
     /**
      * Testing Change Password
-     * Assert 1: Change the password and check weather its successful
-     * Assert 2: Login using new password and check weather its successful
+     * <p/>
+     * <ul>
+     * <li>Step 1: Change the password and check weather its successful</li>
+     * <li>Step 2: Login using new password and check weather its successful</li>
+     * </ul>
+     *
      * @throws Exception
      */
     @Test(description = "Change Password Test for User") public void changePasswordTest() throws Exception {
@@ -107,18 +117,19 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "changePassword");
         params.put("oldPassword", password);
-        params.put("password", "temp$pass1");
+        params.put("password", TEMP_PASSWORD);
         Map responseMap = HttpHandler.doPostHttps(url, params, authenticatorClient.getSessionCookie());
         String result = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
         Assert.assertEquals(result, "true", "Value mismatch, Should be true.");
 
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
-        loginStatus = authenticatorClient.login(userName, "temp$pass1");
+        boolean loginStatus = authenticatorClient.login(userName, TEMP_PASSWORD);
         Assert.assertTrue(loginStatus, "Cannot login with new password");
     }
 
     /**
      * Reverting profile update and password change
+     *
      * @throws Exception
      */
     @AfterClass(alwaysRun = true) public void unDeployService() throws Exception {
@@ -126,31 +137,28 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
         String profileUrl = cloudMgtServerUrl + CloudIntegrationConstants.USER_PROFILE_URL_SFX;
         Map<String, String> params;
         Map responseMap;
-        String result;
 
         params = new HashMap<String, String>();
         params.put("action", "updateProfile");
         params.put("firstName", firstName);
         params.put("lastName", lastName);
         responseMap = HttpHandler.doPostHttps(profileUrl, params, authenticatorClient.getSessionCookie());
-        result = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
-        if (!"true".equals(result)) {
-            String msg = "Error occurred while reverting the user profile changes after profile update";
-            log.warn(msg);
-        }
+        String updateProfileResult = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
 
         params = new HashMap<String, String>();
         params.put("action", "changePassword");
-        params.put("oldPassword", "temp$pass1");
+        params.put("oldPassword", TEMP_PASSWORD);
         params.put("password", password);
         responseMap = HttpHandler.doPostHttps(passwordUrl, params, authenticatorClient.getSessionCookie());
-        result = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
-        if (!"true".equals(result)) {
-            String msg = "Error occurred while resetting to the old password after change password";
-            log.warn(msg);
-        }
+        String changePassResult = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
 
         authenticatorClient.logout();
         super.cleanup();
+
+        Assert.assertEquals(updateProfileResult, "true",
+                "Error occurred while reverting the user profile changes after Profile Update Test.");
+        Assert.assertEquals(changePassResult, "true",
+                "Error occurred while resetting to the old password after Change Password Test.");
+
     }
 }
