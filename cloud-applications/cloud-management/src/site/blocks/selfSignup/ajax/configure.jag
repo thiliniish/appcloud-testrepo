@@ -3,22 +3,26 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 (function () {
+
     var statusMessage = "error";
     var action = request.getParameter("action");
     var userName = request.getParameter("userName");
+    var fromAddress = request.getParameter("fromAddress");
+    var userPassword = request.getParameter("userPassword");
+    var contactEmail = request.getParameter("contactEmail");
+    var signupType=request.getParameter("signupType");
     var site = require("/site/conf/site.json");
     var log = new Log("site/blocks/selfSignup/ajax/configure.jag");
 
     if (action == "checkSignUpConfiguredForUser") {
 
-
         var isSignUpConfigured = jagg.module("registry").checkSignupConfiguredInRegistry(userName);
+        var result=false;
 
         if (isSignUpConfigured == true || isSignUpConfigured.trim() == "true") {
             statusMessage = "configured";
 
-        }
-        else if (isSignUpConfigured == false || isSignUpConfigured.trim() == "false") {
+        } else if (isSignUpConfigured == false || isSignUpConfigured.trim() == "false") {
             log.debug("Since the sign up is not configured, adding the files to the BPS Server for the user " + userName);
             var tenantEmail;
             try {
@@ -30,38 +34,42 @@ include("/jagg/config_reader.jag");
                 var cookie = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
 
                 //calling the service to upload the files to the BPS server
-                result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUplader.BPSFileUploader').bpsFileUploader(userName, cookie);
+                result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader').bpsFileUploader(userName, cookie);
 
-                //Sending an email to the cloud team to inform the sign up of the user.
-                tenantEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-                var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-                var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
+                if (result) {
+                    //Sending an email to the cloud team to inform the enabling of the self sign up feature of the tenant's API Store.
+                    tenantEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
+                    var tenantDomain = jagg.module("manager").getTenantDomain();
+                    var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
 
-                body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
-                var subject = cloudConfig.subscriberAccessEnabledEmail.subject;
-                var recepient = cloudConfig.subscriberAccessEnabledEmail.cloudEmail;
-                utilModule.sendEmail(body, subject, recepient);
+                    body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
+                    var subject = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.subject;
+                    var recepient = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.cloudEmail;
+                    utilModule.sendEmail(body, subject, recepient);
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Notification sent to the cloud team regarding the tenant " + userName + " enabling the self sign up feature for the tenant store " + tenantDomain);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Notification sent to the cloud team regarding the tenant " + userName + " enabling the self sign up feature for the tenant store " + tenantDomain);
+                    }
+                    log.info("Completed the uploading process for the user " + userName);
+
+                    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+                    statusMessage = jagg.module("registry").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
+
+                } else {
+                    log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail);
+                    statusMessage="error";
                 }
-                log.info("Completed the uploading process for the user " + userName);
-                statusMessage = "uploadCompleted";
-            }
-            catch (e) {
+
+            } catch (e) {
                 log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail + "\n" + e.message);
                 throw Error(e);
             }
-        }
-        else if (isSignUpConfigured.trim() == "resourcePending") {
+        } else if (isSignUpConfigured.trim() == "resourcePending") {
             statusMessage = "resourcePending";
-        }
-        else {
+        } else {
             statusMessage = "error";
         }
-    }
-
-    else {
+    } else {
         log.error("No action specified");
     }
     print(statusMessage);

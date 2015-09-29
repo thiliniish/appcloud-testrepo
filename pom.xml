@@ -35,6 +35,7 @@
         <module>cloud-applications</module>
         <module>cloud-monitoring</module>
         <module>cloud-integration</module>
+        <module>cloud-tools</module>
     </modules>
      
     <repositories>
