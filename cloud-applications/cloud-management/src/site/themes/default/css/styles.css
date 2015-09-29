@@ -1,0 +1,336 @@
+/*  _____________________________________________________________________________
+
+	 RESET
+    _____________________________________________________________________________  */
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+    margin:0;
+    padding:0;
+    border:0;
+    outline:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+}
+body {
+    font-family: "Open Sans";
+    line-height:1;
+    background-color: #00bff2;
+}
+
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section {
+    display:block;
+}
+nav ul {
+    list-style:none;
+}
+blockquote, q {
+    quotes:none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content:'';
+    content:none;
+}
+a {
+    margin:0;
+    padding:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+}
+/* change colours to suit your needs */
+ins {
+    background-color:#ff9;
+    color:#000;
+    text-decoration:none;
+}
+/* change colours to suit your needs */
+mark {
+    background-color:#ff9;
+    color:#000;
+    font-style:italic;
+    font-weight:bold;
+}
+del {
+    text-decoration: line-through;
+}
+abbr[title], dfn[title] {
+    border-bottom:1px dotted;
+    cursor:help;
+}
+table {
+    border-collapse:collapse;
+    border-spacing:0;
+}
+/* change border colour to suit your needs */
+hr {
+    display:block;
+    height:1px;
+    border:0;
+    border-top:1px solid #f0f0f0;
+    margin:1em 0;
+    padding:0;
+}
+input, select { vertical-align:middle; }
+
+/*  _____________________________________________________________________________
+
+	 TYPOGRAPHY
+    _____________________________________________________________________________  */
+
+p h1, h2, h3, h4, h5, h6{font-family: "Open Sans";}
+p{font-size:1em; line-height:24px; color:#5f5e5e; font-weight: normal;}
+h1{ font-size:2.2em;font-weight:100; line-height:Auto;;  font-style: normal;}
+h2{font-size:1.2em;  line-height:Auto; color:#5f5e5e;font-weight: 600; }
+h3{font-size:1.2em;  line-height:Auto; color:#0295d0;font-weight: 600; }
+h4{font-size:0.9em; line-height:24px; color:#898989; font-weight: 300;}
+.font-small{font-size:12px;}
+.font-medium{font-size:14px;}
+.font-large{font-size:16px;}
+
+.uppercase{text-transform:uppercase;}
+.capitalize{text-transform:capitalize;}
+.lowercase{text-transform:lowercase;}
+.transform-none{text-transform:none;}
+
+
+.light-grey{color:#898989;}
+.black{color:#5f5e5e;}
+.grey{color:#5f5e5e;}
+.white{color:#FFF;}
+.blue{color:#0295d0;}
+
+.italic{font-style: italic;}
+
+.bold{font-weight:bold;}
+.no-underline{text-decoration:none;}
+
+.center{text-align:center;}
+.right{text-align:right;}
+.left{text-align:left;}
+.justify{text-align:justify;}
+
+.middle{vertical-align: middle;}
+
+.inline-block{display: inline-block;}
+
+.top{vertical-align: top;}
+.bottom{vertical-align: bottom;}
+.middle{vertical-align: middle;}
+
+/*  _____________________________________________________________________________
+
+	 BACKGROUND
+    _____________________________________________________________________________  */
+.grey-bg{ background-color:#eaebed;}
+.dark-grey-by{background-color: #141414 ;}
+.light-grey-bg{  background-color:#444343; }
+.white-bg{background-color:#fff;}
+.blue-bg{background-color:#3a9ecf;}
+
+
+
+/*  _____________________________________________________________________________
+
+	 Main
+    _____________________________________________________________________________  */
+.container2 {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:20px;
+    padding:20px;
+    background: none repeat scroll 0 0 #fff;
+    border-top: 1px solid #12374e;
+    box-shadow: 3px 3px 3px 3px rgba(0, 0, 0, 0.3);
+    width: 1170px;
+}
+section{margin: 0 25px;}
+.box{background: #fbfaf9; border: 1px solid #f0f0f0; width: 97.7%; padding:40px 20px 70px 10px; margin-top: 15px;}
+/*  ____________________________________________________________________________
+
+	 COLUMNS
+    _____________________________________________________________________________  */
+
+.col-row{width:100%;  }
+.col-x-large{width:95%; }
+.col-large{width:83.5%; }
+.col-medium{width:79%; }
+.col-small{width:20%; }
+.col-x-small{width:16%; }
+.overlow-hidden{overflow: hidden;}
+/*  ____________________________________________________________________________
+
+	 padding-margin
+    _____________________________________________________________________________  */
+.padding-left {padding-left:10px;}
+.padding-right  {padding-right:10px;}
+.padding-top  {padding-top:10px;}
+.padding-bottom  {padding-bottom:10px;}
+.padding{padding:10px;}
+.padding-none{ padding:0px;}
+
+.padding-left-double {padding-left:20px;}
+.padding-right-double  {padding-right:20px;}
+.padding-top-double  {padding-top:20px;}
+.padding-bottom-double  {padding-bottom:20px;}
+.padding-double{padding:20px;}
+
+.margin-left {margin-left:10px;}
+.margin-right  {margin-right:10px;}
+.margin-top  {margin-top:10px;}
+.margin-bottom  {margin-bottom:10px;}
+.margin{margin:10px;}
+
+.margin-left-double {margin-left:20px;}
+.margin-right-double  {margin-right:20px;}
+.margin-top-double  {margin-top:20px;}
+.margin-bottom-double  {margin-bottom:20px;}
+.margin-double{margin:20px;}
+
+.float-left{float:left;}
+.float-right{float:right;}
+.clear{ clear:both;}
+
+.relative{ position:relative;}
+
+/*  _____________________________________________________________________________
+
+	 Input form types
+    _____________________________________________________________________________  */
+
+.search-area{width:400px; height:45px; padding-left:10px; float:left; }
+.back-button{background: none repeat scroll 0 0 #333;  border: 0 none; color: #fff; float: left; height: 45px;padding-left: 10px; padding-right: 10px; width: 122px; margin-top: 6px; }
+input{ border: 1px solid #f0f0f0; padding: 14px 0 14px 10px; width: 83%; z-index: 1; margin-top: -2px;}
+button{  background: inherit;
+    border: 0 none;
+    border-radius: 0;
+    margin-left: -4px;
+    height: 46px;
+    font-size: 1em; margin-top: 1px}
+
+.blue-button{  -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0px;
+    color: #ffffff;
+    background: #3498db;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;     width: 130px;}
+.blue-button:hover{ background: #037dae;
+    text-decoration: none;
+}
+.blue-button:disabled{
+    background: #d8d8d8;  }
+.grey-button:disabled{  -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0px;
+    color: #ffffff;
+    background: #d8d8d8;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;
+    width: 130px;}
+.blue-button-sm{ -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0px;
+    color: #ffffff;
+    background: #4cbcd3;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;     width: 102px;}
+.blue-button-sm:disabled{ -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0px;
+    color: #ffffff;
+    background: #d8d8d8;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;     width: 102px;}
+
+.grey-button{  -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0px;
+    color: #ffffff;
+    background: #5f5e5e;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;     width: 130px;}
+.grey-button:hover{ background: #7e7d7d;
+    text-decoration: none;
+}
+.custom-file-upload-hidden {
+    display: none;
+    visibility: hidden;
+    position: absolute;
+    left: -9999px;
+}
+
+.custom-file-upload {
+    display: block;
+    width: auto;
+    font-size: 16px;
+}
+.custom-file-upload label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.file-upload-wrapper {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.file-upload-input {
+    width: 510px;
+    color: #333;
+    font-size: 16px;
+    padding: 11px 17px;
+    border: 1px solid #f0f0f0;
+    background-color: #fff;
+    -moz-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    -webkit-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
+    float: left;
+    height: 46px;
+    /* IE 9 Fix */
+}
+.file-upload-input:hover, .file-upload-input:focus {
+    background-color: #f4f4f4;
+    outline: none;
+}
+
+.file-upload-button {
+    cursor: pointer;
+    display: inline-block;
+    color: #fff;
+    font-size: 16px;
+    padding: 11px 20px;
+    border: none;
+    margin-left: -1px;
+    background-color: #4cbcd3;
+    float: left;
+    margin-top: 7px;
+    /* IE 9 Fix */
+    -moz-transition: all 0.2s ease-in;
+    -o-transition: all 0.2s ease-in;
+    -webkit-transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in;
+    
+}
+.file-upload-button:hover {
+    background-color: #6d2018;
+}
+
+input[type="text"], input[type="password"] {
+    border-radius: 0;
+    height: 46px;
+    margin-top: 7px;
+}
