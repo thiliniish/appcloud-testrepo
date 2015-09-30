@@ -110,8 +110,10 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
         params.put("action", "initiatePasswordReset");
         params.put("email", email);
         Map resultMap = HttpHandler.doPostHttps(initiateUrl, params, null);
-        Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "true",
-                "Value mismatch, Should be true.");
+        JSONObject resultObj =
+                new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+        Assert.assertFalse((Boolean) resultObj.get("error"), "Error occurred while initiating password reset. "
+                + resultObj.getString("message"));
 
         //Verifying the confirmation code send via the email
         String verifyResetUrl = cloudMgtServerUrl + CloudIntegrationConstants.PASSWORD_RESET_VERIFY_SFX;
@@ -120,7 +122,7 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
         params.put("confirm", sendNotificationBean.getNotificationData().getNotificationCode());
         params.put("id", sendNotificationBean.getNotificationData().getUserId());
         resultMap = HttpHandler.doPostHttps(verifyResetUrl, params, null);
-        JSONObject resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+        resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
         Assert.assertEquals(resultObj.getString("verified"), "true", "Value mismatch, Should be true.");
         Assert.assertNotNull(resultObj.getString("confirmationKey"), "Confirmation Key Should not be null.");
         Assert.assertEquals(resultObj.getString("userName"), domainLessUserName,
