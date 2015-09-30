@@ -396,18 +396,11 @@ function getLeadSourceToken (campaign) {
         }
         else {
             for (var i = 0; i < types.length; i++) {
-                if (campaign == converValue(types[i].id)) {
+                if (campaign == convertValue(types[i].id)) {
                     URL = types[i].urls.leadSourceUrl;
                 }
             }
         }
-
-        <!--else if (campaign == convertValue(types[0].id)) {-->
-            <!--URL = cloudConfig.RightWaveAddUserApi.appCloudSelectLeadSource;-->
-        <!--}-->
-        <!--else if (campaign == convertValue(types[1].id)) {-->
-            <!--URL = cloudConfig.RightWaveAddUserApi.apiCloudSelectLeadSource;-->
-        <!--}-->
         var result = get(URL);
         var data = parse(result.data);
         tokenId = data.tokenid;
