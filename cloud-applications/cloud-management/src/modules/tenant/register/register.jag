@@ -409,8 +409,7 @@ var sendInvite = function(email, token) {
 				actionString =  actionString+"Success";
 			} else {
 				actionString =  actionString+"Failed";
-				log.error("Rightwave cloud signup api call failed for the user "+email);
-				log.error("Rightwave cloud signup api call failed for the user "+msg);
+				log.error("Rightwave cloud signup api call failed for the user "+email + " : " +msg);
 			}
 			var event={
 			};
