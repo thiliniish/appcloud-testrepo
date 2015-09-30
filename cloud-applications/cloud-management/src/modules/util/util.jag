@@ -384,7 +384,7 @@ function addUserToOT (email, pass, firstName, lastName) {
 
 
 function getLeadSourceToken (campaign) {
-	var tokenId = null;
+    var tokenId = null;
     try {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
         var types = cloudConfig.subscriptions.type;
@@ -406,7 +406,7 @@ function getLeadSourceToken (campaign) {
     }
     catch(e){
         log.error("Error retrieving lead source token "+e);
-	throw "Error retrieving lead source token "+e
+        throw "Error retrieving lead source token "+e
     }
     return tokenId;
 };
