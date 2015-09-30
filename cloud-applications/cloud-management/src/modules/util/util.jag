@@ -384,27 +384,29 @@ function addUserToOT (email, pass, firstName, lastName) {
 
 
 function getLeadSourceToken (campaign) {
+	var tokenId = null;
     try {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
         var types = cloudConfig.subscriptions.type;
         var URL;
-        if(campaign == "signUp"){
+        if (campaign == "signUp") {
             URL = cloudConfig.RightWaveAddUserApi.signupLeadSource;
-        } else if(campaign=="upgrade"){
+        } else if (campaign=="upgrade") {
             URL =   cloudConfig.RightWaveAddUserApi.upgradeLeadSource;
         }
-        else if (campaign == convertValue(types[0].id)){
+        else if (campaign == convertValue(types[0].id)) {
             URL = cloudConfig.RightWaveAddUserApi.appCloudSelectLeadSource;
         }
-        else if(campaign == convertValue(types[1].id)){
+        else if (campaign == convertValue(types[1].id)) {
             URL = cloudConfig.RightWaveAddUserApi.apiCloudSelectLeadSource;
         }
         var result = get(URL);
         var data = parse(result.data);
-        var tokenId = data.tokenid;
+        tokenId = data.tokenid;
     }
     catch(e){
-        log.error(e);
+        log.error("Error retrieving lead source token "+e);
+	throw "Error retrieving lead source token "+e
     }
     return tokenId;
 };

@@ -373,7 +373,7 @@ var storeTempRegistration = function (email,uuid,isInvitee) {
 	log.info("Sucessfully added to the temp registration user: " + email);
 };
 
-var sendInvite = function(email,token) {
+var sendInvite = function(email, token) {
 	log.info("Sending invitation for self signed user: "+email);
 	var uuid = jagg.module("util").generateUUId();
     	var tokenId;
@@ -382,7 +382,7 @@ var sendInvite = function(email,token) {
     	sendEmail(email,link);
     	//getting token lead source capturing
     	if(token != "null" && token != ''){
-       		tokenId = token;
+    	        tokenId = token;
     	}else{
         	tokenId = jagg.module("util").getLeadSourceToken("signUp");
     	}
