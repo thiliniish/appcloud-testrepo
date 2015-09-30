@@ -63,9 +63,6 @@ jagg.module("util", {
     isUserInAdminRole: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").isUserInAdminRole.apply(this, arguments);
     },
-    getDomainFromUsername: function(){
-        return jagg.require(jagg.getModulesDir() + "util/util.jag").getDomainFromUsername.apply(this, arguments);
-    },
     getUserRoleDisplayName: function(){
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserRoleDisplayName.apply(this, arguments);
     },

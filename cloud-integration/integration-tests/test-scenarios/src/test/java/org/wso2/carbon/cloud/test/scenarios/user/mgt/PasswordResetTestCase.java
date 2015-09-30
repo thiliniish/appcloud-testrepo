@@ -50,7 +50,7 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
     private String email;
     private String domainLessUserName;
 
-    private String identityServerUrl;
+    private static final String TEMP_PASSWORD = "Admin@321";
 
     private VerificationBean sendNotificationBean;
 
@@ -67,7 +67,8 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
         password = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_USER_PASSWORD);
         email = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_USER_EMAIL);
 
-        identityServerUrl = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.IDENTITY_SERVER_URL);
+        String identityServerUrl = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.IDENTITY_SERVER_URL);
         authenticatorClient = new CarbonAuthenticatorClient(identityServerUrl);
 
         UserInformationRecoveryServiceClient recoveryServiceClient = new UserInformationRecoveryServiceClient();
@@ -132,13 +133,13 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
         params.put("action", "updatePasswordWithUserInput");
         params.put("username", resultObj.getString("userName"));
         params.put("email", resultObj.getString("email"));
-        params.put("password", "Admin@321");
+        params.put("password", TEMP_PASSWORD);
         params.put("confirmationKey", resultObj.getString("confirmationKey"));
         resultMap = HttpHandler.doPostHttps(updatePasswordUrl, params, null);
         Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "successful",
                 "Value mismatch, Should be 'successful'.");
 
-        boolean loginStatus = authenticatorClient.checkLogin(userName, "Admin@321", "localhost");
+        boolean loginStatus = authenticatorClient.checkLogin(userName, TEMP_PASSWORD, "localhost");
         Assert.assertTrue(loginStatus, "Cannot login with new password");
     }
 
@@ -150,24 +151,24 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
     @AfterClass(alwaysRun = true) public void unDeployService() throws Exception {
         JaggeryAppAuthenticatorClient jaggeryAuthClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
         jaggeryAuthClient.login(userName, password);
-        if (!jaggeryAuthClient.login(userName, "Admin@321")) {
+        if (!jaggeryAuthClient.login(userName, TEMP_PASSWORD)) {
             String msg = "Authentication failure for CloudMgt app while reverting the password after"
                     + " Reset Password Test for user : " + userName;
-            log.warn(msg);
+            log.error(msg);
             throw new Exception(msg);
         }
+
         String url = cloudMgtServerUrl + CloudIntegrationConstants.CHANGE_PASSWORD_URL_SFX;
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "changePassword");
-        params.put("oldPassword", "Admin@321");
+        params.put("oldPassword", TEMP_PASSWORD);
         params.put("password", password);
         Map responseMap = HttpHandler.doPostHttps(url, params, jaggeryAuthClient.getSessionCookie());
         String result = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
-        if (!"true".equals(result)) {
-            String msg = "Error occurred while reverting to the old password after Reset Password Test";
-            log.warn(msg);
-        }
 
         super.cleanup();
+
+        Assert.assertEquals(result, "true",
+                "Error occurred while resetting to the old password after change password.");
     }
 }
