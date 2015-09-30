@@ -24,15 +24,16 @@
     var initiatePasswordReset = function(email) {
         try {
             var userName = modManager.getUserNameFromEmail(email);
-            log.info("Password reset - Initiating password reset for : " + userName);
+            log.info("Initiating password reset for : " + userName);
             var verifyResult = verifyUser(userName);
-            var isNotificationSend = false;
+            var result = {};
             if(verifyResult.verified){
-                isNotificationSend = sendRecoveryNotification(userName,verifyResult.confirmationKey);
+                result = sendRecoveryNotification(userName,verifyResult.confirmationKey);
             }else{
-                log.warn("Error while verifying user : " + userName);
+                result.error = true;
+                result.message = verifyResult.error;
             }
-            return isNotificationSend;
+            return result;
         }catch (e){
             log.error("Error while initiating password reset for " + userName + " : " + e);
             throw "Error while initiating password reset for " + userName + " : " + e;
@@ -40,6 +41,7 @@
     };
 
     var verifyUser = function(userName) {
+        log.info("Verifying User : " + userName + " for password reset");
         var ws = require('ws');
         var request = new ws.WSRequest();
         var options = new Array();
@@ -53,27 +55,30 @@
                         '<username>'+userName+'</username>'+
                       '</verifyUser>';
         var result = {};
+        var response;
         try {
             var endPoint = IS_URL + "UserInformationRecoveryService";
             request.open(options,endPoint, false);
             request.send(payload);
-            result=request.responseE4X;
-            var entry = result.*::["return"];
+            response=request.responseE4X;
+            var entry = response.*::["return"];
             var key = entry.*::key.text();
             var verified = entry.*::verified.text();
             var error = entry.*::error.text();
             if(verified == true){
-                log.info("Password reset - User : " + userName + " verified.");
+                log.info("User : " + userName + " verified.");
                 result.verified = true;
                 result.confirmationKey = String(key);
                 return result;
             }else{
-                if(error == "18003"){
-                    log.warn("Password reset - Invalid user name provided.");
-                }else{
-                    log.warn("Password reset - " + error);
-                }
                 result.verified = false;
+                if(error.indexOf("18003") != -1){
+                    log.warn("Invalid user name given for verifying. User with user name : " + userName + " does not exists");
+                    result.error = "Invalid User name given";
+                }else{
+                    log.warn("Password reset - Error Code : " + error);
+                    result.error = error;
+                }
                 return result;
             }
         } catch (e) {
@@ -83,6 +88,7 @@
     };
 
     var sendRecoveryNotification = function(userName,key) {
+        log.info("Getting Recovery notification data for user : " + userName);
         var ws = require('ws');
         var request = new ws.WSRequest();
         var options = new Array();
@@ -97,26 +103,30 @@
                         '<key>' + key + '</key>'+
                         '<notificationType>email</notificationType>'+
                       '</sendRecoveryNotification>';
-        var result;
+        var result = {};
+        var response;
         try {
             var endPoint = IS_URL + "UserInformationRecoveryService";
             request.open(options,endPoint, false);
             request.send(payload);
-            result=request.responseE4X;
-            var entry = result.*::["return"];
+            response=request.responseE4X;
+            var entry = response.*::["return"];
             var error = entry.*::error.text();
             var verified = entry.*::verified.text();
             var notificationCode = entry.*::notificationData.*::notificationCode.text();
             var email = entry.*::notificationData.*::notificationAddress.text();
             if (verified == true) {
-                log.info("Recovery notification code retrieved successfully for user : " + userName
-                        + " with email : " + email);
+                log.info("Recovery notification data retrieved successfully for User : " + userName
+                        + " , Email : " + email);
                 sendRecoveryEmail(notificationCode,userName,email);
-                return true;
+                result.error = false;
+                result.message = "Email sent successfully"
             } else {
-                log.error(error);
-                return false;
+                log.warn("Failed to retrieve Recovery notification data for User : " + userName + " due to : " + error);
+                result.error = true;
+                result.message = error;
             }
+            return result;
         } catch (e) {
             log.error("Error while sending recovery notification \n" + e);
             throw "Error while sending recovery notification \n" + e;
