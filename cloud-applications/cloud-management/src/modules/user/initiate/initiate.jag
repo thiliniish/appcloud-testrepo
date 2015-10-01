@@ -21,26 +21,26 @@
 
     var body = jagg.module("util").getObjFromFile("/site/conf/emails/password_reset_email_body.txt");
 
-    var initiatePasswordReset = function(email) {
+    var initiatePasswordReset = function (email) {
         try {
             var userName = modManager.getUserNameFromEmail(email);
             log.info("Initiating password reset for : " + userName);
             var verifyResult = verifyUser(userName);
             var result = {};
-            if(verifyResult.verified){
-                result = sendRecoveryNotification(userName,verifyResult.confirmationKey);
-            }else{
+            if (verifyResult.verified) {
+                result = sendRecoveryNotification(userName, verifyResult.confirmationKey);
+            } else {
                 result.error = true;
                 result.message = verifyResult.error;
             }
             return result;
-        }catch (e){
+        } catch (e) {
             log.error("Error while initiating password reset for " + userName + " : " + e);
             throw "Error while initiating password reset for " + userName + " : " + e;
         }
     };
 
-    var verifyUser = function(userName) {
+    var verifyUser = function (userName) {
         log.info("Verifying User : " + userName + " for password reset");
         var ws = require('ws');
         var request = new ws.WSRequest();
@@ -49,7 +49,7 @@
         options.timeout = 1000000;
         options.action = "urn:verifyUser";
         options["HTTPHeaders"] = [
-            { name : "Cookie", value :modManager.getAdminCookie(IS_URL) }
+            {name: "Cookie", value: modManager.getAdminCookie(IS_URL)}
         ];
         var payload = '<verifyUser xmlns="http://services.mgt.identity.carbon.wso2.org">'+
                         '<username>'+userName+'</username>'+
@@ -58,24 +58,24 @@
         var response;
         try {
             var endPoint = IS_URL + "UserInformationRecoveryService";
-            request.open(options,endPoint, false);
+            request.open(options, endPoint, false);
             request.send(payload);
-            response=request.responseE4X;
+            response = request.responseE4X;
             var entry = response.*::["return"];
             var key = entry.*::key.text();
             var verified = entry.*::verified.text();
             var error = entry.*::error.text();
-            if(verified == true){
+            if (verified == true) {
                 log.info("User : " + userName + " verified.");
                 result.verified = true;
                 result.confirmationKey = String(key);
                 return result;
-            }else{
+            } else {
                 result.verified = false;
-                if(error.indexOf("18003") != -1){
+                if (error.indexOf("18003") != -1) {
                     log.warn("Invalid user name given for verifying. User with user name : " + userName + " does not exists");
                     result.error = "Invalid User name";
-                }else{
+                } else {
                     log.warn("Password reset - Error Code : " + error);
                     result.error = error;
                 }
@@ -87,7 +87,7 @@
         }
     };
 
-    var sendRecoveryNotification = function(userName,key) {
+    var sendRecoveryNotification = function (userName, key) {
         log.info("Getting Recovery notification data for user : " + userName);
         var ws = require('ws');
         var request = new ws.WSRequest();
@@ -96,7 +96,7 @@
         options.timeout = 1000000;
         options.action = "urn:sendRecoveryNotification";
         options["HTTPHeaders"] = [
-            { name : "Cookie", value :modManager.getAdminCookie(IS_URL) }
+            {name: "Cookie", value: modManager.getAdminCookie(IS_URL)}
         ];
         var payload = '<sendRecoveryNotification xmlns="http://services.mgt.identity.carbon.wso2.org">'+
                         '<username>' + userName +'</username>'+
@@ -107,9 +107,9 @@
         var response;
         try {
             var endPoint = IS_URL + "UserInformationRecoveryService";
-            request.open(options,endPoint, false);
+            request.open(options, endPoint, false);
             request.send(payload);
-            response=request.responseE4X;
+            response = request.responseE4X;
             var entry = response.*::["return"];
             var error = entry.*::error.text();
             var verified = entry.*::verified.text();
@@ -118,7 +118,7 @@
             if (verified == true) {
                 log.info("Recovery notification data retrieved successfully for User : " + userName
                         + " , Email : " + email);
-                sendRecoveryEmail(notificationCode,userName,email);
+                sendRecoveryEmail(notificationCode, userName, email);
                 result.error = false;
                 result.message = "Email sent successfully"
             } else {
@@ -133,19 +133,19 @@
         }
     };
 
-    var sendRecoveryEmail = function(notificationCode,userName,emailAddress) {
+    var sendRecoveryEmail = function (notificationCode, userName, emailAddress) {
         log.info("Sending Email to " + emailAddress);
         var userInfo = jagg.module("tenant").getUserInfo(userName);
-        var link = CLOUDMGT_URL + "/site/pages/reset.jag?id=" + userName +"&confirmation=" + notificationCode;
-        try{
-            body = body.replace("$passwordRestLink",link).replace("$passwordRestLink",link);
-            body = body.replace("$userName",emailAddress.toString()).replace("$userName",emailAddress.toString());
+        var link = CLOUDMGT_URL + "/site/pages/reset.jag?id=" + userName + "&confirmation=" + notificationCode;
+        try {
+            body = body.replace("$passwordRestLink", link).replace("$passwordRestLink", link);
+            body = body.replace("$userName", emailAddress.toString()).replace("$userName", emailAddress.toString());
             var email = require('email');
             var sender;
             if (tls == "true") {
-                sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword,"tls");
+                sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword, "tls");
             } else {
-                sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword);
+                sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword);
             }
             sender.from = from;
             sender.to = emailAddress.toString();

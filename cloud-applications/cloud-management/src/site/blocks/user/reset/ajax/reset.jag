@@ -3,27 +3,27 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 var log = new Log();
 (function () {
-var mod, obj, result,
-action = request.getParameter("action"),
-mod = jagg.module("user/reset"),
-site = require("/site/conf/site.json");
+    var mod, obj, result,
+    action = request.getParameter("action"),
+    mod = jagg.module("user/reset"),
+    site = require("/site/conf/site.json");
 
-if (action == "verifyPasswordResetConfirmationCode") {
-    var confirm = request.getParameter("confirm");
-    var id = request.getParameter("id");
-    try {
-        var result = mod.verifyPasswordResetConfirmationCode(confirm,id);
-        if (result != null) {
-            print(result);
-        } else {
+    if (action == "verifyPasswordResetConfirmationCode") {
+        var confirm = request.getParameter("confirm");
+        var id = request.getParameter("id");
+        try {
+            result = mod.verifyPasswordResetConfirmationCode(confirm, id);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while verifying confirmation code for user : " + id;
+            }
+        } catch (e) {
             throw "Error while verifying confirmation code for user : " + id;
         }
-    } catch(e) {
-        throw "Error while verifying confirmation code for user : " + id;
+    } else {
+        throw new Error("No action specified");
     }
-}  else {
-    throw new Error("No action specified");
-}
 
 }());
 %>
