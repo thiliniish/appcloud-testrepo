@@ -7,7 +7,7 @@ include("/jagg/config_reader.jag");
     var action = request.getParameter("action");
     var cloudType = request.getParameter("cloudType");
     var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
-    var tenantDomain = jagg.module("util").getDomainFromUsername(jagg.getUser());
+    var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
 
     if (action == "publishVal") {
         var node = request.getParameter("node");
@@ -33,16 +33,9 @@ include("/jagg/config_reader.jag");
         var status = mod.publish(tenantDomain, cloudType, node, customDomain, sslFileContent, keyFileContent, chainFileContent);
         print(status);
     } else if (action == "validateUrl") {
-        var defaultStoreURL = cloudConfigFile.customUrl.defaultStoreUrl;
-        var defaultGatewayURL = cloudConfigFile.customUrl.defaultGatewayUrl;
         var nodeType = request.getParameter("nodeType");
         var customUrl = request.getParameter("customDomain");
-        var cname = "";
-        if (nodeType == "store") {
-            cname = defaultStoreURL;
-        } else {
-            cname = defaultGatewayURL;
-        }
+        var cname = cloudConfigFile.customUrl.pointingUrl;
 
         var urlValidation = {};
 
