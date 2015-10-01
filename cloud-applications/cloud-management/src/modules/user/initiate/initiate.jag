@@ -140,18 +140,7 @@
         try {
             body = body.replace("$passwordRestLink", link).replace("$passwordRestLink", link);
             body = body.replace("$userName", emailAddress.toString()).replace("$userName", emailAddress.toString());
-            var email = require('email');
-            var sender;
-            if (tls == "true") {
-                sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword, "tls");
-            } else {
-                sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword);
-            }
-            sender.from = from;
-            sender.to = emailAddress.toString();
-            sender.subject = subject;
-            sender.html = body;
-            sender.send();
+            jagg.module("util").sendEmail(body, subject, emailAddress.toString());
             log.info("Email successfully sent to " + userInfo.email.toString());
         } catch (e) {
             log.error("Error while sending email \n" + e);
