@@ -112,7 +112,7 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
         Map resultMap = HttpHandler.doPostHttps(initiateUrl, params, null);
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-        Assert.assertFalse((Boolean) resultObj.get("error"), "Error occurred while initiating password reset. "
+        Assert.assertFalse(resultObj.getBoolean("error"), "Error occurred while initiating password reset. "
                 + resultObj.getString("message"));
 
         //Verifying the confirmation code send via the email
@@ -123,23 +123,27 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
         params.put("id", sendNotificationBean.getNotificationData().getUserId());
         resultMap = HttpHandler.doPostHttps(verifyResetUrl, params, null);
         resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-        Assert.assertEquals(resultObj.getString("verified"), "true", "Value mismatch, Should be true.");
-        Assert.assertNotNull(resultObj.getString("confirmationKey"), "Confirmation Key Should not be null.");
-        Assert.assertEquals(resultObj.getString("userName"), domainLessUserName,
+
+        Assert.assertFalse(resultObj.getBoolean("error"), "Error occurred while verifying confirmation code for"
+                + " password reset. " + resultObj.getString("message"));
+        JSONObject data = resultObj.getJSONObject("data");
+        Assert.assertNotNull(data.getString("confirmationKey"), "Confirmation Key Should not be null.");
+        Assert.assertEquals(data.getString("userName"), domainLessUserName,
                 "Value mismatch, User Name Should be : " + domainLessUserName);
-        Assert.assertEquals(resultObj.getString("email"), email, "Value mismatch, Email Should be : " + email);
+        Assert.assertEquals(data.getString("email"), email, "Value mismatch, Email Should be : " + email);
 
         //Update password
         String updatePasswordUrl = cloudMgtServerUrl + CloudIntegrationConstants.PASSWORD_UPDATE_SFX;
         params = new HashMap<String, String>();
         params.put("action", "updatePasswordWithUserInput");
-        params.put("username", resultObj.getString("userName"));
-        params.put("email", resultObj.getString("email"));
+        params.put("username", data.getString("userName"));
+        params.put("email", data.getString("email"));
         params.put("password", TEMP_PASSWORD);
-        params.put("confirmationKey", resultObj.getString("confirmationKey"));
+        params.put("confirmationKey", data.getString("confirmationKey"));
         resultMap = HttpHandler.doPostHttps(updatePasswordUrl, params, null);
-        Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "successful",
-                "Value mismatch, Should be 'successful'.");
+        resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+        Assert.assertFalse(resultObj.getBoolean("error"), "Error occurred while updating password. " +
+                resultObj.getString("message"));
 
         boolean loginStatus = authenticatorClient.checkLogin(userName, TEMP_PASSWORD, "localhost");
         Assert.assertTrue(loginStatus, "Cannot login with new password");
