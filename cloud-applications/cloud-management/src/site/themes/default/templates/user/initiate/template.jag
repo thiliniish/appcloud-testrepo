@@ -95,7 +95,7 @@ function enable() {
                         window.location.href = "index.jag";
                     }
                 });
-            } else if (response.message.indexOf("Invalid User name given") != -1){
+            } else if (response.message.indexOf("Invalid User name") != -1){
                 jagg.message({content:'No account found with the given email. Please try again with a correct email.',type:'error',cbk:function(){
                         window.location.href = "initiate.jag";
                     }
