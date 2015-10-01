@@ -33,6 +33,7 @@
         <classes>
             <class name="org.wso2.carbon.cloud.test.scenarios.TenantCreationandLoginTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.AccountInfoTestCase"/>
         </classes>
     </test>
 
