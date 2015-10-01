@@ -106,12 +106,6 @@
         "icon": "fa fa-3x  fa-users",
         "isDropDown": "false",
         "target": "_self"
-      },
-      "Configure API Store Access": {
-        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/self-signup.jag",
-        "icon": "fa fa-pencil",
-        "isDropDown": "false",
-        "target": "_self"
       }
     }
   }
