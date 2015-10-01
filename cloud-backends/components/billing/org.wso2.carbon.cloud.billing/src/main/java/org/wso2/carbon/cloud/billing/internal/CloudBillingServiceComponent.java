@@ -51,7 +51,7 @@ import org.wso2.carbon.user.core.service.RealmService;
  */
 public class CloudBillingServiceComponent {
 
-    private static Log log = LogFactory.getLog(CloudBillingServiceComponent.class);
+    private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceComponent.class);
     private ServiceRegistration billingServiceRef;
 
     protected void activate(ComponentContext context) {
@@ -59,8 +59,8 @@ public class CloudBillingServiceComponent {
         BillingConfig configuration;
 
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Billing bundle activation is started");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Billing bundle activation is started");
             }
             configuration = CloudBillingUtils.getBillingConfiguration();
 
@@ -73,7 +73,7 @@ public class CloudBillingServiceComponent {
                 String cronExpression = configuration.getZuoraConfig().getUsageConfig().getCron();
                 usageScheduler.invokeUsageUpload(cronExpression);
             } else {
-                log.warn("Usage uploader disabled");
+                LOGGER.warn("Usage uploader disabled");
             }
             boolean enableSubscriptionCleanUp = configuration.getZuoraConfig().getSubscriptionCleanUp().isEnabled();
             if (enableSubscriptionCleanUp) {
@@ -82,33 +82,33 @@ public class CloudBillingServiceComponent {
 
                 billingDbUpdateScheduler.invokeBillingDbUpdateTask(cronExpression);
             } else {
-                log.warn("Subscription cleanup disabled");
+                LOGGER.warn("Subscription cleanup disabled");
             }
 
             try {
                 ServiceDataHolder.getInstance().getTaskService().registerTaskType(BillingConstants
                                                                                           .USAGE_UPLOADER_TASK_NAME);
             } catch (TaskException e) {
-                log.error("Error in registering usage upload tas task type: " + e.getMessage(), e);
+                LOGGER.error("Error in registering usage upload tas task type: " + e.getMessage(), e);
             }
-            if (log.isDebugEnabled()) {
-                log.debug("Cloud billing  bundle is activated");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Cloud billing  bundle is activated");
             }
-        } catch (Throwable e) {
-            log.error("Error in creating cloud billing configuration", e);
+        } catch (Exception e) {
+            LOGGER.error("Failed to activate the Cloud Billing service.", e);
         }
     }
 
     protected void deactivate(ComponentContext context) {
         this.billingServiceRef.unregister();
-        if (log.isDebugEnabled()) {
-            log.debug("Cloud billingService  bundle is deactivated ");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Cloud billingService  bundle is deactivated ");
         }
     }
 
     protected void setTaskService(TaskService taskService) throws RegistryException {
-        if (log.isDebugEnabled()) {
-            log.debug("TaskService is acquired");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("TaskService is acquired");
         }
         ServiceDataHolder.getInstance().setTaskService(taskService);
     }
@@ -118,8 +118,8 @@ public class CloudBillingServiceComponent {
     }
 
     protected void setSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
-        if (log.isDebugEnabled()) {
-            log.debug("SecretCallbackHandlerService is acquired");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("SecretCallbackHandlerService is acquired");
         }
         ServiceDataHolder.getInstance().setSecretCallbackHandlerService(secretCallbackHandlerService);
     }
@@ -129,8 +129,8 @@ public class CloudBillingServiceComponent {
     }
 
     protected void setRealmService(RealmService realmService) {
-        if (log.isDebugEnabled()) {
-            log.debug("UserManagementService is acquired");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("UserManagementService is acquired");
         }
         ServiceDataHolder.getInstance().setRealmService(realmService);
     }

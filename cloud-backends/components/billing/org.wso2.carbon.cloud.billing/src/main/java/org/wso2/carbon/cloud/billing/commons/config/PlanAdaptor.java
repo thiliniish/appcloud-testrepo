@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
 
     @Override
-    public Plan unmarshal(PlanAdaptor.AdaptedPlan adaptedPlan) throws Exception {
+    public Plan unmarshal(PlanAdaptor.AdaptedPlan adaptedPlan) throws CloudBillingConfigurationException {
         if (null == adaptedPlan) {
             return null;
         }
@@ -44,15 +44,15 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
             plan.monthlyRental = adaptedPlan.monthlyRental;
             plan.premiumLevel = adaptedPlan.premiumLevel;
             return plan;
-        } /*else {
+        } /*else if {
             //APPCloud specific
         }*/ else {
-            throw new CloudBillingConfigurationException("Error in configuration");
+            throw new CloudBillingConfigurationException("Error while un-marshalling");
         }
     }
 
     @Override
-    public PlanAdaptor.AdaptedPlan marshal(Plan plan) throws Exception {
+    public PlanAdaptor.AdaptedPlan marshal(Plan plan) throws CloudBillingConfigurationException {
         if (null == plan) {
             return null;
         }
@@ -68,7 +68,9 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
             adaptedPlan.premiumLevel = apiCloudPlan.premiumLevel;
         } /* else if {
             App Cloud
-        } */
+        } */ else {
+            throw new CloudBillingConfigurationException("Error while marshalling.");
+        }
         return adaptedPlan;
     }
 

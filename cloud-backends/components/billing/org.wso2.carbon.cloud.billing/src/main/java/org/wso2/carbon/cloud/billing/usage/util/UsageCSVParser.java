@@ -34,7 +34,10 @@ import java.util.List;
 
 public class UsageCSVParser {
 
-    private static final Log log = LogFactory.getLog(UsageCSVParser.class);
+    private static final Log LOGGER = LogFactory.getLog(UsageCSVParser.class);
+
+    private UsageCSVParser() {
+    }
 
     public static void writeCSVData(Usage[] usage) throws CloudBillingException {
         String csvFile = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
@@ -46,10 +49,10 @@ public class UsageCSVParser {
             List<String[]> data = toStringArray(usage);
             csvWriter.writeAll(data);
             csvWriter.close();
-            log.info("Successfully created the csv file in  " + csvFile);
+            LOGGER.info("Successfully created the csv file in  " + csvFile);
         } catch (IOException e) {
             String msg = "Error while creating the csv file";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
     }

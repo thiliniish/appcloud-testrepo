@@ -29,7 +29,7 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
                     orgArray = result;
                     displayOrganizations(orgArray);
                 }, function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to get organizations.'});
+                    jagg.message({type:'error',content:"Unable to retrieve the organization list at the moment. Please contact WSO2 Cloud Team for help. "});
                 });
        }
 

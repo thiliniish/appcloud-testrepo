@@ -18,7 +18,8 @@ var log = new Log();
                     displayOrgProfile(json);
                 },
                 function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to get user profile.'});
+                    jagg.message({type:'error',content:"Unable to retrieve the user profile at the moment. " +
+                     "Please contact WSO2 Cloud Team for help. "});
                 })
        }
 
@@ -75,7 +76,8 @@ var log = new Log();
 
                 },
                 function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({type:'error',content:'<strong>Error!</strong> Unable to update Organization profile.'});
+                    jagg.message({type:'error',content:"Unable to update the organization profile at the moment." +
+                     " Please contact WSO2 Cloud Team for help. "});
                 })
        }
 

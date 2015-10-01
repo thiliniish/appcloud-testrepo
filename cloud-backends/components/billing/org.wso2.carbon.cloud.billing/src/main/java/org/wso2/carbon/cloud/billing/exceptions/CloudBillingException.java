@@ -15,6 +15,9 @@
  */
 package org.wso2.carbon.cloud.billing.exceptions;
 
+/**
+ * Cloud billing exception
+ */
 public class CloudBillingException extends Exception {
 
     private static final long serialVersionUID = 154545457898L;

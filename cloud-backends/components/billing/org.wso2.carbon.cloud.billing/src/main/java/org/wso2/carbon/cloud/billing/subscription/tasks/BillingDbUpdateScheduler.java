@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class BillingDbUpdateScheduler {
 
-    private static final Log log = LogFactory.getLog(BillingDbUpdateScheduler.class);
+    private static final Log LOGGER = LogFactory.getLog(BillingDbUpdateScheduler.class);
 
     public void invokeBillingDbUpdateTask(String cron) {
         if (cron != null && !"".equals(cron)) {
@@ -65,13 +65,15 @@ public class BillingDbUpdateScheduler {
             info.setProperties(properties);
 
             try {
-                log.info("Registering Task " + BillingConstants.BILLING_DB_UPDATE_TASK_NAME);
+                LOGGER.info("Registering Task " + BillingConstants.BILLING_DB_UPDATE_TASK_NAME);
                 ServiceDataHolder serviceDataHolder = ServiceDataHolder.getInstance();
 
                 serviceDataHolder.getTaskManager(BillingConstants.BILLING_DB_UPDATE_TASK_CLASS_NAME).registerTask(info);
-                serviceDataHolder.getTaskManager(BillingConstants.BILLING_DB_UPDATE_TASK_CLASS_NAME).rescheduleTask(info.getName());
+                serviceDataHolder.getTaskManager(BillingConstants.BILLING_DB_UPDATE_TASK_CLASS_NAME).rescheduleTask
+                        (info.getName());
             } catch (TaskException e) {
-                log.error("Error while scheduling billing database update for disabled subscriptions task : " + info.getName(), e);
+                LOGGER.error("Error while scheduling billing database update for disabled subscriptions task : " + info
+                        .getName(), e);
             }
         }
     }

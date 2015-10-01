@@ -26,21 +26,42 @@ public class CloudIntegrationConstants {
             "/cloudmgt/site/blocks/tenant/register/invite/ajax/invite.jag";
     public static final String CLOUD_ADD_TENANT_URL_SFX =
             "/cloudmgt/site/blocks/tenant/register/add/ajax/add.jag";
+    public static final String CLOUD_SIGNUP_CONFIRM_URL_SFX =
+            "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
+
+    //Billing
     public static final String CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX =
             "/cloudmgt/site/blocks/billing/method/info/ajax/get.jag";
     public static final String CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX =
             "/cloudmgt/site/blocks/billing/method/add/ajax/add.jag";
-    public static final String CLOUD_SIGNUP_CONFIRM_URL_SFX =
-            "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
+    public static final String CLOUD_BILLING_ACCOUNT_INFO_URL_SFX =
+            "/cloudmgt/site/blocks/billing/account/info/ajax/get.jag";
+    public static final String CLOUD_BILLING_INVOICE_URL_SFX =
+            "/cloudmgt/site/blocks/billing/account/invoice/ajax/get.jag";
+    public static final String CLOUD_BILLING_ACCOUNT_DETAILS_ADD_URL_SFX =
+            "/cloudmgt/site/blocks/billing/account/add/ajax/add.jag";
 
     //User Management
     public static final String CHANGE_PASSWORD_URL_SFX =
+            "/cloudmgt/site/blocks/user/change/ajax/user.jag";
+    public static final String INITIATE_PASSWORD_RESET_SFX =
+            "/cloudmgt/site/blocks/user/initiate/ajax/initiate.jag";
+    public static final String PASSWORD_RESET_VERIFY_SFX =
+            "/cloudmgt/site/blocks/user/reset/ajax/reset.jag";
+    public static final String PASSWORD_UPDATE_SFX =
             "/cloudmgt/site/blocks/user/change/ajax/user.jag";
     public static final String USER_PROFILE_URL_SFX =
             "/cloudmgt/site/blocks/user/profile/ajax/profile.jag";
 
     //Automation xml parameters
+    //Super admin credentials
+    public static final String SUPER_ADMIN_USER_NAME = "//userManagement/superTenant/tenant/admin/user/userName";
+    public static final String SUPER_ADMIN_PASSWORD = "//userManagement/superTenant/tenant/admin/user/password";
+
+    //Cloud Related URLs
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
+    public static final String IDENTITY_SERVER_URL = "//cloudProperties/urls/identityServerUrl";
+
     public static final String TENANT_ADMIN_USER_NAME =
             "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/adminUser";
     public static final String TENANT_ADMIN_PASSWORD =

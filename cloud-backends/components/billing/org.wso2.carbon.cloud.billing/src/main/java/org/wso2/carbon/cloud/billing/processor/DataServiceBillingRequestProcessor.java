@@ -15,19 +15,18 @@
  */
 package org.wso2.carbon.cloud.billing.processor;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -35,7 +34,7 @@ import java.io.UnsupportedEncodingException;
  */
 public class DataServiceBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
-    private static final Log log = LogFactory.getLog(DataServiceBillingRequestProcessor.class);
+    private static final Log LOGGER = LogFactory.getLog(DataServiceBillingRequestProcessor.class);
     private static String basicAuthHeader;
 
     static {
@@ -47,7 +46,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
              */
             basicAuthHeader = initBasicAuthHeader();
         } catch (Exception e) {
-            log.error("Error while initializing upload request entity", e);
+            LOGGER.error("Error while initializing upload request entity", e);
         }
     }
 
@@ -68,30 +67,18 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
 
     public String doGet(String url) throws CloudBillingException {
         GetMethod get = new GetMethod(url);
-        try {
-            String trustStorePath = CloudBillingUtils.getBillingConfiguration().getSSOConfig().getKeyStorePath();
-            String password = CloudBillingUtils.getBillingConfiguration().getSSOConfig().getTrustStorePassword();
-            System.setProperty(BillingConstants.TRUSTSTORE_NAME_PROPERTY, trustStorePath);
-            System.setProperty(BillingConstants.TRUSTSTORE_PASSWORD_PROPERTY, password);
 
-            if (basicAuthHeader == null || "".equals(basicAuthHeader)) {
-                throw new IllegalStateException("Data Service Billing Processor is not initialized properly");
-            }
-            get.addRequestHeader("Authorization", basicAuthHeader);
-            get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
+        String trustStorePath = CloudBillingUtils.getBillingConfiguration().getSSOConfig().getKeyStorePath();
+        String password = CloudBillingUtils.getBillingConfiguration().getSSOConfig().getTrustStorePassword();
+        System.setProperty(BillingConstants.TRUSTSTORE_NAME_PROPERTY, trustStorePath);
+        System.setProperty(BillingConstants.TRUSTSTORE_PASSWORD_PROPERTY, password);
 
-            int statusCode = this.getHttpClient().executeMethod(get);
-            if (log.isDebugEnabled()) {
-                log.debug("HTTP status code of get request " + url.trim() + " is " + statusCode);
-            }
-            return get.getResponseBodyAsString();
-        } catch (Exception e) {
-            String msg = "Error while getting data from " + url;
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
-        } finally {
-            get.releaseConnection();
+        if (basicAuthHeader == null || "".equals(basicAuthHeader)) {
+            throw new IllegalStateException("Data Service Billing Processor is not initialized properly");
         }
+        get.addRequestHeader("Authorization", basicAuthHeader);
+        get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
     }
 
     public void doUpload() throws CloudBillingException {
@@ -114,64 +101,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         System.setProperty(BillingConstants.TRUSTSTORE_NAME_PROPERTY, trustStorePath);
         System.setProperty(BillingConstants.TRUSTSTORE_PASSWORD_PROPERTY, password);
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
-
-
         post.setRequestBody(keyValuePair);
-
-        String result = null;
-        int response;
-        for (int index = 0; index <= 10; index++) {
-            try {
-                if (log.isDebugEnabled() && index > 0) {
-                    log.debug("Retrying : " + index + " to get data from " + url);
-                }
-                response = this.getHttpClient().executeMethod(post);
-
-                if (response == 404) {
-                    String eMessage = "Failed with HTTP error code : " + response + ". Billing API End Point is " +
-                                      "incorrect.";
-                    log.error(eMessage);
-                    throw new CloudBillingException(eMessage);
-                } else if (response == 401) {
-                    String eMessage = "Failed with HTTP error code : " + response + ". Billing Username or Password" +
-                                      " is incorrect.";
-                    log.error(eMessage);
-                    throw new CloudBillingException(eMessage);
-
-                } else if (response == 202) {
-                    //Reason : https://wso2.org/jira/browse/DS-886
-                    return "202";
-                } else if (response != 200) {
-                    String eMessage = "Failed with HTTP error code : " + response;
-                    log.error(eMessage);
-                    throw new CloudBillingException(eMessage);
-                } else {
-                    if (post.getResponseBody().length > 0) {
-                        result = post.getResponseBodyAsString();
-                    }
-                    break;
-                }
-            } catch (HttpException e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            } catch (IOException e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            } catch (Exception e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            }
-            index = index + 1;
-        }
-        return result;
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
     }
 }

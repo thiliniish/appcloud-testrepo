@@ -112,11 +112,11 @@ public class ZuoraConfig {
     @XmlElementWrapper(name = "Subscriptions", nillable = false, required = true)
     @XmlElement(name = "Subscription", nillable = false, required = true)
     public Subscription[] getSubscriptions() {
-        return subscriptions;
+        return subscriptions.clone();
     }
 
     public void setSubscriptions(Subscription[] subscriptions) {
-        this.subscriptions = subscriptions;
+        this.subscriptions = subscriptions.clone();
     }
 
     @XmlElement(name = "Usage", nillable = false, required = true)

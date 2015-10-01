@@ -15,7 +15,6 @@
  */
 package org.wso2.carbon.cloud.billing.processor;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -28,13 +27,13 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -42,7 +41,7 @@ import java.io.UnsupportedEncodingException;
  */
 public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
-    private static final Log log = LogFactory.getLog(ZuoraBillingRequestProcessor.class);
+    private static final Log LOGGER = LogFactory.getLog(ZuoraBillingRequestProcessor.class);
     private static String uploadURL = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs()
             .getUsage();
 
@@ -71,93 +70,27 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
             part = new FilePart(BillingConstants.FILE_PART_NAME, file);
         } catch (FileNotFoundException e) {
             String msg = "Error occurred while reading usage data";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
         RequestEntity uploadReqEntity = new MultipartRequestEntity(new Part[]{part}, new HttpClientParams());
         post.setRequestEntity(uploadReqEntity);
-        try {
-            this.getHttpClient().executeMethod(post);
-        } catch (Exception e) {
-            String msg = "Error while uploading usage to " + uploadURL;
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
-        } finally {
-            post.releaseConnection();
-        }
+        ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
     }
 
     public String doGet(String url) throws CloudBillingException {
         GetMethod get = new GetMethod(url);
-        try {
-            String apiAccessKeyId = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUser();
-            String apiSecretAccessKey = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getPassword();
-            get.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
-            get.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
 
-            // indicate accept response body in JSON
-            get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
-            // for a GET call, chase redirects
-            get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
+        String apiAccessKeyId = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUser();
+        String apiSecretAccessKey = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getPassword();
+        get.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
+        get.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
 
-            int response = 0;
-            String result = null;
-            int maxIndex = 5;
-
-            for (int index = 0; index <= maxIndex; index++) {
-                try {
-                    if (log.isDebugEnabled() && index > 0) {
-                        log.debug("Retrying : " + index + " to get data from " + url);
-                    }
-                    response = this.getHttpClient().executeMethod(get);
-
-                    if (response == 404) {
-                        log.error("Failed with HTTP error code : " + response +
-                                  ". ZUORA Signature API End Point is" + " incorrect.");
-                        throw new CloudBillingException("Failed with HTTP error code : " + response +
-                                                        ". ZUORA Signature API End Point is" + " incorrect.");
-                    } else if (response == 401) {
-                        log.error("Failed with HTTP error code : " + response +
-                                  ". ZUORA Login's Username or " + "Password is incorrect.");
-                        throw new CloudBillingException("Failed with HTTP error code : " + response +
-                                                        ". ZUORA Signature API End Point is" + " incorrect.");
-                    } else if (response != 200) {
-                        log.error("Failed with HTTP error code : " + response);
-                    } else {
-                        if (get.getResponseBody().length > 0) {
-                            result = get.getResponseBodyAsString();
-                        }
-                        break;
-                    }
-                } catch (HttpException e) {
-                    String msg = "Error while getting data from " + url;
-                    log.error(msg, e);
-                    if (index == maxIndex) {
-                        throw new CloudBillingException(msg, e);
-                    }
-                } catch (IOException e) {
-                    String msg = "Error while getting data from " + url;
-                    log.error(msg, e);
-                    if (index == maxIndex) {
-                        throw new CloudBillingException(msg, e);
-                    }
-                } catch (Exception e) {
-                    String msg = "Error while getting data from " + url;
-                    log.error(msg, e);
-                    if (index == maxIndex || response == 401 || response == 404) {
-                        throw new CloudBillingException(msg, e);
-                    }
-                }
-                get.releaseConnection();
-            }
-            return result;
-        } catch (Exception e) {
-            String msg = "Error while getting data from " + url;
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
-        } finally {
-            get.releaseConnection();
-        }
+        // indicate accept response body in JSON
+        get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+        // for a GET call, chase redirects
+        get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
     }
 
     @Override
@@ -179,58 +112,10 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
             post.setRequestEntity(requestEntity);
         } catch (UnsupportedEncodingException e) {
             String msg = "Error occured while encoding json payload" + jsonPayload;
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
-        String result = null;
-        int response;
-        for (int index = 0; index <= 10; index++) {
-            try {
-                if (log.isDebugEnabled() && index > 0) {
-                    log.debug("Retrying : " + index + " to get data from " + url);
-                }
-                response = this.getHttpClient().executeMethod(post);
-
-                if (response == 404) {
-                    log.error("Failed with HTTP error code : " + response + ". ZUORA Signature API End Point is" +
-                              " incorrect.");
-                    throw new CloudBillingException("Failed with HTTP error code : " + response +
-                                                    ". ZUORA Signature API End Point is" + " incorrect.");
-                } else if (response == 401) {
-                    log.error("Failed with HTTP error code : " + response + ". ZUORA Login's Username or " +
-                              "Password is incorrect.");
-                    throw new CloudBillingException("Failed with HTTP error code : " + response +
-                                                    ". ZUORA Signature API End Point is" + " incorrect.");
-                } else if (response != 200) {
-                    log.error("Failed with HTTP error code : " + response);
-                } else {
-                    if (post.getResponseBody().length > 0) {
-                        result = post.getResponseBodyAsString();
-                    }
-                    break;
-                }
-            } catch (HttpException e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            } catch (IOException e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            } catch (Exception e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            }
-            index = index + 1;
-        }
-        return result;
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
     }
 
     @Override

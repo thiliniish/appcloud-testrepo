@@ -33,7 +33,7 @@ import java.util.Iterator;
 
 public class APICloudUsageProcessor implements UsageProcessor {
 
-    private static final Log log = LogFactory.getLog(APICloudUsageProcessor.class);
+    private static final Log LOGGER = LogFactory.getLog(APICloudUsageProcessor.class);
     private BillingRequestProcessor billingRequestProcessor;
 
     public APICloudUsageProcessor() {
@@ -70,7 +70,7 @@ public class APICloudUsageProcessor implements UsageProcessor {
             return false;
         } catch (XMLStreamException e) {
             String msg = "Error while reading xml response from data service";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
     }

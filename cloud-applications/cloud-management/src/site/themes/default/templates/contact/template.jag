@@ -133,7 +133,7 @@ section.start_content div.subs-cont{
                             $('#userForm').hide();
                   },
                   function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({type:'error',content:'<strong>Error!</strong> Sending the support request'});
+                    jagg.message({type:'error',content:"Unable to send the support request at the moment. "});
                  }); $('#userForm').hide();
         }
     } 

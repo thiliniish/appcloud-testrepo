@@ -24,18 +24,20 @@ import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 
 public abstract class AbstractBillingRequestProcessor implements BillingRequestProcessor {
 
+    protected static final int DEFAULT_CONNECTION_RETRIES = 5;
     private HttpClient httpClient;
 
     public AbstractBillingRequestProcessor(HttpClientConfig httpClientConfig) {
-        if (httpClientConfig == null) {
-            httpClientConfig = new HttpClientConfig();
-            httpClientConfig.setHostname(BillingConstants.DEFAULT_HOST);
-            httpClientConfig.setMaxConnectionsPerHost(BillingConstants.DEFAULT_MAX_CONNECTION_PER_HOST);
-            httpClientConfig.setMaxTotalConnections(BillingConstants.DEFAULT_MAX_TOTAL_CONNECTION);
+        if (httpClientConfig != null) {
+            this.httpClient = this.initHttpClient(httpClientConfig);
+        } else {
+            HttpClientConfig defaultHttpClientConfig = new HttpClientConfig();
+            defaultHttpClientConfig.setHostname(BillingConstants.DEFAULT_HOST);
+            defaultHttpClientConfig.setMaxConnectionsPerHost(BillingConstants.DEFAULT_MAX_CONNECTION_PER_HOST);
+            defaultHttpClientConfig.setMaxTotalConnections(BillingConstants.DEFAULT_MAX_TOTAL_CONNECTION);
+            this.httpClient = this.initHttpClient(defaultHttpClientConfig);
         }
-        this.httpClient = this.initHttpClient(httpClientConfig);
     }
-
 
     public HttpClient getHttpClient() {
         return httpClient;

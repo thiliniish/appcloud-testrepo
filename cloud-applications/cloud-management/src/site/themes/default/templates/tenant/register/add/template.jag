@@ -160,7 +160,7 @@ ul
                 displayClaims(json);
             },
             function (jqXHR, textStatus, errorThrown) {
-                jagg.message({type:'error',content:'<strong>Error!</strong> Unable to get user profile.'});
+                jagg.message({type:'error',content:"Unable to retrieve the user profile at the moment. Please contact WSO2 Cloud Team for help. "});
             })
     }
 

@@ -135,7 +135,8 @@
         </SubscriptionCleanUp>
     </Zoura>
     <SSORelyingParty>
-        <KeyStorePath>repository/resources/security/client-truststore.jks</KeyStorePath>
+        <!--TrustStore should be in security resource directory -->
+        <TrustStore>client-truststore.jks</TrustStore>
         <TrustStorePassword>wso2carbon</TrustStorePassword>
     </SSORelyingParty>
     <Utils>

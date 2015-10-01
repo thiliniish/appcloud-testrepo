@@ -1,0 +1,8 @@
+<%
+jagg.initializer("customurl", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

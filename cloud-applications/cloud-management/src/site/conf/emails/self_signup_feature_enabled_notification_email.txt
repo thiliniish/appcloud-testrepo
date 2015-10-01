@@ -7,7 +7,7 @@
 <body>
 
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
-                 Tenant <span style="color: #141414;">$tenant</span> has enabled the self sign up feature for the tenant store $tenantDomain of the API Cloud<span style="color: #141414;">
+                 Tenant admin <span style="color: #141414;">$tenant</span> has enabled the self sign up feature for the tenant store $tenantDomain of the API Cloud<span style="color: #141414;">
                 </p>
 		        </br>
 		        </br>
