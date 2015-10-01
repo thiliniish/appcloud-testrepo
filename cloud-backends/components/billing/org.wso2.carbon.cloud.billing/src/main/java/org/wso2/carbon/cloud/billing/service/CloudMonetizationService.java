@@ -14,22 +14,9 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.billing.exceptions;
+package org.wso2.carbon.cloud.billing.service;
 
-/**
- * Cloud security exceptions
- */
-public class CloudBillingSecurityException extends CloudBillingException {
 
-    public CloudBillingSecurityException(String s) {
-        super(s);
-    }
+public class CloudMonetizationService {
 
-    public CloudBillingSecurityException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
-
-    public CloudBillingSecurityException(Throwable throwable) {
-        super(throwable);
-    }
 }

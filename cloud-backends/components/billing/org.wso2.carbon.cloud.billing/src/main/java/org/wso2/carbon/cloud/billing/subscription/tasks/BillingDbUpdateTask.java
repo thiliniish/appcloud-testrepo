@@ -32,6 +32,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import java.net.HttpURLConnection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -41,8 +42,9 @@ import java.util.Map;
  */
 public class BillingDbUpdateTask implements Task {
 
-    private static final Log log = LogFactory.getLog(BillingDbUpdateTask.class);
-    private static final String ERROR_MSG = "Error while executing task: Billing database update for un-subscribed tenants ";
+    private static final Log LOGGER = LogFactory.getLog(BillingDbUpdateTask.class);
+    private static final String ERROR_MSG = "Error while executing task: Billing database update for un-subscribed " +
+                                            "tenants ";
     private Map<String, String> properties;
     private BillingRequestProcessor requestProcessor;
 
@@ -79,24 +81,26 @@ public class BillingDbUpdateTask implements Task {
                 String endDateString = ((OMElement) entry
                         .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_END_DATE)).next()).getText();
 
-                int tenantId = ServiceDataHolder.getInstance().getRealmService().getTenantManager().getTenantId(tenantDomain);
+                int tenantId = ServiceDataHolder.getInstance().getRealmService().getTenantManager().getTenantId
+                        (tenantDomain);
 
                 updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString, tenantId);
             }
-            if (log.isDebugEnabled()) {
-                log.debug("Tenant subscriptions disabling task executed successfully, information " +
-                          "is as follows: " + elements);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Tenant subscriptions disabling task executed successfully, information " +
+                             "is as follows: " + elements);
             }
         } catch (CloudBillingException e) {
-            log.error(ERROR_MSG + " while executing http request: ", e);
+            LOGGER.error(ERROR_MSG + " while executing http request: ", e);
         } catch (XMLStreamException e) {
-            log.error(ERROR_MSG + " while response parsing: ", e);
+            LOGGER.error(ERROR_MSG + " while response parsing: ", e);
         } catch (UserStoreException e) {
-            log.error(ERROR_MSG + " while acquiring tenantId: ", e);
+            LOGGER.error(ERROR_MSG + " while acquiring tenantId: ", e);
         }
     }
 
-    private void updateDatabaseEntry(String tenantDomain, String subscription, String startDate, String endDate, int tenantId)
+    private void updateDatabaseEntry(String tenantDomain, String subscription, String startDate, String endDate,
+                                     int tenantId)
             throws CloudBillingException {
 
         updateSubscriptionsTable(tenantDomain, subscription);
@@ -111,7 +115,8 @@ public class BillingDbUpdateTask implements Task {
      * @param endDate      String subscription end date
      * @throws CloudBillingException
      */
-    private void addToHistoryTable(String tenantDomain, String subscription, String startDate, String endDate,int tenantId)
+    private void addToHistoryTable(String tenantDomain, String subscription, String startDate, String endDate,
+                                   int tenantId)
             throws CloudBillingException {
         String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
         String url = properties.get(BillingConstants.BILLING_HISTORY_URL_KEY);
@@ -128,9 +133,9 @@ public class BillingDbUpdateTask implements Task {
         };
 
         String response = requestProcessor.doPost(url, payload);
-        if (response.equals("202") && log.isDebugEnabled()) {
-            log.debug("Successfully added into BILLING_HISTORY after disabling subscription: " + subscription
-                      + " for tenant: " + tenantDomain);
+        if (String.valueOf(HttpURLConnection.HTTP_ACCEPTED).equals(response) && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Successfully added into BILLING_HISTORY after disabling subscription: " + subscription
+                         + " for tenant: " + tenantDomain);
         }
     }
 
@@ -149,9 +154,9 @@ public class BillingDbUpdateTask implements Task {
         };
 
         String response = requestProcessor.doPost(url, payload);
-        if (response.equals("202") && log.isDebugEnabled()) {
-            log.debug("Successfully updated SUBSCRIPTIONS table after disabling subscription: " + subscription
-                      + " for tenant: " + tenantDomain);
+        if (String.valueOf(HttpURLConnection.HTTP_ACCEPTED).equals(response) && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Successfully updated SUBSCRIPTIONS table after disabling subscription: " + subscription
+                         + " for tenant: " + tenantDomain);
         }
     }
 
@@ -175,9 +180,9 @@ public class BillingDbUpdateTask implements Task {
                 new NameValuePair(BillingConstants.END_DATE_QUERY_PARAM, endDateString)
         };
         String response = requestProcessor.doPost(url, payload);
-        if (response.equals("202") && log.isDebugEnabled()) {
-            log.debug("Successfully updated BILLING_STATUS table after disabling subscription: " + subscription
-                      + " for tenant: " + tenantDomain);
+        if (String.valueOf(HttpURLConnection.HTTP_ACCEPTED).equals(response) && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Successfully updated BILLING_STATUS table after disabling subscription: " + subscription
+                         + " for tenant: " + tenantDomain);
         }
     }
 }

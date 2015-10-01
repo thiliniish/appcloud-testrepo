@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class UsageUploadScheduler {
 
-    private static final Log log = LogFactory.getLog(UsageUploadScheduler.class);
+    private static final Log LOGGER = LogFactory.getLog(UsageUploadScheduler.class);
 
     public void invokeUsageUpload(String cron) {
         if (cron != null && !"".equals(cron)) {
@@ -52,14 +52,14 @@ public class UsageUploadScheduler {
             info.setProperties(properties);
 
             try {
-                log.info("Registering Task " + BillingConstants.USAGE_UPLOADER_TASK_NAME);
+                LOGGER.info("Registering Task " + BillingConstants.USAGE_UPLOADER_TASK_NAME);
                 ServiceDataHolder.getInstance().getTaskManager(BillingConstants.USAGE_UPLOADER_TASK_NAME)
                         .registerTask(info);
                 ServiceDataHolder.getInstance().getTaskManager(BillingConstants.USAGE_UPLOADER_TASK_NAME)
                         .rescheduleTask(info.getName());
             } catch (TaskException e) {
-                log.error("Error while scheduling usage uploader task : " + info.getName() + " for tenant : " +
-                          tenantId + "..", e);
+                LOGGER.error("Error while scheduling usage uploader task : " + info.getName() + " for tenant : " +
+                             tenantId + "..", e);
             }
         }
     }

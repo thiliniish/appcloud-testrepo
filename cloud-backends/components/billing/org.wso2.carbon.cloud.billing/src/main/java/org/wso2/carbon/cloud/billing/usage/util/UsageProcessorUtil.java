@@ -24,9 +24,9 @@ import org.json.simple.JSONObject;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.beans.usage.Usage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.commons.config.APICloudPlan;
-import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraUtils;
+import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import javax.xml.namespace.QName;
@@ -40,7 +40,10 @@ import java.util.List;
 
 public class UsageProcessorUtil {
 
-    private static final Log log = LogFactory.getLog(UsageProcessorUtil.class);
+    private static final Log LOGGER = LogFactory.getLog(UsageProcessorUtil.class);
+
+    private UsageProcessorUtil() {
+    }
 
     public static AccountUsage[] getTenantUsageFromAPIM(String response, String accountId, boolean hasAmendments,
                                                         String amendmentResponse) throws CloudBillingException {
@@ -49,7 +52,7 @@ public class UsageProcessorUtil {
         try {
             // checking to see if there are amendments
             if (!hasAmendments) {
-                JSONArray ratePlans = ZuoraUtils.getCurrentRatePlan(BillingConstants.API_CLOUD, accountId);
+                JSONArray ratePlans = ZuoraRESTUtils.getCurrentRatePlan(BillingConstants.API_CLOUD, accountId);
                 String ratePlanId = getCurrentRatePlanId(ratePlans);
                 plan = (APICloudPlan) CloudBillingUtils
                         .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, ratePlanId);
@@ -100,7 +103,7 @@ public class UsageProcessorUtil {
             return usageList.toArray(new AccountUsage[usageList.size()]);
         } catch (XMLStreamException e) {
             String msg = "Error while reading xml response from data service";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
     }
@@ -116,21 +119,18 @@ public class UsageProcessorUtil {
         return null;
     }
 
-    // TODO review this logic carefully
     public static float calculateCharge(int maxUsage, int currUsage, String rate) {
         // calculate overUsage
         int overUsage = currUsage - maxUsage;
         if (overUsage < BillingConstants.OVER_USAGE_THRESHOLD) {
             return 0;
         }
-        // get the amount of dollers which needs to be added
+        // get the amount of dollars which needs to be added
         int ratePrice = Integer.parseInt(rate.split("/")[0].replace("$", ""));
         // Max number of API calls per a given rate
         int overageValue = Integer.parseInt(rate.split("/")[1].replace("K", "")) * 1000;
 
         int dailyPriceRate = overUsage / overageValue;
-        // TODO confirm whether we are going bill for the reminder
-        int dailyPriceReminder = (int) (overUsage % overageValue);
         return dailyPriceRate * ratePrice;
     }
 
@@ -161,11 +161,11 @@ public class UsageProcessorUtil {
             }
         } catch (XMLStreamException e) {
             String msg = "Error while reading xml response from data service";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         } catch (ParseException e) {
             String msg = "Error Parsing the dates to date format " + BillingConstants.DS_DATE_FOMAT;
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
         return null;
@@ -205,7 +205,7 @@ public class UsageProcessorUtil {
             return usageList.toArray(new AccountUsage[usageList.size()]);
         } catch (XMLStreamException e) {
             String msg = "Error while reading xml response from data service";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
 
@@ -258,7 +258,7 @@ public class UsageProcessorUtil {
             return usageList.toArray(new Usage[usageList.size()]);
         } catch (XMLStreamException e) {
             String msg = "Error while reading xml response from data service";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
     }
@@ -266,13 +266,19 @@ public class UsageProcessorUtil {
     private static int calculateOverUsage(int usage, String accountId, String productName)
             throws CloudBillingException {
 
-        JSONArray ratePlans = ZuoraUtils.getCurrentRatePlan(productName, accountId);
+        JSONArray ratePlans = ZuoraRESTUtils.getCurrentRatePlan(productName, accountId);
         String productRatePlanId = getCurrentRatePlanId(ratePlans);
         APICloudPlan plan = (APICloudPlan) CloudBillingUtils
                 .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, productRatePlanId);
-        int maxUsage = plan.getMaxDailyUsage();
-        int overUsage = usage - maxUsage;
-        return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage : 0;
+        if (plan != null) {
+            int maxUsage = plan.getMaxDailyUsage();
+            int overUsage = usage - maxUsage;
+            return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage : 0;
+        } else {
+            String msg = "Subscription plan for accountId: " + accountId + " cannot be null";
+            LOGGER.error(msg);
+            throw new CloudBillingException(msg);
+        }
     }
 
 }

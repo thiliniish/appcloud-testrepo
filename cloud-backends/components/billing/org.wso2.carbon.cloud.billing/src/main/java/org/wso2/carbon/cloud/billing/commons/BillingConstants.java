@@ -17,7 +17,7 @@ package org.wso2.carbon.cloud.billing.commons;
 
 public final class BillingConstants {
 
-    public static final String CONFIG_FOLDER = "billing";
+    public static final String CLOUD_CONFIG_FOLDER = "cloud";
     public static final String CONFIG_FILE_NAME = "billing.xml";
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/billing";
     public static final String ZUORA_USER_NAME = "zuoraUser";
@@ -54,7 +54,7 @@ public final class BillingConstants {
 
     public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
     public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks" +
-                                                              ".BillingDbUpdateTask";
+                                                                   ".BillingDbUpdateTask";
     public static final String REMOVE_ROLES_PROPERTY_KEY = "__ROLES_";
     public static final String PENDING_DISABLES_URL_KEY = "__PENDING_DISABLES__";
     public static final String DISABLE_TENANT_URL_KEY = "__DISABLE_TENANT__";
@@ -151,6 +151,9 @@ public final class BillingConstants {
     public static final String FILE_PART_NAME = "file";
 
     public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
+
+    private BillingConstants() {
+    }
 
     public static final class SecureValueProperties {
         public static final String SECRET_ALIAS_ATTRIBUTE_NAME_WITH_NAMESPACE = "secretAlias";

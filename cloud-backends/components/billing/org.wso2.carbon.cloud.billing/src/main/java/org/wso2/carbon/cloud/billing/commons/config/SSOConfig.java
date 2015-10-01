@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.cloud.billing.commons.config;
 
+import org.wso2.carbon.utils.CarbonUtils;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
@@ -25,16 +27,17 @@ import java.io.File;
 @XmlRootElement(name = "SSORelyingParty")
 public class SSOConfig {
 
-    private String keyStorePath;
+    private String trustStore;
     private String trustStorePassword;
 
-    @XmlElement(name = "KeyStorePath", nillable = false)
+    @XmlElement(name = "TrustStore", nillable = false)
     public String getKeyStorePath() {
-        return keyStorePath;
+        return trustStore;
     }
 
-    public void setKeyStorePath(String keyStorePath) {
-        this.keyStorePath = new File(System.getProperty("basedir", ".")).getAbsolutePath() + File.separator + keyStorePath;
+    public void setKeyStorePath(String trustStore) {
+        this.trustStore = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator
+                          + "resources" + File.separator + "security" + File.separator + trustStore;
     }
 
     @XmlElement(name = "TrustStorePassword")

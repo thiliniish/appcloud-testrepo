@@ -31,20 +31,20 @@ import java.util.Map;
  */
 public class UsageUploaderTask implements Task {
 
-    private static Log log = LogFactory.getLog(UsageUploaderTask.class);
+    private static final Log LOGGER = LogFactory.getLog(UsageUploaderTask.class);
     private Map<String, String> properties;
 
     public void init() {
-
+        //No initialization requirement
     }
 
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
-
     }
 
     public void execute() {
-        log.info("Running usage uploader task " + BillingConstants.USAGE_UPLOADER_TASK_NAME + ". [" + new Date() + "]");
+        LOGGER.info("Running usage uploader task " + BillingConstants.USAGE_UPLOADER_TASK_NAME + ". [" + new Date() +
+                    "]");
         try {
             boolean enableDailyUsageUpload =
                     CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
@@ -54,12 +54,12 @@ public class UsageUploaderTask implements Task {
                 CloudUsageManager usageManager = new CloudUsageManager();
                 usageManager.uploadDailyAPIUsage();
             } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Daily usage will not be uploaded to zuora");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Daily usage will not be uploaded to zuora");
                 }
             }
         } catch (CloudBillingException e) {
-            log.error("Error occurred while uploading daily usage ", e);
+            LOGGER.error("Error occurred while uploading daily usage ", e);
         }
     }
 

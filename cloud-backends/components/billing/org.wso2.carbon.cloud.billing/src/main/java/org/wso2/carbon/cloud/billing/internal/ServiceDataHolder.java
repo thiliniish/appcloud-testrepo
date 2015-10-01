@@ -28,8 +28,8 @@ import org.wso2.carbon.user.core.service.RealmService;
  * Represent the data holder for the service component
  */
 public class ServiceDataHolder {
-    private static final ServiceDataHolder instance = new ServiceDataHolder();
-    private static Log log = LogFactory.getLog(ServiceDataHolder.class);
+    private static final ServiceDataHolder SERVICE_DATA_HOLDER = new ServiceDataHolder();
+    private static final Log LOGGER = LogFactory.getLog(ServiceDataHolder.class);
     private TaskService taskService;
     private SecretCallbackHandlerService secretCallbackHandlerService;
     private RealmService realmService;
@@ -38,7 +38,7 @@ public class ServiceDataHolder {
     }
 
     public static ServiceDataHolder getInstance() {
-        return instance;
+        return SERVICE_DATA_HOLDER;
     }
 
     public TaskService getTaskService() {
@@ -54,7 +54,7 @@ public class ServiceDataHolder {
         try {
             return taskService.getTaskManager(taskName);
         } catch (TaskException e) {
-            log.error("Error while initializing TaskManager. ", e);
+            LOGGER.error("Error while initializing TaskManager. ", e);
             return null;
         }
     }

@@ -38,6 +38,6 @@ public class Subscription {
     }
 
     public Plan[] getPlans() {
-        return plans;
+        return plans.clone();
     }
 }

@@ -27,10 +27,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.config.Subscription;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
@@ -51,7 +51,8 @@ import java.io.File;
 
 public class CloudBillingUtils {
 
-    private static final Log log = LogFactory.getLog(CloudBillingUtils.class);
+
+    private static final Log LOGGER = LogFactory.getLog(CloudBillingUtils.class);
     private static SecretResolver secretResolver;
     private static volatile BillingConfig billingConfig;
     private static volatile String configObj;
@@ -61,6 +62,8 @@ public class CloudBillingUtils {
                      .getDSConfig()
                      .getHttpClientConfig());
 
+    private CloudBillingUtils() {
+    }
 
     public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
         String getAccountUrl = CloudBillingUtils.getBillingConfiguration().getDSConfig().getTenantAccount();
@@ -68,7 +71,7 @@ public class CloudBillingUtils {
         getAccountUrl = getAccountUrl.replace(BillingConstants.TENANT_DOMAIN_PARAM, tenantDomain);
         String response = dsBRProcessor.doGet(getAccountUrl);
         try {
-            if (response != null && !response.equals("")) {
+            if (response != null && !"".equals(response)) {
                 OMElement elements = AXIOMUtil.stringToOM(response);
                 if (elements.getFirstElement() == null || elements.getFirstElement().getFirstElement() == null) {
                     return null;
@@ -81,7 +84,7 @@ public class CloudBillingUtils {
 
         } catch (XMLStreamException e) {
             String msg = "Unable to get the OMElement from " + response;
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
 
@@ -104,8 +107,8 @@ public class CloudBillingUtils {
                 if (configObj == null) {
                     Gson gson = new Gson();
                     configObj = gson.toJson(getBillingConfiguration());
-                    if (log.isDebugEnabled()) {
-                        log.debug("Configuration read to json: " + configObj);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Configuration read to json: " + configObj);
                     }
                 }
             }
@@ -161,7 +164,7 @@ public class CloudBillingUtils {
     private static BillingConfig loadBillingConfig() {
         try {
             String configLocation = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                                    BillingConstants.CONFIG_FOLDER + File.separator +
+                                    BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
                                     BillingConstants.CONFIG_FILE_NAME;
             File billingConfig = new File(configLocation);
             Document doc = CloudBillingUtils.convertToDocument(billingConfig);

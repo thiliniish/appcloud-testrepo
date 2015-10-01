@@ -14,10 +14,19 @@ var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+
+var getConfigInJson = function() {
+	try {
+		return JSON.parse(billingService.getConfigInJson());
+	} catch (e) {
+		log.error("Error while getting the billing configurations as JSON");
+		throw e;
+	}
+};
 
 var userName =  session.get("LOGGED_IN_USER");
-var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
-var zuoraObj = (JSON.parse(billingService.getConfigInJson())).zuoraConfig;
+var zuoraObj = (getConfigInJson()).zuoraConfig;
 
 
 var isPaidAccount = function() {
@@ -648,11 +657,11 @@ var isValidCoupon = function (couponData, serviceId) {
 
 
 var getTrialPeriod = function () {
-	return (JSON.parse(billingService.getConfigInJson())).trialPeriod;
+	return (getConfigInJson()).trialPeriod;
 };
 
 var getAPICloudUsageDisplayPeriod = function () {
-	return (JSON.parse(billingService.getConfigInJson())).utilsConfig.apiCloud.usageDisplayPeriod;
+	return (getConfigInJson()).utilsConfig.apiCloud.usageDisplayPeriod;
 };
 
 var getCurrencyUsed = function () {
@@ -855,7 +864,7 @@ var getCurrentRatePlan = function (serviceId) {
 
 function addCloudSubmissionToRightwave(email,domain,type) {
 	var extensionStartDate = new Packages.java.util.Date();
-	var extendedEndDate = addDays(extensionStartDate,  parseInt(JSON.parse(billingService.getConfigInJson()).trialPeriod));
+	var extendedEndDate = addDays(extensionStartDate,  parseInt(getConfigInJson().trialPeriod));
 	var sqlDateFormat = dateTimeFormatter(RIGHTWAVE_DATE_FORMAT);
 	var expDate = sqlDateFormat.format(extendedEndDate);
 	var type = type.substring(0, type.indexOf("_"));
@@ -1011,7 +1020,7 @@ var extendTrial = function (serviceId, customerRequest) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
     var extensionStartDate = new Packages.java.util.Date();
-    var extendedEndDate = addDays(extensionStartDate,  parseInt(JSON.parse(billingService.getConfigInJson()).trialPeriod));
+    var extendedEndDate = addDays(extensionStartDate,  parseInt(getConfigInJson().trialPeriod));
 
     var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
 

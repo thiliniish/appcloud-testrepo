@@ -33,14 +33,16 @@ import java.util.List;
 /**
  * Represents class for Zuora related functionalities.
  */
-public class ZuoraUtils {
+public class ZuoraRESTUtils {
 
-
-    private static final Log log = LogFactory.getLog(ZuoraUtils.class);
+    private static final Log LOGGER = LogFactory.getLog(ZuoraRESTUtils.class);
     private static BillingRequestProcessor zuoraApi =
             BillingRequestProcessorFactory.getBillingRequestProcessor(
                     BillingRequestProcessorFactory.ProcessorType.ZUORA,
                     CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
+
+    private ZuoraRESTUtils() {
+    }
 
     public static String getSubscriptionIdForAccount(String accountId) throws CloudBillingException {
         String response = getAccountSummary(accountId);
@@ -57,8 +59,8 @@ public class ZuoraUtils {
 
         // take the elements of the json array of subscriptions
         for (int i = 0; i < subscriptions.size(); i++) {
-            if (log.isDebugEnabled()) {
-                log.debug("The " + i + " element of the subscriptions array: " + subscriptions.get(i));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("The " + i + " element of the subscriptions array: " + subscriptions.get(i));
             }
             // get all rate plans
             JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATEPLANS);
@@ -82,7 +84,7 @@ public class ZuoraUtils {
             return ((JSONArray) jsonObject.get(BillingConstants.SUBSCRIPTIONS));
         } catch (ParseException e) {
             String msg = "Error passing the response " + response + " to json object";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
     }
@@ -93,8 +95,8 @@ public class ZuoraUtils {
         JSONArray subscriptions = getSubscriptions(accountId, response);
         // take the elements of the json array of subscriptions
         for (int i = 0; i < subscriptions.size(); i++) {
-            if (log.isDebugEnabled()) {
-                log.debug("The " + i + " element of the subscriptions array: " + subscriptions.get(i));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("The " + i + " element of the subscriptions array: " + subscriptions.get(i));
             }
             // get all rate plans
             JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATEPLANS);
@@ -116,7 +118,7 @@ public class ZuoraUtils {
             return zuoraApi.doGet(url);
         } catch (CloudBillingException e) {
             String msg = "Error getting Account summary from the account " + accountId;
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
     }
@@ -130,7 +132,7 @@ public class ZuoraUtils {
             return zuoraApi.doGet(url);
         } catch (CloudBillingException e) {
             String msg = "Error getting invoices summary from the account " + accountId;
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
     }
@@ -144,7 +146,7 @@ public class ZuoraUtils {
             return zuoraApi.doGet(url);
         } catch (CloudBillingException e) {
             String msg = "Error getting payment information summary from the account " + accountId;
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
     }
@@ -177,7 +179,7 @@ public class ZuoraUtils {
                 }
                 //if a coupon is added when creating the payment method (first time). should return both the coupon
                 // and payment plan.
-                if (currentRatePlanList.size() != 0) {
+                if (currentRatePlanList.isEmpty()) {
                     return currentRatePlanList;
                 } else {
                     return starterRatePlanList;
@@ -185,11 +187,11 @@ public class ZuoraUtils {
             }
         } catch (CloudBillingException e) {
             String msg = "Error getting ratePlans from the account " + accountId;
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         } catch (Exception e) {
             String msg = "Error passing the response " + response + " to json object";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
         return null;
@@ -215,11 +217,11 @@ public class ZuoraUtils {
 
         } catch (CloudBillingException e) {
             String msg = "Error getting product rate plans";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         } catch (ParseException e) {
             String msg = "Error passing the response " + response + " to json object";
-            log.error(msg, e);
+            LOGGER.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
         return null;

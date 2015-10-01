@@ -36,7 +36,7 @@ import java.util.Date;
  */
 public class CloudUsageManager {
 
-    private static Log log = LogFactory.getLog(CloudUsageManager.class);
+    private static final Log LOGGER = LogFactory.getLog(CloudUsageManager.class);
     private BillingRequestProcessor dsBRProcessor;
     private BillingRequestProcessor zuoraBRProcessor;
 
@@ -74,11 +74,11 @@ public class CloudUsageManager {
 
     public void uploadDailyAPIUsage() throws CloudBillingException {
         SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_FOMAT);
-        log.info("Uploading daily usage for  " + dateFormat.format(new Date(System.currentTimeMillis())));
+        LOGGER.info("Uploading daily usage for  " + dateFormat.format(new Date(System.currentTimeMillis())));
         // get today;s usage from data services and create a usage array
         String response = getDailyUsage();
         Usage usageArr[] = UsageProcessorUtil.getDailyUsageDataForApiM(response);
-        if (usageArr != null && usageArr.length > 0) {
+        if (usageArr.length > 0) {
             // write them in to a CSV array
             UsageCSVParser.writeCSVData(usageArr);
             zuoraBRProcessor.doUpload();
