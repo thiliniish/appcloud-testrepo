@@ -16,10 +16,10 @@ if (action == "verifyPasswordResetConfirmationCode") {
         if (result != null) {
             print(result);
         } else {
-            throw "Error while verifying user ";
+            throw "Error while verifying confirmation code for user : " + id;
         }
     } catch(e) {
-        throw "Error while verifying user " + e;
+        throw "Error while verifying confirmation code for user : " + id;
     }
 }  else {
     throw new Error("No action specified");

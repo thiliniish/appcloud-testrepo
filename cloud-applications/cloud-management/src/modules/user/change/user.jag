@@ -43,7 +43,7 @@ var changePassword = function(oldPassword, newPassword) {
 };
 
 var updatePasswordWithUserInput = function(userName,email, newPassword,confirmationKey) {
-    log.info("Updating user password by Password reset");
+    log.info("Resetting password of user : " + userName + " by Password reset");
     var ws = require('ws');
     var request = new ws.WSRequest();
     var options = new Array();
@@ -54,22 +54,27 @@ var updatePasswordWithUserInput = function(userName,email, newPassword,confirmat
         { name : "Cookie", value :modManager.getAdminCookie(IS_URL) }
     ];
     var payload = '<updatePassword xmlns="http://services.mgt.identity.carbon.wso2.org"><username>'+userName+'</username><confirmationCode>'+confirmationKey+'</confirmationCode><newPassword>'+jagg.module("util").escapeSpecialCharsXML(newPassword)+'</newPassword></updatePassword>';
-    var result;
+    var result = {};
+    var response;
     try {
         var endPoint = IS_URL + "UserInformationRecoveryService";
         request.open(options,endPoint, false);
         request.send(payload);
-        result=request.responseE4X;
-        var entry = result.*::["return"];
+        response=request.responseE4X;
+        var entry = response.*::["return"];
         var error = entry.*::error.text();
         var verified = entry.*::verified.text();
         if (verified == true) {
-            log.info("Password reset successful for user " + userName);
             jagg.module("util").changeOTUserPass(email,newPassword);
-            return "successful";
+            result.error = false;
+            result.message = "Password reset successful";
+            log.info("Password reset successful for user " + userName);
+            return result;
         } else {
             log.error(error);
-            throw error;
+            result.error = true;
+            result.message = "Password reset un-successful";
+            return result;
         }
     } catch (e) {
         log.error("Error while updating password while resetting password \n" + e.message);
