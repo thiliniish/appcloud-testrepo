@@ -6,7 +6,7 @@
 	if(tenantDomain == null || tenantDomain == ''){
         var userName =  session.get("LOGGED_IN_USER");
         if(userName != null){
-            tenantDomain = session.get(TENANT_DOMAIN_NAME);
+            tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
         }
     }
 
@@ -152,9 +152,9 @@
                     enableSSLFileUpload(node);
                 } else {
                     if (node == "store") {
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>result.message</span>");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>" +result.message+ "</span>");
                     } else {
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>result.message</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>" +result.message+ "</span>");
                     }
                 }
             }, function (jqXHR, textStatus, errorThrown) {

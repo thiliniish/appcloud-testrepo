@@ -106,7 +106,7 @@
 				storePayload.customUrl = customUrl;
 				var gatewayPayload = {};
 				gatewayPayload.customUrl = defaultGatewayURL + ":" +httpsGatewayPort+ "/t/" + tenantDomain + "/";
-				payload.store = storelPayload;
+				payload.store = storePayload;
 				payload.gateway = gatewayPayload;
 			} else {
 				payload.type = 'initial';
@@ -114,7 +114,7 @@
 				storePayload.customUrl = defaultStoreURL + "/store/?tenant=" + tenantDomain;
 				var gatewayPayload = {};
 				gatewayPayload.customUrl = customUrl;
-				payload.store = storelPayload;
+				payload.store = storePayload;
 				payload.gateway = gatewayPayload;
 			}
 		} else {
@@ -127,7 +127,7 @@
 				}
 			
 				var storePayload = {};
-				storelPayload.customUrl = customUrl;
+				storePayload.customUrl = customUrl;
 				var gatewayPayload = {};
 				gatewayPayload.customUrl = currentMapping.gateway.customUrl;
 				payload.store = storePayload;
@@ -232,7 +232,7 @@
 		}
 	};
 
-	var checkMappingAvailable = function(newUrl) {
+	var checkMappingAvailable = function(newUrl, node) {
 		var registryLocation =registryPath + "/api-cloud";
 		var tenantCollection = registry.get(registryLocation);
 
