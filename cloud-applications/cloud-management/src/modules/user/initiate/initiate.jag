@@ -74,7 +74,7 @@
                 result.verified = false;
                 if(error.indexOf("18003") != -1){
                     log.warn("Invalid user name given for verifying. User with user name : " + userName + " does not exists");
-                    result.error = "Invalid User name given";
+                    result.error = "Invalid User name";
                 }else{
                     log.warn("Password reset - Error Code : " + error);
                     result.error = error;
