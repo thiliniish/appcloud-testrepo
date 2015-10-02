@@ -277,7 +277,6 @@
         </PlatformReportManager>
     </listenerExtensions>
 
-
     <!--Cloud Related properties-->
     <cloudProperties>
         <urls>
@@ -286,6 +285,7 @@
         </urls>
         <tenantDetails>
             <Tenant key="defaultTenant">
+
                 <tenantId>1</tenantId>
                 <tenantDomain>company1</tenantDomain>
                 <adminUser>test.wso2.com@company1</adminUser>
@@ -294,6 +294,12 @@
                     <user firstName="User" lastName="One" key="user1">
                         <userName>user1.wso2.com@localcompany1</userName>
                         <password>Admin@123</password>
+                        <email>user1@wso2.com</email>
+                    </user>
+
+                    <user firstName="firstname" lastName="lastname" key="commonUser">
+                        <userName>commonuser</userName>
+                        <password>Admin@123#</password>
                         <email>user1@wso2.com</email>
                     </user>
                 </users>
@@ -314,5 +320,7 @@
                 <productRatePlanId>2c92c0f949aasdc00850149b856d515537b</productRatePlanId>
             </payments>
         </billing>
+        <tenantNewUserEmails>aaar@discard.email,bbbr@discard.email</tenantNewUserEmails>
+        <allTenantRoles>devops,cxo,appowner,qa,developer,subscriber,publisher</allTenantRoles>
     </cloudProperties>
 </automation>

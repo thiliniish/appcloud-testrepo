@@ -232,7 +232,7 @@
 		}
 	};
 
-	var checkMappingAvailable = function(newUrl, node) {
+	var checkMappingAvailable = function(newUrl) {
 		var registryLocation =registryPath + "/api-cloud";
 		var tenantCollection = registry.get(registryLocation);
 
@@ -242,14 +242,10 @@
 			var urlMappingPath = tenantCollection.getChildren()[i] + "/urlMapping/" + tenantId;
 			var domainResource = registry.get(urlMappingPath);
 			var urlMappingJson = parse(String((new java.lang.String(domainResource.getContent()))));
-			var urlMapping;
-			if (node == "store") {
-				urlMapping = urlMappingJson.store.customUrl;
-			} else {
-				urlMapping = urlMappingJson.gateway.customUrl;
+			if (urlMappingJson.store.customUrl == newUrl) {
+				return false;
 			}
-
-			if (urlMapping == newUrl) {
+			else if (urlMappingJson.gateway.customUrl == newUrl) {
 				return false;
 			}
 		}
