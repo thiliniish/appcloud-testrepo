@@ -22,14 +22,14 @@ package org.wso2.cloud.heartbeat.monitor.utils;
 public class PlatformUtils {
 
     public static void setKeyStoreProperties() {
-        System.setProperty("javax.net.ssl.trustStore", Constants.KEY_STORE_PATH);
-        System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
-        System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+        System.setProperty("javax.net.ssl.keyStore", Constants.KEY_STORE_PATH);
+        System.setProperty("javax.net.ssl.keyStorePassword", "wso2carbon");
     }
 
     public static void setTrustStoreParams() {
         System.setProperty("javax.net.ssl.trustStore", Constants.TRUST_STORE_PATH);
         System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
+        System.setProperty("javax.net.ssl.trustStoreType", "JKS");
     }
 
     public static void setKeyStoreParams() {

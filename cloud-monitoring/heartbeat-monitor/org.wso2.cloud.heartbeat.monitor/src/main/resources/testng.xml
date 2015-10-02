@@ -25,7 +25,7 @@
                 class-name="org.wso2.cloud.heartbeat.monitor.modules.appfactory.listeners.IntegrationTestListener"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestReportListener"/>
         <listener
-                class-name="org.wso2.carbon.automation.engine.testlisteners.TestExecutionListener"/>
+                class-name="org.wso2.cloud.heartbeat.monitor.modules.appfactory.listeners.OverrideSslProperties"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestSuiteListener"/>
         <listener
                 class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
@@ -36,7 +36,7 @@
             <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.DatabaseTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.DatasourceTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BuildRepoTestCase"/>
-            <class name="org.wso2.appfactory.tests.scenarios.ApplicationCreationTestCase"/>
+            <class name="org.wso2.appfactory.tests.scenarios.ApplicationCreationDeletionTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.GovernanceTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.IssueTrackerTestCase"/>
 

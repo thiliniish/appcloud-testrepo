@@ -35,6 +35,8 @@ public class Heartbeat {
     public static void main (String []args) throws IOException, SchedulerException {
 
         PlatformUtils.setKeyStoreProperties();
+        PlatformUtils.setTrustStoreParams();
+        PlatformUtils.setKeyStoreParams();
         PropertyConfigurator.configure(Constants.LOG4J_PROPERTY_PATH);
         try {
 

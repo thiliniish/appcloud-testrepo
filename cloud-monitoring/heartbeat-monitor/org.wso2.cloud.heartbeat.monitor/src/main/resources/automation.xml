@@ -174,7 +174,7 @@
 
             <!--  Keystore file location -->
 
-            <fileName>keystores/products/wso2carbon.jks</fileName>
+            <fileName>keystores/wso2carbon.jks</fileName>
 
             <!--  Keystore type (JKS/PKCS12 etc.) -->
 
@@ -206,7 +206,7 @@
 
             <!--  trust-store file location  -->
 
-            <fileName>keystores/products/client-truststore.jks</fileName>
+            <fileName>keystores/client-truststore.jks</fileName>
 
             <!--  trust-store type (JKS/PKCS12 etc.)  -->
 
