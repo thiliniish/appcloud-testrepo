@@ -30,7 +30,7 @@
     <packaging>pom</packaging>
     <name>Cloud - Custom Url</name>
     <modules>
-        <module>file-encrypting-service</module>
+        <module>ssl-security-service</module>
         <module>nginx-client</module>
     </modules>
 </project>

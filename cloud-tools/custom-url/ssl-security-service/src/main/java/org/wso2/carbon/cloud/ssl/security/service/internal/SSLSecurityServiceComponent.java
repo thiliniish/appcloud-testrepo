@@ -15,17 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.cloud.ssl.securitycomponent.internal;
+package org.wso2.carbon.cloud.ssl.security.service.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileAnalyzer;
-import org.wso2.carbon.cloud.ssl.securitycomponent.SSLFileEncryptService;
-import org.wso2.carbon.cloud.ssl.securitycomponent.util.ConfigReader;
-import org.wso2.carbon.cloud.ssl.securitycomponent.util.KeyStoreUtil;
+import org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer;
+import org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService;
+import org.wso2.carbon.cloud.ssl.security.service.util.ConfigReader;
+import org.wso2.carbon.cloud.ssl.security.service.util.KeyStoreUtil;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
@@ -34,7 +34,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 /**
- * @scr.component name="org.wso2.carbon.cloud.ssl.securitycomponent"
+ * @scr.component name="org.wso2.carbon.cloud.ssl.security.service"
  * immediate="true"
  */
 public class SSLSecurityServiceComponent {

@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
 import org.json.JSONException;
 import org.wso2.carbon.cloud.nginx.vhost.conf.ConfigReader;
-import org.wso2.carbon.cloud.nginx.vhost.util.RegistryManager;
 import org.wso2.carbon.cloud.nginx.vhost.util.TemplateManager;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
@@ -46,7 +45,7 @@ public class Agent {
         initialize();
         try {
             TemplateManager templateManager = new TemplateManager();
-            PropertyConfigurator.configure(Constants.LOG4J_PROPERTY_PATH);
+            PropertyConfigurator.configure(NginxVhostConstants.LOG4J_PROPERTY_PATH);
             ConfigReader configReader = new ConfigReader();
             VHostManager vHostManager = new VHostManager(configReader, templateManager);
 
@@ -75,7 +74,7 @@ public class Agent {
     }
 
     public static void initialize() {
-        System.setProperty("javax.net.ssl.trustStore", Constants.KEY_STORE_FILE_PATH);
+        System.setProperty("javax.net.ssl.trustStore", NginxVhostConstants.KEY_STORE_FILE_PATH);
         System.setProperty("javax.net.ssl.keyStorePassword", "wso2carbon");
         System.setProperty("javax.net.ssl.keyStoreType", "JKS");
         System.setProperty("carbon.repo.write.mode", "true");

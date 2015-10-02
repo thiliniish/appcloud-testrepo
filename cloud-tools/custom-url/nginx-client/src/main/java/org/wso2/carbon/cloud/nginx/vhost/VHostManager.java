@@ -58,11 +58,11 @@ public class VHostManager {
 	public VHostManager(ConfigReader config, TemplateManager templateManager) throws IOException {
 		this.configReader = config;
 		//Reading store vhost template
-		apiStoreVHostTemplate = templateManager.getTemplate(Constants.API_STORE_TEMPLATE_NAME);
+		apiStoreVHostTemplate = templateManager.getTemplate(NginxVhostConstants.API_STORE_TEMPLATE_NAME);
 		//Reading http gateway vhost template
-		apiHttpGatewayVHostTemplate = templateManager.getTemplate(Constants.HTTP_API_GATEWAY_TEMPLATE_NAME);
+		apiHttpGatewayVHostTemplate = templateManager.getTemplate(NginxVhostConstants.HTTP_API_GATEWAY_TEMPLATE_NAME);
 		//Reading https gateway vhost template
-		apiHttpsGatewayVHostTemplate = templateManager.getTemplate(Constants.HTTPS_API_GATEWAY_TEMPLATE_NAME);
+		apiHttpsGatewayVHostTemplate = templateManager.getTemplate(NginxVhostConstants.HTTPS_API_GATEWAY_TEMPLATE_NAME);
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class VHostManager {
 
 		String templateStack = "";
 		for (VHostEntry vhostEntry : vHostEntriesList) {
-			if (vhostEntry.getCloudName().equals(Constants.API_CLOUD_TYPE)) {
+			if (vhostEntry.getCloudName().equals(NginxVhostConstants.API_CLOUD_TYPE)) {
 				templateStack += buildVHostConfig(vhostEntry);
 			}
 		}
@@ -196,7 +196,7 @@ public class VHostManager {
 		BufferedWriter bufferedWriter = null;
 		File file = null;
 
-		if (Constants.API_CLOUD_TYPE.equals(cloudType)) {
+		if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudType)) {
 			String[] configFileLocations;
 			if (STORE_NODE.equals(node)) {
 				configFileLocations = new String[] { configReader.getProperty("nginx.api.store.config.path") };
@@ -252,7 +252,7 @@ public class VHostManager {
 	 */
 	protected void restartNginX() throws IOException {
 		try {
-			Runtime.getRuntime().exec(Constants.NGINX_RELOAD_CMD);
+			Runtime.getRuntime().exec(NginxVhostConstants.NGINX_RELOAD_CMD);
 			log.info("Reloaded Nginx Configurations");
 		} catch (IOException e) {
 			String errorMessage = "Error occurred when reloading the nginx configurations";
@@ -283,7 +283,7 @@ public class VHostManager {
 			       CertificateException, UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
 			       BadPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, InterruptedException {
 		String registryPath = this.configReader.getProperty("remoteregistry.path");
-		RegistryManager registryManager = new RegistryManager(configReader, Constants.AXIS2_CONF_FILE_PATH);
+		RegistryManager registryManager = new RegistryManager(configReader, NginxVhostConstants.AXIS2_CONF_FILE_PATH);
 		SSLFileHandler sslFileHandler = new SSLFileHandler(registryManager, configReader);
 
 		List<VHostEntry> apiGatewayHosts = new ArrayList<VHostEntry>();
@@ -316,32 +316,32 @@ public class VHostManager {
 						byte[] r = (byte[]) resource.getContent();
 						try {
 							JSONObject jsonObject = new JSONObject(new String(r));
-							if (Constants.API_CLOUD_TYPE.equals(cloudName)) {
+							if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudName)) {
 
 								//Defining store virtual hosts
 								VHostEntry storeEntry = new VHostEntry();
-								storeEntry.setTenantDomain(jsonObject.getString(Constants.PAYLOAD_TENANT_DOMAIN));
+								storeEntry.setTenantDomain(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
 								storeEntry.setCustomDomain(((JSONObject) jsonObject.get(STORE_NODE))
-										                           .getString(Constants.PAYLOAD_CUSTOM_URL));
+										                           .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
 								storeEntry.setCloudName(cloudName);
 								storeEntry.setTemplate(apiStoreVHostTemplate);
 								storeEntry.setSecurityCertificateFilePath(sslFileHandler.storeFileInLocal(
-										                                          Constants.CERTIFICATE_FILE, jsonObject
+										                                          NginxVhostConstants.CERTIFICATE_FILE, jsonObject
 										                                          .getString(
-												                                          Constants.PAYLOAD_TENANT_DOMAIN),
+												                                          NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
 										                                          STORE_NODE).getAbsolutePath());
 
 								storeEntry.setSecurityCertificateKeyFilePath(sslFileHandler.storeFileInLocal(
-										                                             Constants.KEY_FILE, jsonObject
+										                                             NginxVhostConstants.KEY_FILE, jsonObject
 										                                             .getString(
-												                                             Constants.PAYLOAD_TENANT_DOMAIN),
+												                                             NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
 										                                             STORE_NODE).getAbsolutePath());
 
 								//Defining gateway virtual hosts
 								VHostEntry gatewayEntry = new VHostEntry();
-								gatewayEntry.setTenantDomain(jsonObject.getString(Constants.PAYLOAD_TENANT_DOMAIN));
+								gatewayEntry.setTenantDomain(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
 								gatewayEntry.setCustomDomain(((JSONObject) jsonObject.get(GATEWAY_NODE))
-										                             .getString(Constants.PAYLOAD_CUSTOM_URL));
+										                             .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
 								gatewayEntry.setCloudName(cloudName);
 								gatewayEntry.setTemplate(apiHttpGatewayVHostTemplate);
 								gatewayEntry.setSecurityCertificateFilePath(null);
@@ -350,21 +350,21 @@ public class VHostManager {
 								//Defining https gateway virtual hosts
 								VHostEntry httpsGatewayEntry = new VHostEntry();
 								httpsGatewayEntry
-										.setTenantDomain(jsonObject.getString(Constants.PAYLOAD_TENANT_DOMAIN));
+										.setTenantDomain(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
 								httpsGatewayEntry.setCustomDomain(((JSONObject) jsonObject.get(GATEWAY_NODE))
-										                                  .getString(Constants.PAYLOAD_CUSTOM_URL));
+										                                  .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
 								httpsGatewayEntry.setCloudName(cloudName);
 								httpsGatewayEntry.setTemplate(apiHttpsGatewayVHostTemplate);
 								httpsGatewayEntry.setSecurityCertificateFilePath(sslFileHandler.storeFileInLocal(
-										                                                 Constants.CERTIFICATE_FILE,
+										                                                 NginxVhostConstants.CERTIFICATE_FILE,
 										                                                 jsonObject.getString(
-												                                                 Constants.PAYLOAD_TENANT_DOMAIN),
+												                                                 NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
 										                                                 GATEWAY_NODE)
 								                                                               .getAbsolutePath());
 								httpsGatewayEntry.setSecurityCertificateKeyFilePath(sslFileHandler.storeFileInLocal(
-										                                                    Constants.KEY_FILE,
+										                                                    NginxVhostConstants.KEY_FILE,
 										                                                    jsonObject.getString(
-												                                                    Constants.PAYLOAD_TENANT_DOMAIN),
+												                                                    NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
 										                                                    GATEWAY_NODE)
 								                                                                  .getAbsolutePath());
 

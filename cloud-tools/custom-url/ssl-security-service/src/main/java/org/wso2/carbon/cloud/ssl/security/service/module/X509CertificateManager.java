@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.ssl.securitycomponent.module;
+package org.wso2.carbon.cloud.ssl.security.service.module;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.openssl.PEMReader;
-import org.wso2.carbon.cloud.ssl.securitycomponent.Constants;
+import org.wso2.carbon.cloud.ssl.security.service.FileEncryptionServiceConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -83,11 +83,11 @@ public class X509CertificateManager {
 	private void generatePublicKey(String keyContent) throws CertificateException, InvalidAlgorithmParameterException {
 
 		try {
-			CertificateFactory certificateFactory = CertificateFactory.getInstance(Constants.CERTIFICATE_ALGORITHM);
+			CertificateFactory certificateFactory = CertificateFactory.getInstance(FileEncryptionServiceConstants.CERTIFICATE_ALGORITHM);
 			X509Certificate keyFile = (X509Certificate) certificateFactory
 					.generateCertificate(new ByteArrayInputStream(keyContent.getBytes(StandardCharsets.UTF_8)));
 			this.publicKey = keyFile.getPublicKey();
-			if (!publicKey.getAlgorithm().equals(Constants.KEY_ENCRYPTION_ALGORITHM)) {
+			if (!publicKey.getAlgorithm().equals(FileEncryptionServiceConstants.KEY_ENCRYPTION_ALGORITHM)) {
 				throw new InvalidAlgorithmParameterException("Error thrown because key algorithm of public key " +
 				                                             "file is not supported, expected encryption " +
 				                                             "algorithm is RSA, provided key algorithm:" +

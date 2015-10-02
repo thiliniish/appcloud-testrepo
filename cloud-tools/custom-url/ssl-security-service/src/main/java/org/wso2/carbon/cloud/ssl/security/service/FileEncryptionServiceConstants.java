@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.cloud.ssl.securitycomponent;
+package org.wso2.carbon.cloud.ssl.security.service;
 
-public class Constants {
+public class FileEncryptionServiceConstants {
 
     public static final String AES256_ALGORITHM = "AES/CBC/PKCS5Padding";
     public static final String SECRET_KEY_SPEC_ALGORITHM = "AES";
     public static final String ENCODING_MECHANISM = "UTF-8";
     public static final String CERTIFICATE_ALGORITHM = "X.509";
     public static final String KEY_ENCRYPTION_ALGORITHM = "RSA";
-    public static final String KEY_STORE_CONFIG_FILE = System.getProperty("user.dir") + "/repository/conf/custom-url/file-encrypt-config.properties";
+    public static final String KEY_STORE_CONFIG_FILE = System.getProperty("user.dir") + "/repository/conf/cloud/file-encrypt-config.properties";
 
 }

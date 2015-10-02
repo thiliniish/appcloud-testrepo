@@ -1,7 +1,7 @@
 ## Tenant Domain: ${tenant-domain} --- Custom Domain: ${custom-domain}
 
 server {
-        listen   8253;
+        listen   443;
         server_name ${custom-domain};
 
         location / {

@@ -20,7 +20,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.nginx.vhost.Constants;
+import org.wso2.carbon.cloud.nginx.vhost.NginxVhostConstants;
 import org.wso2.carbon.cloud.nginx.vhost.conf.ConfigReader;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -59,7 +59,7 @@ public class RegistryManager {
 
     private void init() throws AxisFault, RegistryException {
         try {
-            System.setProperty("javax.net.ssl.trustStore", Constants.TRUST_STORE_LOCATION);
+            System.setProperty("javax.net.ssl.trustStore", NginxVhostConstants.TRUST_STORE_LOCATION);
             System.setProperty("javax.net.ssl.trustStorePassword", TRUST_STORE_PASSWORD);
             System.setProperty("javax.net.ssl.trustStoreType", TRUST_STORE_TYPE);
             ConfigurationContext configContext = ConfigurationContextFactory.
