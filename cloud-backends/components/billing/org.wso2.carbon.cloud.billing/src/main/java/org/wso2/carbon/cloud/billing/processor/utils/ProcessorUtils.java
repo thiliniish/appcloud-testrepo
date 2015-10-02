@@ -56,13 +56,7 @@ public class ProcessorUtils {
         int retryCount = 0;
         String result = "";
         String methodName = httpMethod.getName();
-        String uri;
-
-        try {
-            uri = httpMethod.getURI().getURI();
-        } catch (URIException e) {
-            throw new CloudBillingException(e);
-        }
+        String uri = getURI(httpMethod);
 
         do {
             try {
@@ -120,14 +114,8 @@ public class ProcessorUtils {
 
         int response;
         String result = "";
-        String uri;
+        String uri = getURI(httpMethod);
         String methodName = httpMethod.getName();
-
-        try {
-            uri = httpMethod.getURI().getURI();
-        } catch (URIException e) {
-            throw new CloudBillingException(e);
-        }
 
         try {
             response = httpClient.executeMethod(httpMethod);
@@ -196,5 +184,15 @@ public class ProcessorUtils {
             LOGGER.warn(methodName + " request failed for URI: " + uri + " with HTTP error code: " +
                         response + ". Retry: " + retryCount + "/" + executionCount);
         }
+    }
+
+    private static String getURI(HttpMethodBase httpMethod) throws CloudBillingException {
+        String uri;
+        try {
+            uri = httpMethod.getURI().getURI();
+        } catch (URIException e) {
+            throw new CloudBillingException(e);
+        }
+        return uri;
     }
 }

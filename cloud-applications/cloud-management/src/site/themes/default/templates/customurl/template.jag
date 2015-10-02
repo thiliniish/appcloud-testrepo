@@ -46,13 +46,13 @@
             $("#storeSSLFileUploadLocation").css("display", "block");
             $("#storeDomainVerifyBtn").prop("disabled", true);
             $("#storeDomain").prop("disabled", true);
-            $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully.</span>");
+            $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span>");
             $("#storeProcessBtn").prop("disabled", false);
         } else {
             $("#gatewaySSLFileUploadLocation").css("display", "block");
             $("#gatewayDomainVerifyBtn").prop("disabled", true);
             $("#gatewayDomain").prop("disabled", true);
-            $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully.</span>");
+            $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span>");
             $("#gatewayProcessBtn").prop("disabled", false);
         }
     }
@@ -71,12 +71,12 @@
 
         if (node == "store") {
             if ($("#storeSslFile")[0].files.length == 0 || $("#storeKeyFile")[0].files.length == 0 || $("#storeChainFile")[0].files.length == 0) {
-                $("#storeVerifyUrlNotificationArea").html("<span class='label label-warning'>Please provide all required ssl files.</span>");
+                $("#storeVerifyUrlNotificationArea").html("<span class='label label-warning'>Please provide all required ssl files</span>");
                 return false;
             }
         } else {
             if ($("#gatewaySslFile")[0].files.length == 0 || $("#gatewayKeyFile")[0].files.length == 0 || $("#gatewayChainFile")[0].files.length == 0) {
-                $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-warning'>Please provide all required ssl files.</span>");
+                $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-warning'>Please provide all required ssl files</span>");
                 return false;
             }
         }
@@ -110,9 +110,9 @@
                 var result = JSON.parse(response);
                 if (result.error != true) {
                     if (node == "store") {
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added.</span>");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added</span>");
                     } else {
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added.</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added</span>");
                     }
                     getCurrentUserMaping();
                     setTimeout(function(){ defaultUIView() }, 10000);
@@ -126,9 +126,9 @@
             },
             error: function(jqXHR, textStatus, errorMessage) {
                 if (node == "store") {
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Internal Server error occurred.</span>");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Internal Server error occurred</span>");
                     } else {
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Internal Server error occured.</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Internal Server error occurred</span>");
                     }
             }         
         });
@@ -178,21 +178,21 @@
  <div class="container2 padding-double">
      <section class="padding-top-double padding-bottom ">
          <h1 >Custom URL Mapping</h1>
-         <p>This serves as the base URL for all your public APIs.</p>
+         <p>This serves as the base URL for all your public APIs</p>
      </section><!-- end of Title section-->
     <hr>
     <section class="padding-top-double padding-bottom ">
         <div class="col-x-small inline-block top padding-top">
-            <h3>API Store Domain:</h3>
+            <h3 class="margin-top">API Store domain:</h3>
         </div>
         <div class="col-large inline-block">
             <input type="text" placeholder="Enter URL" id="currentStoreMapping" disabled>
             <button class="blue-button" id="storeModifyBtn" onclick="showModifyUrlContentArea('store')">Modify</button>
-            <h4 class="italic light-grey transform-none">This is the URL of the API Store that your subscribers will use as their portal.</h4>
+            <h4 class="italic light-grey transform-none">This is the URL of the API Store that your subscribers will use as their portal</h4>
             <!--== modify section starts here ==-->
             <div class="box" id="storeUrlChangeArea" style="display:none;">
                 <div class="col-small inline-block top padding-top">
-                    <h2 class="uppercase">New URL:</h2>
+                    <h3 class="margin-top">New URL:</h3>
                 </div>
                 <div class="col-medium inline-block">
                     <input type="text" placeholder="Enter URL" name="url" id="storeDomain" autocomplete="off">
@@ -200,14 +200,14 @@
                     <div id="storeVerifyUrlNotificationArea">
                         <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the new URL here,
                         go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.pointingUrl%></strong>
-                        <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>">Show me how >></a></span></h4>
+                        <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>" target="_blank">Show me how >></a></span></h4>
                     </div>
                 </div>
 
                 <div style="display:none;" id="storeSSLFileUploadLocation">
 
                     <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                        <h2 class="uppercase">SSL certificate:</h2>
+                        <h3 class="margin-top">SSL Certificate:</h3>
                     </div>
 
                     <div class="col-medium inline-block margin-top-double margin-bottom">
@@ -216,15 +216,15 @@
                         </div>
                         <div class="float-left">
                             <ul>
-                                <li>Give the SSL file in PEM format.</li>
-                                <li>Do not embed the public key in the SSL file.</li>
-                                <li>Do not self sign the SSL file.</li>
+                                <li>Give the SSL file in PEM format</li>
+                                <li>Do not embed the public key in the SSL file</li>
+                                <li>Do not self sign the SSL file</li>
                             </ul>
                         </div >    
                     </div>
 
                     <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                        <h2 class="uppercase">SSL key file:</h2>
+                        <h3 class="margin-top">SSL key file:</h3>
                     </div>
                     <div class="col-medium inline-block margin-top-double margin-bottom-double">
                         <div class="custom-file-upload">
@@ -232,7 +232,7 @@
                         </div>
                     </div>
                     <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                        <h2 class="uppercase">Chain file:</h2>
+                        <h3 class="margin-top">Chain file:</h3>
                     </div>
                     <div class="col-medium inline-block margin-top-double margin-bottom-double">
                         <div class="custom-file-upload">
@@ -240,7 +240,7 @@
                         </div>
                         <div class="float-left">
                             <ul>
-                                <li>Encrypt the public key in the RSA format.</li>
+                                <li>Encrypt the public key in the RSA format</li>
                             </ul>
                         </div>
                     </div>
@@ -258,16 +258,16 @@
 
     <section class="padding-top-double padding-bottom-double ">
         <div class="col-x-small inline-block top padding-top">
-            <h3>Gateway Domain</h3>
+            <h3 class="margin-top">Gateway domain:</h3>
         </div>
         <div class="col-large inline-block">
             <input type="text" placeholder="Enter URL" id="currentGatewayMapping" disabled>
             <button class="blue-button" id="gatewayModifyBtn" onclick="showModifyUrlContentArea('gateway')">Modify</button>
-            <h4 class="italic light-grey transform-none">This is the URL of the Gateway through which your subscribers will consume the APIs.</h4>
+            <h4 class="italic light-grey transform-none">This is the URL of the Gateway through which your subscribers will consume the APIs</h4>
             <!--== modify section starts here ==-->
             <div class="box" id="gatewayUrlChangeArea" style="display:none;">
                 <div class="col-small inline-block top padding-top">
-                    <h2 class="uppercase">New URL:</h2>
+                    <h3 class="margin-top">New URL:</h3>
                 </div>
                 <div class="col-medium inline-block">
                     <input type="text" placeholder="Enter URL" name="url" id="gatewayDomain" autocomplete="off" />
@@ -275,14 +275,14 @@
                     <div id="gatewayVerifyUrlNotificationArea">
                         <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the new URL here,
                         go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.pointingUrl%></strong>.
-                        <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>">Show me how >></a></span></h4>
+                        <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>" target="_blank">Show me how >></a></span></h4>
                     </div>
                 </div>
 
                 <div style="display:none;" id="gatewaySSLFileUploadLocation">
 
                 <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                    <h2 class="uppercase">SSL Certificate:</h2>
+                    <h3 class="margin-top">SSL Certificate:</h3>
                 </div>
 
 
@@ -293,15 +293,15 @@
                     </div>
                      <div class="float-left">
                         <ul>
-                            <li>Give the SSL file in PEM format.</li>
-                            <li>Do not embed the public key in the SSL file.</li>
-                            <li>Do not self sign the SSL file.</li>
+                            <li>Give the SSL file in PEM format</li>
+                            <li>Do not embed the public key in the SSL file</li>
+                            <li>Do not self sign the SSL file</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                    <h2 class="uppercase">SSL Key File:</h2>
+                    <h3 class="margin-top">SSL Key File:</h3>
                 </div>
                 <div class="col-medium inline-block margin-top-double margin-bottom-double">
                     <div class="custom-file-upload">
@@ -309,7 +309,7 @@
                     </div>
                 </div>
                 <div class="col-small inline-block top padding-top margin-top-double margin-bottom-double">
-                    <h2 class="uppercase">Chain File:</h2>
+                    <h3 class="margin-top">Chain File:</h3>
                 </div>
                 <div class="col-medium inline-block margin-top-double margin-bottom-double">
                     <div class="custom-file-upload">
@@ -317,7 +317,7 @@
                     </div>
                     <div class="float-left">
                         <ul>
-                            <li>Encrypt the public key in the RSA format.</li>
+                            <li>Encrypt the public key in the RSA format</li>
                         </ul>
                     </div>
                 </div>
