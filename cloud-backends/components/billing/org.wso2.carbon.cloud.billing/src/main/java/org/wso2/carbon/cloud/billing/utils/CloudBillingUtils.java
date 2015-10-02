@@ -26,6 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
@@ -34,6 +35,7 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.cloud.billing.usage.CloudUsageManager;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -61,6 +63,7 @@ public class CloudBillingUtils {
              CloudBillingUtils.getBillingConfiguration()
                      .getDSConfig()
                      .getHttpClientConfig());
+    private static CloudUsageManager usageManager = new CloudUsageManager();
 
     private CloudBillingUtils() {
     }
@@ -188,6 +191,11 @@ public class CloudBillingUtils {
             }
         }
         return plans;
+    }
+
+    public static AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName,
+                                                              String startDate, String endDate) throws CloudBillingException {
+        return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
     }
 
     private static synchronized String loadFromSecureVault(String alias) {

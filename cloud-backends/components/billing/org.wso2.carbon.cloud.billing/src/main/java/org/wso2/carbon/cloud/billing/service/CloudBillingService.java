@@ -25,7 +25,6 @@ import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.usage.CloudUsageManager;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.core.AbstractAdmin;
 
@@ -36,7 +35,6 @@ import org.wso2.carbon.core.AbstractAdmin;
 public class CloudBillingService extends AbstractAdmin {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingService.class);
-    private static CloudUsageManager usageManager = new CloudUsageManager();
 
     public static String getConfigInJson() throws CloudBillingException {
         try {
@@ -92,7 +90,7 @@ public class CloudBillingService extends AbstractAdmin {
     public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName, String startDate,
                                                               String endDate) throws CloudBillingException {
         try {
-            return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
+            return CloudBillingUtils.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
         } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
