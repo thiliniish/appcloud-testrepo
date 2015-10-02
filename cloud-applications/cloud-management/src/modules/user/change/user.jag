@@ -9,17 +9,16 @@ var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
 var IS_URL =  cloudConfig.ServerUrls.identity.toString();
 
 var userName =  session.get("LOGGED_IN_USER");
 
 
-var changePassword = function(oldPassword, newPassword) {
+var changePassword = function (oldPassword, newPassword) {
     var user = modManager.getTenantAwareUsername(userName);
-    var tenantDomain=modManager.getTenantDomain();
+    var tenantDomain = modManager.getTenantDomain();
     var userEmail = session.get("LOGGED_IN_USER_EMAIL");
-    var context=multitenancy.getPrivilegedCarbonContext();
+    var context = multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();
     try {
         var tenantId = tenantManager.getTenantId(tenantDomain);
@@ -28,22 +27,21 @@ var changePassword = function(oldPassword, newPassword) {
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
         var realm = realmService.getTenantUserRealm(tenantId);
-        var userStoreManager=realm.getUserStoreManager();
-        var result=userStoreManager.updateCredential(user,newPassword,oldPassword);
-        jagg.module("util").changeOTUserPass(userEmail,newPassword);
+        var userStoreManager = realm.getUserStoreManager();
+        var result = userStoreManager.updateCredential(user, newPassword, oldPassword);
+        jagg.module("util").changeOTUserPass(userEmail, newPassword);
         log.info("Successfully changed password for user : " + user);
         return true;
-    }catch (e){
+    } catch (e) {
         log.error("Error while changing password for the user " + userName + e.message);
         throw "Error while changing password for the user " + userName + e.message;
-    }finally{
+    } finally {
         context.endTenantFlow();
     }
-        
 };
 
-var updatePasswordWithUserInput = function(userName,email, newPassword,confirmationKey) {
-    log.info("Updating user password by Password reset");
+var updatePasswordWithUserInput = function (userName, email, newPassword, confirmationKey) {
+    log.info("Resetting password of user : " + userName + " by Password reset");
     var ws = require('ws');
     var request = new ws.WSRequest();
     var options = new Array();
@@ -51,32 +49,40 @@ var updatePasswordWithUserInput = function(userName,email, newPassword,confirmat
     options.timeout = 1000000;
     options.action = "urn:updatePassword";
     options["HTTPHeaders"] = [
-        { name : "Cookie", value :modManager.getAdminCookie(IS_URL) }
+        {name: "Cookie", value: modManager.getAdminCookie(IS_URL)}
     ];
-    var payload = '<updatePassword xmlns="http://services.mgt.identity.carbon.wso2.org"><username>'+userName+'</username><confirmationCode>'+confirmationKey+'</confirmationCode><newPassword>'+jagg.module("util").escapeSpecialCharsXML(newPassword)+'</newPassword></updatePassword>';
-    var result;
+    var payload = '<updatePassword xmlns="http://services.mgt.identity.carbon.wso2.org">'+
+                    '<username>'+userName+'</username>'+
+                    '<confirmationCode>'+confirmationKey+'</confirmationCode>'+
+                    '<newPassword>'+jagg.module("util").escapeSpecialCharsXML(newPassword)+'</newPassword>'+
+                  '</updatePassword>';
+    var result = {};
+    var response;
     try {
         var endPoint = IS_URL + "UserInformationRecoveryService";
-        request.open(options,endPoint, false);
+        request.open(options, endPoint, false);
         request.send(payload);
-        result=request.responseE4X;
-        var entry = result.*::["return"];
+        response = request.responseE4X;
+        var entry = response.*::["return"];
         var error = entry.*::error.text();
         var verified = entry.*::verified.text();
         if (verified == true) {
+            jagg.module("util").changeOTUserPass(email, newPassword);
+            result.error = false;
+            result.message = "Password reset successful";
             log.info("Password reset successful for user " + userName);
-            jagg.module("util").changeOTUserPass(email,newPassword);
-            return "successful";
+            return result;
         } else {
             log.error(error);
-            throw error;
+            result.error = true;
+            result.message = "Password reset un-successful";
+            return result;
         }
     } catch (e) {
         log.error("Error while updating password while resetting password \n" + e.message);
         throw "Error while updating password while resetting password \n" + e.message;
     }
 };
-
 
 %>
 

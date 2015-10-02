@@ -108,20 +108,31 @@ ul
                          confirmationKey:confirmationKey
         },
         function (result) {
-            jagg.message({content:'You have successfully reset your password. Please log in using your new password.',type:'success',cbk:function(){
-                        window.location.href = "index.jag";
-                    }
-            });
             $('#userForm').hide();
             $('#helper_text').hide();
-            },
+            var json = JSON.parse(result.replace(/[\r\n]/g, ""));
+            if(!json.error){
+                jagg.message({content:'You have successfully reset your password. Please log in using your new password.',type:'success',cbk:function(){
+                            window.location.href = "index.jag";
+                        }
+                });
+            } else {
+                jagg.message({content:'Error occurred while resetting your password. Please try again after few minutes.' +
+                        ' If you still have issues, please contact us <a href="mailto:cloud@wso2.com">(cloud@wso2.com)</a>', type:'error',cbk:function(){
+                        window.location.href = "index.jag";
+                    }
+                });
+            }
+
+        },
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:' Error resetting the password', type:'error',cbk:function(){
+            $('#userForm').hide();
+            $('#helper_text').hide();
+            jagg.message({content:'Error occurred while resetting your password. Please try again after few minutes.' +
+                        ' If you still have issues, please contact us <a href="mailto:cloud@wso2.com">(cloud@wso2.com)</a>', type:'error',cbk:function(){
                         window.location.href = "index.jag";
                     }
             });
-            $('#userForm').hide();
-            $('#helper_text').hide();
         });
     }
 
