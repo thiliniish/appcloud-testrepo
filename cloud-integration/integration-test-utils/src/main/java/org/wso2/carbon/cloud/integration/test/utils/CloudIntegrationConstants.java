@@ -26,12 +26,20 @@ public class CloudIntegrationConstants {
             "/cloudmgt/site/blocks/tenant/register/invite/ajax/invite.jag";
     public static final String CLOUD_ADD_TENANT_URL_SFX =
             "/cloudmgt/site/blocks/tenant/register/add/ajax/add.jag";
+    public static final String CLOUD_SIGNUP_CONFIRM_URL_SFX =
+            "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
+
+    //Billing
     public static final String CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX =
             "/cloudmgt/site/blocks/billing/method/info/ajax/get.jag";
     public static final String CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX =
             "/cloudmgt/site/blocks/billing/method/add/ajax/add.jag";
-    public static final String CLOUD_SIGNUP_CONFIRM_URL_SFX =
-            "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
+    public static final String CLOUD_BILLING_ACCOUNT_INFO_URL_SFX =
+            "/cloudmgt/site/blocks/billing/account/info/ajax/get.jag";
+    public static final String CLOUD_BILLING_INVOICE_URL_SFX =
+            "/cloudmgt/site/blocks/billing/account/invoice/ajax/get.jag";
+    public static final String CLOUD_BILLING_ACCOUNT_DETAILS_ADD_URL_SFX =
+            "/cloudmgt/site/blocks/billing/account/add/ajax/add.jag";
 
     //User Management
     public static final String CHANGE_PASSWORD_URL_SFX =
@@ -45,7 +53,15 @@ public class CloudIntegrationConstants {
     public static final String USER_PROFILE_URL_SFX =
             "/cloudmgt/site/blocks/user/profile/ajax/profile.jag";
 
-    //Automation xml parameters
+    public static final String CLOUD_SEND_USER_INVITE_URL_SFX =
+            "/cloudmgt/site/blocks/tenant/users/add/ajax/add.jag";
+    public static final String CLOUD_CONFIRM_USER_URL_SFX =
+            "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
+    public static final String CLOUD_TENANT_USERS_URL_SFX =
+            "/cloudmgt/site/blocks/tenant/users/add/ajax/add.jag";
+    public static final String ALL_CLOUD_USER_ROLES = "//cloudProperties/allTenantRoles";
+    public static final String NEW_CLOUD_USER_EMAILS = "//cloudProperties/tenantNewUserEmails";
+
     //Super admin credentials
     public static final String SUPER_ADMIN_USER_NAME = "//userManagement/superTenant/tenant/admin/user/userName";
     public static final String SUPER_ADMIN_PASSWORD = "//userManagement/superTenant/tenant/admin/user/password";
@@ -58,6 +74,8 @@ public class CloudIntegrationConstants {
             "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/adminUser";
     public static final String TENANT_ADMIN_PASSWORD =
             "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/adminPassword";
+    public static final String TENANT_ADMIN_DOMAIN =
+            "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/tenantDomain";
     public static final String NEW_TENANT_DOMAIN =
             "//cloudProperties/tenantDetails/Tenant[@key='newTenant']/tenantDomain";
     public static final String NEW_TENANT_ADMINUSER =
@@ -84,6 +102,7 @@ public class CloudIntegrationConstants {
     public static final String MYSQL_DRIVER_CLASS_NAME =
             "//datasources/datasource[@name='mysql']/driverClassName";
 
+
     public static final String RESPONSE = "Response";
     public static final String COOKIE = "Cookie";
 
@@ -103,5 +122,7 @@ public class CloudIntegrationConstants {
     //SQL Queries
     public static final String GET_TEMP_UUID_FOR_REGISTRATION =
             "SELECT uuid FROM TEMP_REGISTRATION where email=(?)";
+    public static final String GER_UUID_FOR_TEMP_INVITEE =
+            "SELECT uuid FROM TEMP_INVITEE WHERE tenantDomain=(?) AND email=(?)";
 
 }
