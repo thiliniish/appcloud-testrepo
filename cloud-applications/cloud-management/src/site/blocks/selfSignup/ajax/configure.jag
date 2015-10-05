@@ -17,7 +17,7 @@ include("/jagg/config_reader.jag");
     if (action == "checkSignUpConfiguredForUser") {
 
         var isSignUpConfigured = jagg.module("registry").checkSignupConfiguredInRegistry(userName);
-        var result=false;
+        var result = false;
 
         if (isSignUpConfigured == true || isSignUpConfigured.trim() == "true") {
             statusMessage = "configured";
