@@ -29,13 +29,6 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         var users = tenantMgtService.getUsersofTenant();
-
-    }catch (e){
-    	log.error(e);
-    }finally{
-        context.endTenantFlow();
-    }
-    try {
     	var resultUsers=[];
         for(var i=0;i<users.length;i++){
         	var user=users[i];
@@ -91,13 +84,18 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
     		log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
     	}
     } catch (e) {
-    	log.error("Error while adding user to tenant \n"+e.message);
-    	throw "Error while adding user to application";
+    	log.error("Error while getting users of tenant "+tenantDomain);
+    	log.error(e);
+    	throw "Error while getting users of tenant "+tenantDomain;
     }
+    finally{
+            context.endTenantFlow();
+   	}
     return resultUsers ;
 };
 
 var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDomain, cloudType) {
+
     var context=multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();
 
@@ -108,20 +106,12 @@ var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDom
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         var users = tenantMgtService.getUsersofTenant();
-
-    }catch (e){
-       log.error(e);
-    }finally{
-        context.endTenantFlow();
-    }
-
-    try {
-       var cloudTypeRoles = getRolesofCloudType(cloudType);
-       var resultUsers=[];
+        var cloudTypeRoles = getRolesofCloudType(cloudType);
         for(var i=0;i<users.length;i++){
-               var user=users[i];
-               var tmpUser={};
-               var tmpuserName=user.getUserName();
+            var resultUsers=[];
+            var user=users[i];
+            var tmpUser={};
+            var tmpuserName=user.getUserName();
             var tmpemail=user.getEmail();
             var tmpdisplayName=user.getDisplayName();
             var tmpfirstName=user.getFirstName();
@@ -146,8 +136,8 @@ var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDom
 
                 if(tmproles[j] =='admin'){
                        var roles = {};
-                    roles.roleName=tmproles[j];
-                    roles.displayRoles='Admin';
+                    roles.role=tmproles[j];
+                    roles.displayName='Admin';
                     tmpUser.roleTypes.push(roles);
                     continue;
                 }
@@ -155,56 +145,63 @@ var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDom
                 for(k = 0; k< cloudTypeRoles.length; k++){
 
                     if (tmproles[j]==cloudTypeRoles[k].roleName){
-                       var roles = {};
-                       roles.roleName=cloudTypeRoles[k].roleName;
-                                               roles.displayRoles=cloudTypeRoles[k].displayRoles;
+                       	var roles = {};
+                      	roles.role=cloudTypeRoles[k].roleName;
+					    roles.displayName=cloudTypeRoles[k].displayRoles;
                         tmpUser.roleTypes.push(roles);
                         break;
                     }
                 }
             }
 
-        if(tmpUser.roleTypes[0] != "" || tmpUser.roleTypes[0] != null){
-            resultUsers.push(tmpUser);
+            if(tmpUser.roleTypes[0] != "" || tmpUser.roleTypes[0] != null){
+                resultUsers.push(tmpUser);
+            }
         }
-        }
-
          session.put('tenantUsers',resultUsers);
                if(log.isDebugEnabled()){
                log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
        }
     } catch (e) {
-       log.error("Error while getting users of tenant \n"+e.message);
-       throw "Error while getting users of tenant";
+    	log.error("Error while getting users of tenant "+tenantDomain);
+    	log.error(e);
+    	throw "Error while getting users of tenant "+tenantDomain;
+    }finally{
+        context.endTenantFlow();
     }
     return resultUsers ;
 };
 
 var getRolesofCloudType = function getRolesofCloudType(cloudType) {
 
-var cloudTypeRoles;
-for (i = 0; i < subscriptionsType.length; i++) {
-    if ((subscriptionsType[i].id).equals(cloudType)) {
-        cloudTypeRoles= subscriptionsType[i].roleTypes;
-        break;
+    var cloudTypeRoles;
+    for (i = 0; i < subscriptionsType.length; i++) {
+        if ((subscriptionsType[i].id).equals(cloudType)) {
+            cloudTypeRoles = subscriptionsType[i].roleTypes;
+            break;
+        }
     }
-}
-return cloudTypeRoles;
+    return cloudTypeRoles;
 };
 
 var getPendingUsersofRole = function getPendingUsersofRole(tenantDomain,role) {
 
-	if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
-	   var queryString =SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE_BY_TENANT_DOMAIN;
-	   var parameters =[tenantDomain];
-	   var results = jagg.module("database").executeQuery(queryString, parameters);
-	   var pendingUsers=[];
+        try{
+           var queryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE_BY_TENANT_DOMAIN;
+           var parameters = [tenantDomain];
+           var results = jagg.module("database").executeQuery(queryString, parameters);
+        }catch (e) {
+           log.error("Error while retrieving pending users of tenant "+ tenantDomain +"for role "+ role);
+           log.error(e);
+           throw "Error while retrieving pending users";
+        }
 
+	   var pendingUsers=[];
 	   for(var i=0; i<results.length; i++){
 
 	        var tmpEmail = results[i]["email"];
 	        var tmpRoles = results[i]["roles"].split(',');
-	        for(var j=0; j<tmpRoles.length; j++){
+	        for(var j=0; j < tmpRoles.length; j++){
 	            if(tmpRoles[j]==role){
 	            	pendingUser={};
 	                pendingUser.email=tmpEmail;
@@ -212,64 +209,28 @@ var getPendingUsersofRole = function getPendingUsersofRole(tenantDomain,role) {
 	                for each (var roleKey in tmpRoles){
 	                	var userRoles={};
 	                	displayRole = jagg.module("util").getUserRoleDisplayName(roleKey);
-	                	if(displayRole != null || displayRole != ""){
-	                	userRoles.role=roleKey;
-	                	userRoles.displayRole=displayRole;
-	                	pendingUser.roleTypes.push(userRoles);
+	                	if(displayRole != null && displayRole != ""){
+                            userRoles.role=roleKey;
+                            userRoles.displayName=displayRole;
+                            pendingUser.roleTypes.push(userRoles);
 	                	}
 	                }
 	                pendingUsers.push(pendingUser);
-	                continue;
-	            }
+	                break;
+	            }	            	            
 	        }
-
-
 	   }
 	   return pendingUsers;
-
-	}else{
-		var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
-		log.error(msg);
-		return false;
-		}
 };
 
 var getUserRolesByCloudType = function getUserRolesByCloudType(userName,cloudType) {
 
-    var tmpUser={};
-    var tenantDomain=modManager.getTenantDomain();
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-
-    try {
-        var tenantId = tenantManager.getTenantId(tenantDomain);
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
-        var user = tenantMgtService.getUserInfo(userName);
-        }catch (e){
-            log.error(e);
-         }finally{
-            context.endTenantFlow();
-         }
-
-    try {
-    	var cloudTypeRoles = getRolesofCloudType(cloudType);
-		var tmpuserName=user.getUserName();
-        var tmpemail=user.getEmail();
-        var tmpdisplayName=user.getDisplayName();
-        var tmpfirstName=user.getFirstName();
-        var tmplastName=user.getLastName();
-        var tmproles=user.getRoles();
-        tmpUser.userName=tmpuserName;
-        var userName=tmpuserName;
-        tmpUser.email=tmpemail;
-        tmpUser.displayName=tmpdisplayName;
-        tmpUser.firstName=tmpfirstName;
-        tmpUser.lastName=tmplastName;
-        tmpUser.roleTypes=[];
-
+	try{
+		var userDetails = getUserInfo(userName);
+		var tmpUser={};
+		tmpUser.roleTypes=[];
+		var tmproles = userDetails.roles;
+		var cloudTypeRoles = getRolesofCloudType(cloudType);
         for(var j=0;j<tmproles.length;j++) {
             if(tmproles[j] =='admin'){
                 var roles = {};
@@ -292,21 +253,18 @@ var getUserRolesByCloudType = function getUserRolesByCloudType(userName,cloudTyp
                 }
             }
         }
-
-        if(log.isDebugEnabled()){
-            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+tmpUser);
-        }
-    }
-    catch (e) {
-        log.error("Error while retrieving user info for "+userName);
-
-    }
-    return tmpUser;
+		tmpUser.userName = userDetails.userName;
+		tmpUser.email = userDetails.email;
+		tmpUser.displayName = userDetails.displayName;
+		tmpUser.firstName = userDetails.firstName;
+		tmpUserlastName = userDetails.lastName;
+	}catch(e){
+		log.error(e);
+	    log.error("Error while retrieving user info for "+ userName);
+	    throw "Error while retrieving user info for "+ userName;
+	}					
+	return tmpUser;
 };
-
-
-
-
 
 var getUserInfo = function getUserInfo(userName) {
     var tmpUser={};
