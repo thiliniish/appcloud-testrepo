@@ -85,6 +85,7 @@
 							<element minOccurs="0" name="LastInvoiceDate" nillable="true" type="date" />
 							<element minOccurs="0" name="Name" nillable="true" type="string" />
 							<element minOccurs="0" name="Notes" nillable="true" type="string" />
+							<element minOccurs="0" name="ParentId" nillable="true" type="zns:ID"  />
 							<element minOccurs="0" name="PaymentGateway" nillable="true" type="string"  />
 							<element minOccurs="0" name="PaymentTerm" nillable="true" type="string" /><!-- user-defined enum -->
 							<element minOccurs="0" name="PurchaseOrderNumber" nillable="true" type="string" />
@@ -133,7 +134,7 @@
 				</complexContent>
 			</complexType>	
 
-			<complexType name="Amendment">
+			<complexType name="Amendment" >
 				<complexContent>
 					<extension base="ons:zObject">
 						<sequence>
@@ -864,6 +865,7 @@
 					<extension base="ons:zObject">
 						<sequence>
 							<element minOccurs="0" name="AccountId" nillable="true" type="zns:ID" />
+							<element minOccurs="0" name="AncestorAccountId" nillable="true" type="zns:ID"  />
 							<element minOccurs="0" name="AutoRenew" nillable="true" type="boolean" />
 							<element minOccurs="0" name="CancelledDate" nillable="true" type="date"  />
 							<element minOccurs="0" name="ContractAcceptanceDate" nillable="true" type="date"  />
@@ -900,6 +902,7 @@
 	     			 <sequence>
 		      			 <element minOccurs="0" name="AccountId" nillable="true" type="zns:ID" />
 		      			 <element minOccurs="0" name="AccountNumber" nillable="true" type="string" />
+		      			 <element minOccurs="0" name="AncestorAccountId" nillable="true" type="zns:ID" />
 		      			 <element minOccurs="0" name="ChargeId" nillable="true" type="zns:ID" />
 		      			 <element minOccurs="0" name="ChargeNumber" nillable="true" type="string"/>
 		               	 <element minOccurs="0" name="CreatedById" nillable="true" type="zns:ID"  />
@@ -1014,6 +1017,7 @@
 			</complexType>
 			<complexType name="SubscribeOptions">
 				<sequence>
+					<element minOccurs="0" name="ElectronicPaymentOptions" nillable="true" type="zns:ElectronicPaymentOptions" />
 					<element minOccurs="0" name="ExternalPaymentOptions" nillable="true" type="zns:ExternalPaymentOptions" />
 					<element minOccurs="0" name="GenerateInvoice" nillable="true" type="xs:boolean" />
 					<element minOccurs="0" name="ProcessPayments" nillable="true" type="xs:boolean" />
@@ -1410,6 +1414,7 @@
 				</complexType>
 				<complexType name="AmendOptions" >
 					<sequence>
+						<element minOccurs="0" name="ElectronicPaymentOptions" nillable="true" type="zns:ElectronicPaymentOptions"/>
 						<element minOccurs="0" name="ExternalPaymentOptions" nillable="true" type="zns:ExternalPaymentOptions" />
 						<element minOccurs="0" name="GenerateInvoice" nillable="true" type="xs:boolean" />
 				        <element minOccurs="0" name="InvoiceProcessingOptions" nillable="true" type="zns:InvoiceProcessingOptions" />
@@ -1454,6 +1459,11 @@
 						</sequence>
 					</complexType>
 				</element>
+		       <complexType name="ElectronicPaymentOptions">
+					<sequence>
+					    <element minOccurs="0" name="PaymentMethodId" nillable="true" type="zns:ID" />
+					</sequence>
+				</complexType>		
 				<complexType name="ExternalPaymentOptions">
 					<sequence>
 						<element minOccurs="0" name="Amount" nillable="true" type="decimal"/>
@@ -1867,7 +1877,7 @@
 	</binding>
 	<service name="ZuoraService">
 		<port name="Soap" binding="zns:SoapBinding">
-			<soap:address location="https://apisandbox.zuora.com/apps/services/a/69.0" />
+			<soap:address location="https://www.zuora.com/apps/services/a/70.0" />
 		</port>
 	</service>
 </definitions>

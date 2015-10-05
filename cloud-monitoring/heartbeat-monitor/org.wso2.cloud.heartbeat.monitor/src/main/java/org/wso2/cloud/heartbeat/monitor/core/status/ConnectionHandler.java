@@ -33,10 +33,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
 
-/**
- * @author rajith
- * @version ${Revision}
- */
 public class ConnectionHandler implements Runnable {
 
     private static final Log log = LogFactory.getLog(ConnectionHandler.class);

@@ -62,6 +62,7 @@ public class ApiStatisticTest implements Job {
     private String password;
     private String databaseName;
     private int timeInterval;
+    private String severity;
 
     TestStateHandler testStateHandler;
     TestInfo testInfo;
@@ -72,7 +73,7 @@ public class ApiStatisticTest implements Job {
         log.info("API Statistic Test started.");
 
         //test handler for report status of the test
-        testInfo= new TestInfo(serviceName, TEST_NAME, publisherUrl);
+        testInfo= new TestInfo(serviceName, TEST_NAME, publisherUrl, severity);
         testStateHandler = TestStateHandler.getInstance();
 
         //creating database connection instance
@@ -263,6 +264,10 @@ public class ApiStatisticTest implements Job {
 
     public void setApiVersion(String apiVersion) {
         this.apiVersion = apiVersion;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
     }
 
 }

@@ -13,6 +13,8 @@ import org.wso2.cloud.heartbeat.monitor.core.clients.service.CassandraKeyspaceAd
 import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.rmi.RemoteException;
@@ -41,6 +43,9 @@ public class CassandraPastLogsDeletionTest implements Job {
 
 	private String hostName;
 	private String serviceName;
+	private TestStateHandler testStateHandler;
+	private TestInfo testInfo;
+	private String severity;
 
 	/**
 	 * Parameters used by this class
@@ -207,9 +212,8 @@ public class CassandraPastLogsDeletionTest implements Job {
 		if (type.equals("AxisFault")) {
 			AxisFault axisFault = (AxisFault) obj;
 				log.error(CaseConverter.splitCamelCase(serviceName) + " - Authentication Stub: " +
-				                  hostName +
-				                  ": AxisFault thrown while authenticating the stub from BAM: ",
-				          axisFault);
+				          hostName +
+				          ": AxisFault thrown while authenticating the stub from BAM: ", axisFault);
 			
 			onFailure(axisFault.getMessage());
 		} else if (type.equals("RemoteException")) {
@@ -258,7 +262,7 @@ public class CassandraPastLogsDeletionTest implements Job {
 		Connection connection = dbConnectionManager.getConnection();
 
 		long timestamp = System.currentTimeMillis();
-		DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
+		DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success, Integer.parseInt(severity));
 
 		log.info(CaseConverter.splitCamelCase(serviceName) + " - " + TEST_NAME + ": SUCCESS - "+message);
 	}
@@ -282,7 +286,7 @@ public class CassandraPastLogsDeletionTest implements Job {
 
 			long timestamp = System.currentTimeMillis();
 			DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME,
-			                                     success);
+			                                     success, Integer.parseInt(severity));
 			DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME,
 			                                        msg);
 
@@ -365,6 +369,14 @@ public class CassandraPastLogsDeletionTest implements Job {
 	 */
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
+	}
+
+	/**
+	 * Sets severity value
+	 * @param severity severity
+	 */
+	public void setSeverity(String severity) {
+		this.severity = severity;
 	}
 
 }

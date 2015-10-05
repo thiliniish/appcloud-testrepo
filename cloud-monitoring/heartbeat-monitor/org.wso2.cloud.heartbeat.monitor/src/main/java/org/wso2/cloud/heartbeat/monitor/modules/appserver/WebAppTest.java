@@ -31,6 +31,8 @@ import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
 import org.wso2.cloud.heartbeat.monitor.utils.ModuleUtils;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.io.File;
@@ -70,6 +72,10 @@ public class WebAppTest implements Job {
     private boolean responseCorrect;
     private int requestCount = 0;
 
+    private TestStateHandler testStateHandler;
+    private TestInfo testInfo;
+    private String severity;
+
     /**
      * @param jobExecutionContext
      * "managementHostName", "hostName" ,"tenantUser", "tenantUserPwd" "httpPort"
@@ -79,6 +85,8 @@ public class WebAppTest implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         setCompleteTestName(CaseConverter.splitCamelCase(serviceName) + " - Web App: ");
+        testStateHandler = TestStateHandler.getInstance();
+        testInfo = new TestInfo(serviceName, TEST_NAME, hostName, severity);
         initWebAppTest();
         if (!errorsReported) {
             deployWebApp();
@@ -105,18 +113,18 @@ public class WebAppTest implements Job {
         } catch (AxisFault axisFault) {
             log.error(completeTestName + "AxisFault thrown while initializing the test: ",
                       axisFault);
-            onFailure(axisFault.getMessage());
+            testStateHandler.onFailure(testInfo, axisFault.getMessage());
         } catch (RemoteException e) {
             log.error(completeTestName + "RemoteException thrown while initializing the " +
                       "test: ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         } catch (LoginAuthenticationExceptionException e) {
             log.error(completeTestName + "LoginAuthenticationExceptionException thrown while" +
                       " initializing the test: ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         } catch (Exception e) {
             log.error(completeTestName + "Exception thrown while initializing the test: ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         }
 
     }
@@ -132,10 +140,10 @@ public class WebAppTest implements Job {
             //Exception ignored
         } catch (RemoteException e) {
             log.error(completeTestName + "RemoteException thrown while deploying web app: ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         } catch (MalformedURLException e) {
             log.error(completeTestName + "MalformedURLException thrown while deploying web app: ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         }
     }
 
@@ -164,9 +172,9 @@ public class WebAppTest implements Job {
                 countNoOfRequests("ResponseError",null);
             }
         } catch (HttpException e) {
-            countNoOfRequests("HttpException",e);
+            countNoOfRequests("HttpException", e);
         } catch (IOException e) {
-            countNoOfRequests("IOException",e);
+            countNoOfRequests("IOException", e);
         }
     }
 
@@ -189,15 +197,15 @@ public class WebAppTest implements Job {
     private void handleError(String type, Object obj) {
         if(type.equals("ResponseError")) {
             log.error(completeTestName + "Response doesn't contain required values.");
-            onFailure("Response doesn't contain required values");
+            testStateHandler.onFailure(testInfo, "Response doesn't contain required values");
         }else if(type.equals("HttpException")) {
             HttpException httpException = (HttpException) obj;
             log.error(completeTestName + "HttpException thrown while sending GET request: ", httpException);
-            onFailure(httpException.getMessage());
+            testStateHandler.onFailure(testInfo, httpException.getMessage());
         }else if(type.equals("IOException")) {
             IOException ioException = (IOException) obj;
             log.error(completeTestName + "IOException thrown while sending GET request: ", ioException);
-            onFailure(ioException.getMessage());
+            testStateHandler.onFailure(testInfo, ioException.getMessage());
         }
     }
 
@@ -209,14 +217,14 @@ public class WebAppTest implements Job {
             deleteWarFile("SimpleServlet.war");
             //if no errors reported and response is correct
             if(!errorsReported && responseCorrect){
-                onSuccess();
+                testStateHandler.onSuccess(testInfo);
             }
         } catch (RemoteException e) {
             log.error(completeTestName + "RemoteException thrown while undeploying web app: ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         } catch (Exception e) {
             log.error(completeTestName + "Exception thrown while undeploying web app: ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         }
     }
 
@@ -230,7 +238,7 @@ public class WebAppTest implements Job {
             webAppAdminClient.deleteWebAppFile(artifactName);
         } catch (Exception e){
             log.error(completeTestName + "Exception thrown while deleting war file: ", e);
-            onFailure(e.getMessage());
+            testStateHandler.onFailure(testInfo, e.getMessage());
         }
     }
 
@@ -251,44 +259,7 @@ public class WebAppTest implements Job {
             //Exception ignored
         } catch (Exception e){
             log.error(completeTestName + "Exception thrown while deploying web app: ", e);
-            onFailure(e.getMessage());
-        }
-    }
-
-    /**
-     * On success
-     */
-    private void onSuccess() {
-        boolean success = true;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-
-        log.info(completeTestName + "SUCCESS");
-    }
-
-    /**
-     * On failure
-     * @param msg fault message
-     */
-    private void onFailure(String msg) {
-        if(!errorsReported){
-            boolean success = false;
-            DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-            Connection connection = dbConnectionManager.getConnection();
-
-            long timestamp  = System.currentTimeMillis();
-            DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-            DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME, msg);
-
-            Mailer mailer = Mailer.getInstance();
-            mailer.send(CaseConverter.splitCamelCase(serviceName) + ": FAILURE", CaseConverter.splitCamelCase(TEST_NAME)+": " + msg, "");
-
-            SMSSender smsSender = SMSSender.getInstance();
-            smsSender.send(CaseConverter.splitCamelCase(serviceName) +": "+ CaseConverter.splitCamelCase(TEST_NAME) +": Failure");
-            errorsReported = true;
+            testStateHandler.onFailure(testInfo,e.getMessage());
         }
     }
 
@@ -338,5 +309,13 @@ public class WebAppTest implements Job {
      */
     public void setCompleteTestName(String completeTestName) {
         this.completeTestName = completeTestName;
+    }
+
+    /**
+     * Setes Severity
+     * @param severity
+     */
+    public void setSeverity(String severity){
+        this.severity = severity;
     }
 }

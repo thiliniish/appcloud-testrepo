@@ -32,10 +32,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * @author rajith
- * @version ${Revision}
- */
 public class XMLBuilder {
 
     private static String ROOT_ELEMENT = "CLOUD_HB_MON_XML";

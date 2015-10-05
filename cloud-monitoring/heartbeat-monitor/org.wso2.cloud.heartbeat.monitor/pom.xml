@@ -32,6 +32,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec.wso2</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons.codec.wso2.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.hectorclient.wso2</groupId>
             <artifactId>hector-core</artifactId>
             <version>${org.hectorclient.wso2.version}</version>
@@ -49,7 +59,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.apimgt.api</artifactId>
-            <version>1.2.0</version>
+            <version>${org.wso2.carbon.apimgt.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -59,7 +69,7 @@
         <dependency>
             <groupId>org.wso2.carbon.automation</groupId>
             <artifactId>org.wso2.carbon.automation.core</artifactId>
-            <version>4.2.5</version>
+            <version>${org.wso2.carbon.automation.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
@@ -79,7 +89,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.jaggery.app.mgt.stub</artifactId>
-            <version>1.0.0</version>
+            <version>${org.wso2.carbon.jaggery.app.mgt.stub.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -111,6 +121,12 @@
             <groupId>org.apache.axis2.wso2</groupId>
             <artifactId>axis2-client</artifactId>
             <version>${apache.axis2.wso2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.ws.commons.axiom</groupId>
+                    <artifactId>axiom-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -156,6 +172,16 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.databridge.commons</artifactId>
             <version>${wso2carbon.version.422}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-codec.wso2</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -175,6 +201,71 @@
                     <artifactId>slf4j</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.appfactory</groupId>
+            <artifactId>org.wso2.appfactory.tests.scenarios</artifactId>
+            <version>${org.wso2.appfactory.version}</version>
+            <classifier>tests</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jgit.wso2</groupId>
+                    <artifactId>org.eclipse.jgit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.wso2.appfactory</groupId>
+                    <artifactId>org.wso2.appfactory.integration.test.utils</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.wso2.appfactory</groupId>
+                    <artifactId>org.wso2.appfactory.integration.admin.clients</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.axis2.wso2</groupId>
+                    <artifactId>axis2-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.appfactory</groupId>
+            <artifactId>org.wso2.appfactory.integration.test.utils</artifactId>
+            <version>${org.wso2.appfactory.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.wso2.appfactory</groupId>
+                    <artifactId>org.wso2.appfactory.integration.admin.clients</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.appfactory</groupId>
+            <artifactId>org.wso2.appfactory.integration.admin.clients</artifactId>
+            <version>${org.wso2.appfactory.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.carbon.automationutils</groupId>
+            <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
+            <version>${org.wso2.carbon.integration.common.utils.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents.wso2</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.ws.commons.axiom</groupId>
+                    <artifactId>axiom-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json.wso2</groupId>
+            <artifactId>json</artifactId>
+            <version>${org.json.wso2.version}</version>
         </dependency>
 
     </dependencies>
@@ -227,5 +318,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <stub.version>4.2.0</stub.version>
+        <maven.test.skip>false</maven.test.skip>
+        <maven.test.failure.ignore>false</maven.test.failure.ignore>
+        <skipTests>false</skipTests>
+    </properties>
+
 </project>
 

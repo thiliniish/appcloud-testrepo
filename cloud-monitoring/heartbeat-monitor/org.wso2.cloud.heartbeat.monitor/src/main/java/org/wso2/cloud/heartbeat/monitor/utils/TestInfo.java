@@ -23,17 +23,21 @@ public class TestInfo {
     private String serviceName;
     private String testName;
     private String hostname;
+    private String severity;
+
 
     /**
      * Construcor.
      * @param serviceName Service Name
      * @param testName  Test Name
      * @param hostname  Host Name
+     * @param severity    Severity level
      */
-    public TestInfo(String serviceName, String testName, String hostname) {
+    public TestInfo(String serviceName, String testName, String hostname, String severity) {
         this.serviceName = serviceName;
         this.testName = testName;
         this.hostname = hostname;
+        this.severity = severity;
     }
 
     /**
@@ -59,4 +63,11 @@ public class TestInfo {
     public String getHostname() {
         return hostname;
     }
+
+    /**
+     * Return the severity
+     *
+     * @return Host severity
+     */
+    public String getSeverity() { return severity; }
 }

@@ -231,10 +231,16 @@
         <mysql.connector.version>5.1.26</mysql.connector.version>
         <gitblit.version>1.2.0</gitblit.version>
         <log4j.version>1.2.17</log4j.version>
-        <zuora.stub.version>69.0</zuora.stub.version>
+        <zuora.stub.version>70.0</zuora.stub.version>
+	    <org.wso2.appfactory.version>2.2.0-SNAPSHOT</org.wso2.appfactory.version>
+        <org.json.wso2.version>3.0.0.wso2v1</org.json.wso2.version>
+        <org.wso2.carbon.jaggery.app.mgt.stub.version>1.0.0</org.wso2.carbon.jaggery.app.mgt.stub.version>
+        <org.wso2.carbon.integration.common.utils.version>4.3.0</org.wso2.carbon.integration.common.utils.version>
         <xalan.version>2.7.1</xalan.version>
         <org.wso2.carbon.automation.engine.version>4.3.1</org.wso2.carbon.automation.engine.version>
         <org.wso2.carbon.integration.common.utils.version>4.3.0</org.wso2.carbon.integration.common.utils.version>
+        <org.wso2.carbon.jaggery.app.mgt.stub.version>4.2.0</org.wso2.carbon.jaggery.app.mgt.stub.version>
+        <org.wso2.carbon.jaggery.app.mgt.stub.version>1.0.0</org.wso2.carbon.jaggery.app.mgt.stub.version>
 
         <imp.pkg.version.axiom>[1.2.11.wso2v4, 1.3.0)</imp.pkg.version.axiom>
         <imp.pkg.version.axis2>[1.6.1.wso2v10, 1.7.0)</imp.pkg.version.axis2>

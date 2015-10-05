@@ -30,6 +30,8 @@ import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.modules.appfactory.entities.BuildInfo;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.sql.Connection;
@@ -54,17 +56,17 @@ public class ApplicationBuildTest implements Job {
     private int deploymentWaitTime;
     private String serviceName;
     private String applicationKey;
-
     private String completeTestName;
-
     private boolean errorsReported;
     private int requestCount = 0;
-
     private JaggeryAppAuthenticatorClient authenticatorClient;
     private BuildInfo lastBuildInfo;
     private BuildInfo currentBuildInfo;
     private boolean loginStatus = false;
+    private String severity;
 
+    TestStateHandler testStateHandler;
+    TestInfo testInfo;
 
     /**
      * @param jobExecutionContext
@@ -92,6 +94,8 @@ public class ApplicationBuildTest implements Job {
         hostName = "https://" + hostName;
         authenticatorClient = new JaggeryAppAuthenticatorClient(hostName);
         loginStatus = authenticatorClient.login(tenantUser,tenantUserPwd);
+        testInfo = new TestInfo(serviceName, TEST_NAME, hostName, severity);
+        testStateHandler = TestStateHandler.getInstance();
         if(loginStatus){
             log.info("Successfully logged in to appmgt");
             getBuildInfo();
@@ -184,7 +188,7 @@ public class ApplicationBuildTest implements Job {
             getBuildInfo();
             if(currentBuildInfo.getBuildNo() >= lastBuildInfo.getBuildNo()+1 && currentBuildInfo.getBuildStatus().equals("successful")){
                 authenticatorClient.logout();
-                onSuccess();
+                testStateHandler.onSuccess(testInfo);
             }else{
                 String msg = "";
                 if(currentBuildInfo.getBuildNo()== lastBuildInfo.getBuildNo()){
@@ -192,11 +196,11 @@ public class ApplicationBuildTest implements Job {
                 }else if(!currentBuildInfo.getBuildStatus().equals("successful")) {
                     msg = " Build was not successful.";
                 }
-                onFailure(msg);
+                testStateHandler.onFailure(testInfo, msg);
             }
         } catch (InterruptedException e) {
             log.error("Exception occurred while  testing build status", e);
-            onFailure("Exception occurred while  testing build status. " + e.getMessage());
+            testStateHandler.onFailure(testInfo, "Exception occurred while  testing build status. " + e.getMessage());
         }
     }
 
@@ -228,50 +232,14 @@ public class ApplicationBuildTest implements Job {
     private void handleError(String type) {
         if(type.equals("TriggerBuild")) {
             log.error("Error occurred while triggering the build.");
-            onFailure("Tenant login failure to appmgt jaggery app.");
+            testStateHandler.onFailure(testInfo, "Tenant login failure to appmgt jaggery app.");
         }else if(type.equals("InitLoginError")) {
             log.error("Login Error occurred while initializing the test.");
-            onFailure("Login Error occurred while initializing the test.");
+            testStateHandler.onFailure(testInfo,
+                                       "Login Error occurred while initializing the test.");
         }else if(type.equals("BuildInfoError")) {
             log.error("Error occurred while getting last build info.");
-            onFailure("Error occurred while getting last build info.");
-        }
-    }
-
-    /**
-     * On success
-     */
-    private void onSuccess() {
-        boolean success = true;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-
-        log.info(completeTestName + "SUCCESS");
-    }
-
-    /**
-     * On failure
-     * @param msg fault message
-     */
-    private void onFailure(String msg) {
-        if(!errorsReported){
-            boolean success = false;
-            DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-            Connection connection = dbConnectionManager.getConnection();
-
-            long timestamp  = System.currentTimeMillis();
-            DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-            DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME, msg);
-
-            Mailer mailer = Mailer.getInstance();
-            mailer.send(CaseConverter.splitCamelCase(serviceName) + ": FAILURE", CaseConverter.splitCamelCase(TEST_NAME)+": " + msg, "");
-
-            SMSSender smsSender = SMSSender.getInstance();
-            smsSender.send(CaseConverter.splitCamelCase(serviceName) +": "+ CaseConverter.splitCamelCase(TEST_NAME) +": Failure");
-            errorsReported = true;
+            testStateHandler.onFailure(testInfo,"Error occurred while getting last build info.");
         }
     }
 

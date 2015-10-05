@@ -53,6 +53,7 @@ public class DataPublishingTest implements Job {
     private final int row_count = 100;
     private TestInfo testInfo;
     private TestStateHandler testStateHandler;
+    private String severity;
 
 
     private String hostName;
@@ -80,7 +81,7 @@ public class DataPublishingTest implements Job {
     }
 
     public void init() {
-        testInfo = new TestInfo(serviceName, TEST_NAME, ModuleUtils.hostWithoutPort(hostName));
+        testInfo = new TestInfo(serviceName, TEST_NAME, ModuleUtils.hostWithoutPort(hostName), severity);
         testStateHandler = TestStateHandler.getInstance();
     }
 
@@ -288,6 +289,14 @@ public class DataPublishingTest implements Job {
      */
     public void setCassandraRing(String cassandraRing) {
         this.cassandraRing = cassandraRing;
+    }
+
+    /**
+     * Sets severity value
+     * @param severity severity
+     */
+    public void setSeverity(String severity) {
+        this.severity = severity;
     }
 
 }

@@ -29,6 +29,7 @@ import org.wso2.cloud.heartbeat.monitor.core.status.LiveStatusConnector;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiStatisticTest;
 import org.wso2.cloud.heartbeat.monitor.modules.appfactory.ApplicationBuildTest;
 import org.wso2.cloud.heartbeat.monitor.modules.appfactory.ImportMemberToTenantTest;
+import org.wso2.cloud.heartbeat.monitor.modules.appfactory.IntegrationTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.CassandraPastLogsDeletionTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.DataPublishingTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.HiveScriptExecutionTest;
@@ -166,6 +167,7 @@ public class ScheduleManager {
             List<Class> appfactoryClasses= new ArrayList<Class>();
             appfactoryClasses.add(ApplicationBuildTest.class);
             appfactoryClasses.add(ImportMemberToTenantTest.class);
+            appfactoryClasses.add(IntegrationTest.class);
             scheduleJobs(modules.findChildNodeByName(Constants.APPFACTORY), appfactoryClasses);
         }
 
