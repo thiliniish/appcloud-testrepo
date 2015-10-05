@@ -285,10 +285,10 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 			if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 				actionString =  actionString+"Success";
 				session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
-				log.info("Rightwave api call Cloud Upgrade is success for "+email);
+				log.info("Rightwave api call Cloud Upgrade is success for " + email);
 			} else {
 				actionString =  actionString+"Failed";
-				log.error("Rightwave api call Cloud Upgrade failed for the user "+jagg.getUser()+" "+msg);
+				log.error("Rightwave api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
 			}
 			var event={
 			};
@@ -393,10 +393,10 @@ var createAccount = function (accountData, metaData) {
                         	var events = [];
                         	if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
                         		actionString =  actionString+"Success";
-					log.info("Rightwave api call Cloud Upgrade is success for "+email);
+					log.info("Rightwave api call Cloud Upgrade is success for " + email);
                         	} else {
-                        		actionString =  actionString+"Failed";
-                        		log.error("Rightwave api call Cloud Upgrade failed for the user "+jagg.getUser()+" "+msg);
+                        		actionString =  actionString + "Failed";
+                        		log.error("Rightwave api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
                         	
                         	}
                         	var event={
