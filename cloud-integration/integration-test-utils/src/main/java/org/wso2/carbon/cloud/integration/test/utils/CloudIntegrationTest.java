@@ -29,6 +29,8 @@ public class CloudIntegrationTest {
     protected static String cloudMgtServerUrl;
     protected String tenantAdminUserName;
     protected String tenantAdminPassword;
+    protected String superAdminUserName;
+    protected String superAdminPassword;
 
     public CloudIntegrationTest() {
         cloudMgtServerUrl = CloudIntegrationTestUtils
@@ -37,6 +39,10 @@ public class CloudIntegrationTest {
                 .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_USER_NAME);
         tenantAdminPassword = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_PASSWORD);
+        superAdminUserName = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.SUPER_ADMIN_USER_NAME);
+        superAdminPassword = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.SUPER_ADMIN_PASSWORD);
     }
 
     protected void cleanup() {
