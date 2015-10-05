@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.zuora.wso2</groupId>
             <artifactId>com.zuora.api.wso2.stub</artifactId>
-            <version>69.0</version>
+            <version>${zuora.stub.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>

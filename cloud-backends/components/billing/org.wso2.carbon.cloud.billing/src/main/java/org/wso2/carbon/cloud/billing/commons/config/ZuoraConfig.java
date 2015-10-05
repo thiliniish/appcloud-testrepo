@@ -28,6 +28,7 @@ public class ZuoraConfig {
     private String user;
     private String password;
     private String currency;
+    private long sessionExpired;
     private String termType;
     private String signatureExpired;
     private HttpClientConfig httpClientConfig;
@@ -62,6 +63,15 @@ public class ZuoraConfig {
 
     public void setCurrency(String currency) {
         this.currency = currency;
+    }
+
+    @XmlElement(name = "SessionExpired", nillable = false)
+    public long getSessionExpired() {
+        return sessionExpired;
+    }
+
+    public void setSessionExpired(long sessionExpired) {
+        this.sessionExpired = sessionExpired;
     }
 
     @XmlElement(name = "TermType", nillable = false)

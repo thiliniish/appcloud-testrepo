@@ -43,7 +43,8 @@
         <User>USERNAME</User>
         <Password>PASSWORD</Password>
         <Currency>USD</Currency>
-
+        <!--set the value less than the actual value ex: for 1h here it is set to: 50m-->
+        <SessionExpired>3000000</SessionExpired>
         <!--Payment Type EVERGREEN-->
         <TermType>EVERGREEN</TermType>
         <SignatureExpired>1800000</SignatureExpired>
