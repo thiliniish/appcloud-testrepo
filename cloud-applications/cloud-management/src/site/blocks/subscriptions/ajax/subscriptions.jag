@@ -42,7 +42,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 						parameters = [type,1, domainName,userEmail];
 						modDb.executeQuery(queryString, parameters);
 						actionString =  actionString+"Success";
-						log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for "+email);
+						log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for "+userEmail);
 					} else {
 						actionString =  actionString+"Failed";
 						log.error("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION failed for the user "+jagg.getUser()+" "+msg);
@@ -65,7 +65,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 					parameters = [type, domainName,1,userEmail];
 					modDb.executeQuery(queryString, parameters);
 					actionString =  actionString+"Success";
-					log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for "+email);
+					log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for "+userEmail);
 				} else {
 					actionString =  actionString+"Failed";
 					log.error("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION failed for the user "+jagg.getUser()+" "+msg);
