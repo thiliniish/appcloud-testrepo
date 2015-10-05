@@ -175,7 +175,7 @@ public class ProcessorUtils {
 
     private static void handleDefaultCase(int executionCount, int response, int retryCount, String methodName,
                                           String uri) throws CloudBillingException {
-        if (retryCount == executionCount) {
+        if (retryCount >= executionCount) {
             String msg = methodName + " request failed for the " + retryCount + " attempt for URI: " + uri
                          + " with HTTP error code: " + response;
             LOGGER.error(msg);
