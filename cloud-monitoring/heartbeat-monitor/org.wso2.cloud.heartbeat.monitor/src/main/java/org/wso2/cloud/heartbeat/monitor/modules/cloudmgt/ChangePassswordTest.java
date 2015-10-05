@@ -29,6 +29,8 @@ import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.modules.common.exceptions.FalseReturnException;
 import org.wso2.cloud.heartbeat.monitor.modules.common.exceptions.JaggeryAppLoginException;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.sql.Connection;
@@ -46,6 +48,9 @@ public class ChangePassswordTest implements Job {
 	private String testUserPassword;
 	private int deploymentWaitTime;
 	private String serviceName;
+	private TestInfo testInfo;
+	private TestStateHandler testStateHandler;
+	private String severity="2";
 
 	private String completeTestName;
 
@@ -88,6 +93,8 @@ public class ChangePassswordTest implements Job {
 
 			authenticatorClient = new JaggeryAppAuthenticatorClient(hostName, "cloudmgt");
 			loginStatus = authenticatorClient.login(testUser, testUserPassword);
+			testStateHandler = TestStateHandler.getInstance();
+			testInfo = new TestInfo(serviceName, TEST_NAME, hostName, severity);
 
 			if (!loginStatus) {
 				throw new JaggeryAppLoginException("Login failure to cloudmgt jaggery app. Returned false as login status.");
@@ -150,7 +157,7 @@ public class ChangePassswordTest implements Job {
 													+ testUser + " is \'" + testUserTempPassword + "\'");
 				} else if (result.equals("true")) {
 					log.info("Reset Password Success");
-					onSuccess();
+					testStateHandler.onSuccess(testInfo);
 				}
 			} else {
 				throw new JaggeryAppLoginException("Login failure to cloudmgt jaggery app. Returned false as a login status. New Password for user:" 
@@ -218,52 +225,7 @@ public class ChangePassswordTest implements Job {
 			log.error(CaseConverter.splitCamelCase(serviceName) + " - Reset Password: " + hostName,
 			          exception);
 		}
-		onFailure(exception.getMessage());
-	}
-
-	/**
-	 * On success
-	 */
-	private void onSuccess() {
-		boolean success = true;
-		DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-		Connection connection = dbConnectionManager.getConnection();
-
-		long timestamp = System.currentTimeMillis();
-		DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-
-		log.info(completeTestName + "SUCCESS");
-	}
-
-	/**
-	 * On failure
-	 * 
-	 * @param msg
-	 *            fault message
-	 */
-	private void onFailure(String msg) {
-
-		log.error(completeTestName + "FAILURE  - " + msg);
-		if (!errorsReported) {
-			boolean success = false;
-			DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-			Connection connection = dbConnectionManager.getConnection();
-
-			long timestamp = System.currentTimeMillis();
-			DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME,
-			                                     success);
-			DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME,
-			                                        msg);
-
-			Mailer mailer = Mailer.getInstance();
-			mailer.send(CaseConverter.splitCamelCase(serviceName) + ": FAILURE",
-			            CaseConverter.splitCamelCase(TEST_NAME) + ": " + msg, "");
-
-			SMSSender smsSender = SMSSender.getInstance();
-			smsSender.send(CaseConverter.splitCamelCase(serviceName) + ": " +
-			               CaseConverter.splitCamelCase(TEST_NAME) + ": Failure");
-			errorsReported = true;
-		}
+		testStateHandler.onFailure(testInfo, exception.getMessage());
 	}
 
 	/**
@@ -334,5 +296,13 @@ public class ChangePassswordTest implements Job {
 	 */
 	public void setCompleteTestName(String completeTestName) {
 		this.completeTestName = completeTestName;
+	}
+
+	/**
+	 * set severity
+	 * @param severity severity value
+	 */
+	public void setSeverity(String severity){
+		this.severity = severity;
 	}
 }

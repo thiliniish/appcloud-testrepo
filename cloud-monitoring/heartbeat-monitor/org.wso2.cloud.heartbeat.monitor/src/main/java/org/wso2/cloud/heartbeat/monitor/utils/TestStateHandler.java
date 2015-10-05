@@ -54,7 +54,7 @@ public class TestStateHandler {
         Connection connection = dbConnectionManager.getConnection();
 
         long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, testInfo.getServiceName(), testInfo.getTestName(), success);
+        DbConnectionManager.insertLiveStatus(connection, timestamp, testInfo.getServiceName(), testInfo.getTestName(), success, Integer.parseInt(testInfo.getSeverity()));
 
         log.info(CaseConverter.splitCamelCase(testInfo.getServiceName())+ " - "+testInfo.getTestName()+": SUCCESS");
     }
@@ -70,7 +70,7 @@ public class TestStateHandler {
         Connection connection = dbConnectionManager.getConnection();
 
         long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, testInfo.getServiceName(), testInfo.getTestName(), false);
+        DbConnectionManager.insertLiveStatus(connection, timestamp, testInfo.getServiceName(), testInfo.getTestName(), false, Integer.parseInt(testInfo.getSeverity()));
         DbConnectionManager.insertFailureDetail(connection, timestamp, testInfo.getServiceName(), testInfo.getTestName(), msg);
 
         Mailer mailer = Mailer.getInstance();
@@ -93,7 +93,7 @@ public class TestStateHandler {
         Connection connection = dbConnectionManager.getConnection();
 
         long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, testInfo.getServiceName(), testInfo.getTestName(), false);
+        DbConnectionManager.insertLiveStatus(connection, timestamp, testInfo.getServiceName(), testInfo.getTestName(), false, Integer.parseInt(testInfo.getSeverity()));
         DbConnectionManager.insertFailureDetail(connection, timestamp, testInfo.getServiceName(), testInfo.getTestName(), e.getMessage());
 
         Mailer mailer = Mailer.getInstance();
