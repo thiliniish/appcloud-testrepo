@@ -131,9 +131,10 @@ public class DbConnectionManager {
      * @param service Service name
      * @param test Test name
      * @param status Status need to added
+     * @param severity severity level of the test
      */
-    public static void insertLiveStatus(Connection con, long timeStamp, String service, String test, boolean status){
-        String updateStatus = "INSERT INTO LIVE_STATUS (TIMESTAMP,SERVICE,TEST,STATUS) VALUES (?,?,?,?)";
+    public static void insertLiveStatus(Connection con, long timeStamp, String service, String test, boolean status, int severity){
+        String updateStatus = "INSERT INTO LIVE_STATUS (TIMESTAMP,SERVICE,TEST,STATUS,SEVERITY) VALUES (?,?,?,?,?)";
 
         try {
             PreparedStatement preparedStatement = con.prepareStatement(updateStatus);
@@ -141,6 +142,7 @@ public class DbConnectionManager {
             preparedStatement.setString(2, service);
             preparedStatement.setString(3, test);
             preparedStatement.setBoolean(4, status);
+            preparedStatement.setInt(5, severity);
             preparedStatement.executeUpdate();
             preparedStatement.close();
         } catch (SQLException e) {
