@@ -83,28 +83,16 @@
 
     <build>
         <plugins>
-            <!--<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.16</version>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <configLocation>https://raw.githubusercontent.com/wso2/carbon-kernel/master/checkstyle.xml</configLocation>
-                            <suppressionsLocation>https://raw.githubusercontent.com/wso2/carbon-kernel/master/suppressions.xml</suppressionsLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>-->
+                <version>${maven.checkstyleplugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${maven.findbugsplugin.version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -120,7 +108,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>${maven.compilerplugin.version}</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
@@ -132,7 +120,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-scr-plugin</artifactId>
-                    <version>1.7.2</version>
+                    <version>${maven.scrplugin.version}</version>
                     <executions>
                         <execution>
                             <id>generate-scr-scrdescriptor</id>
@@ -145,7 +133,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.3.5</version>
+                    <version>${maven.bundleplugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
                         <obrRepository>NONE</obrRepository>
@@ -154,7 +142,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>2.1.2</version>
+                    <version>${maven.sourceplugin.version}</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -167,18 +155,73 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2-beta-2</version>
+                    <version>${maven.assemblyplugin.version}</version>
+                </plugin>
+<!--                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <configuration>
+                                <configLocation>
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
+                                </configLocation>
+                                <suppressionsLocation>
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/suppressions.xml
+                                </suppressionsLocation>
+                                <encoding>UTF-8</encoding>
+                                <consoleOutput>true</consoleOutput>
+                                <failsOnError>true</failsOnError>
+                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                            </configuration>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <configuration>
+                        <effort>Max</effort>
+                        <threshold>Low</threshold>
+                        <xmlOutput>true</xmlOutput>
+                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>analyze-compile</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>2.4</version>
-                </plugin>
+                </plugin>-->
             </plugins>
         </pluginManagement>
     </build>
 
     <properties>
+        <!--Maven Plugins -->
+        <maven.compilerplugin.version>3.1</maven.compilerplugin.version>
+        <maven.scrplugin.version>1.7.2</maven.scrplugin.version>
+        <maven.bundleplugin.version>2.5.3</maven.bundleplugin.version>
+        <maven.sourceplugin.version>2.1.2</maven.sourceplugin.version>
+        <maven.assemblyplugin.version>2.4</maven.assemblyplugin.version>
+        <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
+        <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
+        <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
+        <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
+
         <wso2cloud.version>1.0.0</wso2cloud.version>
         <wso2carbon.version>4.2.0</wso2carbon.version>
         <wso2carbon.version.421>4.2.1</wso2carbon.version.421>
@@ -187,8 +230,6 @@
         <orbit.version.json-simple>1.1.wso2v1</orbit.version.json-simple>      
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.source>1.6</maven.compiler.source>
-        <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-        <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gitblit.wso2.version>1.4.1.wso2v1</gitblit.wso2.version>
         <slf4j.version>1.6.1</slf4j.version>
