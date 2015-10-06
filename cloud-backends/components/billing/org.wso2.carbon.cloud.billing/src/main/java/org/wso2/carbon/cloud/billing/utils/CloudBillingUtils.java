@@ -74,7 +74,7 @@ public class CloudBillingUtils {
         getAccountUrl = getAccountUrl.replace(BillingConstants.TENANT_DOMAIN_PARAM, tenantDomain);
         String response = dsBRProcessor.doGet(getAccountUrl);
         try {
-            if (response != null && !"".equals(response)) {
+            if (response != null && !response.isEmpty()) {
                 OMElement elements = AXIOMUtil.stringToOM(response);
                 if (elements.getFirstElement() == null || elements.getFirstElement().getFirstElement() == null) {
                     return null;

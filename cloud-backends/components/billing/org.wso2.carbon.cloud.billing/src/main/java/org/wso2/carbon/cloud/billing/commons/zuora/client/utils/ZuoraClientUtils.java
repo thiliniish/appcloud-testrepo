@@ -40,6 +40,9 @@ import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import java.rmi.RemoteException;
 
+/**
+ * Utility class for handle zuora stub
+ */
 public class ZuoraClientUtils {
 
     private static final String INVALID_RESPONSE_LENGTH = "Invalid response length.";
@@ -61,6 +64,13 @@ public class ZuoraClientUtils {
     private ZuoraServiceStub zuoraServiceStub;
 
     public ZuoraClientUtils() throws AxisFault {
+        this.zuoraServiceStub = new ZuoraServiceStub();
+        this.callOptions = new CallOptions();
+        callOptions.setUseSingleTransaction(true);
+    }
+
+    public ZuoraClientUtils(ClientSession clientSession) throws AxisFault {
+        this.clientSession = clientSession;
         this.zuoraServiceStub = new ZuoraServiceStub();
         this.callOptions = new CallOptions();
         callOptions.setUseSingleTransaction(true);
@@ -176,5 +186,9 @@ public class ZuoraClientUtils {
             login();
         }
         return this.clientSession.getHeader();
+    }
+
+    public ClientSession getClientSession() {
+        return clientSession;
     }
 }

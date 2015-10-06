@@ -34,7 +34,7 @@ public class UsageUploadScheduler {
     private static final Log LOGGER = LogFactory.getLog(UsageUploadScheduler.class);
 
     public void invokeUsageUpload(String cron) {
-        if (cron != null && !"".equals(cron)) {
+        if (cron != null && !cron.isEmpty()) {
             TaskInfo.TriggerInfo triggerInfo = new TaskInfo.TriggerInfo();
             triggerInfo.setCronExpression(cron);
             @SuppressWarnings("deprecation")

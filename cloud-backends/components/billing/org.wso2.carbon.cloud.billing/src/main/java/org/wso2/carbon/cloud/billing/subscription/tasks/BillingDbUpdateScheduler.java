@@ -36,7 +36,7 @@ public class BillingDbUpdateScheduler {
     private static final Log LOGGER = LogFactory.getLog(BillingDbUpdateScheduler.class);
 
     public void invokeBillingDbUpdateTask(String cron) {
-        if (cron != null && !"".equals(cron)) {
+        if (cron != null && !cron.isEmpty()) {
             TaskInfo.TriggerInfo triggerInfo = new TaskInfo.TriggerInfo();
             triggerInfo.setCronExpression(cron);
             @SuppressWarnings("deprecation")
