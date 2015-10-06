@@ -20,6 +20,7 @@ import com.zuora.api.AmendRequest;
 import com.zuora.api.AmendResult;
 import com.zuora.api.CallOptions;
 import com.zuora.api.DeleteResult;
+import com.zuora.api.ErrorCode;
 import com.zuora.api.ID;
 import com.zuora.api.LoginResult;
 import com.zuora.api.SaveResult;
@@ -46,21 +47,18 @@ import java.rmi.RemoteException;
 public class ZuoraClientUtils {
 
     private static final String INVALID_RESPONSE_LENGTH = "Invalid response length.";
-
+    private static final Log LOGGER = LogFactory.getLog(ZuoraClientUtils.class);
+    private static ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
     /**
      * The header.
      */
     private ClientSession clientSession;
-
     /**
      * The call options.
      * {@link "https://knowledgecenter.zuora.com/
      * BC_Developers/SOAP_API/F_SOAP_API_Complex_Types/CallOptions"}
      */
     private CallOptions callOptions;
-
-    private static final Log LOGGER = LogFactory.getLog(ZuoraClientUtils.class);
-    private static ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
     private ZuoraServiceStub zuoraServiceStub;
 
     public ZuoraClientUtils() throws AxisFault {
@@ -112,8 +110,14 @@ public class ZuoraClientUtils {
      * @throws InvalidTypeFault
      */
     public SaveResult create(ZObject obj)
-            throws CloudBillingZuoraException, UnexpectedErrorFault, RemoteException, InvalidTypeFault {
-        SaveResult[] response = zuoraServiceStub.create(new ZObject[]{obj}, this.callOptions, getSessionHeader());
+            throws CloudBillingZuoraException, RemoteException, InvalidTypeFault, UnexpectedErrorFault {
+        SaveResult[] response;
+        try {
+            response = zuoraServiceStub.create(new ZObject[]{obj}, this.callOptions, getSessionHeader());
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            checkInvalidSessionError(unexpectedErrorFault);
+            response = zuoraServiceStub.create(new ZObject[]{obj}, this.callOptions, getSessionHeader());
+        }
         return (SaveResult) getValidatedResponse(response);
     }
 
@@ -128,8 +132,14 @@ public class ZuoraClientUtils {
      * @throws CloudBillingZuoraException
      */
     public SaveResult update(ZObject obj)
-            throws UnexpectedErrorFault, RemoteException, InvalidTypeFault, CloudBillingZuoraException {
-        SaveResult[] response = zuoraServiceStub.update(new ZObject[]{obj}, getSessionHeader());
+            throws RemoteException, InvalidTypeFault, CloudBillingZuoraException, UnexpectedErrorFault {
+        SaveResult[] response;
+        try {
+            response = zuoraServiceStub.update(new ZObject[]{obj}, getSessionHeader());
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            checkInvalidSessionError(unexpectedErrorFault);
+            response = zuoraServiceStub.update(new ZObject[]{obj}, getSessionHeader());
+        }
         return (SaveResult) getValidatedResponse(response);
     }
 
@@ -146,9 +156,15 @@ public class ZuoraClientUtils {
      * @throws CloudBillingZuoraException
      */
     public DeleteResult delete(String type, ID id)
-            throws RemoteException, InvalidValueFault, InvalidTypeFault, UnexpectedErrorFault,
-                   CloudBillingZuoraException {
-        DeleteResult[] response = zuoraServiceStub.delete(type, new ID[]{id}, getSessionHeader());
+            throws RemoteException, InvalidValueFault, InvalidTypeFault, CloudBillingZuoraException,
+                   UnexpectedErrorFault {
+        DeleteResult[] response;
+        try {
+            response = zuoraServiceStub.delete(type, new ID[]{id}, getSessionHeader());
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            checkInvalidSessionError(unexpectedErrorFault);
+            response = zuoraServiceStub.delete(type, new ID[]{id}, getSessionHeader());
+        }
         return (DeleteResult) getValidatedResponse(response);
     }
 
@@ -163,17 +179,23 @@ public class ZuoraClientUtils {
      */
     public AmendResult[] amend(AmendRequest amendRequest)
             throws UnexpectedErrorFault, RemoteException, CloudBillingZuoraException {
-        return zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
+        try {
+            return zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            checkInvalidSessionError(unexpectedErrorFault);
+            return zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
+        }
     }
 
     /**
      * This for a single object hence returning the first object response
+     *
      * @param response ADBBean array of reponse (i.e SaveResult/DeleteResult)
      * @return ADBBean
      * @throws CloudBillingZuoraException
      */
     private ADBBean getValidatedResponse(ADBBean[] response) throws CloudBillingZuoraException {
-        if (response.length > 0){
+        if (response.length > 0) {
             return response[0];
         } else {
             LOGGER.error(INVALID_RESPONSE_LENGTH);
@@ -186,6 +208,16 @@ public class ZuoraClientUtils {
             login();
         }
         return this.clientSession.getHeader();
+    }
+
+    private void checkInvalidSessionError(UnexpectedErrorFault unexpectedErrorFault)
+            throws CloudBillingZuoraException, UnexpectedErrorFault {
+        ErrorCode errorCode = unexpectedErrorFault.getFaultMessage().getUnexpectedErrorFault().getFaultCode();
+        if (ErrorCode.INVALID_SESSION.equals(errorCode)) {
+            login();
+        } else {
+            throw unexpectedErrorFault;
+        }
     }
 
     public ClientSession getClientSession() {
