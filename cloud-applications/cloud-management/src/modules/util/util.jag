@@ -380,7 +380,41 @@ function addUserToOT (email, pass, firstName, lastName) {
 	} catch (e){
 		log.error(e)
 	}
+};
 
+
+function getLeadSourceToken (campaign) {
+    var tokenId = null;
+    try {
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var types = cloudConfig.subscriptions.type;
+        var URL;
+        if (campaign == "signUp") {
+            URL = cloudConfig.RightWaveAddUserApi.signupLeadSource;
+        } else if (campaign=="upgrade") {
+            URL =   cloudConfig.RightWaveAddUserApi.upgradeLeadSource;
+        }
+        else {
+            for (var i = 0; i < types.length; i++) {
+                if (campaign == convertValue(types[i].id)) {
+                    URL = types[i].urls.leadSourceUrl;
+                }
+            }
+        }
+        var result = get(URL);
+        var data = parse(result.data);
+        tokenId = data.tokenid;
+    }
+    catch(e){
+        log.error("Error retrieving lead source token "+e);
+        throw "Error retrieving lead source token "+e;
+    }
+    return tokenId;
+};
+
+function convertValue(value){
+    var val = value.toUpperCase();
+    return val.substring(0, val.indexOf("_"))
 };
 
 function changeOTUserPass (email,pass) {
