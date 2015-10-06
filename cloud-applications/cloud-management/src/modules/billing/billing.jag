@@ -273,12 +273,14 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 	if(is_enable.toString() == "true") {
 		var modEvents = jagg.module("events");
 		var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
+		var tokenId = jagg.module("util").getLeadSourceToken("upgrade");
 		var email = String(session.get("LOGGED_IN_USER_EMAIL"));
 		log.debug("Sending notification to rightwave for unfinished upgrades for "+email);
 		var jsonData={
 			"email" : email,
 			"cloudtype" : type,
-			"upgrade" : "0"
+			"upgrade" : "0",
+			"tokenId" : tokenId
 		};
 		var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
 		var data = "json="+JSON.stringify(jsonData);
@@ -292,10 +294,10 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 			if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
 				actionString =  actionString+"Success";
 				session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
-				log.info("Rightwave api call Cloud Upgrade is success for "+email);
+				log.info("Rightwave api call Cloud Upgrade is success for " + email);
 			} else {
 				actionString =  actionString+"Failed";
-				log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
+				log.error("Rightwave api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
 			}
 			var event={
 			};
@@ -383,10 +385,12 @@ var createAccount = function (accountData, metaData) {
                         	var type =metaData.serviceId.toUpperCase();
                         	type = type.substring(0, type.indexOf("_"));
                         	var email = String(session.get("LOGGED_IN_USER_EMAIL"));
+				var tokenId = jagg.module("util").getLeadSourceToken("upgrade");
                         	var jsonData={
                         		"email" : email,
                         		"cloudtype" : type,
-                        		"upgrade" : "1"
+                        		"upgrade" : "1",
+					"tokenId" : tokenId
                         	};
                         	var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
                         	var data = "json="+JSON.stringify(jsonData);
@@ -398,10 +402,10 @@ var createAccount = function (accountData, metaData) {
                         	var events = [];
                         	if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
                         		actionString =  actionString+"Success";
-					log.info("Rightwave api call Cloud Upgrade is success for "+email);
+					log.info("Rightwave api call Cloud Upgrade is success for " + email);
                         	} else {
-                        		actionString =  actionString+"Failed";
-                        		log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
+                        		actionString =  actionString + "Failed";
+                        		log.error("Rightwave api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
                         	
                         	}
                         	var event={
@@ -870,6 +874,7 @@ function addCloudSubmissionToRightwave(email,domain,type) {
 	var type = type.substring(0, type.indexOf("_"));
 	var modProfile = jagg.module("user/profile");
 	var claims = modProfile.getProfile();
+	var tokenId = jagg.module("util").getLeadSourceToken(type);
 	var jsonData;
 	if (claims.firstname != "undefined" && claims.lastname != "undefined") {
 		var firstName = claims.firstname;
@@ -880,15 +885,16 @@ function addCloudSubmissionToRightwave(email,domain,type) {
 			"firstlogin" : "1",
 			"expiryts" : ""+expDate+"",
 			"firstname" : ""+firstName+"",
-			"lastname" : ""+lastName+""
-			
+			"lastname" : ""+lastName+"",
+			"tokenId" : tokenId	
 		};
 	} else {
 		jsonData={
 			"email" : email,
 			"cloudtype" : type,
 			"firstlogin" : "1",
-			"expiryts" : ""+expDate+""
+			"expiryts" : ""+expDate+"",
+			"tokenId" : tokenId
 		};
 	}
 	var URL = cloudConfig.RightWaveAddUserApi.cloudSubmission;
