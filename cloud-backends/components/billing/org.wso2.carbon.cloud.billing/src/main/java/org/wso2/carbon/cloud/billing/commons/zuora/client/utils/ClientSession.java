@@ -34,7 +34,7 @@ public class ClientSession {
     private long maxInactive;
     private long sessionInitTime;
 
-    public ClientSession (String session, long maxInactive) {
+    public ClientSession(String session, long maxInactive) {
         this.header = new SessionHeader();
         this.header.setSession(session);
         this.sessionInitTime = System.currentTimeMillis();
@@ -45,7 +45,7 @@ public class ClientSession {
         return this.header;
     }
 
-    public boolean isSessionExpired(){
+    public boolean isSessionExpired() {
         return System.currentTimeMillis() >= sessionInitTime + maxInactive;
     }
 }

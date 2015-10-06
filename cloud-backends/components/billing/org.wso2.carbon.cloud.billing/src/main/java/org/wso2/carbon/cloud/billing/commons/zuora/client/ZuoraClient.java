@@ -19,7 +19,7 @@ package org.wso2.carbon.cloud.billing.commons.zuora.client;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ZuoraClientUtils;
 
 /**
- *  abstract class for zuora clients
+ * abstract class for zuora clients
  */
 public abstract class ZuoraClient {
 

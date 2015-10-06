@@ -194,7 +194,8 @@ public class CloudBillingUtils {
     }
 
     public static AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName,
-                                                              String startDate, String endDate) throws CloudBillingException {
+                                                                     String startDate, String endDate)
+            throws CloudBillingException {
         return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
     }
 
