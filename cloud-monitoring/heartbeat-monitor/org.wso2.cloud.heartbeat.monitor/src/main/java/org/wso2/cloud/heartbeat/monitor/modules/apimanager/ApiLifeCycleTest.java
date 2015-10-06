@@ -69,7 +69,7 @@ public class ApiLifeCycleTest implements Job {
     private TestInfo testInfo;
     private TestStateHandler testStateHandler;
     private int deploymentWaitTime = 30000;
-
+    private String severity;
     private int status;
 
     public void loginPublisher() throws Exception {
@@ -135,7 +135,8 @@ public class ApiLifeCycleTest implements Job {
         log.info("Executing method: addApplication");
         try {
             Thread.sleep(deploymentWaitTime);
-            HttpResponse subscribeResponse = apiStore.addApplication(APPLICATION_NAME, "Unlimited", "", "");
+            HttpResponse subscribeResponse = apiStore.addApplication(APPLICATION_NAME, "Unlimited",
+                                                                     "", "");
             log.info("Application added Successfully. Name: " + APPLICATION_NAME + "  ID: " + getApplicationID(APPLICATION_NAME));
         } catch (Exception e) {
             status = StatusCodes.ADD_APPLICATION;
@@ -188,11 +189,16 @@ public class ApiLifeCycleTest implements Job {
             GenerateAppKeyRequest generateAppKeyRequest = new GenerateAppKeyRequest(APPLICATION_NAME);
             String responseString = apiStore.generateApplicationKey(generateAppKeyRequest).getData();
             JSONObject response = new JSONObject(responseString);
-            String accessToken = response.getJSONObject("data").getJSONObject("key").get("accessToken").toString();
+            String accessToken = response.getJSONObject("data").getJSONObject("key").get(
+                    "accessToken").toString();
             Map<String, String> requestHeaders = new HashMap<String, String>();
             requestHeaders.put("Authorization", "Bearer " + accessToken);
             HttpResponse youTubeResponse = HttpRequestUtil.doGet(gatewayUrl +
-                    "/t/" + ModuleUtils.getDomainName(userName) + "/" + API_CONTEXT + "/" + API_VERSION + "/most_popular", requestHeaders);
+                                                                 "/t/" + ModuleUtils
+                                                                         .getDomainName(userName) +
+                                                                 "/" + API_CONTEXT + "/" +
+                                                                 API_VERSION + "/most_popular",
+                                                                 requestHeaders);
             if (youTubeResponse.getData() != null) {
                 log.info("API invoked Successfully");
             } else {
@@ -257,7 +263,8 @@ public class ApiLifeCycleTest implements Job {
         log.info("Executing method: deleteAPI");
         try {
             Thread.sleep(deploymentWaitTime);//wait for unsubscribing
-            HttpResponse deleteResponse = apiPublisher.deleteApi(API_NAME, API_VERSION, providerName);
+            HttpResponse deleteResponse = apiPublisher.deleteApi(API_NAME, API_VERSION,
+                                                                 providerName);
             log.info("API deleted Successfully");
         } catch (Exception e) {
             status = StatusCodes.DELETE_API;
@@ -315,7 +322,7 @@ public class ApiLifeCycleTest implements Job {
 
     public void testAPILifeCycleTestCase() {
 
-        testInfo = new TestInfo(serviceName, TEST_NAME, publisherUrl);
+        testInfo = new TestInfo(serviceName, TEST_NAME, publisherUrl, severity);
         testStateHandler = TestStateHandler.getInstance();
         apiPublisher = new APIPublisherRestClient(publisherUrl);
         apiStore = new APIStoreRestClient(storeUrl);
@@ -375,6 +382,10 @@ public class ApiLifeCycleTest implements Job {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
     }
 
     /**

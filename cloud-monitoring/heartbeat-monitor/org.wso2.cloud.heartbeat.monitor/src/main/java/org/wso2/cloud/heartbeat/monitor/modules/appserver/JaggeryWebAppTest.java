@@ -28,6 +28,8 @@ import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
 import org.wso2.cloud.heartbeat.monitor.utils.ModuleUtils;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.io.File;
@@ -43,18 +45,18 @@ import java.sql.Connection;
  * Jaggery web application test for Application Server implemented in this class
  * Test run with a Jaggery sample name "jaggery_sample"
  */
-@PersistJobDataAfterExecution
-@DisallowConcurrentExecution
-public class JaggeryWebAppTest implements Job {
+@PersistJobDataAfterExecution @DisallowConcurrentExecution public class JaggeryWebAppTest
+        implements Job {
     private static final Log log = LogFactory.getLog(JaggeryWebAppTest.class);
 
     private final String TEST_NAME = "JaggeryWebAppTest";
 
-    private final String ARTIFACT_PATH= "resources" + File.separator + "artifacts"+ File.separator +
-                                        "appserver" + File.separator + "jaggery"+ File.separator +
-                                        "jaggery_sample.zip";
+    private final String ARTIFACT_PATH =
+            "resources" + File.separator + "artifacts" + File.separator +
+            "appserver" + File.separator + "jaggery" + File.separator +
+            "jaggery_sample.zip";
 
-    private final String ARTIFACT_NAME="jaggery_sample";
+    private final String ARTIFACT_NAME = "jaggery_sample";
 
     /*
      * Heartbeat tenant credentials
@@ -75,16 +77,20 @@ public class JaggeryWebAppTest implements Job {
 
     private String tenantUserSecondary;
     private boolean isFirstTenant;
+    private String loginTestSeverity;
+    private String serviceName;
+
+    TestInfo testInfo;
+    TestStateHandler testStateHandler;
 
     /**
-     * @param jobExecutionContext
-     * "managementHostName", "hostName" ,"tenantUser", "tenantUserPwd" "httpPort"
-     * "deploymentWaitTime" params passed via JobDataMap.
+     * @param jobExecutionContext "managementHostName", "hostName" ,"tenantUser", "tenantUserPwd" "httpPort"
+     *                            "deploymentWaitTime" params passed via JobDataMap.
      * @throws org.quartz.JobExecutionException
      */
-    @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        isFirstTenant =true;
+    @Override public void execute(JobExecutionContext jobExecutionContext)
+            throws JobExecutionException {
+        isFirstTenant = true;
         initJaggeryAppTest();
 
         deployJaggeryApp();
@@ -100,25 +106,36 @@ public class JaggeryWebAppTest implements Job {
         responseCorrect = false;
         String sessionCookie;
 
-        try{
-            CarbonAuthenticatorClient carbonAuthenticatorClient = new CarbonAuthenticatorClient(managementHostName);
-            sessionCookie = carbonAuthenticatorClient.login(tenantUser, tenantUserPwd, managementHostName);
+        try {
+            CarbonAuthenticatorClient carbonAuthenticatorClient =
+                    new CarbonAuthenticatorClient(managementHostName);
+            sessionCookie =
+                    carbonAuthenticatorClient.login(tenantUser, tenantUserPwd, managementHostName);
+
+            testStateHandler = TestStateHandler.getInstance();
+            testInfo = new TestInfo(serviceName, TEST_NAME, hostName, loginTestSeverity);
+
             jaggeryAppAdminClient = new JaggeryAppAdminClient(managementHostName, sessionCookie);
             webAppAdminClient = new WebAppAdminClient(managementHostName, sessionCookie);
         } catch (AxisFault axisFault) {
-            log.error("Application Server - Jaggery Webapp: AxisFault thrown while initializing the test: "
-                    , axisFault);
-            onFailure(axisFault.getMessage());
+            log.error(
+                    "Application Server - Jaggery Webapp: AxisFault thrown while initializing the test: ",
+                    axisFault);
+            testStateHandler.onFailure(testInfo, axisFault.getMessage());
         } catch (RemoteException e) {
-            log.error("Application Server - Jaggery Webapp: RemoteException thrown while initializing " +
-                      "the test: ", e);
-            onFailure(e.getMessage());
+            log.error(
+                    "Application Server - Jaggery Webapp: RemoteException thrown while initializing " +
+                    "the test: ", e);
+            testStateHandler.onFailure(testInfo, e.getMessage());
         } catch (LoginAuthenticationExceptionException e) {
-            log.error("Application Server - Jaggery Webapp: LoginAuthenticationExceptionException " +
-                      "thrown while initializing the test: ", e);
-            onFailure(e.getMessage());
+            log.error(
+                    "Application Server - Jaggery Webapp: LoginAuthenticationExceptionException " +
+                    "thrown while initializing the test: ", e);
+            testStateHandler.onFailure(testInfo, e.getMessage());
         } catch (Exception e) {
-            log.error("Application Server - Jaggery Webapp: Exception thrown while initializing the test: ", e);
+            log.error(
+                    "Application Server - Jaggery Webapp: Exception thrown while initializing the test: ",
+                    e);
             onFailure(e.getMessage());
         }
     }
@@ -129,16 +146,18 @@ public class JaggeryWebAppTest implements Job {
     private void deployJaggeryApp() {
 
         //if service exists remove jar and deploy again
-        try{
+        try {
             deleteWarFile();
             uploadWarFile();
         } catch (RemoteException e) {
-            log.error("Application Server - Jaggery Webapp: RemoteException thrown while deploying JAXRS" +
-                      " service: ", e);
-            onFailure(e.getMessage());
-        }   catch (MalformedURLException e) {
-            log.error("Application Server - Jaggery Webapp: MalformedURLException thrown while deploying" +
-                      " Jaggery webapp: ", e);
+            log.error(
+                    "Application Server - Jaggery Webapp: RemoteException thrown while deploying JAXRS" +
+                    " service: ", e);
+            testStateHandler.onFailure(testInfo, e.getMessage());
+        } catch (MalformedURLException e) {
+            log.error(
+                    "Application Server - Jaggery Webapp: MalformedURLException thrown while deploying" +
+                    " Jaggery webapp: ", e);
             onFailure(e.getMessage());
         }
     }
@@ -146,31 +165,31 @@ public class JaggeryWebAppTest implements Job {
     /**
      * Sends a RESTful GET and assert the response
      */
-    private void sendHTTPGET(){
-        String serviceUrl = "http://" + ModuleUtils.getHostWithHttpPort(hostName, httpPort) + "/t/"
-                            + ModuleUtils.getDomainName(tenantUser) + "/jaggeryapps/jaggery_sample/";
+    private void sendHTTPGET() {
+        String serviceUrl =
+                "http://" + ModuleUtils.getHostWithHttpPort(hostName, httpPort) + "/t/" +
+                ModuleUtils.getDomainName(tenantUser) + "/jaggeryapps/jaggery_sample/";
 
         try {
             String response = get(serviceUrl);
-            if(response.contains("This is a sample page")){
+            if (response.contains("This is a sample page")) {
                 responseCorrect = true;
                 requestCount = 0;
             } else {
-                countNoOfRequests("ResponseError",null);
+                countNoOfRequests("ResponseError", null);
             }
         } catch (Exception e) {
-            countNoOfRequests("Exception",e);
+            countNoOfRequests("Exception", e);
         }
 
     }
 
     private void countNoOfRequests(String type, Object obj) {
         requestCount++;
-        if(requestCount == 3){
+        if (requestCount == 3) {
             handleError(type, obj);
             requestCount = 0;
-        }
-        else {
+        } else {
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
@@ -181,13 +200,14 @@ public class JaggeryWebAppTest implements Job {
     }
 
     private void handleError(String type, Object obj) {
-        if(type.equals("ResponseError")) {
-            log.error("Application Server - Jaggery Webapp: Response does not contain required values ");
-            onFailure("Response does not contain required values");
-        }else if(type.equals("Exception")) {
+        if (type.equals("ResponseError")) {
+            log.error(
+                    "Application Server - Jaggery Webapp: Response does not contain required values ");
+            testStateHandler.onFailure(testInfo, "Response does not contain required values");
+        } else if (type.equals("Exception")) {
             Exception e = (Exception) obj;
             log.error("Application Server - Jaggery Webapp: Exception thrown while getting HTTP " +
-                    "GET response: ", e);
+                      "GET response: ", e);
             onFailure(e.getMessage());
         }
     }
@@ -199,18 +219,20 @@ public class JaggeryWebAppTest implements Job {
         try {
             deleteWarFile();
             //if no errors reported and the response is correct service is healthy
-            if(!errorsReported && responseCorrect){
-                onSuccess();
+            if (!errorsReported && responseCorrect) {
+                testStateHandler.onSuccess(testInfo);
             }
         } catch (RemoteException e) {
-            log.error("Application Server - Jaggery Webapp: RemoteException thrown while undeploying " +
-                      "Jaggery webapp: ", e);
+            log.error(
+                    "Application Server - Jaggery Webapp: RemoteException thrown while undeploying " +
+                    "Jaggery webapp: ", e);
             onFailure(e.getMessage());
         }
     }
 
     /**
      * Sends a RESTful GET and returns the response
+     *
      * @param endpoint End point/Service URL
      * @return Response string
      * @throws Exception
@@ -235,15 +257,18 @@ public class JaggeryWebAppTest implements Job {
                 httpCon.disconnect();
             }
         }
-        if(responseCode == 200){
-            if (xmlContent != null){
+        if (responseCode == 200) {
+            if (xmlContent != null) {
                 return xmlContent;
-            } else throw new Exception("Response is null");
-        } else throw new Exception("Response code: " +responseCode);
+            } else
+                throw new Exception("Response is null");
+        } else
+            throw new Exception("Response code: " + responseCode);
     }
 
     /**
      * Returns String from the input stream
+     *
      * @param in Input stream
      * @return String from the input stream
      * @throws Exception
@@ -266,97 +291,79 @@ public class JaggeryWebAppTest implements Job {
 
     /**
      * Uploads jar to deploy Jaggery webapp
+     *
      * @throws java.rmi.RemoteException
      * @throws java.net.MalformedURLException
      */
-    private void uploadWarFile()
-            throws MalformedURLException, RemoteException {
+    private void uploadWarFile() throws MalformedURLException, RemoteException {
 
         try {
             jaggeryAppAdminClient.uploadWarFile(ARTIFACT_NAME, ARTIFACT_PATH);
             Thread.sleep(deploymentWaitTime);
         } catch (InterruptedException ignored) {
             //Exception ignored
-        } catch (Exception e){
-            log.error("Application Server - Jaggery Webapp: Exception thrown while deploying Jaggery webapp: ", e);
+        } catch (Exception e) {
+            log.error(
+                    "Application Server - Jaggery Webapp: Exception thrown while deploying Jaggery webapp: ",
+                    e);
             onFailure(e.getMessage());
         }
     }
 
     /**
      * Deletes Jaggery webapp jar
+     *
      * @throws java.rmi.RemoteException
      */
     private void deleteWarFile() throws RemoteException {
-        try{
+        try {
             webAppAdminClient.deleteWebAppFile(ARTIFACT_NAME);
             Thread.sleep(deploymentWaitTime);
         } catch (InterruptedException ignored) {
             //Exception ignored
-        } catch (Exception e){
-            log.error("Application Server - Jaggery Webapp: Exception thrown while deleting war file: ", e);
+        } catch (Exception e) {
+            log.error(
+                    "Application Server - Jaggery Webapp: Exception thrown while deleting war file: ",
+                    e);
             onFailure(e.getMessage());
         }
     }
 
-    /**
-     * On test success
-     */
-    private void onSuccess() {
-        boolean success = true;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
 
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, "ApplicationServer", TEST_NAME, success);
-
-        log.info("Application Server - Jaggery Webapp: SUCCESS");
-    }
 
     /**
      * On test failure
+     *
      * @param msg error message
      */
     private void onFailure(String msg) {
-        if(!errorsReported & isFirstTenant){
+        if (!errorsReported & isFirstTenant) {
             isFirstTenant = false;
             setTenantUser(tenantUserSecondary);
             requestCount = 0;
-            log.error("Application Server - Jaggery Web app test using first tenant was failed. Trying with the second tenant.");
+            log.error(
+                    "Application Server - Jaggery Web app test using first tenant was failed. Trying with the second tenant.");
             initJaggeryAppTest();
             deployJaggeryApp();
             sendHTTPGET();
             unDeployJaggeryApp();
-        }
-
-        else if(!errorsReported){
-            boolean success = false;
-            DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-            Connection connection = dbConnectionManager.getConnection();
-
-            long timestamp  = System.currentTimeMillis();
-            DbConnectionManager.insertLiveStatus(connection, timestamp, "ApplicationServer", TEST_NAME, success);
-            DbConnectionManager.insertFailureDetail(connection, timestamp, "ApplicationServer", TEST_NAME, msg);
-
-            Mailer mailer = Mailer.getInstance();
-            mailer.send("Application Server: FAILURE", CaseConverter.splitCamelCase(TEST_NAME)+": " + msg, "");
-
-            SMSSender smsSender = SMSSender.getInstance();
-            smsSender.send("Application Server: "+ CaseConverter.splitCamelCase(TEST_NAME) +": Failure");
-            errorsReported = true;
+        } else if (!errorsReported) {
+            testStateHandler.onFailure(testInfo, msg);
         }
     }
 
     /**
      * Sets Management service host
+     *
      * @param managementHostName Management service host
      */
-    public void setManagementHostName(String managementHostName){
+    public void setManagementHostName(String managementHostName) {
         this.managementHostName = managementHostName;
     }
 
     /**
      * Sets service host
+     *
      * @param hostName Service host
      */
     public void setHostName(String hostName) {
@@ -365,6 +372,7 @@ public class JaggeryWebAppTest implements Job {
 
     /**
      * Sets Secondary Tenant user name
+     *
      * @param tenantUser Tenant user name
      */
     public void setTenantUser(String tenantUser) {
@@ -373,6 +381,7 @@ public class JaggeryWebAppTest implements Job {
 
     /**
      * Sets Tenant user name
+     *
      * @param tenantUserSecondary Tenant user name
      */
     public void setTenantUserSecondary(String tenantUserSecondary) {
@@ -381,6 +390,7 @@ public class JaggeryWebAppTest implements Job {
 
     /**
      * Sets Tenant user password
+     *
      * @param tenantUserPwd Tenant user password
      */
     public void setTenantUserPwd(String tenantUserPwd) {
@@ -389,6 +399,7 @@ public class JaggeryWebAppTest implements Job {
 
     /**
      * Sets http port
+     *
      * @param httpPort Http port
      */
     public void setHttpPort(String httpPort) {
@@ -397,11 +408,12 @@ public class JaggeryWebAppTest implements Job {
 
     /**
      * Sets deployment waiting time
+     *
      * @param deploymentWaitTime Deployment wait time
      */
     public void setDeploymentWaitTime(String deploymentWaitTime) {
-        this.deploymentWaitTime = Integer.parseInt(deploymentWaitTime.split("s")[0].replace(" ", ""))*1000;
+        this.deploymentWaitTime =
+                Integer.parseInt(deploymentWaitTime.split("s")[0].replace(" ", "")) * 1000;
     }
-
 
 }

@@ -31,6 +31,7 @@
 
     <test name="CloudMgt-Tests" preserve-order="true" verbose="2">
         <classes>
+            <class name="org.wso2.carbon.cloud.test.scenarios.members.MemberManagementTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.TenantCreationandLoginTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.AccountInfoTestCase"/>
@@ -41,6 +42,7 @@
         <classes>
             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.UserProfileManagementTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>
+
         </classes>
     </test>
 </suite>

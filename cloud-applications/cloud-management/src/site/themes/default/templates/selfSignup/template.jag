@@ -53,16 +53,16 @@
                     var storeUrl=$("#storeUrl").attr('value');
 
                     //setting the success message content.
-                    $(".content-starter h1").text("Self-Signup Successfully Configured");
-                    $("#success_helper_content").append("&emsp;The self signup feature has been configured successfully. Your API Store visitors will now be able to apply for the developer community membership.");
+                    $(".content-starter h1").text("Self Sign-up Successfully Configured");
+                    $("#success_helper_content").append("&emsp;API Store visitors can now apply for membership.");
                     $(".content-section").hide();
                     $(".content-section-wrapper").hide();
                     $(".content-starter h1").css('color','black');
                     $("#success_content").replaceWith("<div class='container content-section-wrapper'><div class='row'><div class='col-lg-12 content-section'><div class='content'>" +
                      "<h5>You can</h5><ul style='list-style-type:disc'>" +
-                     "<li><p><h5>Read more about this feature in our <a target='_blank' href='"+ docLink +"'>documentation.</a></h5></p></li>" +
-                     "<li><p><h5>See it in action in your <a target='_blank' href='"+ storeUrl +"'>API Store</a> (log off to be able to see the Sign Up button).</h5></p></li> " +
-                     "<li><p><h5>Go back to <a target='_blank' href='"+ publisherUrl +"'>API Publisher.</a></h5></p></br></li></ul><p><h5>If you have enabled the approval process, you will be getting emails with approval requests each time a new member attempts to sign up.</h5></p></div></div></div></div>");
+                     "<li><p><h5>See it in action in the <a target='_blank' href='"+ storeUrl +"'>API Store. </a>  (Log off to see the Sign-Up button.) </h5></p></li> "+
+                     "<li><p><h5>Go back to the <a target='_blank' href='"+ publisherUrl +"'>API Publisher.</a></h5></p></li>"+
+                     "<li><p><h5>Read more about self sign-up in our <a target='_blank' href='"+ docLink +"'>documentation.</a></h5></p></li></ul><p></br><h5>If you opted to enable the approval process in the previous step, you will get emails with approval requests whenever visitors self sign up.</h5></p></div></div></div></div>");
                     $(".helper_text h5").css({'font-size':'17px', 'text-align':'left','color':'black'});
                     $("#helper_text").hide();
                     $("#success-message").show();
@@ -228,15 +228,14 @@
 
         <%
         } else {%>
-            <h1>Configure API Store Self Signup</h1>
+            <h1>Configure Self Sign-up for the API Store</h1>
             <div class="helper_text" id="success-message">
               <p id="success_helper_content"></p>
               <p id="success_content"></p>
             </div>
             <div class="helper_text" id="helper_text">
-             <p>The API Store self signup feature is used to allow visitors of the developer portal to apply as members.
-                Optionally, configure the approval process if required.
-                You will see the Sign Up button on the top right corner of your API Store once the configuration is complete.
+             <p>Self sign-up allows the visitors of your API Store to register themselves as members.
+             Once configured, the Sign-Up button appears in the top right-hand corner of the API Store.
             </p>
             </div>
         </div>
@@ -251,10 +250,10 @@
 
                     <div class="content">
                         <div class="center-block">
-                             <div><h3>Self signup functionality can only be configured after you open the API Publisher window at least once.Click the button below to go to the API Publisher. Once that page fully loads, you can return to this self signup configuration process.</h3></div>
+                             <div><h3>Click the button below to open the API Publisher. Once the Publisher fully loads, come back to this page to continue.</h3></div>
                         </div>
                         </br>
-                         <input type="button" class='btn btn-primary' id="btn_apiCloud" name="btn_apiCloud" value="Go to API Cloud" onclick="location.href = '<%=publisherUrl%>';">
+                         <input type="button" class='btn btn-primary' id="btn_apiCloud" name="btn_apiCloud" value="Go to API Publisher" onclick="location.href = '<%=publisherUrl%>';">
                                 </div>
                               </div>
                           </div>
@@ -263,14 +262,14 @@
                 </div>
 
                     <%
-            } else {%>
+        } else {%>
 
         <div class="container content-section-wrapper">
    <form class='form-horizontal' id='selfSignupForm' role='form'>
       <div class="row">
          <div class="col-lg-12 content-section">
             <p >
-            <h3><b>The following parameters are required when sending emails to subscribers</b></h3>
+           <h3><b>The following parameters are required when sending emails to subscribers</b></h3>
             </p>
             </br>
             <div class="form-group">
@@ -288,7 +287,7 @@
             </div>
 
            <p>
-            <h3><b>The following parameters are required when configuring the signup process</b></h3>
+           <h3><b>The following parameters are required when configuring the sign-up process</b></h3>
             </p>
             </br>
 
@@ -296,7 +295,7 @@
                <label for="signupType" class="col-sm-2 control-label">Approval process:</label>
                <div class="col-sm-8">
                   </br>
-                  <input type="radio" name="signupType" id="signupApproved" value="approved" checked="checked" /> Send signup requests to me for approval </br>
+                  <input type="radio" name="signupType" id="signupApproved" value="approved" checked="checked" /> Send sign-up requests to me for approval </br>
                   <input type="radio" name="signupType" id="signupNotApproved" value="notApproved" /> Automatically approve new members on their request
                </div>
             </div>
