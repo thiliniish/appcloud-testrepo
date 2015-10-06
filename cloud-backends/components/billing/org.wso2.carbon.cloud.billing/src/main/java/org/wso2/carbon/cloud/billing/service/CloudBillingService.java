@@ -126,7 +126,7 @@ public class CloudBillingService extends AbstractAdmin {
     public JSONArray getCurrentRatePlan(String tenantDomain, String productName) throws CloudBillingException {
         try {
             String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
-            return (accountId != null && !"".equals(accountId)) ?
+            return (accountId != null && !accountId.isEmpty()) ?
                    ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) : null;
         } catch (CloudBillingException ex) {
             throw ex;

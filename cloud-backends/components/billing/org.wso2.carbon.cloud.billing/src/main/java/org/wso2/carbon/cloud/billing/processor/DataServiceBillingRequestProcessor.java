@@ -73,7 +73,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         System.setProperty(BillingConstants.TRUSTSTORE_NAME_PROPERTY, trustStorePath);
         System.setProperty(BillingConstants.TRUSTSTORE_PASSWORD_PROPERTY, password);
 
-        if (basicAuthHeader == null || "".equals(basicAuthHeader)) {
+        if (basicAuthHeader == null || basicAuthHeader.isEmpty()) {
             throw new IllegalStateException("Data Service Billing Processor is not initialized properly");
         }
         get.addRequestHeader("Authorization", basicAuthHeader);

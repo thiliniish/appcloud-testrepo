@@ -16,10 +16,10 @@
 
 package org.wso2.carbon.cloudmgt.users.beans;
 
+import org.wso2.carbon.user.core.Permission;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.wso2.carbon.user.core.Permission;
 
 public class RoleBean {
     private String roleName;
@@ -55,7 +55,7 @@ public class RoleBean {
     }
 
     public void addUser(String user) {
-        if (user != null && !"".equals(user.trim())) {
+        if (user != null && !user.trim().isEmpty()) {
             users.add(user);
         }
     }
