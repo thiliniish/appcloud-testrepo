@@ -108,11 +108,17 @@ var log = new Log();
 				userRoleList[i].id=userRoleList[i].id.replace(/^\s+|\s+$/g, '');
 			}
             try {
-				var result = mod.inviteUsers(userRoleList,defaultRoles,message);
-				if (result != null) {
+			    var result = mod.inviteUsers(userRoleList,defaultRoles,message);
+			    if (result != null) {
 					response.error = false;
 					response.message = result;
 					print(stringify(response));
+				}
+				else{
+				    log.error("Error while sending user invitations");
+				    response.error=true;
+				    response.message="Error while sending user invitations";
+				    print(stringify(response));
 				}
             } catch(e) {
 				log.error("Error while sending user invitations");
@@ -140,6 +146,12 @@ var log = new Log();
 					response.message = result;
 					print(stringify(response));
 				}
+				else{
+					log.error("Error while re-sending invitation to "+ email);
+					response.error=true;
+					response.message="Error while re-sending invitation to "+ email;
+					print(stringify(response));
+				}
 			} catch(e) {
 				log.error("Error while re-sending invitation to "+ email);
 				response.error=true;
@@ -165,6 +177,12 @@ var log = new Log();
 						response.error = false;
 						response.message = result;
 						print(stringify(response));
+					}
+					else{
+					    log.error("Error while sending email to "+email);
+					    response.error = true;
+					    response.message = "Error while sending email to "+email;
+					    print(stringify(response));
 					}
 				} catch(e) {
 					log.error("Error while sending email to "+email);

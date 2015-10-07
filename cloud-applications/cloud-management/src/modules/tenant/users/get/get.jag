@@ -89,7 +89,7 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
     	throw "Error while getting users of tenant "+tenantDomain;
     }
     finally{
-            context.endTenantFlow();
+        context.endTenantFlow();
    	}
     return resultUsers ;
 };
@@ -130,12 +130,12 @@ var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDom
             tmpUser.lastName=tmplastName;
             tmpUser.roleTypes=[];
             for(var j=0;j<tmproles.length;j++) {
-               if(tmproles[j] == CLOUD_DEFAULT_ROLE){
-                       continue;
-               }
+                if(tmproles[j] == CLOUD_DEFAULT_ROLE){
+                    continue;
+                }
 
                 if(tmproles[j] =='admin'){
-                       var roles = {};
+                    var roles = {};
                     roles.role=tmproles[j];
                     roles.displayName='Admin';
                     tmpUser.roleTypes.push(roles);
@@ -158,10 +158,10 @@ var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDom
                 resultUsers.push(tmpUser);
             }
         }
-         session.put('tenantUsers',resultUsers);
-               if(log.isDebugEnabled()){
-               log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
-       }
+    session.put('tenantUsers',resultUsers);
+    if(log.isDebugEnabled()){
+        log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+    }
     } catch (e) {
     	log.error("Error while getting users of tenant "+tenantDomain);
     	log.error(e);
@@ -186,69 +186,68 @@ var getRolesofCloudType = function getRolesofCloudType(cloudType) {
 
 var getPendingUsersofRole = function getPendingUsersofRole(tenantDomain,role) {
 
-        try{
-           var queryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE_BY_TENANT_DOMAIN;
-           var parameters = [tenantDomain];
-           var results = jagg.module("database").executeQuery(queryString, parameters);
-        }catch (e) {
-           log.error("Error while retrieving pending users of tenant "+ tenantDomain +"for role "+ role);
-           log.error(e);
-           throw "Error while retrieving pending users";
-        }
+    try{
+        var queryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE_BY_TENANT_DOMAIN;
+        var parameters = [tenantDomain];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+    }catch (e) {
+        log.error("Error while retrieving pending users of tenant "+ tenantDomain +"for role "+ role);
+        log.error(e);
+        throw "Error while retrieving pending users";
+    }
 
-	   var pendingUsers=[];
-	   for(var i=0; i<results.length; i++){
+   var pendingUsers=[];
+   for(var i=0; i<results.length; i++){
 
-	        var tmpEmail = results[i]["email"];
-	        var tmpRoles = results[i]["roles"].split(',');
-	        for(var j=0; j < tmpRoles.length; j++){
-	            if(tmpRoles[j]==role){
-	            	pendingUser={};
-	                pendingUser.email=tmpEmail;
-	                pendingUser.roleTypes=[];
-	                for each (var roleKey in tmpRoles){
-	                	var userRoles={};
-	                	displayRole = jagg.module("util").getUserRoleDisplayName(roleKey);
-	                	if(displayRole != null && displayRole != ""){
-                            userRoles.role=roleKey;
-                            userRoles.displayName=displayRole;
-                            pendingUser.roleTypes.push(userRoles);
-	                	}
-	                }
-	                pendingUsers.push(pendingUser);
-	                break;
-	            }	            	            
-	        }
-	   }
-	   return pendingUsers;
+       var tmpEmail = results[i]["email"];
+       var tmpRoles = results[i]["roles"].split(',');
+       for(var j=0; j < tmpRoles.length; j++){
+           if(tmpRoles[j]==role){
+               pendingUser={};
+               pendingUser.email=tmpEmail;
+               pendingUser.roleTypes=[];
+               for each (var roleKey in tmpRoles){
+                   var userRoles={};
+                   displayRole = jagg.module("util").getUserRoleDisplayName(roleKey);
+                   if(displayRole != null && displayRole != ""){
+                       userRoles.role=roleKey;
+                       userRoles.displayName=displayRole;
+                       pendingUser.roleTypes.push(userRoles);
+                   }
+               }
+               pendingUsers.push(pendingUser);
+               break;
+           }
+       }
+   }
+   return pendingUsers;
 };
 
 var getUserRolesByCloudType = function getUserRolesByCloudType(userName,cloudType) {
 
 	try{
-		var userDetails = getUserInfo(userName);
-		var tmpUser={};
-		tmpUser.roleTypes=[];
-		var tmproles = userDetails.roles;
-		var cloudTypeRoles = getRolesofCloudType(cloudType);
+	    var userDetails = getUserInfo(userName);
+	    var tmpUser={};
+	    tmpUser.roleTypes=[];
+	    var tmproles = userDetails.roles;
+	    var cloudTypeRoles = getRolesofCloudType(cloudType);
         for(var j=0;j<tmproles.length;j++) {
             if(tmproles[j] =='admin'){
                 var roles = {};
-				roles.role=tmproles[j];
-				roles.displayName='Admin';
-				tmpUser.roleTypes.push(roles);
+			    roles.role=tmproles[j];
+			    roles.displayName='Admin';
+			    tmpUser.roleTypes.push(roles);
                 continue;
             }
             if(tmproles[j] == CLOUD_DEFAULT_ROLE){
                 continue;
             }
             for(k =0; k<cloudTypeRoles.length; k++){
-
                 if (tmproles[j]==cloudTypeRoles[k].roleName){
-                	var roles = {};
-					roles.role=cloudTypeRoles[k].roleName;
-					roles.displayName=cloudTypeRoles[k].displayRoles;
-					tmpUser.roleTypes.push(roles);
+                    var roles = {};
+				    roles.role=cloudTypeRoles[k].roleName;
+			        roles.displayName=cloudTypeRoles[k].displayRoles;
+				    tmpUser.roleTypes.push(roles);
                     break;
                 }
             }

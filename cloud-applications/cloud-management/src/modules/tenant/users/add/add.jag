@@ -172,30 +172,29 @@ var sendEmail = function(to,link,domain,roles,message) {
     }
     for(var j=0;j<displayRoleArray.length;j++){
     	
-    	displayRoles = displayRoles + displayRoleArray[j];
+        displayRoles = displayRoles + displayRoleArray[j];
     	//Appending (',') or ('and') to the displayRoles string value.
     	if (j == displayRoleArray.length - 2) {
-			displayRoles = displayRoles + " and ";
+		    displayRoles = displayRoles + " and ";
 		} else if (j < displayRoleArray.length - 2) {
-			displayRoles = displayRoles + ", ";
+		    displayRoles = displayRoles + ", ";
 		}
     }
-  if(displayRoleArray.length == 1){
-        displayRoles = displayRoles + " role";
+    if(displayRoleArray.length == 1){
+    	displayRoles = displayRoles + " role";
     } else{
-        displayRoles = displayRoles + " roles";
-    }
-
-    var body = jagg.module("util").getObjFromFile("/site/conf/emails/user_invitation_email.body.txt");
+      displayRoles = displayRoles + " roles";
+  	}
+  	var body = jagg.module("util").getObjFromFile("/site/conf/emails/user_invitation_email.body.txt");
 
 	body = body.replace("$link",link).replace("$link",link);
 	body = body.replace("$tenant",domain);
 	body = body.replace("$roles",displayRoles);
 	if(message != null && message != "" && message != "null" && message !=undefined){
-    	body = body.replace("$message",message);
-    }else{
-    		body = body.replace("$message","");
-    }
+		body = body.replace("$message",message);
+	}else{
+		body = body.replace("$message","");
+	}
 	var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
 	jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
 	log.info("Email successfully sent to " + to);
@@ -204,13 +203,12 @@ var sendEmail = function(to,link,domain,roles,message) {
 var sendUserInvite = function (emails,roles){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
-        var userNames;
+    	var userNames;
         userNames = modManager.getUserNamesFromEmails(emails);
         var isSuccess = "true";
-
-        try {
+    	try {
             for(var i =0; i< userNames.length; i++){
-				sendInvite(emails[i],tenantDomain,roles);
+			    sendInvite(emails[i],tenantDomain,roles);
 			}
         }catch (e){
             log.error(e);
@@ -244,8 +242,8 @@ var inviteUsers = function inviteUsers(userRoleList, defaultRoles, message){
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
         try {
             for(var i =0; i < userRoleList.length; i++){
-               var user = userRoleList[i];
-               if(!jagg.module("tenant").isExistingUser(user.id)){
+                var user = userRoleList[i];
+                if(!jagg.module("tenant").isExistingUser(user.id)){
                     var rolesList;
                     var defaultRoleList = constructRoleList(defaultRoles);
                     if(defaultRoleList != ""){
@@ -256,10 +254,10 @@ var inviteUsers = function inviteUsers(userRoleList, defaultRoles, message){
                     }
                     modManager.getTenantDisplayName(tenantDomain);
                     sendInvite(user.id,tenantDomain,rolesList,message);
-               }
-               else{
-                   log.info("Could not send the email to user :"+user.id+". user already exists.");
-               }
+                }
+                else{
+                    log.info("Could not send the email to user :"+user.id+". user already exists.");
+                }
             }
         }catch (e){
             log.error(e);
@@ -278,7 +276,7 @@ var resendInvite = function resendInvite(email) {
 
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
-    	try{
+        try{
 	        log.info("Re-sending invitation for invited user "+email);
 	        var displayName = modManager.getTenantDisplayName(tenantDomain);
 	        var queryString =SQL_QUERY_STRINGS.SELECT_UUID_AND_ROLES_FROM_TEMP_INVITEE;
@@ -292,12 +290,12 @@ var resendInvite = function resendInvite(email) {
         if(results != null && results !=""){
 	        var uuid = results[0]["uuid"];
 	        var userRoles = results[0]["roles"];
-			var link = targetEpr+"?confirmation="+uuid+"&isInvitee=true";
+		    var link = targetEpr+"?confirmation="+uuid+"&isInvitee=true";
 	        sendEmail(email,link,displayName,userRoles);
 	        return true;
     	}else{
-    		log.info("No pending users available for "+tenantDomain +" and email "+email);
-			return false;
+    	    log.info("No pending users available for "+tenantDomain +" and email "+email);
+	        return false;
     	}
     }
     else{
@@ -309,16 +307,16 @@ var resendInvite = function resendInvite(email) {
 
 var sendEmailWithCustomMessage = function(to,emailSubject,message) {
 
-	var tenantDomain=modManager.getTenantDomain();
+    var tenantDomain=modManager.getTenantDomain();
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
-    	var commonBody = jagg.module("util").getObjFromFile("/site/conf/emails/custom_email.body.txt");
-		commonBody = commonBody.replace("$message",message);
+        var commonBody = jagg.module("util").getObjFromFile("/site/conf/emails/custom_email.body.txt");
+	    commonBody = commonBody.replace("$message",message);
         var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
         jagg.module("util").sendEmail(commonBody, emailSubject +" from :"+ loggedInUserEmail, to);
         log.info("Email successfully sent to " + to);
         return true;
 	}else{
-		var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
         log.error(msg);
         return false;
 	}
