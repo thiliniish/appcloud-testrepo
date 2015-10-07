@@ -118,7 +118,12 @@ public class ZuoraClientUtils {
             checkInvalidSessionError(unexpectedErrorFault);
             response = zuoraServiceStub.create(new ZObject[]{obj}, this.callOptions, getSessionHeader());
         }
-        return (SaveResult) getValidatedResponse(response);
+        SaveResult result = (SaveResult) getValidatedResponse(response);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Create result success: " + result.getSuccess() + ". Errors specified: "
+                         + result.isErrorsSpecified());
+        }
+        return result;
     }
 
     /**
@@ -140,7 +145,12 @@ public class ZuoraClientUtils {
             checkInvalidSessionError(unexpectedErrorFault);
             response = zuoraServiceStub.update(new ZObject[]{obj}, getSessionHeader());
         }
-        return (SaveResult) getValidatedResponse(response);
+        SaveResult result = (SaveResult) getValidatedResponse(response);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Update result success: " + result.getSuccess() + ". Errors specified: "
+                         + result.isErrorsSpecified());
+        }
+        return result;
     }
 
     /**
@@ -165,7 +175,12 @@ public class ZuoraClientUtils {
             checkInvalidSessionError(unexpectedErrorFault);
             response = zuoraServiceStub.delete(type, new ID[]{id}, getSessionHeader());
         }
-        return (DeleteResult) getValidatedResponse(response);
+        DeleteResult result = (DeleteResult) getValidatedResponse(response);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Delete result success: " + result.getSuccess() + ". Errors specified: "
+                         + result.isErrorsSpecified());
+        }
+        return result;
     }
 
     /**
@@ -179,12 +194,21 @@ public class ZuoraClientUtils {
      */
     public AmendResult[] amend(AmendRequest amendRequest)
             throws UnexpectedErrorFault, RemoteException, CloudBillingZuoraException {
+        AmendResult[] results;
         try {
-            return zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
+            results = zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
         } catch (UnexpectedErrorFault unexpectedErrorFault) {
             checkInvalidSessionError(unexpectedErrorFault);
-            return zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
+            results = zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
         }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Amend results status for each amend request, in order");
+            for (AmendResult result : results) {
+                LOGGER.debug("Amend result success: " + result.getSuccess() + ". Errors specified: "
+                             + result.isErrorsSpecified());
+            }
+        }
+        return results;
     }
 
     /**
@@ -205,6 +229,9 @@ public class ZuoraClientUtils {
 
     private SessionHeader getSessionHeader() throws CloudBillingZuoraException {
         if (clientSession == null || clientSession.isSessionExpired()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Client session expired. retrying login");
+            }
             login();
         }
         return this.clientSession.getHeader();
@@ -214,6 +241,7 @@ public class ZuoraClientUtils {
             throws CloudBillingZuoraException, UnexpectedErrorFault {
         ErrorCode errorCode = unexpectedErrorFault.getFaultMessage().getUnexpectedErrorFault().getFaultCode();
         if (ErrorCode.INVALID_SESSION.equals(errorCode)) {
+            LOGGER.warn("Invalid session. retrying login");
             login();
         } else {
             throw unexpectedErrorFault;
