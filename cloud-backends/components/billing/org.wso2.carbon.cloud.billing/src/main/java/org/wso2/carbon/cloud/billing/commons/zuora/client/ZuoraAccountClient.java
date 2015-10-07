@@ -20,6 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.zuora.api.Error;
+import com.zuora.api.ID;
 import com.zuora.api.SaveResult;
 import com.zuora.api.object.Account;
 import com.zuora.api.wso2.stub.InvalidTypeFault;
@@ -71,17 +72,17 @@ public class ZuoraAccountClient extends ZuoraClient {
      *                    Converting Json String to Account object. Json string should be as follows
      *                    parameters should have the "local" prefix
      *                    {
-     *                    "localBatch": "Batch1",
-     *                    "localAccountNumber": "T-1444195138269",
-     *                    "localAllowInvoiceEdit": true,
-     *                    "localAutoPay": false,
-     *                    "localBillCycleDay": 1,
-     *                    "localCrmId": "SFDC-1444195138269",
-     *                    "localCurrency": "USD",
-     *                    "localName": "ACC-1444195138269",
-     *                    "localPaymentTerm": "Due Upon Receipt",
-     *                    "localPurchaseOrderNumber": "PO-1444195138269",
-     *                    "localStatus": "Draft"
+     *                    "batch": "Batch1",
+     *                    "accountNumber": "T-1444195138269",
+     *                    "allowInvoiceEdit": true,
+     *                    "autoPay": false,
+     *                    "billCycleDay": 1,
+     *                    "crmId": "SFDC-1444195138269",
+     *                    "currency": "USD",
+     *                    "name": "ACC-1444195138269",
+     *                    "paymentTerm": "Due Upon Receipt",
+     *                    "purchaseOrderNumber": "PO-1444195138269",
+     *                    "status": "Draft"
      *                    }
      * @return JsonObject
      * {
@@ -90,9 +91,9 @@ public class ZuoraAccountClient extends ZuoraClient {
      * "idSpecified": true,
      * "success": true
      * }
-     *
+     * <p/>
      * or
-     *
+     * <p/>
      * {
      * "errorCodes": [
      * "MISSING_REQUIRED_VALUE"
@@ -107,12 +108,11 @@ public class ZuoraAccountClient extends ZuoraClient {
      */
     public JsonObject createAccount(JsonObject accountInfo) throws CloudBillingZuoraException {
         try {
-            //Gson gson = new Gson();
-            //Account account = gson.fromJson(accountInfo, Account.class);
             ObjectMapper mapper = new ObjectMapper();
             Account account = mapper.readValue(accountInfo.toString(), Account.class);
             SaveResult result = zuoraClientUtils.create(account);
-            return getResultJsonObject(result, account.getName());
+            return resultToJson(result.getSuccess(), result.isErrorsSpecified(), result.isIdSpecified(),
+                                result.getId(), result.getErrors(), account.getName());
         } catch (RemoteException e) {
             String error = "Remote exception " + ACCOUNT_CREATION_ERROR + accountInfo.get("localName");
             LOGGER.error(error, e);
@@ -144,19 +144,47 @@ public class ZuoraAccountClient extends ZuoraClient {
         }
     }
 
-    private JsonObject getResultJsonObject(SaveResult result, String accountName) {
+    /**
+     * @param success           request success status
+     * @param isErrorsSpecified if any errors specified
+     * @param isIdSpecified     is response id specified
+     * @param id                response id
+     * @param errors            errors
+     * @param accountName       account name
+     * @return JsonObject
+     * {
+     * "errorsSpecified": false,
+     * "id": "2c92c0f8501d44050150424e8c771eec",
+     * "idSpecified": true,
+     * "success": true
+     * }
+     * <p/>
+     * or
+     * <p/>
+     * {
+     * "errorCodes": [
+     * "MISSING_REQUIRED_VALUE"
+     * ],
+     * "errorMessages": [
+     * "Missing required value: Name"
+     * ],
+     * "errorsSpecified": true,
+     * "success": false
+     * }
+     */
+    private JsonObject resultToJson(boolean success, boolean isErrorsSpecified, boolean isIdSpecified, ID id,
+                                    Error[] errors, String accountName) {
         JsonObject resultObj = new JsonObject();
 
-        resultObj.addProperty(BillingConstants.RESPONSE_SUCCESS, result.getSuccess());
-        resultObj.addProperty(BillingConstants.RESPONSE_ERRORS_SPECIFIED, result.isErrorsSpecified());
-        resultObj.addProperty(BillingConstants.RESPONSE_ID_SPECIFIED, result.isIdSpecified());
+        resultObj.addProperty(BillingConstants.RESPONSE_SUCCESS, success);
+        resultObj.addProperty(BillingConstants.RESPONSE_ERRORS_SPECIFIED, isErrorsSpecified);
+        resultObj.addProperty(BillingConstants.RESPONSE_ID_SPECIFIED, isIdSpecified);
 
-        if (result.isIdSpecified()) {
-            resultObj.addProperty(BillingConstants.RESPONSE_ID, result.getId().getID());
+        if (isIdSpecified) {
+            resultObj.addProperty(BillingConstants.RESPONSE_ID, id.getID());
         }
 
-        if (result.isErrorsSpecified()) {
-            Error[] errors = result.getErrors();
+        if (isErrorsSpecified) {
             JsonArray errorCodes = new JsonArray();
             JsonArray errorMessages = new JsonArray();
             JsonParser parser = new JsonParser();
@@ -164,9 +192,6 @@ public class ZuoraAccountClient extends ZuoraClient {
                 errorCodes.add(parser.parse(error.getCode().getValue()));
                 errorMessages.add(parser.parse(error.getMessage()));
             }
-            LOGGER.error("Zuora customer account creation success: " + result.getSuccess()
-                         + " with errors while creating account: " + accountName
-                         + ". Error codes are: " + errorCodes);
             resultObj.add(BillingConstants.RESPONSE_ERROR_CODES, errorCodes);
             resultObj.add(BillingConstants.RESPONSE_ERROR_MESSAGES, errorMessages);
         }
