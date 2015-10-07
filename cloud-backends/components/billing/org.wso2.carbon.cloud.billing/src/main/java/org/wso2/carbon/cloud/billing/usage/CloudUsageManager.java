@@ -67,7 +67,7 @@ public class CloudUsageManager {
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
         String url = CloudBillingUtils.getBillingConfiguration().getDSConfig().getUsage();
-        url = url + "?apiPublisher=" + tenantDomain + "&startDate=" + startDate + "&endDate=" + endDate;
+        url = url + "?apiPublisher=%25@" + tenantDomain + "&startDate=" + startDate + "&endDate=" + endDate;
         return dsBRProcessor.doGet(url);
     }
 
