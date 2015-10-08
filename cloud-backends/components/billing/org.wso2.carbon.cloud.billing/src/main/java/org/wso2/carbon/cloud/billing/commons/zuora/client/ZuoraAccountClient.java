@@ -18,6 +18,7 @@ package org.wso2.carbon.cloud.billing.commons.zuora.client;
 
 import com.google.gson.JsonObject;
 import com.zuora.api.DeleteResult;
+import com.zuora.api.ID;
 import com.zuora.api.QueryResult;
 import com.zuora.api.SaveResult;
 import com.zuora.api.object.Account;
@@ -42,12 +43,15 @@ import java.rmi.RemoteException;
 
 /**
  *
+ * Zuora account client extends the support of ZuoraServiceStub
+ * to create/update/delete/query accounts
  */
 public class ZuoraAccountClient extends ZuoraClient {
 
     private static final Log LOGGER = LogFactory.getLog(ZuoraAccountClient.class);
     private static final String INIT_ERROR_MSG = "Error while initializing Zuora Account client";
     private static final String ACCOUNT_CREATION_ERROR = "occurred while creating customer account";
+    private static final String ACCOUNT_UPDATE_ERROR = "occurred while updating the customer account";
     private static final String ACCOUNT_DELETION_ERROR = "occurred while deleting customer account";
     private static final String ACCOUNT_QUERY_BY_NAME_ERROR = "occurred while querying customer account by name";
 
@@ -246,6 +250,104 @@ public class ZuoraAccountClient extends ZuoraClient {
         }
     }
 
+    /**
+     * @param accountInfo json object
+     *                    Converting Json String to Account object. Json string should be as follows
+     *                    parameters should have the "local" prefix
+     *                    {
+     *                          "batch": "Batch1",
+     *                          "accountNumber": "T-1444195138269",
+     *                          "allowInvoiceEdit": true,
+     *                          "autoPay": false,
+     *                          "billCycleDay": 1,
+     *                          "crmId": "SFDC-1444195138269",
+     *                          "currency": "USD",
+     *                          "name": "ACC-1444195138269",
+     *                          "paymentTerm": "Due Upon Receipt",
+     *                          "purchaseOrderNumber": "PO-1444195138269",
+     *                          "status": "Draft"
+     *                    }
+     * @return JsonObject
+     * {
+     *    "errors": null,
+     *    "errorsSpecified": false,
+     *    "id": {
+     *        "id": "2c92c0f9501d4f330150464f02ef0312"
+     *    },
+     *    "idSpecified": true,
+     *    "success": true,
+     *    "successSpecified": true
+     * }
+     *
+     * or
+     *
+     * {
+     *    "errors": [
+     *        {
+     *            "code": {
+     *                "value": "INVALID_VALUE"
+     *            },
+     *            "codeSpecified": true,
+     *            "field": null,
+     *            "fieldSpecified": false,
+     *            "message": "The account number T-1444288585567 is invalid.",
+     *            "messageSpecified": true
+     *        }
+     *    ],
+     *    "errorsSpecified": true,
+     *    "id": null,
+     *    "idSpecified": false,
+     *    "success": false,
+     *    "successSpecified": true
+     * }
+     * @throws CloudBillingZuoraException
+     */
+    public JsonObject updateAccount(JsonObject accountInfo) throws CloudBillingZuoraException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Account accountUpdated = mapper.readValue(accountInfo.toString(), Account.class);
+            ID id = getAccount(accountUpdated.getName()).getId();
+            accountUpdated.setId(id);
+            SaveResult saveResult = zuoraClientUtils.update(accountUpdated);
+            return objectToJson(saveResult);
+        } catch (RemoteException e) {
+            String error = "Remote exception " + ACCOUNT_UPDATE_ERROR + accountInfo.get("localName");
+            LOGGER.error(error, e);
+            throw new CloudBillingZuoraException(e);
+        } catch (InvalidTypeFault invalidTypeFault) {
+            String error = "Invalid type fault error " + ACCOUNT_UPDATE_ERROR +
+                           accountInfo.get("localName") + ". ErrorCode: " + invalidTypeFault.getFaultMessage()
+                                   .getInvalidTypeFault().getFaultCode().toString();
+            LOGGER.error(error, invalidTypeFault);
+            throw new CloudBillingZuoraException(error, invalidTypeFault);
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            String error = "Unexpected Error Fault error " + ACCOUNT_UPDATE_ERROR +
+                           accountInfo.get("localName") + ". ErrorCode: " + unexpectedErrorFault.getFaultMessage()
+                                   .getUnexpectedErrorFault().getFaultCode().toString();
+            LOGGER.error(error, unexpectedErrorFault);
+            throw new CloudBillingZuoraException(error, unexpectedErrorFault);
+        } catch (JsonMappingException e) {
+            String error = "JsonMappingException " + ACCOUNT_UPDATE_ERROR + accountInfo.get("localName");
+            LOGGER.error(error, e);
+            throw new CloudBillingZuoraException(e);
+        } catch (JsonParseException e) {
+            String error = "JsonParseException " + ACCOUNT_UPDATE_ERROR + accountInfo.get("localName");
+            LOGGER.error(error, e);
+            throw new CloudBillingZuoraException(e);
+        } catch (IOException e) {
+            String error = "IOException " + ACCOUNT_UPDATE_ERROR + accountInfo.get("localName");
+            LOGGER.error(error, e);
+            throw new CloudBillingZuoraException(e);
+        } catch (InvalidQueryLocatorFault invalidQueryLocatorFault) {
+            String error = "InvalidQueryLocatorFault " + ACCOUNT_UPDATE_ERROR + accountInfo.get("localName");
+            LOGGER.error(error, invalidQueryLocatorFault);
+            throw new CloudBillingZuoraException(invalidQueryLocatorFault);
+        } catch (MalformedQueryFault malformedQueryFault) {
+            String error = "MalformedQueryFault " + ACCOUNT_UPDATE_ERROR + accountInfo.get("localName");
+            LOGGER.error(error, malformedQueryFault);
+            throw new CloudBillingZuoraException(malformedQueryFault);
+        }
+    }
 
     private Account getAccount(String accountName)
             throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
