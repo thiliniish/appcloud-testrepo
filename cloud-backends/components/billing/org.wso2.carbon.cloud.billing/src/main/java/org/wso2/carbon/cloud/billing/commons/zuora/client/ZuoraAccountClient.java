@@ -16,11 +16,7 @@
 
 package org.wso2.carbon.cloud.billing.commons.zuora.client;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.zuora.api.Error;
-import com.zuora.api.ID;
 import com.zuora.api.SaveResult;
 import com.zuora.api.object.Account;
 import com.zuora.api.wso2.stub.InvalidTypeFault;
@@ -31,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ClientSession;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ZuoraClientUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
@@ -72,37 +67,50 @@ public class ZuoraAccountClient extends ZuoraClient {
      *                    Converting Json String to Account object. Json string should be as follows
      *                    parameters should have the "local" prefix
      *                    {
-     *                    "batch": "Batch1",
-     *                    "accountNumber": "T-1444195138269",
-     *                    "allowInvoiceEdit": true,
-     *                    "autoPay": false,
-     *                    "billCycleDay": 1,
-     *                    "crmId": "SFDC-1444195138269",
-     *                    "currency": "USD",
-     *                    "name": "ACC-1444195138269",
-     *                    "paymentTerm": "Due Upon Receipt",
-     *                    "purchaseOrderNumber": "PO-1444195138269",
-     *                    "status": "Draft"
+     *                          "batch": "Batch1",
+     *                          "accountNumber": "T-1444195138269",
+     *                          "allowInvoiceEdit": true,
+     *                          "autoPay": false,
+     *                          "billCycleDay": 1,
+     *                          "crmId": "SFDC-1444195138269",
+     *                          "currency": "USD",
+     *                          "name": "ACC-1444195138269",
+     *                          "paymentTerm": "Due Upon Receipt",
+     *                          "purchaseOrderNumber": "PO-1444195138269",
+     *                          "status": "Draft"
      *                    }
      * @return JsonObject
      * {
-     * "errorsSpecified": false,
-     * "id": "2c92c0f8501d44050150424e8c771eec",
-     * "idSpecified": true,
-     * "success": true
+     *    "errors": null,
+     *    "errorsSpecified": false,
+     *    "id": {
+     *        "id": "2c92c0f9501d4f330150464f02ef0312"
+     *    },
+     *    "idSpecified": true,
+     *    "success": true,
+     *    "successSpecified": true
      * }
-     * <p/>
+     *
      * or
-     * <p/>
+     *
      * {
-     * "errorCodes": [
-     * "MISSING_REQUIRED_VALUE"
-     * ],
-     * "errorMessages": [
-     * "Missing required value: Name"
-     * ],
-     * "errorsSpecified": true,
-     * "success": false
+     *    "errors": [
+     *        {
+     *            "code": {
+     *                "value": "INVALID_VALUE"
+     *            },
+     *            "codeSpecified": true,
+     *            "field": null,
+     *            "fieldSpecified": false,
+     *            "message": "The account number T-1444288585567 is invalid.",
+     *            "messageSpecified": true
+     *        }
+     *    ],
+     *    "errorsSpecified": true,
+     *    "id": null,
+     *    "idSpecified": false,
+     *    "success": false,
+     *    "successSpecified": true
      * }
      * @throws CloudBillingZuoraException
      */
@@ -111,8 +119,7 @@ public class ZuoraAccountClient extends ZuoraClient {
             ObjectMapper mapper = new ObjectMapper();
             Account account = mapper.readValue(accountInfo.toString(), Account.class);
             SaveResult result = zuoraClientUtils.create(account);
-            return resultToJson(result.getSuccess(), result.isErrorsSpecified(), result.isIdSpecified(),
-                                result.getId(), result.getErrors(), account.getName());
+            return objectToJson(result);
         } catch (RemoteException e) {
             String error = "Remote exception " + ACCOUNT_CREATION_ERROR + accountInfo.get("localName");
             LOGGER.error(error, e);
@@ -142,59 +149,5 @@ public class ZuoraAccountClient extends ZuoraClient {
             LOGGER.error(error, e);
             throw new CloudBillingZuoraException(e);
         }
-    }
-
-    /**
-     * @param success           request success status
-     * @param isErrorsSpecified if any errors specified
-     * @param isIdSpecified     is response id specified
-     * @param id                response id
-     * @param errors            errors
-     * @param accountName       account name
-     * @return JsonObject
-     * {
-     * "errorsSpecified": false,
-     * "id": "2c92c0f8501d44050150424e8c771eec",
-     * "idSpecified": true,
-     * "success": true
-     * }
-     * <p/>
-     * or
-     * <p/>
-     * {
-     * "errorCodes": [
-     * "MISSING_REQUIRED_VALUE"
-     * ],
-     * "errorMessages": [
-     * "Missing required value: Name"
-     * ],
-     * "errorsSpecified": true,
-     * "success": false
-     * }
-     */
-    private JsonObject resultToJson(boolean success, boolean isErrorsSpecified, boolean isIdSpecified, ID id,
-                                    Error[] errors, String accountName) {
-        JsonObject resultObj = new JsonObject();
-
-        resultObj.addProperty(BillingConstants.RESPONSE_SUCCESS, success);
-        resultObj.addProperty(BillingConstants.RESPONSE_ERRORS_SPECIFIED, isErrorsSpecified);
-        resultObj.addProperty(BillingConstants.RESPONSE_ID_SPECIFIED, isIdSpecified);
-
-        if (isIdSpecified) {
-            resultObj.addProperty(BillingConstants.RESPONSE_ID, id.getID());
-        }
-
-        if (isErrorsSpecified) {
-            JsonArray errorCodes = new JsonArray();
-            JsonArray errorMessages = new JsonArray();
-            JsonParser parser = new JsonParser();
-            for (Error error : errors) {
-                errorCodes.add(parser.parse(error.getCode().getValue()));
-                errorMessages.add(parser.parse(error.getMessage()));
-            }
-            resultObj.add(BillingConstants.RESPONSE_ERROR_CODES, errorCodes);
-            resultObj.add(BillingConstants.RESPONSE_ERROR_MESSAGES, errorMessages);
-        }
-        return resultObj;
     }
 }

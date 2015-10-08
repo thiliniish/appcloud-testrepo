@@ -153,14 +153,6 @@ public final class BillingConstants {
     public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
 
 
-    public static final String RESPONSE_SUCCESS = "success";
-    public static final String RESPONSE_ERRORS_SPECIFIED = "errorsSpecified";
-    public static final String RESPONSE_ERROR_CODES = "errorCodes";
-    public static final String RESPONSE_ERROR_MESSAGES = "errorMessages";
-    public static final String RESPONSE_ID_SPECIFIED = "idSpecified";
-    public static final String RESPONSE_ID = "id";
-
-
     private BillingConstants() {
     }
 

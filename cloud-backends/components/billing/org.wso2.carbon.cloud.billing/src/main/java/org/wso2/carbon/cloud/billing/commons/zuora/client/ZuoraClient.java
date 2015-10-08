@@ -16,7 +16,12 @@
 
 package org.wso2.carbon.cloud.billing.commons.zuora.client;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ZuoraClientUtils;
+
+import java.io.IOException;
 
 /**
  * abstract class for zuora clients
@@ -27,5 +32,18 @@ public abstract class ZuoraClient {
 
     public ZuoraClientUtils getZuoraClientUtils() {
         return zuoraClientUtils;
+    }
+
+    /**
+     * Response as a json object
+     *
+     * @param obj Results from the stub
+     * @return results as a json object
+     * @throws IOException
+     */
+    protected JsonObject objectToJson(Object obj) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        String result = mapper.writeValueAsString(obj);
+        return (JsonObject) (new JsonParser().parse(result));
     }
 }
