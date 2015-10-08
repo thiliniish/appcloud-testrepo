@@ -315,6 +315,20 @@ public class ZuoraClientUtils {
         }
     }
 
+    /**
+     * Prepare ZQuery
+     *
+     * @param query String query
+     * @param params parameters
+     * @return Prepared ZQuery
+     */
+    public static String prepareZQuery(String query, String[] params){
+        for (String param : params){
+            query = query.replaceFirst("\\?", param.trim());
+        }
+        return query;
+    }
+
     public ClientSession getClientSession() {
         return clientSession;
     }

@@ -152,6 +152,12 @@ public final class BillingConstants {
 
     public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
 
+    /* Zuora queries */
+    //ToDo Subject to change
+    public static final String QUERY_ZUORA_ACCOUNT_BY_NAME = "SELECT id, name, accountnumber FROM account WHERE name = '?'";
+
+    /*Zuora types*/
+    public static final String ZUORA_ACCOUNT = "Account";
 
     private BillingConstants() {
     }
