@@ -99,7 +99,7 @@ var sendInvite = function(email,tenant,roles,message) {
 	var getRolesQueryString = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
 	var parameters = [tenant,email];
 	var existingRecord = jagg.module("database").executeQuery(getRolesQueryString, parameters);
-	if (existingRecord != "" && existingRecord != null){	
+	if (existingRecord != "" && existingRecord != null){
 		var existingRoles = existingRecord[0]["roles"].split(",");
 		var userRoleArray = roles.split(",");
 		for(var i=0;i<existingRoles.length;i++){
@@ -167,11 +167,11 @@ var sendEmail = function(to,link,domain,roles,message) {
     for(var i=0;i<userRoleArray.length;i++){
         var userRoleDisplayName = jagg.module("util").getUserRoleDisplayName(userRoleArray[i]);
         if(userRoleDisplayName != null && userRoleDisplayName != "" && userRoleDisplayName != "null") {
-        	displayRoleArray.push(userRoleDisplayName); 
+        	displayRoleArray.push(userRoleDisplayName);
         }
     }
     for(var j=0;j<displayRoleArray.length;j++){
-    	
+
         displayRoles = displayRoles + displayRoleArray[j];
     	//Appending (',') or ('and') to the displayRoles string value.
     	if (j == displayRoleArray.length - 2) {
@@ -286,7 +286,7 @@ var resendInvite = function resendInvite(email) {
         	log.error(e);
            	log.error("Error while re-sending invitation to "+email);
         	throw "Error while re-sending invitation to "+email;
-        }                
+        }
         if(results != null && results !=""){
 	        var uuid = results[0]["uuid"];
 	        var userRoles = results[0]["roles"];

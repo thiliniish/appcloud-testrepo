@@ -27,10 +27,6 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * @author rajith
- * @version ${Revision}
- */
 public class LiveStatusConnector implements Runnable {
 
     private static final Log log = LogFactory.getLog(LiveStatusConnector.class);

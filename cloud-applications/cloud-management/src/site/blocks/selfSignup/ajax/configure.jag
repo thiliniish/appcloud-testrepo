@@ -52,7 +52,6 @@ include("/jagg/config_reader.jag");
                     }
                     log.info("Completed the uploading process for the user " + userName);
 
-                    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
                     statusMessage = jagg.module("registry").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
 
                 } else {

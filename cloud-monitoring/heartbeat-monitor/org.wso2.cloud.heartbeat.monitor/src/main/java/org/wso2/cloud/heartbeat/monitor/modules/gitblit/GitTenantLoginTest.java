@@ -24,6 +24,8 @@ import org.quartz.*;
 import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.io.IOException;
@@ -49,6 +51,10 @@ public class GitTenantLoginTest implements Job{
 
     private String loginUrl;
 
+    private TestInfo testInfo;
+    private TestStateHandler testStateHandler;
+    private String loginTestSeverity="2";
+
     /**
      * @param jobExecutionContext
      * "hostName" ,"tenantUser", "tenantUserPwd" "serviceName" params passed via JobDataMap.
@@ -63,6 +69,8 @@ public class GitTenantLoginTest implements Job{
 
     private void initializeLoginTest() {
         loginUrl = "https://" + hostName;
+        testStateHandler = TestStateHandler.getInstance();
+        testInfo = new TestInfo(serviceName, TEST_NAME, hostName, loginTestSeverity);
     }
 
     /**
@@ -72,7 +80,7 @@ public class GitTenantLoginTest implements Job{
         try {
             Map<String,RepositoryModel> map =  RpcUtils.getRepositories(loginUrl,tenantUser,tenantUserPwd.toCharArray());
             if(map.size() > 0){
-                onSuccess();
+                testStateHandler.onSuccess(testInfo);
             }else {
                 countNoOfLoginRequests("LoginError", null);
             }
@@ -102,56 +110,20 @@ public class GitTenantLoginTest implements Job{
 
     private void handleError(String type, Object obj) {
         if(type.equals("LoginError")) {
-            log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
-                    ": Login failure. Check username and password.");
-            onFailure("Tenant login failure:  Check username and password.");
+            log.error(CaseConverter.splitCamelCase(serviceName) + " - Tenant Login: " + hostName +
+                      ": Login failure. Check username and password.");
+            testStateHandler.onFailure(testInfo,"Tenant login failure:  Check username and password.");
         }else if(type.equals("IOException")) {
             IOException ioException = (IOException) obj;
             log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
                     ": IOException thrown while login from Heartbeat tenant : ", ioException);
-            onFailure(ioException.getMessage());
+            testStateHandler.onFailure(testInfo, ioException.getMessage());
         }else if(type.equals("ConnectException")) {
             ConnectException connectException = (ConnectException) obj;
             log.error(CaseConverter.splitCamelCase(serviceName) +" - Tenant Login: " + hostName +
                     ": ConnectException thrown while login from Heartbeat tenant : ", connectException);
-            onFailure(connectException.getMessage());
+            testStateHandler.onFailure(testInfo, connectException.getMessage());
         }
-    }
-
-    /**
-     * On test success
-     */
-    private void onSuccess() {
-        boolean success = true;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-
-        log.info(CaseConverter.splitCamelCase(serviceName)+ " - Tenant Login: SUCCESS");
-    }
-
-    /**
-     * On test failure
-     * @param msg error message
-     */
-    private void onFailure(String msg) {
-
-        boolean success = false;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-        DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME, msg);
-
-        Mailer mailer = Mailer.getInstance();
-        mailer.send(CaseConverter.splitCamelCase(serviceName) + " :FAILURE",
-                CaseConverter.splitCamelCase(TEST_NAME) + ": " + msg, "");
-        SMSSender smsSender = SMSSender.getInstance();
-        smsSender.send(CaseConverter.splitCamelCase(serviceName) + ": " +
-                CaseConverter.splitCamelCase(TEST_NAME) + ": Failure");
     }
 
     /**
@@ -184,5 +156,13 @@ public class GitTenantLoginTest implements Job{
      */
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    /**
+     * set severity of login test
+     * @param loginTestSeverity
+     */
+    public void setLoginTestSeverity(String loginTestSeverity){
+        this.loginTestSeverity = loginTestSeverity;
     }
 }

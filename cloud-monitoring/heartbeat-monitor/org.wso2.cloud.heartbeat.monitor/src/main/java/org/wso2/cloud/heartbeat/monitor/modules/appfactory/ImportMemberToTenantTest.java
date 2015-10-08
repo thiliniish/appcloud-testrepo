@@ -28,6 +28,8 @@ import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
 import org.wso2.cloud.heartbeat.monitor.utils.ModuleUtils;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.sql.Connection;
@@ -45,6 +47,7 @@ public class ImportMemberToTenantTest implements Job {
     private String tenantUserPwd;
     private int deploymentWaitTime;
     private String serviceName;
+    private String severity;
 
     private String completeTestName;
 
@@ -58,6 +61,9 @@ public class ImportMemberToTenantTest implements Job {
     private String memberName = "heartbeat-member";
     private String memberUserName;
     private String memberDefaultPassword = "admin";
+
+    TestInfo testInfo;
+    TestStateHandler testStateHandler;
 
 
     /**
@@ -89,7 +95,8 @@ public class ImportMemberToTenantTest implements Job {
      */
     private void initWebAppTest() {
         errorsReported = false;
-        hostName = "https://" + hostName;
+        testStateHandler = TestStateHandler.getInstance();
+        testInfo = new TestInfo(serviceName, TEST_NAME, hostName, severity);
 
         memberUserName = memberName +"@"+ ModuleUtils.getDomainName(tenantUser);
 
@@ -161,7 +168,7 @@ public class ImportMemberToTenantTest implements Job {
             params.put("userName", memberName);
             String result = HttpsJaggeryClient.httpPost(url, params);
             if(result.equals("true")){
-                onSuccess();
+                testStateHandler.onSuccess(testInfo);
             }else {
                 countNoOfRequests("FailedMemberDeletion","deleteMember");
             }
@@ -173,7 +180,7 @@ public class ImportMemberToTenantTest implements Job {
     private void countNoOfRequests(String type,String method) {
         requestCount++;
         if(requestCount == 3){
-            handleError(type,method);
+            handleError(type, method);
             requestCount = 0;
         }
         else {
@@ -219,54 +226,16 @@ public class ImportMemberToTenantTest implements Job {
                 msg = msg + "Member login failure to appmgt jaggery app while " + msg + ". Returned false as a login status.";
             }
             log.error(completeTestName + msg);
-            onFailure(msg);
+            testStateHandler.onFailure(testInfo, msg);
         } else if(type.equals("FailedMemberAddition")) {
             log.error(completeTestName + "Failed to add member into tenant.");
-            onFailure("Failed to add member into tenant");
+            testStateHandler.onFailure(testInfo, "Failed to add member into tenant");
         } else if(type.equals("FailedMemberUpdate")) {
             log.error(completeTestName + "Failed to update the newly added member in tenant.");
-            onFailure("Failed to update the newly added member in tenant");
+            testStateHandler.onFailure(testInfo, "Failed to update the newly added member in tenant");
         }else if(type.equals("FailedMemberDeletion")) {
             log.error(completeTestName + "Failed to delete the newly added member in tenant.");
-            onFailure("Failed to delete the newly added member in tenant");
-        }
-    }
-
-
-    /**
-     * On success
-     */
-    private void onSuccess() {
-        boolean success = true;
-        DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-        Connection connection = dbConnectionManager.getConnection();
-
-        long timestamp = System.currentTimeMillis();
-        DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-
-        log.info(completeTestName + "SUCCESS");
-    }
-
-    /**
-     * On failure
-     * @param msg fault message
-     */
-    private void onFailure(String msg) {
-        if(!errorsReported){
-            boolean success = false;
-            DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-            Connection connection = dbConnectionManager.getConnection();
-
-            long timestamp  = System.currentTimeMillis();
-            DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-            DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME, msg);
-
-            Mailer mailer = Mailer.getInstance();
-            mailer.send(CaseConverter.splitCamelCase(serviceName) + ": FAILURE", CaseConverter.splitCamelCase(TEST_NAME)+": " + msg, "");
-
-            SMSSender smsSender = SMSSender.getInstance();
-            smsSender.send(CaseConverter.splitCamelCase(serviceName) +": "+ CaseConverter.splitCamelCase(TEST_NAME) +": Failure");
-            errorsReported = true;
+            testStateHandler.onFailure(testInfo, "Failed to delete the newly added member in tenant");
         }
     }
 
@@ -316,6 +285,14 @@ public class ImportMemberToTenantTest implements Job {
      */
     public void setCompleteTestName(String completeTestName) {
         this.completeTestName = completeTestName;
+    }
+
+    /**
+     * Sets severity
+     * @param severity severity for the test
+     */
+    public void setSeverity(String severity){
+        this.severity = severity;
     }
 
 }

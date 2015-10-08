@@ -18,6 +18,8 @@ import org.wso2.cloud.heartbeat.monitor.core.clients.service.RemoteTenantManager
 import org.wso2.cloud.heartbeat.monitor.core.notification.Mailer;
 import org.wso2.cloud.heartbeat.monitor.core.notification.SMSSender;
 import org.wso2.cloud.heartbeat.monitor.utils.DbConnectionManager;
+import org.wso2.cloud.heartbeat.monitor.utils.TestInfo;
+import org.wso2.cloud.heartbeat.monitor.utils.TestStateHandler;
 import org.wso2.cloud.heartbeat.monitor.utils.fileutils.CaseConverter;
 
 import java.rmi.RemoteException;
@@ -56,6 +58,10 @@ public class HiveScriptExecutionTest implements Job {
 	private String completeTestName;
 
 	private String identityServerHost;
+
+	private TestStateHandler testStateHandler;
+	private TestInfo testInfo;
+	private String severity;
 
 	/**
 	 * Parameters used by this class
@@ -115,6 +121,8 @@ public class HiveScriptExecutionTest implements Job {
 		try {
 			carbonAuthenticatorClient = new CarbonAuthenticatorClient(hostName);
 			sessionCookie = carbonAuthenticatorClient.login(adminUsername, adminPassword, hostName);
+			testStateHandler = TestStateHandler.getInstance();
+			testInfo = new TestInfo(serviceName, TEST_NAME, hostName, severity);
 			if (sessionCookie.equals(null)) {
 				throw new LoginAuthenticationExceptionException("Session Cookie not recieved");
 			}
@@ -250,7 +258,7 @@ public class HiveScriptExecutionTest implements Job {
 			}
 			
 			if (queryExecutionSuccessfull) {
-				onSuccess();
+				testStateHandler.onSuccess(testInfo);
 			}
 		} catch (Exception e) {
 			log.error("Exception in Executing Query :" + e.getMessage());
@@ -302,7 +310,7 @@ public class HiveScriptExecutionTest implements Job {
 				                  hostName + ": AxisFault thrown while getting Tenant ID from IS: ",
 				          axisFault);
 			}
-			onFailure(axisFault.getMessage());
+			testStateHandler.onFailure(testInfo,axisFault.getMessage());
 		} else if (type.equals("RemoteException")) {
 			RemoteException remoteException = (RemoteException) obj;
 			if (method.equals("connectToBAMServer")) {
@@ -322,7 +330,7 @@ public class HiveScriptExecutionTest implements Job {
 		          remoteException);
 	}
 
-			onFailure(remoteException.getMessage());
+			testStateHandler.onFailure(testInfo, remoteException.getMessage());
 		} else if (type.equals("LoginAuthenticationExceptionException")) {
 			LoginAuthenticationExceptionException e = (LoginAuthenticationExceptionException) obj;
 			if (method.equals("connectToBAMServer")) {
@@ -337,71 +345,23 @@ public class HiveScriptExecutionTest implements Job {
 				          e);
 			}
 
-			onFailure(e.getMessage());
+			testStateHandler.onFailure(testInfo, e.getMessage());
 		} else if (type.equals("TestSetupException")) {
 			Exception e = (Exception) obj;
 			log.error(CaseConverter.splitCamelCase(serviceName) +
 			          " - Initializing Test Variables: " + hostName +
 			          ": Exception thrown while setting up test: ", e);
-			onFailure(e.getMessage());
+			testStateHandler.onFailure(testInfo, e.getMessage());
 		} else if (type.equals("CassandraServiceException")) {
 			Exception e = (Exception) obj;
 			log.error(CaseConverter.splitCamelCase(serviceName) + " - Getting Column Family: " +
 			          hostName + ": Exception thrown while getting Column Family from BAM: ", e);
-			onFailure(e.getMessage());
+			testStateHandler.onFailure(testInfo, e.getMessage());
 		}else if (type.equals("ExecuteQuery")) {
 			Exception e = (Exception) obj;
 			log.error(CaseConverter.splitCamelCase(serviceName) + " - Query Execution: " +
 			          hostName + ": Exception thrown while executing query: ", e);
-			onFailure(e.getMessage());
-		}
-	}
-
-	/**
-	 * On test success
-	 */
-	private void onSuccess() {
-		boolean success = true;
-		DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-		Connection connection = dbConnectionManager.getConnection();
-
-		long timestamp = System.currentTimeMillis();
-		DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME, success);
-
-		log.info(completeTestName+ "SUCCESS");
-	}
-
-	/**
-	 * On test failure
-	 * 
-	 * @param msg
-	 *            error message
-	 */
-	private void onFailure(String msg) {
-
-		log.error(completeTestName+ "FAILURE  - " +
-		          msg);
-
-		if (!errorsReported) {
-
-			boolean success = false;
-			DbConnectionManager dbConnectionManager = DbConnectionManager.getInstance();
-			Connection connection = dbConnectionManager.getConnection();
-
-			long timestamp = System.currentTimeMillis();
-			DbConnectionManager.insertLiveStatus(connection, timestamp, serviceName, TEST_NAME,
-			                                     success);
-			DbConnectionManager.insertFailureDetail(connection, timestamp, serviceName, TEST_NAME,
-			                                        msg);
-
-			Mailer mailer = Mailer.getInstance();
-			mailer.send(CaseConverter.splitCamelCase(serviceName) + " :FAILURE",
-			            CaseConverter.splitCamelCase(TEST_NAME) + ": " + msg, "");
-			SMSSender smsSender = SMSSender.getInstance();
-			smsSender.send(CaseConverter.splitCamelCase(serviceName) + ": " +
-			               CaseConverter.splitCamelCase(TEST_NAME) + ": Failure");
-
-			errorsReported = true;
+			testStateHandler.onFailure(testInfo, e.getMessage());
 		}
 	}
 
@@ -553,6 +513,14 @@ public class HiveScriptExecutionTest implements Job {
 
 	public void setIdentityServerHost(String identityServerHost) {
 		this.identityServerHost = identityServerHost;
+	}
+
+	/**
+	 * Sets severity value
+	 * @param severity severity
+	 */
+	public void setSeverity(String severity) {
+		this.severity = severity;
 	}
 
 }
