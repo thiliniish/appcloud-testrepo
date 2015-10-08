@@ -91,73 +91,73 @@ var deleteUserFromTenant = function (userName){
     }
 };
 
-var sendInvite = function(email, tenant, roles, message) {
-	log.info("Sending invitation for invited user " + email);
+var sendInvite = function (email, tenant, roles, message) {
+    log.info("Sending invitation for invited user " + email);
     var displayName = modManager.getTenantDisplayName(tenant);
-	var uuid = generateUUId ();
-	log.info("Adding temp registration for user "+email);
-	var getRolesQueryString = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
-	var parameters = [tenant,email];
-	var existingRecord = jagg.module("database").executeQuery(getRolesQueryString, parameters);
-	if (existingRecord != "" && existingRecord != null){
-		var existingRoles = existingRecord[0]["roles"].split(",");
-		var userRoleArray = roles.split(",");
-		for(var i=0;i<existingRoles.length;i++){
-			var exsistingRole = existingRoles[i].trim();
-			var isRoleExistsInRoleArray = false;
-			for(var j=0;j<userRoleArray.length;j++){
-				if(exsistingRole == userRoleArray[j]){
-					isRoleExistsInRoleArray = true;
-					break;
-				}
-			}
-			if(!isRoleExistsInRoleArray){
-				roles = exsistingRole+","+roles;
-			}
-		}
-	}
-	var queryString =SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
-	parameters =[tenant,email,uuid,roles,uuid,roles];
+    var uuid = generateUUId();
+    log.info("Adding temp registration for user " + email);
+    var getRolesQueryString = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
+    var parameters = [tenant, email];
+    var existingRecord = jagg.module("database").executeQuery(getRolesQueryString, parameters);
+    if (existingRecord != "" && existingRecord != null) {
+        var existingRoles = existingRecord[0]["roles"].split(",");
+        var userRoleArray = roles.split(",");
+        for (var i = 0; i < existingRoles.length; i++) {
+            var exsistingRole = existingRoles[i].trim();
+            var isRoleExistsInRoleArray = false;
+            for (var j = 0; j < userRoleArray.length; j++) {
+                if (exsistingRole == userRoleArray[j]) {
+                    isRoleExistsInRoleArray = true;
+                    break;
+                }
+            }
+            if (!isRoleExistsInRoleArray) {
+                roles = exsistingRole + "," + roles;
+            }
+        }
+    }
+    var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
+    parameters = [tenant, email, uuid, roles, uuid, roles];
     var results = jagg.module("database").executeQuery(queryString, parameters);
 
-	log.info("Successfully added the temp registration");
-	var link = targetEpr+"?confirmation="+uuid+"&isInvitee=true";
-	sendEmail(email,link,displayName,roles,message);
-	var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
-		if(is_enable.toString() == "true") {
-			setTimeout(function () {
-				var modEvents = jagg.module("events");
-				var jsonData={
-					"email" : email
-				};
-				var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
-				var data = "json="+JSON.stringify(jsonData);
-				var result = post(URL,data,{
-					'Content-Type': 'application/json'}, 'text');
-				var type ="CloudMgt";
-			    var msg = JSON.parse(result['data']);
-				var actionString = "Rightwave-"+type+"-cloudsignup{Invite}:";
-				var page = "Rightwave";
-				var item = type;
-				var events = [];
-				if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-					actionString =  actionString+"Success";
-					log.info("Rightwave api call Cloud Signup is success for "+email);
-				} else {
-					actionString =  actionString+"Failed";
-					log.error("Rightwave api call failed for the user "+email);
-				}
-				var event={
-				};
-				event.item = item;
-				event.timestamp = new Date().getTime();
-				event.pageName = page;
-				event.action = actionString;
-				events[events.length] = event;
-				modEvents.publishUserActivity(events,email,tenant);
-			} ,0);
-		}
-	return email;
+    log.info("Successfully added the temp registration");
+    var link = targetEpr + "?confirmation=" + uuid + "&isInvitee=true";
+    sendEmail(email, link, displayName, roles, message);
+    var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+    if (is_enable.toString() == "true") {
+        setTimeout(function () {
+            var modEvents = jagg.module("events");
+            var jsonData = {
+                "email": email
+            };
+            var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
+            var data = "json=" + JSON.stringify(jsonData);
+            var result = post(URL, data, {
+                'Content-Type': 'application/json'
+            }, 'text');
+            var type = "CloudMgt";
+            var msg = JSON.parse(result['data']);
+            var actionString = "Rightwave-" + type + "-cloudsignup{Invite}:";
+            var page = "Rightwave";
+            var item = type;
+            var events = [];
+            if (msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                actionString = actionString + "Success";
+                log.info("Rightwave api call Cloud Signup is success for " + email);
+            } else {
+                actionString = actionString + "Failed";
+                log.error("Rightwave api call failed for the user " + email);
+            }
+            var event = {};
+            event.item = item;
+            event.timestamp = new Date().getTime();
+            event.pageName = page;
+            event.action = actionString;
+            events[events.length] = event;
+            modEvents.publishUserActivity(events, email, tenant);
+        }, 0);
+    }
+    return email;
 };
 
 var sendEmail = function(to,link,domain,roles,message) {
@@ -203,13 +203,13 @@ var sendEmail = function(to,link,domain,roles,message) {
 var sendUserInvite = function (emails,roles){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
-    	var userNames;
+        var userNames;
         userNames = modManager.getUserNamesFromEmails(emails);
         var isSuccess = "true";
-    	try {
-            for(var i =0; i< userNames.length; i++){
-			    sendInvite(emails[i],tenantDomain,roles);
-			}
+        try {
+            for (var i = 0; i < userNames.length; i++) {
+                sendInvite(emails[i], tenantDomain, roles);
+            }
         }catch (e){
             log.error(e);
         }
@@ -250,7 +250,6 @@ var inviteUsers = function inviteUsers(userRoleList, defaultRoles, message) {
                     else {
                         rolesList = constructRoleList(userRoleList[i].roles);
                     }
-                    modManager.getTenantDisplayName(tenantDomain);
                     sendInvite(user.id, tenantDomain, rolesList, message);
                 }
                 else {

@@ -139,7 +139,6 @@ var log = new Log();
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             email = email.replace(/^\s+|\s+$/g, '');
             try {
-                log.info("email " + email);
                 var result = mod.resendInvite(email);
                 if (result != null) {
                     response.error = false;

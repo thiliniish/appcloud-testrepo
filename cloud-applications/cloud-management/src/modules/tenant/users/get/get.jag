@@ -150,7 +150,6 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
                 resultUsers.push(tmpUser);
             }
         }
-        session.put('tenantUsers', resultUsers);
     } catch (e) {
         log.error("Error while getting users of tenant " + tenantDomain);
         log.error(e);
@@ -184,7 +183,6 @@ var getPendingUsersOfRole = function getPendingUsersOfRole(tenantDomain, role) {
         log.error(e);
         throw "Error while retrieving pending users";
     }
-
     var pendingUsers = [];
     for (var i = 0; i < results.length; i++) {
         var tmpEmail = results[i]["email"];
