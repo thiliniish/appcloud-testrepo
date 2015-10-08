@@ -29,8 +29,7 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/",
-          "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/"
         }
       },
       {
@@ -49,8 +48,7 @@
         ],
         "urls": {
           "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9643/publisher/",
-          "storeUrl": "https://milestones.appfactory.wso2.com:9643/store",
-          "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
+          "storeUrl": "https://milestones.appfactory.wso2.com:9643/store"
         }
       }
     ]
@@ -139,9 +137,7 @@
     "cloudSignup": "http://sbox.rw001.com/wso2test/srv/api/cloudsignup",
     "cloudSubmission": "http://sbox.rw001.com/wso2test/srv/api/cloudsbmt",
     "trialExtension": "http://sbox.rw001.com/wso2test/srv/api/cldtrialext",
-    "cloudUpgrade": "http://sbox.rw001.com/wso2test/srv/api/cldupgrade",
-    "signupLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/wso2cloud_api_signup",
-    "upgradeLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/WSO2-cloud-upgrade"
+    "cloudUpgrade": "http://sbox.rw001.com/wso2test/srv/api/cldupgrade"
   },
   "supportContact": {
     "to": "cloudpreview-noreply@wso2.com"
