@@ -4,45 +4,45 @@ include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 var log = new Log();
 (function () {
-	var mod, obj, result,
-	action = request.getParameter("action"),
-	site = require("/site/conf/site.json");
-	mod = jagg.module("tenant");
-	if (action == "generateCaptchaFromCloud") {
-		try {
-			var result = mod.generateCaptchaFromCloud();
-			if(result != null ) {
-				print(result);
-			} else {
-				throw "Error while generating captcha";
-			}
-		} catch (e) {
-			throw "Error while generating captcha";
-		}
-	} else if(action=="sendInvite"){
-		var email=request.getParameter("email");
-		 
-		try {
-			var result = mod.sendInvite(email);
-			if (result != null) {
-				print(result);
-			}
-		} catch(e) {
-			throw "Error sending email to the user  "+userName;
-		}
-	} else if(action=="isExistingUser") {
-		var userName=request.getParameter("username");
-		try {
-			var result = mod.isExistingUser(userName);
-			if (result != null) {
-				print(result);
-			}
-		} catch(e) {
-			throw "Error while checking existence of user:  "+userName;
-		}
-	}  else{
-		throw new Error("No action specified");
-	}
+    var mod, obj, result,
+    action = request.getParameter("action"),
+    site = require("/site/conf/site.json");
+    mod = jagg.module("tenant");
+    if (action == "generateCaptchaFromCloud") {
+        try {
+            var result = mod.generateCaptchaFromCloud();
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while generating captcha";
+            }
+        } catch (e) {
+            throw "Error while generating captcha";
+        }
+    } else if (action == "sendInvite") {
+        var email = request.getParameter("email");
+        var token = request.getParameter("token");
+        try {
+            var result = mod.sendInvite(email, token);
+            if (result != null) {
+                print(result);
+            }
+        } catch(e) {
+            throw "Error sending email to the user  " + email;
+        }
+    } else if (action == "isExistingUser") {
+        var userName = request.getParameter("username");
+        try {
+            var result = mod.isExistingUser(userName);
+            if (result != null) {
+                print(result);
+            }
+        } catch(e) {
+            throw "Error while checking existence of user:  " + userName;
+        }
+    } else {
+        throw new Error("No action specified");
+    }
 
 }());
 %>

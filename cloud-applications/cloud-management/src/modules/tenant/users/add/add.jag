@@ -100,6 +100,7 @@ var sendInvite = function (email,tenant,roles) {
 	var queryString =SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
 	var parameters =[tenant,email,uuid,roles,uuid,roles];
     var results = jagg.module("database").executeQuery(queryString, parameters);
+    var tokenId = jagg.module("util").getLeadSourceToken("signUp");
 
 	log.info("Sucessfully added the temp registration");
 	var link = targetEpr+"?confirmation="+uuid+"&isInvitee=true";
@@ -109,7 +110,8 @@ var sendInvite = function (email,tenant,roles) {
 			setTimeout(function () {
 				var modEvents = jagg.module("events");
 				var jsonData={
-					"email" : email
+					"email" : email,
+					"tokenid" : tokenId
 				};
 				var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
 				var data = "json="+JSON.stringify(jsonData);

@@ -26,7 +26,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 			var queryString = SQL_QUERY_STRINGS.SELECT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
 			var parameters = [type, domainName,userEmail];
 			var result = modDb.executeQuery(queryString, parameters);
-			var actionString = "Rightwave-"+type+"-cloudsubmission:";
+			var actionString = "Rightwave-" + type + "-cloudsubmission:";
 			var page = "Rightwave";
 			var item = type;
 			var events = [];
@@ -41,11 +41,11 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 						queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
 						parameters = [type,1, domainName,userEmail];
 						modDb.executeQuery(queryString, parameters);
-						actionString =  actionString+"Success";
-						log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for "+email);
+						actionString =  actionString + "Success";
+						log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
 					} else {
-						actionString =  actionString+"Failed";
-						log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
+						actionString =  actionString + "Failed";
+						log.error("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
 					}
 					var event={
 					};
@@ -64,11 +64,11 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 					queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
 					parameters = [type, domainName,1,userEmail];
 					modDb.executeQuery(queryString, parameters);
-					actionString =  actionString+"Success";
-					log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for "+email);
+					actionString =  actionString + "Success";
+					log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
 				} else {
-					actionString =  actionString+"Failed";
-					log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
+					actionString =  actionString + "Failed";
+					log.error("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
 						
 				}var event={
 				};
