@@ -67,7 +67,7 @@ var isSessionAuthenticated = function () {
         var sessionId = session.getId();
         isAuthenticated = ssoRelyingParty.isSessionAuthenticated(sessionId);
     } catch (e) {
-        log.error("Error while retrieving the session \n" + e.message);
+        log.error("Error while retrieving the session \n" + e);
         throw Error(e);
     }
 

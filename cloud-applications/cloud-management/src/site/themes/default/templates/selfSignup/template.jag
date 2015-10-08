@@ -25,7 +25,6 @@
             var fromAddress= $("#fromAddress").attr('value');
             var contactEmail = $("#contactEmail").attr('value');
             var signupType = $('input[name="signupType"]:checked').val();
-
             document.getElementById("spinner").style.display = '';
             disableFormAttributes();
 
@@ -117,7 +116,6 @@
         $(document).ready(function($){
 
             var clickwithblur = false;
-
             jQuery.validator.addMethod("validatePassword", function(value) {
                 var userName = $("#userName").attr('value');
                 var isValid = false;
@@ -195,15 +193,12 @@
         $('#btn_submit').mouseup(function(){
               clickwithblur = false;
         });
-
     });
-
     </script>
 
     <div class="container content-starter">
         <div class="row">
             <div class="col-lg-12">
-
     <%
         if (isSignupConfigured == true || isSignupConfigured.trim() == "true") {%>
             <h1>Self-Signup Successfully Configured</h1>
@@ -227,7 +222,6 @@
                   </div>
               </div>
      </div>
-
         <%
         } else {%>
             <h1>Configure Self Sign-up for the API Store</h1>
@@ -249,7 +243,6 @@
         <form>
             <div class="row">
                 <div class="col-lg-12 content-section">
-
                     <div class="content">
                         <div class="center-block">
                              <div><h3>Click the button below to open the API Publisher. Once the Publisher fully loads, come back to this page to continue.</h3></div>
@@ -259,10 +252,8 @@
                                 </div>
                               </div>
                           </div>
-
                       </form>
                 </div>
-
                     <%
         } else {%>
 
@@ -287,12 +278,10 @@
                   </br>Subscribers will use this email to contact you
                </div>
             </div>
-
            <p>
            <h3><b>The following parameters are required when configuring the sign-up process</b></h3>
             </p>
             </br>
-
             <div class="form-group">
                <label for="signupType" class="col-sm-2 control-label">Approval process:</label>
                <div class="col-sm-8">
@@ -301,12 +290,10 @@
                   <input type="radio" name="signupType" id="signupNotApproved" value="notApproved" /> Automatically approve new members on their request
                </div>
             </div>
-
              <div class="form-group" style="padding-top: 10px">
                <label for="password" class="col-sm-2 control-label">Your password:</label>
                <div class="col-sm-8">
                   <input type="password" name="password" id="password" placeholder="Your cloud account password" value="" class="required"/>
-
                </div>
             </div>
             <div class="form-group">
@@ -336,7 +323,6 @@
       </div>
    </form>
 </div>
-
         <% }
         }
     } else {
