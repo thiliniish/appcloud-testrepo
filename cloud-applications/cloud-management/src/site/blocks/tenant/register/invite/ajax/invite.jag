@@ -21,9 +21,9 @@ var log = new Log();
 		}
 	} else if(action=="sendInvite"){
 		var email=request.getParameter("email");
-		var token = request.getParameter("token");
+		 
 		try {
-			var result = mod.sendInvite(email, token);
+			var result = mod.sendInvite(email);
 			if (result != null) {
 				print(result);
 			}
