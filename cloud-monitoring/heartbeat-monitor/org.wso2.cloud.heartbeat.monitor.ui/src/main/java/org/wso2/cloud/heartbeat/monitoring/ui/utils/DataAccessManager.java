@@ -33,9 +33,10 @@ public class DataAccessManager {
     private static final Log log = LogFactory.getLog(DataAccessManager.class);
     private static final String DRIVER_CLASS_NAME =
             ConfigReader.getInstance().getDataSourceFromNode().getProperty("database_driver");
-    private Connection connection;
+    private Connection connection = null;
+    private PreparedStatement preparedStatement = null;
 
-    public DataAccessManager(Node dataSource) {
+    public DataAccessManager(Node dataSource) throws HeartbeatException {
 
         String userName = dataSource.getProperty("user");
         String password = dataSource.getProperty("password");
@@ -46,20 +47,21 @@ public class DataAccessManager {
             Class.forName(DRIVER_CLASS_NAME).newInstance();
             connection = DriverManager.getConnection(dbUrl, userName, password);
         } catch (ClassNotFoundException e) {
-            log.error(
-                    "Heartbeat - Monitor - ClassNotFoundException thrown while initializing data access: ",
-                    e);
+            log.error("Heartbeat - Monitor - ClassNotFoundException thrown while initializing data access: ", e);
+            throw new HeartbeatException(
+                    "Heartbeat - Monitor - ClassNotFoundException thrown while initializing data access: " + e);
         } catch (SQLException e) {
-            log.error("Heartbeat - Monitor - SQLException thrown while initializing data access: ",
-                      e);
+            log.error("Heartbeat - Monitor - SQLException thrown while initializing data access: ", e);
+            throw new HeartbeatException(
+                    "Heartbeat - Monitor - SQLException thrown while initializing data access: " + e);
         } catch (InstantiationException e) {
-            log.error(
-                    "Heartbeat - Monitor - InstantiationException thrown while initializing data access: ",
-                    e);
+            log.error("Heartbeat - Monitor - InstantiationException thrown while initializing data access: ", e);
+            throw new HeartbeatException(
+                    "Heartbeat - Monitor - InstantiationException thrown while initializing data access: " + e);
         } catch (IllegalAccessException e) {
-            log.error(
-                    "Heartbeat - Monitor - IllegalAccessException thrown while initializing data access: ",
-                    e);
+            log.error("Heartbeat - Monitor - IllegalAccessException thrown while initializing data access: ", e);
+            throw new HeartbeatException(
+                    "Heartbeat - Monitor - IllegalAccessException thrown while initializing data access: " + e);
         }
     }
 
@@ -73,7 +75,7 @@ public class DataAccessManager {
      */
 
     public ResultSet runQuery(String query, List<String> parameters) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement = connection.prepareStatement(query);
         for (int i = 0; i < parameters.size(); i++) {
             preparedStatement.setString(i + 1, parameters.get(i));
         }
@@ -89,7 +91,7 @@ public class DataAccessManager {
      * @throws SQLException
      */
     public int updateQuery(String query, List<String> parameters) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement = connection.prepareStatement(query);
         for (int i = 0; i < parameters.size(); i++) {
             preparedStatement.setString(i + 1, parameters.get(i));
         }
@@ -102,6 +104,35 @@ public class DataAccessManager {
      * @throws SQLException
      */
     public void closeConnection() throws SQLException {
-        connection.close();
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+                preparedStatement = null;
+            } catch (SQLException e) {
+                log.error("SQL Exception while closing prepared statement" + e);
+            }
+        }
+        try {
+            if (connection != null && !connection.isClosed()) {
+                if (!connection.getAutoCommit()) {
+                    connection.commit();
+                    connection.setAutoCommit(true);
+                }
+                connection.close();
+                connection = null;
+            }
+        } catch (SQLException e) {
+            log.error("SQL Exception while closing connection" + e);
+        }
+    }
+
+    public void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                log.error("SQL Exception while closing ResultSet" + e);
+            }
+        }
     }
 }

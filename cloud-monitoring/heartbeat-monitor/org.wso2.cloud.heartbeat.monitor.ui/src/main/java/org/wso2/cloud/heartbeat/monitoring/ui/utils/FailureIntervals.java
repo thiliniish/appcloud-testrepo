@@ -32,9 +32,9 @@ public class FailureIntervals {
      * Creates the failure interval data structure to hold failure interval list pairs,
      * failure information and failure count for each clous / server / test
      *
-     * @param listPair
-     * @param listLong
-     * @param failureCount
+     * @param listPair pair list
+     * @param listLong  long list
+     * @param failureCount failure count
      */
     public FailureIntervals(List<Pair> listPair, List<Long> listLong, int failureCount) {
         this.listPair = listPair;
@@ -44,7 +44,7 @@ public class FailureIntervals {
 
     /**
      * Returns the list of pairs
-     * @return
+     * @return list of pairs
      */
     public List<Pair> getListPair() {
         return listPair;
@@ -52,7 +52,7 @@ public class FailureIntervals {
 
     /**
      * returns the list of long pairs
-     * @return
+     * @return List of long type
      */
     public List<Long> getListLong() {
         return listLong;
@@ -60,7 +60,7 @@ public class FailureIntervals {
 
     /**
      * returns the failure count
-     * @return
+     * @return integer failure count
      */
     public int getFailureCount() {
         return failureCount;

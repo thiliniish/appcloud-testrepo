@@ -18,15 +18,17 @@
 
 package org.wso2.cloud.heartbeat.monitoring.ui.authentication;
 
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.um.ws.api.stub.RemoteUserStoreManagerServiceStub;
+import org.wso2.carbon.um.ws.api.stub.RemoteUserStoreManagerServiceUserStoreExceptionException;
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.Node;
 import org.wso2.cloud.heartbeat.monitoring.ui.utils.ConfigReader;
-import org.wso2.cloud.heartbeat.monitoring.ui.utils.HeartbeatExceptions;
+import org.wso2.cloud.heartbeat.monitoring.ui.utils.HeartbeatException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -34,7 +36,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @WebServlet("/LoginServlet") public class LoginServlet extends HttpServlet {
@@ -44,40 +48,34 @@ import java.util.List;
     private static String basicAuthUserID;
     private static String basicAuthPassword;
     private static String serverUrl;
-    private static String authorisedRoleString;
     private static List<String> authorisedRoles;
-    private static Node adminUserNode;
 
     private static RemoteUserStoreManagerServiceStub stub = null;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String path = getServletConfig().getServletContext()
-                                        .getRealPath("/WEB-INF/classes/wso2carbon.jks");
+        String path = getServletConfig().getServletContext().getRealPath("/WEB-INF/classes/wso2carbon.jks");
         System.setProperty("javax.net.ssl.trustStore", path);
         System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
         System.setProperty("javax.net.ssl.trustStoreType", "JKS");
-        String configPath =
-                getServletConfig().getServletContext().getRealPath("/WEB-INF/heartbeat.conf");
+        String configPath = getServletConfig().getServletContext().getRealPath("/WEB-INF/heartbeat.conf");
         ConfigReader configurationInstance = ConfigReader.getInstance();
         try {
             configurationInstance.buildConfigurationNode(configPath);
-            adminUserNode = configurationInstance.getAdminNode();
+            Node adminUserNode = configurationInstance.getAdminNode();
             basicAuthUserID = adminUserNode.getProperty("user");
             basicAuthPassword = adminUserNode.getProperty("password");
             serverUrl = "https://" + adminUserNode.getProperty("server_url");
-            authorisedRoleString = adminUserNode.getProperty("authorised_roles");
+            String authorisedRoleString = adminUserNode.getProperty("authorised_roles");
             String[] splitRoles = authorisedRoleString.split(",");
             authorisedRoles = new ArrayList<String>();
             if (splitRoles.length > 0) {
-                for (String singleRole : splitRoles) {
-                    authorisedRoles.add(singleRole);
-                }
+                Collections.addAll(authorisedRoles, splitRoles);
             } else {
                 authorisedRoles.add(authorisedRoleString);
             }
 
-        } catch (HeartbeatExceptions heartbeatExceptions) {
+        } catch (HeartbeatException heartbeatExceptions) {
             log.error(heartbeatExceptions);
         }
 
@@ -108,17 +106,16 @@ import java.util.List;
 
     }
 
-    private boolean authenticate(String userName, Object credential) throws Exception {
+    private boolean authenticate(String userName, Object credential)
+            throws HeartbeatException, RemoteException, RemoteUserStoreManagerServiceUserStoreExceptionException {
         if (!(credential instanceof String)) {
             log.error("Heartbeat - Monitor - Login error : Unsupported type of password");
-            throw new HeartbeatExceptions("Unsupported type of password");
+            throw new HeartbeatException("Unsupported type of password");
         }
         try {
             if (stub == null) {
-                stub = new RemoteUserStoreManagerServiceStub(null, serverUrl +
-                                                                   "RemoteUserStoreManagerService");
-                HttpTransportProperties.Authenticator basicAuth =
-                        new HttpTransportProperties.Authenticator();
+                stub = new RemoteUserStoreManagerServiceStub(null, serverUrl + "RemoteUserStoreManagerService");
+                HttpTransportProperties.Authenticator basicAuth = new HttpTransportProperties.Authenticator();
                 basicAuth.setUsername(basicAuthUserID);
                 basicAuth.setPassword(basicAuthPassword);
                 basicAuth.setPreemptiveAuthentication(true);
@@ -126,14 +123,13 @@ import java.util.List;
                 final Options clientOptions = stub._getServiceClient().getOptions();
                 clientOptions.setProperty(HTTPConstants.AUTHENTICATE, basicAuth);
                 stub._getServiceClient().setOptions(clientOptions);
-
             }
             //Check for heartbeat specific role availability
             String[] userRoles = stub.getRoleListOfUser(userName);
 
             //boolean String to hold availability
             boolean roleIsAvailable = false;
-            boolean loginSuccessful = false;
+            boolean loginSuccessful;
             for (String singleRole : userRoles) {
                 if (authorisedRoles.contains(singleRole)) {
                     roleIsAvailable = true;
@@ -141,14 +137,18 @@ import java.util.List;
             }
             loginSuccessful = stub.authenticate(userName, (String) credential) && roleIsAvailable;
             return loginSuccessful;
-        } catch (Exception e) {
-            handleException(e.getMessage(), e);
+        } catch (AxisFault axisFault) {
+
+        } catch (RemoteException e) {
+
+        } catch (RemoteUserStoreManagerServiceUserStoreExceptionException e) {
+
         }
         return false;
     }
 
     private String[] handleException(String msg, Exception e) throws Exception {
-        throw new HeartbeatExceptions("Heartbeat - Monitor :" + msg, e);
+        throw new HeartbeatException("Heartbeat - Monitor :" + msg, e);
     }
 
 }

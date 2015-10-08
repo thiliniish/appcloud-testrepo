@@ -24,7 +24,7 @@
         <artifactId>cloud-monitoring</artifactId>
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
-    </parent>    
+    </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cloud-heartbeat-monitor</artifactId>
@@ -114,6 +114,21 @@
         <module>org.wso2.cloud.heartbeat.monitor</module>
         <module>org.wso2.cloud.heartbeat.monitor.ui</module>
     </modules>
+    <properties>
+        <slf4j-api.version>1.7.5</slf4j-api.version>
+        <mysql-connector.version>5.1.34</mysql-connector.version>
+        <slf4j-simple.version>1.6.4</slf4j-simple.version>
+        <slf4j-log4j12.version>1.7.5</slf4j-log4j12.version>
+        <org.json.version>20140107</org.json.version>
+        <org.wso2.carbon.identity.sso.agent.version>1.2.0</org.wso2.carbon.identity.sso.agent.version>
+        <axis2-kernel.version>1.3</axis2-kernel.version>
+        <axis2-transport-http.version>1.6.2</axis2-transport-http.version>
+        <org.wso2.carbon.um.ws.api.stub.version>4.2.2</org.wso2.carbon.um.ws.api.stub.version>
+        <javax.servlet-api.version>2.5</javax.servlet-api.version>
+        <axiom-api.version>1.2.14</axiom-api.version>
+        <axiom-impl.version>1.2.14</axiom-impl.version>
+        <maven-war-plugin.version>2.4</maven-war-plugin.version>
+    </properties>
 
 
 </project>

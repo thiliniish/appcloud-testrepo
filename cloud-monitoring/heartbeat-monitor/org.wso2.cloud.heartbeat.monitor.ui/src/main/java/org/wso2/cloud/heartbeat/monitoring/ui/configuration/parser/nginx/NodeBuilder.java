@@ -20,7 +20,7 @@ package org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx;
 
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.Node;
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx.utils.Constants;
-import org.wso2.cloud.heartbeat.monitoring.ui.utils.HeartbeatExceptions;
+import org.wso2.cloud.heartbeat.monitoring.ui.utils.HeartbeatException;
 
 public class NodeBuilder {
 
@@ -40,7 +40,7 @@ public class NodeBuilder {
      *                }
      * @return fully constructed Node
      */
-    public static Node buildNode(Node aNode, String content) throws HeartbeatExceptions {
+    public static Node buildNode(Node aNode, String content) throws HeartbeatException {
 
         String[] lines = content.split("\n");
 
@@ -82,7 +82,7 @@ public class NodeBuilder {
                             if (line.contains(Constants.NGINX_NODE_END_BRACE)) {
                                 matchingBraceTracker--;
                             }
-                            sb.append(line + "\n");
+                            sb.append(line).append("\n");
                         }
 
                         childNode = buildNode(childNode, sb.toString());
@@ -92,7 +92,7 @@ public class NodeBuilder {
                         String msg =
                                 "Heartbeat - Monitor - Malformatted element is defined in the configuration file. [" +
                                 i + "] \n";
-                        throw new HeartbeatExceptions(msg + line, e);
+                        throw new HeartbeatException(msg + line, e);
                     }
 
                 }
@@ -109,7 +109,7 @@ public class NodeBuilder {
                             String msg =
                                     "Heartbeat - Monitor - Malformatted property is defined in the configuration file. [" +
                                     i + "] \n";
-                            throw new HeartbeatExceptions(msg + line, e);
+                            throw new HeartbeatException(msg + line, e);
                         }
                     }
                 }

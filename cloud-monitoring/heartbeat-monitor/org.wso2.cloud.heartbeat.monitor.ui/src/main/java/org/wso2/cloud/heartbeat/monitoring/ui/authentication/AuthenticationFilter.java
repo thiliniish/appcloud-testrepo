@@ -31,10 +31,8 @@ import java.io.IOException;
 @WebFilter("/AuthenticationFilter") public class AuthenticationFilter implements Filter {
     private static final Log log = LogFactory.getLog(AuthenticationFilter.class);
 
-    private ServletContext context;
-
     public void init(FilterConfig fConfig) throws ServletException {
-        this.context = fConfig.getServletContext();
+        ServletContext context = fConfig.getServletContext();
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
