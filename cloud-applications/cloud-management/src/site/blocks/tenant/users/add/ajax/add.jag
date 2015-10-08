@@ -96,8 +96,8 @@ var log = new Log();
 
     } else if (action == "inviteUsers") {
 
-        var userRoleList = request.getParameter("userRoleList");
-        var defaultRoles = request.getParameter("defaultRoles");
+        var userRoleList = parse(request.getParameter("userRoleList"));
+        var defaultRoles = parse(request.getParameter("defaultRoles"));
         var message = request.getParameter("message");
         var response = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
@@ -164,24 +164,26 @@ var log = new Log();
             print(stringify(response));
         }
     } else if (action == "sendEmailWithCustomMessage") {
-        var to = request.getParameter("to");
+        var toList = parse(request.getParameter("to"));
         var subject = request.getParameter("subject");
         var message = request.getParameter("message");
         var response = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
-            to = to.replace(/^\s+|\s+$/g, '');
+            for (var i = 0; i < toList.length; i++) {
+                toList[i] = toList[i].replace(/^\s+|\s+$/g, '');
+            }
             try {
-                var result = mod.sendEmailWithCustomMessage(to, subject, message);
+                var result = mod.sendEmailWithCustomMessage(toList, subject, message);
                 if (result != null) {
                     response.error = false;
                     response.message = result;
                     print(stringify(response));
                 }
                 else {
-                    log.error("Error while sending email to " + email);
+                    log.error("Error while sending custom emails");
                     response.error = true;
-                    response.message = "Error while sending email to " + email;
+                    response.message = "Error while sending custom emails";
                     print(stringify(response));
                 }
             } catch (e) {

@@ -91,7 +91,7 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
     return resultUsers ;
 };
 
-var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDomain, cloudType) {
+var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDomain, cloudType) {
 
     var context = multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();
@@ -103,7 +103,7 @@ var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDom
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         var users = tenantMgtService.getUsersofTenant();
-        var cloudTypeRoles = getRolesofCloudType(cloudType);
+        var cloudTypeRoles = getRolesOfCloudType(cloudType);
         for (var i = 0; i < users.length; i++) {
             var resultUsers = [];
             var user = users[i];
@@ -161,7 +161,7 @@ var getUsersofTenantByCloudType = function getUsersofTenantByCloudType(tenantDom
     return resultUsers;
 };
 
-var getRolesofCloudType = function getRolesofCloudType(cloudType) {
+var getRolesOfCloudType = function getRolesOfCloudType(cloudType) {
 
     var cloudTypeRoles;
     for (i = 0; i < subscriptionsType.length; i++) {
@@ -173,7 +173,7 @@ var getRolesofCloudType = function getRolesofCloudType(cloudType) {
     return cloudTypeRoles;
 };
 
-var getPendingUsersofRole = function getPendingUsersofRole(tenantDomain, role) {
+var getPendingUsersOfRole = function getPendingUsersOfRole(tenantDomain, role) {
 
     try {
         var queryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE_BY_TENANT_DOMAIN;
@@ -218,7 +218,7 @@ var getUserRolesByCloudType = function getUserRolesByCloudType(userName, cloudTy
         var tmpUser = {};
         tmpUser.roleTypes = [];
         var tmpRoles = userDetails.roles;
-        var cloudTypeRoles = getRolesofCloudType(cloudType);
+        var cloudTypeRoles = getRolesOfCloudType(cloudType);
         for (var j = 0; j < tmpRoles.length; j++) {
             if (tmpRoles[j] == 'admin') {
                 var roles = {};

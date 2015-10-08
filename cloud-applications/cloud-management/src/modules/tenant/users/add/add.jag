@@ -304,15 +304,17 @@ var resendInvite = function resendInvite(email) {
     }
 };
 
-var sendEmailWithCustomMessage = function (to, emailSubject, message) {
+var sendEmailWithCustomMessage = function (toList, emailSubject, message) {
 
     var tenantDomain = modManager.getTenantDomain();
+    var commonBody = jagg.module("util").getObjFromFile("/site/conf/emails/custom_email.body.txt");
+    commonBody = commonBody.replace("$message", message);
+    var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
-        var commonBody = jagg.module("util").getObjFromFile("/site/conf/emails/custom_email.body.txt");
-        commonBody = commonBody.replace("$message", message);
-        var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-        jagg.module("util").sendEmail(commonBody, emailSubject + " from :" + loggedInUserEmail, to);
-        log.info("Custom email successfully sent to " + to);
+        for (var i = 0; i < toList.length; i++) {
+            jagg.module("util").sendEmail(commonBody, emailSubject + " from :" + loggedInUserEmail, toList[i]);
+            log.info("Custom email successfully sent to " + toList[i]);
+        }
         return true;
     } else {
         var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";

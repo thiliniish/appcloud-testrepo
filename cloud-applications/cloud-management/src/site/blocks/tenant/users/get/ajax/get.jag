@@ -21,13 +21,13 @@ var log = new Log();
         } catch(e) {
             throw "Error while retrieving users of the tenant";
         }
-    } else if (action == "getUsersofTenantByCloudType") {
+    } else if (action == "getUsersOfTenantByCloudType") {
         mod = jagg.module("tenant");
         var tenantDomain = request.getParameter("tenantDomain");
         var cloudType = request.getParameter("cloudType");
         var result;
         try {
-            result = mod.getUsersofTenantByCloudType(tenantDomain, cloudType);
+            result = mod.getUsersOfTenantByCloudType(tenantDomain, cloudType);
             if (result != null) {
                 print(result);
             } else {
@@ -44,12 +44,12 @@ var log = new Log();
             result.message = "Error while retrieving users of the tenant: " + tenantDomain + " by cloud type: " + cloudType;
             print(stringify(result));
         }
-    } else if (action == "getRolesofCloudType") {
+    } else if (action == "getRolesOfCloudType") {
         mod = jagg.module("tenant");
         var cloudType = request.getParameter("cloudType");
         var result;
         try {
-            result = mod.getRolesofCloudType(cloudType);
+            result = mod.getRolesOfCloudType(cloudType);
             if (result != null) {
                 print(result);
             } else {
@@ -110,14 +110,14 @@ var log = new Log();
             print(stringify(result));
         }
 
-    } else if (action == "getPendingUsersofRole") {
+    } else if (action == "getPendingUsersOfRole") {
         mod = jagg.module("tenant");
         var tenantDomain = request.getParameter("tenantDomain");
         var role = request.getParameter("role");
         var result;
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             try {
-                result = mod.getPendingUsersofRole(tenantDomain, role);
+                result = mod.getPendingUsersOfRole(tenantDomain, role);
                 if (result != null) {
                     print(result);
                 } else {

@@ -10,11 +10,11 @@ jagg.module("tenant", {
 	getUsersofTenant:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersofTenant.apply(this, arguments);
 	},
-	getUsersofTenantByCloudType: function () {
-		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersofTenantByCloudType.apply(this, arguments);
+	getUsersOfTenantByCloudType: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersOfTenantByCloudType.apply(this, arguments);
 	},
-	getRolesofCloudType: function () {
-		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getRolesofCloudType.apply(this, arguments);
+	getRolesOfCloudType: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getRolesOfCloudType.apply(this, arguments);
 	},
 	getUserInfo:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserInfo.apply(this, arguments);
@@ -22,8 +22,8 @@ jagg.module("tenant", {
 	getUserRolesByCloudType: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserRolesByCloudType.apply(this, arguments);
 	},
-	getPendingUsersofRole: function () {
-		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersofRole.apply(this, arguments);
+	getPendingUsersOfRole: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersOfRole.apply(this, arguments);
 	},
 	updateUserRoles: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRoles.apply(this, arguments);
