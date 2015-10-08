@@ -21,6 +21,51 @@ var log = new Log();
         } catch(e) {
             throw "Error while retrieving users of the tenant";
         }
+    } else if (action == "getUsersOfTenantByCloudType") {
+        mod = jagg.module("tenant");
+        var tenantDomain = request.getParameter("tenantDomain");
+        var cloudType = request.getParameter("cloudType");
+        var result;
+        try {
+            result = mod.getUsersOfTenantByCloudType(tenantDomain, cloudType);
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Error while retrieving users of the tenant by cloud type: " + cloudType);
+                result = {};
+                result.error = true;
+                result.message = "Error while retrieving users of the tenant: " + tenantDomain + " by cloud type: " + cloudType;
+                print(stringify(result));
+            }
+        } catch (e) {
+            log.error("Error while retrieving users of the tenant: " + tenantDomain + " by cloud type: " + cloudType);
+            result = {};
+            result.error = true;
+            result.message = "Error while retrieving users of the tenant: " + tenantDomain + " by cloud type: " + cloudType;
+            print(stringify(result));
+        }
+    } else if (action == "getRolesOfCloudType") {
+        mod = jagg.module("tenant");
+        var cloudType = request.getParameter("cloudType");
+        var result;
+        try {
+            result = mod.getRolesOfCloudType(cloudType);
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Error while retrieving the user roles of cloud type: " + cloudType);
+                result = {};
+                result.error = true;
+                result.message = "Error while retrieving the user roles of cloud type: " + cloudType;
+                print(stringify(result));
+            }
+        } catch (e) {
+            log.error("Error while retrieving the user roles of cloud type: " + cloudType);
+            result = {};
+            result.error = true;
+            result.message = "Error while retrieving the user roles of cloud type: " + cloudType;
+            print(stringify(result));
+        }
     }else if(action=="getUserInfo"){
         mod = jagg.module("tenant");
         var userName=request.getParameter("userName");
@@ -37,6 +82,62 @@ var log = new Log();
             var result = {};
             result.error="true";
             result.message=e.javaException.getCause().toString().split(":")[1];
+            print(stringify(result));
+        }
+
+    } else if (action == "getUserRolesByCloudType") {
+        mod = jagg.module("tenant");
+        var userName = request.getParameter("userName");
+        var cloudType = request.getParameter("cloudType");
+        var result;
+
+        try {
+            result = mod.getUserRolesByCloudType(userName, cloudType);
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Error occurred while getting information of user " + userName);
+                result = {};
+                result.error = true;
+                result.message = "Error occurred while getting information of user " + userName;
+                print(stringify(result));
+            }
+        } catch (e) {
+            log.error("Error occurred while getting information of user " + userName);
+            result = {};
+            result.error = true;
+            result.message = "Error occurred while getting information of user " + userName;
+            print(stringify(result));
+        }
+
+    } else if (action == "getPendingUsersOfRole") {
+        mod = jagg.module("tenant");
+        var tenantDomain = request.getParameter("tenantDomain");
+        var role = request.getParameter("role");
+        var result;
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+            try {
+                result = mod.getPendingUsersOfRole(tenantDomain, role);
+                if (result != null) {
+                    print(result);
+                } else {
+                    log.error("Error while retrieving pending users of tenant " + tenantDomain + "for role " + role);
+                    result = {};
+                    result.error = true;
+                    result.message = "Error while retrieving pending users";
+                    print(stringify(result));
+                }
+            } catch (e) {
+                log.error("Error while retrieving pending users of tenant " + tenantDomain + "for role " + role);
+                result = {};
+                result.error = true;
+                result.message = "Error while retrieving pending users";
+                print(stringify(result));
+            }
+        } else {
+            result = {};
+            result.error = true;
+            result.message = "You don't have permission to view pending users";
             print(stringify(result));
         }
 
