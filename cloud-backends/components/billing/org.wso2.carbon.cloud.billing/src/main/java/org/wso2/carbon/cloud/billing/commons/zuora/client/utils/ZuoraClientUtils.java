@@ -23,12 +23,17 @@ import com.zuora.api.DeleteResult;
 import com.zuora.api.ErrorCode;
 import com.zuora.api.ID;
 import com.zuora.api.LoginResult;
+import com.zuora.api.QueryLocator;
+import com.zuora.api.QueryOptions;
+import com.zuora.api.QueryResult;
 import com.zuora.api.SaveResult;
 import com.zuora.api.SessionHeader;
 import com.zuora.api.object.ZObject;
+import com.zuora.api.wso2.stub.InvalidQueryLocatorFault;
 import com.zuora.api.wso2.stub.InvalidTypeFault;
 import com.zuora.api.wso2.stub.InvalidValueFault;
 import com.zuora.api.wso2.stub.LoginFault;
+import com.zuora.api.wso2.stub.MalformedQueryFault;
 import com.zuora.api.wso2.stub.UnexpectedErrorFault;
 import com.zuora.api.wso2.stub.ZuoraServiceStub;
 import org.apache.axis2.AxisFault;
@@ -76,6 +81,7 @@ public class ZuoraClientUtils {
 
     /**
      * Zuora stub login
+     * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/login_call"}
      *
      * @throws CloudBillingZuoraException
      */
@@ -101,6 +107,7 @@ public class ZuoraClientUtils {
 
     /**
      * Creates the ZObject.
+     * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/create_call"}
      *
      * @param obj the ZObject
      * @return SaveResult
@@ -128,6 +135,7 @@ public class ZuoraClientUtils {
 
     /**
      * Updates the ZObject.
+     * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/update_call"}
      *
      * @param obj the ZObject
      * @return SaveResult
@@ -155,6 +163,7 @@ public class ZuoraClientUtils {
 
     /**
      * Delete Zuora object for Type and ID.
+     * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/delete_call"}
      *
      * @param type the type
      * @param id   the ID
@@ -185,6 +194,7 @@ public class ZuoraClientUtils {
 
     /**
      * Amend.
+     * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/amend_call"}
      *
      * @param amendRequest the amend
      * @return the amend response
@@ -209,6 +219,63 @@ public class ZuoraClientUtils {
             }
         }
         return results;
+    }
+
+    /**
+     * Zuora queries
+     * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/query_call"}
+     *
+     * @param queryString query string
+     * @param options     {@link "https://knowledgecenter.zuora
+     * .com/BC_Developers/SOAP_API/F_SOAP_API_Complex_Types/QueryOptions"}
+     * @return Query Results
+     * @throws CloudBillingZuoraException
+     * @throws RemoteException
+     * @throws InvalidQueryLocatorFault
+     * @throws MalformedQueryFault
+     * @throws UnexpectedErrorFault
+     */
+    public QueryResult query(String queryString, QueryOptions options)
+            throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
+                   UnexpectedErrorFault {
+        QueryResult queryResult;
+        try {
+            queryResult = zuoraServiceStub.query(queryString, options, getSessionHeader());
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            checkInvalidSessionError(unexpectedErrorFault);
+            queryResult = zuoraServiceStub.query(queryString, options, getSessionHeader());
+        }
+        return queryResult;
+    }
+
+    /**
+     * Zuora queryMore
+     * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/queryMore_call"}
+     *
+     * @param queryString  query string
+     * @param options      {@link "https://knowledgecenter.zuora
+     * .com/BC_Developers/SOAP_API/F_SOAP_API_Complex_Types/QueryOptions"}
+     * @param queryLocator If there are more than you request in a query; results, query() will return a boolean "done,"
+     *                     which will be marked as false, and a queryLocator, which is a marker
+     *                     you will pass to queryMore() to get the next set of results
+     * @return Query Results
+     * @throws CloudBillingZuoraException
+     * @throws RemoteException
+     * @throws InvalidQueryLocatorFault
+     * @throws MalformedQueryFault
+     * @throws UnexpectedErrorFault
+     */
+    public QueryResult queryMore(String queryString, QueryOptions options, QueryLocator queryLocator)
+            throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
+                   UnexpectedErrorFault {
+        QueryResult queryResult;
+        try {
+            queryResult = zuoraServiceStub.queryMore(queryLocator, options, getSessionHeader());
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            checkInvalidSessionError(unexpectedErrorFault);
+            queryResult = zuoraServiceStub.queryMore(queryLocator, options, getSessionHeader());
+        }
+        return queryResult;
     }
 
     /**
@@ -246,6 +313,20 @@ public class ZuoraClientUtils {
         } else {
             throw unexpectedErrorFault;
         }
+    }
+
+    /**
+     * Prepare ZQuery
+     *
+     * @param query String query
+     * @param params parameters
+     * @return Prepared ZQuery
+     */
+    public static String prepareZQuery(String query, String[] params){
+        for (String param : params){
+            query = query.replaceFirst("\\?", param.trim());
+        }
+        return query;
     }
 
     public ClientSession getClientSession() {

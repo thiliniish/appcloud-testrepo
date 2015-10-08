@@ -16,14 +16,15 @@
 
 package org.wso2.carbon.cloud.billing.commons.zuora.client;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.zuora.api.Error;
-import com.zuora.api.ID;
+import com.zuora.api.DeleteResult;
+import com.zuora.api.QueryResult;
 import com.zuora.api.SaveResult;
 import com.zuora.api.object.Account;
+import com.zuora.api.wso2.stub.InvalidQueryLocatorFault;
 import com.zuora.api.wso2.stub.InvalidTypeFault;
+import com.zuora.api.wso2.stub.InvalidValueFault;
+import com.zuora.api.wso2.stub.MalformedQueryFault;
 import com.zuora.api.wso2.stub.UnexpectedErrorFault;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
@@ -47,6 +48,8 @@ public class ZuoraAccountClient extends ZuoraClient {
     private static final Log LOGGER = LogFactory.getLog(ZuoraAccountClient.class);
     private static final String INIT_ERROR_MSG = "Error while initializing Zuora Account client";
     private static final String ACCOUNT_CREATION_ERROR = "occurred while creating customer account";
+    private static final String ACCOUNT_DELETION_ERROR = "occurred while deleting customer account";
+    private static final String ACCOUNT_QUERY_BY_NAME_ERROR = "occurred while querying customer account by name";
 
 
     public ZuoraAccountClient() throws CloudBillingZuoraException {
@@ -72,37 +75,50 @@ public class ZuoraAccountClient extends ZuoraClient {
      *                    Converting Json String to Account object. Json string should be as follows
      *                    parameters should have the "local" prefix
      *                    {
-     *                    "batch": "Batch1",
-     *                    "accountNumber": "T-1444195138269",
-     *                    "allowInvoiceEdit": true,
-     *                    "autoPay": false,
-     *                    "billCycleDay": 1,
-     *                    "crmId": "SFDC-1444195138269",
-     *                    "currency": "USD",
-     *                    "name": "ACC-1444195138269",
-     *                    "paymentTerm": "Due Upon Receipt",
-     *                    "purchaseOrderNumber": "PO-1444195138269",
-     *                    "status": "Draft"
+     *                          "batch": "Batch1",
+     *                          "accountNumber": "T-1444195138269",
+     *                          "allowInvoiceEdit": true,
+     *                          "autoPay": false,
+     *                          "billCycleDay": 1,
+     *                          "crmId": "SFDC-1444195138269",
+     *                          "currency": "USD",
+     *                          "name": "ACC-1444195138269",
+     *                          "paymentTerm": "Due Upon Receipt",
+     *                          "purchaseOrderNumber": "PO-1444195138269",
+     *                          "status": "Draft"
      *                    }
      * @return JsonObject
      * {
-     * "errorsSpecified": false,
-     * "id": "2c92c0f8501d44050150424e8c771eec",
-     * "idSpecified": true,
-     * "success": true
+     *    "errors": null,
+     *    "errorsSpecified": false,
+     *    "id": {
+     *        "id": "2c92c0f9501d4f330150464f02ef0312"
+     *    },
+     *    "idSpecified": true,
+     *    "success": true,
+     *    "successSpecified": true
      * }
-     * <p/>
+     *
      * or
-     * <p/>
+     *
      * {
-     * "errorCodes": [
-     * "MISSING_REQUIRED_VALUE"
-     * ],
-     * "errorMessages": [
-     * "Missing required value: Name"
-     * ],
-     * "errorsSpecified": true,
-     * "success": false
+     *    "errors": [
+     *        {
+     *            "code": {
+     *                "value": "INVALID_VALUE"
+     *            },
+     *            "codeSpecified": true,
+     *            "field": null,
+     *            "fieldSpecified": false,
+     *            "message": "The account number T-1444288585567 is invalid.",
+     *            "messageSpecified": true
+     *        }
+     *    ],
+     *    "errorsSpecified": true,
+     *    "id": null,
+     *    "idSpecified": false,
+     *    "success": false,
+     *    "successSpecified": true
      * }
      * @throws CloudBillingZuoraException
      */
@@ -111,8 +127,7 @@ public class ZuoraAccountClient extends ZuoraClient {
             ObjectMapper mapper = new ObjectMapper();
             Account account = mapper.readValue(accountInfo.toString(), Account.class);
             SaveResult result = zuoraClientUtils.create(account);
-            return resultToJson(result.getSuccess(), result.isErrorsSpecified(), result.isIdSpecified(),
-                                result.getId(), result.getErrors(), account.getName());
+            return objectToJson(result);
         } catch (RemoteException e) {
             String error = "Remote exception " + ACCOUNT_CREATION_ERROR + accountInfo.get("localName");
             LOGGER.error(error, e);
@@ -145,56 +160,99 @@ public class ZuoraAccountClient extends ZuoraClient {
     }
 
     /**
-     * @param success           request success status
-     * @param isErrorsSpecified if any errors specified
-     * @param isIdSpecified     is response id specified
-     * @param id                response id
-     * @param errors            errors
-     * @param accountName       account name
+     * Query Account by name
+     *
+     * @param accountName account name
+     * @return Account json object
+     * @throws CloudBillingZuoraException
+     */
+    public JsonObject queryAccountByName(String accountName) throws CloudBillingZuoraException {
+        try {
+            Account account = getAccount(accountName);
+            return objectToJson(account);
+        } catch (RemoteException e) {
+            String error = "Remote exception " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName;
+            LOGGER.error(error, e);
+            throw new CloudBillingZuoraException(e);
+        } catch (InvalidQueryLocatorFault invalidQueryLocatorFault) {
+            String error = "InvalidQueryLocatorFault " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName;
+            LOGGER.error(error, invalidQueryLocatorFault);
+            throw new CloudBillingZuoraException(invalidQueryLocatorFault);
+        } catch (MalformedQueryFault malformedQueryFault) {
+            String error = "MalformedQueryFault " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName;
+            LOGGER.error(error, malformedQueryFault);
+            throw new CloudBillingZuoraException(malformedQueryFault);
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            String error = "UnexpectedErrorFault " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName;
+            LOGGER.error(error, unexpectedErrorFault);
+            throw new CloudBillingZuoraException(unexpectedErrorFault);
+        } catch (IOException e) {
+            String error = "IOException " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName;
+            LOGGER.error(error, e);
+            throw new CloudBillingZuoraException(e);
+        }
+    }
+
+    /**
+     * Delete account by name
+     *
+     * @param accountName account name
      * @return JsonObject
      * {
-     * "errorsSpecified": false,
-     * "id": "2c92c0f8501d44050150424e8c771eec",
-     * "idSpecified": true,
-     * "success": true
-     * }
-     * <p/>
-     * or
-     * <p/>
-     * {
-     * "errorCodes": [
-     * "MISSING_REQUIRED_VALUE"
-     * ],
-     * "errorMessages": [
-     * "Missing required value: Name"
-     * ],
-     * "errorsSpecified": true,
-     * "success": false
-     * }
+     *     "errors": null,
+     *     "errorsSpecified": false,
+     *     "id": {
+     *         "id": "2c92c0f8501d4405015046de02cf0542"
+     *     },
+     *     "idSpecified": true,
+     *     "success": true,
+     *     "successSpecified": true
+     *}
+     * @throws CloudBillingZuoraException
      */
-    private JsonObject resultToJson(boolean success, boolean isErrorsSpecified, boolean isIdSpecified, ID id,
-                                    Error[] errors, String accountName) {
-        JsonObject resultObj = new JsonObject();
-
-        resultObj.addProperty(BillingConstants.RESPONSE_SUCCESS, success);
-        resultObj.addProperty(BillingConstants.RESPONSE_ERRORS_SPECIFIED, isErrorsSpecified);
-        resultObj.addProperty(BillingConstants.RESPONSE_ID_SPECIFIED, isIdSpecified);
-
-        if (isIdSpecified) {
-            resultObj.addProperty(BillingConstants.RESPONSE_ID, id.getID());
+    public JsonObject deleteAccount(String accountName) throws CloudBillingZuoraException {
+        try {
+            Account account = getAccount(accountName);
+            DeleteResult result = zuoraClientUtils.delete(BillingConstants.ZUORA_ACCOUNT, account.getId());
+            return objectToJson(result);
+        } catch (RemoteException e) {
+            String error = "Remote exception " + ACCOUNT_DELETION_ERROR + accountName;
+            LOGGER.error(error, e);
+            throw new CloudBillingZuoraException(e);
+        } catch (InvalidQueryLocatorFault invalidQueryLocatorFault) {
+            String error = "InvalidQueryLocatorFault " + ACCOUNT_DELETION_ERROR + accountName;
+            LOGGER.error(error, invalidQueryLocatorFault);
+            throw new CloudBillingZuoraException(invalidQueryLocatorFault);
+        } catch (MalformedQueryFault malformedQueryFault) {
+            String error = "MalformedQueryFault " + ACCOUNT_DELETION_ERROR + accountName;
+            LOGGER.error(error, malformedQueryFault);
+            throw new CloudBillingZuoraException(malformedQueryFault);
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            String error = "UnexpectedErrorFault " + ACCOUNT_DELETION_ERROR + accountName;
+            LOGGER.error(error, unexpectedErrorFault);
+            throw new CloudBillingZuoraException(unexpectedErrorFault);
+        } catch (InvalidValueFault invalidValueFault) {
+            String error = "InvalidValueFault " + ACCOUNT_DELETION_ERROR + accountName;
+            LOGGER.error(error, invalidValueFault);
+            throw new CloudBillingZuoraException(invalidValueFault);
+        } catch (InvalidTypeFault invalidTypeFault) {
+            String error = "InvalidTypeFault " + ACCOUNT_DELETION_ERROR + accountName;
+            LOGGER.error(error, invalidTypeFault);
+            throw new CloudBillingZuoraException(invalidTypeFault);
+        } catch (IOException e) {
+            String error = "IOException " + ACCOUNT_DELETION_ERROR + accountName;
+            LOGGER.error(error, e);
+            throw new CloudBillingZuoraException(e);
         }
+    }
 
-        if (isErrorsSpecified) {
-            JsonArray errorCodes = new JsonArray();
-            JsonArray errorMessages = new JsonArray();
-            JsonParser parser = new JsonParser();
-            for (Error error : errors) {
-                errorCodes.add(parser.parse(error.getCode().getValue()));
-                errorMessages.add(parser.parse(error.getMessage()));
-            }
-            resultObj.add(BillingConstants.RESPONSE_ERROR_CODES, errorCodes);
-            resultObj.add(BillingConstants.RESPONSE_ERROR_MESSAGES, errorMessages);
-        }
-        return resultObj;
+
+    private Account getAccount(String accountName)
+            throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
+                   UnexpectedErrorFault {
+        String query = ZuoraClientUtils
+                .prepareZQuery(BillingConstants.QUERY_ZUORA_ACCOUNT_BY_NAME, new String[]{accountName});
+        QueryResult result = zuoraClientUtils.query(query, null);
+        return (Account) result.getRecords()[0];
     }
 }
