@@ -74,9 +74,6 @@ jagg.module("util", {
     },
     isSessionAuthenticated: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").isSessionAuthenticated.apply(this, arguments);
-    },
-    getLeadSourceToken:function(){
-        return jagg.require(jagg.getModulesDir() + "util/util.jag").getLeadSourceToken.apply(this, arguments);
     }
 });
 %>
