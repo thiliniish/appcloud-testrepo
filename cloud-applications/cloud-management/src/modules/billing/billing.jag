@@ -864,7 +864,7 @@ function addCloudSubmissionToRightwave(email,domain,type) {
 	var type = type.substring(0, type.indexOf("_"));
 	var modProfile = jagg.module("user/profile");
 	var claims = modProfile.getProfile();
-    var tokenId = jagg.module("util").getLeadSourceToken(type);
+    	var tokenId = jagg.module("util").getLeadSourceToken(type);
 	var jsonData;
 	if (claims.firstname != "undefined" && claims.lastname != "undefined") {
 		var firstName = claims.firstname;
@@ -875,8 +875,8 @@ function addCloudSubmissionToRightwave(email,domain,type) {
 			"firstlogin" : "1",
 			"expiryts" : ""+expDate+"",
 			"firstname" : ""+firstName+"",
-            "lastname" : ""+lastName+"",
-            "tokenId" : tokenId
+            		"lastname" : ""+lastName+"",
+            		"tokenId" : tokenId
 			
 		};
 	} else {
@@ -884,8 +884,8 @@ function addCloudSubmissionToRightwave(email,domain,type) {
 			"email" : email,
 			"cloudtype" : type,
 			"firstlogin" : "1",
-            "expiryts" : ""+expDate+"",
-            "tokenId" : tokenId
+            		"expiryts" : ""+expDate+"",
+            		"tokenId" : tokenId
 		};
 	}
 	var URL = cloudConfig.RightWaveAddUserApi.cloudSubmission;
