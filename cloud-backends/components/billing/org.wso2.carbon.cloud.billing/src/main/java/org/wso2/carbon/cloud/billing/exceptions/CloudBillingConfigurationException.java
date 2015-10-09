@@ -28,8 +28,4 @@ public class CloudBillingConfigurationException extends CloudBillingException {
     public CloudBillingConfigurationException(String s, Throwable throwable) {
         super(s, throwable);
     }
-
-    public CloudBillingConfigurationException(Throwable throwable) {
-        super(throwable);
-    }
 }

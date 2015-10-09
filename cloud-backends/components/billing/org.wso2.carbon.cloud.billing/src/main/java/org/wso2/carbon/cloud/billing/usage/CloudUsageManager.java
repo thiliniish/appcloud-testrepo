@@ -77,7 +77,7 @@ public class CloudUsageManager {
         LOGGER.info("Uploading daily usage for  " + dateFormat.format(new Date(System.currentTimeMillis())));
         // get today;s usage from data services and create a usage array
         String response = getDailyUsage();
-        Usage usageArr[] = UsageProcessorUtil.getDailyUsageDataForApiM(response);
+        Usage[] usageArr = UsageProcessorUtil.getDailyUsageDataForApiM(response);
         if (usageArr.length > 0) {
             // write them in to a CSV array
             UsageCSVParser.writeCSVData(usageArr);

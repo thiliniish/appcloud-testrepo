@@ -25,11 +25,19 @@ public class AccountUsage {
     private String productName;
     private String date;
     private int users;
-    private int maxDailyUsage; //500 max api call
-    private int usage; // actual usage
-    private float overage; // how much this account is over charged ie $10
-    private String ratePlan; //$5 -> 1k
     private boolean isPaidAccount;
+
+    //500 max api call
+    private int maxDailyUsage;
+
+    // actual usage
+    private int usage;
+
+    // how much this account is over charged ie $10
+    private float overage;
+
+    //$5 -> 1k
+    private String ratePlan;
 
     public String getTenantDomain() {
         return tenantDomain;

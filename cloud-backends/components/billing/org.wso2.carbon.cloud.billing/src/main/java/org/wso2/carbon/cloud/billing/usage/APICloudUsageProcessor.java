@@ -17,8 +17,6 @@ package org.wso2.carbon.cloud.billing.usage;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
@@ -33,7 +31,6 @@ import java.util.Iterator;
 
 public class APICloudUsageProcessor implements UsageProcessor {
 
-    private static final Log LOGGER = LogFactory.getLog(APICloudUsageProcessor.class);
     private BillingRequestProcessor billingRequestProcessor;
 
     public APICloudUsageProcessor() {
@@ -69,9 +66,7 @@ public class APICloudUsageProcessor implements UsageProcessor {
             }
             return false;
         } catch (XMLStreamException e) {
-            String msg = "Error while reading xml response from data service";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error while reading xml response from data service", e);
         }
     }
 

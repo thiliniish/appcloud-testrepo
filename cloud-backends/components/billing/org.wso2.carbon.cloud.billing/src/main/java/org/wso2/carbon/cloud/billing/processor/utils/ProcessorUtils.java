@@ -67,7 +67,7 @@ public class ProcessorUtils {
                 }
                 switch (response) {
                     case HttpURLConnection.HTTP_OK:
-                        return handleCaseHTTPOk(httpMethod, result);
+                        return handleCaseHTTPOk(httpMethod);
 
                     case HttpURLConnection.HTTP_ACCEPTED:
                         //Reason : https://wso2.org/jira/browse/DS-886
@@ -75,11 +75,9 @@ public class ProcessorUtils {
                         return String.valueOf(response);
 
                     case HttpURLConnection.HTTP_NOT_FOUND:
-                        LOGGER.error(NOT_FOUND_ERROR_MSG);
                         throw new CloudBillingException(NOT_FOUND_ERROR_MSG);
 
                     case HttpURLConnection.HTTP_UNAUTHORIZED:
-                        LOGGER.error(AUTH_ERROR_MSG);
                         throw new CloudBillingException(AUTH_ERROR_MSG);
 
                     default:
@@ -113,7 +111,6 @@ public class ProcessorUtils {
             throws CloudBillingException {
 
         int response;
-        String result = "";
         String uri = getURI(httpMethod);
         String methodName = httpMethod.getName();
 
@@ -124,7 +121,7 @@ public class ProcessorUtils {
             }
             switch (response) {
                 case HttpURLConnection.HTTP_OK:
-                    return handleCaseHTTPOk(httpMethod, result);
+                    return handleCaseHTTPOk(httpMethod);
 
                 case HttpURLConnection.HTTP_ACCEPTED:
                     //Reason : https://wso2.org/jira/browse/DS-886
@@ -132,29 +129,26 @@ public class ProcessorUtils {
                     return String.valueOf(response);
 
                 case HttpURLConnection.HTTP_NOT_FOUND:
-                    LOGGER.error(NOT_FOUND_ERROR_MSG);
                     throw new CloudBillingException(NOT_FOUND_ERROR_MSG);
 
                 case HttpURLConnection.HTTP_UNAUTHORIZED:
-                    LOGGER.error(AUTH_ERROR_MSG);
                     throw new CloudBillingException(AUTH_ERROR_MSG);
 
                 default:
-                    String msg = methodName + " request failed for URI: " + uri + " with HTTP error code : " + response;
-                    LOGGER.error(msg);
-                    throw new CloudBillingException(msg);
+                    throw new CloudBillingException(methodName + " request failed for URI: " + uri
+                                                    + " with HTTP error code : " + response);
             }
         } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
-            LOGGER.error(methodName + " request failed for URI: " + uri + " with exception : " + ex);
-            throw new CloudBillingException(ex);
+            throw new CloudBillingException(methodName + " request failed for URI: " + uri, ex);
         } finally {
             httpMethod.releaseConnection();
         }
     }
 
-    private static String handleCaseHTTPOk(HttpMethodBase httpMethod, String result) throws IOException {
+    private static String handleCaseHTTPOk(HttpMethodBase httpMethod) throws IOException {
+        String result = "";
         if (httpMethod.getResponseBody().length > 0) {
             result = httpMethod.getResponseBodyAsString();
         }
@@ -165,8 +159,8 @@ public class ProcessorUtils {
     private static void handleExceptionWithRetry(int executionCount, int retryCount, String methodName, String uri,
                                                  Exception ex) throws CloudBillingException {
         if (retryCount >= executionCount) {
-            LOGGER.error(methodName + " request failed for the " + retryCount + " attempt for URI: " + uri, ex);
-            throw new CloudBillingException(ex);
+            throw new CloudBillingException(methodName + " request failed for the " + retryCount + " attempt for URI:" +
+                                            " " + uri, ex);
         } else {
             LOGGER.warn(methodName + " request failed for URI: " + uri + " with exception : " + ex.getMessage()
                         + ". Retry attempt: " + retryCount + "/" + executionCount);
@@ -176,10 +170,9 @@ public class ProcessorUtils {
     private static void handleDefaultCase(int executionCount, int response, int retryCount, String methodName,
                                           String uri) throws CloudBillingException {
         if (retryCount >= executionCount) {
-            String msg = methodName + " request failed for the " + retryCount + " attempt for URI: " + uri
-                         + " with HTTP error code: " + response;
-            LOGGER.error(msg);
-            throw new CloudBillingException(msg);
+            throw new CloudBillingException(methodName + " request failed for the " + retryCount + " attempt for URI:" +
+                                            " " + uri
+                                            + " with HTTP error code: " + response);
         } else {
             LOGGER.warn(methodName + " request failed for URI: " + uri + " with HTTP error code: " +
                         response + ". Retry: " + retryCount + "/" + executionCount);
@@ -191,7 +184,7 @@ public class ProcessorUtils {
         try {
             uri = httpMethod.getURI().getURI();
         } catch (URIException e) {
-            throw new CloudBillingException(e);
+            throw new CloudBillingException("URI exception while getting the URI", e);
         }
         return uri;
     }

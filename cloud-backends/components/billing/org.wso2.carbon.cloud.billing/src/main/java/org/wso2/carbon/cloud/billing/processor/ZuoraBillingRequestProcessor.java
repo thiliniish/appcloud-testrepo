@@ -24,8 +24,6 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
@@ -41,7 +39,6 @@ import java.io.UnsupportedEncodingException;
  */
 public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
-    private static final Log LOGGER = LogFactory.getLog(ZuoraBillingRequestProcessor.class);
     private static String uploadURL = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs()
             .getUsage();
 
@@ -69,9 +66,7 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         try {
             part = new FilePart(BillingConstants.FILE_PART_NAME, file);
         } catch (FileNotFoundException e) {
-            String msg = "Error occurred while reading usage data";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error occurred while reading usage data", e);
         }
         RequestEntity uploadReqEntity = new MultipartRequestEntity(new Part[]{part}, new HttpClientParams());
         post.setRequestEntity(uploadReqEntity);
@@ -111,9 +106,7 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
                                                     BillingConstants.ENCODING);
             post.setRequestEntity(requestEntity);
         } catch (UnsupportedEncodingException e) {
-            String msg = "Error occured while encoding json payload" + jsonPayload;
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error occurred while encoding json payload" + jsonPayload, e);
         }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
     }

@@ -28,8 +28,4 @@ public class CloudBillingSecurityException extends CloudBillingException {
     public CloudBillingSecurityException(String s, Throwable throwable) {
         super(s, throwable);
     }
-
-    public CloudBillingSecurityException(Throwable throwable) {
-        super(throwable);
-    }
 }
