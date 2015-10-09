@@ -51,7 +51,6 @@ import java.rmi.RemoteException;
  */
 public class ZuoraClientUtils {
 
-    private static final String INVALID_RESPONSE_LENGTH = "Invalid response length.";
     private static final Log LOGGER = LogFactory.getLog(ZuoraClientUtils.class);
     private static ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
     /**
@@ -80,6 +79,20 @@ public class ZuoraClientUtils {
     }
 
     /**
+     * Prepare ZQuery
+     *
+     * @param query  String query
+     * @param params parameters
+     * @return Prepared ZQuery
+     */
+    public static String prepareZQuery(String query, String[] params) {
+        for (String param : params) {
+            query = query.replaceFirst("\\?", param.trim());
+        }
+        return query;
+    }
+
+    /**
      * Zuora stub login
      * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/login_call"}
      *
@@ -91,17 +104,11 @@ public class ZuoraClientUtils {
             // create session for all subsequent calls
             clientSession = new ClientSession(result.getSession(), zuoraConfig.getSessionExpired());
         } catch (RemoteException e) {
-            String errorMsg = "Remote exception while login to zuora";
-            LOGGER.error(errorMsg, e);
-            throw new CloudBillingZuoraException(errorMsg, e);
+            throw new CloudBillingZuoraException("Remote exception while login to zuora", e);
         } catch (LoginFault loginFault) {
-            String errorMsg = "LoginFault while login to zuora";
-            LOGGER.error(errorMsg, loginFault);
-            throw new CloudBillingZuoraException(errorMsg, loginFault);
+            throw new CloudBillingZuoraException("LoginFault while login to zuora", loginFault);
         } catch (UnexpectedErrorFault unexpectedErrorFault) {
-            String errorMsg = "Unexpected exception while zuora login";
-            LOGGER.error(errorMsg, unexpectedErrorFault);
-            throw new CloudBillingZuoraException(errorMsg, unexpectedErrorFault);
+            throw new CloudBillingZuoraException("Unexpected exception while zuora login", unexpectedErrorFault);
         }
     }
 
@@ -227,7 +234,7 @@ public class ZuoraClientUtils {
      *
      * @param queryString query string
      * @param options     {@link "https://knowledgecenter.zuora
-     * .com/BC_Developers/SOAP_API/F_SOAP_API_Complex_Types/QueryOptions"}
+     *                    .com/BC_Developers/SOAP_API/F_SOAP_API_Complex_Types/QueryOptions"}
      * @return Query Results
      * @throws CloudBillingZuoraException
      * @throws RemoteException
@@ -254,7 +261,7 @@ public class ZuoraClientUtils {
      *
      * @param queryString  query string
      * @param options      {@link "https://knowledgecenter.zuora
-     * .com/BC_Developers/SOAP_API/F_SOAP_API_Complex_Types/QueryOptions"}
+     *                     .com/BC_Developers/SOAP_API/F_SOAP_API_Complex_Types/QueryOptions"}
      * @param queryLocator If there are more than you request in a query; results, query() will return a boolean "done,"
      *                     which will be marked as false, and a queryLocator, which is a marker
      *                     you will pass to queryMore() to get the next set of results
@@ -289,8 +296,7 @@ public class ZuoraClientUtils {
         if (response.length > 0) {
             return response[0];
         } else {
-            LOGGER.error(INVALID_RESPONSE_LENGTH);
-            throw new CloudBillingZuoraException(INVALID_RESPONSE_LENGTH);
+            throw new CloudBillingZuoraException("Invalid response length.");
         }
     }
 
@@ -313,20 +319,6 @@ public class ZuoraClientUtils {
         } else {
             throw unexpectedErrorFault;
         }
-    }
-
-    /**
-     * Prepare ZQuery
-     *
-     * @param query String query
-     * @param params parameters
-     * @return Prepared ZQuery
-     */
-    public static String prepareZQuery(String query, String[] params){
-        for (String param : params){
-            query = query.replaceFirst("\\?", param.trim());
-        }
-        return query;
     }
 
     public ClientSession getClientSession() {

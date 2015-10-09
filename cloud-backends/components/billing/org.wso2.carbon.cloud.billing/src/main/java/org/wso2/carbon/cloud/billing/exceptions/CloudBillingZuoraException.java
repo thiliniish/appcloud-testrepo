@@ -28,8 +28,4 @@ public class CloudBillingZuoraException extends CloudBillingException {
     public CloudBillingZuoraException(String s, Throwable throwable) {
         super(s, throwable);
     }
-
-    public CloudBillingZuoraException(Throwable throwable) {
-        super(throwable);
-    }
 }

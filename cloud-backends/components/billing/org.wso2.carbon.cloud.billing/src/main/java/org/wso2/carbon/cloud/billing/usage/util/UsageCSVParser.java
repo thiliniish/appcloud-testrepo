@@ -51,9 +51,7 @@ public class UsageCSVParser {
             csvWriter.close();
             LOGGER.info("Successfully created the csv file in  " + csvFile);
         } catch (IOException e) {
-            String msg = "Error while creating the csv file";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error while creating the csv file", e);
         }
     }
 

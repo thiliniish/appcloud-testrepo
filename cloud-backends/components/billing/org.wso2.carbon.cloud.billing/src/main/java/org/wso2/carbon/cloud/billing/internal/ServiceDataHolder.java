@@ -50,9 +50,8 @@ public class ServiceDataHolder {
     }
 
     public TaskManager getTaskManager(String taskName) {
-        TaskService taskService = this.getTaskService();
         try {
-            return taskService.getTaskManager(taskName);
+            return this.taskService.getTaskManager(taskName);
         } catch (TaskException e) {
             LOGGER.error("Error while initializing TaskManager. ", e);
             return null;

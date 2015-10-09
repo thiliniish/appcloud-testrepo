@@ -85,12 +85,7 @@ public class CloudBillingServiceComponent {
                 LOGGER.warn("Subscription cleanup disabled");
             }
 
-            try {
-                ServiceDataHolder.getInstance().getTaskService().registerTaskType(BillingConstants
-                                                                                          .USAGE_UPLOADER_TASK_NAME);
-            } catch (TaskException e) {
-                LOGGER.error("Error in registering usage upload tas task type: " + e.getMessage(), e);
-            }
+            registerUsageUploaderTask();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Cloud billing  bundle is activated");
             }
@@ -137,5 +132,14 @@ public class CloudBillingServiceComponent {
 
     protected void unsetRealmService(RealmService realmService) {
         ServiceDataHolder.getInstance().setRealmService(null);
+    }
+
+    private void registerUsageUploaderTask() {
+        try {
+            ServiceDataHolder.getInstance().getTaskService().registerTaskType(BillingConstants
+                                                                                      .USAGE_UPLOADER_TASK_NAME);
+        } catch (TaskException e) {
+            LOGGER.error("Error in registering usage upload tas task type: " + e.getMessage(), e);
+        }
     }
 }

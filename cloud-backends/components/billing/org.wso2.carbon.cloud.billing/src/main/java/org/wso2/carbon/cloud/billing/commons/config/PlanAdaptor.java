@@ -44,13 +44,17 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
             plan.monthlyRental = adaptedPlan.monthlyRental;
             plan.premiumLevel = adaptedPlan.premiumLevel;
             return plan;
-        } /*else if {
-            //APPCloud specific
-        }*/ else {
+        }  else {
             throw new CloudBillingConfigurationException("Error while un-marshalling");
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Else try something specific for app cloud configs
+     * @throws CloudBillingConfigurationException
+     */
     @Override
     public PlanAdaptor.AdaptedPlan marshal(Plan plan) throws CloudBillingConfigurationException {
         if (null == plan) {
@@ -66,9 +70,7 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
             adaptedPlan.overUsage = apiCloudPlan.overUsage;
             adaptedPlan.monthlyRental = apiCloudPlan.monthlyRental;
             adaptedPlan.premiumLevel = apiCloudPlan.premiumLevel;
-        } /* else if {
-            App Cloud
-        } */ else {
+        } else {
             throw new CloudBillingConfigurationException("Error while marshalling.");
         }
         return adaptedPlan;

@@ -22,8 +22,6 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.json.JSONException;
@@ -77,7 +75,6 @@ public class ZuoraHPMUtils {
     private static final String BOUNCY_CASTLE_PROVIDER = "BC";
     private static final String RSA_ENCRYPT_DECRYPT_FUNCTION = "RSA/ECB/PKCS1Padding";
     private static final String TYPE_JSON = "application/json";
-    private static final Log LOGGER = LogFactory.getLog(ZuoraHPMUtils.class);
     private static String url;
     private static String endPoint;
     private static String username;
@@ -116,15 +113,11 @@ public class ZuoraHPMUtils {
 
             return params.toString();
         } catch (JSONException e) {
-            String msg = ERROR_PREPARE_PARAMS + " JSON object creation failed: ";
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_PREPARE_PARAMS + " JSON object creation failed: ", e);
         } catch (IOException e) {
-            String msg = ERROR_PREPARE_PARAMS + " IO exception while generating signature: ";
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_PREPARE_PARAMS + " IO exception while generating signature:" +
+                                                    " ", e);
         } catch (Exception e) {
-            LOGGER.error(ERROR_PREPARE_PARAMS, e);
             throw new CloudBillingSecurityException(ERROR_PREPARE_PARAMS, e);
         }
     }
@@ -177,31 +170,23 @@ public class ZuoraHPMUtils {
                 throw new CloudBillingSecurityException("Signature is expired.");
             }
         } catch (NoSuchAlgorithmException e) {
-            String msg = ERROR_VALIDATE_SIGNATURE + " Algorithm not found: " + RSA_ENCRYPT_DECRYPT_FUNCTION;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " Algorithm not found: " +
+                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
         } catch (NoSuchPaddingException e) {
-            String msg = ERROR_VALIDATE_SIGNATURE + " No such padding exception for cipher: " +
-                         RSA_ENCRYPT_DECRYPT_FUNCTION;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " No such padding exception for " +
+                                                    "cipher: " +
+                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
         } catch (IllegalBlockSizeException e) {
-            String msg = ERROR_VALIDATE_SIGNATURE + " Illegal block size exception for cipher: " +
-                         RSA_ENCRYPT_DECRYPT_FUNCTION;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " Illegal block size exception for " +
+                                                    "cipher: " +
+                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
         } catch (BadPaddingException e) {
-            String msg = ERROR_VALIDATE_SIGNATURE + " Bad padding exception for cipher: " +
-                         RSA_ENCRYPT_DECRYPT_FUNCTION;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " Bad padding exception for cipher: " +
+                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
         } catch (InvalidKeyException e) {
-            String msg = ERROR_VALIDATE_SIGNATURE + " Invalid key exception for cipher: " +
-                         RSA_ENCRYPT_DECRYPT_FUNCTION;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " Invalid key exception for cipher: " +
+                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
         } catch (Exception e) {
-            LOGGER.error(ERROR_VALIDATE_SIGNATURE, e);
             throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE, e);
         }
     }
@@ -218,15 +203,11 @@ public class ZuoraHPMUtils {
                 throw new CloudBillingSecurityException("Encoded data cannot be null");
             }
         } catch (NoSuchAlgorithmException e) {
-            String msg = ERROR_GENERATE_HASH + " Algorithm not found: " + mdAlgorithm;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_GENERATE_HASH + " Algorithm not found: " + mdAlgorithm, e);
         } catch (NoSuchProviderException e) {
-            String msg = ERROR_GENERATE_HASH + " No provider found: " + BOUNCY_CASTLE_PROVIDER;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_GENERATE_HASH + " No provider found: " +
+                                                    BOUNCY_CASTLE_PROVIDER, e);
         } catch (Exception e) {
-            LOGGER.error(ERROR_GENERATE_HASH, e);
             throw new CloudBillingSecurityException(ERROR_GENERATE_HASH, e);
         }
     }
@@ -240,15 +221,11 @@ public class ZuoraHPMUtils {
 
             return MessageDigest.isEqual(digestData, Base64.decodeBase64(hash.getBytes(Charset.forName(ENCODER))));
         } catch (NoSuchAlgorithmException e) {
-            String msg = ERROR_VALIDATE_HASH + " Algorithm not found: " + mdAlgorithm;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_VALIDATE_HASH + " Algorithm not found: " + mdAlgorithm, e);
         } catch (NoSuchProviderException e) {
-            String msg = ERROR_VALIDATE_HASH + " No provider found: " + BOUNCY_CASTLE_PROVIDER;
-            LOGGER.error(msg, e);
-            throw new CloudBillingSecurityException(msg, e);
+            throw new CloudBillingSecurityException(ERROR_VALIDATE_HASH + " No provider found: " +
+                                                    BOUNCY_CASTLE_PROVIDER, e);
         } catch (Exception e) {
-            LOGGER.error(ERROR_VALIDATE_HASH, e);
             throw new CloudBillingSecurityException(ERROR_VALIDATE_HASH, e);
         }
     }

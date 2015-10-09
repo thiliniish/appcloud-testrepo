@@ -17,7 +17,6 @@
 package org.wso2.carbon.cloud.billing.utils;
 
 /**
- *
  * Model to represent Utilities for Cloud monetization service
  */
 public class CloudMonetizationUtils {

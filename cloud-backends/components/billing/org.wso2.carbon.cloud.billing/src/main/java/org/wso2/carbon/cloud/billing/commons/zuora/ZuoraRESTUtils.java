@@ -81,11 +81,9 @@ public class ZuoraRESTUtils {
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
             // getting all subscriptions elements for accountId
-            return ((JSONArray) jsonObject.get(BillingConstants.SUBSCRIPTIONS));
+            return (JSONArray) jsonObject.get(BillingConstants.SUBSCRIPTIONS);
         } catch (ParseException e) {
-            String msg = "Error passing the response " + response + " to json object";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error passing the response " + response + " to json object", e);
         }
     }
 
@@ -117,9 +115,7 @@ public class ZuoraRESTUtils {
             url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
             return zuoraApi.doGet(url);
         } catch (CloudBillingException e) {
-            String msg = "Error getting Account summary from the account " + accountId;
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error getting Account summary from the account " + accountId, e);
         }
     }
 
@@ -131,9 +127,7 @@ public class ZuoraRESTUtils {
             url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
             return zuoraApi.doGet(url);
         } catch (CloudBillingException e) {
-            String msg = "Error getting invoices summary from the account " + accountId;
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error getting invoices summary from the account " + accountId, e);
         }
     }
 
@@ -145,9 +139,8 @@ public class ZuoraRESTUtils {
             url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
             return zuoraApi.doGet(url);
         } catch (CloudBillingException e) {
-            String msg = "Error getting payment information summary from the account " + accountId;
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error getting payment information summary from the account " +
+                                            accountId, e);
         }
     }
 
@@ -186,13 +179,9 @@ public class ZuoraRESTUtils {
                 }
             }
         } catch (CloudBillingException e) {
-            String msg = "Error getting ratePlans from the account " + accountId;
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error getting ratePlans from the account " + accountId, e);
         } catch (Exception e) {
-            String msg = "Error passing the response " + response + " to json object";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error passing the response " + response + " to json object", e);
         }
         return null;
     }
@@ -216,13 +205,9 @@ public class ZuoraRESTUtils {
             }
 
         } catch (CloudBillingException e) {
-            String msg = "Error getting product rate plans";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error getting product rate plans", e);
         } catch (ParseException e) {
-            String msg = "Error passing the response " + response + " to json object";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error passing the response " + response + " to json object", e);
         }
         return null;
     }

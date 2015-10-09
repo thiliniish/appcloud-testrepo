@@ -154,7 +154,8 @@ public final class BillingConstants {
 
     /* Zuora queries */
     //ToDo Subject to change
-    public static final String QUERY_ZUORA_ACCOUNT_BY_NAME = "SELECT id, name, accountnumber FROM account WHERE name = '?'";
+    public static final String QUERY_ZUORA_ACCOUNT_BY_NAME = "SELECT id, name, accountnumber FROM account WHERE name " +
+                                                             "= '?'";
 
     /*Zuora types*/
     public static final String ZUORA_ACCOUNT = "Account";

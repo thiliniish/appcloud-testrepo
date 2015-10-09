@@ -17,8 +17,6 @@ package org.wso2.carbon.cloud.billing.usage.util;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
@@ -39,8 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class UsageProcessorUtil {
-
-    private static final Log LOGGER = LogFactory.getLog(UsageProcessorUtil.class);
 
     private UsageProcessorUtil() {
     }
@@ -102,9 +98,7 @@ public class UsageProcessorUtil {
             }
             return usageList.toArray(new AccountUsage[usageList.size()]);
         } catch (XMLStreamException e) {
-            String msg = "Error while reading xml response from data service";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error while reading xml response from data service", e);
         }
     }
 
@@ -160,13 +154,10 @@ public class UsageProcessorUtil {
                 }
             }
         } catch (XMLStreamException e) {
-            String msg = "Error while reading xml response from data service";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error while reading xml response from data service", e);
         } catch (ParseException e) {
-            String msg = "Error Parsing the dates to date format " + BillingConstants.DS_DATE_FOMAT;
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error Parsing the dates to date format " + BillingConstants
+                    .DS_DATE_FOMAT, e);
         }
         return null;
     }
@@ -204,9 +195,7 @@ public class UsageProcessorUtil {
             }
             return usageList.toArray(new AccountUsage[usageList.size()]);
         } catch (XMLStreamException e) {
-            String msg = "Error while reading xml response from data service";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error while reading xml response from data service", e);
         }
 
     }
@@ -257,9 +246,7 @@ public class UsageProcessorUtil {
             }
             return usageList.toArray(new Usage[usageList.size()]);
         } catch (XMLStreamException e) {
-            String msg = "Error while reading xml response from data service";
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error while reading xml response from data service", e);
         }
     }
 
@@ -275,9 +262,7 @@ public class UsageProcessorUtil {
             int overUsage = usage - maxUsage;
             return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage : 0;
         } else {
-            String msg = "Subscription plan for accountId: " + accountId + " cannot be null";
-            LOGGER.error(msg);
-            throw new CloudBillingException(msg);
+            throw new CloudBillingException("Subscription plan for accountId: " + accountId + " cannot be null");
         }
     }
 

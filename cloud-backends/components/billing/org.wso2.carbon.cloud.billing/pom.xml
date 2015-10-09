@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk16</artifactId>
-            <version>1.46</version>
+            <version>${bcprov-jdk16.version}</version>
         </dependency>
         <dependency>
             <groupId>com.zuora.wso2</groupId>
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.1</version>
+            <version>${com.google.gson.version}</version>
         </dependency>
     </dependencies>
     <build>

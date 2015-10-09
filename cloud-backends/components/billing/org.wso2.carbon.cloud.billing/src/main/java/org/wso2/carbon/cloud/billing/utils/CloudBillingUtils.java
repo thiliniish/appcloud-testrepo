@@ -86,9 +86,7 @@ public class CloudBillingUtils {
             }
 
         } catch (XMLStreamException e) {
-            String msg = "Unable to get the OMElement from " + response;
-            LOGGER.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Unable to get the OMElement from " + response, e);
         }
 
     }
