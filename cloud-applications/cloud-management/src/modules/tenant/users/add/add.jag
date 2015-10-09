@@ -133,8 +133,7 @@ var sendInvite = function (email, tenant, roles, message) {
             var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
             var data = "json=" + JSON.stringify(jsonData);
             var result = post(URL, data, {
-                'Content-Type': 'application/json'
-            }, 'text');
+                'Content-Type': 'application/json'}, 'text');
             var type = "CloudMgt";
             var msg = JSON.parse(result['data']);
             var actionString = "Rightwave-" + type + "-cloudsignup{Invite}:";
@@ -241,20 +240,15 @@ var inviteUsers = function inviteUsers(userRoleList, defaultRoles, message) {
         try {
             for (var i = 0; i < userRoleList.length; i++) {
                 var user = userRoleList[i];
-                if (!jagg.module("tenant").isExistingUser(user.id)) {
-                    var rolesList;
-                    var defaultRoleList = constructRoleList(defaultRoles);
-                    if (defaultRoleList != "") {
-                        rolesList = defaultRoleList + "," + constructRoleList(userRoleList[i].roles);
-                    }
-                    else {
-                        rolesList = constructRoleList(userRoleList[i].roles);
-                    }
-                    sendInvite(user.id, tenantDomain, rolesList, message);
+                var rolesList;
+                var defaultRoleList = constructRoleList(defaultRoles);
+                if (defaultRoleList != "") {
+                    rolesList = defaultRoleList + "," + constructRoleList(userRoleList[i].roles);
                 }
                 else {
-                    log.info("Could not send the email to user :" + user.id + ". user already exists.");
+                    rolesList = constructRoleList(userRoleList[i].roles);
                 }
+                sendInvite(user.id, tenantDomain, rolesList, message);
             }
         } catch (e) {
             log.error("Error while sending user invitations");
@@ -275,7 +269,7 @@ var resendInvite = function resendInvite(email) {
     var tenantDomain = modManager.getTenantDomain();
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         try {
-            log.info("Re-sending invitation for invited user " + email);
+            log.info("Re-sending invitation to invited user " + email);
             var displayName = modManager.getTenantDisplayName(tenantDomain);
             var queryString = SQL_QUERY_STRINGS.SELECT_UUID_AND_ROLES_FROM_TEMP_INVITEE;
             var parameters = [email, tenantDomain];
@@ -290,6 +284,7 @@ var resendInvite = function resendInvite(email) {
             var userRoles = results[0]["roles"];
             var link = targetEpr + "?confirmation=" + uuid + "&isInvitee=true";
             sendEmail(email, link, displayName, userRoles);
+            log.info("Re-sending invitation to invited user " + email +" successful")
             return true;
         } else {
             log.info("No pending users available for " + tenantDomain + " and email " + email);
