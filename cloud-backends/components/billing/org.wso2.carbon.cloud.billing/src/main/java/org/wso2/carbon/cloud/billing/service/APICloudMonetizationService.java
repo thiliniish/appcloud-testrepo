@@ -16,7 +16,10 @@
 
 package org.wso2.carbon.cloud.billing.service;
 
-
-public class CloudMonetizationService {
+/**
+ *
+ * API Cloud Specific monetization service
+ */
+public class APICloudMonetizationService {
 
 }
