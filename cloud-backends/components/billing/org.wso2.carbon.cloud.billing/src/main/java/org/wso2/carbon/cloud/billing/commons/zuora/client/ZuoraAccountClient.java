@@ -226,7 +226,6 @@ public class ZuoraAccountClient extends ZuoraClient {
     /**
      * @param accountInfo json object
      *                    Converting Json String to Account object. Json string should be as follows
-     *                    parameters should have the "local" prefix
      *                    {
      *                          "batch": "Batch1",
      *                          "accountNumber": "T-1444195138269",
