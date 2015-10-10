@@ -18,11 +18,14 @@
 
 package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.cloud.heartbeat.monitoring.ui.configuration.Node;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -31,108 +34,111 @@ import java.util.List;
 public class DataAccessManager {
 
     private static final Log log = LogFactory.getLog(DataAccessManager.class);
-    private static final String DRIVER_CLASS_NAME =
-            ConfigReader.getInstance().getDataSourceFromNode().getProperty("database_driver");
-    private Connection connection = null;
-    private PreparedStatement preparedStatement = null;
 
-    public DataAccessManager(Node dataSource) throws HeartbeatException {
+    private static volatile DataAccessManager instance;
+    private BasicDataSource source;
 
-        String userName = dataSource.getProperty("user");
-        String password = dataSource.getProperty("password");
-        String dbUrl = "jdbc:mysql://" + dataSource.getProperty("host_name") + "/" +
-                       dataSource.getProperty("database_name");
+    private static final String DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
 
-        try {
-            Class.forName(DRIVER_CLASS_NAME).newInstance();
-            connection = DriverManager.getConnection(dbUrl, userName, password);
-        } catch (ClassNotFoundException e) {
-            log.error("Heartbeat - Monitor - ClassNotFoundException thrown while initializing data access: ", e);
-            throw new HeartbeatException(
-                    "Heartbeat - Monitor - ClassNotFoundException thrown while initializing data access: " + e);
-        } catch (SQLException e) {
-            log.error("Heartbeat - Monitor - SQLException thrown while initializing data access: ", e);
-            throw new HeartbeatException(
-                    "Heartbeat - Monitor - SQLException thrown while initializing data access: " + e);
-        } catch (InstantiationException e) {
-            log.error("Heartbeat - Monitor - InstantiationException thrown while initializing data access: ", e);
-            throw new HeartbeatException(
-                    "Heartbeat - Monitor - InstantiationException thrown while initializing data access: " + e);
-        } catch (IllegalAccessException e) {
-            log.error("Heartbeat - Monitor - IllegalAccessException thrown while initializing data access: ", e);
-            throw new HeartbeatException(
-                    "Heartbeat - Monitor - IllegalAccessException thrown while initializing data access: " + e);
-        }
+    /**
+     * creates database connection
+     */
+    private DataAccessManager() {
+        this.source = setDbConnection();
     }
 
     /**
-     * Method to execute select queries
+     * Returns database connection instance, if database connection instance is null creates
+     * a database connection
      *
-     * @param query      String query to be executed
-     * @param parameters List of parameters to set on query
-     * @return sql ResultSet
-     * @throws SQLException
+     * @return Database connection
      */
-
-    public ResultSet runQuery(String query, List<String> parameters) throws SQLException {
-        preparedStatement = connection.prepareStatement(query);
-        for (int i = 0; i < parameters.size(); i++) {
-            preparedStatement.setString(i + 1, parameters.get(i));
-        }
-        return preparedStatement.executeQuery();
-    }
-
-    /**
-     * Method to execute update queries
-     *
-     * @param query      String query to be executed
-     * @param parameters List of parameters to set on query
-     * @return sql ResultSet
-     * @throws SQLException
-     */
-    public int updateQuery(String query, List<String> parameters) throws SQLException {
-        preparedStatement = connection.prepareStatement(query);
-        for (int i = 0; i < parameters.size(); i++) {
-            preparedStatement.setString(i + 1, parameters.get(i));
-        }
-        return preparedStatement.executeUpdate();
-    }
-
-    /**
-     * Closes sql connection
-     *
-     * @throws SQLException
-     */
-    public void closeConnection() throws SQLException {
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-                preparedStatement = null;
-            } catch (SQLException e) {
-                log.error("SQL Exception while closing prepared statement" + e);
-            }
-        }
-        try {
-            if (connection != null && !connection.isClosed()) {
-                if (!connection.getAutoCommit()) {
-                    connection.commit();
-                    connection.setAutoCommit(true);
+    public static DataAccessManager getInstance() {
+        if (instance == null) {
+            synchronized (DataAccessManager.class) {
+                if (instance == null) {
+                    instance = new DataAccessManager();
                 }
-                connection.close();
-                connection = null;
             }
+        }
+        return instance;
+    }
+
+    /**
+     * Initializes MySQL database connection
+     *
+     * @return java.sql.Connection
+     */
+    private BasicDataSource setDbConnection() {
+        ConfigReader configObject = ConfigReader.getInstance();
+        source = new BasicDataSource();
+        source.setDriverClassName(DRIVER_CLASS_NAME);
+        source.setUsername(configObject.getDataSourceFromNode().getProperty("user"));
+        source.setPassword(configObject.getDataSourceFromNode().getProperty("password"));
+        source.setUrl("jdbc:mysql://" + configObject.getDataSourceFromNode().getProperty("host_name") + "/" +
+                      configObject.getDataSourceFromNode().getProperty("database_name"));
+        return source;
+    }
+
+    /**
+     * Making the prepared statement to run the query
+     *
+     * @param con        prepared database connection
+     * @param query      query to be executed
+     * @param parameters parameter to be attached
+     * @return Prepared statement ready to execute
+     * @throws SQLException
+     */
+    public PreparedStatement prepareStatement(Connection con, String query, List<String> parameters)
+            throws SQLException {
+        PreparedStatement preparedStatement = con.prepareStatement(query);
+        for (int i = 0; i < parameters.size(); i++) {
+            preparedStatement.setString(i + 1, parameters.get(i));
+        }
+        return preparedStatement;
+
+    }
+
+    /**
+     * Returns MySQL database connection
+     *
+     * @return Database connection from connection pool
+     */
+    public Connection getConnection() throws SQLException {
+        return source.getConnection();
+    }
+
+    /**
+     * Closing the connection with executeQuery type query statements
+     *
+     * @param connection Database connection
+     * @param statement statament to close
+     * @param resultSet result set to close
+     * @throws HeartbeatException
+     */
+    public void closeConnection(Connection connection, PreparedStatement statement, ResultSet resultSet)
+            throws HeartbeatException {
+        try {
+            if (resultSet != null)
+                resultSet.close();
+            closeConnectionAndStatement(connection, statement);
         } catch (SQLException e) {
-            log.error("SQL Exception while closing connection" + e);
+            throw new HeartbeatException("SQL Exception occurred while Closing connection " + e);
         }
     }
 
-    public void closeResultSet(ResultSet resultSet) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                log.error("SQL Exception while closing ResultSet" + e);
-            }
-        }
+    /**
+     * Closing the connection with executeUpdate type query statements
+     *
+     * @param connection Database connection
+     * @param statement statament to close
+     * @throws HeartbeatException
+     */
+    public void closeConnectionAndStatement(Connection connection, PreparedStatement statement) throws SQLException {
+        if (statement != null)
+            statement.close();
+        if (connection != null)
+            connection.close();
     }
+
 }

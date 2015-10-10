@@ -45,19 +45,15 @@ import java.util.List;
     private static final Log log = LogFactory.getLog(LoginServlet.class);
 
     private static final long serialVersionUID = 1L;
-    private static String basicAuthUserID;
-    private static String basicAuthPassword;
-    private static String serverUrl;
-    private static List<String> authorisedRoles;
+    private String basicAuthUserID;
+    private String basicAuthPassword;
+    private String serverUrl;
+    private List<String> authorisedRoles;
 
     private static RemoteUserStoreManagerServiceStub stub = null;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String path = getServletConfig().getServletContext().getRealPath("/WEB-INF/classes/wso2carbon.jks");
-        System.setProperty("javax.net.ssl.trustStore", path);
-        System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
-        System.setProperty("javax.net.ssl.trustStoreType", "JKS");
         String configPath = getServletConfig().getServletContext().getRealPath("/WEB-INF/heartbeat.conf");
         ConfigReader configurationInstance = ConfigReader.getInstance();
         try {

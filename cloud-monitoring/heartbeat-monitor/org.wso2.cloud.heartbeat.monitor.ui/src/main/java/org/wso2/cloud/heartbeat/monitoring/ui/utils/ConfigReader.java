@@ -104,7 +104,7 @@ public class ConfigReader {
     }
 
     /**
-     * Getting admin creetnitials for authentication and login
+     * Getting admin credentials for authentication and login
      *
      * @return a node with admin credentials
      */

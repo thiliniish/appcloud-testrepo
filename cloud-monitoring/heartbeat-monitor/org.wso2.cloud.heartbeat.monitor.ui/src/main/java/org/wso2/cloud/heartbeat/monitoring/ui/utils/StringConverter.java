@@ -24,6 +24,13 @@ package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 public class StringConverter {
 
     /**
+     * Private constructor to prevent instantiation
+     */
+    private StringConverter(){
+
+    }
+
+    /**
      *  splits the camel case value to a string and replaces them with a space
      * @param valueToReplace string to replace with
      * @return  value replaced string

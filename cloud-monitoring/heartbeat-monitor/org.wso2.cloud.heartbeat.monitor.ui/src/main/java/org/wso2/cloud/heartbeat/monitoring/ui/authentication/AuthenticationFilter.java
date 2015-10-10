@@ -39,14 +39,10 @@ import java.io.IOException;
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-
         String uri = req.getRequestURI();
-        //log.info("Requested Resource :" + uri);
-
         HttpSession session = req.getSession(false);
 
         if (session == null && !(uri.endsWith("html") || uri.endsWith("LoginServlet"))) {
-            log.info("Unauthorized access request");
             res.sendRedirect("login.html");
         } else {
             // pass the request along the filter chain
