@@ -104,8 +104,8 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
         var userMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         var users = userMgtService.getUsersofTenant();
         var cloudTypeRoles = getRolesOfCloudType(cloudType);
+        var resultUsers = [];
         for (var i = 0; i < users.length; i++) {
-            var resultUsers = [];
             var user = users[i];
             var tmpUser = {};
             var tmpUserName = user.getUserName();
@@ -136,7 +136,7 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
                     tmpUser.roleTypes.push(roles);
                     continue;
                 }
-                for (k = 0; k < cloudTypeRoles.length; k++) {
+                for (var k = 0; k < cloudTypeRoles.length; k++) {
                     if (tmpRoles[j] == cloudTypeRoles[k].roleName) {
                         var roles = {};
                         roles.role = cloudTypeRoles[k].roleName;
@@ -146,7 +146,7 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
                     }
                 }
             }
-            if (tmpUser.roleTypes[0] != "" || tmpUser.roleTypes[0] != null) {
+            if (tmpUser.roleTypes[0] != "" && tmpUser.roleTypes[0] != null) {
                 resultUsers.push(tmpUser);
             }
         }
