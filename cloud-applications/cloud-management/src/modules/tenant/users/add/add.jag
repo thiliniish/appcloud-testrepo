@@ -317,7 +317,7 @@ var sendEmailWithCustomMessage = function (toList, emailSubject, message) {
     }
 };
 
-var importInvitedUser = function (confirmationKey, defaultPassword, firstName,lastName) {
+var importInvitedUser = function (confirmationKey, defaultPassword, firstName, lastName) {
 	try {
 		var tenantMod = jagg.module("tenant");
 		var isUserExist = false;

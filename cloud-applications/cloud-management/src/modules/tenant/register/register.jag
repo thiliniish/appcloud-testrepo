@@ -54,7 +54,9 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
                 var tenantMod = jagg.module("tenant");
                 var roles = tenantMod.importInvitedUser(confirm, null);
                 var url = jagg.module("util").getInviteeDirectUrl(roles);
-                log.debug("user is invited to " + tenantMod);
+                if (log.isDebugEnabled()) {
+                    log.debug("user is invited to " + tenantMod);
+                }
                 return url;
             }
             session.put('isUserAvail', isUserAvail);

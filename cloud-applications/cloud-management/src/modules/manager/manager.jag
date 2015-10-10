@@ -192,7 +192,6 @@ var updateAdminCookie = function (serverUrl) {
  * @return String cookie
  */
 var getAdminCookieBySAMLToken = function (serverUrl) {
-
     try {
         var security = require("sso");
         var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
@@ -206,7 +205,8 @@ var getAdminCookieBySAMLToken = function (serverUrl) {
         xhr.send(payload);
         return xhr.getResponseHeader("Set-Cookie");
     } catch (e) {
-        log.error("Error while getting Admin Cookie by SAML Token  for  user :  " + session.get("LOGGED_IN_USER") + "\n" + e);
+        log.error("Error while getting Admin Cookie by SAML Token  for  user :  " + session.get("LOGGED_IN_USER") + ":" + e.message);
+        log.error(e);
         throw Error(e);
     }
 };

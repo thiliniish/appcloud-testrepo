@@ -3,17 +3,17 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 (function () {
-
     var statusMessage = "error";
     var action = request.getParameter("action");
     var userName = request.getParameter("userName");
     var fromAddress = request.getParameter("fromAddress");
     var userPassword = request.getParameter("userPassword");
     var contactEmail = request.getParameter("contactEmail");
-    var signupType=request.getParameter("signupType");
+    var signupType = request.getParameter("signupType");
     var site = require("/site/conf/site.json");
     var log = new Log("site/blocks/selfSignup/ajax/configure.jag");
 
+    //Method to check if the self sign up feature has been configured for the user.
     if (action == "checkSignUpConfiguredForUser") {
         var isSignUpConfigured = jagg.module("registry").checkSignupConfiguredInRegistry(userName);
         var result = false;
@@ -54,10 +54,11 @@ include("/jagg/config_reader.jag");
                     statusMessage = jagg.module("registry").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
                 } else {
                     log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail);
-                    statusMessage="error";
+                    statusMessage = "error";
                 }
             } catch (e) {
-                log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail + "\n" + e);
+                log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail + "\n" + e.message);
+                log.error(e);
                 throw Error(e);
             }
         } else if (isSignUpConfigured.trim() == "resourcePending") {

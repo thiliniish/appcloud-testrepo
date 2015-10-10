@@ -57,7 +57,6 @@ var isUserInAdminRole = function () {
 
 //method to check if the session has been authenticated
 var isSessionAuthenticated = function () {
-
     var isAuthenticated = false;
     try {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
@@ -67,15 +66,14 @@ var isSessionAuthenticated = function () {
         var sessionId = session.getId();
         isAuthenticated = ssoRelyingParty.isSessionAuthenticated(sessionId);
     } catch (e) {
-        log.error("Error while retrieving the session \n" + e);
+        log.error("Error while retrieving the session :" + e.message);
+        log.error(e);
         throw Error(e);
     }
-
     return isAuthenticated;
 };
 
 //method to check if the user is only a subscriber for a tenant
-
 var hasOnlySubscriberRole = function (userName) {
     var isSubscriber = false;
     var roleCount = 0;
@@ -106,7 +104,6 @@ var hasOnlySubscriberRole = function (userName) {
     //eliminating the default roles from the roleList
     for (var i = 0; i < types.length; i++) {
         for (var j = 0; j < userRoles.length; j++) {
-
             if (String(types[i]) == String(userRoles[j])) {
                 userRoles.splice(j, 1);
                 // roles[j]="";
