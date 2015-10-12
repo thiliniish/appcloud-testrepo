@@ -28,7 +28,7 @@
     <artifactId>cloud-tools</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>Cloud - Cloud Tools</name>
+    <name>Cloud Tools</name>
     <modules>
         <module>custom-url</module>
     </modules>
