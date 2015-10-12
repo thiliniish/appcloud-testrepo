@@ -177,4 +177,3 @@ var loginWithSAMLToken = function (token) {
 
 %>
 
-%>
