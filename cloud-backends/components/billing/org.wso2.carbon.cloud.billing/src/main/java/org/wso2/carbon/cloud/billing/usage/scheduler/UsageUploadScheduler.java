@@ -33,6 +33,11 @@ public class UsageUploadScheduler {
 
     private static final Log LOGGER = LogFactory.getLog(UsageUploadScheduler.class);
 
+    /**
+     * Schedule usage upload task
+     *
+     * @param cron cron expression
+     */
     public void invokeUsageUpload(String cron) {
         if (cron != null && !cron.isEmpty()) {
             TaskInfo.TriggerInfo triggerInfo = new TaskInfo.TriggerInfo();

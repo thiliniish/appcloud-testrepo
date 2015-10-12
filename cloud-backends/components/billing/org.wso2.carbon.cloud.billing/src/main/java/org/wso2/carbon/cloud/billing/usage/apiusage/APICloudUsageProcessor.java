@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.usage;
+package org.wso2.carbon.cloud.billing.usage.apiusage;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
-import org.wso2.carbon.cloud.billing.usage.util.UsageProcessorUtil;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.usage.UsageProcessor;
+import org.wso2.carbon.cloud.billing.usage.UsageProcessorContext;
+import org.wso2.carbon.cloud.billing.usage.apiusage.utils.APIUsageProcessorUtil;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -37,7 +39,7 @@ public class APICloudUsageProcessor implements UsageProcessor {
         this.billingRequestProcessor =
                 BillingRequestProcessorFactory.getBillingRequestProcessor(
                         BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-                        CloudBillingUtils.getBillingConfiguration().getDSConfig().getHttpClientConfig());
+                        BillingConfigUtils.getBillingConfiguration().getDSConfig().getHttpClientConfig());
     }
 
     public AccountUsage[] process(UsageProcessorContext context) throws CloudBillingException {
@@ -45,8 +47,9 @@ public class APICloudUsageProcessor implements UsageProcessor {
         String endDate = context.getEndDate();
         boolean hasAmendments = hasAmendments(context.getAccountId(), startDate, endDate);
         String amendmentResponse = getAmendmentForPaymentPlans(context.getAccountId());
-        return UsageProcessorUtil.getTenantUsageFromAPIM(context.getResponse(), context.getAccountId(), hasAmendments,
-                                                         amendmentResponse);
+        return APIUsageProcessorUtil.getTenantUsageFromAPIM(context.getResponse(), context.getAccountId(),
+                                                            hasAmendments,
+                                                            amendmentResponse);
     }
 
     public boolean hasAmendments(String accountId, String startDate, String endDate) throws CloudBillingException {
@@ -71,8 +74,7 @@ public class APICloudUsageProcessor implements UsageProcessor {
     }
 
     private String getAmendmentForPaymentPlans(String accountId) throws CloudBillingException {
-        String url =
-                CloudBillingUtils.getBillingConfiguration().getDSConfig().getAmendments();
+        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getAmendments();
         url = url + "?ACCOUNT_NUMBER=" + accountId + "&SUBSCRIPTION=" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
         return billingRequestProcessor.doGet(url);
     }

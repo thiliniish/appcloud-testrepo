@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.usage.util;
+package org.wso2.carbon.cloud.billing.usage.apiusage.utils;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
@@ -36,11 +36,21 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class UsageProcessorUtil {
+public class APIUsageProcessorUtil {
 
-    private UsageProcessorUtil() {
+    private APIUsageProcessorUtil() {
     }
 
+    /**
+     * Retrieve tenant API usage from API manager
+     *
+     * @param response          response
+     * @param accountId         zuora account id
+     * @param hasAmendments     has zuora amendments to the account
+     * @param amendmentResponse amendment response
+     * @return account usage
+     * @throws CloudBillingException
+     */
     public static AccountUsage[] getTenantUsageFromAPIM(String response, String accountId, boolean hasAmendments,
                                                         String amendmentResponse) throws CloudBillingException {
         OMElement elements;
@@ -102,6 +112,12 @@ public class UsageProcessorUtil {
         }
     }
 
+    /**
+     * Get current rate plan ommiting coupons
+     *
+     * @param ratePlans rate plans
+     * @return curent rate plan
+     */
     private static String getCurrentRatePlanId(JSONArray ratePlans) {
         for (Object ratePlan : ratePlans) {
             JSONObject jsonObject = (JSONObject) ratePlan;
@@ -230,7 +246,7 @@ public class UsageProcessorUtil {
 
                 if (accounts.getChildElements().next() != null) {
                     OMElement account = (OMElement) accounts.getChildElements().next();
-                    Usage usage = UsageProcessorUtil.getUsageForApiM(usageEle);
+                    Usage usage = APIUsageProcessorUtil.getUsageForApiM(usageEle);
                     usage.setAccountId(account.getFirstElement().getText());
                     int qty =
                             Integer.parseInt(((OMElement) usageEle.getChildrenWithName(new QName(

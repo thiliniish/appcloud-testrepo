@@ -19,8 +19,9 @@ package org.wso2.carbon.cloud.billing.subscription.tasks;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.config.DataServiceConfig;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.TaskInfo;
 
@@ -35,6 +36,11 @@ public class BillingDbUpdateScheduler {
 
     private static final Log LOGGER = LogFactory.getLog(BillingDbUpdateScheduler.class);
 
+    /**
+     * Schedule billing database update task
+     *
+     * @param cron cron expression
+     */
     public void invokeBillingDbUpdateTask(String cron) {
         if (cron != null && !cron.isEmpty()) {
             TaskInfo.TriggerInfo triggerInfo = new TaskInfo.TriggerInfo();
@@ -48,18 +54,17 @@ public class BillingDbUpdateScheduler {
 
             Map<String, String> properties = new HashMap<String, String>();
 
-            String pendingDisableTenantsDSUrl = CloudBillingUtils.getBillingConfiguration().getDSConfig()
-                    .getPendingDisableTenants();
+            DataServiceConfig dataServiceConfig = BillingConfigUtils.getBillingConfiguration().getDSConfig();
+            String pendingDisableTenantsDSUrl = dataServiceConfig.getPendingDisableTenants();
             properties.put(BillingConstants.PENDING_DISABLES_URL_KEY, pendingDisableTenantsDSUrl);
 
-            String disableTenantDSUrl = CloudBillingUtils.getBillingConfiguration().getDSConfig().getDisableTenant();
+            String disableTenantDSUrl = dataServiceConfig.getDisableTenant();
             properties.put(BillingConstants.DISABLE_TENANT_URL_KEY, disableTenantDSUrl);
 
-            String updateSubscriptionDSUrl = CloudBillingUtils.getBillingConfiguration().getDSConfig()
-                    .getSubscriptionStatus();
+            String updateSubscriptionDSUrl = dataServiceConfig.getSubscriptionStatus();
             properties.put(BillingConstants.UPDATE_SUBSCRIPTION_STATUS_URL_KEY, updateSubscriptionDSUrl);
 
-            String billingHistoryDSUrl = CloudBillingUtils.getBillingConfiguration().getDSConfig().getBillingHistory();
+            String billingHistoryDSUrl = dataServiceConfig.getBillingHistory();
             properties.put(BillingConstants.BILLING_HISTORY_URL_KEY, billingHistoryDSUrl);
 
             info.setProperties(properties);

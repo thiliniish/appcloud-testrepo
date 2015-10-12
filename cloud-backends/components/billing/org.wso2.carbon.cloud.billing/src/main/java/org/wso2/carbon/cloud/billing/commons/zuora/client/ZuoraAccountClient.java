@@ -313,6 +313,17 @@ public class ZuoraAccountClient extends ZuoraClient {
         }
     }
 
+    /**
+     * Query zuora account by name
+     *
+     * @param accountName account name
+     * @return Zoura account
+     * @throws CloudBillingZuoraException
+     * @throws RemoteException
+     * @throws InvalidQueryLocatorFault
+     * @throws MalformedQueryFault
+     * @throws UnexpectedErrorFault
+     */
     private Account getAccount(String accountName)
             throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
                    UnexpectedErrorFault {

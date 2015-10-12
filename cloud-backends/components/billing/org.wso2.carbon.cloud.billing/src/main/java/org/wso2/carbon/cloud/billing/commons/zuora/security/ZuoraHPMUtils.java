@@ -28,10 +28,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.cloud.billing.commons.config.HostedPageConfig;
 import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingSecurityException;
 import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -84,6 +84,9 @@ public class ZuoraHPMUtils {
     private static String locale;
     private static String paymentGateway;
     private static Key publicKeyObject = null;
+
+    private ZuoraHPMUtils (){
+    }
 
     /**
      * Fill params.
@@ -191,6 +194,14 @@ public class ZuoraHPMUtils {
         }
     }
 
+    /**
+     * Generate MDA hash value for the data with the given MDA hash algorithm
+     *
+     * @param data        data which need a hash
+     * @param mdAlgorithm MDA algorithm
+     * @return hash string
+     * @throws CloudBillingSecurityException
+     */
     public static String generateHash(String data, String mdAlgorithm) throws CloudBillingSecurityException {
         try {
             Security.addProvider(new BouncyCastleProvider());
@@ -212,6 +223,15 @@ public class ZuoraHPMUtils {
         }
     }
 
+    /**
+     * Validate the hash with the data for the given algorithm
+     *
+     * @param data        data
+     * @param hash        hash string
+     * @param mdAlgorithm MDA algorithm which used to generate the hash
+     * @return validation boolean
+     * @throws CloudBillingSecurityException
+     */
     public static boolean validateHash(String data, String hash, String mdAlgorithm)
             throws CloudBillingSecurityException {
         try {
@@ -230,6 +250,11 @@ public class ZuoraHPMUtils {
         }
     }
 
+    /**
+     * Generate public key string.
+     *
+     * @throws IOException
+     */
     private static void generatePublicKeyObject() throws IOException {
         PEMReader pemReader = new PEMReader(new StringReader("-----BEGIN PUBLIC KEY-----\n"
                                                              + publicKeyString + "\n-----END PUBLIC KEY-----"));
@@ -237,9 +262,15 @@ public class ZuoraHPMUtils {
         pemReader.close();
     }
 
+    /**
+     * Load configuration which need to populate which need to generate client token
+     *
+     * @throws IOException
+     * @throws JSONException
+     */
     private static void loadConfig() throws IOException, JSONException {
 
-        ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
+        ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
         username = zuoraConfig.getUser();
         password = zuoraConfig.getPassword();
         HostedPageConfig hostedPageConfig = zuoraConfig.getHostedPageConfig();
@@ -251,6 +282,15 @@ public class ZuoraHPMUtils {
         url = hostedPageConfig.getUrl();
     }
 
+    /**
+     * Query the signature for the pageId
+     *
+     * @param pageId pageID
+     * @return Json object of the signature
+     * @throws CloudBillingException
+     * @throws JSONException
+     * @throws IOException
+     */
     private static JSONObject generateSignature(String pageId) throws CloudBillingException, JSONException,
                                                                       IOException {
         HttpClient httpClient = new HttpClient();
@@ -271,6 +311,13 @@ public class ZuoraHPMUtils {
         return result;
     }
 
+    /**
+     * Build json request
+     *
+     * @param pageId pageId
+     * @return json body
+     * @throws JSONException
+     */
     private static String buildJsonRequest(String pageId) throws JSONException {
         JSONObject json = new JSONObject();
 

@@ -507,7 +507,7 @@ var addTenantToBilling = function (tenantId, tenantDomain) {
 };
 
 var getCouponProductRatePlanId = function(couponData, serviceId){
-	var getAllRatePlans = JSON.parse(billingService.getProductRatePlans(serviceId));
+	var getAllRatePlans = JSON.parse(billingService.getProductRatePlans(productIdFromServiceId[serviceId]));
 	for (var index = 0; index < getAllRatePlans.length; index++){
 		if(((getAllRatePlans[index].name) == (BILLING_COUPON_HEADER + couponData)) && getAllRatePlans[index].status != EXPIRED_RATE_PALN){
 			return getAllRatePlans[index]["id"];
@@ -519,7 +519,7 @@ var getCouponProductRatePlanId = function(couponData, serviceId){
 //todo improve this logic : move coupon rate plans to billing.xml with an additional property to get the discount and read from there
 var getPricingSummaryForCoupon = function(couponData, serviceId){
 log.info("Requesting Pricing Summary for serviceId : " + serviceId + " coupon : " + couponData);
-	var allRatePlans = JSON.parse(billingService.getProductRatePlans(serviceId));
+	var allRatePlans = JSON.parse(billingService.getProductRatePlans(productIdFromServiceId[serviceId]));
 	log.info("allRatePlans : " + allRatePlans);
 
 	for (var index = 0; index < allRatePlans.length; index++){

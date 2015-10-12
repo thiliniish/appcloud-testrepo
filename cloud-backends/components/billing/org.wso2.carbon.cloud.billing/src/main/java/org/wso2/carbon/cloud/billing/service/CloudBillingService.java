@@ -120,9 +120,9 @@ public class CloudBillingService extends AbstractAdmin {
      * Retrieve usage data for a tenant
      *
      * @param tenantDomain Tenant Domain
-     * @param productName Subscribed product
-     * @param startDate date range - start date
-     * @param endDate data range - end date
+     * @param productName  Subscribed product
+     * @param startDate    date range - start date
+     * @param endDate      data range - end date
      * @return Account Usage array
      * @throws CloudBillingException
      */
@@ -157,9 +157,8 @@ public class CloudBillingService extends AbstractAdmin {
 
     //ToDo: need refactoring to accommodate every product
     /**
-     *
-     * @param tenantDomain
-     * @return
+     * @param tenantDomain tenant domain
+     * @return subscription id
      * @throws CloudBillingException
      */
     public String getSubscriptionId(String tenantDomain) throws CloudBillingException {
@@ -178,7 +177,7 @@ public class CloudBillingService extends AbstractAdmin {
      * Get current plan subscribed to a service
      *
      * @param tenantDomain tenant domain
-     * @param productName subscribed service
+     * @param productName  subscribed service
      * @return current rate plan list (this is a list because it contains coupon plans as well)
      * @throws CloudBillingException
      */
@@ -208,7 +207,7 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * validate the signature which returned from zuora
      *
-     * @param signature signature
+     * @param signature      signature
      * @param expirationTime expiration time
      * @throws CloudBillingException
      */
@@ -219,7 +218,7 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * Generate a MDA hash
      *
-     * @param data data which need a hash
+     * @param data        data which need a hash
      * @param mdAlgorithm mda algorithm
      * @return hashed data
      * @throws CloudBillingException
@@ -235,8 +234,8 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * Validate hash
      *
-     * @param data data
-     * @param hash hash
+     * @param data        data
+     * @param hash        hash
      * @param mdAlgorithm MDA algorithm
      * @return success boolean
      * @throws CloudBillingException
@@ -266,7 +265,7 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * Validate rate plan id
      *
-     * @param serviceId serviceId
+     * @param serviceId         serviceId
      * @param productRatePlanId rate plan id
      * @return success boolean
      * @throws CloudBillingException
