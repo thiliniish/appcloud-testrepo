@@ -22,6 +22,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
@@ -39,17 +40,44 @@ public class ZuoraRESTUtils {
     private static BillingRequestProcessor zuoraApi =
             BillingRequestProcessorFactory.getBillingRequestProcessor(
                     BillingRequestProcessorFactory.ProcessorType.ZUORA,
-                    CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
+                    BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
 
     private ZuoraRESTUtils() {
     }
 
-    public static String getSubscriptionIdForAccount(String accountId) throws CloudBillingException {
+    /**
+     * Retrieve account subscriptions
+     *
+     * @param accountId zuora accountId
+     * @return json string of subscriptions
+     * @throws CloudBillingException
+     */
+    public static String getSubscriptionIdForAccount(String accountId, String serviceId) throws CloudBillingException {
         String response = getAccountSummary(accountId);
         JSONArray subscriptions = getSubscriptions(accountId, response);
-        return (String) ((JSONObject) subscriptions.get(0)).get(BillingConstants.SUBSCRIPTION_NUMBER);
+        String zuoraProductId = CloudBillingUtils.getZuoraProductIdForServiceId(serviceId);
+
+        for (Object subscriptionObj : subscriptions) {
+            JSONObject subscription = (JSONObject) subscriptionObj;
+            //Any of the rate plans can be taken since only there is a one to one mapping between subscription and
+            // product according to cloud use case: hence the magic number 0
+            JSONObject ratePlan = (JSONObject) ((JSONArray) subscription.get(BillingConstants.RATE_PLANS)).get(0);
+            if (zuoraProductId.equals(ratePlan.get(BillingConstants.PRODUCT_ID))) {
+                return (String) subscription.get(BillingConstants.SUBSCRIPTION_NUMBER);
+            }
+        }
+
+        throw new CloudBillingException("No " + serviceId + " subscription available for account id: " + accountId);
     }
 
+    /**
+     * Get the zuora product rate plan id which the account has the subscription
+     *
+     * @param productName product name ex:api_cloud
+     * @param accountId   zuora account id
+     * @return product rate plans subscribed (including if any coupons)
+     * @throws CloudBillingException
+     */
     public static String[] getProductRatePlanIdForAccount(String productName,
                                                           String accountId) throws CloudBillingException {
         // getting subscriptions elements
@@ -63,7 +91,7 @@ public class ZuoraRESTUtils {
                 LOGGER.debug("The " + i + " element of the subscriptions array: " + subscriptions.get(i));
             }
             // get all rate plans
-            JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATEPLANS);
+            JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATE_PLANS);
             for (Object ratePlan : ratePlans) {
                 if (((JSONObject) ratePlan).get(BillingConstants.PRODUCT_NAME).equals(productName)) {
                     String productRatePlanId =
@@ -76,6 +104,14 @@ public class ZuoraRESTUtils {
         return ratePlansList.toArray(new String[ratePlansList.size()]);
     }
 
+    /**
+     * Get subscriptions that the account has
+     *
+     * @param accountId zuora account id
+     * @param response  response of account summary
+     * @return subscriptions
+     * @throws CloudBillingException
+     */
     public static JSONArray getSubscriptions(String accountId, String response) throws CloudBillingException {
         try {
             JSONParser jsonParser = new JSONParser();
@@ -87,6 +123,13 @@ public class ZuoraRESTUtils {
         }
     }
 
+    /**
+     * Get subscribed products
+     *
+     * @param accountId account id
+     * @return string array of products subscribed
+     * @throws CloudBillingException
+     */
     public static String[] getSubscribedProducts(String accountId) throws CloudBillingException {
         List<String> products = new ArrayList<String>();
         String response = getAccountSummary(accountId);
@@ -97,7 +140,7 @@ public class ZuoraRESTUtils {
                 LOGGER.debug("The " + i + " element of the subscriptions array: " + subscriptions.get(i));
             }
             // get all rate plans
-            JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATEPLANS);
+            JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATE_PLANS);
             for (int j = 0; j < subscriptions.size(); j++) {
                 // Check if the selected rate planId is from the current product
                 String productName = (String) ((JSONObject) ratePlans.get(j)).get(BillingConstants.PRODUCT_NAME);
@@ -107,10 +150,17 @@ public class ZuoraRESTUtils {
         return products.toArray(new String[products.size()]);
     }
 
+    /**
+     * Retrieve account summary
+     *
+     * @param accountId account id
+     * @return json string of account summary
+     * @throws CloudBillingException
+     */
     public static String getAccountSummary(String accountId) throws CloudBillingException {
         String url;
         try {
-            url = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getAccountSummary();
+            url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getAccountSummary();
 
             url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
             return zuoraApi.doGet(url);
@@ -119,10 +169,17 @@ public class ZuoraRESTUtils {
         }
     }
 
+    /**
+     * Retrieve invoices for the accountId
+     *
+     * @param accountId zuora accountId
+     * @return json string of invoices
+     * @throws CloudBillingException
+     */
     public static String getInvoices(String accountId) throws CloudBillingException {
         String url;
         try {
-            url = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getInvoiceInfo();
+            url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getInvoiceInfo();
 
             url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
             return zuoraApi.doGet(url);
@@ -131,10 +188,17 @@ public class ZuoraRESTUtils {
         }
     }
 
+    /**
+     * Get account payments
+     *
+     * @param accountId zuora account id
+     * @return json string of payments
+     * @throws CloudBillingException
+     */
     public static String getPayments(String accountId) throws CloudBillingException {
         String url;
         try {
-            url = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getPaymentInfo();
+            url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getPaymentInfo();
 
             url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
             return zuoraApi.doGet(url);
@@ -144,18 +208,27 @@ public class ZuoraRESTUtils {
         }
     }
 
+    /**
+     * Get current rate plan for a subscribed product
+     *
+     * @param productName zuora product name
+     * @param accountId   zuora account id
+     * @return Json array of rate plans
+     * @throws CloudBillingException
+     */
+    @SuppressWarnings("unchecked")
     public static JSONArray getCurrentRatePlan(String productName, String accountId) throws CloudBillingException {
         String response = null;
         JSONArray currentRatePlanList = new JSONArray();
         JSONArray starterRatePlanList = new JSONArray();
         try {
-            String url = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getRatePlans();
+            String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getRatePlans();
             url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
             response = zuoraApi.doGet(url);
             JSONArray subscriptions = getSubscriptions(accountId, response);
             for (Object subscription : subscriptions) {
                 // get all rate plans
-                JSONArray ratePlans = (JSONArray) ((JSONObject) subscription).get(BillingConstants.RATEPLANS);
+                JSONArray ratePlans = (JSONArray) ((JSONObject) subscription).get(BillingConstants.RATE_PLANS);
                 if (ratePlans.size() == 1) {
                     currentRatePlanList.add(ratePlans.get(0));
                 }
@@ -186,8 +259,16 @@ public class ZuoraRESTUtils {
         return null;
     }
 
+    /**
+     * Get product rate plans for a product (ex: api_cloud)
+     * This is the description we maintain in billing.xml
+     *
+     * @param productName product name
+     * @return Json array of rate plans
+     * @throws CloudBillingException
+     */
     public static JSONArray getProductRatePlans(String productName) throws CloudBillingException {
-        String url = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getProducts();
+        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getProducts();
         String response = null;
 
         try {
@@ -198,8 +279,7 @@ public class ZuoraRESTUtils {
             JSONArray products;
             products = ((JSONArray) jsonObject.get(BillingConstants.PRODUCTS));
             for (Object product : products) {
-                if (productName.equals(BillingConstants.API_CLOUD_SUBSCRIPTION_ID) &&
-                    ((JSONObject) product).get(BillingConstants.NAME).equals(BillingConstants.API_CLOUD)) {
+                if (((JSONObject) product).get(BillingConstants.NAME).equals(productName)) {
                     return (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCTRATEPLANS);
                 }
             }
@@ -209,6 +289,6 @@ public class ZuoraRESTUtils {
         } catch (ParseException e) {
             throw new CloudBillingException("Error passing the response " + response + " to json object", e);
         }
-        return null;
+        throw new CloudBillingException("Unable to find the specified product name: " + productName);
     }
 }

@@ -17,7 +17,7 @@
 package org.wso2.carbon.cloud.billing.exceptions;
 
 /**
- *
+ * Billing zuora exceptions which are thrown from clients
  */
 public class CloudBillingZuoraException extends CloudBillingException {
 

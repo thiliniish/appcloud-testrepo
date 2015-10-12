@@ -30,11 +30,27 @@ public class Subscription {
     @XmlAttribute(name = "id")
     private String id;
 
+    //name of the subscription
+    @XmlAttribute(name = "name")
+    private String name;
+
+    //zuora product id
+    @XmlAttribute(name = "productId")
+    private String productId;
+
     @XmlElement(name = "Plan")
     private Plan[] plans;
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getProductId() {
+        return productId;
     }
 
     public Plan[] getPlans() {

@@ -18,6 +18,9 @@ package org.wso2.carbon.cloud.billing.usage;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
+/**
+ * Usage processor interface
+ */
 public interface UsageProcessor {
 
     AccountUsage[] process(UsageProcessorContext context) throws CloudBillingException;

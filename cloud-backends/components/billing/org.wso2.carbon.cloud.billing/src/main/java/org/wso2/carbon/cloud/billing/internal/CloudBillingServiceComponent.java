@@ -23,10 +23,10 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.service.CloudBillingService;
 import org.wso2.carbon.cloud.billing.subscription.tasks.BillingDbUpdateScheduler;
 import org.wso2.carbon.cloud.billing.usage.scheduler.UsageUploadScheduler;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.service.TaskService;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -54,6 +54,11 @@ public class CloudBillingServiceComponent {
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceComponent.class);
     private ServiceRegistration billingServiceRef;
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param context
+     */
     protected void activate(ComponentContext context) {
         BundleContext bundleContext = context.getBundleContext();
         BillingConfig configuration;
@@ -62,7 +67,7 @@ public class CloudBillingServiceComponent {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Billing bundle activation is started");
             }
-            configuration = CloudBillingUtils.getBillingConfiguration();
+            configuration = BillingConfigUtils.getBillingConfiguration();
 
             this.billingServiceRef =
                     bundleContext.registerService(CloudBillingService.class.getName(), new CloudBillingService(), null);
@@ -94,6 +99,11 @@ public class CloudBillingServiceComponent {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param context
+     */
     protected void deactivate(ComponentContext context) {
         this.billingServiceRef.unregister();
         if (LOGGER.isDebugEnabled()) {

@@ -147,6 +147,13 @@ public class ProcessorUtils {
         }
     }
 
+    /**
+     * Handles the default HTTP 200 response
+     *
+     * @param httpMethod http method used
+     * @return validates the response
+     * @throws IOException
+     */
     private static String handleCaseHTTPOk(HttpMethodBase httpMethod) throws IOException {
         String result = "";
         if (httpMethod.getResponseBody().length > 0) {
@@ -156,6 +163,16 @@ public class ProcessorUtils {
         return result;
     }
 
+    /**
+     * Handles the exceptions with retries
+     *
+     * @param executionCount number of retries configured
+     * @param retryCount     current retry
+     * @param methodName     HTTP method name
+     * @param uri            URI used
+     * @param ex             exception thrown
+     * @throws CloudBillingException
+     */
     private static void handleExceptionWithRetry(int executionCount, int retryCount, String methodName, String uri,
                                                  Exception ex) throws CloudBillingException {
         if (retryCount >= executionCount) {
@@ -167,6 +184,16 @@ public class ProcessorUtils {
         }
     }
 
+    /**
+     * Handles the default case of the switch cases
+     *
+     * @param executionCount number of retries configured
+     * @param response       http response
+     * @param retryCount     current retry
+     * @param methodName     HTTP method name
+     * @param uri            URI used
+     * @throws CloudBillingException
+     */
     private static void handleDefaultCase(int executionCount, int response, int retryCount, String methodName,
                                           String uri) throws CloudBillingException {
         if (retryCount >= executionCount) {
@@ -179,6 +206,13 @@ public class ProcessorUtils {
         }
     }
 
+    /**
+     * Get URI from the http method
+     *
+     * @param httpMethod http method
+     * @return URI string
+     * @throws CloudBillingException
+     */
     private static String getURI(HttpMethodBase httpMethod) throws CloudBillingException {
         String uri;
         try {

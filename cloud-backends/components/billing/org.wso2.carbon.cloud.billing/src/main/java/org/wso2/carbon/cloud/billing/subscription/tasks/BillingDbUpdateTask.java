@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
@@ -48,19 +49,28 @@ public class BillingDbUpdateTask implements Task {
     private Map<String, String> properties;
     private BillingRequestProcessor requestProcessor;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void init() {
         requestProcessor = BillingRequestProcessorFactory
                 .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-                                            CloudBillingUtils.getBillingConfiguration().getDSConfig()
+                                            BillingConfigUtils.getBillingConfiguration().getDSConfig()
                                                     .getHttpClientConfig());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void execute() {
         try {

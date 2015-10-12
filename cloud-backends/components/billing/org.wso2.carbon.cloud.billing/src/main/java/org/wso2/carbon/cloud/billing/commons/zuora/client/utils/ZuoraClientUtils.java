@@ -41,8 +41,8 @@ import org.apache.axis2.databinding.ADBBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import java.rmi.RemoteException;
 
@@ -52,7 +52,7 @@ import java.rmi.RemoteException;
 public class ZuoraClientUtils {
 
     private static final Log LOGGER = LogFactory.getLog(ZuoraClientUtils.class);
-    private static ZuoraConfig zuoraConfig = CloudBillingUtils.getBillingConfiguration().getZuoraConfig();
+    private static ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
     /**
      * The header.
      */
@@ -81,15 +81,16 @@ public class ZuoraClientUtils {
     /**
      * Prepare ZQuery
      *
-     * @param query  String query
+     * @param templateQuery  String query
      * @param params parameters
      * @return Prepared ZQuery
      */
-    public static String prepareZQuery(String query, String[] params) {
+    public static String prepareZQuery(String templateQuery, String[] params) {
+        String modifiedQuery = templateQuery;
         for (String param : params) {
-            query = query.replaceFirst("\\?", param.trim());
+            modifiedQuery = modifiedQuery.replaceFirst("\\?", param.trim());
         }
-        return query;
+        return modifiedQuery;
     }
 
     /**
@@ -300,6 +301,12 @@ public class ZuoraClientUtils {
         }
     }
 
+    /**
+     * Get authenticated session header if not login
+     *
+     * @return authenticated session header
+     * @throws CloudBillingZuoraException
+     */
     private SessionHeader getSessionHeader() throws CloudBillingZuoraException {
         if (clientSession == null || clientSession.isSessionExpired()) {
             if (LOGGER.isDebugEnabled()) {
@@ -310,6 +317,14 @@ public class ZuoraClientUtils {
         return this.clientSession.getHeader();
     }
 
+    /**
+     * Check for invalid session error in UnexpectedErrorFault, in case invalid session
+     * do login
+     *
+     * @param unexpectedErrorFault unexpected error fault
+     * @throws CloudBillingZuoraException
+     * @throws UnexpectedErrorFault
+     */
     private void checkInvalidSessionError(UnexpectedErrorFault unexpectedErrorFault)
             throws CloudBillingZuoraException, UnexpectedErrorFault {
         ErrorCode errorCode = unexpectedErrorFault.getFaultMessage().getUnexpectedErrorFault().getFaultCode();
@@ -321,6 +336,11 @@ public class ZuoraClientUtils {
         }
     }
 
+    /**
+     * Retrieve authenticated client session
+     *
+     * @return client session
+     */
     public ClientSession getClientSession() {
         return clientSession;
     }

@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.billing.usage;
+package org.wso2.carbon.cloud.billing.usage.apiusage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.beans.usage.Usage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.cloud.billing.usage.UsageProcessor;
+import org.wso2.carbon.cloud.billing.usage.UsageProcessorContext;
+import org.wso2.carbon.cloud.billing.usage.UsageProcessorFactory;
+import org.wso2.carbon.cloud.billing.usage.apiusage.utils.APIUsageProcessorUtil;
 import org.wso2.carbon.cloud.billing.usage.util.UsageCSVParser;
-import org.wso2.carbon.cloud.billing.usage.util.UsageProcessorUtil;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import java.text.SimpleDateFormat;
@@ -34,26 +39,27 @@ import java.util.Date;
 /**
  * Represents the usage manager which does usage related operations
  */
-public class CloudUsageManager {
+public class APICloudUsageManager {
 
-    private static final Log LOGGER = LogFactory.getLog(CloudUsageManager.class);
+    private static final Log LOGGER = LogFactory.getLog(APICloudUsageManager.class);
     private BillingRequestProcessor dsBRProcessor;
     private BillingRequestProcessor zuoraBRProcessor;
 
-    public CloudUsageManager() {
+    public APICloudUsageManager() {
+        BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
         dsBRProcessor =
                 BillingRequestProcessorFactory.getBillingRequestProcessor(
                         BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-                        CloudBillingUtils.getBillingConfiguration().getDSConfig().getHttpClientConfig());
+                        billingConfig.getDSConfig().getHttpClientConfig());
         zuoraBRProcessor =
                 BillingRequestProcessorFactory.getBillingRequestProcessor(
                         BillingRequestProcessorFactory.ProcessorType.ZUORA,
-                        CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
+                        billingConfig.getZuoraConfig().getHttpClientConfig());
     }
 
 
     private String getDailyUsage() throws CloudBillingException {
-        String url = CloudBillingUtils.getBillingConfiguration().getDSConfig().getRequestCount();
+        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getRequestCount();
         Date currentDate = new Date();
 
         Calendar cal = Calendar.getInstance();
@@ -66,7 +72,7 @@ public class CloudUsageManager {
 
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
-        String url = CloudBillingUtils.getBillingConfiguration().getDSConfig().getUsage();
+        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getUsage();
         url = url + "?apiPublisher=%25@" + tenantDomain + "&startDate=" + startDate + "&endDate=" + endDate;
         return dsBRProcessor.doGet(url);
     }
@@ -77,7 +83,7 @@ public class CloudUsageManager {
         LOGGER.info("Uploading daily usage for  " + dateFormat.format(new Date(System.currentTimeMillis())));
         // get today;s usage from data services and create a usage array
         String response = getDailyUsage();
-        Usage[] usageArr = UsageProcessorUtil.getDailyUsageDataForApiM(response);
+        Usage[] usageArr = APIUsageProcessorUtil.getDailyUsageDataForApiM(response);
         if (usageArr.length > 0) {
             // write them in to a CSV array
             UsageCSVParser.writeCSVData(usageArr);

@@ -21,31 +21,17 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.config.Subscription;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
-import org.wso2.carbon.cloud.billing.usage.CloudUsageManager;
-import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.securevault.SecretResolver;
-import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLStreamException;
-import java.io.File;
 
 /**
  * Model to represent Utilities for Cloud Billing module
@@ -55,21 +41,26 @@ public class CloudBillingUtils {
 
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingUtils.class);
-    private static SecretResolver secretResolver;
-    private static volatile BillingConfig billingConfig;
     private static volatile String configObj;
     private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getBillingRequestProcessor
             (BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-             CloudBillingUtils.getBillingConfiguration()
+             BillingConfigUtils.getBillingConfiguration()
                      .getDSConfig()
                      .getHttpClientConfig());
-    private static CloudUsageManager usageManager = new CloudUsageManager();
+    private static APICloudUsageManager usageManager = new APICloudUsageManager();
 
     private CloudBillingUtils() {
     }
 
+    /**
+     * Retrieve zuora account id for tenant
+     *
+     * @param tenantDomain tenant domain
+     * @return account id
+     * @throws CloudBillingException
+     */
     public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
-        String getAccountUrl = CloudBillingUtils.getBillingConfiguration().getDSConfig().getTenantAccount();
+        String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getTenantAccount();
 
         getAccountUrl = getAccountUrl.replace(BillingConstants.TENANT_DOMAIN_PARAM, tenantDomain);
         String response = dsBRProcessor.doGet(getAccountUrl);
@@ -91,23 +82,17 @@ public class CloudBillingUtils {
 
     }
 
-    public static BillingConfig getBillingConfiguration() {
-        if (billingConfig == null) {
-            synchronized (CloudBillingUtils.class) {
-                if (billingConfig == null) {
-                    billingConfig = loadBillingConfig();
-                }
-            }
-        }
-        return billingConfig;
-    }
-
+    /**
+     * Get configuration on json
+     *
+     * @return json object
+     */
     public static String getConfigInJson() {
         if (configObj == null) {
             synchronized (CloudBillingUtils.class) {
                 if (configObj == null) {
                     Gson gson = new Gson();
-                    configObj = gson.toJson(getBillingConfiguration());
+                    configObj = gson.toJson(BillingConfigUtils.getBillingConfiguration());
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Configuration read to json: " + configObj);
                     }
@@ -117,6 +102,13 @@ public class CloudBillingUtils {
         return configObj;
     }
 
+    /**
+     * Validate rate plan id
+     *
+     * @param serviceId         service Id
+     * @param productRatePlanId rate plan id
+     * @return validation boolean
+     */
     public static boolean validateRatePlanId(String serviceId, String productRatePlanId) {
         Plan[] plans = getSubscriptions(serviceId);
         for (Plan plan : plans) {
@@ -127,8 +119,14 @@ public class CloudBillingUtils {
         return false;
     }
 
+    /**
+     * Validate service Id
+     *
+     * @param serviceId service id
+     * @return validation boolean
+     */
     public static boolean validateServiceId(String serviceId) {
-        Subscription[] subscriptions = billingConfig.getZuoraConfig().getSubscriptions();
+        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions();
         for (Subscription subscription : subscriptions) {
             if (serviceId.equals(subscription.getId())) {
                 return true;
@@ -137,11 +135,19 @@ public class CloudBillingUtils {
         return false;
     }
 
-    public static Plan getSubscriptionForId(String subscriptionId, String id) throws CloudBillingException {
-        for (Subscription sub : billingConfig.getZuoraConfig().getSubscriptions()) {
+    /**
+     * Get rate plan for rate planId
+     *
+     * @param subscriptionId subscription id (ex:api_cloud)
+     * @param ratePlanId     rate plan id
+     * @return rate plan
+     * @throws CloudBillingException
+     */
+    public static Plan getSubscriptionForId(String subscriptionId, String ratePlanId) throws CloudBillingException {
+        for (Subscription sub : BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions()) {
             if (subscriptionId.equalsIgnoreCase(sub.getId())) {
                 for (Plan plan : sub.getPlans()) {
-                    if ((plan.getId()).equals(id)) {
+                    if ((plan.getId()).equals(ratePlanId)) {
                         return plan;
                     }
                 }
@@ -150,38 +156,14 @@ public class CloudBillingUtils {
         return null;
     }
 
-    public static Document convertToDocument(File file) throws CloudBillingException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        try {
-            DocumentBuilder docBuilder = factory.newDocumentBuilder();
-            return docBuilder.parse(file);
-        } catch (Exception e) {
-            throw new CloudBillingException("Error occurred while parsing file, while converting " +
-                                            "to a org.w3c.dom.Document : " + e.getMessage(), e);
-        }
-    }
-
-    private static BillingConfig loadBillingConfig() {
-        try {
-            String configLocation = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                                    BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
-                                    BillingConstants.CONFIG_FILE_NAME;
-            File billingConfig = new File(configLocation);
-            Document doc = CloudBillingUtils.convertToDocument(billingConfig);
-            CloudBillingUtils.secureResolveDocument(doc);
-
-            /* Un-marshaling Billing Management configuration */
-            JAXBContext cdmContext = JAXBContext.newInstance(BillingConfig.class);
-            Unmarshaller unmarshaller = cdmContext.createUnmarshaller();
-            return (BillingConfig) unmarshaller.unmarshal(doc);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error occurred while initializing Billing config", e);
-        }
-    }
-
+    /**
+     * Get plans for Id
+     *
+     * @param subscriptionId subscription id(ex:api_cloud)
+     * @return rate plans in billing.xml
+     */
     public static Plan[] getSubscriptions(String subscriptionId) {
-        Subscription[] subscriptions = billingConfig.getZuoraConfig().getSubscriptions();
+        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions();
         Plan[] plans = null;
         for (Subscription subscription : subscriptions) {
             if (subscriptionId.equalsIgnoreCase(subscription.getId())) {
@@ -191,46 +173,31 @@ public class CloudBillingUtils {
         return plans;
     }
 
+    /**
+     * Retrieve account usage
+     *
+     * @param tenantDomain tenant domain
+     * @param productName  product name
+     * @param startDate    start date (date range for usage)
+     * @param endDate      end data (date range for usage)
+     * @return account usage array
+     * @throws CloudBillingException
+     */
     public static AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName,
                                                                      String startDate, String endDate)
             throws CloudBillingException {
         return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
     }
 
-    private static synchronized String loadFromSecureVault(String alias) {
-        if (secretResolver == null) {
-            secretResolver = SecretResolverFactory.create((OMElement) null, false);
-            secretResolver.init(ServiceDataHolder.getInstance().getSecretCallbackHandlerService()
-                                        .getSecretCallbackHandler());
-        }
-        return secretResolver.resolve(alias);
-    }
 
-    private static void secureResolveDocument(Document doc) {
-        Element element = doc.getDocumentElement();
-        if (element != null) {
-            secureLoadElement(element);
-        }
-    }
-
-    private static void secureLoadElement(Element element) {
-        Attr secureAttr =
-                element.getAttributeNodeNS(BillingConstants.SecureValueProperties.SECURE_VAULT_NS,
-                                           BillingConstants.SecureValueProperties
-                                                   .SECRET_ALIAS_ATTRIBUTE_NAME_WITH_NAMESPACE);
-        if (secureAttr != null) {
-            element.setTextContent(CloudBillingUtils.loadFromSecureVault(secureAttr.getValue()));
-            element.removeAttributeNode(secureAttr);
-        }
-        NodeList childNodes = element.getChildNodes();
-        int count = childNodes.getLength();
-        Node tmpNode;
-        for (int i = 0; i < count; i++) {
-            tmpNode = childNodes.item(i);
-            if (tmpNode instanceof Element) {
-                secureLoadElement((Element) tmpNode);
+    public static String getZuoraProductIdForServiceId(String serviceId) throws CloudBillingException {
+        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions();
+        for (Subscription subscription : subscriptions) {
+            if (subscription.getId().equals(serviceId)) {
+                return subscription.getProductId();
             }
         }
+        throw new CloudBillingException("No zuora product id found for serviceId: " +serviceId);
     }
 
     /**
@@ -239,7 +206,7 @@ public class CloudBillingUtils {
      * @return billing enable/disable status
      */
     public static boolean isBillingEnable() {
-        return billingConfig.isBillingEnable();
+        return BillingConfigUtils.getBillingConfiguration().isBillingEnable();
     }
 
 }

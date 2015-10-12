@@ -19,7 +19,11 @@ package org.wso2.carbon.cloud.billing.commons.zuora.client.utils;
 import com.zuora.api.SessionHeader;
 
 /**
- *
+ * Client session maintained to reduce number of login calls. you have to configure
+ * session expiration time in billing.xml. it should be less than actual session expiration
+ * time.
+ * <p/>
+ * <SessionExpired>3000000</SessionExpired>
  */
 public class ClientSession {
 
@@ -41,10 +45,20 @@ public class ClientSession {
         this.maxInactive = maxInactive;
     }
 
+    /**
+     * Get session header
+     *
+     * @return authenticated header
+     */
     public SessionHeader getHeader() {
         return this.header;
     }
 
+    /**
+     * Check for session expiration
+     *
+     * @return expired boolean
+     */
     public boolean isSessionExpired() {
         return System.currentTimeMillis() >= sessionInitTime + maxInactive;
     }

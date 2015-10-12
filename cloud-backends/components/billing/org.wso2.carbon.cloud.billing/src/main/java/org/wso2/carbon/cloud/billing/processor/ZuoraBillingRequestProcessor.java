@@ -26,9 +26,10 @@ import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
+import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,29 +40,33 @@ import java.io.UnsupportedEncodingException;
  */
 public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
-    private static String uploadURL = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs()
+    private static String uploadURL = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs()
             .getUsage();
+    private static ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
 
     public ZuoraBillingRequestProcessor(HttpClientConfig httpClientConfig) {
         super(httpClientConfig);
     }
 
+    /**
+     * Zuora upload request
+     *
+     * @throws CloudBillingException
+     */
+    @Override
     public void doUpload() throws CloudBillingException {
         PostMethod post = new PostMethod(uploadURL);
         // indicate accept response body in JSON
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
-
-        String apiAccessKeyId = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUser();
-        String apiSecretAccessKey = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getPassword();
+        String apiAccessKeyId = zuoraConfig.getUser();
+        String apiSecretAccessKey = zuoraConfig.getPassword();
         post.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
         post.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
 
         /**
          * Initializing the multipart contents used by the usage file uploader functionality.
          */
-        File file =
-                new File(CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
-                                 .getUsageUploadFileLocation());
+        File file = new File(zuoraConfig.getUsageConfig().getUsageUploadFileLocation());
         Part part;
         try {
             part = new FilePart(BillingConstants.FILE_PART_NAME, file);
@@ -73,11 +78,19 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
     }
 
+    /**
+     * Zuora GET request
+     *
+     * @param url URL
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override
     public String doGet(String url) throws CloudBillingException {
         GetMethod get = new GetMethod(url);
 
-        String apiAccessKeyId = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUser();
-        String apiSecretAccessKey = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getPassword();
+        String apiAccessKeyId = zuoraConfig.getUser();
+        String apiSecretAccessKey = zuoraConfig.getPassword();
         get.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
         get.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
 
@@ -88,6 +101,14 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
     }
 
+    /**
+     * Zuora post request
+     *
+     * @param url         URL
+     * @param jsonPayload json payload
+     * @return response
+     * @throws CloudBillingException
+     */
     @Override
     public String doPost(String url, String jsonPayload) throws CloudBillingException {
 
@@ -95,8 +116,8 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         // indicate accept response body in JSON
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
 
-        String apiAccessKeyId = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUser();
-        String apiSecretAccessKey = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getPassword();
+        String apiAccessKeyId = zuoraConfig.getUser();
+        String apiSecretAccessKey = zuoraConfig.getPassword();
         post.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
         post.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
 
@@ -111,6 +132,14 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
     }
 
+    /**
+     * POST with name value pairs not supported for zuora
+     *
+     * @param url          URL
+     * @param keyValuePair name value pair
+     * @return response
+     * @throws CloudBillingException
+     */
     @Override
     public String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by Zuora Billing Request Processor");

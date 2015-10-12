@@ -53,7 +53,7 @@ var isPaidAccount = function() {
 
 var getPaymentPlanFromId = function(serviceId, paymentPlanId) {
 
-	var subscriptions = billingService.getPaymentPlansForId(serviceId);
+	var subscriptions = billingService.getPaymentPlansForserviceId(serviceId);
 	for(var i=0;i<subscriptions.length;i++){
 		var item = subscriptions[i];
 		var id = item.getId();
@@ -128,10 +128,16 @@ var cancelSubscription = function(serviceName) {
 	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     var effectiveDate = setChangePlanEffectiveDate(false);
     var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+	var serviceId = null;
+	for (var i = 0; i < subscriptionsType.length; i++) {
+		if ((subscriptionsType[i].name).equals(serviceName)) {
+			serviceId = subscriptionsType[i].id;
+			break;
+		}
+	}
 
-	var serviceId=null;
 	try {
-		var subscriptionId = billingService.getSubscriptionId(tenantDomain);
+		var subscriptionId = billingService.getSubscriptionId(tenantDomain, serviceId);
 		log.info("Cancelling subscription for tenant: " + tenantDomain + " subscription id: "+subscriptionId);
 		var data = {
 		};
@@ -143,12 +149,7 @@ var cancelSubscription = function(serviceName) {
 		url = url.replace("{subscription-key}", subscriptionId);
 		var response = sendHTTPRequest(url, "PUT", null, data);
 		if (response.success === true) {
-			for (i = 0; i < subscriptionsType.length; i++) {
-				if ((subscriptionsType[i].name).equals(serviceName)) {
-					serviceId= subscriptionsType[i].id;
-					break;
-				}				
-			}
+
 			if(serviceId!=null){
 	            updateBillingStatus(status.PENDING_DISABLE, effectiveDate, type.PAID, serviceId, tenantDomain);
             }
@@ -196,7 +197,7 @@ var generateParams = function (serviceId, productRatePlanId) {
 //Getting product rate plans
 var getRatePlans = function (serviceId) {
 	try {
-		var subscriptions = billingService.getPaymentPlansForId(serviceId);
+		var subscriptions = billingService.getPaymentPlansForserviceId(serviceId);
 
 		var subscriptionJson = {
 			entry: []
@@ -507,7 +508,7 @@ var addTenantToBilling = function (tenantId, tenantDomain) {
 };
 
 var getCouponProductRatePlanId = function(couponData, serviceId){
-	var getAllRatePlans = JSON.parse(billingService.getProductRatePlans(serviceId));
+	var getAllRatePlans = JSON.parse(billingService.getProductRatePlans(productIdFromServiceId[serviceId]));
 	for (var index = 0; index < getAllRatePlans.length; index++){
 		if(((getAllRatePlans[index].name) == (BILLING_COUPON_HEADER + couponData)) && getAllRatePlans[index].status != EXPIRED_RATE_PALN){
 			return getAllRatePlans[index]["id"];
@@ -519,7 +520,7 @@ var getCouponProductRatePlanId = function(couponData, serviceId){
 //todo improve this logic : move coupon rate plans to billing.xml with an additional property to get the discount and read from there
 var getPricingSummaryForCoupon = function(couponData, serviceId){
 log.info("Requesting Pricing Summary for serviceId : " + serviceId + " coupon : " + couponData);
-	var allRatePlans = JSON.parse(billingService.getProductRatePlans(serviceId));
+	var allRatePlans = JSON.parse(billingService.getProductRatePlans(productIdFromServiceId[serviceId]));
 	log.info("allRatePlans : " + allRatePlans);
 
 	for (var index = 0; index < allRatePlans.length; index++){

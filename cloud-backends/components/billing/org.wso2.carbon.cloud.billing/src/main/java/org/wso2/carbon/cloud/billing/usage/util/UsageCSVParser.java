@@ -20,8 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.beans.usage.Usage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -39,8 +39,14 @@ public class UsageCSVParser {
     private UsageCSVParser() {
     }
 
+    /**
+     * write to file
+     *
+     * @param usage usage stats
+     * @throws CloudBillingException
+     */
     public static void writeCSVData(Usage[] usage) throws CloudBillingException {
-        String csvFile = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
+        String csvFile = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
                 .getUsageUploadFileLocation();
         CSVWriter csvWriter;
         try {
@@ -55,6 +61,12 @@ public class UsageCSVParser {
         }
     }
 
+    /**
+     * To String array
+     *
+     * @param usage usage
+     * @return List if string array
+     */
     private static List<String[]> toStringArray(Usage[] usage) {
         List<String[]> records = new ArrayList<String[]>();
         //add header record

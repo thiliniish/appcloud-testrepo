@@ -18,9 +18,9 @@ package org.wso2.carbon.cloud.billing.usage.scheduler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.usage.CloudUsageManager;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
 import org.wso2.carbon.ntask.core.Task;
 
 import java.util.Date;
@@ -34,24 +34,37 @@ public class UsageUploaderTask implements Task {
     private static final Log LOGGER = LogFactory.getLog(UsageUploaderTask.class);
     private Map<String, String> properties;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void init() {
         //No initialization requirement
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param properties
+     */
+    @Override
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void execute() {
         LOGGER.info("Running usage uploader task " + BillingConstants.USAGE_UPLOADER_TASK_NAME + ". [" + new Date() +
                     "]");
         try {
-            boolean enableDailyUsageUpload =
-                    CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
-                            .isEnableUsageUploading();
+            boolean enableDailyUsageUpload = BillingConfigUtils.getBillingConfiguration().getZuoraConfig()
+                    .getUsageConfig().isEnableUsageUploading();
 
             if (enableDailyUsageUpload) {
-                CloudUsageManager usageManager = new CloudUsageManager();
+                APICloudUsageManager usageManager = new APICloudUsageManager();
                 usageManager.uploadDailyAPIUsage();
             } else {
                 if (LOGGER.isDebugEnabled()) {

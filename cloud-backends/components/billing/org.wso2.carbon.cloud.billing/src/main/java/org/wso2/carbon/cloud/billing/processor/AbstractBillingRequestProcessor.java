@@ -22,6 +22,9 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 
+/**
+ * Abstract billing request processor
+ */
 public abstract class AbstractBillingRequestProcessor implements BillingRequestProcessor {
 
     protected static final int DEFAULT_CONNECTION_RETRIES = 5;
@@ -39,10 +42,21 @@ public abstract class AbstractBillingRequestProcessor implements BillingRequestP
         }
     }
 
+    /**
+     * Get http client
+     *
+     * @return http client
+     */
     public HttpClient getHttpClient() {
         return httpClient;
     }
 
+    /**
+     * initialize http client
+     *
+     * @param httpClientConfig http client configuration
+     * @return Http client
+     */
     private HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
         HostConfiguration hostConfig = new HostConfiguration();
         hostConfig.setHost(httpClientConfig.getHostname(), httpClientConfig.getPort());

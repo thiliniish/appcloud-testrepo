@@ -103,12 +103,13 @@ public final class BillingConstants {
     public static final String NAME = "name";
     public static final String PRODUCTRATEPLANS = "productRatePlans";
     public static final String SUBSCRIPTIONS = "subscriptions";
-    public static final String RATEPLANS = "ratePlans";
+    public static final String RATE_PLANS = "ratePlans";
     public static final String PRODUCT_RATE_PLAN_ID = "productRatePlanId";
     public static final String PRODUCT_NAME = "productName";
     public static final String LAST_CHANGE_TYPE = "lastChangeType";
     public static final String AMENDEMENT_ADD_TYPE = "Add";
     public static final String SUBSCRIPTION_NUMBER = "subscriptionNumber";
+    public static final String PRODUCT_ID = "productId";
     public static final String RATE_PLAN_NAME = "ratePlanName";
 
     public static final String SUBSCRIPTIONS_ELE = "Subscriptions";

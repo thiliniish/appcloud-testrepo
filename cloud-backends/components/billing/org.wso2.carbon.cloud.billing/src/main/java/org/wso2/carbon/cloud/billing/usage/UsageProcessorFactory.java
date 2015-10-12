@@ -15,19 +15,25 @@
  */
 package org.wso2.carbon.cloud.billing.usage;
 
+import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageProcessor;
+
+/**
+ * Usage processor factory
+ */
 public class UsageProcessorFactory {
 
     public static UsageProcessor createUsageProcessor(UsageProcessorType type) {
         switch (type) {
             case API_CLOUD:
                 return new APICloudUsageProcessor();
-            case DEFAULT:
-                return new DefaultUsageProcessor();
             default:
                 throw new IllegalArgumentException("Unsupported Usage processor type requested");
         }
     }
 
+    /**
+     * Usage processor type
+     */
     public enum UsageProcessorType {
         API_CLOUD, DEFAULT
     }
