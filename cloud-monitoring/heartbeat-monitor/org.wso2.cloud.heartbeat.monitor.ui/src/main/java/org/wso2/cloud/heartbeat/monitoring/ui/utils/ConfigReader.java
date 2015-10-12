@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Reading configuration files and created a singleton object
+ * Singleton class to read heartbeat.conf configuration
  */
 public class ConfigReader {
 
@@ -47,7 +48,7 @@ public class ConfigReader {
     private Map<String, CloudStructure> cloudStructureList = new HashMap<String, CloudStructure>();
 
     /**
-     * Singleton instance for reading hearbeat.conf
+     * Singleton instance for reading heartbeat.conf
      */
     private static ConfigReader instance = new ConfigReader();
 
@@ -69,7 +70,7 @@ public class ConfigReader {
     public void buildConfigurationNode(String configPath) throws HeartbeatException {
         if (!nodeStatus) {
             try {
-                log.info("Hearbeat Monitor: Started reading configuration");
+                log.info("Heartbeat Monitor: Started reading configuration from :" + configPath);
                 configurationPath = configPath;
                 NodeBuilder.buildNode(rootNode, FileManager.readFile(configurationPath));
                 convertTimeInterval(getDataSourceFromNode().getProperty(Constants.TIME_INTERVAL));
@@ -117,8 +118,7 @@ public class ConfigReader {
      * Initiallizing CloudStrucure Objects for each cloud from the configuration specified clouds.
      */
     public void setCloudObjects(Node node) {
-        log.info("Hearbeat Monitor: Setting up Cloud Objects");
-
+        log.info("Heartbeat Monitor: Setting up Cloud Objects");
         if (node.getProperty(Constants.CLOUDS_PROPERTY) == null ||
             node.getProperty(Constants.CLOUDS_PROPERTY).isEmpty()) {
             log.error(Constants.NO_CLOUDS);
@@ -136,7 +136,7 @@ public class ConfigReader {
      * Adding servers to relevant cloud objects while reading cloud properties.
      */
     public void setCloudStructure(List<Node> nodeList) throws HeartbeatException {
-        log.info("Hearbeat Monitor: Creating Cloud to Server Structure");
+        log.info("Heartbeat Monitor: Creating Cloud to Server Structure");
         for (Node node : nodeList) {
             if (node.getProperty(Constants.CLOUDS_PROPERTY) == null ||
                 node.getProperty(Constants.CLOUDS_PROPERTY).isEmpty()) {
@@ -175,8 +175,8 @@ public class ConfigReader {
             timeInterval =
                     Integer.toString(Integer.parseInt(interval.split(Constants.MINUTE)[0].replace(" ", "")) / 1440);
         } else {
-            timeInterval = "1";    //Default value 1 day = 1440 minutes
-            log.info("Parsed invalid time interval for service uptime status :");
+            timeInterval = Constants.DEFAULT_TIME_INTERVAL_IN_DAYS;    //Default value 1 day = 1440 minutes
+            log.info("Parsed invalid time interval for service uptime status" + interval);
         }
     }
 

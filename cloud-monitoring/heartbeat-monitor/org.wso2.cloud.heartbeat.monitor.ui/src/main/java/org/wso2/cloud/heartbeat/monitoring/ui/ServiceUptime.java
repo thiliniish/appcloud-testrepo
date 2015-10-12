@@ -15,6 +15,7 @@
   * specific language governing permissions and limitations
   * under the License.
   */
+
 package org.wso2.cloud.heartbeat.monitoring.ui;
 
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx.utils.Constants;

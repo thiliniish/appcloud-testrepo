@@ -134,17 +134,17 @@ import java.util.List;
             loginSuccessful = stub.authenticate(userName, (String) credential) && roleIsAvailable;
             return loginSuccessful;
         } catch (AxisFault axisFault) {
-
+            log.error(
+                    "Heartbeat - Monitor - Axis Fault occurred while login for user [" + userName + "] : " + axisFault);
+            return false;
         } catch (RemoteException e) {
-
+            log.error("Heartbeat - Monitor - Remote Exception occurred while login for user [" + userName + "] : " + e);
+            return false;
         } catch (RemoteUserStoreManagerServiceUserStoreExceptionException e) {
-
+            log.error("Heartbeat - Monitor - Remote User Store Manager Services error occurred while login for user [" +
+                      userName + "] : " + e);
+            return false;
         }
-        return false;
-    }
-
-    private String[] handleException(String msg, Exception e) throws Exception {
-        throw new HeartbeatException("Heartbeat - Monitor :" + msg, e);
     }
 
 }

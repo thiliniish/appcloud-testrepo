@@ -56,21 +56,17 @@ public class NodeBuilder {
                 }
 
                 // another node is detected and it is not a variable starting from $
-                if (line.contains(Constants.NGINX_NODE_START_BRACE) &&
-                    !line.contains(Constants.NGINX_VARIABLE)) {
+                if (line.contains(Constants.NGINX_NODE_START_BRACE) && !line.contains(Constants.NGINX_VARIABLE)) {
 
                     try {
                         Node childNode = new Node();
-                        childNode.setName(
-                                line.substring(0, line.indexOf(Constants.NGINX_NODE_START_BRACE))
-                                    .trim());
+                        childNode.setName(line.substring(0, line.indexOf(Constants.NGINX_NODE_START_BRACE)).trim());
 
                         StringBuilder sb = new StringBuilder();
 
                         int matchingBraceTracker = 1;
 
-                        while (!line.contains(Constants.NGINX_NODE_END_BRACE) ||
-                               matchingBraceTracker != 0) {
+                        while (!line.contains(Constants.NGINX_NODE_END_BRACE) || matchingBraceTracker != 0) {
                             i++;
                             if (i == lines.length) {
                                 break;
@@ -100,9 +96,8 @@ public class NodeBuilder {
                 else {
                     if (!line.isEmpty() && !Constants.NGINX_NODE_END_BRACE.equals(line)) {
                         String[] prop = line.split(Constants.NGINX_SPACE_REGEX);
-                        String value = line.substring(prop[0].length(),
-                                                      line.indexOf(Constants.NGINX_LINE_DELIMITER))
-                                           .trim();
+                        String value =
+                                line.substring(prop[0].length(), line.indexOf(Constants.NGINX_LINE_DELIMITER)).trim();
                         try {
                             aNode.addProperty(prop[0], value);
                         } catch (Exception e) {

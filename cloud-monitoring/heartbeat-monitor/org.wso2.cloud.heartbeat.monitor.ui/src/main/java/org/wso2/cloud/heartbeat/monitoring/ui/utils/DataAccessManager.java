@@ -37,11 +37,10 @@ public class DataAccessManager {
 
     private static volatile DataAccessManager instance;
     private BasicDataSource source;
-
     private static final String DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
 
     /**
-     * creates database connection
+     * Creates database connection
      */
     private DataAccessManager() {
         this.source = setDbConnection();
@@ -87,16 +86,20 @@ public class DataAccessManager {
      * @param query      query to be executed
      * @param parameters parameter to be attached
      * @return Prepared statement ready to execute
-     * @throws SQLException
+     * @throws HeartbeatException
      */
     public PreparedStatement prepareStatement(Connection con, String query, List<String> parameters)
-            throws SQLException {
-        PreparedStatement preparedStatement = con.prepareStatement(query);
-        for (int i = 0; i < parameters.size(); i++) {
-            preparedStatement.setString(i + 1, parameters.get(i));
+            throws HeartbeatException {
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = con.prepareStatement(query);
+            for (int i = 0; i < parameters.size(); i++) {
+                preparedStatement.setString(i + 1, parameters.get(i));
+            }
+        } catch (SQLException e) {
+            throw new HeartbeatException("SQL exception thrown while creating prepared statement :" + e);
         }
         return preparedStatement;
-
     }
 
     /**
@@ -104,16 +107,20 @@ public class DataAccessManager {
      *
      * @return Database connection from connection pool
      */
-    public Connection getConnection() throws SQLException {
-        return source.getConnection();
+    public Connection getConnection() throws HeartbeatException {
+        try {
+            return source.getConnection();
+        } catch (SQLException e) {
+            throw new HeartbeatException("SQL exception thrown while closing connection" + e);
+        }
     }
 
     /**
      * Closing the connection with executeQuery type query statements
      *
      * @param connection Database connection
-     * @param statement statament to close
-     * @param resultSet result set to close
+     * @param statement  statament to close
+     * @param resultSet  result set to close
      * @throws HeartbeatException
      */
     public void closeConnection(Connection connection, PreparedStatement statement, ResultSet resultSet)
@@ -131,14 +138,20 @@ public class DataAccessManager {
      * Closing the connection with executeUpdate type query statements
      *
      * @param connection Database connection
-     * @param statement statament to close
+     * @param statement  statament to close
      * @throws HeartbeatException
      */
-    public void closeConnectionAndStatement(Connection connection, PreparedStatement statement) throws SQLException {
-        if (statement != null)
-            statement.close();
-        if (connection != null)
-            connection.close();
+    public void closeConnectionAndStatement(Connection connection, PreparedStatement statement)
+            throws HeartbeatException {
+        try {
+            if (statement != null)
+                statement.close();
+            if (connection != null)
+                connection.close();
+        } catch (SQLException e) {
+            throw new HeartbeatException("SQL Exception occurred while Closing connection " + e);
+        }
+
     }
 
 }

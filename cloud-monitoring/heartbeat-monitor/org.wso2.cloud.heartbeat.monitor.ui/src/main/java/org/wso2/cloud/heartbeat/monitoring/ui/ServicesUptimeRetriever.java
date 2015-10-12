@@ -15,6 +15,7 @@
   * specific language governing permissions and limitations
   * under the License.
   */
+
 package org.wso2.cloud.heartbeat.monitoring.ui;
 
 import org.apache.commons.logging.Log;
@@ -57,13 +58,11 @@ public class ServicesUptimeRetriever {
      * @return List of service Uptime Details
      */
     public List<ServiceUptime> getServiceUptimes(String serviceName, String testName, String severityLevel)
-            throws HeartbeatException, SQLException {
+            throws HeartbeatException {
         try {
             getUptimeInfo(serviceName, testName, severityLevel);
-        } catch (SQLException e) {
+        } catch (HeartbeatException e) {
             throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
-        } catch (ParseException e) {
-            throw new HeartbeatException(Constants.PARSE_EXCEPTION, e);
         }
         return serviceUptimes;
     }
@@ -72,10 +71,9 @@ public class ServicesUptimeRetriever {
      * Populate ArrayList from database using
      *
      * @param testName String Test Name to retrieve
-     * @throws SQLException
+     * @throws HeartbeatException
      */
-    public void getUptimeInfo(String serviceName, String testName, String severityLevel)
-            throws SQLException, ParseException, HeartbeatException {
+    public void getUptimeInfo(String serviceName, String testName, String severityLevel) throws HeartbeatException {
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
         Connection con = null;
@@ -94,7 +92,7 @@ public class ServicesUptimeRetriever {
         Map<Map<String, Map>, List<Pair>> failureSummary = new HashMap<Map<String, Map>, List<Pair>>();
 
         log.info("Heartbeat - Monitor - Retrieving results for :" + serviceName + "Server and " + testName + "test");
-        if (testName.equals((Constants.AGGREGATION_CLAUSE))) {
+        if (testName.equals(Constants.AGGREGATION_CLAUSE)) {
             qualifiedTests.addAll(getTestsForServer(serviceName, severityLevel));
         } else {
             qualifiedTests.add(testName);
@@ -170,8 +168,12 @@ public class ServicesUptimeRetriever {
                 serviceUptime.addUptimeInfo(new Timestamp(negativeRecord), (byte) 0);
             }
             serviceUptime.setFailureCount(negativeIntervals.size());
-            if (negativeIntervals.size() > 0 || positiveList.isEmpty()) {
-                serviceUptime.countFailureTime();
+            if (!negativeIntervals.isEmpty() || positiveList.isEmpty()) {
+                try {
+                    serviceUptime.countFailureTime();
+                } catch (ParseException e) {
+                    throw new HeartbeatException("Parse Exception occurred while counting failure time" + e);
+                }
             } else {
                 serviceUptime.setPositiveUptime(Constants.TOTAL_UPTIME);
             }
@@ -183,10 +185,8 @@ public class ServicesUptimeRetriever {
      * Getting Downtime interval gaps and Uptime Information Map out of result set
      *
      * @return Map with a Uptime Information Map and List of interval pairs
-     * @throws SQLException
-     * @throws ParseException
      */
-    public FailureIntervals getDownTimeIntervals(Map<Long, Byte> testUptime) throws SQLException, ParseException {
+    public FailureIntervals getDownTimeIntervals(Map<Long, Byte> testUptime) {
         int failureCount = 0;
         Long finalZeroAt;
         int uptimeMapSize;
@@ -244,9 +244,9 @@ public class ServicesUptimeRetriever {
      *
      * @param serverName Name of the server to be checked
      * @return boolean result of availability of records
-     * @throws SQLException
+     * @throws HeartbeatException
      */
-    public Boolean hasRecords(String serverName, String severity) throws SQLException, HeartbeatException {
+    public Boolean hasRecords(String serverName, String severity) throws HeartbeatException {
         boolean hasRecord = false;
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
@@ -276,10 +276,9 @@ public class ServicesUptimeRetriever {
      *
      * @param serverName name of the server
      * @return String Map of Test Names with severity
-     * @throws SQLException
+     * @throws HeartbeatException
      */
-    public List<String> getTestsForServer(String serverName, String severityLevel)
-            throws SQLException, HeartbeatException {
+    public List<String> getTestsForServer(String serverName, String severityLevel) throws HeartbeatException {
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
         Connection con = null;
@@ -295,7 +294,6 @@ public class ServicesUptimeRetriever {
                 testsForServer.add(resultSet.getString(Constants.DB_TEST));
             }
         } catch (SQLException e) {
-            log.error(Constants.SQL_EXCEPTION, e);
             throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
         } finally {
             dataAccessManager.closeConnection(con, preparedStatement, resultSet);
@@ -304,7 +302,7 @@ public class ServicesUptimeRetriever {
     }
 
     /**
-     * set time interval for data retrieval
+     * Set time interval for data retrieval
      *
      * @param fromDateTime String for start of time interval (nearest time) default format "yyyy-MM-dd HH:mm:ss"
      * @param toDateTime   String for end of time interval (farthest time) default format "yyyy-MM-dd HH:mm:ss"
@@ -330,10 +328,10 @@ public class ServicesUptimeRetriever {
      * @param serverName name of the server
      * @param testName   test Name for the server
      * @return Map with a timestamp to failure detail string
-     * @throws SQLException
+     * @throws HeartbeatException
      */
     public Map<Timestamp, List<String>> getFailureDetail(String serverName, String testName, String toTime,
-                                                         String fromTime) throws SQLException, HeartbeatException {
+                                                         String fromTime) throws HeartbeatException {
         Map<Timestamp, List<String>> failuredetail = new TreeMap<Timestamp, List<String>>();
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
@@ -361,11 +359,13 @@ public class ServicesUptimeRetriever {
     }
 
     /**
+     * In case of a false alarm by parsing the failure indexes we can mark them as true
+     *
      * @param failureIndexes index values of failures selected
      * @return success or failure status
-     * @throws SQLException
+     * @throws HeartbeatException
      */
-    public int setFalseToTrue(String failureIndexes) throws SQLException, HeartbeatException {
+    public int setFalseToTrue(String failureIndexes) throws HeartbeatException {
         int resultSet = 0;
         ResultSet indexesForLiveStatus = null;
         PreparedStatement preparedStatement = null;
@@ -398,8 +398,12 @@ public class ServicesUptimeRetriever {
             throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
         } finally {
             dataAccessManager.closeConnection(con, preparedStatement, indexesForLiveStatus);
-            if (preparedStatementForLiveStatus != null)
-                preparedStatementForLiveStatus.close();
+            try {
+                if (preparedStatementForLiveStatus != null)
+                    preparedStatementForLiveStatus.close();
+            } catch (SQLException e) {
+                return resultSet;
+            }
         }
         return resultSet;
     }
@@ -411,11 +415,11 @@ public class ServicesUptimeRetriever {
      * @param userId       user Id of the person who is making the change
      * @param changeReason reason to make the the change
      * @return status of reults query
-     * @throws SQLException
+     * @throws HeartbeatException
      */
 
     public int inputFalseFailureReason(String failureIndex, String userId, String changeReason)
-            throws SQLException, HeartbeatException {
+            throws HeartbeatException {
         int resultSet = 0;
         PreparedStatement preparedStatement = null;
         String[] indexesToAdd = failureIndex.split(",");
@@ -441,12 +445,14 @@ public class ServicesUptimeRetriever {
     }
 
     /**
+     * Setting jira links for failure list
+     *
      * @param jiraUrl       url parsed to record the jira
      * @param failureIdList list of failures to mark the jira
      * @return status of success or failure
-     * @throws SQLException
+     * @throws HeartbeatException
      */
-    public int setJiraLink(String jiraUrl, String failureIdList) throws SQLException, HeartbeatException {
+    public int setJiraLink(String jiraUrl, String failureIdList) throws HeartbeatException {
         int resultSet;
         List<String> queryParameters = new ArrayList<String>();
         PreparedStatement preparedStatement = null;
