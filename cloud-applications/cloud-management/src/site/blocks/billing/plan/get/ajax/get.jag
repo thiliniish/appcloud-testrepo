@@ -45,7 +45,6 @@ var createAccount = function (serviceId){
 			} else {
 				session.put("ACTUAL_PAYMENT_AMOUNT", monthlyRental);
 			}
-	        log.info(isFromChangePlan);
 	        if(isFromChangePlan == 'true') {
 	        	print("add-billing-account.jag?isFromChangePlan=" + isFromChangePlan);
 	        } else {
