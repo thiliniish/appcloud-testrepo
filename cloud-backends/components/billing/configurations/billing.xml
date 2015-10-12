@@ -76,7 +76,7 @@
             <Products>https://apisandbox-api.zuora.com/rest/v1/catalog/products</Products>
         </APIs>
         <Subscriptions>
-            <Subscription id="api_cloud">
+            <Subscription id="api_cloud" name="API Cloud" productId="2c92c0f949ac00800149b8333c0502b8">
                 <Plan>
                     <Id>2c92c0f949ac00830149b83db24f1b77</Id>
                     <Name>Starter</Name>

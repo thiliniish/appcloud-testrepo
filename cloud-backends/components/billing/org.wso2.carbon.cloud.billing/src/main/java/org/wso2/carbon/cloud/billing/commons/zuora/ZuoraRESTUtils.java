@@ -26,6 +26,7 @@ import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +52,22 @@ public class ZuoraRESTUtils {
      * @return json string of subscriptions
      * @throws CloudBillingException
      */
-    public static String getSubscriptionIdForAccount(String accountId) throws CloudBillingException {
+    public static String getSubscriptionIdForAccount(String accountId, String serviceId) throws CloudBillingException {
         String response = getAccountSummary(accountId);
         JSONArray subscriptions = getSubscriptions(accountId, response);
-        return (String) ((JSONObject) subscriptions.get(0)).get(BillingConstants.SUBSCRIPTION_NUMBER);
+        String zuoraProductId = CloudBillingUtils.getZuoraProductIdForServiceId(serviceId);
+
+        for (Object subscriptionObj : subscriptions) {
+            JSONObject subscription = (JSONObject) subscriptionObj;
+            //Any of the rate plans can be taken since only there is a one to one mapping between subscription and
+            // product according to cloud use case: hence the magic number 0
+            JSONObject ratePlan = (JSONObject) ((JSONArray) subscription.get(BillingConstants.RATE_PLANS)).get(0);
+            if (zuoraProductId.equals(ratePlan.get(BillingConstants.PRODUCT_ID))) {
+                return (String) subscription.get(BillingConstants.SUBSCRIPTION_NUMBER);
+            }
+        }
+
+        throw new CloudBillingException("No " + serviceId + " subscription available for account id: " + accountId);
     }
 
     /**
@@ -78,7 +91,7 @@ public class ZuoraRESTUtils {
                 LOGGER.debug("The " + i + " element of the subscriptions array: " + subscriptions.get(i));
             }
             // get all rate plans
-            JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATEPLANS);
+            JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATE_PLANS);
             for (Object ratePlan : ratePlans) {
                 if (((JSONObject) ratePlan).get(BillingConstants.PRODUCT_NAME).equals(productName)) {
                     String productRatePlanId =
@@ -127,7 +140,7 @@ public class ZuoraRESTUtils {
                 LOGGER.debug("The " + i + " element of the subscriptions array: " + subscriptions.get(i));
             }
             // get all rate plans
-            JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATEPLANS);
+            JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATE_PLANS);
             for (int j = 0; j < subscriptions.size(); j++) {
                 // Check if the selected rate planId is from the current product
                 String productName = (String) ((JSONObject) ratePlans.get(j)).get(BillingConstants.PRODUCT_NAME);
@@ -215,7 +228,7 @@ public class ZuoraRESTUtils {
             JSONArray subscriptions = getSubscriptions(accountId, response);
             for (Object subscription : subscriptions) {
                 // get all rate plans
-                JSONArray ratePlans = (JSONArray) ((JSONObject) subscription).get(BillingConstants.RATEPLANS);
+                JSONArray ratePlans = (JSONArray) ((JSONObject) subscription).get(BillingConstants.RATE_PLANS);
                 if (ratePlans.size() == 1) {
                     currentRatePlanList.add(ratePlans.get(0));
                 }

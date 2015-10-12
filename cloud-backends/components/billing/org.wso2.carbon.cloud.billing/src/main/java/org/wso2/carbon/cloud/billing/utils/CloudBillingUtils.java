@@ -189,6 +189,17 @@ public class CloudBillingUtils {
         return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
     }
 
+
+    public static String getZuoraProductIdForServiceId(String serviceId) throws CloudBillingException {
+        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions();
+        for (Subscription subscription : subscriptions) {
+            if (subscription.getId().equals(serviceId)) {
+                return subscription.getProductId();
+            }
+        }
+        throw new CloudBillingException("No zuora product id found for serviceId: " +serviceId);
+    }
+
     /**
      * Method to get that the billing functionality enable/disable status
      *
