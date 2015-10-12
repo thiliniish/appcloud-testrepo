@@ -29,7 +29,8 @@ CREATE TABLE TEMP_INVITEE (
   email varchar(255) NOT NULL,
   uuid varchar(500) NOT NULL,
   roles varchar(500) NOT NULL,
-  dateTime datetime NOT NULL
+  dateTime datetime NOT NULL,
+  PRIMARY KEY(tenantDomain, email)
 );
 
 CREATE TABLE BILLING_ACCOUNT (
