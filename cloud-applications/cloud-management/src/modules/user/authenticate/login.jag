@@ -134,17 +134,17 @@ var loginWithSAMLToken = function (token) {
     var xhr = new XMLHttpRequest();
     var endPoint = CLOUDMGT_SERVICES + "SAML2SSOAuthenticationService";
     xhr.open("POST", endPoint);
-    var payload = '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" ' +
-            'xmlns:sso="http://sso.saml2.authenticator.identity.carbon.wso2.org" ' +
-            'xmlns:xsd="http://dto.sso.saml2.authenticator.identity.carbon.wso2.org/xsd">' +
-            '<soap:Body>' +
-            '<sso:login>' +
-            '<sso:authDto>' +
-            '<xsd:response>' + encodedToken + '</xsd:response>' +
-            '</sso:authDto>' +
-            '</sso:login>' +
-            '</soap:Body>' +
-            '</soap:Envelope>';
+    var payload =   '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" ' +
+                    'xmlns:sso="http://sso.saml2.authenticator.identity.carbon.wso2.org" ' +
+                    'xmlns:xsd="http://dto.sso.saml2.authenticator.identity.carbon.wso2.org/xsd">' +
+                        '<soap:Body>' +
+                            '<sso:login>' +
+                            '<sso:authDto>' +
+                            '<xsd:response>'+encodedToken+'</xsd:response>' +
+                            '</sso:authDto>' +
+                            '</sso:login>' +
+                        '</soap:Body>' +
+                    '</soap:Envelope>';
     xhr.setRequestHeader('SOAPAction','urn:login');
     xhr.setRequestHeader('Content-Type','application/soap+xml');
     xhr.send(payload);
