@@ -38,24 +38,21 @@ import java.util.Map;
 public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
     private static Log log = LogFactory.getLog(WSO2CloudUserStoreManager.class);
-    private static CloudUserEmailCache cloudUserEmailCache = null;
+    private static CloudUserEmailCache cloudUserEmailCache = CloudUserEmailCache.getInstance();
     private static final String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
 
     public WSO2CloudUserStoreManager() {
-        cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
 
     public WSO2CloudUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
             ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
             throws UserStoreException {
         super(realmConfig, properties, claimManager, profileManager, realm, tenantId);
-        cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
 
     public WSO2CloudUserStoreManager(RealmConfiguration realmConfig, ClaimManager claimManager,
             ProfileConfigurationManager profileManager) throws UserStoreException {
         super(realmConfig, claimManager, profileManager);
-        cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
 
     // =============================================================================================================
@@ -208,11 +205,6 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     @Override
     protected String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
         return super.doGetExternalRoleListOfUser(doConvert(userName), filter);
-    }
-
-    @Override
-    protected String[] doGetInternalRoleListOfUser(String userName, String filter) throws UserStoreException {
-        return super.doGetInternalRoleListOfUser(doConvert(userName), filter);
     }
 
     @Override
