@@ -39,18 +39,39 @@ public class ServiceDataHolder {
     private ServiceDataHolder() {
     }
 
+    /**
+     * Get service data holder instance
+     *
+     * @return service data holder instance
+     */
     public static ServiceDataHolder getInstance() {
         return SERVICE_DATA_HOLDER;
     }
 
+    /**
+     * Get task service
+     *
+     * @return TaskService
+     */
     public TaskService getTaskService() {
         return taskService;
     }
 
+    /**
+     * Set task service
+     *
+     * @param taskService task service
+     */
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
     }
 
+    /**
+     * Get task manager
+     *
+     * @param taskName task name
+     * @return task manager
+     */
     public TaskManager getTaskManager(String taskName) {
         try {
             return this.taskService.getTaskManager(taskName);
@@ -60,18 +81,38 @@ public class ServiceDataHolder {
         }
     }
 
+    /**
+     * Get secret callback handler service
+     *
+     * @return SecretCallbackHandlerService
+     */
     public SecretCallbackHandlerService getSecretCallbackHandlerService() {
         return secretCallbackHandlerService;
     }
 
+    /**
+     * Set secret callback handler service
+     *
+     * @param secretCallbackHandlerService service available
+     */
     public void setSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
         this.secretCallbackHandlerService = secretCallbackHandlerService;
     }
 
+    /**
+     * Get realm service
+     *
+     * @return RealmService
+     */
     public RealmService getRealmService() {
         return realmService;
     }
 
+    /**
+     * Set realm service
+     *
+     * @param realmService RealmService
+     */
     public void setRealmService(RealmService realmService) {
         this.realmService = realmService;
     }

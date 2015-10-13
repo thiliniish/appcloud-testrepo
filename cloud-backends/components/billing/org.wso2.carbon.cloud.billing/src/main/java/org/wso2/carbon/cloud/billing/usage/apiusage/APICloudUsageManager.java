@@ -82,7 +82,7 @@ public class APICloudUsageManager {
 
 
     public void uploadDailyAPIUsage() throws CloudBillingException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_FOMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
         LOGGER.info("Uploading daily usage for  " + dateFormat.format(new Date(System.currentTimeMillis())));
         // get today;s usage from data services and create a usage array
         String response = getDailyUsage();
