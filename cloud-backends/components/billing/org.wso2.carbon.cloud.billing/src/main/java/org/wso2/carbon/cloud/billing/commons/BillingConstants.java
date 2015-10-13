@@ -23,8 +23,6 @@ public final class BillingConstants {
     public static final String CLOUD_CONFIG_FOLDER = "cloud";
     public static final String CONFIG_FILE_NAME = "billing.xml";
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/billing";
-    public static final String ZUORA_USER_NAME = "zuoraUser";
-    public static final String ZUORA_PASSWORD = "zuoraPassword";
 
     // ApiM Request Summary Conf
     public static final String ENTRY = "Entry";
@@ -32,11 +30,9 @@ public final class BillingConstants {
     public static final String MONTH = "month";
     public static final String TIME = "time";
     public static final String DAY = "day";
-    public static final String DATE_SEPARATOR = "-";
     public static final String TOTAL_COUNT = "totalCount";
     public static final String API_PUBLISHER = "apiPublisher";
     public static final String ACCOUNTS = "Accounts";
-    public static final String ACCOUNT = "Account";
 
     public static final String ENCODING = "UTF-8";
     public static final String HTTP_REQ_HEADER_AUTHZ = "Authorization";
@@ -58,35 +54,10 @@ public final class BillingConstants {
     public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
     public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks" +
                                                                    ".BillingDbUpdateTask";
-    public static final String REMOVE_ROLES_PROPERTY_KEY = "__ROLES_";
     public static final String PENDING_DISABLES_URL_KEY = "__PENDING_DISABLES__";
     public static final String DISABLE_TENANT_URL_KEY = "__DISABLE_TENANT__";
     public static final String UPDATE_SUBSCRIPTION_STATUS_URL_KEY = "__UPDATE_SUBSCRIPTION_STATUS__";
     public static final String BILLING_HISTORY_URL_KEY = "__BILLING_HISTORY__";
-
-    public static final String SECURE_VAULT_NS = "http://org.wso2.securevault/configuration";
-    public static final String SECRET_ALIAS_ATTR_NAME = "secretAlias";
-
-    public static final String ENABLE_USAGE_UPLOAD = "Usage.EnableUsageUploading";
-    public static final String USAGE_CRON_EXPRESSION = "Usage.Cron";
-    public static final String USAGE_FILE = "Usage.UsageUploadFileLocation";
-    public static final String GET_TENANT_USAGE = "DataServiceAPI.dataservice.Property.usage";
-    public static final String GET_PAYMENTPLAN_AMENDMENT = "DataServiceAPI.dataservice.Property.amendments";
-
-    public static final String DS_USERNAME = "DataServiceAPI.dataservice.Property.user";
-    public static final String DS_PASSWORD = "DataServiceAPI.dataservice.Property.password";
-
-    public static final String GET_ALL_REQUESTS = "DataServiceAPI.dataservice.Property.requestCount";
-    public static final String GET_ACCOUNTID = "DataServiceAPI.dataservice.Property.tenantAccount";
-    // Zuora elements
-    public static final String GET_ACCOUNT_SUMMARY = "ZouraAPI.zuora.Property.accountSummary";
-    public static final String GET_RATE_PLAN_SUMMARY = "ZouraAPI.zuora.Property.ratePlans";
-    public static final String POST_USAGE = "ZouraAPI.zuora.Property.usage";
-    public static final String ZUORA_USER = "ZouraAPI.zuora.Property.user";
-    public static final String ZUORA_PASWORD = "ZouraAPI.zuora.Property.password";
-
-    public static final String TRUSTSTORE_PASSWORD = "SSORelyingParty.TruststorePassword";
-    public static final String TRUSTSTORE_LOCATION = "SSORelyingParty.keyStorePath";
 
     public static final String ACCOUNT_KEY_PARAM = "{account-key}";
     public static final String TENANT_DOMAIN_PARAM = "{tenantDomain}";
@@ -104,7 +75,7 @@ public final class BillingConstants {
     // Account summary json elements
     public static final String PRODUCTS = "products";
     public static final String NAME = "name";
-    public static final String PRODUCTRATEPLANS = "productRatePlans";
+    public static final String PRODUCT_RATE_PLANS = "productRatePlans";
     public static final String SUBSCRIPTIONS = "subscriptions";
     public static final String RATE_PLANS = "ratePlans";
     public static final String PRODUCT_RATE_PLAN_ID = "productRatePlanId";
@@ -115,10 +86,8 @@ public final class BillingConstants {
     public static final String PRODUCT_ID = "productId";
     public static final String RATE_PLAN_NAME = "ratePlanName";
 
-    public static final String SUBSCRIPTIONS_ELE = "Subscriptions";
-
-    public static final String DATE_FOMAT = "yyyy-MM-dd HH:mm:ss";
-    public static final String DS_DATE_FOMAT = "yyyy-MM-dd";
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DS_DATE_FORMAT = "yyyy-MM-dd";
     // Commercial ProductNames
     public static final String API_CLOUD = "API Cloud";
 
@@ -146,8 +115,8 @@ public final class BillingConstants {
 
     public static final int OVER_USAGE_THRESHOLD = 0;
 
-    public static final String TRUSTSTORE_NAME_PROPERTY = "javax.net.ssl.trustStore";
-    public static final String TRUSTSTORE_PASSWORD_PROPERTY = "javax.net.ssl.trustStorePassword";
+    public static final String TRUST_STORE_NAME_PROPERTY = "javax.net.ssl.trustStore";
+    public static final String TRUST_STORE_PASSWORD_PROPERTY = "javax.net.ssl.trustStorePassword";
 
     public static final String API_ACCESS_KEY_ID = "apiAccessKeyId";
     public static final String API_SECRET_ACCESS_KEY = "apiSecretAccessKey";

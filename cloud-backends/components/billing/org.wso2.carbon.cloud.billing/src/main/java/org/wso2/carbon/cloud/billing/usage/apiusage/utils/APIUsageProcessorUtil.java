@@ -164,9 +164,9 @@ public class APIUsageProcessorUtil {
                 String amendmentEmdDate =
                         ((OMElement) amendEle.getChildrenWithName(new QName(BillingConstants.END_DATE))
                                 .next()).getText();
-                Date currentDate = new SimpleDateFormat(BillingConstants.DS_DATE_FOMAT).parse(currDate);
-                Date startDate = new SimpleDateFormat(BillingConstants.DS_DATE_FOMAT).parse(amendmentStartDate);
-                Date endDate = new SimpleDateFormat(BillingConstants.DS_DATE_FOMAT).parse(amendmentEmdDate);
+                Date currentDate = new SimpleDateFormat(BillingConstants.DS_DATE_FORMAT).parse(currDate);
+                Date startDate = new SimpleDateFormat(BillingConstants.DS_DATE_FORMAT).parse(amendmentStartDate);
+                Date endDate = new SimpleDateFormat(BillingConstants.DS_DATE_FORMAT).parse(amendmentEmdDate);
                 if (currentDate.after(startDate) && currentDate.before(endDate) || currentDate.equals(startDate)) {
                     return ((OMElement) amendEle.getChildrenWithName(new QName("PRODUCT_RATE_PLAN_ID"))
                             .next()).getText();
@@ -176,7 +176,7 @@ public class APIUsageProcessorUtil {
             throw new CloudBillingException("Error while reading xml response from data service", e);
         } catch (ParseException e) {
             throw new CloudBillingException("Error Parsing the dates to date format " + BillingConstants
-                    .DS_DATE_FOMAT, e);
+                    .DS_DATE_FORMAT, e);
         }
         return null;
     }

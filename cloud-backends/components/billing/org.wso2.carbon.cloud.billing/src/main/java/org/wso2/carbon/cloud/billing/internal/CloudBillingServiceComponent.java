@@ -113,6 +113,12 @@ public class CloudBillingServiceComponent {
         }
     }
 
+    /**
+     * Set task service
+     *
+     * @param taskService task service
+     * @throws RegistryException
+     */
     protected void setTaskService(TaskService taskService) throws RegistryException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("TaskService is acquired");
@@ -120,10 +126,20 @@ public class CloudBillingServiceComponent {
         ServiceDataHolder.getInstance().setTaskService(taskService);
     }
 
+    /**
+     * Remove task service
+     *
+     * @param taskService task service
+     */
     protected void unsetTaskService(TaskService taskService) {
         ServiceDataHolder.getInstance().setTaskService(null);
     }
 
+    /**
+     * set secret callback handler service
+     *
+     * @param secretCallbackHandlerService secret callback handler service
+     */
     protected void setSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SecretCallbackHandlerService is acquired");
@@ -131,10 +147,20 @@ public class CloudBillingServiceComponent {
         ServiceDataHolder.getInstance().setSecretCallbackHandlerService(secretCallbackHandlerService);
     }
 
+    /**
+     * remove secret callback handler service
+     *
+     * @param secretCallbackHandlerService secret callback handler service
+     */
     protected void unsetSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
         ServiceDataHolder.getInstance().setSecretCallbackHandlerService(null);
     }
 
+    /**
+     * Set realm service
+     *
+     * @param realmService realm service
+     */
     protected void setRealmService(RealmService realmService) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("UserManagementService is acquired");
@@ -142,10 +168,19 @@ public class CloudBillingServiceComponent {
         ServiceDataHolder.getInstance().setRealmService(realmService);
     }
 
+    /**
+     * remove realm service
+     *
+     * @param realmService realm service
+     */
     protected void unsetRealmService(RealmService realmService) {
         ServiceDataHolder.getInstance().setRealmService(null);
     }
 
+    /**
+     * Register user uploader task
+     *
+     */
     private void registerUsageUploaderTask() {
         try {
             ServiceDataHolder.getInstance().getTaskService().registerTaskType(BillingConstants

@@ -283,7 +283,7 @@ public class ZuoraRESTUtils {
             products = ((JSONArray) jsonObject.get(BillingConstants.PRODUCTS));
             for (Object product : products) {
                 if (((JSONObject) product).get(BillingConstants.NAME).equals(productName)) {
-                    return (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCTRATEPLANS);
+                    return (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
                 }
             }
 
