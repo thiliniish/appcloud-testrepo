@@ -38,24 +38,21 @@ import java.util.Map;
 public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
     private static Log log = LogFactory.getLog(WSO2CloudUserStoreManager.class);
-    private static CloudUserEmailCache cloudUserEmailCache = null;
+    private static CloudUserEmailCache cloudUserEmailCache = CloudUserEmailCache.getInstance();
     private static final String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
 
     public WSO2CloudUserStoreManager() {
-        cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
 
     public WSO2CloudUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
             ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
             throws UserStoreException {
         super(realmConfig, properties, claimManager, profileManager, realm, tenantId);
-        cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
 
     public WSO2CloudUserStoreManager(RealmConfiguration realmConfig, ClaimManager claimManager,
             ProfileConfigurationManager profileManager) throws UserStoreException {
         super(realmConfig, claimManager, profileManager);
-        cloudUserEmailCache = CloudUserEmailCache.getInstance();
     }
 
     // =============================================================================================================
@@ -80,7 +77,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
      */
     @Override
     protected void doAddUserValidityChecks(String userName, Object credential) throws UserStoreException {
-        if(doConvertUserNameToEmail(userName) != null){
+        if (doConvertUserNameToEmail(userName) != null) {
             super.doAddUserValidityChecks(doConvertUserNameToEmail(userName), credential);
         }
     }
@@ -211,11 +208,6 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     }
 
     @Override
-    protected String[] doGetInternalRoleListOfUser(String userName, String filter) throws UserStoreException {
-        return super.doGetInternalRoleListOfUser(doConvert(userName), filter);
-    }
-
-    @Override
     protected String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
             throws UserStoreException {
         return super.doGetSharedRoleListOfUser(doConvert(userName), tenantDomain, filter);
@@ -261,10 +253,8 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     @Override
     public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
         String[] users = super.doGetUserListOfRole(roleName, filter);
-        if(MultitenantUtils.isEmailUserName()){
-            for (int i = 0; i < users.length; i++) {
-                users[i] = doConvertUserNameToEmail(users[i]);
-            }
+        if (MultitenantUtils.isEmailUserName()) {
+            doConvertUserNameListToEmail(users);
         }
         return users;
     }
@@ -273,10 +263,8 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     public String[] getUserListFromProperties(String property, String value, String profileName)
             throws UserStoreException {
         String[] users = super.getUserListFromProperties(property, value, profileName);
-        if(MultitenantUtils.isEmailUserName()){
-            for (int i = 0; i < users.length; i++) {
-                users[i] = doConvertUserNameToEmail(users[i]);
-            }
+        if (MultitenantUtils.isEmailUserName()) {
+            doConvertUserNameListToEmail(users);
         }
         return users;
     }
@@ -284,10 +272,8 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     @Override
     public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
         String[] users = super.doListUsers(filter, maxItemLimit);
-        if(MultitenantUtils.isEmailUserName()){
-            for (int i = 0; i < users.length; i++) {
-                users[i] = doConvertUserNameToEmail(users[i]);
-            }
+        if (MultitenantUtils.isEmailUserName()) {
+            doConvertUserNameListToEmail(users);
         }
         return users;
     }
@@ -297,7 +283,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     //=============================================================================================================
 
     /**
-     * converts the <code>@</code> symbol in the user name to a <code>.</code> symbol
+     * Converts the <code>@</code> symbol in the user name to a <code>.</code> symbol
      *
      * @param userName - user name to be converted
      * @return converted user Name
@@ -313,7 +299,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     }
 
     /**
-     * converts the <code>@</code> symbol in a list of user names to a <code>.</code> symbol
+     * Converts the <code>@</code> symbol in a list of user names to a <code>.</code> symbol
      *
      * @param users - list of user names to be converted
      * @return - converted list of user names
@@ -328,14 +314,41 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
         return users;
     }
 
+    /**
+     * Converts the user name to email, uses a cache to keep converted names
+     *
+     * @param userName - user name to be converted
+     * @return email of the particular use name
+     */
     private String doConvertUserNameToEmail(String userName) throws UserStoreException {
         String email = cloudUserEmailCache.getEmail(userName);
         if (email != null && !email.isEmpty()) {
             return email;
         }
         email = getUserClaimValue(userName, EMAIL_CLAIM_URI, null);
-        cloudUserEmailCache.addToCache(userName, email);
-        return email;
+        if (email != null) {
+            cloudUserEmailCache.addToCache(userName, email);
+            return email;
+        } else {
+            log.warn("Email is null for user : " + userName);
+        }
+        return userName;
+    }
+
+    /**
+     * Converts a list of user names into emails
+     *
+     * @param users list of users
+     * @return list of emails
+     * @throws UserStoreException
+     */
+    private String[] doConvertUserNameListToEmail(String[] users) throws UserStoreException {
+        if ((users != null) && (users.length > 0)) {
+            for (int i = 0; i < users.length; i++) {
+                users[i] = doConvertUserNameToEmail(users[i]);
+            }
+        }
+        return users;
     }
 
 }
