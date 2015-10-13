@@ -77,7 +77,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
      */
     @Override
     protected void doAddUserValidityChecks(String userName, Object credential) throws UserStoreException {
-        if(doConvertUserNameToEmail(userName) != null){
+        if (doConvertUserNameToEmail(userName) != null) {
             super.doAddUserValidityChecks(doConvertUserNameToEmail(userName), credential);
         }
     }
@@ -253,7 +253,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     @Override
     public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
         String[] users = super.doGetUserListOfRole(roleName, filter);
-        if(MultitenantUtils.isEmailUserName()){
+        if (MultitenantUtils.isEmailUserName()) {
             doConvertUserNameListToEmail(users);
         }
         return users;
@@ -263,7 +263,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     public String[] getUserListFromProperties(String property, String value, String profileName)
             throws UserStoreException {
         String[] users = super.getUserListFromProperties(property, value, profileName);
-        if(MultitenantUtils.isEmailUserName()){
+        if (MultitenantUtils.isEmailUserName()) {
             doConvertUserNameListToEmail(users);
         }
         return users;
@@ -272,7 +272,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     @Override
     public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
         String[] users = super.doListUsers(filter, maxItemLimit);
-        if(MultitenantUtils.isEmailUserName()){
+        if (MultitenantUtils.isEmailUserName()) {
             doConvertUserNameListToEmail(users);
         }
         return users;
@@ -326,7 +326,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
             return email;
         }
         email = getUserClaimValue(userName, EMAIL_CLAIM_URI, null);
-        if(email != null){
+        if (email != null) {
             cloudUserEmailCache.addToCache(userName, email);
             return email;
         } else {
@@ -348,7 +348,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
                 users[i] = doConvertUserNameToEmail(users[i]);
             }
         }
-        return  users;
+        return users;
     }
 
 }
