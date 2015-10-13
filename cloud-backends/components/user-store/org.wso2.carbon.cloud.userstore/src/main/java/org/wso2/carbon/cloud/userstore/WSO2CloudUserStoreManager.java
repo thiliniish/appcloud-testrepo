@@ -326,8 +326,13 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
             return email;
         }
         email = getUserClaimValue(userName, EMAIL_CLAIM_URI, null);
-        cloudUserEmailCache.addToCache(userName, email);
-        return email;
+        if(email != null){
+            cloudUserEmailCache.addToCache(userName, email);
+            return email;
+        } else {
+            log.warn("Email is null for user : " + userName);
+        }
+        return userName;
     }
 
     /**
