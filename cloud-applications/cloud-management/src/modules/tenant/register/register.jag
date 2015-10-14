@@ -26,40 +26,42 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
-var confirmUser = function(confirm,isInvitee,isStoreInvitee) {
-    try{
-        var isUserInvitee = (isInvitee != null && isInvitee =="true");
-        var isStoreInvitee = (isStoreInvitee != null && isStoreInvitee =="true");
+var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
+    try {
+        var isUserInvitee = (isInvitee != null && isInvitee == "true");
+        var isStoreInvitee = (isStoreInvitee != null && isStoreInvitee == "true");
 
         if (isUserInvitee) {
-            session.put('isInvitee',true);
-            session.put('isStoreInvitee',false);
-            queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
-        } else if (isStoreInvitee){
-            session.put('isStoreInvitee',true);
-            session.put('isInvitee',true);
-            queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
+            session.put('isInvitee', true);
+            session.put('isStoreInvitee', false);
+            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
+        } else if (isStoreInvitee) {
+            session.put('isStoreInvitee', true);
+            session.put('isInvitee', true);
+            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
         } else {
-            session.put('isInvitee',false);
-            session.put('isStoreInvitee',false);
-            queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
+            session.put('isInvitee', false);
+            session.put('isStoreInvitee', false);
+            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
         }
-        var parameters =[confirm];
+        var parameters = [confirm];
         var results = jagg.module("database").executeQuery(queryString, parameters);
-        if(results.length >= 1){
-            var email =   results[0]["email"];
-            var userName =  modManager.getUserNameFromEmail(email);
+        if (results.length >= 1) {
+            var email = results[0]["email"];
+            var userName = modManager.getUserNameFromEmail(email);
             var isUserAvail = isExistingUser(userName);
-            if((isUserAvail && isStoreInvitee) || (isUserAvail && isUserInvitee)){
+            if ((isUserAvail && isStoreInvitee) || (isUserAvail && isUserInvitee)) {
                 var tenantMod = jagg.module("tenant");
-                var roles= tenantMod.importInvitedUser(confirm,null);
-                var url=jagg.module("util").getInviteeDirectUrl(roles);
-                log.debug("user is invited to "+tenantMod);
+                var roles = tenantMod.importInvitedUser(confirm, null);
+                var url = jagg.module("util").getInviteeDirectUrl(roles);
+                if (log.isDebugEnabled()) {
+                    log.debug("user is invited to " + tenantMod);
+                }
                 return url;
             }
-            session.put('isUserAvail',isUserAvail);
-            session.put('registration-intermediate-data',confirm);
-            session.put('registration-email',email);
+            session.put('isUserAvail', isUserAvail);
+            session.put('registration-intermediate-data', confirm);
+            session.put('registration-email', email);
             return "add-tenant.jag";
         } else {
             return "expired";
