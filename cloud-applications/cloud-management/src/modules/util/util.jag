@@ -57,8 +57,7 @@ var isUserInAdminRole = function () {
 
 //method to check if the session has been authenticated
 var isSessionAuthenticated = function () {
-
-    var isAuthenticated=false;
+    var isAuthenticated = false;
     try {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
         var SSO_NAME = cloudConfig.SSORelyingParty.name;
@@ -66,29 +65,27 @@ var isSessionAuthenticated = function () {
         var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
         var sessionId = session.getId();
         isAuthenticated = ssoRelyingParty.isSessionAuthenticated(sessionId);
-    }
-    catch (e){
-        log.error("Error while retrieving the session \n" + e.message);
+    } catch (e) {
+        log.error("Error while retrieving the session :" + e.message);
+        log.error(e);
         throw Error(e);
     }
-
     return isAuthenticated;
 };
 
 //method to check if the user is only a subscriber for a tenant
-
-var hasOnlySubscriberRole=function (userName)
-{
-    var isSubscriber=false;
-    var roleCount=0;
+var hasOnlySubscriberRole = function (userName) {
+    var isSubscriber = false;
+    var roleCount = 0;
     var roles;
-    var result=false;
-    var userRoles=[];
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var cloudConfig =getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var result = false;
+    var userRoles = [];
+    var context = multitenancy.getPrivilegedCarbonContext();
+    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+
     //the default roles assigned for all users
     var types = cloudConfig.commonRoles;
-    var tenantDomain=session.get("LOGGED_IN_USER_TENANT_DOMAIN");
+    var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
     context.startTenantFlow();
     var tenantAwareUserName = modManager.getTenantAwareUsername(userName);
     var tenantManager = multitenancy.getTenantManager();
@@ -100,14 +97,13 @@ var hasOnlySubscriberRole=function (userName)
     context.endTenantFlow();
 
     //to change the java array to a javascript array
-    for(var x=0;x<roles.length;x++){
-        userRoles[x]=roles[x];
+    for (var x = 0; x < roles.length; x++) {
+        userRoles[x] = roles[x];
     }
 
     //eliminating the default roles from the roleList
-    for(var i=0;i<types.length;i++) {
-        for(var j=0;j<userRoles.length;j++) {
-
+    for (var i = 0; i < types.length; i++) {
+        for (var j = 0; j < userRoles.length; j++) {
             if (String(types[i]) == String(userRoles[j])) {
                 userRoles.splice(j, 1);
                 // roles[j]="";
@@ -116,19 +112,18 @@ var hasOnlySubscriberRole=function (userName)
     }
 
     //checking if the user has any other role than the subscriber role
-    for(var c=0;c<userRoles.length;c++) {
+    for (var c = 0; c < userRoles.length; c++) {
         if (userRoles[c] == "subscriber") {
             isSubscriber = true;
-        }
-        else {
+        } else {
             roleCount++;
         }
     }
 
     if (roleCount == 0 && isSubscriber == true) {
-        result=true;
+        result = true;
     } else {
-        result=false;
+        result = false;
     }
     return result;
 };
