@@ -130,7 +130,7 @@ var sendInvite = function (email, tenant, roles, message) {
             var modEvents = jagg.module("events");
             var jsonData = {
                 "email": email,
-				"tokenid":tokenId
+				"tokenid": tokenId
             };
             var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
             var data = "json=" + JSON.stringify(jsonData);

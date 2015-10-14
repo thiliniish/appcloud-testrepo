@@ -404,7 +404,7 @@ function getLeadSourceToken (campaign) {
             tokenId = data.tokenid;
         } catch (e) {
             log.error("Error retrieving lead source token ");
-            log.error(e)
+            log.error(e);
             throw "Error retrieving lead source token " + e;
         }
     return tokenId;
