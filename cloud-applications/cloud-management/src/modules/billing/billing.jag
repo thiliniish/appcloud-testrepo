@@ -271,7 +271,7 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
             "email" : email,
             "cloudtype" : type,
             "upgrade" : "0",
-            "tokenId" : tokenId
+            "tokenid" : tokenId
         };
         var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
         var data = "json="+JSON.stringify(jsonData);
@@ -381,7 +381,7 @@ var createAccount = function (accountData, metaData) {
                                 "email" : email,
                                 "cloudtype" : type,
                                 "upgrade" : "1",
-                                "tokenId" : tokenId
+                                "tokenid" : tokenId
                             };
                             var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
                             var data = "json="+JSON.stringify(jsonData);
@@ -876,7 +876,7 @@ function addCloudSubmissionToRightwave(email,domain,type) {
 			"expiryts" : ""+expDate+"",
 			"firstname" : ""+firstName+"",
             		"lastname" : ""+lastName+"",
-            		"tokenId" : tokenId
+            		"tokenid" : tokenId
 			
 		};
 	} else {
@@ -885,7 +885,7 @@ function addCloudSubmissionToRightwave(email,domain,type) {
 			"cloudtype" : type,
 			"firstlogin" : "1",
             		"expiryts" : ""+expDate+"",
-            		"tokenId" : tokenId
+            		"tokenid" : tokenId
 		};
 	}
 	var URL = cloudConfig.RightWaveAddUserApi.cloudSubmission;
