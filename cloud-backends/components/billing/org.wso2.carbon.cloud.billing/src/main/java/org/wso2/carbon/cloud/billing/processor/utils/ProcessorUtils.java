@@ -23,6 +23,7 @@ import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class ProcessorUtils {
 
         int response;
         int retryCount = 0;
-        String result = "";
+        String result = BillingConstants.EMPTY_STRING;
         String methodName = httpMethod.getName();
         String uri = getURI(httpMethod);
 
@@ -157,7 +158,7 @@ public class ProcessorUtils {
      * @throws IOException
      */
     private static String handleCaseHTTPOk(HttpMethodBase httpMethod) throws IOException {
-        String result = "";
+        String result = BillingConstants.EMPTY_STRING;
         if (httpMethod.getResponseBody().length > 0) {
             result = httpMethod.getResponseBodyAsString();
         }

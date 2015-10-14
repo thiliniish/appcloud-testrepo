@@ -23,6 +23,7 @@ public final class BillingConstants {
     public static final String CLOUD_CONFIG_FOLDER = "cloud";
     public static final String CONFIG_FILE_NAME = "billing.xml";
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/billing";
+    public static final String EMPTY_STRING = "";
 
     // ApiM Request Summary Conf
     public static final String ENTRY = "Entry";

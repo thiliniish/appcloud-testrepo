@@ -18,16 +18,31 @@
 
 package org.wso2.carbon.cloud.billing.exceptions;
 
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+
 /**
  * Billing zuora exceptions which are thrown from clients
  */
 public class CloudBillingZuoraException extends CloudBillingException {
 
+    private String errorCode;
+
     public CloudBillingZuoraException(String s) {
         super(s);
+        this.errorCode = BillingConstants.EMPTY_STRING;
     }
 
     public CloudBillingZuoraException(String s, Throwable throwable) {
         super(s, throwable);
+        this.errorCode = BillingConstants.EMPTY_STRING;
+    }
+
+    public CloudBillingZuoraException(String s, String errorCode, Throwable throwable) {
+        super(s, throwable);
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
     }
 }

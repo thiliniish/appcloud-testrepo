@@ -161,15 +161,10 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getAccountSummary(String accountId) throws CloudBillingException {
-        String url;
-        try {
-            url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getAccountSummary();
+        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getAccountSummary();
+        url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
+        return zuoraApi.doGet(url);
 
-            url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
-            return zuoraApi.doGet(url);
-        } catch (CloudBillingException e) {
-            throw new CloudBillingException("Error getting Account summary from the account " + accountId, e);
-        }
     }
 
     /**
@@ -180,15 +175,9 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getInvoices(String accountId) throws CloudBillingException {
-        String url;
-        try {
-            url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getInvoiceInfo();
-
-            url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
-            return zuoraApi.doGet(url);
-        } catch (CloudBillingException e) {
-            throw new CloudBillingException("Error getting invoices summary from the account " + accountId, e);
-        }
+        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getInvoiceInfo();
+        url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
+        return zuoraApi.doGet(url);
     }
 
     /**
@@ -199,16 +188,9 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getPayments(String accountId) throws CloudBillingException {
-        String url;
-        try {
-            url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getPaymentInfo();
-
-            url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
-            return zuoraApi.doGet(url);
-        } catch (CloudBillingException e) {
-            throw new CloudBillingException("Error getting payment information summary from the account " +
-                                            accountId, e);
-        }
+        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getPaymentInfo();
+        url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
+        return zuoraApi.doGet(url);
     }
 
     /**
@@ -221,43 +203,38 @@ public class ZuoraRESTUtils {
      */
     @SuppressWarnings("unchecked")
     public static JSONArray getCurrentRatePlan(String productName, String accountId) throws CloudBillingException {
-        String response = null;
+        String response;
         JSONArray currentRatePlanList = new JSONArray();
         JSONArray starterRatePlanList = new JSONArray();
-        try {
-            String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getRatePlans();
-            url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
-            response = zuoraApi.doGet(url);
-            JSONArray subscriptions = getSubscriptions(accountId, response);
-            for (Object subscription : subscriptions) {
-                // get all rate plans
-                JSONArray ratePlans = (JSONArray) ((JSONObject) subscription).get(BillingConstants.RATE_PLANS);
-                if (ratePlans.size() == 1) {
-                    currentRatePlanList.add(ratePlans.get(0));
-                }
-                //if adding a rate plan when cre
-                for (Object ratePlan : ratePlans) {
-                    if (((JSONObject) ratePlan).get(BillingConstants.PRODUCT_NAME).equals(productName)) {
-                        String lastChangeType =
-                                (String) ((JSONObject) ratePlan).get(BillingConstants.LAST_CHANGE_TYPE);
-                        if ((lastChangeType != null) && (lastChangeType.equals(BillingConstants.AMENDEMENT_ADD_TYPE))) {
-                            currentRatePlanList.add(ratePlan);
-                        }
-                        starterRatePlanList.add(ratePlan);
+
+        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getRatePlans();
+        url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
+        response = zuoraApi.doGet(url);
+        JSONArray subscriptions = getSubscriptions(accountId, response);
+        for (Object subscription : subscriptions) {
+            // get all rate plans
+            JSONArray ratePlans = (JSONArray) ((JSONObject) subscription).get(BillingConstants.RATE_PLANS);
+            if (ratePlans.size() == 1) {
+                currentRatePlanList.add(ratePlans.get(0));
+            }
+            //if adding a rate plan when cre
+            for (Object ratePlan : ratePlans) {
+                if (((JSONObject) ratePlan).get(BillingConstants.PRODUCT_NAME).equals(productName)) {
+                    String lastChangeType =
+                            (String) ((JSONObject) ratePlan).get(BillingConstants.LAST_CHANGE_TYPE);
+                    if ((lastChangeType != null) && (lastChangeType.equals(BillingConstants.AMENDEMENT_ADD_TYPE))) {
+                        currentRatePlanList.add(ratePlan);
                     }
-                }
-                //if a coupon is added when creating the payment method (first time). should return both the coupon
-                // and payment plan.
-                if (currentRatePlanList.isEmpty()) {
-                    return currentRatePlanList;
-                } else {
-                    return starterRatePlanList;
+                    starterRatePlanList.add(ratePlan);
                 }
             }
-        } catch (CloudBillingException e) {
-            throw new CloudBillingException("Error getting ratePlans from the account " + accountId, e);
-        } catch (Exception e) {
-            throw new CloudBillingException("Error passing the response " + response + " to json object", e);
+            //if a coupon is added when creating the payment method (first time). should return both the coupon
+            // and payment plan.
+            if (currentRatePlanList.isEmpty()) {
+                return currentRatePlanList;
+            } else {
+                return starterRatePlanList;
+            }
         }
         return null;
     }
@@ -287,8 +264,6 @@ public class ZuoraRESTUtils {
                 }
             }
 
-        } catch (CloudBillingException e) {
-            throw new CloudBillingException("Error getting product rate plans", e);
         } catch (ParseException e) {
             throw new CloudBillingException("Error passing the response " + response + " to json object", e);
         }
