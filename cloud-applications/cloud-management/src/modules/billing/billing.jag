@@ -53,7 +53,7 @@ var isPaidAccount = function() {
 
 var getPaymentPlanFromId = function(serviceId, paymentPlanId) {
 
-	var subscriptions = billingService.getPaymentPlansForserviceId(serviceId);
+	var subscriptions = billingService.getPaymentPlansForServiceId(serviceId);
 	for(var i=0;i<subscriptions.length;i++){
 		var item = subscriptions[i];
 		var id = item.getId();
@@ -197,7 +197,7 @@ var generateParams = function (serviceId, productRatePlanId) {
 //Getting product rate plans
 var getRatePlans = function (serviceId) {
 	try {
-		var subscriptions = billingService.getPaymentPlansForserviceId(serviceId);
+		var subscriptions = billingService.getPaymentPlansForServiceId(serviceId);
 
 		var subscriptionJson = {
 			entry: []

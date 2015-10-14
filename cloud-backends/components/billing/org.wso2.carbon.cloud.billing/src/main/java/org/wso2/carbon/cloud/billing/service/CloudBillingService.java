@@ -55,7 +55,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @return Rate plans
      * @throws CloudBillingException
      */
-    public Plan[] getPaymentPlansForserviceId(String serviceSubscriptionId) throws CloudBillingException {
+    public Plan[] getPaymentPlansForServiceId(String serviceSubscriptionId) throws CloudBillingException {
         try {
             return CloudBillingUtils.getSubscriptions(serviceSubscriptionId);
         } catch (Exception ex) {
