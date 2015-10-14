@@ -67,12 +67,13 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>
                             ${project.artifactId}
                         </Bundle-SymbolicName>
                         <Export-Package>
-                           org.wso2.carbon.cloud.userstore.*,
-                            !org.wso2.carbon.cloud.userstore.internal
+                            !org.wso2.carbon.cloud.userstore.internal,
+                            org.wso2.carbon.cloud.userstore.*;version="1.0.0"
                         </Export-Package>
                         <Import-Package>
                             !javax.xml.namespace,
@@ -84,7 +85,6 @@
                             javax.xml.namespace; version=0.0.0,
                             *;resolution:=optional
                         </Import-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
