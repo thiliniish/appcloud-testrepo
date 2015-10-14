@@ -214,7 +214,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @param expirationTime expiration time
      * @throws CloudBillingException
      */
-    public void validSignature(String signature, String expirationTime) throws CloudBillingException {
+    public void validateSignature(String signature, String expirationTime) throws CloudBillingException {
         ZuoraHPMUtils.validateSignature(signature, expirationTime);
     }
 

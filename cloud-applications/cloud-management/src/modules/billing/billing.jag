@@ -935,7 +935,7 @@ var sendHTTPRequest = function (url, type, headers, data) {
 
 // Validate zuora signature.
 var validateSignature = function (signature) {
-	billingService.validSignature(signature, zuoraObj.signatureExpired);
+	billingService.validateSignature(signature, zuoraObj.signatureExpired);
 };
 
 //validate passthrough token

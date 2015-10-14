@@ -74,6 +74,7 @@ public class ZuoraHPMUtils {
     private static final String BOUNCY_CASTLE_PROVIDER = "BC";
     private static final String RSA_ENCRYPT_DECRYPT_FUNCTION = "RSA/ECB/PKCS1Padding";
     private static final String TYPE_JSON = "application/json";
+    private static final int RETRY_COUNT = 5;
     private static String url;
     private static String endPoint;
     private static String username;
@@ -258,7 +259,7 @@ public class ZuoraHPMUtils {
             RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), TYPE_JSON, ENCODER);
             postRequest.setRequestEntity(requestEntity);
 
-            String response = ProcessorUtils.executeHTTPMethodWithRetry(httpClient, postRequest, 10);
+            String response = ProcessorUtils.executeHTTPMethodWithRetry(httpClient, postRequest, RETRY_COUNT);
             JSONObject result = new JSONObject(response);
             if (!result.getBoolean("success")) {
                 throw new CloudBillingException("Fail to generate signature. The reason is " + result.getString
