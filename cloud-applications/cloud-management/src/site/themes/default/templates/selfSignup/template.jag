@@ -14,18 +14,15 @@
         jagg.includeBlock("page/messages", null);
         %>
 
-        <script type="text/javascript">
-
+  <script type="text/javascript">
      function doSubmit() {
-
             var userName = $("#userName").attr('value');
             var publisherUrl = $("#publisherUrl").attr('value');
             var cloudMgtUrl = $("#cloudMgtUrl").attr('value');
             var userPassword = $("#password").attr('value');
             var fromAddress= $("#fromAddress").attr('value');
             var contactEmail = $("#contactEmail").attr('value');
-            var signupType=$('input[name="signupType"]:checked').val();
-
+            var signupType = $('input[name="signupType"]:checked').val();
             document.getElementById("spinner").style.display = '';
             disableFormAttributes();
 
@@ -48,25 +45,24 @@
                            }
                           });
                   } else if (result.trim() == "signUpConfigured") {
-                    var docLink=$("#docLink").attr('value');
-                    var publisherUrl=$("#publisherUrl").attr('value');
-                    var storeUrl=$("#storeUrl").attr('value');
+                        var docLink=$("#docLink").attr('value');
+                        var publisherUrl=$("#publisherUrl").attr('value');
+                        var storeUrl=$("#storeUrl").attr('value');
 
-                    //setting the success message content.
-                    $(".content-starter h1").text("Self Sign-up Successfully Configured");
-                    $("#success_helper_content").append("&emsp;API Store visitors can now apply for membership.");
-                    $(".content-section").hide();
-                    $(".content-section-wrapper").hide();
-                    $(".content-starter h1").css('color','black');
-                    $("#success_content").replaceWith("<div class='container content-section-wrapper'><div class='row'><div class='col-lg-12 content-section'><div class='content'>" +
-                     "<h5>You can</h5><ul style='list-style-type:disc'>" +
-                     "<li><p><h5>See it in action in the <a target='_blank' href='"+ storeUrl +"'>API Store. </a>  (Log off to see the Sign-Up button.) </h5></p></li> "+
-                     "<li><p><h5>Go back to the <a target='_blank' href='"+ publisherUrl +"'>API Publisher.</a></h5></p></li>"+
-                     "<li><p><h5>Read more about self sign-up in our <a target='_blank' href='"+ docLink +"'>documentation.</a></h5></p></li></ul><p></br><h5>If you opted to enable the approval process in the previous step, you will get emails with approval requests whenever visitors self sign up.</h5></p></div></div></div></div>");
-                    $(".helper_text h5").css({'font-size':'17px', 'text-align':'left','color':'black'});
-                    $("#helper_text").hide();
-                    $("#success-message").show();
-
+                        //setting the success message content.
+                        $(".content-starter h1").text("Self Sign-up Successfully Configured");
+                        $("#success_helper_content").append("&emsp;API Store visitors can now apply for membership.");
+                        $(".content-section").hide();
+                        $(".content-section-wrapper").hide();
+                        $(".content-starter h1").css('color','black');
+                        $("#success_content").replaceWith("<div class='container content-section-wrapper'><div class='row'><div class='col-lg-12 content-section'><div class='content'>" +
+                        "<h5>You can</h5><ul style='list-style-type:disc'>" +
+                        "<li><p><h5>See it in action in the <a target='_blank' href='"+ storeUrl +"'>API Store. </a>  (Log off to see the Sign-Up button.) </h5></p></li> "+
+                        "<li><p><h5>Go back to the <a target='_blank' href='"+ publisherUrl +"'>API Publisher.</a></h5></p></li>"+
+                        "<li><p><h5>Read more about self sign-up in our <a target='_blank' href='"+ docLink +"'>documentation.</a></h5></p></li></ul><p></br><h5>If you opted to enable the approval process in the previous step, you will get emails with approval requests whenever visitors self sign up.</h5></p></div></div></div></div>");
+                        $(".helper_text h5").css({'font-size':'17px', 'text-align':'left','color':'black'});
+                        $("#helper_text").hide();
+                        $("#success-message").show();
                    } else if (result.trim() == "resourcePending") {
                         jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.',type:'success',cbk:function(){
                           window.location.href=publisherUrl;
@@ -78,31 +74,27 @@
                           }
                         });
                    }
-                   },
+                 },
                   function (jqXHR, textStatus, errorThrown) {
                       jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
                               window.location.href = cloudMgtUrl;
                           }
                       });
-
                   });
             }
 
         //function to disable the form attributes
         function disableFormAttributes() {
-
             $('#btn_submit').attr('disabled',true);
             $('#userName').attr('disabled',true);
             $('#password').attr('disabled',true);
             $('#fromAddress').attr('disabled',true);
             $('#contactEmail').attr('disabled',true);
             $('input[name="signupType"]').attr("disabled",true);
-
         }
 
         //function to validate the input email address
         function validateEmail(value){
-
             var email =value;
             var patternForEmailValidation =/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     	    var isEmailValid = patternForEmailValidation.test(email);
@@ -116,20 +108,18 @@
         }
 
         $(document).ready(function($){
-
             var clickwithblur = false;
-
             jQuery.validator.addMethod("validatePassword", function(value) {
                 var userName = $("#userName").attr('value');
                 var isValid = false;
                 $.ajax({ url: "../blocks/user/authenticate/ajax/login.jag",
             	     type: "POST",
-                       data: {
+                     data: {
                         action:"validatePassword",
                         userName:userName,
                         password:value
-                       },
-                    async: false,
+                      },
+                     async: false,
                   success:
                     function(msg) {
                         msg = msg.replace(/[\r\n]/g, "");
@@ -141,67 +131,70 @@
                return isValid;
             }, "Password is not correct.");
 
-         jQuery.validator.addMethod("validateEmail", function(value) {
+            jQuery.validator.addMethod("validateEmail", function(value) {
             var isSuccess = validateEmail(value);
-            return isSuccess;
-         }, "Please enter a valid email address.");
+                return isSuccess;
+            }, "Please enter a valid email address.");
 
-		$('#selfSignupForm').validate({
-		    onfocusout: false,
-		    onkeyup : false,
-			rules : {
-                password: {
-                    required: true,
-                    validatePassword: true,
-                    minlength: 5
+		    $('#selfSignupForm').validate({
+		        onfocusout: false,
+		        onkeyup : false,
+			    rules : {
+                    password: {
+                        required: true,
+                        validatePassword: true,
+                        minlength: 5
+                    },
+                    contactEmail: {
+                        required: true,
+                        validateEmail: true
+                    },
+                    fromAddress:{
+                        required: true
+                    }
                 },
-                contactEmail: {
-                    required: true,
-                    validateEmail: true
+                messages: {
+                    password: {
+                        minlength: "Minimum is 5 characters ",
+                        validatePassword: "Password is not correct. "
+                    }
                 },
-                fromAddress:{
-                    required: true
-                }
-            },
-            messages: {
-                password: {
-                    minlength: "Minimum is 5 characters ",
-                    validatePassword: "Password is not correct. "
-                }
-            },
-            submitHandler: function(form) {
-				doSubmit();
-		    }
-		});
+                submitHandler: function(form) {
+				     doSubmit();
+		        }
+		    });
 
-		  $('#password').blur(function(){
-              if (!clickwithblur)
-                  $('#password').valid();
-         });
-          $('#fromAddress').blur(function(){
-              if (!clickwithblur)
-                  $('#fromAddress').valid();
-         });
-         $('#contactEmail').blur(function(){
-              if (!clickwithblur)
-                  $('#contactEmail').valid();
-         });
-          $('#btn_submit').mousedown(function(){
+		    $('#password').blur(function(){
+                if (!clickwithblur) {
+                    $('#password').valid();
+                }
+            });
+
+            $('#fromAddress').blur(function(){
+                if (!clickwithblur) {
+                    $('#fromAddress').valid();
+                }
+            });
+
+            $('#contactEmail').blur(function(){
+                if (!clickwithblur) {
+                    $('#contactEmail').valid();
+                }
+            });
+
+            $('#btn_submit').mousedown(function(){
               clickwithblur = true;
-        });
+            });
 
-        $('#btn_submit').mouseup(function(){
+            $('#btn_submit').mouseup(function(){
               clickwithblur = false;
+            });
         });
-
-    });
-
-    </script>
+  </script>
 
     <div class="container content-starter">
         <div class="row">
             <div class="col-lg-12">
-
     <%
         if (isSignupConfigured == true || isSignupConfigured.trim() == "true") {%>
             <h1>Self-Signup Successfully Configured</h1>
@@ -225,7 +218,6 @@
                   </div>
               </div>
      </div>
-
         <%
         } else {%>
             <h1>Configure Self Sign-up for the API Store</h1>
@@ -242,12 +234,10 @@
        </div>
      </div>
           <% if (isSignupConfigured == "resourcePending") {%>
-
     <div class="container content-section-wrapper">
         <form>
             <div class="row">
                 <div class="col-lg-12 content-section">
-
                     <div class="content">
                         <div class="center-block">
                              <div><h3>Click the button below to open the API Publisher. Once the Publisher fully loads, come back to this page to continue.</h3></div>
@@ -257,15 +247,12 @@
                                 </div>
                               </div>
                           </div>
-
                       </form>
                 </div>
-
                     <%
-        } else {%>
-
-        <div class="container content-section-wrapper">
-   <form class='form-horizontal' id='selfSignupForm' role='form'>
+              } else { %>
+   <div class="container content-section-wrapper">
+    <form class='form-horizontal' id='selfSignupForm' role='form'>
       <div class="row">
          <div class="col-lg-12 content-section">
             <p >
@@ -285,12 +272,10 @@
                   </br>Subscribers will use this email to contact you
                </div>
             </div>
-
            <p>
            <h3><b>The following parameters are required when configuring the sign-up process</b></h3>
             </p>
             </br>
-
             <div class="form-group">
                <label for="signupType" class="col-sm-2 control-label">Approval process:</label>
                <div class="col-sm-8">
@@ -299,12 +284,10 @@
                   <input type="radio" name="signupType" id="signupNotApproved" value="notApproved" /> Automatically approve new members on their request
                </div>
             </div>
-
              <div class="form-group" style="padding-top: 10px">
                <label for="password" class="col-sm-2 control-label">Your password:</label>
                <div class="col-sm-8">
                   <input type="password" name="password" id="password" placeholder="Your cloud account password" value="" class="required"/>
-
                </div>
             </div>
             <div class="form-group">
@@ -332,14 +315,13 @@
             cloudMgtUrl%>"/>
          </div>
       </div>
-   </form>
-</div>
-
+    </form>
+  </div>
         <% }
         }
     } else {
         log.error("Session is not authenticated, Prompted to log in");
         response.sendRedirect(cloudMgtUrl);
-    }
+      }
 }); %>
 
