@@ -176,7 +176,7 @@ public class ConfigReader {
                     Integer.toString(Integer.parseInt(interval.split(Constants.MINUTE)[0].replace(" ", "")) / 1440);
         } else {
             timeInterval = Constants.DEFAULT_TIME_INTERVAL_IN_DAYS;    //Default value 1 day = 1440 minutes
-            log.info("Parsed invalid time interval for service uptime status" + interval);
+            log.warn("Parsed invalid time interval for service uptime status" + interval);
         }
     }
 

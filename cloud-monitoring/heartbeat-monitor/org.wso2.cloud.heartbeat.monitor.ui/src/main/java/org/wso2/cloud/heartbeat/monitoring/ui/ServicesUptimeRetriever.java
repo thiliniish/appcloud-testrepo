@@ -92,7 +92,7 @@ public class ServicesUptimeRetriever {
         Map<Map<String, Map>, List<Pair>> failureSummary = new HashMap<Map<String, Map>, List<Pair>>();
 
         log.info("Heartbeat - Monitor - Retrieving results for :" + serviceName + "Server and " + testName + "test");
-        
+
         if (testName.equals(Constants.AGGREGATION_CLAUSE)) {
             qualifiedTests.addAll(getTestsForServer(serviceName, severityLevel));
         } else {
@@ -317,7 +317,8 @@ public class ServicesUptimeRetriever {
             toDate = formatter.parse(toDateTime);
             fromDate = formatter.parse(fromDateTime);
         } catch (ParseException e) {
-            throw new HeartbeatException("Cloud Heartbeat Exception Occurred " + e);
+            throw new HeartbeatException(
+                    "Error occurred while parsing date string" + toDateTime + " and " + fromDateTime + " : " + e);
         }
         this.toDateTime = toDate.getTime();
         this.fromDateTime = fromDate.getTime();
@@ -381,9 +382,8 @@ public class ServicesUptimeRetriever {
             preparedStatement =
                     dataAccessManager.prepareStatement(con, multipleUpdateQuery, queryParametersToAlarmStatus);
             preparedStatement.executeUpdate();
-            String getIndexForLiveStatus =
-                    "SELECT SERVICE, TEST, TIMESTAMP FROM FAILURE_DETAIL WHERE FAILUREINDEX IN (" +
-                    failureIndexes + ")";
+            String getIndexForLiveStatus = Constants.GET_LIVE_STATUS_INDEX +
+                                           failureIndexes + ")";
             preparedStatementForLiveStatus =
                     dataAccessManager.prepareStatement(con, getIndexForLiveStatus, queryParametersToGetLiveStatus);
             indexesForLiveStatus = preparedStatementForLiveStatus.executeQuery();
@@ -415,7 +415,7 @@ public class ServicesUptimeRetriever {
      * @param failureIndex index of the failure detail
      * @param userId       user Id of the person who is making the change
      * @param changeReason reason to make the the change
-     * @return status of reults query
+     * @return status of results query
      * @throws HeartbeatException
      */
 
@@ -430,9 +430,9 @@ public class ServicesUptimeRetriever {
         log.info("Heartbeat - Monitor - Setting failure reason for " + failureIndex);
         try {
             con = dataAccessManager.getConnection();
-            for (String anIndexeToAdd : indexesToAdd) {
+            for (String indexToAdd : indexesToAdd) {
                 List<String> queryParameters = new ArrayList<String>();
-                queryParameters.addAll(Arrays.asList(anIndexeToAdd, timeStamp.toString(), userId, changeReason));
+                queryParameters.addAll(Arrays.asList(indexToAdd, timeStamp.toString(), userId, changeReason));
                 preparedStatement = dataAccessManager
                         .prepareStatement(con, Constants.FALSE_FAILURE_REASON_INPUT_QUERY, queryParameters);
                 resultSet = preparedStatement.executeUpdate();
@@ -459,7 +459,9 @@ public class ServicesUptimeRetriever {
         PreparedStatement preparedStatement = null;
         Connection con = null;
         String multipleUpdateQuery = Constants.UPDATE_JIRA_URL + failureIdList + ")";
-        log.info("Heartbeat - Monitor - Setting jira link for " + failureIdList);
+        if (log.isDebugEnabled()) {
+            log.debug("Heartbeat - Monitor - Setting jira link for " + failureIdList);
+        }
         try {
             con = dataAccessManager.getConnection();
             queryParameters.addAll(Collections.singletonList(jiraUrl));

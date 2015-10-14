@@ -71,8 +71,8 @@ import java.util.List;
                 authorisedRoles.add(authorisedRoleString);
             }
 
-        } catch (HeartbeatException heartbeatExceptions) {
-            log.error(heartbeatExceptions);
+        } catch (HeartbeatException heartbeatException) {
+            log.error(heartbeatException);
         }
 
         // get request parameters for userID and password

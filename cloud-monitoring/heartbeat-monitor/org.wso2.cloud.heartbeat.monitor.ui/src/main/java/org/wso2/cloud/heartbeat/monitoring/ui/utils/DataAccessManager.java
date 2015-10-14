@@ -138,7 +138,7 @@ public class DataAccessManager {
      * Closing the connection with executeUpdate type query statements
      *
      * @param connection Database connection
-     * @param statement  statament to close
+     * @param statement  statement to close
      * @throws HeartbeatException
      */
     public void closeConnectionAndStatement(Connection connection, PreparedStatement statement)
