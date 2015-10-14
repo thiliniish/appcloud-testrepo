@@ -92,6 +92,7 @@ public class ServicesUptimeRetriever {
         Map<Map<String, Map>, List<Pair>> failureSummary = new HashMap<Map<String, Map>, List<Pair>>();
 
         log.info("Heartbeat - Monitor - Retrieving results for :" + serviceName + "Server and " + testName + "test");
+        
         if (testName.equals(Constants.AGGREGATION_CLAUSE)) {
             qualifiedTests.addAll(getTestsForServer(serviceName, severityLevel));
         } else {
