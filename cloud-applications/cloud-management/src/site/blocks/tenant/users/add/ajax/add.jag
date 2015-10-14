@@ -68,7 +68,7 @@ var log = new Log();
             response.message = "You don't have permission to delete users";
             print(stringify(response));
         }
-	}else if(action=="sendUserInvite"){
+	} else if (action == "sendUserInvite") {
 		var users=request.getParameter("users");
 		var roles=request.getParameter("roles");
         var response = {};
@@ -197,7 +197,7 @@ var log = new Log();
             print(stringify(response));
         }
 
-	}else if(action=="importInvitedUser"){
+	} else if(action=="importInvitedUser"){
 		var confirmationKey=request.getParameter("confirmationKey");
 		var password=request.getParameter("adminPassword");
 		var firstName=request.getParameter("firstName");

@@ -41,6 +41,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -56,10 +57,6 @@ import java.util.StringTokenizer;
  */
 public class ZuoraHPMUtils {
 
-    private static final String ERROR_VALIDATE_HASH = "Error while validating hash.";
-    private static final String ERROR_GENERATE_HASH = "Error while generating hash.";
-    private static final String ERROR_VALIDATE_SIGNATURE = "Error while validating the signature.";
-    private static final String ERROR_PREPARE_PARAMS = "Error while preparing parameters.";
     private static final String TENANT_ID = "tenantId";
     private static final String ID = "id";
     private static final String TOKEN = "token";
@@ -77,6 +74,7 @@ public class ZuoraHPMUtils {
     private static final String BOUNCY_CASTLE_PROVIDER = "BC";
     private static final String RSA_ENCRYPT_DECRYPT_FUNCTION = "RSA/ECB/PKCS1Padding";
     private static final String TYPE_JSON = "application/json";
+    private static final int RETRY_COUNT = 5;
     private static String url;
     private static String endPoint;
     private static String username;
@@ -87,7 +85,7 @@ public class ZuoraHPMUtils {
     private static String paymentGateway;
     private static Key publicKeyObject = null;
 
-    private ZuoraHPMUtils (){
+    private ZuoraHPMUtils() {
     }
 
     /**
@@ -117,13 +115,8 @@ public class ZuoraHPMUtils {
             params.put(RETAIN_VALUES, "true");
 
             return params.toString();
-        } catch (JSONException e) {
-            throw new CloudBillingSecurityException(ERROR_PREPARE_PARAMS + " JSON object creation failed: ", e);
-        } catch (IOException e) {
-            throw new CloudBillingSecurityException(ERROR_PREPARE_PARAMS + " IO exception while generating signature:" +
-                                                    " ", e);
-        } catch (Exception e) {
-            throw new CloudBillingSecurityException(ERROR_PREPARE_PARAMS, e);
+        } catch (JSONException | IOException e) {
+            throw new CloudBillingException("Error while preparing parameters.", e);
         }
     }
 
@@ -134,7 +127,7 @@ public class ZuoraHPMUtils {
      * @param expirationTime - expired time in millisecond after the signature is created
      * @throws CloudBillingSecurityException
      */
-    public static void validSignature(String signature, String expirationTime) throws CloudBillingSecurityException {
+    public static void validateSignature(String signature, String expirationTime) throws CloudBillingSecurityException {
         // Decrypt signature.
         long expiredAfter = Long.parseLong(expirationTime);
         byte[] decoded = Base64.decodeBase64(signature.getBytes(Charset.forName(ENCODER)));
@@ -160,38 +153,16 @@ public class ZuoraHPMUtils {
                 throw new CloudBillingSecurityException("Signature is not complete.");
             }
 
-            boolean isPageIdValid = false;
-
-            if (pageId.equals(pageIdSignature)) {
-                isPageIdValid = true;
-            }
-
-            if (!isPageIdValid) {
+            if (!pageId.equals(pageIdSignature)) {
                 throw new CloudBillingSecurityException("Page Id in signature is invalid.");
             }
 
             if ((new Date()).getTime() > (Long.parseLong(timestampSignature) + expiredAfter)) {
                 throw new CloudBillingSecurityException("Signature is expired.");
             }
-        } catch (NoSuchAlgorithmException e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " Algorithm not found: " +
-                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
-        } catch (NoSuchPaddingException e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " No such padding exception for " +
-                                                    "cipher: " +
-                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
-        } catch (IllegalBlockSizeException e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " Illegal block size exception for " +
-                                                    "cipher: " +
-                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
-        } catch (BadPaddingException e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " Bad padding exception for cipher: " +
-                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
-        } catch (InvalidKeyException e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE + " Invalid key exception for cipher: " +
-                                                    RSA_ENCRYPT_DECRYPT_FUNCTION, e);
-        } catch (Exception e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_SIGNATURE, e);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException
+                | BadPaddingException | InvalidKeyException e) {
+            throw new CloudBillingSecurityException("Error while validating the signature.", e);
         }
     }
 
@@ -214,13 +185,8 @@ public class ZuoraHPMUtils {
             } else {
                 throw new CloudBillingSecurityException("Encoded data cannot be null");
             }
-        } catch (NoSuchAlgorithmException e) {
-            throw new CloudBillingSecurityException(ERROR_GENERATE_HASH + " Algorithm not found: " + mdAlgorithm, e);
-        } catch (NoSuchProviderException e) {
-            throw new CloudBillingSecurityException(ERROR_GENERATE_HASH + " No provider found: " +
-                                                    BOUNCY_CASTLE_PROVIDER, e);
-        } catch (Exception e) {
-            throw new CloudBillingSecurityException(ERROR_GENERATE_HASH, e);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new CloudBillingSecurityException("Error while generating hash.", e);
         }
     }
 
@@ -241,13 +207,8 @@ public class ZuoraHPMUtils {
             byte[] digestData = mda.digest(data.getBytes());
 
             return MessageDigest.isEqual(digestData, Base64.decodeBase64(hash.getBytes(Charset.forName(ENCODER))));
-        } catch (NoSuchAlgorithmException e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_HASH + " Algorithm not found: " + mdAlgorithm, e);
-        } catch (NoSuchProviderException e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_HASH + " No provider found: " +
-                                                    BOUNCY_CASTLE_PROVIDER, e);
-        } catch (Exception e) {
-            throw new CloudBillingSecurityException(ERROR_VALIDATE_HASH, e);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new CloudBillingSecurityException("Error while validating hash.", e);
         }
     }
 
@@ -265,11 +226,8 @@ public class ZuoraHPMUtils {
 
     /**
      * Load configuration which need to populate which need to generate client token
-     *
-     * @throws IOException
-     * @throws JSONException
      */
-    private static void loadConfig() throws IOException, JSONException {
+    private static void loadConfig() {
 
         ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
         username = zuoraConfig.getUser();
@@ -289,27 +247,29 @@ public class ZuoraHPMUtils {
      * @param pageId pageID
      * @return Json object of the signature
      * @throws CloudBillingException
-     * @throws JSONException
-     * @throws IOException
      */
-    private static JSONObject generateSignature(String pageId) throws CloudBillingException, JSONException,
-                                                                      IOException {
+    private static JSONObject generateSignature(String pageId) throws CloudBillingException {
         HttpClient httpClient = new HttpClient();
         PostMethod postRequest = new PostMethod(endPoint);
         postRequest.addRequestHeader(API_ACCESS_KEY_ID, username);
         postRequest.addRequestHeader(API_SECRET_ACCESS_KEY, password);
         postRequest.addRequestHeader("Accept", TYPE_JSON);
 
-        RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), TYPE_JSON, ENCODER);
-        postRequest.setRequestEntity(requestEntity);
+        try {
+            RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), TYPE_JSON, ENCODER);
+            postRequest.setRequestEntity(requestEntity);
 
-        String response = ProcessorUtils.executeHTTPMethodWithRetry(httpClient, postRequest, 10);
-        JSONObject result = new JSONObject(response);
-        if (!result.getBoolean("success")) {
-            throw new CloudBillingSecurityException("Fail to generate signature. The reason is " + result.getString
-                    ("reasons"));
+            String response = ProcessorUtils.executeHTTPMethodWithRetry(httpClient, postRequest, RETRY_COUNT);
+            JSONObject result = new JSONObject(response);
+            if (!result.getBoolean("success")) {
+                throw new CloudBillingException("Fail to generate signature. The reason is " + result.getString
+                        ("reasons"));
+            }
+            return result;
+        } catch (JSONException | UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error while generating signature");
         }
-        return result;
+
     }
 
     /**
@@ -317,14 +277,17 @@ public class ZuoraHPMUtils {
      *
      * @param pageId pageId
      * @return json body
-     * @throws JSONException
+     * @throws CloudBillingException
      */
-    private static String buildJsonRequest(String pageId) throws JSONException {
+    private static String buildJsonRequest(String pageId) throws CloudBillingException {
         JSONObject json = new JSONObject();
-
-        json.put("uri", url);
-        json.put("method", "POST");
-        json.put("pageId", pageId);
-        return json.toString();
+        try {
+            json.put("uri", url);
+            json.put("method", "POST");
+            json.put("pageId", pageId);
+            return json.toString();
+        } catch (JSONException e) {
+            throw new CloudBillingException("Exception while building json request");
+        }
     }
 }

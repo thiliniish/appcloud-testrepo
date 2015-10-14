@@ -77,9 +77,10 @@ public class APICloudUsageProcessor implements UsageProcessor {
     }
 
     private String getAmendmentForPaymentPlans(String accountId) throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getAmendments();
-        url = url + "?ACCOUNT_NUMBER=" + accountId + "&SUBSCRIPTION=" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
-        return billingRequestProcessor.doGet(url);
+        return billingRequestProcessor.doGet(BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
+                                             + BillingConstants.DS_API_URI_AMENDMENTS + "?ACCOUNT_NUMBER="
+                                             + "&SUBSCRIPTION=" + accountId + BillingConstants
+                                                     .API_CLOUD_SUBSCRIPTION_ID);
     }
 
 }

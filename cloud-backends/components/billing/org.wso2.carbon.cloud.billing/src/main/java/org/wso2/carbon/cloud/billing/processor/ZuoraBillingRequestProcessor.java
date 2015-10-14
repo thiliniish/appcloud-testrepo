@@ -43,8 +43,8 @@ import java.io.UnsupportedEncodingException;
  */
 public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
-    private static String uploadURL = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs()
-            .getUsage();
+    private static String uploadURL = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getServiceUrl()
+                                      + BillingConstants.ZUORA_REST_API_URI_USAGE;
     private static ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
 
     public ZuoraBillingRequestProcessor(HttpClientConfig httpClientConfig) {

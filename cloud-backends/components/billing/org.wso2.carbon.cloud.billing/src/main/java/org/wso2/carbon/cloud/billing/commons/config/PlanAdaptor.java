@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.cloud.billing.commons.config;
 
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingConfigurationException;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
 
     @Override
-    public Plan unmarshal(PlanAdaptor.AdaptedPlan adaptedPlan) throws CloudBillingConfigurationException {
+    public Plan unmarshal(PlanAdaptor.AdaptedPlan adaptedPlan) throws CloudBillingException {
         if (null == adaptedPlan) {
             return null;
         }
@@ -47,7 +47,7 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
             plan.premiumLevel = adaptedPlan.premiumLevel;
             return plan;
         } else {
-            throw new CloudBillingConfigurationException("Error while un-marshalling");
+            throw new CloudBillingException("Error while un-marshalling");
         }
     }
 
@@ -56,10 +56,10 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
      * <p/>
      * Else try something specific for app cloud configs
      *
-     * @throws CloudBillingConfigurationException
+     * @throws CloudBillingException
      */
     @Override
-    public PlanAdaptor.AdaptedPlan marshal(Plan plan) throws CloudBillingConfigurationException {
+    public PlanAdaptor.AdaptedPlan marshal(Plan plan) throws CloudBillingException {
         if (null == plan) {
             return null;
         }
@@ -74,7 +74,7 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
             adaptedPlan.monthlyRental = apiCloudPlan.monthlyRental;
             adaptedPlan.premiumLevel = apiCloudPlan.premiumLevel;
         } else {
-            throw new CloudBillingConfigurationException("Error while marshalling.");
+            throw new CloudBillingException("Error while marshalling.");
         }
         return adaptedPlan;
     }

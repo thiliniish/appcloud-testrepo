@@ -45,6 +45,11 @@ import java.util.Date;
 public class APICloudUsageManager {
 
     private static final Log LOGGER = LogFactory.getLog(APICloudUsageManager.class);
+    private static String dailyUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
+                                          + BillingConstants.DS_API_URI_REQUEST_COUNT;
+    private static String usageForTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
+                                              + BillingConstants.DS_API_URI_USAGE;
+
     private BillingRequestProcessor dsBRProcessor;
     private BillingRequestProcessor zuoraBRProcessor;
 
@@ -62,22 +67,20 @@ public class APICloudUsageManager {
 
 
     private String getDailyUsage() throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getRequestCount();
+
         Date currentDate = new Date();
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
         String queryString = "year=" + cal.get(Calendar.YEAR) + "&month=" + (cal.get(Calendar.MONTH) + 1) + "&day=" +
                              cal.get(Calendar.DAY_OF_MONTH);
-        url = url + "?" + queryString;
-        return dsBRProcessor.doGet(url);
+        return dsBRProcessor.doGet(dailyUsageUrl + "?" + queryString);
     }
 
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getUsage();
-        url = url + "?apiPublisher=%25@" + tenantDomain + "&startDate=" + startDate + "&endDate=" + endDate;
-        return dsBRProcessor.doGet(url);
+        return dsBRProcessor.doGet(usageForTenantUrl + "?apiPublisher=%25@" + tenantDomain + "&startDate=" + startDate +
+                                   "&endDate=" + endDate);
     }
 
 

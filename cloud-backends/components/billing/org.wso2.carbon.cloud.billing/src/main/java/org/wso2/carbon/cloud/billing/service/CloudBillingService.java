@@ -55,7 +55,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @return Rate plans
      * @throws CloudBillingException
      */
-    public Plan[] getPaymentPlansForserviceId(String serviceSubscriptionId) throws CloudBillingException {
+    public Plan[] getPaymentPlansForServiceId(String serviceSubscriptionId) throws CloudBillingException {
         try {
             return CloudBillingUtils.getSubscriptions(serviceSubscriptionId);
         } catch (Exception ex) {
@@ -214,8 +214,8 @@ public class CloudBillingService extends AbstractAdmin {
      * @param expirationTime expiration time
      * @throws CloudBillingException
      */
-    public void validSignature(String signature, String expirationTime) throws CloudBillingException {
-        ZuoraHPMUtils.validSignature(signature, expirationTime);
+    public void validateSignature(String signature, String expirationTime) throws CloudBillingException {
+        ZuoraHPMUtils.validateSignature(signature, expirationTime);
     }
 
     /**

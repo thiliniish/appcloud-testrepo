@@ -83,8 +83,8 @@ public class ZuoraClientUtils {
     /**
      * Prepare ZQuery
      *
-     * @param templateQuery  String query
-     * @param params parameters
+     * @param templateQuery String query
+     * @param params        parameters
      * @return Prepared ZQuery
      */
     public static String prepareZQuery(String templateQuery, String[] params) {
@@ -106,12 +106,8 @@ public class ZuoraClientUtils {
             LoginResult result = zuoraServiceStub.login(zuoraConfig.getUser(), zuoraConfig.getPassword());
             // create session for all subsequent calls
             clientSession = new ClientSession(result.getSession(), zuoraConfig.getSessionExpired());
-        } catch (RemoteException e) {
-            throw new CloudBillingZuoraException("Remote exception while login to zuora", e);
-        } catch (LoginFault loginFault) {
-            throw new CloudBillingZuoraException("LoginFault while login to zuora", loginFault);
-        } catch (UnexpectedErrorFault unexpectedErrorFault) {
-            throw new CloudBillingZuoraException("Unexpected exception while zuora login", unexpectedErrorFault);
+        } catch (RemoteException | LoginFault | UnexpectedErrorFault e) {
+            throw new CloudBillingZuoraException("Error occurred while login to zuora", e);
         }
     }
 

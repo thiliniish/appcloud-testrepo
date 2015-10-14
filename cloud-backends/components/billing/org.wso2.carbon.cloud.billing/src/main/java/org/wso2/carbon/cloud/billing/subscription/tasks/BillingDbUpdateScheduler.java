@@ -21,7 +21,6 @@ package org.wso2.carbon.cloud.billing.subscription.tasks;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.commons.config.DataServiceConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.ntask.common.TaskException;
@@ -56,17 +55,17 @@ public class BillingDbUpdateScheduler {
 
             Map<String, String> properties = new HashMap<String, String>();
 
-            DataServiceConfig dataServiceConfig = BillingConfigUtils.getBillingConfiguration().getDSConfig();
-            String pendingDisableTenantsDSUrl = dataServiceConfig.getPendingDisableTenants();
+            String serviceUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl();
+            String pendingDisableTenantsDSUrl = serviceUrl + BillingConstants.DS_API_URI_PENDING_DISABLE_TENANTS;
             properties.put(BillingConstants.PENDING_DISABLES_URL_KEY, pendingDisableTenantsDSUrl);
 
-            String disableTenantDSUrl = dataServiceConfig.getDisableTenant();
+            String disableTenantDSUrl = serviceUrl + BillingConstants.DS_API_URI_DISABLE_TENANT;
             properties.put(BillingConstants.DISABLE_TENANT_URL_KEY, disableTenantDSUrl);
 
-            String updateSubscriptionDSUrl = dataServiceConfig.getSubscriptionStatus();
+            String updateSubscriptionDSUrl = serviceUrl + BillingConstants.DS_API_URI_SUBSCRIPTION_STATUS;
             properties.put(BillingConstants.UPDATE_SUBSCRIPTION_STATUS_URL_KEY, updateSubscriptionDSUrl);
 
-            String billingHistoryDSUrl = dataServiceConfig.getBillingHistory();
+            String billingHistoryDSUrl = serviceUrl + BillingConstants.DS_API_URI_BILLING_HISTORY;
             properties.put(BillingConstants.BILLING_HISTORY_URL_KEY, billingHistoryDSUrl);
 
             info.setProperties(properties);
