@@ -35,8 +35,8 @@ public class ZuoraConfig {
     private String termType;
     private String signatureExpired;
     private HttpClientConfig httpClientConfig;
+    private String serviceUrl;
     private HostedPageConfig hostedPageConfig;
-    private APIConfigs apiConfigs;
     private Subscription[] subscriptions;
     private UsageConfig usageConfig;
     private SubscriptionCleanUp subscriptionCleanUp;
@@ -113,13 +113,13 @@ public class ZuoraConfig {
         this.hostedPageConfig = hostedPageConfig;
     }
 
-    @XmlElement(name = "APIs", nillable = false)
-    public APIConfigs getApiConfigs() {
-        return apiConfigs;
+    @XmlElement(name = "ServiceURL", nillable = false, required = true)
+    public String getServiceUrl() {
+        return serviceUrl;
     }
 
-    public void setApiConfigs(APIConfigs apiConfigs) {
-        this.apiConfigs = apiConfigs;
+    public void setServiceUrl(String serviceUrl) {
+        this.serviceUrl = serviceUrl;
     }
 
     @XmlElementWrapper(name = "Subscriptions", nillable = false, required = true)

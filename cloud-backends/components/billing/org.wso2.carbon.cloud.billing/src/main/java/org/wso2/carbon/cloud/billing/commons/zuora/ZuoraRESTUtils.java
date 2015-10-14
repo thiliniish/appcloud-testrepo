@@ -45,6 +45,13 @@ public class ZuoraRESTUtils {
                     BillingRequestProcessorFactory.ProcessorType.ZUORA,
                     BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
 
+    private static String serviceUrl = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getServiceUrl();
+    private static String accountsUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_ACCOUNT_SUMMARY;
+    private static String invoicesUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_INVOICE_INFO;
+    private static String paymentsUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_PAYMENT_INFO;
+    private static String ratePlansUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_RATE_PLANS;
+    private static String zuoraProductsUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_PRODUCTS;
+
     private ZuoraRESTUtils() {
     }
 
@@ -161,9 +168,7 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getAccountSummary(String accountId) throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getAccountSummary();
-        url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
-        return zuoraApi.doGet(url);
+        return zuoraApi.doGet(accountsUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId));
 
     }
 
@@ -175,9 +180,7 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getInvoices(String accountId) throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getInvoiceInfo();
-        url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
-        return zuoraApi.doGet(url);
+        return zuoraApi.doGet(invoicesUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId));
     }
 
     /**
@@ -188,9 +191,7 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getPayments(String accountId) throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getPaymentInfo();
-        url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
-        return zuoraApi.doGet(url);
+        return zuoraApi.doGet(paymentsUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId));
     }
 
     /**
@@ -207,9 +208,7 @@ public class ZuoraRESTUtils {
         JSONArray currentRatePlanList = new JSONArray();
         JSONArray starterRatePlanList = new JSONArray();
 
-        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getRatePlans();
-        url = url.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId);
-        response = zuoraApi.doGet(url);
+        response = zuoraApi.doGet(ratePlansUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId));
         JSONArray subscriptions = getSubscriptions(accountId, response);
         for (Object subscription : subscriptions) {
             // get all rate plans
@@ -248,11 +247,10 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static JSONArray getProductRatePlans(String productName) throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getProducts();
         String response = null;
 
         try {
-            response = zuoraApi.doGet(url);
+            response = zuoraApi.doGet(zuoraProductsUrl);
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
             // getting all subscriptions elements for accountId

@@ -27,52 +27,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "DataServiceAPI")
 public class DataServiceConfig {
 
-    private String requestCount;
-    private String usage;
-    private String amendments;
-    private String tenantAccount;
-    private String pendingDisableTenants;
-    private String disableTenant;
-    private String subscriptionStatus;
-    private String billingHistory;
+    private String serviceUrl;
     private String user;
     private String password;
     private HttpClientConfig httpClientConfig;
 
-    @XmlElement(name = "RequestCount", nillable = false, required = true)
-    public String getRequestCount() {
-        return requestCount;
+    @XmlElement(name = "ServiceURL", nillable = false, required = true)
+    public String getServiceUrl() {
+        return serviceUrl;
     }
 
-    public void setRequestCount(String requestCount) {
-        this.requestCount = requestCount;
-    }
-
-    @XmlElement(name = "Usage", nillable = false, required = true)
-    public String getUsage() {
-        return usage;
-    }
-
-    public void setUsage(String usage) {
-        this.usage = usage;
-    }
-
-    @XmlElement(name = "Amendments", nillable = false, required = true)
-    public String getAmendments() {
-        return amendments;
-    }
-
-    public void setAmendments(String amendments) {
-        this.amendments = amendments;
-    }
-
-    @XmlElement(name = "TenantAccount", nillable = false, required = true)
-    public String getTenantAccount() {
-        return tenantAccount;
-    }
-
-    public void setTenantAccount(String tenantAccount) {
-        this.tenantAccount = tenantAccount;
+    public void setServiceUrl(String serviceUrl) {
+        this.serviceUrl = serviceUrl;
     }
 
     @XmlElement(name = "User", nillable = false, required = true)
@@ -100,41 +66,5 @@ public class DataServiceConfig {
 
     public void setHttpClientConfig(HttpClientConfig httpClientConfig) {
         this.httpClientConfig = httpClientConfig;
-    }
-
-    @XmlElement(name = "PendingDisableTenants", nillable = false, required = true)
-    public String getPendingDisableTenants() {
-        return pendingDisableTenants;
-    }
-
-    public void setPendingDisableTenants(String pendingDisableTenants) {
-        this.pendingDisableTenants = pendingDisableTenants;
-    }
-
-    @XmlElement(name = "DisableTenant", nillable = false, required = true)
-    public String getDisableTenant() {
-        return disableTenant;
-    }
-
-    public void setDisableTenant(String disableTenant) {
-        this.disableTenant = disableTenant;
-    }
-
-    @XmlElement(name = "SubscriptionStatus", nillable = false, required = true)
-    public String getSubscriptionStatus() {
-        return subscriptionStatus;
-    }
-
-    public void setSubscriptionStatus(String subscriptionStatus) {
-        this.subscriptionStatus = subscriptionStatus;
-    }
-
-    @XmlElement(name = "BillingHistory", nillable = false, required = true)
-    public String getBillingHistory() {
-        return billingHistory;
-    }
-
-    public void setBillingHistory(String billingHistory) {
-        this.billingHistory = billingHistory;
     }
 }

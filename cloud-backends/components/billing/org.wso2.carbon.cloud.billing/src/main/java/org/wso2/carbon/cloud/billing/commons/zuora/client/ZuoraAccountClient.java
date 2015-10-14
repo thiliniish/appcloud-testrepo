@@ -130,14 +130,14 @@ public class ZuoraAccountClient extends ZuoraClient {
             throw new CloudBillingZuoraException("Remote exception " + ACCOUNT_CREATION_ERROR +
                                                  accountInfo.get("localName"), e);
         } catch (InvalidTypeFault e) {
-            String errorCode =  e.getFaultMessage().getInvalidTypeFault().getFaultCode().toString();
+            String errorCode = e.getFaultMessage().getInvalidTypeFault().getFaultCode().toString();
             throw new CloudBillingZuoraException("Invalid type fault error " + ACCOUNT_CREATION_ERROR +
-                                                 accountInfo.get("localName"), errorCode , e);
+                                                 accountInfo.get("localName"), errorCode, e);
         } catch (UnexpectedErrorFault e) {
             String errorCode = e.getFaultMessage().getUnexpectedErrorFault().getFaultCode().toString();
             throw new CloudBillingZuoraException("Unexpected Error Fault error " + ACCOUNT_CREATION_ERROR
                                                  + accountInfo.get("localName"), errorCode, e);
-        } catch (IOException  e) {
+        } catch (IOException e) {
             throw new CloudBillingZuoraException("IOError " + ACCOUNT_CREATION_ERROR + accountInfo.get("localName"), e);
         }
     }
@@ -156,11 +156,11 @@ public class ZuoraAccountClient extends ZuoraClient {
         } catch (RemoteException e) {
             throw new CloudBillingZuoraException("Remote exception " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName, e);
         } catch (InvalidQueryLocatorFault e) {
-            String errorCode = e.getFaultMessage().getInvalidQueryLocatorFault() .getFaultCode().toString();
+            String errorCode = e.getFaultMessage().getInvalidQueryLocatorFault().getFaultCode().toString();
             throw new CloudBillingZuoraException("InvalidQueryLocatorFault " + ACCOUNT_QUERY_BY_NAME_ERROR
                                                  + accountName, errorCode, e);
         } catch (MalformedQueryFault e) {
-            String errorCode = e.getFaultMessage().getMalformedQueryFault() .getFaultCode().toString();
+            String errorCode = e.getFaultMessage().getMalformedQueryFault().getFaultCode().toString();
             throw new CloudBillingZuoraException("MalformedQueryFault " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName,
                                                  errorCode, e);
         } catch (UnexpectedErrorFault e) {
@@ -291,7 +291,7 @@ public class ZuoraAccountClient extends ZuoraClient {
             String errorCode = e.getFaultMessage().getUnexpectedErrorFault().getFaultCode().toString();
             throw new CloudBillingZuoraException("Unexpected Error Fault error " + ACCOUNT_UPDATE_ERROR
                                                  + accountInfo.get("localName"), errorCode, e);
-        }  catch (InvalidQueryLocatorFault e) {
+        } catch (InvalidQueryLocatorFault e) {
             String errorCode = e.getFaultMessage().getInvalidQueryLocatorFault().getFaultCode().toString();
             throw new CloudBillingZuoraException("InvalidQueryLocatorFault " + ACCOUNT_UPDATE_ERROR
                                                  + accountInfo.get("localName"), errorCode, e);
@@ -300,7 +300,8 @@ public class ZuoraAccountClient extends ZuoraClient {
             throw new CloudBillingZuoraException("MalformedQueryFault " + ACCOUNT_UPDATE_ERROR
                                                  + accountInfo.get("localName"), errorCode, e);
         } catch (IOException e) {
-            throw new CloudBillingZuoraException("IOException " + ACCOUNT_UPDATE_ERROR + accountInfo.get("localName"), e);
+            throw new CloudBillingZuoraException("IOException " + ACCOUNT_UPDATE_ERROR + accountInfo.get("localName")
+                    , e);
         }
     }
 

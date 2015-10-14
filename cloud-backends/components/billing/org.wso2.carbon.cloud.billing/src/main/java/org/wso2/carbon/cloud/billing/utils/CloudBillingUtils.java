@@ -50,6 +50,8 @@ public class CloudBillingUtils {
                      .getDSConfig()
                      .getHttpClientConfig());
     private static APICloudUsageManager usageManager = new APICloudUsageManager();
+    private static String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
+                                          + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
 
     private CloudBillingUtils() {
     }
@@ -62,10 +64,9 @@ public class CloudBillingUtils {
      * @throws CloudBillingException
      */
     public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
-        String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getTenantAccount();
 
-        getAccountUrl = getAccountUrl.replace(BillingConstants.TENANT_DOMAIN_PARAM, tenantDomain);
-        String response = dsBRProcessor.doGet(getAccountUrl);
+        String response = dsBRProcessor.doGet(getAccountUrl.replace(BillingConstants.TENANT_DOMAIN_PARAM,
+                                                                    tenantDomain));
         try {
             if (response != null && !response.isEmpty()) {
                 OMElement elements = AXIOMUtil.stringToOM(response);
@@ -199,7 +200,7 @@ public class CloudBillingUtils {
                 return subscription.getProductId();
             }
         }
-        throw new CloudBillingException("No zuora product id found for serviceId: " +serviceId);
+        throw new CloudBillingException("No zuora product id found for serviceId: " + serviceId);
     }
 
     /**

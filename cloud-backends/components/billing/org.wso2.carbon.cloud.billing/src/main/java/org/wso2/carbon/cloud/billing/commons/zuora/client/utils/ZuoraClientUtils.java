@@ -83,8 +83,8 @@ public class ZuoraClientUtils {
     /**
      * Prepare ZQuery
      *
-     * @param templateQuery  String query
-     * @param params parameters
+     * @param templateQuery String query
+     * @param params        parameters
      * @return Prepared ZQuery
      */
     public static String prepareZQuery(String templateQuery, String[] params) {

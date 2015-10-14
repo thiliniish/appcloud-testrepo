@@ -85,7 +85,7 @@ public class ZuoraHPMUtils {
     private static String paymentGateway;
     private static Key publicKeyObject = null;
 
-    private ZuoraHPMUtils (){
+    private ZuoraHPMUtils() {
     }
 
     /**

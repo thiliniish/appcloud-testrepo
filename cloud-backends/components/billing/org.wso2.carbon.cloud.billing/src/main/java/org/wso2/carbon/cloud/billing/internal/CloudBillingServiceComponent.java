@@ -179,7 +179,6 @@ public class CloudBillingServiceComponent {
 
     /**
      * Register user uploader task
-     *
      */
     private void registerUsageUploaderTask() {
         try {

@@ -15,6 +15,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+var billingConstants = Packages.org.wso2.carbon.cloud.billing.commons.BillingConstants;
 
 var getConfigInJson = function() {
 	try {
@@ -27,6 +28,7 @@ var getConfigInJson = function() {
 
 var userName =  session.get("LOGGED_IN_USER");
 var zuoraObj = (getConfigInJson()).zuoraConfig;
+var zuoraServiceUrl = zuoraObj.serviceUrl;
 
 
 var isPaidAccount = function() {
@@ -145,7 +147,7 @@ var cancelSubscription = function(serviceName) {
 		data.cancellationPolicy = 'SpecificDate';
         data.cancellationEffectiveDate = dateFormatter.format(effectiveDate);
 		data.invoiceCollect = true;
-		var url = zuoraObj.apiConfigs.cancelSubscription;
+		var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION;
 		url = url.replace("{subscription-key}", subscriptionId);
 		var response = sendHTTPRequest(url, "PUT", null, data);
 		if (response.success === true) {
@@ -255,7 +257,7 @@ var getTenantUsage = function (fromDate,toDate) {
 
 var updateContactInfo = function (accountData) {
     var accountId = getAccountId();
-    var url = zuoraObj.apiConfigs.accounts + "/" + accountId;
+    var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNTS + "/" + accountId;
     var data = {};
     data.billToContact = accountData;
     var response = sendHTTPRequest(url, "PUT", null, data);
@@ -312,7 +314,7 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 //Create Zuora account for tenant
 var createAccount = function (accountData, metaData) {
 
-	var url = zuoraObj.apiConfigs.accounts;
+	var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNTS;
 	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
 	try {
@@ -621,7 +623,8 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 	var accInfoStr = billingService.getAccountSummary(accountId);
 	var accountSummary = JSON.parse(accInfoStr);
 	// Zuora api request URL
-	var url = zuoraObj.apiConfigs.subscriptions + "/" + accountSummary.subscriptions[0].subscriptionNumber;
+	var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_SUBSCRIPTIONS
+			  + "/" + accountSummary.subscriptions[0].subscriptionNumber;
 	return sendHTTPRequest(url, "PUT", null, changePlanData);
 };
 
@@ -831,22 +834,22 @@ var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
 var getAccountDetails = function () {
 
     var accountId = getAccountId();
-    var url = zuoraObj.apiConfigs.accounts + "/" + accountId;
+    var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNTS + "/" + accountId;
     return sendHTTPRequest(url, "GET", null, null);
 };
 
 var removePaymentMethod = function (methodId) {
-    var url = zuoraObj.apiConfigs.removePaymentMethod + "/" + methodId;
+    var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD + "/" + methodId;
     return sendHTTPRequest(url, "DELETE", null, null);
 };
 
 var getAllPaymentMethods = function (accountId) {
-    var url = zuoraObj.apiConfigs.paymentMethods + "/accounts/" + accountId;
+    var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_PAYMENT_METHODS + "/accounts/" + accountId;
     return sendHTTPRequest(url, "GET", null, null);
 };
 
 var updateDefaultPaymentMethod = function (methodId) {
-    var url = zuoraObj.apiConfigs.paymentMethods + "/" + methodId;
+    var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_PAYMENT_METHODS + "/" + methodId;
     var data = {
         "defaultPaymentMethod": true
     };
