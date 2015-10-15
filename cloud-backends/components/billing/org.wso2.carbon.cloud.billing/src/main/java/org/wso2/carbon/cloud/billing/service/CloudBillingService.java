@@ -25,7 +25,7 @@ import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
 
 /**
@@ -42,7 +42,7 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public static String getConfigInJson() throws CloudBillingException {
         try {
-            return CloudBillingUtils.getConfigInJson();
+            return CloudBillingServiceUtils.getConfigInJson();
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while getting the configuration in JSON ", ex);
         }
@@ -57,7 +57,7 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public Plan[] getPaymentPlansForServiceId(String serviceSubscriptionId) throws CloudBillingException {
         try {
-            return CloudBillingUtils.getSubscriptions(serviceSubscriptionId);
+            return CloudBillingServiceUtils.getSubscriptions(serviceSubscriptionId);
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving subscriptions for Id: " +
                                             serviceSubscriptionId, ex);
@@ -131,7 +131,8 @@ public class CloudBillingService extends AbstractAdmin {
     public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName, String startDate,
                                                               String endDate) throws CloudBillingException {
         try {
-            return CloudBillingUtils.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
+            return CloudBillingServiceUtils.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate,
+                                                                                endDate);
         } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -149,7 +150,7 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public String getAccountId(String tenantDomain) throws CloudBillingException {
         try {
-            return CloudBillingUtils.getAccountIdForTenant(tenantDomain);
+            return CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
         } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -166,7 +167,7 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public String getSubscriptionId(String tenantDomain, String serviceId) throws CloudBillingException {
         try {
-            String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
+            String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
             return ZuoraRESTUtils.getSubscriptionIdForAccount(accountId, serviceId);
         } catch (CloudBillingException ex) {
             throw ex;
@@ -186,7 +187,7 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public JSONArray getCurrentRatePlan(String tenantDomain, String productName) throws CloudBillingException {
         try {
-            String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
+            String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
             return (accountId != null && !accountId.isEmpty()) ?
                    ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) : null;
         } catch (CloudBillingException ex) {
@@ -275,7 +276,7 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public boolean validateRatePlanId(String serviceId, String productRatePlanId) throws CloudBillingException {
         try {
-            return CloudBillingUtils.validateRatePlanId(serviceId, productRatePlanId);
+            return CloudBillingServiceUtils.validateRatePlanId(serviceId, productRatePlanId);
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while validating the rate plan: " + productRatePlanId
                                             + " for service: " + serviceId);
@@ -291,7 +292,7 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public boolean validateServiceId(String serviceId) throws CloudBillingException {
         try {
-            return CloudBillingUtils.validateServiceId(serviceId);
+            return CloudBillingServiceUtils.validateServiceId(serviceId);
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while validating the service id: " + serviceId);
         }
@@ -303,6 +304,6 @@ public class CloudBillingService extends AbstractAdmin {
      * @return billing enable/disable status
      */
     public boolean isBillingEnabled() {
-        return CloudBillingUtils.isBillingEnabled();
+        return CloudBillingServiceUtils.isBillingEnabled();
     }
 }

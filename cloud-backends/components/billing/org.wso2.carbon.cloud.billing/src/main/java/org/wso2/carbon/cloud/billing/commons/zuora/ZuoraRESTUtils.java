@@ -29,7 +29,7 @@ import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +65,7 @@ public class ZuoraRESTUtils {
     public static String getSubscriptionIdForAccount(String accountId, String serviceId) throws CloudBillingException {
         String response = getAccountSummary(accountId);
         JSONArray subscriptions = getSubscriptions(accountId, response);
-        String zuoraProductId = CloudBillingUtils.getZuoraProductIdForServiceId(serviceId);
+        String zuoraProductId = CloudBillingServiceUtils.getZuoraProductIdForServiceId(serviceId);
 
         for (Object subscriptionObj : subscriptions) {
             JSONObject subscription = (JSONObject) subscriptionObj;

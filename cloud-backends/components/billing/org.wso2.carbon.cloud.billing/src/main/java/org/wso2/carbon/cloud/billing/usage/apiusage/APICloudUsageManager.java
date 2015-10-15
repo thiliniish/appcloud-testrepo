@@ -33,7 +33,7 @@ import org.wso2.carbon.cloud.billing.usage.UsageProcessorContext;
 import org.wso2.carbon.cloud.billing.usage.UsageProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.utils.APIUsageProcessorUtil;
 import org.wso2.carbon.cloud.billing.usage.util.UsageCSVParser;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -101,7 +101,7 @@ public class APICloudUsageManager {
                                                               String startDate, String endDate)
             throws CloudBillingException {
         // get accountId from tenant
-        String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
+        String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
         String response = getUsageForTenant(tenantDomain, startDate, endDate);
 
         UsageProcessorContext context = new UsageProcessorContext();
