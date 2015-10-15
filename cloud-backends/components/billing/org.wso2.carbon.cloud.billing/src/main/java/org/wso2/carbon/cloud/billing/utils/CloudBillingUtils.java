@@ -208,8 +208,8 @@ public class CloudBillingUtils {
      *
      * @return billing enable/disable status
      */
-    public static boolean isBillingEnable() {
-        return BillingConfigUtils.getBillingConfiguration().isBillingEnable();
+    public static boolean isBillingEnabled() {
+        return BillingConfigUtils.getBillingConfiguration().isBillingEnabled();
     }
 
 }

@@ -19,7 +19,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
 
     var jsonObjCloudmgt = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
     var typeList = jsonObjCloudmgt.subscriptions.type;
-    var isBillingEnabled = jagg.module("billing").isBillingEnable();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled();
 
     if((session.get("TENANT_INFO")) != null ){
     	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;

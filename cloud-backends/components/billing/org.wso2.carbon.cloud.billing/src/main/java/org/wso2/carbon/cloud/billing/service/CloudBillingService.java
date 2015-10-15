@@ -302,7 +302,7 @@ public class CloudBillingService extends AbstractAdmin {
      *
      * @return billing enable/disable status
      */
-    public boolean isBillingEnable() {
-        return CloudBillingUtils.isBillingEnable();
+    public boolean isBillingEnabled() {
+        return CloudBillingUtils.isBillingEnabled();
     }
 }

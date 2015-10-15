@@ -162,7 +162,7 @@ public class CloudBillingServiceComponent {
      */
     private void activateScheduledTasks() {
         BillingConfig configuration = BillingConfigUtils.getBillingConfiguration();
-        if (configuration.isBillingEnable()) {
+        if (configuration.isBillingEnabled()) {
 
             boolean enableDailyUsageUpload = configuration.getZuoraConfig().getUsageConfig().isEnableUsageUploading();
 

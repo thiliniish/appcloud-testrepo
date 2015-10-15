@@ -32,15 +32,15 @@ public class BillingConfig {
     private SSOConfig ssoConfig;
     private UtilsConfig utilsConfig;
     private int trialPeriod;
-    private boolean billingEnable;
+    private boolean billingEnabled;
 
-    @XmlElement(name = "BillingEnable", nillable = false, required = true)
-    public boolean isBillingEnable() {
-        return billingEnable;
+    @XmlElement(name = "BillingEnabled", nillable = false, required = true)
+    public boolean isBillingEnabled() {
+        return billingEnabled;
     }
 
-    public void setBillingEnable(boolean billingEnable) {
-        this.billingEnable = billingEnable;
+    public void setBillingEnabled(boolean billingEnabled) {
+        this.billingEnabled = billingEnabled;
     }
 
     @XmlElement(name = "DataServiceAPI", nillable = false, required = true)
