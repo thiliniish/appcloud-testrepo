@@ -69,30 +69,10 @@ public class CloudBillingServiceComponent {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Billing bundle activation is started");
             }
-            configuration = BillingConfigUtils.getBillingConfiguration();
-
             this.billingServiceRef =
                     bundleContext.registerService(CloudBillingService.class.getName(), new CloudBillingService(), null);
 
-            boolean enableDailyUsageUpload = configuration.getZuoraConfig().getUsageConfig().isEnableUsageUploading();
-            if (enableDailyUsageUpload) {
-                UsageUploadScheduler usageScheduler = new UsageUploadScheduler();
-                String cronExpression = configuration.getZuoraConfig().getUsageConfig().getCron();
-                usageScheduler.invokeUsageUpload(cronExpression);
-            } else {
-                LOGGER.warn("Usage uploader disabled");
-            }
-            boolean enableSubscriptionCleanUp = configuration.getZuoraConfig().getSubscriptionCleanUp().isEnabled();
-            if (enableSubscriptionCleanUp) {
-                BillingDbUpdateScheduler billingDbUpdateScheduler = new BillingDbUpdateScheduler();
-                String cronExpression = configuration.getZuoraConfig().getSubscriptionCleanUp().getCron();
-
-                billingDbUpdateScheduler.invokeBillingDbUpdateTask(cronExpression);
-            } else {
-                LOGGER.warn("Subscription cleanup disabled");
-            }
-
-            registerUsageUploaderTask();
+            activateScheduledTasks();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Cloud billing  bundle is activated");
             }
@@ -175,6 +155,38 @@ public class CloudBillingServiceComponent {
      */
     protected void unsetRealmService(RealmService realmService) {
         ServiceDataHolder.getInstance().setRealmService(null);
+    }
+
+    /**
+     * Activate scheduled tasks if billing enabled
+     */
+    private void activateScheduledTasks() {
+        BillingConfig configuration = BillingConfigUtils.getBillingConfiguration();
+        if (configuration.isBillingEnable()) {
+
+            boolean enableDailyUsageUpload = configuration.getZuoraConfig().getUsageConfig().isEnableUsageUploading();
+
+            if (enableDailyUsageUpload) {
+                UsageUploadScheduler usageScheduler = new UsageUploadScheduler();
+                String cronExpression = configuration.getZuoraConfig().getUsageConfig().getCron();
+                usageScheduler.invokeUsageUpload(cronExpression);
+            } else {
+                LOGGER.warn("Usage uploader disabled");
+            }
+            boolean enableSubscriptionCleanUp = configuration.getZuoraConfig().getSubscriptionCleanUp().isEnabled();
+            if (enableSubscriptionCleanUp) {
+                BillingDbUpdateScheduler billingDbUpdateScheduler = new BillingDbUpdateScheduler();
+                String cronExpression = configuration.getZuoraConfig().getSubscriptionCleanUp().getCron();
+
+                billingDbUpdateScheduler.invokeBillingDbUpdateTask(cronExpression);
+            } else {
+                LOGGER.warn("Subscription cleanup disabled");
+            }
+
+            registerUsageUploaderTask();
+        } else {
+            LOGGER.warn("Billing disabled. billing related scheduler tasks will not get initialized");
+        }
     }
 
     /**
