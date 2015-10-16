@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
@@ -40,8 +41,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- *
- *
+ * Billing databases update scheduler task. This will update the pending disable state
+ * tenants' entries
  */
 public class BillingDbUpdateTask implements Task {
 
@@ -75,39 +76,44 @@ public class BillingDbUpdateTask implements Task {
      */
     @Override
     public void execute() {
-        try {
-            String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY));
-            OMElement elements = AXIOMUtil.stringToOM(response);
+        //Task executes only in coordinator node
+        if (CloudBillingUtils.isLeader()) {
+            try {
+                String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY));
+                OMElement elements = AXIOMUtil.stringToOM(response);
 
-            Iterator<?> entries = elements.getChildrenWithName(new QName(BillingConstants.ENTRY));
-            while (entries.hasNext()) {
-                OMElement entry = (OMElement) entries.next();
-                String tenantDomain = ((OMElement) entry
-                        .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_TENANT_DOMAIN)).next())
-                        .getText();
-                String subscription = ((OMElement) entry
-                        .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_SUBSCRIPTION)).next())
-                        .getText();
-                String startDateString = ((OMElement) entry
-                        .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_START_DATE)).next()).getText();
-                String endDateString = ((OMElement) entry
-                        .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_END_DATE)).next()).getText();
+                Iterator<?> entries = elements.getChildrenWithName(new QName(BillingConstants.ENTRY));
+                while (entries.hasNext()) {
+                    OMElement entry = (OMElement) entries.next();
+                    String tenantDomain = ((OMElement) entry
+                            .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_TENANT_DOMAIN)).next())
+                            .getText();
+                    String subscription = ((OMElement) entry
+                            .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_SUBSCRIPTION)).next())
+                            .getText();
+                    String startDateString = ((OMElement) entry
+                            .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_START_DATE)).next()).getText();
+                    String endDateString = ((OMElement) entry
+                            .getChildrenWithName(new QName(BillingConstants.PENDING_DISABLE_END_DATE)).next()).getText();
 
-                int tenantId = ServiceDataHolder.getInstance().getRealmService().getTenantManager().getTenantId
-                        (tenantDomain);
+                    int tenantId = ServiceDataHolder.getInstance().getRealmService().getTenantManager().getTenantId
+                            (tenantDomain);
 
-                updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString, tenantId);
+                    updateDatabaseEntry(tenantDomain, subscription, startDateString, endDateString, tenantId);
+                }
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Tenant subscriptions disabling task executed successfully, information " +
+                                 "is as follows: " + elements);
+                }
+            } catch (CloudBillingException e) {
+                LOGGER.error(ERROR_MSG + " while executing http request: ", e);
+            } catch (XMLStreamException e) {
+                LOGGER.error(ERROR_MSG + " while response parsing: ", e);
+            } catch (UserStoreException e) {
+                LOGGER.error(ERROR_MSG + " while acquiring tenantId: ", e);
             }
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Tenant subscriptions disabling task executed successfully, information " +
-                             "is as follows: " + elements);
-            }
-        } catch (CloudBillingException e) {
-            LOGGER.error(ERROR_MSG + " while executing http request: ", e);
-        } catch (XMLStreamException e) {
-            LOGGER.error(ERROR_MSG + " while response parsing: ", e);
-        } catch (UserStoreException e) {
-            LOGGER.error(ERROR_MSG + " while acquiring tenantId: ", e);
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Billing db updated task did not execute in this server. Not the coordinator");
         }
     }
 

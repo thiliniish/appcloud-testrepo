@@ -63,8 +63,6 @@ public class CloudBillingServiceComponent {
      */
     protected void activate(ComponentContext context) {
         BundleContext bundleContext = context.getBundleContext();
-        BillingConfig configuration;
-
         try {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Billing bundle activation is started");

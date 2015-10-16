@@ -127,6 +127,7 @@
                             org.wso2.carbon.user.api; version="${imp.pkg.version.carbon.user.api}",
                             org.wso2.carbon.registry.*; version="${imp.pkg.version.carbon.kernel.registry}",
                             org.apache.commons.lang; version="${imp.pkg.version.commons-lang}",
+                            com.hazelcast.*; version="${imp.pkg.version.hazelcast}",
                             org.wso2.carbon.ntask.core.*,
                             au.com.bytecode.opencsv,
                             org.bouncycastle.*,
