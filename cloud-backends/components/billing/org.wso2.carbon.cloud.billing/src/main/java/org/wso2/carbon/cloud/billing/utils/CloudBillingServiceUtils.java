@@ -39,10 +39,10 @@ import javax.xml.stream.XMLStreamException;
  * Model to represent Utilities for Cloud Billing module
  */
 
-public class CloudBillingUtils {
+public class CloudBillingServiceUtils {
 
 
-    private static final Log LOGGER = LogFactory.getLog(CloudBillingUtils.class);
+    private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceUtils.class);
     private static volatile String configObj;
     private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getBillingRequestProcessor
             (BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
@@ -53,7 +53,7 @@ public class CloudBillingUtils {
     private static String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
                                           + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
 
-    private CloudBillingUtils() {
+    private CloudBillingServiceUtils() {
     }
 
     /**
@@ -92,7 +92,7 @@ public class CloudBillingUtils {
      */
     public static String getConfigInJson() {
         if (configObj == null) {
-            synchronized (CloudBillingUtils.class) {
+            synchronized (CloudBillingServiceUtils.class) {
                 if (configObj == null) {
                     Gson gson = new Gson();
                     configObj = gson.toJson(BillingConfigUtils.getBillingConfiguration());
@@ -208,8 +208,8 @@ public class CloudBillingUtils {
      *
      * @return billing enable/disable status
      */
-    public static boolean isBillingEnable() {
-        return BillingConfigUtils.getBillingConfiguration().isBillingEnable();
+    public static boolean isBillingEnabled() {
+        return BillingConfigUtils.getBillingConfiguration().isBillingEnabled();
     }
 
 }

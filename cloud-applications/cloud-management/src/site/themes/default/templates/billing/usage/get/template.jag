@@ -104,7 +104,7 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-var isBillingEnabled = jagg.module("billing").isBillingEnable();
+var isBillingEnabled = jagg.module("billing").isBillingEnabled();
 if (isBillingEnabled) {
 	var isBillingAccount = jagg.module("billing").isPaidAccount();
 	var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();

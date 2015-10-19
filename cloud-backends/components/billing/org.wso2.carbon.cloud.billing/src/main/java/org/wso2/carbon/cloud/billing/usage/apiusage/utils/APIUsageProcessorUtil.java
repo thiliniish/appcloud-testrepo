@@ -28,7 +28,7 @@ import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.APICloudPlan;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -63,7 +63,7 @@ public class APIUsageProcessorUtil {
             if (!hasAmendments) {
                 JSONArray ratePlans = ZuoraRESTUtils.getCurrentRatePlan(BillingConstants.API_CLOUD, accountId);
                 String ratePlanId = getCurrentRatePlanId(ratePlans);
-                plan = (APICloudPlan) CloudBillingUtils
+                plan = (APICloudPlan) CloudBillingServiceUtils
                         .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, ratePlanId);
             }
             elements = AXIOMUtil.stringToOM(response);
@@ -89,7 +89,7 @@ public class APIUsageProcessorUtil {
                                     .next()).getText();
                     if (hasAmendments) {
                         String currentRatePlan = getRatePlanIdForDate(amendmentResponse, date);
-                        plan = (APICloudPlan) CloudBillingUtils
+                        plan = (APICloudPlan) CloudBillingServiceUtils
                                 .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, currentRatePlan);
                     }
                     if (plan != null) {
@@ -274,7 +274,7 @@ public class APIUsageProcessorUtil {
 
         JSONArray ratePlans = ZuoraRESTUtils.getCurrentRatePlan(productName, accountId);
         String productRatePlanId = getCurrentRatePlanId(ratePlans);
-        APICloudPlan plan = (APICloudPlan) CloudBillingUtils
+        APICloudPlan plan = (APICloudPlan) CloudBillingServiceUtils
                 .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, productRatePlanId);
         if (plan != null) {
             int maxUsage = plan.getMaxDailyUsage();

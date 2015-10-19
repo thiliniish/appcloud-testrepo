@@ -93,8 +93,8 @@ jagg.module("billing", {
 	getCurrencyUsed: function () {
 		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCurrencyUsed.apply(this, arguments);
 	},
-	isBillingEnable: function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isBillingEnable.apply(this, arguments);
+	isBillingEnabled: function () {
+		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isBillingEnabled.apply(this, arguments);
 	}
     
 });

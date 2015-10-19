@@ -29,7 +29,7 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.ntask.core.Task;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -40,8 +40,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- *
- *
+ * Billing databases update scheduler task. This will update the pending disable state
+ * tenants' entries
  */
 public class BillingDbUpdateTask implements Task {
 
@@ -130,7 +130,7 @@ public class BillingDbUpdateTask implements Task {
     private void addToHistoryTable(String tenantDomain, String subscription, String startDate, String endDate,
                                    int tenantId)
             throws CloudBillingException {
-        String accountId = CloudBillingUtils.getAccountIdForTenant(tenantDomain);
+        String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
         String url = properties.get(BillingConstants.BILLING_HISTORY_URL_KEY);
 
         NameValuePair[] payload = {

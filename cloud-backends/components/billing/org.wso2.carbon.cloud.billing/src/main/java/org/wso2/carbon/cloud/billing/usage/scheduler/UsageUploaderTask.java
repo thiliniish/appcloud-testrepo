@@ -60,8 +60,8 @@ public class UsageUploaderTask implements Task {
      */
     @Override
     public void execute() {
-        LOGGER.info("Running usage uploader task " + BillingConstants.USAGE_UPLOADER_TASK_NAME + ". [" + new Date() +
-                    "]");
+        LOGGER.info("Running usage uploader task " + BillingConstants.USAGE_UPLOADER_TASK_NAME
+                    + ". [" + new Date() + "]");
         try {
             boolean enableDailyUsageUpload = BillingConfigUtils.getBillingConfiguration().getZuoraConfig()
                     .getUsageConfig().isEnableUsageUploading();

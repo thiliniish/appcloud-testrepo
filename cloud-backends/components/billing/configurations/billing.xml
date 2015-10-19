@@ -19,7 +19,7 @@
 
 <CloudBilling xmlns="http://www.wso2.org/cloud/billing">
     <!--Billing functionality enable/disable status-->
-    <BillingEnable>true</BillingEnable>
+    <BillingEnabled>true</BillingEnabled>
     <DataServiceAPI>
         <ServiceURL>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint</ServiceURL>
         <User>admin</User>

@@ -118,7 +118,7 @@ var log = new Log("site/themes/default/templates/billing/plan/get/template.jag")
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-var isBillingEnabled = jagg.module("billing").isBillingEnable();
+var isBillingEnabled = jagg.module("billing").isBillingEnabled();
 if (isBillingEnabled) {
 	var serviceId = session.get("SERVICE_ID");
 	var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
