@@ -33,7 +33,7 @@ public class CloudBillingUtils {
      *
      * @return leader boolean
      */
-    public static boolean isLeader() {
+    public static boolean isCurrentServerLeader() {
 
         /* Get all the Hazelcast instances in the current JVM.
            In case of carbon server this is always either one

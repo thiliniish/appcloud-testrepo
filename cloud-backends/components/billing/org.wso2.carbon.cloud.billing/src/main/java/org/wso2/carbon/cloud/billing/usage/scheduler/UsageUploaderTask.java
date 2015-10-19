@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
-import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
 import org.wso2.carbon.ntask.core.Task;
@@ -61,26 +60,22 @@ public class UsageUploaderTask implements Task {
      */
     @Override
     public void execute() {
-        if (CloudBillingUtils.isLeader()) {
-            LOGGER.info("Running usage uploader task " + BillingConstants.USAGE_UPLOADER_TASK_NAME
-                        + ". [" + new Date() + "]");
-            try {
-                boolean enableDailyUsageUpload = BillingConfigUtils.getBillingConfiguration().getZuoraConfig()
-                        .getUsageConfig().isEnableUsageUploading();
+        LOGGER.info("Running usage uploader task " + BillingConstants.USAGE_UPLOADER_TASK_NAME
+                    + ". [" + new Date() + "]");
+        try {
+            boolean enableDailyUsageUpload = BillingConfigUtils.getBillingConfiguration().getZuoraConfig()
+                    .getUsageConfig().isEnableUsageUploading();
 
-                if (enableDailyUsageUpload) {
-                    APICloudUsageManager usageManager = new APICloudUsageManager();
-                    usageManager.uploadDailyAPIUsage();
-                } else {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Daily usage will not be uploaded to zuora");
-                    }
+            if (enableDailyUsageUpload) {
+                APICloudUsageManager usageManager = new APICloudUsageManager();
+                usageManager.uploadDailyAPIUsage();
+            } else {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Daily usage will not be uploaded to zuora");
                 }
-            } catch (CloudBillingException e) {
-                LOGGER.error("Error occurred while uploading daily usage ", e);
             }
-        } else if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Usage upload task did not execute in this server. Not the coordinator");
+        } catch (CloudBillingException e) {
+            LOGGER.error("Error occurred while uploading daily usage ", e);
         }
     }
 
