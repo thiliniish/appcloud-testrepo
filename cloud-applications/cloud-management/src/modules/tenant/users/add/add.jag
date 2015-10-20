@@ -335,19 +335,31 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
 
 		var context = multitenancy.getPrivilegedCarbonContext();
 		var tenantManager = multitenancy.getTenantManager();
-		var assignedRoles;
-		assignedRoles = roles.split(",");
-		context.startTenantFlow();
-		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-
-		if (!isUserExist) {
-			log.info("Adding new user, " + userName + " FirstName : " + firstName + " LastName : " + lastName);
-			server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
-			jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
-		} else {
-			assignedRoles.push(CLOUD_DEFAULT_ROLE);  //Need to add default role for users who exists already; hence adding default role here
-		}
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        var assignedRoles;
+        assignedRoles = roles.split(",");
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantId);
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        var realm = realmService.getTenantUserRealm(tenantId);
+        var userStoreManager = realm.getUserStoreManager();
+        var userRoles = userStoreManager.getRoleListOfUser(userName);
+        var isUserOfTenant = false;
+        //checks whether the user exists in the tenant or not by checking default role.
+        for (var i = 0; i < userRoles.length; i++) {
+            if (userRoles[i] == "default") {
+                isUserOfTenant = true;
+                break;
+            }
+        }
+        if (!isUserExist) {
+            log.info("Adding new user, " + userName + " FirstName : " + firstName + " LastName : " + lastName);
+            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
+            jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
+        } else if (!isUserOfTenant) {
+            assignedRoles.push(CLOUD_DEFAULT_ROLE);  //Need to add default role for users who exists already but not a member of tenant; hence adding default role here
+        }
 		log.info("Updating the user roles of user " + userName);
 		server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(userName, assignedRoles, null);
 	} catch (e) {
