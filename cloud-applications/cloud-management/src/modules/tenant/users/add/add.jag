@@ -352,7 +352,7 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
             }
         }
         if (!isUserExist) {
-            log.info("Adding new user, " + userName + " FirstName : " + firstName + " LastName : " + lastName);
+            log.info("Adding new user, " + userName + " to tenant : " + tenantDomain);
             server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
             jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
         } else if (!isUserOfTenant) {
@@ -375,8 +375,8 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         parameters = [confirmationKey];
         results = jagg.module("database").executeQuery(deleteString, parameters);
     } catch (e) {
-        log.error("Error while adding the user to tenant : " + tenantDomain + ". " + e);
-        throw "Error while adding the user to tenant " + e;
+        log.error("Error while adding tenant user mapping for user : " + userName + " with tenant domain : " + tenantDomain + ". " + e);
+        throw "Error while adding tenant user mapping " + e;
     }
     return roles;
 };
