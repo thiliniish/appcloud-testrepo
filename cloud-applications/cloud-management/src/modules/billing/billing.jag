@@ -21,25 +21,24 @@ var zuoraObj = (JSON.parse(billingService.getConfigInJson())).zuoraConfig;
 
 
 var isPaidAccount = function() {
-
-	if((session.get("TENANT_INFO")) != null ){
-		var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-		var queryString  = SQL_QUERY_STRINGS.SELECT_ACCOUNT_NUMBER_FROM_BILLING_ACCOUNT;
-		var parameters =[tenantDomain];
-		var result = modDb.executeQuery(queryString, parameters);
-		if (result[0] != null && result[0] != "undefined") {
-			var accountNumber =  result[0]["ACCOUNT_NUMBER"];
-			if (accountNumber == null || accountNumber == "NULL") {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
+    if((session.get("TENANT_INFO")) != null ){
+        var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+        var queryString  = SQL_QUERY_STRINGS.SELECT_ACCOUNT_NUMBER_FROM_BILLING_ACCOUNT;
+        var parameters =[tenantDomain];
+        var result = modDb.executeQuery(queryString, parameters);
+        if (result[0] != null && result[0] != "undefined") {
+            var accountNumber =  result[0]["ACCOUNT_NUMBER"];
+            if (accountNumber == null || accountNumber == "NULL") {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
 };
 
 var getPaymentPlanFromId = function(serviceId, paymentPlanId) {
