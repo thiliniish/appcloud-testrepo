@@ -40,7 +40,6 @@ public class JaggeryAppAuthenticatorClient {
     private static String logOutUrl;
     private String sessionCookie;
     private String usernamePara;
-    
 
     public JaggeryAppAuthenticatorClient(String hostName) {
         loginUrl = hostName + CloudIntegrationConstants.CLOUD_LOGIN_URL_SFX;
@@ -51,7 +50,7 @@ public class JaggeryAppAuthenticatorClient {
     public JaggeryAppAuthenticatorClient(String hostName, String loginUrlSfx){
         loginUrl = hostName + loginUrlSfx;
         logOutUrl = loginUrl;
-        usernamePara ="username";
+        usernamePara = "username";
     }
 
     /**

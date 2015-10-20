@@ -17,10 +17,8 @@
 package org.wso2.carbon.cloud.integration.test.utils.external;
 
 import org.apache.http.HttpHeaders;
-import org.apache.tools.ant.taskdefs.PathConvert;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
