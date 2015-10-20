@@ -27,6 +27,8 @@ public class CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(CloudIntegrationTest.class);
 
     protected static String cloudMgtServerUrl;
+    protected static String apiMgtServerUrl;
+    protected static String apiMgrPassThroughUrl;
     protected String tenantAdminUserName;
     protected String tenantAdminPassword;
     protected String superAdminUserName;
@@ -43,6 +45,10 @@ public class CloudIntegrationTest {
                 .getPropertyValue(CloudIntegrationConstants.SUPER_ADMIN_USER_NAME);
         superAdminPassword = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.SUPER_ADMIN_PASSWORD);
+        apiMgtServerUrl = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.API_MGT_SERVER_URL);
+        apiMgrPassThroughUrl = CloudIntegrationTestUtils
+		        .getPropertyValue(CloudIntegrationConstants.API_MGR_PASS_THROUGH_SERVER_URL);
     }
 
     protected void cleanup() {

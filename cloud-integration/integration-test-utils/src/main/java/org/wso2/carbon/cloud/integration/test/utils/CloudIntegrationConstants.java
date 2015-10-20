@@ -28,6 +28,10 @@ public class CloudIntegrationConstants {
             "/cloudmgt/site/blocks/tenant/register/add/ajax/add.jag";
     public static final String CLOUD_SIGNUP_CONFIRM_URL_SFX =
             "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
+    public static final String API_PUBLISHER_LOGIN_URL_SFX =
+            "/publisher/site/blocks/user/login/ajax/login.jag";
+    public static final String API_STORE_LOGIN_URL_SFX =
+            "/store/site/blocks/user/login/ajax/login.jag";
 
     //Billing
     public static final String CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX =
@@ -40,6 +44,8 @@ public class CloudIntegrationConstants {
             "/cloudmgt/site/blocks/billing/account/invoice/ajax/get.jag";
     public static final String CLOUD_BILLING_ACCOUNT_DETAILS_ADD_URL_SFX =
             "/cloudmgt/site/blocks/billing/account/add/ajax/add.jag";
+    public static final String CLOUD_BILLING_API_USAGE =
+            "/cloudmgt/site/blocks/billing/usage/get/ajax/get.jag";
 
     //User Management
     public static final String CHANGE_PASSWORD_URL_SFX =
@@ -69,6 +75,9 @@ public class CloudIntegrationConstants {
     //Cloud Related URLs
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
     public static final String IDENTITY_SERVER_URL = "//cloudProperties/urls/identityServerUrl";
+    public static final String API_MGT_SERVER_URL = "//cloudProperties/urls/apiMgtServerUrl";
+    public static final String API_MGR_PASS_THROUGH_SERVER_URL =
+            "//cloudProperties/urls/apiMgrPassThroughHttpsListener";
 
     public static final String TENANT_ADMIN_USER_NAME =
             "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/adminUser";
@@ -95,6 +104,8 @@ public class CloudIntegrationConstants {
             "//cloudProperties/billing/payments/productRatePlanId";
 
     //mysql parameters
+    public static final String CLOUD_MGT_DATASOURCE = "mysql-cloudMgt";
+    public static final String APIM_STATS_DATASOURCE = "mysql-apiStats";
     public static final String MYSQL_DATA_SOURCE_URL =
             "//datasources/datasource[@name='mysql']/url";
     public static final String MYSQL_USERNAME = "//datasources/datasource[@name='mysql']/username";
@@ -105,6 +116,7 @@ public class CloudIntegrationConstants {
 
     public static final String RESPONSE = "Response";
     public static final String COOKIE = "Cookie";
+    public static final String MYSQL_REPLACE = "mysql";
 
     //default tenant users
     public static final String TENANT_USER_USERNAME =
@@ -124,5 +136,31 @@ public class CloudIntegrationConstants {
             "SELECT uuid FROM TEMP_REGISTRATION where email=(?)";
     public static final String GER_UUID_FOR_TEMP_INVITEE =
             "SELECT uuid FROM TEMP_INVITEE WHERE tenantDomain=(?) AND email=(?)";
+    public static final String GET_API_STATS_USAGE =
+            "SELECT COUNT(*) AS size FROM (SELECT SUM(total_request_count) AS totalCount," +
+            "apiPublisher,time,day,year,month From API_REQUEST_SUMMARY WHERE apiPublisher=(?) " +
+            "AND (time BETWEEN DATE(?) AND DATE(?)) GROUP BY " +
+            "apiPublisher,day,year,month ORDER BY time) t1;";
 
+    //API Details
+    public static final String API_NAME = "statsAPIVinu12";
+    public static final String APP_NAME = "statsApplicationVinu12";
+	public static final String API_CONTEXT = "apiStatsVinu12";
+    public static final String API_VERSION = "1.0.0";
+    public static final String API_ENDPOINT =
+            "{\"production_endpoints\":{\"url\":\"http://ws.cdyne.com/phoneverify/phoneverify.asmx\"" +
+            ",\"config\":null},\"endpoint_type\":\"http\"}";
+    public static final String APP_SCOPE = "PRODUCTION";
+
+    public static final String PUBLISHER_ADD_API_URL_SFX =
+            "/publisher/site/blocks/item-add/ajax/add.jag";
+    public static final String PUBLISHER_LIFE_CYCLE_URL_SFX =
+            "/publisher/site/blocks/life-cycles/ajax/life-cycles.jag";
+    public static final String STORE_ADD_APPLICATION_URL_SFX =
+            "/store/site/blocks/application/application-add/ajax/application-add.jag";
+    public static final String STORE_ADD_SUBSCRIPTION_URL_SFX =
+            "/store/site/blocks/subscription/subscription-add/ajax/subscription-add.jag";
+    public static final String STORE_LIST_SUBSCRIPTION_URL_SFX =
+            "/store/site/blocks/subscription/subscription-list/ajax/subscription-list.jag";
+    public static final String API_TOKEN_GENERATION_URL_SFX = "/token";
 }

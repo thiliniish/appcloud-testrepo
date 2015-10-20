@@ -20,6 +20,8 @@ package org.wso2.carbon.cloud.integration.test.utils.restclients;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.external.HttpHandler;
 
@@ -37,10 +39,19 @@ public class JaggeryAppAuthenticatorClient {
     private static String loginUrl;
     private static String logOutUrl;
     private String sessionCookie;
+    private String usernamePara;
+    
 
     public JaggeryAppAuthenticatorClient(String hostName) {
         loginUrl = hostName + CloudIntegrationConstants.CLOUD_LOGIN_URL_SFX;
         logOutUrl = loginUrl;
+        usernamePara = "userName";
+    }
+    
+    public JaggeryAppAuthenticatorClient(String hostName, String loginUrlSfx){
+        loginUrl = hostName + loginUrlSfx;
+        logOutUrl = loginUrl;
+        usernamePara ="username";
     }
 
     /**
@@ -51,13 +62,18 @@ public class JaggeryAppAuthenticatorClient {
      * @return boolean value of login success or fail
      * @throws IOException
      */
-    public boolean login(String userName, String password) throws IOException {
+    public boolean login(String userName, String password) throws IOException, JSONException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "login");
-        params.put("userName", userName);
+        params.put(usernamePara, userName);
         params.put("password", password);
         Map resultMap = HttpHandler.doPostHttps(loginUrl, params, null);
-        sessionCookie = (String) resultMap.get(CloudIntegrationConstants.COOKIE);
+        setSessionCookie((String) resultMap.get(CloudIntegrationConstants.COOKIE));
+        if(loginUrl.contains(CloudIntegrationConstants.API_PUBLISHER_LOGIN_URL_SFX) ||
+           loginUrl.contains(CloudIntegrationConstants.API_STORE_LOGIN_URL_SFX)){
+            return "false".equals(new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE)
+                                                          .toString()).getString("error"));
+        }
         return "true".equals(resultMap.get(CloudIntegrationConstants.RESPONSE));
     }
 
@@ -88,5 +104,8 @@ public class JaggeryAppAuthenticatorClient {
         return this.sessionCookie;
     }
 
+    public void setSessionCookie(String sessionCookie) {
+        this.sessionCookie = sessionCookie;
+    }
 }
 

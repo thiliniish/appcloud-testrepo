@@ -68,8 +68,14 @@
             <password>wso2carbon</password>
             <driverClassName>org.h2.Driver</driverClassName>
         </datasource>
-        <datasource name="mysql">
+        <datasource name="mysql-cloudMgt">
             <url>jdbc:mysql://localhost:3306/dbCloudMgt</url>
+            <username>root</username>
+            <password>root</password>
+            <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+        </datasource>
+        <datasource name="mysql-apiStats">
+            <url>jdbc:mysql://localhost:3306/apim_stats</url>
             <username>root</username>
             <password>root</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
@@ -281,6 +287,8 @@
     <cloudProperties>
         <urls>
             <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
+            <apiMgtServerUrl>https://localhost:9643</apiMgtServerUrl>
+            <apiMgrPassThroughHttpsListener>https://localhost:8443</apiMgrPassThroughHttpsListener>
             <identityServerUrl>https://milestones.identity.wso2.com:9444</identityServerUrl>
         </urls>
         <tenantDetails>
