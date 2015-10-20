@@ -329,10 +329,8 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         var tenantDomain = results[0]["tenantDomain"];
         log.info(email + " is invited for " + tenantDomain + " as  " + roles);
         session.put("TENANT_DOMAIN", tenantDomain.toString());
-
         var userName = modManager.getUserNameFromEmail(email);
         isUserExist = tenantMod.isExistingUser(userName);
-
         var context = multitenancy.getPrivilegedCarbonContext();
         var tenantManager = multitenancy.getTenantManager();
         var tenantId = tenantManager.getTenantId(tenantDomain);
