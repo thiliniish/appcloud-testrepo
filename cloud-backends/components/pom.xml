@@ -29,7 +29,7 @@
     <name>Cloud Backend Components</name>
     <modules>
         <module>billing/org.wso2.carbon.cloud.billing</module>
-        <module>billing/org.wso2.carbon.cloud.apihandler</module>
+        <module>billing/org.wso2.carbon.cloud.billing.apihandler</module>
         <module>user-store/org.wso2.carbon.cloud.userstore</module>
         <module>user-manager/org.wso2.carbon.cloud.user.manager</module>
         <module>cloud-mgt/org.wso2.carbon.cloud.users</module>

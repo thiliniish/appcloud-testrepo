@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.apihandler;
+package org.wso2.carbon.cloud.billing.apihandler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
