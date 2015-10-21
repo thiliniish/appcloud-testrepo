@@ -182,7 +182,7 @@ public class CloudBillingServiceComponent {
             }
 
             registerUsageUploaderTask();
-        } else if (configuration.isMgtMode()) {
+        } else if (!configuration.isBillingEnabled()) {
             LOGGER.warn("Billing disabled. billing related scheduler tasks will not get initialized");
         } else {
             LOGGER.info("Billing component mgt mode disabled");
