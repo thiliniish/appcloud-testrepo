@@ -41,13 +41,13 @@
                   if (result.trim() == "configured") {
                       $('#btn_submit').attr('disabled',true);
                           jagg.message({content:'Self signup is already enabled.',type:'error',cbk:function(){
-                           window.location.href=publisherUrl;
+                           window.location.href = publisherUrl;
                            }
                           });
                   } else if (result.trim() == "signUpConfigured") {
-                        var docLink=$("#docLink").attr('value');
-                        var publisherUrl=$("#publisherUrl").attr('value');
-                        var storeUrl=$("#storeUrl").attr('value');
+                        var docLink = $("#docLink").attr('value');
+                        var publisherUrl = $("#publisherUrl").attr('value');
+                        var storeUrl = $("#storeUrl").attr('value');
 
                         //setting the success message content.
                         $(".content-starter h1").text("Self Sign-up Successfully Configured");
@@ -57,20 +57,20 @@
                         $(".content-starter h1").css('color','black');
                         $("#success_content").replaceWith("<div class='container content-section-wrapper'><div class='row'><div class='col-lg-12 content-section'><div class='content'>" +
                         "<h5>You can</h5><ul style='list-style-type:disc'>" +
-                        "<li><p><h5>See it in action in the <a target='_blank' href='"+ storeUrl +"'>API Store. </a>  (Log off to see the Sign-Up button.) </h5></p></li> "+
-                        "<li><p><h5>Go back to the <a target='_blank' href='"+ publisherUrl +"'>API Publisher.</a></h5></p></li>"+
-                        "<li><p><h5>Read more about self sign-up in our <a target='_blank' href='"+ docLink +"'>documentation.</a></h5></p></li></ul><p></br><h5>If you opted to enable the approval process in the previous step, you will get emails with approval requests whenever visitors self sign up.</h5></p></div></div></div></div>");
+                        "<li><p><h5>See it in action in the <a target = '_blank' href = '"+ storeUrl +"'>API Store. </a>  (Log off to see the Sign-Up button.) </h5></p></li> "+
+                        "<li><p><h5>Go back to the <a target = '_blank' href='"+ publisherUrl +"'>API Publisher.</a></h5></p></li>"+
+                        "<li><p><h5>Read more about self sign-up in our <a target = '_blank' href = '"+ docLink +"'>documentation.</a></h5></p></li></ul><p></br><h5>If you opted to enable the approval process in the previous step, you will get emails with approval requests whenever visitors self sign up.</h5></p></div></div></div></div>");
                         $(".helper_text h5").css({'font-size':'17px', 'text-align':'left','color':'black'});
                         $("#helper_text").hide();
                         $("#success-message").show();
                    } else if (result.trim() == "resourcePending") {
                         jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.',type:'success',cbk:function(){
-                          window.location.href=publisherUrl;
+                          window.location.href = publisherUrl;
                           }
                         });
                    } else {
                         jagg.message({content:'An error occurred while configuring the self signup feature for your organization.',type:'error',cbk:function(){
-                          window.location.href=publisherUrl;
+                          window.location.href = publisherUrl;
                           }
                         });
                    }
@@ -256,7 +256,7 @@
       <div class="row">
          <div class="col-lg-12 content-section">
             <p >
-           <h3><b>The following parameters are required when sending emails to subscribers</b></h3>
+           <h3>The following parameters are required when sending emails to subscribers</h3>
             </p>
             </br>
             <div class="form-group">
@@ -273,7 +273,7 @@
                </div>
             </div>
            <p>
-           <h3><b>The following parameters are required when configuring the sign-up process</b></h3>
+           <h3>The following parameters are required when configuring the sign-up process</h3>
             </p>
             </br>
             <div class="form-group">
