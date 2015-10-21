@@ -545,7 +545,7 @@
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="apiMgtServerUrl"
                                                     maxOccurs="unbounded" minOccurs="0"/>
-                                        <xs:element type="xs:string" name="apiMgrPassThroughHttpsListener"
+                                        <xs:element type="xs:string" name="apiGatewayEndpointUrl"
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="identityServerUrl"
                                                     maxOccurs="unbounded" minOccurs="0"/>

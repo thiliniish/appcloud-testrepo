@@ -51,10 +51,10 @@ public class HttpHandler {
     /**
      * This method is used to do a https post request
      *
-     * @param url         request url
+     * @param url        request url
      * @param params     Content of the post request
-     * @param authCookie  authCookie for authentication
-     * @param header      header list of the request
+     * @param authCookie authCookie for authentication
+     * @param header     header list of the request
      * @return response and if cookie is null returns the cookie in a Map
      * @throws java.io.IOException - Throws this when failed to fulfill a https post request
      */
@@ -71,9 +71,9 @@ public class HttpHandler {
             con.setRequestProperty("Cookie", authCookie);
         }
         for (Map.Entry<String, String> entry : header.entrySet()) {
-          con.setRequestProperty(entry.getKey().toString(), entry.getValue().toString());
+            con.setRequestProperty(entry.getKey(), entry.getValue());
         }
-        if (header.get(HttpHeaders.CONTENT_TYPE) == null){
+        if (header.get(HttpHeaders.CONTENT_TYPE) == null) {
             con.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED);
         }
 

@@ -42,6 +42,10 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
     private JaggeryAppAuthenticatorClient authenticatorClient;
     private String isApiExist;
     private boolean loginStatus;
+    private final String apiMgtServerUrl = CloudIntegrationTestUtils
+            .getPropertyValue(CloudIntegrationConstants.API_MGT_SERVER_URL);
+    private final String apiMgrGatewayUrl = CloudIntegrationTestUtils
+            .getPropertyValue(CloudIntegrationConstants.API_GATEWAY_ENDPOINT_URL);
 
     /**
      * Before test tenant user will get authenticated.
@@ -119,7 +123,6 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
 
                     params.clear();
                     authenticatorClient.logout();
-                    super.cleanup();
                     //login to the API Store
                     authenticatorClient = new JaggeryAppAuthenticatorClient(apiMgtServerUrl,
                                                                             CloudIntegrationConstants.API_STORE_LOGIN_URL_SFX);
@@ -159,8 +162,7 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
                         Map resultSubscribeToAPI = HttpHandler.doPostHttps(subscribeToApi, params,
                                                                            authenticatorClient
                                                                                    .getSessionCookie());
-                        if (!isOperationSuccess(resultSubscribeToAPI) ||
-                            resultSubscribeToAPI == null) {
+                        if (resultSubscribeToAPI == null || !isOperationSuccess(resultSubscribeToAPI)) {
                             log.error("Error occurred while subscribing to the Api");
                         }
                         //Generate Application Keys
@@ -188,7 +190,6 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
             }
         }
         authenticatorClient.logout();
-        super.cleanup();
 
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
         loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
@@ -302,22 +303,14 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
         paramHeaderMap.put("Content-Type", "application/x-www-form-urlencoded");
 
         String passwordGrantTypeUrl =
-                apiMgrPassThroughUrl + CloudIntegrationConstants.API_TOKEN_GENERATION_URL_SFX;
+                apiMgrGatewayUrl + CloudIntegrationConstants.API_TOKEN_GENERATION_URL_SFX;
         Map resultOfPasswordGrantTypeUrl = HttpHandler
-                .doPostHttps(passwordGrantTypeUrl, params, authenticatorClient.getSessionCookie(),
-                             paramHeaderMap);
+                .doPostHttps(passwordGrantTypeUrl, params, authenticatorClient.getSessionCookie(), paramHeaderMap);
         JSONObject responseFromPasswordGrantType = new JSONObject(
                 resultOfPasswordGrantTypeUrl.get(CloudIntegrationConstants.RESPONSE).toString());
         String newAccessToken = (String) responseFromPasswordGrantType.get("access_token");
         params.clear();
         paramHeaderMap.clear();
-
-        authenticatorClient.logout();
-        super.cleanup();
-        //login to the API Store
-        authenticatorClient = new JaggeryAppAuthenticatorClient(apiMgtServerUrl,
-                                                                CloudIntegrationConstants.API_PUBLISHER_LOGIN_URL_SFX);
-        loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
 
         //invoke the Api with the generated access token
         params.put("PhoneNumber", "180067832");
@@ -325,7 +318,7 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
         String tenantDomain = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_DOMAIN);
 
-        String invokeApi = apiMgrPassThroughUrl + "/t/" + tenantDomain + "/" +
+        String invokeApi = apiMgrGatewayUrl + "/t/" + tenantDomain + "/" +
                            CloudIntegrationConstants.API_CONTEXT + "/" +
                            CloudIntegrationConstants.API_VERSION + "/CheckPhoneNumber";
         String authHeaderString = "Bearer ".concat(newAccessToken);
@@ -340,7 +333,6 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
         }
 
         authenticatorClient.logout();
-        super.cleanup();
     }
 
 }

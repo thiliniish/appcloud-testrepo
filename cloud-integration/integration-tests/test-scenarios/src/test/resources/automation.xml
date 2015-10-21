@@ -288,7 +288,7 @@
         <urls>
             <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
             <apiMgtServerUrl>https://localhost:9643</apiMgtServerUrl>
-            <apiMgrPassThroughHttpsListener>https://localhost:8443</apiMgrPassThroughHttpsListener>
+            <apiGatewayEndpointUrl>https://localhost:8443</apiGatewayEndpointUrl>
             <identityServerUrl>https://milestones.identity.wso2.com:9444</identityServerUrl>
         </urls>
         <tenantDetails>

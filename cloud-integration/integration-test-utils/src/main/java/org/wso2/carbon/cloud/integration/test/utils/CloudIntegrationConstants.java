@@ -76,8 +76,8 @@ public class CloudIntegrationConstants {
     public static final String CLOUD_MGT_SERVER_URL = "//cloudProperties/urls/cloudMgtServerUrl";
     public static final String IDENTITY_SERVER_URL = "//cloudProperties/urls/identityServerUrl";
     public static final String API_MGT_SERVER_URL = "//cloudProperties/urls/apiMgtServerUrl";
-    public static final String API_MGR_PASS_THROUGH_SERVER_URL =
-            "//cloudProperties/urls/apiMgrPassThroughHttpsListener";
+    public static final String API_GATEWAY_ENDPOINT_URL =
+            "//cloudProperties/urls/apiGatewayEndpointUrl";
 
     public static final String TENANT_ADMIN_USER_NAME =
             "//cloudProperties/tenantDetails/Tenant[@key='defaultTenant']/adminUser";
@@ -113,7 +113,6 @@ public class CloudIntegrationConstants {
     public static final String MYSQL_DRIVER_CLASS_NAME =
             "//datasources/datasource[@name='mysql']/driverClassName";
 
-
     public static final String RESPONSE = "Response";
     public static final String COOKIE = "Cookie";
     public static final String MYSQL_REPLACE = "mysql";
@@ -143,15 +142,16 @@ public class CloudIntegrationConstants {
             "apiPublisher,day,year,month ORDER BY time) t1;";
 
     //API Details
-    public static final String API_NAME = "statsAPIVinu12";
-    public static final String APP_NAME = "statsApplicationVinu12";
-	public static final String API_CONTEXT = "apiStatsVinu12";
+    public static final String API_NAME = "statsTestAPI";
+    public static final String APP_NAME = "statsTestApplication";
+    public static final String API_CONTEXT = "apiStatTestContext";
     public static final String API_VERSION = "1.0.0";
     public static final String API_ENDPOINT =
             "{\"production_endpoints\":{\"url\":\"http://ws.cdyne.com/phoneverify/phoneverify.asmx\"" +
             ",\"config\":null},\"endpoint_type\":\"http\"}";
     public static final String APP_SCOPE = "PRODUCTION";
 
+    //PubStore Related URLs
     public static final String PUBLISHER_ADD_API_URL_SFX =
             "/publisher/site/blocks/item-add/ajax/add.jag";
     public static final String PUBLISHER_LIFE_CYCLE_URL_SFX =
