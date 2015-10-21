@@ -20,6 +20,9 @@
 <CloudBilling xmlns="http://www.wso2.org/cloud/billing">
     <!--Billing functionality enable/disable status-->
     <BillingEnabled>true</BillingEnabled>
+    <!--Billing component is deployed for cloudmgt. Set this to false if the billing component is
+    deployed in APIM or other server as a supporting component. This will disable mgt tasks-->
+    <MgtMode>true</MgtMode>
     <DataServiceAPI>
         <ServiceURL>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint</ServiceURL>
         <User>admin</User>
