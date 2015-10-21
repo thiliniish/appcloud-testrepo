@@ -160,7 +160,7 @@ public class CloudBillingServiceComponent {
      */
     private void activateScheduledTasks() {
         BillingConfig configuration = BillingConfigUtils.getBillingConfiguration();
-        if (configuration.isBillingEnabled()) {
+        if (configuration.isBillingEnabled() && configuration.isMgtMode()) {
 
             boolean enableDailyUsageUpload = configuration.getZuoraConfig().getUsageConfig().isEnableUsageUploading();
 
@@ -182,8 +182,10 @@ public class CloudBillingServiceComponent {
             }
 
             registerUsageUploaderTask();
-        } else {
+        } else if (configuration.isMgtMode()) {
             LOGGER.warn("Billing disabled. billing related scheduler tasks will not get initialized");
+        } else {
+            LOGGER.info("Billing component mgt mode disabled");
         }
     }
 

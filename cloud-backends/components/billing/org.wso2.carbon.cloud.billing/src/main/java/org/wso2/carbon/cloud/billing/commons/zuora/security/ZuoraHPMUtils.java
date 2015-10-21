@@ -149,7 +149,8 @@ public class ZuoraHPMUtils {
             String pageIdSignature = st.nextToken();
 
             if (StringUtils.isBlank(urlSignature) || StringUtils.isBlank(tenantIdSignature) || StringUtils.isBlank
-                    (tokenSignature) || StringUtils.isBlank(timestampSignature) || StringUtils.isBlank(pageIdSignature)) {
+                    (tokenSignature) || StringUtils.isBlank(timestampSignature) || StringUtils.isBlank
+                    (pageIdSignature)) {
                 throw new CloudBillingSecurityException("Signature is not complete.");
             }
 

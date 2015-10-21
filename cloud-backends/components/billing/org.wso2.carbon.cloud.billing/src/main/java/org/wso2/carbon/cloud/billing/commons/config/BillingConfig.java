@@ -33,6 +33,7 @@ public class BillingConfig {
     private UtilsConfig utilsConfig;
     private int trialPeriod;
     private boolean billingEnabled;
+    private boolean mgtMode;
 
     @XmlElement(name = "BillingEnabled", nillable = false, required = true)
     public boolean isBillingEnabled() {
@@ -86,5 +87,14 @@ public class BillingConfig {
 
     public void setUtilsConfig(UtilsConfig utilsConfig) {
         this.utilsConfig = utilsConfig;
+    }
+
+    @XmlElement(name = "MgtMode", nillable = false, required = true)
+    public boolean isMgtMode() {
+        return mgtMode;
+    }
+
+    public void setMgtMode(boolean mgtMode) {
+        this.mgtMode = mgtMode;
     }
 }
