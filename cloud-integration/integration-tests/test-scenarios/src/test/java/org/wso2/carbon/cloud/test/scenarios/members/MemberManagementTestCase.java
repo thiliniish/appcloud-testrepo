@@ -128,7 +128,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
         String addUserUrl =
                 cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_TENANT_USERS_URL_SFX;
         String query = CloudIntegrationConstants.GER_UUID_FOR_TEMP_INVITEE;
-        DbConnectionManager connectionManager = new DbConnectionManager();
+        DbConnectionManager connectionManager = new DbConnectionManager(CloudIntegrationConstants.CLOUD_MGT_DATASOURCE);
         try {
             for (String user : usersEmailArray) {
                 user = user.trim();
