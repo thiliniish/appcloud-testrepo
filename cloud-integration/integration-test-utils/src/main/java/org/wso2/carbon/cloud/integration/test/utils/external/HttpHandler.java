@@ -54,12 +54,12 @@ public class HttpHandler {
      * @param url        request url
      * @param params     Content of the post request
      * @param authCookie authCookie for authentication
-     * @param header     header list of the request
+     * @param headerMap     header list of the request
      * @return response and if cookie is null returns the cookie in a Map
      * @throws java.io.IOException - Throws this when failed to fulfill a https post request
      */
     public static Map<String, String> doPostHttps(String url, Map<String, String> params, String authCookie,
-                                                  Map<String, String> header) throws IOException {
+                                                  Map<String, String> headerMap) throws IOException {
 
         URL obj = new URL(url);
         String payload = mapToString(params);
@@ -70,10 +70,10 @@ public class HttpHandler {
         if (authCookie != null && !"".equals(authCookie)) {
             con.setRequestProperty("Cookie", authCookie);
         }
-        for (Map.Entry<String, String> entry : header.entrySet()) {
+        for (Map.Entry<String, String> entry : headerMap.entrySet()) {
             con.setRequestProperty(entry.getKey(), entry.getValue());
         }
-        if (header.get(HttpHeaders.CONTENT_TYPE) == null) {
+        if (headerMap.get(HttpHeaders.CONTENT_TYPE) == null) {
             con.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED);
         }
 
