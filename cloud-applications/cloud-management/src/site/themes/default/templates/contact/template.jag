@@ -12,6 +12,7 @@ if (jagg.module("util").isUserInAdminRole()){
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var publisherURL = (cloudConfig.subscriptions.type)[1].urls.cloudTypeUrl;
 var trialPeriod = (jagg.module("billing").getTrialPeriod()).toString();
 var to = cloudConfig.supportContact.to;
 %>
@@ -88,6 +89,7 @@ section.start_content div.subs-cont{
         var subject  = $("#subject").attr('value');
         var body  = $("#body").attr('value');
         var cloudmgtURL =  $("#cloudmgtURL").attr('value');
+        var publisherURL = $("#publisherURL").attr('value');
 
         var isExtensionRequest = $("#isExtensionRequest").attr('value');
 
@@ -101,20 +103,20 @@ section.start_content div.subs-cont{
                    function (result) {
                             if (result.trim() != "false"){
                             jagg.message({content:'You have successfully extended your trial period to ' + <%=trialPeriod%> +' more days.',type:'success',cbk:function(){
-                                    window.location.href = cloudmgtURL;
+                                    window.location.href = publisherURL;
                                 }
                             });
                             $('#userForm').hide();
                             } else {
                             jagg.message({content:'Trial extension request declined',type:'error',cbk:function() {
-                                    window.location.href = cloudmgtURL + "/site/pages/index.jag";
+                                    window.location.href = publisherURL;
                                 }
                             });
                             }
                   },
                   function (jqXHR, textStatus, errorThrown) {
                     jagg.message({type:'error',content:'Requesting trial extension failed.',cbk:function() {
-                                    window.location.href = cloudmgtURL + "/site/pages/index.jag";
+                                    window.location.href = publisherURL;
                                 }
                             });
                  }); $('#userForm').hide();
@@ -239,6 +241,7 @@ section.start_content div.subs-cont{
            <input type="hidden" name="secretKey" id="secretKey" value=""/>
             <input type="hidden" name="imagePath" id="imagePath" value=""/>
            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
+           <input type="hidden" name="publisherURL" id="publisherURL" value="<%=publisherURL%>"/>
            <input type="hidden" name="isExtensionRequest" id="isExtensionRequest" value="<%=isExtensionRequest%>"/>
         </form>
     </div>
