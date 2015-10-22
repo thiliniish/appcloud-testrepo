@@ -101,8 +101,7 @@ public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
         Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
         Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), tenantEmail,
                             "user invitation sending failed");
-
-        DbConnectionManager con = new DbConnectionManager();
+        DbConnectionManager con = new DbConnectionManager(CloudIntegrationConstants.CLOUD_MGT_DATASOURCE);
         queryParameters.add(tenantEmail);
         ResultSet queryResult =
                 con.runQuery(CloudIntegrationConstants.GET_TEMP_UUID_FOR_REGISTRATION,
