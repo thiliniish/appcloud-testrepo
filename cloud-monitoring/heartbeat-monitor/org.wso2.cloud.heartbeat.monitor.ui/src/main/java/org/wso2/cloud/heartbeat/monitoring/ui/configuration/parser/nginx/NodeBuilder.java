@@ -20,7 +20,7 @@ package org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx;
 
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.Node;
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx.utils.Constants;
-import org.wso2.cloud.heartbeat.monitoring.ui.utils.HeartbeatExceptions;
+import org.wso2.cloud.heartbeat.monitoring.ui.utils.HeartbeatException;
 
 public class NodeBuilder {
 
@@ -40,7 +40,7 @@ public class NodeBuilder {
      *                }
      * @return fully constructed Node
      */
-    public static Node buildNode(Node aNode, String content) throws HeartbeatExceptions {
+    public static Node buildNode(Node aNode, String content) throws HeartbeatException {
 
         String[] lines = content.split("\n");
 
@@ -56,21 +56,17 @@ public class NodeBuilder {
                 }
 
                 // another node is detected and it is not a variable starting from $
-                if (line.contains(Constants.NGINX_NODE_START_BRACE) &&
-                    !line.contains(Constants.NGINX_VARIABLE)) {
+                if (line.contains(Constants.NGINX_NODE_START_BRACE) && !line.contains(Constants.NGINX_VARIABLE)) {
 
                     try {
                         Node childNode = new Node();
-                        childNode.setName(
-                                line.substring(0, line.indexOf(Constants.NGINX_NODE_START_BRACE))
-                                    .trim());
+                        childNode.setName(line.substring(0, line.indexOf(Constants.NGINX_NODE_START_BRACE)).trim());
 
                         StringBuilder sb = new StringBuilder();
 
                         int matchingBraceTracker = 1;
 
-                        while (!line.contains(Constants.NGINX_NODE_END_BRACE) ||
-                               matchingBraceTracker != 0) {
+                        while (!line.contains(Constants.NGINX_NODE_END_BRACE) || matchingBraceTracker != 0) {
                             i++;
                             if (i == lines.length) {
                                 break;
@@ -82,7 +78,7 @@ public class NodeBuilder {
                             if (line.contains(Constants.NGINX_NODE_END_BRACE)) {
                                 matchingBraceTracker--;
                             }
-                            sb.append(line + "\n");
+                            sb.append(line).append("\n");
                         }
 
                         childNode = buildNode(childNode, sb.toString());
@@ -92,7 +88,7 @@ public class NodeBuilder {
                         String msg =
                                 "Heartbeat - Monitor - Malformatted element is defined in the configuration file. [" +
                                 i + "] \n";
-                        throw new HeartbeatExceptions(msg + line, e);
+                        throw new HeartbeatException(msg + line, e);
                     }
 
                 }
@@ -100,16 +96,15 @@ public class NodeBuilder {
                 else {
                     if (!line.isEmpty() && !Constants.NGINX_NODE_END_BRACE.equals(line)) {
                         String[] prop = line.split(Constants.NGINX_SPACE_REGEX);
-                        String value = line.substring(prop[0].length(),
-                                                      line.indexOf(Constants.NGINX_LINE_DELIMITER))
-                                           .trim();
+                        String value =
+                                line.substring(prop[0].length(), line.indexOf(Constants.NGINX_LINE_DELIMITER)).trim();
                         try {
                             aNode.addProperty(prop[0], value);
                         } catch (Exception e) {
                             String msg =
                                     "Heartbeat - Monitor - Malformatted property is defined in the configuration file. [" +
                                     i + "] \n";
-                            throw new HeartbeatExceptions(msg + line, e);
+                            throw new HeartbeatException(msg + line, e);
                         }
                     }
                 }
