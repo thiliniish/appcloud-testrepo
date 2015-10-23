@@ -32,17 +32,20 @@ public class DbConnectionManager {
 
     private Connection connection;
 
-    public DbConnectionManager() {
+    public DbConnectionManager(String key) {
         try {
-            String jdbcDriver = CloudIntegrationTestUtils
-                    .getPropertyValue(CloudIntegrationConstants.MYSQL_DRIVER_CLASS_NAME);
-            String dbUrl = CloudIntegrationTestUtils
-                    .getPropertyValue(CloudIntegrationConstants.MYSQL_DATA_SOURCE_URL);
-
-            String dbUserName = CloudIntegrationTestUtils
-                    .getPropertyValue(CloudIntegrationConstants.MYSQL_USERNAME);
-            String dbPassword = CloudIntegrationTestUtils
-                    .getPropertyValue(CloudIntegrationConstants.MYSQL_PASSWORD);
+            String jdbcDriver = CloudIntegrationTestUtils.getPropertyValue(
+                    CloudIntegrationConstants.MYSQL_DRIVER_CLASS_NAME
+                            .replace(CloudIntegrationConstants.MYSQL_REPLACE, key));
+            String dbUrl = CloudIntegrationTestUtils.getPropertyValue(
+                    CloudIntegrationConstants.MYSQL_DATA_SOURCE_URL
+                            .replace(CloudIntegrationConstants.MYSQL_REPLACE, key));
+            String dbUserName = CloudIntegrationTestUtils.getPropertyValue(
+                    CloudIntegrationConstants.MYSQL_USERNAME
+                            .replace(CloudIntegrationConstants.MYSQL_REPLACE, key));
+            String dbPassword = CloudIntegrationTestUtils.getPropertyValue(
+                    CloudIntegrationConstants.MYSQL_PASSWORD
+                            .replace(CloudIntegrationConstants.MYSQL_REPLACE, key));
 
             Class.forName(jdbcDriver).newInstance();
 

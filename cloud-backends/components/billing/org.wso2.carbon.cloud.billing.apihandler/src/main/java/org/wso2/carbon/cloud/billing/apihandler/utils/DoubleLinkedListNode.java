@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package utils;
+package org.wso2.carbon.cloud.billing.apihandler.utils;
 
 public class DoubleLinkedListNode {
     public String key;

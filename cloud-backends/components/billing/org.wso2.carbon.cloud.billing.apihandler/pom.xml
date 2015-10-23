@@ -7,8 +7,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon.cloud</groupId>
-    <artifactId>org.wso2.carbon.cloud.apihandler</artifactId>
+    <artifactId>org.wso2.carbon.cloud.billing.apihandler</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Cloud - Billing - API Invocation Restrict Handler</name>

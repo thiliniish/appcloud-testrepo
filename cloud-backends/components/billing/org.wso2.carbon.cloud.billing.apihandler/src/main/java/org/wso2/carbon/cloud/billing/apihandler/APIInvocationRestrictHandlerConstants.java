@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.apihandler;
+package org.wso2.carbon.cloud.billing.apihandler;
 
 /**
  * API handler to block api invocation after the tenant deactivate from API Cloud

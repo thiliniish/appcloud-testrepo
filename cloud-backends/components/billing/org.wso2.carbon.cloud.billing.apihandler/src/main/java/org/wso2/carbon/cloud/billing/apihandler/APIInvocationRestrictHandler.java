@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.apihandler;
+package org.wso2.carbon.cloud.billing.apihandler;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -33,7 +33,7 @@ import org.apache.synapse.rest.AbstractHandler;
 import org.apache.synapse.transport.nhttp.NhttpConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.Utils;
 import org.wso2.carbon.apimgt.impl.APIConstants;
-import utils.LRUCache;
+import org.wso2.carbon.cloud.billing.apihandler.utils.LRUCache;
 
 import javax.naming.NamingException;
 import java.sql.SQLException;
