@@ -24,7 +24,7 @@
         <artifactId>cloud-monitoring</artifactId>
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
-    </parent>    
+    </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cloud-heartbeat-monitor</artifactId>
@@ -114,6 +114,9 @@
         <module>org.wso2.cloud.heartbeat.monitor</module>
         <module>org.wso2.cloud.heartbeat.monitor.ui</module>
     </modules>
+    <properties>
+
+    </properties>
 
 
 </project>

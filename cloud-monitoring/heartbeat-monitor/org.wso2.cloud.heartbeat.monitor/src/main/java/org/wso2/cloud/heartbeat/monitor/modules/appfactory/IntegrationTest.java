@@ -41,7 +41,6 @@ public class IntegrationTest implements Job {
     private static final Log log = LogFactory.getLog(IntegrationTest.class);
     private static final String ARG_SUITE_XML_FILES = "suiteXmlFile";
     private static final String ARG_VERBOSE = "verbose.mode";
-    private final String TEST_NAME = "IntegrationTest";
     private String serviceName;
     private String completeTestName;
     private int deploymentWaitTime;
@@ -49,18 +48,16 @@ public class IntegrationTest implements Job {
     private TestStateHandler testStateHandler;
     private TestInfo testInfo;
 
-    @Override public void execute(JobExecutionContext jobExecutionContext)
-            throws JobExecutionException {
+    @Override public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         setCompleteTestName(CaseConverter.splitCamelCase(serviceName) + " - Integration Test : ");
+        String TEST_NAME = "IntegrationTest";
         log.info("Started test execution :" + TEST_NAME);
         try {
             runTestSuite();
             testStateHandler.onSuccess(testInfo);
         } catch (AutomationFrameworkException e) {
             log.info("Integration Test Failed :" + e);
-            testStateHandler.onFailure(testInfo,
-                                       "App Factory Integration Test AutomationFrameworkException",
-                                       e);
+            testStateHandler.onFailure(testInfo, "App Factory Integration Test AutomationFrameworkException", e);
         } catch (Exception e) {
             log.info("Exception Integration Test : " + e);
             testStateHandler.onFailure(testInfo, "App Factory Integration Test exception", e);
@@ -113,7 +110,6 @@ public class IntegrationTest implements Job {
     }
 
     public void setDeploymentWaitTime(String deploymentWaitTime) {
-        this.deploymentWaitTime =
-                Integer.parseInt(deploymentWaitTime.split("s")[0].replace(" ", "")) * 1000;
+        this.deploymentWaitTime = Integer.parseInt(deploymentWaitTime.split("s")[0].replace(" ", "")) * 1000;
     }
 }

@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
 import org.apache.commons.logging.Log;
@@ -30,17 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Reading configuration files and created a singleton object
+ * Singleton class to read heartbeat.conf configuration
  */
 public class ConfigReader {
 
     private static final Log log = LogFactory.getLog(ConfigReader.class);
 
     private Node rootNode;
-    private Node dataSource;
-    private Node modulesNode;
-    private Node cloudNode;
-    private Node adminNode;
     private String configurationPath;
     private boolean nodeStatus;
     private String timeInterval;
@@ -51,7 +48,7 @@ public class ConfigReader {
     private Map<String, CloudStructure> cloudStructureList = new HashMap<String, CloudStructure>();
 
     /**
-     * Singleton instance for reading hearbeat.conf
+     * Singleton instance for reading heartbeat.conf
      */
     private static ConfigReader instance = new ConfigReader();
 
@@ -68,12 +65,12 @@ public class ConfigReader {
      * setting up cloud Objects and populating them
      *
      * @param configPath path to get the configuration from
-     * @throws HeartbeatExceptions IOException to throw if the heartbeat.conf has any exception
+     * @throws HeartbeatException IOException to throw if the heartbeat.conf has any exception
      */
-    public void buildConfigurationNode(String configPath) throws HeartbeatExceptions {
+    public void buildConfigurationNode(String configPath) throws HeartbeatException {
         if (!nodeStatus) {
             try {
-                log.info("Hearbeat Monitor: Started reading configuration");
+                log.info("Heartbeat Monitor: Started reading configuration from :" + configPath);
                 configurationPath = configPath;
                 NodeBuilder.buildNode(rootNode, FileManager.readFile(configurationPath));
                 convertTimeInterval(getDataSourceFromNode().getProperty(Constants.TIME_INTERVAL));
@@ -82,7 +79,7 @@ public class ConfigReader {
                 nodeStatus = true;
             } catch (IOException e) {
                 log.error(Constants.IO_EXCEPTION + configurationPath, e);
-                throw new HeartbeatExceptions(Constants.IO_EXCEPTION, e);
+                throw new HeartbeatException(Constants.IO_EXCEPTION, e);
             }
         }
     }
@@ -94,8 +91,7 @@ public class ConfigReader {
      */
 
     public Node getDataSourceFromNode() {
-        dataSource = rootNode.findChildNodeByName(Constants.DATA_SOURCE);
-        return dataSource;
+        return rootNode.findChildNodeByName(Constants.DATA_SOURCE);
     }
 
     /**
@@ -105,59 +101,54 @@ public class ConfigReader {
      */
 
     public Node getModulesFromRootNode() {
-        modulesNode = rootNode.findChildNodeByName(Constants.MODULES_NODE);
-        return modulesNode;
+        return rootNode.findChildNodeByName(Constants.MODULES_NODE);
     }
 
     /**
-     * Getting admin creetnitials for authentication and login
+     * Getting admin credentials for authentication and login
      *
      * @return a node with admin credentials
      */
 
     public Node getAdminNode() {
-        adminNode = rootNode.findChildNodeByName(Constants.ADMIN_NODE);
-        return adminNode;
+        return rootNode.findChildNodeByName(Constants.ADMIN_NODE);
     }
 
     /**
      * Initiallizing CloudStrucure Objects for each cloud from the configuration specified clouds.
      */
-    public void setCloudObjects(Node node) throws HeartbeatExceptions {
-        log.info("Hearbeat Monitor: Setting up Cloud Objects");
-        cloudNode = node;
-        try {
-            String[] clouds = (cloudNode.getProperty(Constants.CLOUDS_PROPERTY)).split(",");
+    public void setCloudObjects(Node node) {
+        log.info("Heartbeat Monitor: Setting up Cloud Objects");
+        if (node.getProperty(Constants.CLOUDS_PROPERTY) == null ||
+            node.getProperty(Constants.CLOUDS_PROPERTY).isEmpty()) {
+            log.error(Constants.NO_CLOUDS);
+        } else {
+            String[] clouds = (node.getProperty(Constants.CLOUDS_PROPERTY)).split(",");
             cloudStructureList = new HashMap<String, CloudStructure>();
             for (String individualCloud : clouds) {
                 cloudStructureList.put(StringConverter.underscoreToTitleCase(individualCloud),
-                                       new CloudStructure(StringConverter.underscoreToTitleCase(
-                                               individualCloud)));
+                                       new CloudStructure(StringConverter.underscoreToTitleCase(individualCloud)));
             }
-        } catch (NullPointerException e) {
-            log.error(Constants.NO_CLOUDS, e);
-            throw new HeartbeatExceptions(Constants.NO_CLOUDS, e);
         }
     }
 
     /**
      * Adding servers to relevant cloud objects while reading cloud properties.
      */
-    public void setCloudStructure(List<Node> nodeList) throws HeartbeatExceptions {
-        log.info("Hearbeat Monitor: Creating Cloud to Server Structure");
+    public void setCloudStructure(List<Node> nodeList) throws HeartbeatException {
+        log.info("Heartbeat Monitor: Creating Cloud to Server Structure");
         for (Node node : nodeList) {
-            try {
+            if (node.getProperty(Constants.CLOUDS_PROPERTY) == null ||
+                node.getProperty(Constants.CLOUDS_PROPERTY).isEmpty()) {
+                log.error(Constants.NO_CLOUDS + StringConverter.underscoreToTitleCase(node.getName()));
+            } else {
                 String[] cloudsProperty = node.getProperty(Constants.CLOUDS_PROPERTY).split(",");
                 for (String singleCloudName : cloudsProperty) {
-                    CloudStructure cloudObject = cloudStructureList
-                            .get(StringConverter.underscoreToTitleCase(singleCloudName));
-                    String serviceNameInTitleCase =
-                            StringConverter.underscoreToTitleCase(node.getName());
+                    CloudStructure cloudObject =
+                            cloudStructureList.get(StringConverter.underscoreToTitleCase(singleCloudName));
+                    String serviceNameInTitleCase = StringConverter.underscoreToTitleCase(node.getName());
                     cloudObject.putService(serviceNameInTitleCase);
                 }
-            } catch (NullPointerException e) {
-                log.warn(Constants.NO_CLOUDS_UNDER_TAG +
-                         StringConverter.underscoreToTitleCase(node.getName()));
             }
         }
     }
@@ -173,21 +164,19 @@ public class ConfigReader {
      * Converting parsed time interval to minutes
      *
      * @param interval Expected time interval
-     * @throws HeartbeatExceptions
+     * @throws HeartbeatException
      */
-    public void convertTimeInterval(String interval) throws HeartbeatExceptions {
+    public void convertTimeInterval(String interval) throws HeartbeatException {
         if (interval.contains(Constants.DAY)) {
-            timeInterval = Integer.toString(
-                    Integer.parseInt(interval.split(Constants.DAY)[0].replace(" ", "")));
+            timeInterval = Integer.toString(Integer.parseInt(interval.split(Constants.DAY)[0].replace(" ", "")));
         } else if (interval.contains(Constants.HOUR)) {
-            timeInterval = Integer.toString(
-                    Integer.parseInt(interval.split(Constants.HOUR)[0].replace(" ", "")) / 24);
+            timeInterval = Integer.toString(Integer.parseInt(interval.split(Constants.HOUR)[0].replace(" ", "")) / 24);
         } else if (interval.contains(Constants.MINUTE)) {
-            timeInterval = Integer.toString(
-                    Integer.parseInt(interval.split(Constants.MINUTE)[0].replace(" ", "")) / 1440);
+            timeInterval =
+                    Integer.toString(Integer.parseInt(interval.split(Constants.MINUTE)[0].replace(" ", "")) / 1440);
         } else {
-            timeInterval = "1";    //Default value 1 day = 1440 minutes
-            log.info("Parsed invalid time interval for service uptime status :");
+            timeInterval = Constants.DEFAULT_TIME_INTERVAL_IN_DAYS;    //Default value 1 day = 1440 minutes
+            log.warn("Parsed invalid time interval for service uptime status" + interval);
         }
     }
 
