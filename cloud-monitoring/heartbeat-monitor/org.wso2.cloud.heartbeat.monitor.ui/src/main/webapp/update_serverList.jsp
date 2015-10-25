@@ -9,30 +9,31 @@
         import="java.util.List" %>
 <%
 
-    String cloudName = (String) request.getParameter("cloudName");
-    String serverName = (String) request.getParameter("serverName");
-    JSONObject json = new JSONObject();
-    List<String> qualifiedServices = new ArrayList<String>();
-    ServicesUptimeRetriever serviceUptimeRetriever = new ServicesUptimeRetriever();
-    List<String> serviceList =
-            ConfigReader.getInstance().getCloudStructure().get(cloudName).getServiceList();
-    json.put("Services", "Default");
+String cloudName = (String) request.getParameter("cloudName");
+String serverName = (String) request.getParameter("serverName");
+String severity = (String) request.getParameter("severity");
+JSONObject json = new JSONObject();
+List<String> qualifiedServices = new ArrayList<String>();
+ServicesUptimeRetriever serviceUptimeRetriever = new ServicesUptimeRetriever();
+List<String> serviceList =
+        ConfigReader.getInstance().getCloudStructure().get(cloudName).getServiceList();
+json.put("Services", "Default");
 
-    for (String qualifiedServicesFor : serviceList) {
-        if (serviceUptimeRetriever.hasRecords(qualifiedServicesFor)) {
-            qualifiedServices.add(qualifiedServicesFor);
-        }
+for (String qualifiedServicesFor : serviceList) {
+    if (serviceUptimeRetriever.hasRecords(qualifiedServicesFor, severity)) {
+        qualifiedServices.add(qualifiedServicesFor);
     }
-    if (qualifiedServices.size() > 0) {
-        json.remove("Services");
-        if (serverName.equals(Constants.AGGREGATION_CLAUSE)) {
-            qualifiedServices.add(0, Constants.AGGREGATION_CLAUSE);
-        } else {
-            qualifiedServices.remove(serverName);
-            qualifiedServices.add(0, serverName);
-            qualifiedServices.add(1, Constants.AGGREGATION_CLAUSE);
-        }
-        json.put("Services", qualifiedServices);
+}
+if (qualifiedServices.size() > 0) {
+    json.remove("Services");
+    if (serverName.equals(Constants.AGGREGATION_CLAUSE)) {
+        qualifiedServices.add(0, Constants.AGGREGATION_CLAUSE);
+    } else {
+        qualifiedServices.remove(serverName);
+        qualifiedServices.add(0, serverName);
+        qualifiedServices.add(1, Constants.AGGREGATION_CLAUSE);
     }
-    out.print(json);
+    json.put("Services", qualifiedServices);
+}
+out.print(json);
 %>

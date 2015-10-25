@@ -15,12 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
 import java.util.Comparator;
 
 /**
- *Class to compare intervals to identify which is the largest interval pair
+ * Class to compare intervals to identify which is the largest interval pair
  */
 public class IntervalComparator implements Comparator {
 

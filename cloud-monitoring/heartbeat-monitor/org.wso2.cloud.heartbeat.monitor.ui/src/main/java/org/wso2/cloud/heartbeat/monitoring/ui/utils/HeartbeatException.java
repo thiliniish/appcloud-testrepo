@@ -21,20 +21,13 @@ package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 /**
  * Generic exception class to wrap Heartbeat related exceptions
  */
-public class HeartbeatExceptions extends Exception {
-    public HeartbeatExceptions() {
+public class HeartbeatException extends Exception {
 
-    }
-
-    public HeartbeatExceptions(String message) {
+    public HeartbeatException(String message) {
         super(message);
     }
 
-    public HeartbeatExceptions(Throwable cause) {
-        super(cause);
-    }
-
-    public HeartbeatExceptions(String message, Throwable cause) {
+    public HeartbeatException(String message, Throwable cause) {
         super(message, cause);
     }
 
