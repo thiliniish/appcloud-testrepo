@@ -54,8 +54,6 @@ include("/jagg/config_reader.jag");
                         log.debug("Notification sent to the cloud team regarding the tenant " + userName + " enabling the self sign up feature for the tenant store " + tenantDomain);
                     }
                     log.info("Completed the uploading process for the user " + userName);
-
-
                 } else {
                     log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail);
                     statusMessage = "error";
