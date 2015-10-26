@@ -41,6 +41,9 @@ include("/jagg/config_reader.jag");
                     //Sending an email to the cloud team to inform the enabling of the self sign up feature of the tenant's API Store.
                     tenantEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
                     var tenantDomain = jagg.module("manager").getTenantDomain();
+
+                    //populating the registry files needed for the self sign-up workflow.
+                    statusMessage = jagg.module("registry").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
                     var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
                     body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
                     var subject = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.subject;
@@ -51,7 +54,8 @@ include("/jagg/config_reader.jag");
                         log.debug("Notification sent to the cloud team regarding the tenant " + userName + " enabling the self sign up feature for the tenant store " + tenantDomain);
                     }
                     log.info("Completed the uploading process for the user " + userName);
-                    statusMessage = jagg.module("registry").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
+
+
                 } else {
                     log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail);
                     statusMessage = "error";
