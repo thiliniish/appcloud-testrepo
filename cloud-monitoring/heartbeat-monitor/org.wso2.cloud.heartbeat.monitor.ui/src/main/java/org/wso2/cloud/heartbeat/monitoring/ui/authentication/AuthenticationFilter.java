@@ -31,24 +31,18 @@ import java.io.IOException;
 @WebFilter("/AuthenticationFilter") public class AuthenticationFilter implements Filter {
     private static final Log log = LogFactory.getLog(AuthenticationFilter.class);
 
-    private ServletContext context;
-
     public void init(FilterConfig fConfig) throws ServletException {
-        this.context = fConfig.getServletContext();
+        ServletContext context = fConfig.getServletContext();
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-
         String uri = req.getRequestURI();
-        //log.info("Requested Resource :" + uri);
-
         HttpSession session = req.getSession(false);
 
         if (session == null && !(uri.endsWith("html") || uri.endsWith("LoginServlet"))) {
-            log.info("Unauthorized access request");
             res.sendRedirect("login.html");
         } else {
             // pass the request along the filter chain

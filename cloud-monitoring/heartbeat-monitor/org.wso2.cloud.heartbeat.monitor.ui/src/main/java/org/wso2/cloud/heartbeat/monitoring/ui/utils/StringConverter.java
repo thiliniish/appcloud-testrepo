@@ -24,9 +24,16 @@ package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 public class StringConverter {
 
     /**
+     * Private constructor to prevent instantiation
+     */
+    private StringConverter(){
+
+    }
+
+    /**
      *  splits the camel case value to a string and replaces them with a space
-     * @param valueToReplace
-     * @return
+     * @param valueToReplace string to replace with
+     * @return  value replaced string
      */
     public static String splitCamelCase(String valueToReplace) {
         return valueToReplace.replaceAll(
@@ -41,8 +48,8 @@ public class StringConverter {
 
     /**
      * Converting underscore values to titleCase values
-     * @param underscoreCaseString
-     * @return
+     * @param underscoreCaseString string to convert
+     * @return  converted string
      */
     public static String underscoreToTitleCase(String underscoreCaseString){
         String[] parts = underscoreCaseString.split("_");
@@ -55,8 +62,8 @@ public class StringConverter {
 
     /**
      * Converts a string to proper case
-     * @param s
-     * @return
+     * @param s string to convert
+     * @return converted String
      */
     private static String toProperCase(String s) {
         return s.substring(0, 1).toUpperCase() +

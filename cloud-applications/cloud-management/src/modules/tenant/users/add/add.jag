@@ -119,45 +119,22 @@ var sendInvite = function (email, tenant, roles, message) {
     var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
     parameters = [tenant, email, uuid, roles, uuid, roles];
     var results = jagg.module("database").executeQuery(queryString, parameters);
-    var tokenId = jagg.module("util").getLeadSourceToken("signUp");
 
     log.info("Successfully added the temp registration");
     var link = targetEpr + "?confirmation=" + uuid + "&isInvitee=true";
     sendEmail(email, link, displayName, roles, message);
-    var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
-    if (is_enable.toString() == "true") {
-        setTimeout(function () {
-            var modEvents = jagg.module("events");
-            var jsonData = {
-                "email": email,
-                "tokenid": tokenId
-            };
-            var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
-            var data = "json=" + JSON.stringify(jsonData);
-            var result = post(URL, data, {
-                'Content-Type': 'application/json'}, 'text');
-            var type = "CloudMgt";
-            var msg = JSON.parse(result['data']);
-            var actionString = "Rightwave-" + type + "-cloudsignup{Invite}:";
-            var page = "Rightwave";
-            var item = type;
-            var events = [];
-            if (msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                actionString = actionString + "Success";
-                log.info("Rightwave api call Cloud Signup is success for " + email);
-            } else {
-                actionString = actionString + "Failed";
-                log.error("Rightwave api call failed for the user " + email);
-            }
-            var event = {};
-            event.item = item;
-            event.timestamp = new Date().getTime();
-            event.pageName = page;
-            event.action = actionString;
-            events[events.length] = event;
-            modEvents.publishUserActivity(events, email, tenant);
-        }, 0);
-    }
+    var modEvents = jagg.module("events");
+    var type = "CloudMgt";
+    var actionString = "Rightwave-" + type + "-cloudsignup{Invite}:Success";
+    var page = "Rightwave";
+    var events = [];
+    var event = {};
+    event.item = type;
+    event.timestamp = new Date().getTime();
+    event.pageName = page;
+    event.action = actionString;
+    events[events.length] = event;
+    modEvents.publishUserActivity(events, email, tenant);
     return email;
 };
 

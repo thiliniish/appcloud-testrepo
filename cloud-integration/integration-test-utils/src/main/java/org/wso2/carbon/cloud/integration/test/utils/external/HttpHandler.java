@@ -19,7 +19,6 @@ package org.wso2.carbon.cloud.integration.test.utils.external;
 import org.apache.http.HttpHeaders;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
@@ -52,16 +51,18 @@ public class HttpHandler {
     /**
      * This method is used to do a https post request
      *
-     * @param url         request url
-     * @param payload     Content of the post request
-     * @param authCookie  authCookie for authentication
-     * @param contentType content type of the post request
+     * @param url        request url
+     * @param params     Content of the post request
+     * @param authCookie authCookie for authentication
+     * @param headerMap     header list of the request
      * @return response and if cookie is null returns the cookie in a Map
      * @throws java.io.IOException - Throws this when failed to fulfill a https post request
      */
-    public static Map<String, String> doPostHttps(String url, String payload, String authCookie,
-                                                  String contentType) throws IOException {
+    public static Map<String, String> doPostHttps(String url, Map<String, String> params, String authCookie,
+                                                  Map<String, String> headerMap) throws IOException {
+
         URL obj = new URL(url);
+        String payload = mapToString(params);
         Map<String, String> responseMap = new HashMap<String, String>();
 
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
@@ -69,11 +70,13 @@ public class HttpHandler {
         if (authCookie != null && !"".equals(authCookie)) {
             con.setRequestProperty("Cookie", authCookie);
         }
-        if (contentType != null && !"".equals(contentType)) {
-            con.setRequestProperty(HttpHeaders.CONTENT_TYPE, contentType);
-        } else {
+        for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+            con.setRequestProperty(entry.getKey(), entry.getValue());
+        }
+        if (headerMap.get(HttpHeaders.CONTENT_TYPE) == null) {
             con.setRequestProperty(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED);
         }
+
         con.setRequestProperty(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
         con.setDoOutput(true);
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
@@ -114,8 +117,9 @@ public class HttpHandler {
      */
     public static Map doPostHttps(String url, Map<String, String> params, String authCookie)
             throws IOException {
-        String payLoad = mapToString(params);
-        return doPostHttps(url, payLoad, authCookie, MediaType.APPLICATION_FORM_URLENCODED);
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED);
+        return doPostHttps(url, params, authCookie, headers);
     }
 
     /**
