@@ -151,17 +151,17 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.apimgt.impl</artifactId>
-            <version>1.2.3</version>
+            <version>${org.wso2.carbon.apimgt.impl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.apimgt.api</artifactId>
-            <version>1.2.3</version>
+            <version>${org.wso2.carbon.apimgt.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>4.2.0</version>
+            <version>${org.wso2.carbon.core.version}</version>
         </dependency>
     </dependencies>
 
@@ -170,13 +170,15 @@
         <org.apache.felix.src.plugin.version>1.7.2</org.apache.felix.src.plugin.version>
         <org.apache.felix.budnle.plugin.version>2.5.3</org.apache.felix.budnle.plugin.version>
         <org.apache.ws.commons.axiom.version>1.2.14</org.apache.ws.commons.axiom.version>
-        <org.apache.ws.commons.axiom.wso2.version>1.2.11.wso2v5
-        </org.apache.ws.commons.axiom.wso2.version>
+        <org.apache.ws.commons.axiom.wso2.version>1.2.11.wso2v5</org.apache.ws.commons.axiom.wso2.version>
         <org.bouncycastle.wso2.version>1.49.0.wso2v2</org.bouncycastle.wso2.version>
         <org.wso2.carbon.core.services.version>4.2.0</org.wso2.carbon.core.services.version>
         <org.wso2.carbon.logging.version>4.2.0</org.wso2.carbon.logging.version>
         <org.wso2.carbon.logging.import.version>1.0.4</org.wso2.carbon.logging.import.version>
         <org.wso2.carbon.utils.version>4.2.0</org.wso2.carbon.utils.version>
+        <org.wso2.carbon.apimgt.impl.version>1.2.3</org.wso2.carbon.apimgt.impl.version>
+        <org.wso2.carbon.apimgt.api.version>1.2.3</org.wso2.carbon.apimgt.api.version>
+        <org.wso2.carbon.core.version>4.2.0</org.wso2.carbon.core.version>
         <org.wso2.carbon.registry.api.version>4.2.0</org.wso2.carbon.registry.api.version>
         <org.wso2.carbon.registry.core.version>4.2.0</org.wso2.carbon.registry.core.version>
         <org.wso2.carbon.registry.core.import.version>1.0.1
