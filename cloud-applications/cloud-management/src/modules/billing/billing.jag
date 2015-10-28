@@ -21,7 +21,7 @@ var zuoraObj = (JSON.parse(billingService.getConfigInJson())).zuoraConfig;
 
 
 var isPaidAccount = function() {
-    if((session.get("TENANT_INFO")) != null ){
+    if ((session.get("TENANT_INFO")) != null ) {
         var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
         var queryString  = SQL_QUERY_STRINGS.SELECT_ACCOUNT_NUMBER_FROM_BILLING_ACCOUNT;
         var parameters =[tenantDomain];
