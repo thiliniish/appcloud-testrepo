@@ -22,7 +22,7 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
 
 /**
- * Cloud monetization service. serves the generic cloud monetization services
+ * API Cloud monetization service.
  */
 public class APICloudMonetizationService {
 

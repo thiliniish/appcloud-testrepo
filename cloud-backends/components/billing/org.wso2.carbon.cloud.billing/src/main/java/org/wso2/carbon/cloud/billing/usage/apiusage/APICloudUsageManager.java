@@ -46,9 +46,11 @@ import java.util.Date;
 public class APICloudUsageManager {
 
     private static final Log LOGGER = LogFactory.getLog(APICloudUsageManager.class);
-    private static String dailyUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+    private static String dailyUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                                                  .getCloudBillingServiceUrl()
                                           + BillingConstants.DS_API_URI_REQUEST_COUNT;
-    private static String usageForTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+    private static String usageForTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                                                      .getCloudBillingServiceUrl()
                                               + BillingConstants.DS_API_URI_USAGE;
 
     private BillingRequestProcessor dsBRProcessor;
@@ -73,10 +75,10 @@ public class APICloudUsageManager {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
-        NameValuePair[] nameValuePairs = new NameValuePair[] {
-            new NameValuePair("year", String.valueOf(cal.get(Calendar.YEAR))),
-            new NameValuePair("month", String.valueOf((cal.get(Calendar.MONTH) + 1))),
-            new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)))
+        NameValuePair[] nameValuePairs = new NameValuePair[]{
+                new NameValuePair("year", String.valueOf(cal.get(Calendar.YEAR))),
+                new NameValuePair("month", String.valueOf((cal.get(Calendar.MONTH) + 1))),
+                new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)))
         };
 
         return dsBRProcessor.doGet(dailyUsageUrl, nameValuePairs);
@@ -84,7 +86,7 @@ public class APICloudUsageManager {
 
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
-        NameValuePair[] nameValuePairs = new NameValuePair[] {
+        NameValuePair[] nameValuePairs = new NameValuePair[]{
                 new NameValuePair("apiPublisher", "%25@" + tenantDomain),
                 new NameValuePair("startDate", startDate),
                 new NameValuePair("endDate", endDate)

@@ -37,9 +37,10 @@ import java.util.Iterator;
 
 public class APICloudUsageProcessor implements UsageProcessor {
 
-    private BillingRequestProcessor billingRequestProcessor;
-    private static String amendmentsUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+    private static String amendmentsUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                                                  .getCloudBillingServiceUrl()
                                           + BillingConstants.DS_API_URI_AMENDMENTS;
+    private BillingRequestProcessor billingRequestProcessor;
 
     public APICloudUsageProcessor() {
         this.billingRequestProcessor =
@@ -80,7 +81,7 @@ public class APICloudUsageProcessor implements UsageProcessor {
     }
 
     private String getAmendmentForPaymentPlans(String accountId) throws CloudBillingException {
-        NameValuePair[] nameValuePairs = new NameValuePair[] {
+        NameValuePair[] nameValuePairs = new NameValuePair[]{
                 new NameValuePair("ACCOUNT_NUMBER", accountId),
                 new NameValuePair("SUBSCRIPTION", BillingConstants.API_CLOUD_SUBSCRIPTION_ID)
         };

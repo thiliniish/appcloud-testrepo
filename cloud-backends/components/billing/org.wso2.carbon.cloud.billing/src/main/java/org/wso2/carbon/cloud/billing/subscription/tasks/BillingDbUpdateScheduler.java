@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * Billing RDBMS table update task scheduler
  */
 public class BillingDbUpdateScheduler {

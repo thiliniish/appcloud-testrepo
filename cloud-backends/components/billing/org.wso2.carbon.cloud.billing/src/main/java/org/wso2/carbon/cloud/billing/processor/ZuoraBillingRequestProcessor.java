@@ -85,7 +85,7 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
     /**
      * Zuora GET request
      *
-     * @param url URL
+     * @param url            URL
      * @param nameValuePairs query params
      * @return response
      * @throws CloudBillingException

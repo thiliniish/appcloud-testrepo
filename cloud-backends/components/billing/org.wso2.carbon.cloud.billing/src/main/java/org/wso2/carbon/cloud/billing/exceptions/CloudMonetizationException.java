@@ -21,7 +21,7 @@ package org.wso2.carbon.cloud.billing.exceptions;
 /**
  * Cloud monetization exception
  */
-public class CloudMonetizationException extends Exception{
+public class CloudMonetizationException extends Exception {
 
     private static final long serialVersionUID = 154545457898L;
 

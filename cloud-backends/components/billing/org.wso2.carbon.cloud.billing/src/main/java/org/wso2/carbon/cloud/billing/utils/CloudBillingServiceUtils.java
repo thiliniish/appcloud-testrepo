@@ -50,7 +50,8 @@ public class CloudBillingServiceUtils {
                      .getDSConfig()
                      .getHttpClientConfig());
     private static APICloudUsageManager usageManager = new APICloudUsageManager();
-    private static String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+    private static String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                                                  .getCloudBillingServiceUrl()
                                           + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
 
     private CloudBillingServiceUtils() {
