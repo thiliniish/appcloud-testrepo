@@ -181,8 +181,8 @@ public class APIDeleter implements Runnable {
                     } catch (APIManagementException e) {
                         log.error("Error while deleting apis of tenant " + tenantDomain + "[" + tenantID + "]", e);
                     } catch (Exception e) {
-                        log.error("Unexpected error occurred while deleting apis" +
-                                  " of tenant " + tenantDomain + "[" + tenantID + "]", e);
+                        log.error("Unexpected error occurred while deleting apis" + " of tenant " + tenantDomain + "["
+                                + tenantID + "]", e);
                     }
                     try {
                         //sleep 5 seconds before starting next to avoid connection exhaustion.
@@ -200,10 +200,8 @@ public class APIDeleter implements Runnable {
                 PrivilegedCarbonContext.endTenantFlow();
                 log.info("Tenant API Deletion is completed for  tenant " + tenantDomain + "[" + tenantID + "]");
             }
-
         }
         log.info("Api deletion completed for all the " + tenantDomainIdMap.size() + " tenants.");
-
     }
 
     /**

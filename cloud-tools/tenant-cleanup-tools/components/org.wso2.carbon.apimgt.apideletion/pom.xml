@@ -163,8 +163,6 @@
             <artifactId>org.wso2.carbon.core</artifactId>
             <version>4.2.0</version>
         </dependency>
-
-
     </dependencies>
 
     <properties>
