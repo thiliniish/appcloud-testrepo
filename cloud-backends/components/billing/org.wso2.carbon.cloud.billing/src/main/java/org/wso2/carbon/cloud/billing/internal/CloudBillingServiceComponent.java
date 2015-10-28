@@ -160,7 +160,7 @@ public class CloudBillingServiceComponent {
      */
     private void activateScheduledTasks() {
         BillingConfig configuration = BillingConfigUtils.getBillingConfiguration();
-        if (configuration.isBillingEnabled() && configuration.isMgtMode()) {
+        if (configuration.isBillingEnabled() && configuration.isMgtModeEnabled()) {
 
             boolean enableDailyUsageUpload = configuration.getZuoraConfig().getUsageConfig().isEnableUsageUploading();
 

@@ -22,9 +22,10 @@
     <BillingEnabled>true</BillingEnabled>
     <!--Billing component is deployed for cloudmgt. Set this to false if the billing component is
     deployed in APIM or other server as a supporting component. This will disable mgt tasks-->
-    <MgtMode>true</MgtMode>
+    <MgtModeEnabled>true</MgtModeEnabled>
     <DataServiceAPI>
-        <ServiceURL>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint</ServiceURL>
+        <CloudBillingServiceURL>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURL>
+        <APICloudMonetizationServiceURL>https://localhost:9453/services/WSO2APICloudMonetizationDS.SecureHTTPEndpoint</APICloudMonetizationServiceURL>
         <User>admin</User>
         <Password>admin</Password>
         <HttpClientConfig>

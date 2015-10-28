@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.billing.usage.apiusage;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.commons.httpclient.NameValuePair;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
@@ -37,6 +38,8 @@ import java.util.Iterator;
 public class APICloudUsageProcessor implements UsageProcessor {
 
     private BillingRequestProcessor billingRequestProcessor;
+    private static String amendmentsUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+                                          + BillingConstants.DS_API_URI_AMENDMENTS;
 
     public APICloudUsageProcessor() {
         this.billingRequestProcessor =
@@ -77,10 +80,11 @@ public class APICloudUsageProcessor implements UsageProcessor {
     }
 
     private String getAmendmentForPaymentPlans(String accountId) throws CloudBillingException {
-        return billingRequestProcessor.doGet(BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
-                                             + BillingConstants.DS_API_URI_AMENDMENTS + "?ACCOUNT_NUMBER="
-                                             + "&SUBSCRIPTION=" + accountId + BillingConstants
-                                                     .API_CLOUD_SUBSCRIPTION_ID);
+        NameValuePair[] nameValuePairs = new NameValuePair[] {
+                new NameValuePair("ACCOUNT_NUMBER", accountId),
+                new NameValuePair("SUBSCRIPTION", BillingConstants.API_CLOUD_SUBSCRIPTION_ID)
+        };
+        return billingRequestProcessor.doGet(amendmentsUrl, nameValuePairs);
     }
 
 }

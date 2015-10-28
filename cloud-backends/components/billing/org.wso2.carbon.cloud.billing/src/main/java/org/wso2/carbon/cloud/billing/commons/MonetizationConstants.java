@@ -16,10 +16,17 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.utils;
+package org.wso2.carbon.cloud.billing.commons;
 
 /**
- * Model to represent Utilities for Cloud monetization service
+ * API Cloud Monetization specific constants
  */
-public class CloudMonetizationUtils {
+public final class MonetizationConstants {
+
+
+    /*API Cloud Monetization*/
+    public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/subscriber";
+
+    private MonetizationConstants() {
+    }
 }

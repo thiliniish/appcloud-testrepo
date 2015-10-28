@@ -31,7 +31,7 @@ import java.util.Map;
 
 /**
  *
- *
+ * Billing RDBMS table update task scheduler
  */
 public class BillingDbUpdateScheduler {
 
@@ -55,7 +55,7 @@ public class BillingDbUpdateScheduler {
 
             Map<String, String> properties = new HashMap<String, String>();
 
-            String serviceUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl();
+            String serviceUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl();
             String pendingDisableTenantsDSUrl = serviceUrl + BillingConstants.DS_API_URI_PENDING_DISABLE_TENANTS;
             properties.put(BillingConstants.PENDING_DISABLES_URL_KEY, pendingDisableTenantsDSUrl);
 

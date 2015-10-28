@@ -18,9 +18,15 @@
 
 package org.wso2.carbon.cloud.billing.service;
 
+import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
+import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
+
 /**
- * API Cloud Specific monetization service
+ * Cloud monetization service. serves the generic cloud monetization services
  */
 public class APICloudMonetizationService {
 
+    public String getAPISubscriberInfo(String username, String tenantDomain) throws CloudMonetizationException {
+        return APICloudMonetizationUtils.getAPISubscriberInfo(username, tenantDomain);
+    }
 }
