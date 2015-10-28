@@ -405,7 +405,7 @@ function getLeadSourceToken (campaign) {
     return tokenId;
 };
 
-function convertValue(value) {
+function convertValue (value) {
     var val = value.toUpperCase();
     return val.substring(0, val.indexOf("_"));
 };

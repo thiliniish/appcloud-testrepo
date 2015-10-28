@@ -37,7 +37,7 @@ var log = new Log();
             if (result != null) {
                 print(result);
             }
-        } catch(e) {
+        } catch (e) {
             throw "Error while checking existence of user:  " + userName;
         }
     } else {
