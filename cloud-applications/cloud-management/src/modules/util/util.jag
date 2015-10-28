@@ -383,25 +383,25 @@ function getLeadSourceToken (campaign) {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
         var types = cloudConfig.subscriptions.type;
         var URL;
-            if ("signUp".equals(campaign)) {
-                URL = cloudConfig.RightWaveAddUserApi.signupLeadSource;
-            } else if ("upgrade".equals(campaign)) {
-                URL =   cloudConfig.RightWaveAddUserApi.upgradeLeadSource;
-            } else {
-                for (var i = 0; i < types.length; i++) {
-                    if (convertValue(types[i].id).equals(campaign)) {
-                        URL = types[i].urls.leadSourceUrl;
-                    }
+        if ("signUp".equals(campaign)) {
+            URL = cloudConfig.RightWaveAddUserApi.signupLeadSource;
+        } else if ("upgrade".equals(campaign)) {
+            URL =   cloudConfig.RightWaveAddUserApi.upgradeLeadSource;
+        } else {
+            for (var i = 0; i < types.length; i++) {
+                if (convertValue(types[i].id).equals(campaign)) {
+                    URL = types[i].urls.leadSourceUrl;
                 }
             }
-            var result = get(URL);
-            var data = parse(result.data);
-            tokenId = data.tokenid;
-        } catch (e) {
-            log.error("Error retrieving lead source token ");
-            log.error(e);
-            throw "Error retrieving lead source token " + e;
         }
+        var result = get(URL);
+        var data = parse(result.data);
+        tokenId = data.tokenid;
+    } catch (e) {
+        log.error("Error retrieving lead source token ");
+        log.error(e);
+        throw "Error retrieving lead source token " + e;
+    }
     return tokenId;
 };
 

@@ -1107,8 +1107,6 @@ var extendTrial = function (serviceId, customerRequest) {
     }
 };
 
-
-
 var getBillingInvoiceData= function (accountId,invoiceId){
 
 try {

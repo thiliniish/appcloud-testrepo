@@ -139,7 +139,6 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     if(newUser){
         addDefaultLoginRole(adminUserName);
         log.info("Successfully Added default role ");
-
     }
     storeSubscription(organizationDomain);
 
