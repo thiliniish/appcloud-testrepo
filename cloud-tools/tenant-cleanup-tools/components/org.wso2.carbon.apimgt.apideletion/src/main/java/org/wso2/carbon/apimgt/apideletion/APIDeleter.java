@@ -55,7 +55,9 @@ public class APIDeleter implements Runnable {
     public void run() {
         try {
             /*
-            The thread sleeps for a given number of seconds in order to make sure the server startup is completed.
+            Although ApiDeletionServerStartListener invokes this thread after listening to the server start, some services
+            may not be fully started at the time of thread invocation. Therefore the thread sleeps for a given number of
+            seconds in order to make sure the server startup is completed.
             The sleep time period is entered as a system property.
             This sleep time is determined after inspecting the server start up time.
             */

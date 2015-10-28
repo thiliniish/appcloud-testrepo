@@ -28,10 +28,13 @@ public class ApiDeletionServerStartListener implements ServerStartupHandler {
 
     private static final Log log = LogFactory.getLog(ApiDeletionServerStartListener.class);
 
+    /**
+     * This method waits until the server starts for the execution
+     */
     public void invoke() {
         String tenantFile = System.getProperty(ApiDeleterConstants.TENANT_FILE);
         String napTime = System.getProperty(ApiDeleterConstants.NAP_TIME);
-        //checks for null and empty strings
+        //checks for null and empty values
         if ((!"".equals(tenantFile)) && (!"".equals(napTime))) {
             log.info("Tenant api deletion for tenant-file located at: " + tenantFile + "will start after " + napTime +
                      "milli-seconds.");
@@ -39,7 +42,8 @@ public class ApiDeletionServerStartListener implements ServerStartupHandler {
             Thread t1 = new Thread(new APIDeleter());
             t1.start();
         } else {
-            log.info("Required system properties are not specified for starting api deletion, no apis will be deleted.");
+            log.info(
+                    "Required system properties tenantFile/napTime are not specified for starting api deletion, no apis will be deleted.");
         }
     }
 }
