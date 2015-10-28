@@ -16,10 +16,23 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.utils;
+package org.wso2.carbon.cloud.billing.exceptions;
 
 /**
- * Model to represent Utilities for Cloud monetization service
+ * Cloud monetization exception
  */
-public class CloudMonetizationUtils {
+public class CloudMonetizationException extends Exception {
+
+    private static final long serialVersionUID = 154545457898L;
+
+    public CloudMonetizationException() {
+    }
+
+    public CloudMonetizationException(String s) {
+        super(s);
+    }
+
+    public CloudMonetizationException(String s, Throwable throwable) {
+        super(s, throwable);
+    }
 }

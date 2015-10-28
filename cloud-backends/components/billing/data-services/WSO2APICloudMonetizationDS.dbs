@@ -1,0 +1,32 @@
+<data name="WSO2APICloudMonetizationDS">
+    <description>WSO2 API Cloud Monetization data service</description>
+    <config id="apim_stat">
+        <property name="carbon_datasource_name">apim_stats</property>
+    </config>
+    <config id="cloud_mgt">
+        <property name="carbon_datasource_name">cloud_mgt</property>
+    </config>
+    <query id="getSubscriberInfoQ" useConfig="cloud_mgt">
+        <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_SUBSCRIBERS WHERE USER_NAME = :USER_NAME AND TENANT_DOMAIN = :TENANT_DOMAIN</sql>
+        <result element="Subscribers" rowName="Subscriber">
+            <element column="USER_NAME" name="Username" xsdType="string"/>
+            <element column="TENANT_DOMAIN" name="Tenant" xsdType="string"/>
+            <element column="TEST_ACCOUNT" name="TestAccount" xsdType="boolean"/>
+            <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
+        </result>
+        <param name="USER_NAME" sqlType="STRING"/>
+        <param name="TENANT_DOMAIN" sqlType="STRING"/>
+    </query>
+    <operation name="getSubscriber">
+        <call-query href="getSubscriberInfoQ">
+            <with-param name="USER_NAME" query-param="Username"/>
+            <with-param name="TENANT_DOMAIN" query-param="Tenant"/>
+        </call-query>
+    </operation>
+    <resource method="GET" path="subscriber">
+        <call-query href="getSubscriberInfoQ">
+            <with-param name="USER_NAME" query-param="Username"/>
+            <with-param name="TENANT_DOMAIN" query-param="Tenant"/>
+        </call-query>
+    </resource>
+</data>

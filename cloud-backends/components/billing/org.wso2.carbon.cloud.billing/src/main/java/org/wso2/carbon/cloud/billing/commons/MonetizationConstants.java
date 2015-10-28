@@ -16,24 +16,17 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.processor;
-
-
-import org.apache.commons.httpclient.NameValuePair;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+package org.wso2.carbon.cloud.billing.commons;
 
 /**
- * Represents the API invocation methods which are needed for cloud billing
- * platform.
+ * API Cloud Monetization specific constants
  */
-public interface BillingRequestProcessor {
+public final class MonetizationConstants {
 
-    String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
 
-    void doUpload() throws CloudBillingException;
+    /*API Cloud Monetization*/
+    public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/subscriber";
 
-    String doPost(String url, String jsonPayload) throws CloudBillingException;
-
-    String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException;
-
+    private MonetizationConstants() {
+    }
 }

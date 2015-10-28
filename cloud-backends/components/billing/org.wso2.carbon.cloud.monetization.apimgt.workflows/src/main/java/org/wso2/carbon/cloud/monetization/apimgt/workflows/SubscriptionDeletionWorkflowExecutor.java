@@ -16,24 +16,27 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.processor;
+package org.wso2.carbon.cloud.monetization.apimgt.workflows;
 
+import org.wso2.carbon.apimgt.impl.dto.WorkflowDTO;
+import org.wso2.carbon.apimgt.impl.workflow.WorkflowConstants;
+import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
+import org.wso2.carbon.apimgt.impl.workflow.WorkflowExecutor;
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import java.util.List;
 
 /**
- * Represents the API invocation methods which are needed for cloud billing
- * platform.
+ *
  */
-public interface BillingRequestProcessor {
+public class SubscriptionDeletionWorkflowExecutor extends WorkflowExecutor {
 
-    String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
+    @Override
+    public String getWorkflowType() {
+        return WorkflowConstants.WF_TYPE_AM_SUBSCRIPTION_DELETION;
+    }
 
-    void doUpload() throws CloudBillingException;
-
-    String doPost(String url, String jsonPayload) throws CloudBillingException;
-
-    String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException;
-
+    @Override
+    public List<WorkflowDTO> getWorkflowDetails(String s) throws WorkflowException {
+        return null;
+    }
 }

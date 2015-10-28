@@ -27,18 +27,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "DataServiceAPI")
 public class DataServiceConfig {
 
-    private String serviceUrl;
+    private String cloudBillingServiceUrl;
+    private String apiCloudMonetizationServiceUrl;
     private String user;
     private String password;
     private HttpClientConfig httpClientConfig;
 
-    @XmlElement(name = "ServiceURL", nillable = false, required = true)
-    public String getServiceUrl() {
-        return serviceUrl;
+    @XmlElement(name = "CloudBillingServiceURL", nillable = false, required = true)
+    public String getCloudBillingServiceUrl() {
+        return cloudBillingServiceUrl;
     }
 
-    public void setServiceUrl(String serviceUrl) {
-        this.serviceUrl = serviceUrl;
+    public void setCloudBillingServiceUrl(String cloudBillingServiceUrl) {
+        this.cloudBillingServiceUrl = cloudBillingServiceUrl;
     }
 
     @XmlElement(name = "User", nillable = false, required = true)
@@ -66,5 +67,14 @@ public class DataServiceConfig {
 
     public void setHttpClientConfig(HttpClientConfig httpClientConfig) {
         this.httpClientConfig = httpClientConfig;
+    }
+
+    @XmlElement(name = "APICloudMonetizationServiceURL", nillable = false, required = true)
+    public String getApiCloudMonetizationServiceUrl() {
+        return apiCloudMonetizationServiceUrl;
+    }
+
+    public void setApiCloudMonetizationServiceUrl(String apiCloudMonetizationServiceUrl) {
+        this.apiCloudMonetizationServiceUrl = apiCloudMonetizationServiceUrl;
     }
 }

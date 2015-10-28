@@ -21,6 +21,7 @@ package org.wso2.carbon.cloud.billing.processor;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
@@ -82,11 +83,12 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
     /**
      * Get request
      *
-     * @param url URL
+     * @param url            URL
+     * @param nameValuePairs query params
      * @return GET request response
      * @throws CloudBillingException
      */
-    public String doGet(String url) throws CloudBillingException {
+    public String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
         GetMethod get = new GetMethod(url);
         String trustStorePath = ssoConfig.getKeyStorePath();
         String password = ssoConfig.getTrustStorePassword();
@@ -98,6 +100,9 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         }
         get.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
         get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
+        if (!ArrayUtils.isEmpty(nameValuePairs)) {
+            get.setQueryString(nameValuePairs);
+        }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
     }
 

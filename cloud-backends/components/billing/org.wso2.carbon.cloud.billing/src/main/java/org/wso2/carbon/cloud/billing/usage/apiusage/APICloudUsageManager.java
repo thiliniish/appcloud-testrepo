@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.cloud.billing.usage.apiusage;
 
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
@@ -45,9 +46,11 @@ import java.util.Date;
 public class APICloudUsageManager {
 
     private static final Log LOGGER = LogFactory.getLog(APICloudUsageManager.class);
-    private static String dailyUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
+    private static String dailyUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                                                  .getCloudBillingServiceUrl()
                                           + BillingConstants.DS_API_URI_REQUEST_COUNT;
-    private static String usageForTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
+    private static String usageForTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                                                      .getCloudBillingServiceUrl()
                                               + BillingConstants.DS_API_URI_USAGE;
 
     private BillingRequestProcessor dsBRProcessor;
@@ -72,15 +75,23 @@ public class APICloudUsageManager {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
-        String queryString = "year=" + cal.get(Calendar.YEAR) + "&month=" + (cal.get(Calendar.MONTH) + 1) + "&day=" +
-                             cal.get(Calendar.DAY_OF_MONTH);
-        return dsBRProcessor.doGet(dailyUsageUrl + "?" + queryString);
+        NameValuePair[] nameValuePairs = new NameValuePair[]{
+                new NameValuePair("year", String.valueOf(cal.get(Calendar.YEAR))),
+                new NameValuePair("month", String.valueOf((cal.get(Calendar.MONTH) + 1))),
+                new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)))
+        };
+
+        return dsBRProcessor.doGet(dailyUsageUrl, nameValuePairs);
     }
 
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
-        return dsBRProcessor.doGet(usageForTenantUrl + "?apiPublisher=%25@" + tenantDomain + "&startDate=" + startDate +
-                                   "&endDate=" + endDate);
+        NameValuePair[] nameValuePairs = new NameValuePair[]{
+                new NameValuePair("apiPublisher", "%25@" + tenantDomain),
+                new NameValuePair("startDate", startDate),
+                new NameValuePair("endDate", endDate)
+        };
+        return dsBRProcessor.doGet(usageForTenantUrl, nameValuePairs);
     }
 
 

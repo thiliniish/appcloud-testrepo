@@ -76,7 +76,7 @@ public class BillingDbUpdateTask implements Task {
     @Override
     public void execute() {
         try {
-            String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY));
+            String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY), null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
             Iterator<?> entries = elements.getChildrenWithName(new QName(BillingConstants.ENTRY));

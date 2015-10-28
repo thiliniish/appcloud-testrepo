@@ -16,24 +16,12 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.processor;
+package org.wso2.carbon.apimgt.apideletion.util;
 
+public class ApiDeleterConstants {
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-
-/**
- * Represents the API invocation methods which are needed for cloud billing
- * platform.
- */
-public interface BillingRequestProcessor {
-
-    String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
-
-    void doUpload() throws CloudBillingException;
-
-    String doPost(String url, String jsonPayload) throws CloudBillingException;
-
-    String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException;
+    public static final String TENANT_FILE = "tenantFile";
+    public static final String API = "api";
+    public static final String NAP_TIME = "napTime";
 
 }

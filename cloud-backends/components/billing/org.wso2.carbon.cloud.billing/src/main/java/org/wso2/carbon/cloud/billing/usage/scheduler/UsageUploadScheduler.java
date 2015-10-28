@@ -61,9 +61,9 @@ public class UsageUploadScheduler {
 
             try {
                 LOGGER.info("Registering Task " + BillingConstants.USAGE_UPLOADER_TASK_NAME);
-                ServiceDataHolder.getInstance().getTaskManager(BillingConstants.USAGE_UPLOADER_TASK_NAME)
+                ServiceDataHolder.getInstance().getTaskManager(BillingConstants.USAGE_UPLOADER_TASK_CLASS_NAME)
                         .registerTask(info);
-                ServiceDataHolder.getInstance().getTaskManager(BillingConstants.USAGE_UPLOADER_TASK_NAME)
+                ServiceDataHolder.getInstance().getTaskManager(BillingConstants.USAGE_UPLOADER_TASK_CLASS_NAME)
                         .rescheduleTask(info.getName());
             } catch (TaskException e) {
                 LOGGER.error("Error while scheduling usage uploader task : " + info.getName() + " for tenant : " +
