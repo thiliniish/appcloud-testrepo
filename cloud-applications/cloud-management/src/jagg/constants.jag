@@ -45,6 +45,7 @@ var ROLE_APP_OWNER = "appOwner";
 var ROLE_QA = "qa";
 var ROLE_DEVOPS = "devOps";
 var ROLE_DEV = "dev";
+var ROLE_SUBSCRIBER = "subscriber";
 
 var API_MANAGER_PROD = "prod";
 var API_MANAGER_SANDBOX = "sandbox";

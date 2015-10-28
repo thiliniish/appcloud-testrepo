@@ -659,6 +659,38 @@ var isValidCoupon = function (couponData, serviceId) {
 	return couponValidity;
 };
 
+var getSubscribersOfTenant = function () {
+
+	var tenantDomain = modManager.getTenantDomain();
+	if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+		var modTenant = jagg.module("tenant");
+		var results = modTenant.getUserListOfRole(ROLE_SUBSCRIBER);
+		var subscribers = [];
+		for (var i = 0; i < results.length; i++) {
+			var tmpSubscriber = {};
+			var tmpUser = modTenant.getUserInfo(results[i]);
+			tmpSubscriber.displayName = tmpUser.displayName;
+			tmpSubscriber.email = tmpUser.email;
+			tmpSubscriber.subscriptionType = "free";
+			tmpSubscriber.subscriptionPlan = "gold";
+			//tmpSubscriber.;
+			//tmpSubscriber.;
+			//tmpSubscriber.;
+			subscribers.push(tmpSubscriber);
+		}
+		log.info("asaschdkwfd vewbkenelt" + stringify(subscribers));
+		var org = jagg.module("tenant").getOrganizations();
+
+		return subscribers;
+
+	} else {
+		var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+		log.error(msg);
+		return false;
+	}
+
+
+};
 
 var getTrialPeriod = function () {
 	return (getConfigInJson()).trialPeriod;

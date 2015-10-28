@@ -84,7 +84,24 @@ var log = new Log();
             result.message=e.javaException.getCause().toString().split(":")[1];
             print(stringify(result));
         }
+    }else if(action=="getUserListOfRole"){
+        mod = jagg.module("tenant");
+        var role=request.getParameter("role");
+        try {
+            var result = mod.getUserListOfRole(role);
 
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Error occurred while getting users of role "+ role);
+            }
+        } catch(e) {
+            log.error("Error occurred while getting users of role "+ role);
+            var result = {};
+            result.error="true";
+            result.message="Error occurred while getting users of role "+ role;
+            print(stringify(result));
+        }
     } else if (action == "getUserRolesByCloudType") {
         mod = jagg.module("tenant");
         var userName = request.getParameter("userName");

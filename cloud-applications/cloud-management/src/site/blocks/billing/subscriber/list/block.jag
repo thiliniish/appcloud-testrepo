@@ -1,0 +1,7 @@
+<%
+jagg.block("billing/subscriber/list", {
+    initialize: function (data) {
+
+    }
+});
+%>

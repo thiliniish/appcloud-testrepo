@@ -19,6 +19,9 @@ jagg.module("tenant", {
 	getUserInfo:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserInfo.apply(this, arguments);
 	},
+	getUserListOfRole:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserListOfRole.apply(this, arguments);
+	},
 	getUserRolesByCloudType: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserRolesByCloudType.apply(this, arguments);
 	},
