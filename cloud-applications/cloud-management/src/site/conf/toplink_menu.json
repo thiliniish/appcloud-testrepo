@@ -34,22 +34,10 @@
       }
     },
     "Support": {
-      "url": "#",
+      "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/contact-us.jag",
       "icon": "fa fa-envelope",
-      "dropDown": {
-        "Contact Us": {
-          "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/contact-us.jag",
-          "icon": "fa fa-envelope",
-          "dropDown": "false",
-          "target": "_self"
-        },
-        "Stackoverflow": {
-          "url": "http://stackoverflow.com/questions/tagged/wso2cloud",
-          "icon": "fa fa-stack-overflow",
-          "dropDown": "false",
-          "target": "_blank"
-        }
-      }
+      "target": "_self",
+      "dropDown": "false"
     }
   },
   "User": {
