@@ -18,14 +18,27 @@
 
 package org.wso2.carbon.cloud.monetization.apimgt.workflows;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.llom.OMTextImpl;
+import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.axis2.AxisFault;
+import org.apache.axis2.client.ServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.WorkflowResponse;
+import org.wso2.carbon.apimgt.impl.APIConstants;
+import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
+import org.wso2.carbon.apimgt.impl.dto.SubscriptionWorkflowDTO;
 import org.wso2.carbon.apimgt.impl.dto.WorkflowDTO;
+import org.wso2.carbon.apimgt.impl.workflow.GeneralWorkflowResponse;
+import org.wso2.carbon.apimgt.impl.workflow.HttpWorkflowResponse;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowConstants;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowExecutor;
+import org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus;
 
+import javax.xml.stream.XMLStreamException;
 import java.util.List;
 
 /**
@@ -34,6 +47,8 @@ import java.util.List;
 public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
 
     private static final Log LOGGER = LogFactory.getLog(SubscriptionCreationWorkflowExecutor.class);
+    private static final String IS_TEST_ACCOUNT = "testAccount";
+    private static final String ACCOUNT_NUMBER = "accountNumber";
 
     private String serviceEndpoint;
     private String username;
@@ -52,14 +67,78 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     }
 
     public WorkflowResponse execute(WorkflowDTO workflowDTO) throws WorkflowException {
-        //Check if monetization is enabled for tenant
-        //Check subscribers is a test/complementary subscriber
+        //Check if monetization is enabled for tenant: this workflow should only be deployed for monetization
+        // enabled tenants. Once they enable monetization for a tenant. this workflow should be automatically deployed
+
         //Check for zuora account
-        return null;
+        super.execute(workflowDTO);
+        try {
+            ServiceClient client = WorkFlowUtils.getClient("urn:getAPISubscriberInfo", serviceEndpoint,
+                                                           contentType, username, password);
+            String payload = "<ser:getAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+                             "  <ser:username>$1</ser:username>\n" +
+                             "  <ser:tenantDomain>$2</ser:tenantDomain>\n" +
+                             "</ser:getAPISubscriberInfo>";
+            SubscriptionWorkflowDTO subscriptionWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
+            payload = payload.replace("$1", subscriptionWorkflowDTO.getSubscriber())
+                    .replace("$2", subscriptionWorkflowDTO.getTenantDomain());
+            OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
+            OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
+
+            OMElement subscriberOM = (OMElement) AXIOMUtil.stringToOM(response.getText()).getFirstOMChild();
+            boolean isTestAccount = Boolean.parseBoolean(((OMElement) (subscriberOM.getChildrenWithLocalName
+                    (IS_TEST_ACCOUNT).next())).getText());
+
+            HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
+            //Check subscribers is a test/complementary subscriber
+            if (!isTestAccount) {
+                String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER).next()))
+                        .getText();
+                // checks for null or empty for account number
+                if (!"".equals(accountNumber)) {
+                    //TODO redirecting to create the subscription
+                    httpworkflowResponse.setRedirectUrl("http://www.google.lk/");
+                    return httpworkflowResponse;
+                } else {
+                    //TODO redirecting to collect payment plans and create zuora account
+                    httpworkflowResponse.setRedirectUrl("http://www.defense.gov/");
+                    return httpworkflowResponse;
+                }
+            } else {
+                workflowDTO.setStatus(WorkflowStatus.APPROVED);
+                WorkflowResponse workflowResponse = complete(workflowDTO);
+                super.publishEvents(workflowDTO);
+                return workflowResponse;
+            }
+        } catch (AxisFault | XMLStreamException e) {
+            throw new WorkflowException("Could not complete subscription creation workflow");
+        }
     }
 
     public WorkflowResponse complete(WorkflowDTO workflowDTO) throws WorkflowException {
-        return null;
+        workflowDTO.setUpdatedTime(System.currentTimeMillis());
+        super.complete(workflowDTO);
+        LOGGER.info("Subscription Creation [Complete] Workflow Invoked. Workflow ID : "
+                    + workflowDTO.getExternalWorkflowReference() + "Workflow State : " + workflowDTO.getStatus());
+        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
+        if (WorkflowStatus.APPROVED.equals(workflowDTO.getStatus())) {
+            try {
+                apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
+                                                   APIConstants.SubscriptionStatus.UNBLOCKED);
+            } catch (APIManagementException e) {
+                LOGGER.error("Could not complete subscription creation workflow", e);
+                throw new WorkflowException("Could not complete subscription creation workflow", e);
+            }
+        } else if (WorkflowStatus.REJECTED.equals(workflowDTO.getStatus())) {
+            try {
+                apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
+                                                   APIConstants.SubscriptionStatus.REJECTED);
+            } catch (APIManagementException e) {
+                LOGGER.error("Could not complete subscription creation workflow", e);
+                throw new WorkflowException("Could not complete subscription creation workflow", e);
+            }
+        }
+        return new GeneralWorkflowResponse();
     }
 
     public String getUsername() {
