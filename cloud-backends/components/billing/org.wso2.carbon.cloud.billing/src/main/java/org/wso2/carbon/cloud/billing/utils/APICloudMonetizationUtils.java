@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.billing.utils;
 
-import org.apache.commons.httpclient.NameValuePair;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
@@ -36,18 +35,16 @@ public class APICloudMonetizationUtils {
              BillingConfigUtils.getBillingConfiguration()
                      .getDSConfig()
                      .getHttpClientConfig());
-    private static String subscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+    private static String subscribersUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                                                   .getApiCloudMonetizationServiceUrl() + MonetizationConstants
                                                   .DS_API_URI_MON_APIC_SUBSCRIBER;
 
     public static String getAPISubscriberInfo(String username, String tenantDomain) throws CloudMonetizationException {
 
         try {
-            NameValuePair[] nameValuePairs = new NameValuePair[]{
-                    new NameValuePair("Username", username),
-                    new NameValuePair("Tenant", tenantDomain)
-            };
-            return dsBRProcessor.doGet(subscriberUrl, nameValuePairs);
+            String url = subscribersUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT, tenantDomain)
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME, username);
+            return dsBRProcessor.doGet(url, null);
         } catch (CloudBillingException e) {
             throw new CloudMonetizationException("Error while retrieving API subscribers for user: " + username
                                                  + " tenant domain: " + tenantDomain, e);

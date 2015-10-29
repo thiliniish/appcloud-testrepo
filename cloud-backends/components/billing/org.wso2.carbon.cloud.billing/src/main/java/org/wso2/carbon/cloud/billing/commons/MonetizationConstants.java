@@ -24,8 +24,13 @@ package org.wso2.carbon.cloud.billing.commons;
 public final class MonetizationConstants {
 
 
-    /*API Cloud Monetization*/
-    public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/subscriber";
+    /*API Cloud Monetization DSS v1 suffixes*/
+    public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
+
+
+    /*resource identifiers*/
+    public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
+    public static final String RESOURCE_IDENTIFIER_USERNAME = "{username}";
 
     private MonetizationConstants() {
     }

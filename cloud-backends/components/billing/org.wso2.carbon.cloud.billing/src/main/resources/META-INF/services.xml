@@ -29,7 +29,7 @@
         <parameter name="hiddenService" locked="true">true</parameter>
         <parameter name="AuthorizationAction" locked="false">/permission/protected/tenant-admin</parameter>
     </service>
-    <service name="CloudMonetizationService" scope="transportsession">
+    <service name="APICloudMonetizationService" scope="transportsession">
         <transports>
             <transport>https</transport>
         </transports>
