@@ -70,7 +70,7 @@
     $.fn.populateUptime = function (json, array) {
         $.each(json.UptimeInfo, function (index, value) {
             var t1 = new Date(index).getTime();
-            t1 = $.fn.addTimeZoneDiff(t1);
+            //t1 = $.fn.addTimeZoneDiff(t1);
             array.push([t1, value]);
         });
 
@@ -80,7 +80,6 @@
             var serverName = splitted[0];
             var testNameU = splitted[1];
             var testSeverity = splitted[2];
-
             var indexn;
             for (indexn = 0; indexn < value.length; indexn++) {
                 var startTime = value[indexn]["left"];
@@ -152,8 +151,6 @@
         endTime = dateSelectorTime.end;
         var startDate = moment(startTime, "YYYY-MM-DD'T'HH:mm:ss'Z'").add('hours', 0).format('YYYY-MM-DD HH:mm:ss');
         var endDate = moment(endTime, "YYYY-MM-DD'T'HH:mm:ss'Z'").add('hours', 24).format('YYYY-MM-DD HH:mm:ss');
-
-
         $('#load').css({'display': "block"});
         if (typeof serverName === 'undefined' || serverName == "All") {
             $.ajax({
@@ -219,7 +216,6 @@
                     $.fn.populateServers(json.Services);
                 }
             });
-
             $.fn.updateGraph(serverName, testName, startDate, endDate);
         }
     };
@@ -311,7 +307,6 @@
         var endTime = parameterArray[1];
         var serverName = parameterArray[2];
         var testName = parameterArray[3];
-
         var startDate = new Date(parseInt(startTime));
         var endDate = new Date(parseInt(endTime));
 
@@ -348,15 +343,12 @@
         });
         $("#popupServerName").text(serverName);
         $("#popupTestName").text(testName);
-
         $("#light").css({'display': "block"});
         $("#fade").css({'display': "block"});
     });
 
     $('#cancelReason').live('click', function () {
         $("#falseAlarmReason").val("");
-
-
     });
 
     $('#cancelJira').live('click', function () {
@@ -448,13 +440,11 @@
             <select class="selectvrs" id="Cloud">
                 <%
                     ConfigReader configurationInstance = ConfigReader.getInstance();
-                    Map<String, CloudStructure> retrievedCloud =
-                            configurationInstance.getCloudStructure();
+                    Map<String, CloudStructure> retrievedCloud = configurationInstance.getCloudStructure();
                     Set<String> cloudList = retrievedCloud.keySet();
                     for (String cloudListIterate : cloudList) {
                 %>
-                <option value="<%=cloudListIterate%>"><%=StringConverter
-                        .splitCamelCase(cloudListIterate)%>
+                <option value="<%=cloudListIterate%>"><%=StringConverter.splitCamelCase(cloudListIterate)%>
                 </option>
 
                 <%}%>
