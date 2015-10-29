@@ -362,16 +362,17 @@ if (isBillingEnabled) {
 
             if (isBillingEnabled) {
                 for(var i = 0; i < paymentPlans.length; i++) {
-                var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
-                var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
-                var maxUsageStr = numFormat.format(maxUsageAmmount);
-                var monthlyRentalAmount = new Packages.java.math.BigDecimal(monthlyRental);
-                var rental = numFormat.format(monthlyRentalAmount);
-                if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currRatePlanId == null) {%>
-                    <div class="tiny selected">
-             <% } else { %>
-                    <div class="tiny">
-             <% } %>
+                    var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
+                    var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
+                    var maxUsageStr = numFormat.format(maxUsageAmmount);
+                    var monthlyRentalAmount = new Packages.java.math.BigDecimal(monthlyRental);
+                    var rental = numFormat.format(monthlyRentalAmount);
+                    if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currRatePlanId == null) {%>
+                        <div class="tiny selected">
+                <% } else { %>
+                        <div class="tiny">
+                <% } %>
+
                 <div class="pricing-table-header-tiny">
                     <h3><%=paymentPlans[i].name%></h3>
                     <div class="price">
