@@ -23,6 +23,7 @@ import org.apache.axiom.om.impl.llom.OMTextImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
@@ -95,7 +96,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                 String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER).next()))
                         .getText();
                 // checks for null or empty for account number
-                if (!"".equals(accountNumber)) {
+                if (!StringUtils.isBlank(accountNumber)) {
                     //TODO redirecting to create the subscription
                     httpworkflowResponse.setRedirectUrl("http://www.google.lk/");
                     return httpworkflowResponse;
