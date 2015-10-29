@@ -369,9 +369,9 @@ if (isBillingEnabled) {
                     var rental = numFormat.format(monthlyRentalAmount);
                     if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currRatePlanId == null) {%>
                         <div class="tiny selected">
-                <% } else { %>
+                <%  } else { %>
                         <div class="tiny">
-                <% } %>
+                <%  } %>
 
                 <div class="pricing-table-header-tiny">
                     <h3><%=paymentPlans[i].name%></h3>
