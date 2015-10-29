@@ -23,9 +23,9 @@ var log = new Log();
 	}else if(action=="sendInvite"){
 		log.info("Inside block register");
 		var userName=request.getParameter("username");
-			
+		var token = request.getParameter("token");
 		try {
-			var result = mod.sendInvite(userName);
+			var result = mod.sendInvite(userName, token);
 			if (result != null) {
 				print(result);
 			}

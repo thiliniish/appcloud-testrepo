@@ -7,7 +7,7 @@ var log = new Log();
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var otEmail = request.getParameter("email");
-
+var sourceToken = request.getParameter("sourceToken");
 %>
 
 <style>
@@ -152,53 +152,59 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 function doSubmit() {
     var email = $("#email").attr('value');
+    var token = $("#sourceToken").attr('value');
     disable();
-    var isValidMail= validateEmail();
-     if(isValidMail){
-	    jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
-	                     action:"isExistingUser",
-	                     username:email
-	              },
-	              function (result) {
-	            	  result = result.replace(/(\r\n|\n|\r)/gm,"");
-	            	  if(result=="false"){
-	            	        jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
-	            	                         action:"sendInvite",
-	            	                         email:email
-	            	                  },
-	            	                  function (result) {
-	            	                        $(".content-starter h1").text("Check Your Email");
-                                                $(".content-starter h1").css('color','white');
-                                                $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>"+email+"</b>. Please click the link in the email to continue signing up.</h5>");
-                                                $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
-                                                $("#helper_text").hide();
-                                                $("#success-message").show();
-                                                $(".content-section-wrapper").hide();
-	            	                  }, 
-	            	                  function (jqXHR, textStatus, errorThrown) {
-	            	                        jagg.message({content:' Error Sending the registration email ', type:'error',cbk:function(){
-	            	                        window.location.href = "index.jag";
-	            	                    }
-	            	                  });enable();
-	            	                 });
-	             		 	} else {
-	             		 	  jagg.message({content:'Looks like you have an account with wso2.com - So please just use the password that you have there to log in <br/>If you do not remember the password that you have at wso2.com - click  <a href="initiate.jag">here</a>  to reset and we will send you a new password.',type:'success',cbk:function(){
-	                              window.location.href = "index.jag";
-	                      }
-	                      });enable();
-	                      }
-	              },
-	              function (jqXHR, textStatus, errorThrown) {
-	                    jagg.message({content:' Error Sending the registration email ', type:'error',cbk:function(){
-	                    window.location.href = "index.jag";
-	                }
-	              });enable();
-	             });
-    }
-    else{
-    	jagg.message({content:'Looks like you have given an invalid email Address - ' + email + " Email should be of length 3-30 in alphanumeric characters except '+'", type:'error',cbk:function(){
+    var isValidMail = validateEmail();
+    if (isValidMail) {
+        jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
+            action:"isExistingUser",
+            username:email
+        },
+        function (result) {
+            result = result.replace(/(\r\n|\n|\r)/gm,"");
+            if (result == "false") {
+                jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
+                    action:"sendInvite",
+                    email:email,
+                    token: token
+                },
+                function (result) {
+                    $(".content-starter h1").text("Check Your Email");
+                        $(".content-starter h1").css('color','white');
+                        $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>" + email + "</b>. Please click the link in the email to continue signing up.</h5>");
+                        $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
+                        $("#helper_text").hide();
+                        $("#success-message").show();
+                        $(".content-section-wrapper").hide();
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({content:' Error Sending the registration email ', type:'error', cbk:function(){
+                        window.location.href = "index.jag";
+                        }
+                    });
+                    enable();
+                });
+            } else {
+                    jagg.message({content:'Looks like you have an account with wso2.com - So please just use the password that you have there to log in <br/>If you do not remember the password that you have at wso2.com - click  <a href="initiate.jag">here</a>  to reset and we will send you a new password.', type:'success', cbk:function(){
+                        window.location.href = "index.jag";
+                        }
+                    });
+                    enable();
+            }
+        },
+        function (jqXHR, textStatus, errorThrown) {
+            jagg.message({content:' Error Sending the registration email ', type:'error', cbk:function(){
+                window.location.href = "index.jag";
+                }
+            });
+            enable();
+        });
+    } else {
+        jagg.message({content:'Looks like you have given an invalid email Address - ' + email + " Email should be of length 3-30 in alphanumeric characters except '+'", type:'error',cbk:function(){
             window.location.href = "index.jag";
-    	}});enable();
+            }
+        });
+        enable();
     }
 }
 
@@ -246,6 +252,9 @@ function doSubmit() {
 
 				<input type="hidden" name="otEmail" id="otEmail"
 					value="<%=otEmail%>" /> <input type="hidden" name="imagePath"
+					id="imagePath" value="" />
+				<input type="hidden" name="sourceToken" id="sourceToken"
+					value="<%=sourceToken%>" /> <input type="hidden" name="imagePath"
 					id="imagePath" value="" />
 			</form>
 		</div>
