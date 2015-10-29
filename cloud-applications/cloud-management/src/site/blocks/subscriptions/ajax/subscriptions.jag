@@ -10,85 +10,81 @@ var types = cloudConfig.subscriptions.type;
 
 var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 (function () {
-	var action = request.getParameter("action"),
-	site = require("/site/conf/site.json");
-	var modDb = jagg.module("database");
-	var modEvents = jagg.module("events");
-	var billing = jagg.module("billing");
-	var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+    var action = request.getParameter("action"),
+    site = require("/site/conf/site.json");
+    var modDb = jagg.module("database");
+    var modEvents = jagg.module("events");
+    var billing = jagg.module("billing");
+    var isEnable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
 
-	if (action == "addCloudUserSubscription") {
-		if(is_enable.toString() == "true") {
-			var domainName = request.getParameter("domain");
-			var type = request.getParameter("type");
-			type = type.toUpperCase();
-			var userEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-			var queryString = SQL_QUERY_STRINGS.SELECT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
-			var parameters = [type, domainName,userEmail];
-			var result = modDb.executeQuery(queryString, parameters);
-			var actionString = "Rightwave-"+type+"-cloudsubmission:";
-			var page = "Rightwave";
-			var item = type;
-			var events = [];
-			if (result[0] != null && result[0] != "undefined") {
-				var cloudSubscription =  result[0]["API_CLOUD"];
-				if (cloudSubscription == 1) {
-					//allready added to right wave ignore
-				} else {
-					var response = billing.addCloudSubmissionToRightwave(userEmail,domainName,type);
-					var msg = JSON.parse(response['data']);
-					if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-						queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
-						parameters = [type,1, domainName,userEmail];
-						modDb.executeQuery(queryString, parameters);
-						actionString =  actionString+"Success";
-						log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for "+email);
-					} else {
-						actionString =  actionString+"Failed";
-						log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
-					}
-					var event={
-					};
-					event.item = item;
-					event.timestamp = new Date().getTime();
-					event.pageName = page;
-					event.action = actionString;
-					events[events.length] = event;
-					log.info(event);
-					modEvents.publishUserActivity(events,jagg.getUser(),domainName);
-				}
-			} else {
-				var response = billing.addCloudSubmissionToRightwave(userEmail,domainName,type);
-				var msg = JSON.parse(response['data']);
-				if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-					queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
-					parameters = [type, domainName,1,userEmail];
-					modDb.executeQuery(queryString, parameters);
-					actionString =  actionString+"Success";
-					log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for "+email);
-				} else {
-					actionString =  actionString+"Failed";
-					log.error("Rightwave api call failed for the user "+jagg.getUser()+" "+msg);
-						
-				}var event={
-				};
-				event.item = item;
-				event.timestamp = new Date().getTime();
-				event.pageName = page;
-				event.action = actionString;
-				events[events.length] = event;
-				modEvents.publishUserActivity(events,jagg.getUser(),domainName);
-			}
-		} else {
-			if(log.isDebugEnabled()){
-				log.debug("Rightwave is not enabled");
-			}
-			print(true);
-		}
-
-	} else {
-		throw new Error("No action specified");
-	}
-
+    if (action == "addCloudUserSubscription") {
+        if(isEnable.toString() == "true") {
+            var domainName = request.getParameter("domain");
+            var type = request.getParameter("type");
+            type = type.toUpperCase();
+            var userEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
+            var queryString = SQL_QUERY_STRINGS.SELECT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
+            var parameters = [type, domainName, userEmail];
+            var result = modDb.executeQuery(queryString, parameters);
+            var actionString = "Rightwave-" + type + "-cloudsubmission:";
+            var page = "Rightwave";
+            var item = type;
+            var events = [];
+            if (result[0] != null && result[0] != "undefined") {
+                var cloudSubscription =  result[0]["API_CLOUD"];
+                if (cloudSubscription == 1) {
+                    //already added to right wave ignore
+                } else {
+                    var response = billing.addCloudSubmissionToRightwave(userEmail, domainName, type);
+                    var msg = JSON.parse(response['data']);
+                    if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                        queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
+                        parameters = [type, 1, domainName, userEmail];
+                        modDb.executeQuery(queryString, parameters);
+                        actionString =  actionString + "Success";
+                        log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
+                    } else {
+                        actionString =  actionString + "Failed";
+                        log.error("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
+                    }
+                    var event = {};
+                    event.item = item;
+                    event.timestamp = new Date().getTime();
+                    event.pageName = page;
+                    event.action = actionString;
+                    events[events.length] = event;
+                    log.info(event);
+                    modEvents.publishUserActivity(events, jagg.getUser(), domainName);
+                }
+            } else {
+                var response = billing.addCloudSubmissionToRightwave(userEmail, domainName, type);
+                var msg = JSON.parse(response['data']);
+                if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                    queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
+                    parameters = [type, domainName, 1, userEmail];
+                    modDb.executeQuery(queryString, parameters);
+                    actionString =  actionString + "Success";
+                    log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
+                } else {
+                    actionString =  actionString + "Failed";
+                    log.error("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
+                }
+                var event = {};
+                event.item = item;
+                event.timestamp = new Date().getTime();
+                event.pageName = page;
+                event.action = actionString;
+                events[events.length] = event;
+                modEvents.publishUserActivity(events, jagg.getUser(), domainName);
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Rightwave is not enabled");
+            }
+            print(true);
+        }
+    } else {
+        throw new Error("No action specified");
+    }
 }());
 %>

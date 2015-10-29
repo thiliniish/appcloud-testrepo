@@ -139,7 +139,6 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     if(newUser){
         addDefaultLoginRole(adminUserName);
         log.info("Successfully Added default role ");
-       
     }
     storeSubscription(organizationDomain);
 
@@ -361,85 +360,90 @@ var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
     }
 };
 
-var storeTempRegistration = function (email,uuid,isInvitee) {
-	log.info("Adding temp registration for user: " + email);
-	try{
-	var queryString =SQL_QUERY_STRINGS.INSERT_INTO_TEMP_REGISTRATION;
-	var parameters =[email,uuid,isInvitee,uuid];
-    var results = jagg.module("database").executeQuery(queryString, parameters);
-	}catch (e){
+var storeTempRegistration = function (email, uuid, isInvitee) {
+    log.info("Adding temp registration for user: " + email);
+    try {
+        var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_REGISTRATION;
+        var parameters = [email, uuid, isInvitee, uuid];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+    } catch (e) {
         log.error("Error while storeTempRegistration for email: " + email);
         log.error(e);
         throw (e);
     }
-	log.info("Sucessfully added to the temp registration user: " + email);
+    log.info("Sucessfully added to the temp registration user: " + email);
 };
 
-var sendInvite = function(email) {
-	log.info("Sending invitation for self signed user: "+email);
-	var uuid = jagg.module("util").generateUUId();
-	storeTempRegistration(email,uuid,0);
-	var link = targetEpr+"?confirmation="+uuid;
-	sendEmail(email,link);
-	//adding selfsign user to rightwave
-	var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
-	if(is_enable.toString() == "true") {
-		setTimeout(function () {
-			var modEvents = jagg.module("events");
-			var jsonData={
-				"email" : email
-			};
-			var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
-			var data = "json="+JSON.stringify(jsonData);
-			var result = post(URL,data,{
-				'Content-Type': 'application/json'}, 'text');
-			var type ="CloudMgt";
-			var msg = JSON.parse(result['data']);
-			var actionString = "Rightwave-"+type+"-cloudsignup:";
-			var page = "Rightwave";
-			var item = type;
-			var events = [];
-			if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-				actionString =  actionString+"Success";
-			} else {
-				actionString =  actionString+"Failed";
-				log.error("Rightwave api call failed for the user "+email);
-				log.error("Rightwave api call failed for the user "+msg);
-			}
-			var event={
-			};
-			event.item = item;
-			event.timestamp = new Date().getTime();
-			event.pageName = page;
-			event.action = actionString;
-			events[events.length] = event;
-			modEvents.publishUserActivity(events,email,"not-defined");
-		} ,0);
-	}
-	return email;
+var sendInvite = function (email, token) {
+    log.info("Sending invitation for self signed user: " + email);
+    var uuid = jagg.module("util").generateUUId();
+    var tokenId;
+    storeTempRegistration(email, uuid, 0);
+    var link = targetEpr + "?confirmation=" + uuid;
+    sendEmail(email, link);
+    //getting lead source capturing token
+    if (token != null && token != '') {
+        tokenId = token;
+    } else {
+        tokenId = jagg.module("util").getLeadSourceToken("signUp");
+    }
+    //adding selfsign user to rightwave
+    var isEnable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+    if (isEnable.toString() == "true") {
+        setTimeout(function () {
+            var modEvents = jagg.module("events");
+            var jsonData = {
+                "email": email,
+                "tokenid": tokenId
+            };
+            var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
+            var data = "json=" + JSON.stringify(jsonData);
+            var result = post(URL, data, {'Content-Type': 'application/json'}, 'text');
+            var type = "CloudMgt";
+            var msg = JSON.parse(result['data']);
+            var actionString = "Rightwave-" + type + "-cloudsignup:";
+            var page = "Rightwave";
+            var item = type;
+            var events = [];
+            if (msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                actionString = actionString + "Success";
+                log.info("Rightwave cloud signup api call success for the user " + email);
+            } else {
+                actionString = actionString + "Failed";
+                log.error("Rightwave cloud signup api call failed for the user " + email + " : " + msg);
+            }
+            var event = {};
+            event.item = item;
+            event.timestamp = new Date().getTime();
+            event.pageName = page;
+            event.action = actionString;
+            events[events.length] = event;
+            modEvents.publishUserActivity(events, email, "not-defined");
+        }, 0);
+    }
+    return email;
 };
 
-var sendEmail = function(to,link) {
-	try{
-		body = body.replace("$link",link).replace("$link",link);
-		var email = require('email');
-		var sender;
-		if (tls == "true") {
-			sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword,"tls");
-		} else {
-			sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword);
-
-		}
-		sender.from = from;
-		sender.to = to;
-		sender.subject = subject;
-		sender.html = body;
-		sender.send();
-		log.info("email successfully sent to " + to);
-	} catch (e) {
-		log.error("Error while sending email to : " + to);
-		log.error(e);
-		throw (e);
-	}
+var sendEmail = function (to, link) {
+    try {
+        body = body.replace("$link", link).replace("$link", link);
+        var email = require('email');
+        var sender;
+        if (tls == "true") {
+            sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword, "tls");
+        } else {
+            sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword);
+        }
+        sender.from = from;
+        sender.to = to;
+        sender.subject = subject;
+        sender.html = body;
+        sender.send();
+        log.info("email successfully sent to " + to);
+    } catch (e) {
+        log.error("Error while sending email to : " + to);
+        log.error(e);
+        throw (e);
+    }
 };
 %>
