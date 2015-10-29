@@ -30,6 +30,7 @@ public class AppDeletionServerStartListener implements ServerStartupHandler {
     /**
      * This method waits until the server starts for the execution
      */
+    @Override
     public void invoke() {
 
         String tenantFile = System.getProperty(AppDeleterConstants.TENANT_FILE);

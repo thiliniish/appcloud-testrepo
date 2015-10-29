@@ -24,6 +24,9 @@ import org.wso2.carbon.user.core.service.RealmService;
 
 public class ServiceHolder {
 
+    private ServiceHolder() {
+    }
+
     //Realm Service which is used to get tenant data.
     private static RealmService realmService;
     //Tenant Registry loader which is used to load registry of the tenant

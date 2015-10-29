@@ -45,6 +45,7 @@ public class AppDeleter implements Runnable {
 
     private static final Log log = LogFactory.getLog(AppDeleter.class);
 
+    @Override
     public void run() {
         try {
             /*

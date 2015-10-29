@@ -19,6 +19,9 @@ package org.wso2.carbon.cloud.appfactory.appdeletion.util;
 
 public class AppDeleterConstants {
 
+    private AppDeleterConstants() {
+    }
+
     public static final String TENANT_FILE = "tenantFile";
     public static final String NAP_TIME = "napTime";
     public static final String AT_SYMBOL = "@";
