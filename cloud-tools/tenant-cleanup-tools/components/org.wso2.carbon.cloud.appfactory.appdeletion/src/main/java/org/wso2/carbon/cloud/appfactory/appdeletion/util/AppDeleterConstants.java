@@ -15,13 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.wso2.carbon.cloud.appfactory.appdeletion.util;
 
-package org.wso2.carbon.apimgt.apideletion.util;
+public class AppDeleterConstants {
 
-public class ApiDeleterConstants {
+    private AppDeleterConstants() {
+    }
 
     public static final String TENANT_FILE = "tenantFile";
-    public static final String API = "api";
     public static final String NAP_TIME = "napTime";
-
+    public static final String AT_SYMBOL = "@";
 }
