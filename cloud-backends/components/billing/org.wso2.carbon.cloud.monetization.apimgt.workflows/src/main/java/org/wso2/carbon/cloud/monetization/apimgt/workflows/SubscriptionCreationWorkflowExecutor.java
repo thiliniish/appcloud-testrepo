@@ -37,10 +37,11 @@ import org.wso2.carbon.apimgt.impl.workflow.HttpWorkflowResponse;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowConstants;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowExecutor;
-import org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.List;
+
+import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.*;
 
 /**
  * API Cloud monetization specific subscription creation workflow
@@ -48,6 +49,7 @@ import java.util.List;
 public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
 
     private static final Log LOGGER = LogFactory.getLog(SubscriptionCreationWorkflowExecutor.class);
+    private static final String ERROR_MSG = "Could not complete subscription creation workflow.";
     private static final String IS_TEST_ACCOUNT = "testAccount";
     private static final String ACCOUNT_NUMBER = "accountNumber";
 
@@ -90,13 +92,13 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
             boolean isTestAccount = Boolean.parseBoolean(((OMElement) (subscriberOM.getChildrenWithLocalName
                     (IS_TEST_ACCOUNT).next())).getText());
 
-            HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
             //Check subscribers is a test/complementary subscriber
             if (!isTestAccount) {
+                HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
                 String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER).next()))
                         .getText();
                 // checks for null or empty for account number
-                if (!StringUtils.isBlank(accountNumber)) {
+                if (StringUtils.isNotBlank(accountNumber)) {
                     //TODO redirecting to create the subscription
                     httpworkflowResponse.setRedirectUrl("http://www.google.lk/");
                     return httpworkflowResponse;
@@ -106,13 +108,13 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                     return httpworkflowResponse;
                 }
             } else {
-                workflowDTO.setStatus(WorkflowStatus.APPROVED);
+                workflowDTO.setStatus(APPROVED);
                 WorkflowResponse workflowResponse = complete(workflowDTO);
                 super.publishEvents(workflowDTO);
                 return workflowResponse;
             }
         } catch (AxisFault | XMLStreamException e) {
-            throw new WorkflowException("Could not complete subscription creation workflow");
+            throw new WorkflowException(ERROR_MSG, e);
         }
     }
 
@@ -122,24 +124,20 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         LOGGER.info("Subscription Creation [Complete] Workflow Invoked. Workflow ID : "
                     + workflowDTO.getExternalWorkflowReference() + "Workflow State : " + workflowDTO.getStatus());
         ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
-        if (WorkflowStatus.APPROVED.equals(workflowDTO.getStatus())) {
-            try {
-                apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
-                                                   APIConstants.SubscriptionStatus.UNBLOCKED);
-            } catch (APIManagementException e) {
-                LOGGER.error("Could not complete subscription creation workflow", e);
-                throw new WorkflowException("Could not complete subscription creation workflow", e);
+
+        try {
+            switch (workflowDTO.getStatus()) {
+                case APPROVED:
+                    apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
+                                                       APIConstants.SubscriptionStatus.UNBLOCKED);
+                case REJECTED:
+                    apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
+                                                       APIConstants.SubscriptionStatus.REJECTED);
             }
-        } else if (WorkflowStatus.REJECTED.equals(workflowDTO.getStatus())) {
-            try {
-                apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
-                                                   APIConstants.SubscriptionStatus.REJECTED);
-            } catch (APIManagementException e) {
-                LOGGER.error("Could not complete subscription creation workflow", e);
-                throw new WorkflowException("Could not complete subscription creation workflow", e);
-            }
+            return new GeneralWorkflowResponse();
+        } catch (APIManagementException e) {
+            throw new WorkflowException(ERROR_MSG, e);
         }
-        return new GeneralWorkflowResponse();
     }
 
     public String getUsername() {
