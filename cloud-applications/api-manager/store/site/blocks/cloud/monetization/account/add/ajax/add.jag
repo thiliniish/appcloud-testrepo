@@ -1,0 +1,54 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+
+
+var log = new Log("site/block/cloud/monetization/account/add/add/ajax/add.jag");
+var serviceId = session.get("SERVICE_ID");
+var ratePlans = session.get("RATE_PLANS");
+(function () {
+	var mod,result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("cloud/monetization");
+
+	if (action == "createAccount") {
+		var accountData = {
+		};
+		var metaData = {
+		};
+
+		accountData.firstName = request.getParameter("firstName");
+		accountData.lastName = request.getParameter("lastName");
+		accountData.address1 = request.getParameter("address1");
+		accountData.address2 = request.getParameter("address2");
+		accountData.city = request.getParameter("city");
+		accountData.state = request.getParameter("state");
+		accountData.zipCode = request.getParameter("zipCode");
+		accountData.country = request.getParameter("country");
+		accountData.workEmail = request.getParameter("email");
+
+		metaData.refId = request.getParameter("refId");
+		metaData.signature = request.getParameter("signature");
+		metaData.field_passthrough1 = request.getParameter("field_passthrough1");
+		metaData.serviceId = request.getParameter("serviceId");
+		metaData.productRatePlanId = request.getParameter("productRatePlanId");
+		responseFrom = request.getParameter("responseFrom");
+		try {
+			if(responseFrom == EDIT_USER_INFO){
+				result = mod.updateContactInfo(accountData);
+			}
+		} catch (e) {
+			if(EDIT_USER_INFO == responseFrom){
+				throw new Error("Error while updating contact info: " + e);
+			}if(IS_FROM_CHANGE_PLAN == responseFrom){
+				throw new Error("Error while changing billing account: " + e);
+			}else {
+				throw new Error("Billing account creation failure: " + e);
+			}
+		}
+	}  else {
+		throw new Error("No action specified");
+	}
+}());
+%>

@@ -1,0 +1,28 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site/blocks/cloud/monetization/method/add/ajax/add.jag");
+(function () {
+	var mod, result,
+	action = request.getParameter("action"),
+	mod = jagg.module("cloud/monetization");
+	if (action == "generateParams") {
+		var serviceId = request.getParameter("serviceId");
+		try {
+			result = mod.generateParams(serviceId);
+			if (result != null) {
+				print(result);
+			} else {
+				throw "Client parameters cannot be null";
+			}
+		} catch (e) {
+			log.error("Error while generating the params " + e.message);
+			log.error(e);
+			throw new Error("Error while generating the params " + e.message);
+		}
+
+	} else{
+		throw new Error("No action specified");
+	}
+}());
+%>

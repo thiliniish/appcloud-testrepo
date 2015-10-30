@@ -1,0 +1,7 @@
+<%
+jagg.block("cloud/monetization/account/info", {
+	initialize:function (data) {
+
+	}
+});
+%>
