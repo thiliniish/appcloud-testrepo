@@ -92,7 +92,7 @@ public class APIDeleter implements Runnable {
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                                   .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                    .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             TenantManager tenantManager = ServiceHolder.getRealmService().getTenantManager();
             //retrieve tenants for tenant domain names.
@@ -131,7 +131,7 @@ public class APIDeleter implements Runnable {
                 ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenantID);
                 //get tenant's api artifacts from the registry
                 Registry registry = ServiceHolder.getRegistryService().getGovernanceUserRegistry(adminName, tenantID);
-                GenericArtifactManager   manager = new GenericArtifactManager(registry, ApiDeleterConstants.API);
+                GenericArtifactManager manager = new GenericArtifactManager(registry, ApiDeleterConstants.API);
                 GovernanceUtils.loadGovernanceArtifacts((UserRegistry) registry);
                 GenericArtifact[] artifacts = manager.getAllGenericArtifacts();
                 if (!registry.resourceExists(APIConstants.API_ROOT_LOCATION) || (artifacts == null) || (artifacts.length
@@ -154,8 +154,8 @@ public class APIDeleter implements Runnable {
                         if (!subscribers.isEmpty()) {
                             Iterator subscribersIterator = subscribers.iterator();
                             while (subscribersIterator.hasNext()) {
-                                log.info("Subscription deletion started for " + apiId + "of tenant "
-                                        + tenantDomain + "[" + tenantID + "]");
+                                log.info("Subscription deletion started for " + apiId + "of tenant " + tenantDomain + "["
+                                                + tenantID + "]");
                                 Subscriber subscriber = (Subscriber) subscribersIterator.next();
                                 Set<SubscribedAPI> subscribedAPIs = APIManagerFactory.getInstance()
                                         .getAPIConsumer(providerName).getSubscribedAPIs(subscriber);
@@ -167,7 +167,7 @@ public class APIDeleter implements Runnable {
                                     if (subscribedAPI.getApiId().toString().equals(apiId)) {
                                         Application application = subscribedAPI.getApplication();
                                         APIManagerFactory.getInstance().getAPIConsumer(providerName)
-                                                         .removeApplication(application);
+                                                .removeApplication(application);
                                     }
                                 }
                                 log.info("Subscription deletion completed for " + apiId + "of tenant " + tenantDomain
@@ -190,13 +190,8 @@ public class APIDeleter implements Runnable {
                         log.error("Unexpected error occurred while deleting apis" + " of tenant " + tenantDomain + "["
                                 + tenantID + "]", e);
                     }
-                    try {
-                        //sleep 5 seconds before starting next to avoid connection exhaustion.
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        log.error(e);
-                        throw e;
-                    }
+                    //sleep 5 seconds before starting next to avoid connection exhaustion.
+                    Thread.sleep(5000);
                 }
             } catch (RegistryException e) {
                 log.error("Error while getting artifacts for  " + tenantDomain, e);
