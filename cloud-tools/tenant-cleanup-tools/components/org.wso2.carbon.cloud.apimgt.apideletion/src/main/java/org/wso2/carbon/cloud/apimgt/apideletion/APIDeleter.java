@@ -159,9 +159,9 @@ public class APIDeleter implements Runnable {
                                 Subscriber subscriber = (Subscriber) subscribersIterator.next();
                                 Set<SubscribedAPI> subscribedAPIs = APIManagerFactory.getInstance()
                                         .getAPIConsumer(providerName).getSubscribedAPIs(subscriber);
-                                Iterator SubscribedApiIterator = subscribedAPIs.iterator();
-                                while (SubscribedApiIterator.hasNext()) {
-                                    SubscribedAPI subscribedAPI = (SubscribedAPI) SubscribedApiIterator.next();
+                                Iterator subscribedApiIterator = subscribedAPIs.iterator();
+                                while (subscribedApiIterator.hasNext()) {
+                                    SubscribedAPI subscribedAPI = (SubscribedAPI) subscribedApiIterator.next();
                                     //if the subscribed api is the api under consideration, delete the
                                     // application(this will remove subscriptions)
                                     if (subscribedAPI.getApiId().toString().equals(apiId)) {
