@@ -1,0 +1,546 @@
+<% jagg.template("cloud/monetization/account/info", function(inputs, outputs, jagg) {%>
+<%
+include("/jagg/cloud/constants.jag");
+var log = new Log("site/themes/default/templates/cloud/monetization/account/info/template.jag");
+var userName = request.getParameter("provider");
+var tenant = request.getParameter("tenant");
+if ( tenant != null ) {
+	session.put("LOGGED_IN_TENANT", tenant);
+}
+var carbon = require('carbon');
+var server = carbon.server;
+//getting the max items per page
+var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
+var monetizationConfigFile = new File("/site/conf/monetization_conf.json");
+monetizationConfigFile.open("r");
+var configs = parse(monetizationConfigFile.readAll());
+monetizationConfigFile.close();
+var cloudMgtURL = configs.cloud.mgt_url;
+var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+var isBillingEnabled = true;
+log.info("Inside account summary");
+
+%>
+
+<style type="text/css">
+.panel-default>.panel-heading {
+	background-image: -webkit-gradient(linear, left 0%, left 100%, from(#f5f5f5),
+		to(#e8e8e8));
+	background-image: -webkit-linear-gradient(top, #f5f5f5, 0%, #e8e8e8, 100%);
+	background-image: -moz-linear-gradient(top, #f5f5f5 0%, #e8e8e8 100%);
+	background-image: linear-gradient(to bottom, #f5f5f5 0%, #e8e8e8 100%);
+	background-repeat: repeat-x;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5',
+		endColorstr='#ffe8e8e8', GradientType=0);
+}
+
+.content-section-wrapper {
+	padding-left: 30px;
+	padding-right: 30px;
+}
+
+.panel-body {
+	padding: 15px;
+}
+
+.col-lg-6 {
+	width: 50%;
+}
+
+.label-style {
+	text-align: left !important;
+}
+
+.panel-btn-style {
+	margin-top: -7px !important;
+	font-size: 12px !important;
+}
+
+.marg-r-10 {
+	margin-right: 10px;
+}
+
+.panel-header {
+	font-weight: bold !important;
+}
+
+.title-label {
+	font-weight: bold !important;
+}
+
+#btnViewPayment {
+	background: #0395d0 none repeat scroll 0 0;
+	color: #fff;
+}
+
+#btnViewPayment:hover {
+	background: #00a1e2 none repeat scroll 0 0;
+}
+
+#btnViewPayment:active {
+	background: #95D0FF;
+}
+
+#btnUpdateContactInfo {
+	background: #0395d0 none repeat scroll 0 0;
+	color: #fff;
+}
+
+#btnUpdateContactInfo:hover {
+	background: #00a1e2 none repeat scroll 0 0;
+}
+
+#btnUpdateContactInfo:active {
+	background: #95D0FF;
+}
+
+#btnAddNewPayment {
+	background: #0395d0 none repeat scroll 0 0;
+	color: #fff;
+}
+
+#btnAddNewPayment:hover {
+	background: #00a1e2 none repeat scroll 0 0;
+}
+
+#btnAddNewPayment:active {
+	background: #95D0FF none repeat scroll 0 0;
+}
+</style>
+
+<script
+	src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/cloud/jquery.bootpag.min.js'))%>"></script>
+<script type="text/javascript">
+ 
+        var invoicesObj = null;
+        var paymentsObj = null;
+        var accountId;
+        var contactInfo = null;
+        var totalInvoicePages = 1;
+        var totalPaymentPages = 1;
+        var invoicePageNumber = 1;
+        var paymentPageNumber = 1;
+        var maxNumberOfItems =  <%=itemsPerPage%>;
+     
+        
+      $(document).ready(function(){
+        
+        // Check for billing enable/disable mode
+        var isBillingEnabled = $("#isBillingEnabled").attr('value');
+        if (isBillingEnabled) {
+           
+            updateAccountInfo();
+              
+        } else {
+            var cloudMgtURL = $("#cloudmgtURL").attr('value');
+            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+            window.location.href = cloudMgtURL + unavailableErrorPage;
+        }
+
+        });
+
+    </script>
+<script type="text/javascript"> 
+     function updateAccountInfo(){
+        	 //call backend and load data
+        	
+            $.ajax({
+                url: "../../blocks/cloud/monetization/account/info/ajax/get.jag",
+                data: {
+                    "action": "get-billing-account"
+                    },
+                success: function(data) {
+                    var accountObj = jQuery.parseJSON(data);
+                    accountId = accountObj.basicInfo.id;
+                    contactInfo = accountObj.billToContact;
+                    // set account summary
+                    $('#accName').text(accountObj.basicInfo.name);
+                    $('#lastPayment').text(accountObj.basicInfo.lastPaymentAmount + " " + accountObj.basicInfo.currency);
+                    $('#accBalance').text(accountObj.basicInfo.balance);
+                    $('#lastPaymentDate').text(accountObj.basicInfo.lastPaymentDate);
+                    $('#lastInvoice').text(accountObj.basicInfo.lastInvoiceDate);
+
+                    // set contact info
+                    $('#fname').text(accountObj.billToContact.firstName);
+                    $('#state').text(accountObj.billToContact.state);
+                    $('#lname').text(accountObj.billToContact.lastName);
+                    $('#postalcode').text(accountObj.billToContact.zipCode);
+                    $('#address').text(accountObj.billToContact.address1 + " " + accountObj.billToContact.address2);
+                    $('#country').text(accountObj.billToContact.country);
+                    $('#city').text(accountObj.billToContact.city);
+                    $('#email').text(accountObj.billToContact.workEmail);
+
+                    // set credit card info
+                    $('#paymentMethodType').text(String(accountObj.basicInfo.defaultPaymentMethod.paymentMethodType).replace(/([A-Z])/g, ' $1'));
+                    $('#paymentType').text(accountObj.basicInfo.defaultPaymentMethod.creditCardType);
+                    $('#ccNum').text(accountObj.basicInfo.defaultPaymentMethod.creditCardNumber);
+                    $('#ccExpiary').text(accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationMonth + " / " +
+                                            accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationYear);
+
+                    // set subscription info
+                    $('#subsStartDate').text(accountObj.subscriptions[0].subscriptionStartDate);
+                    $('#subsStatus').text(accountObj.subscriptions[0].status);
+                    for(var i=0; i<accountObj.subscriptions.length; i++) {
+                        var tempSubs = accountObj.subscriptions[i];
+                          var actionData = '<td><a onclick="loadChangePlanPage()" ><i class="fa fa-edit" ></i> Change Plan</a> &nbsp; '
+                       + '<a onclick="verifyCancel(\'' + tempSubs.ratePlans[0].productName + '\')"><i class="fa fa-times" ></i> Cancel</a></td></tr>';
+
+                        if(tempSubs.status == "Cancelled"){
+                        actionData = '<td><a class="fa fa-edit" href="<%=jagg.getAbsoluteUrl("/site/pages/contact-us.jag")%>"> Contact Us</a></td></tr>' ;
+                       }
+                       var termEndDate = tempSubs.termEndDate;
+                       if(termEndDate == null ){
+                       termEndDate = ' - ';
+                       }
+                        $("#subscription-tbody").append($('<tr>'
+                           + '<td>' + tempSubs.ratePlans[0].productName + '</td>'
+                           + '<td>' + tempSubs.termStartDate + '</td>'
+                           + '<td>' + termEndDate + '</td>'
+                           + '<td>' + tempSubs.status + '</td>' 
+                           ));
+                    }
+                    invoicesObj = accountObj.invoices;
+                    totalInvoicePages = ((invoicesObj.length % maxNumberOfItems) == 0 ) ? (invoicesObj.length/maxNumberOfItems) : (invoicesObj.length/maxNumberOfItems) + 1;
+                    totalInvoicePages = Math.floor(totalInvoicePages);
+                    updateInvoiceTable(invoicesObj);
+
+                    paymentsObj = accountObj.payments;
+                    totalPaymentPages = ((paymentsObj.length % maxNumberOfItems) == 0 ) ? (paymentsObj.length/maxNumberOfItems) : (paymentsObj.length/maxNumberOfItems) + 1;
+                    totalPaymentPages = Math.floor(totalPaymentPages);
+                    updatePaymentTable(paymentsObj);
+                }, error : function (jqXHR, textStatus, errorThrown) {
+                    // Disable buttons
+                    document.getElementById("btnAddNewPayment").disabled = true;
+                    document.getElementById("btnViewPayment").disabled = true;
+                    document.getElementById("btnUpdateContactInfo").disabled = true;
+                    $('.message_box').empty();
+                    jagg.message({content:"Unable to load the Account Summery at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
+                        var cloudMgtURL =  $("#cloudmgtURL").attr('value');
+                        window.location.href = cloudMgtURL+"/site/pages/contact-us.jag";
+                    }
+                });
+                }
+            });
+            return false;
+
+        }
+        
+		function updateInvoiceTable(invoicesObj){
+		    $(".cleanableInvoice").remove();
+		    if(totalInvoicePages >1){
+		        $('.invoiceFooter').bootpag({total: totalInvoicePages, page:invoicePageNumber}).on("page", function(event, num){
+				    invoicePageNumber=num;
+				    if(invoicesObj != null){
+				    	updateInvoiceTable(invoicesObj);
+				    }else{
+				    	updateAccountInfo();
+				    }
+				});
+			}else{
+				$('.invoiceFooter').hide();
+			}
+            for(var i=((invoicePageNumber-1) * maxNumberOfItems); i <invoicesObj.length && i < (invoicePageNumber * maxNumberOfItems); i++ ) {
+				var invoice = invoicesObj[i];
+                $("#invoices-tbody").append($('<tr class ="cleanableInvoice">'
+                   + '<td>' + invoice.invoiceDate + '</td>'
+                   + '<td><a onclick="goToInvoicePage(\''+invoice.id+'\')">' + invoice.invoiceNumber + '</a></td>'
+                   + '<td>' + invoice.dueDate + '</td>'
+                   + '<td>' + invoice.amount + '</td>'
+                   + '<td>' + invoice.balance + '</td>'
+                   + '<td>' + invoice.status + '</td>'
+                   ));
+            }
+		}
+
+        function updatePaymentTable(paymentsObj){
+            $(".cleanablePayment").remove();
+            if(totalPaymentPages >1){
+                $('.paymentFooter').bootpag({total: totalPaymentPages, page:paymentPageNumber}).on("page", function(event, num){
+                    paymentPageNumber = num;
+                    if(paymentsObj != null){
+                        updatePaymentTable(paymentsObj);
+				    }else{
+				        updateAccountInfo();
+				    }
+				});
+			}else{
+			    $('.paymentFooter').hide();
+			}
+            for(var i=((paymentPageNumber-1) * maxNumberOfItems); i < paymentsObj.length && i < (paymentPageNumber * maxNumberOfItems); i++ ) {
+                var payment = paymentsObj[i];
+                var paidInvoices = null;
+                var paidInvoicesArray = payment.paidInvoices;
+                for (var k=0; k<paidInvoicesArray.length; k++){
+                    var paidInvoice = payment.paidInvoices[k];
+                    if (paidInvoices == null){
+                        paidInvoices = paidInvoice.invoiceNumber;
+                    } else {
+                        paidInvoices = ", " + paidInvoice.invoiceNumber;
+                    }
+                }
+
+                $("#payments-tbody").append($('<tr class ="cleanablePayment">'
+                    + '<td>' + payment.paymentType + '</td>'
+                    + '<td>' + payment.effectiveDate + '</td>'
+                    + '<td>' + payment.paymentNumber + '</td>'
+                    + '<td>' + paidInvoices + '</td>'
+                    + '<td>' + payment.status + '</td>'
+                ));
+            }
+        }
+        
+        function goToInvoicePage(id) {
+            var formInvoice = $('<form action="invoice.jag?tenant=<%=tenant%>" method="post">' +
+                    '<input type="hidden" name="invoiceId" value="' + id + '"/>' +
+                    '</form>');
+                    $('body').append(formInvoice);
+                    $(formInvoice).submit();
+        }
+
+        function addNewPaymentMethod() {
+           
+            var form = $('<form action="add-payment-method.jag?tenant=<%=tenant%>" method="post">' +
+            '<input type="hidden" name="accountId" value="' + accountId + '"/>' +
+            '</form>');
+            $('body').append(form);
+            $(form).submit();
+        }
+        function viewPaymentMethods() {
+          
+            location.href="javascript:location.href='payment-methods.jag?tenant=<%=tenantDomain%>'";
+        }
+
+        function updateContactInfo(){
+            if(contactInfo == null){
+            	updateAccountInfo();
+            }
+            
+            var contactInfoString = JSON.stringify(contactInfo).toString();
+            
+            var formContactInfo = $('<form action="add-billing-account.jag?tenant=<%=tenant%>" method="post">' +
+            		'<input type="hidden" name="firstName" value = "' + contactInfo.firstName + '"/>' +
+            		'<input type="hidden" name="lastName" value = "' + contactInfo.lastName + '"/>' +
+            		'<input type="hidden" name="city" value = "' + contactInfo.city + '"/>' +
+            		'<input type="hidden" name="country" value = "' + contactInfo.country + '"/>' +
+            		'<input type="hidden" name="address1" value = "' + contactInfo.address1 + '"/>' +
+            		'<input type="hidden" name="address2"value = "' + contactInfo.address2 + '"/>' +
+            		'<input type="hidden" name="state" value = "' + contactInfo.state + '"/>' +
+            		'<input type="hidden" name="zipCode" value="' + contactInfo.zipCode + '"/>' +
+                        '<input type="hidden" name="email" value="' + contactInfo.workEmail + '"/>' +
+                    '<input type="hidden" name="responseFrom" value = "Edit_User_Info"/>' +
+                    '</form>');
+			$('body').append(formContactInfo);
+			$(formContactInfo).submit();
+        }
+
+        function loadChangePlanPage() {
+            window.location.href = "payment-plans.jag?cloud-type=api_cloud&is-from-change-plan=true";
+        }
+
+     
+      </script>
+
+
+<div class="container content-starter">
+	<div class="row">
+		<div class="col-lg-12">
+			<h1>Account Summary</h1>
+			<div class="helper_text" id="helper_text"></div>
+		</div>
+
+	</div>
+</div>
+<% jagg.includeBlock("cloud/page/messages", null); %>
+<div class="container content-section-wrapper" id="form_div">
+	<div class="row">
+		<form class='form-horizontal'>
+			<div class="col-lg-12 content-section">
+				<div class="panel panel-default">
+					<div class="panel-heading panel-header">Account Summary</div>
+					<div class="panel-body">
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Account Name
+								:</label> <label id="accName" name="accName"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Last Payment
+								:</label> <label id="lastPayment" name="lastPayment"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Account
+								Balance :</label> <label id="accBalance" name="accBalance"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Last Payment
+								Date :</label> <label id="lastPaymentDate"
+								name="lastPaymentDate" class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Last Invoice
+								:</label> <label id="lastInvoice" name="lastInvoice"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper"></div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading panel-header">Subscription Information</div>
+					<div class="panel-body">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Service Name</th>
+									<th>Start Date</th>
+									<th>End Date</th>
+									<th>Status</th>
+
+								</tr>
+							</thead>
+							<tbody id="subscription-tbody">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading panel-header">
+						Payment Method (Primary)
+						<button type="button" id="btnAddNewPayment"
+							class="btn btn-default pull-right panel-btn-style"
+							onclick="addNewPaymentMethod();">New Payment Method</button>
+						<button type="button" id="btnViewPayment"
+							class="btn btn-default pull-right panel-btn-style marg-r-10"
+							onclick="viewPaymentMethods();">View Payment Methods</button>
+					</div>
+					<div class="panel-body">
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Payment type
+								:</label> <label id="paymentMethodType" name="paymentMethodType"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Card type :</label>
+							<label id="paymentType" name="paymentType"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Number :</label>
+							<label id="ccNum" name="ccNum" class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Expiration
+								date :</label> <label id="ccExpiary" name="ccExpiary"
+								class="control-label label-style"></label>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<!--TODO Update contact information-->
+					<div class="panel-heading panel-header">
+						Contact Information
+						<button type="button" id="btnUpdateContactInfo"
+							class="btn btn-default pull-right panel-btn-style"
+							onclick="updateContactInfo()">Update Contact Info</button>
+					</div>
+					<div class="panel-body">
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">First Name :</label>
+							<label id="fname" name="fname" class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">City :</label>
+							<label id="city" name="city" class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Last Name :</label>
+							<label id="lname" name="lname" class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">State :</label>
+							<label id="state" name="state" class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">E-mail :</label>
+							<label id="email" name="email" class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Postal Code
+								:</label> <label id="postalcode" name="postalcode"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Address :</label>
+							<label id="address" name="address"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper">
+							<label class="control-label label-style title-label">Country :</label>
+							<label id="country" name="country"
+								class="control-label label-style"></label>
+						</div>
+						<div class="col-lg-6 content-section-wrapper"></div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading panel-header">Invoices</div>
+					<div class="panel-body">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Invoice No</th>
+									<th>Target Date</th>
+									<th>Amount (USD)</th>
+									<th>Balance (USD)</th>
+									<th>Status</th>
+									<!--th>Action</th-->
+								</tr>
+							</thead>
+							<tbody id="invoices-tbody">
+
+							</tbody>
+						</table>
+						<div class="clearfix"></div>
+						<div class="invoiceFooter" style="width: 30%; margin: -20px auto;"></div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading panel-header">Payments</div>
+					<div class="panel-body">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Type</th>
+									<th>Effective Date</th>
+									<th>Payment No</th>
+									<th>Paid Invoices</th>
+									<th>Status</th>
+									<!--th>Action</th-->
+								</tr>
+							</thead>
+							<tbody id="payments-tbody">
+
+							</tbody>
+						</table>
+						<div class="clearfix"></div>
+						<div class="paymentFooter" style="width: 30%; margin: -20px auto;"></div>
+						<input type="hidden" name="isBillingEnabled" id="isBillingEnabled"
+							value="<%= isBillingEnabled %>" /> <input type="hidden"
+							name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudMgtURL%>" /> <input
+							type="hidden" name="unavailableErrorPage"
+							id="unavailableErrorPage" value="<%= unavailableErrorPage %>" />
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<% }); %>

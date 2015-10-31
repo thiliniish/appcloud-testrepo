@@ -1,0 +1,7 @@
+<%
+jagg.block("cloud/monetization/method/add", {
+	initialize:function (data) {
+
+	}
+});
+%>

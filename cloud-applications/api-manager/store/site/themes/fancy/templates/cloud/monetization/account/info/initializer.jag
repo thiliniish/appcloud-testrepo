@@ -1,0 +1,10 @@
+<%
+jagg.initializer("cloud/monetization/account/info", {
+	preInitialize : function () {
+		var tenantInfo = session.get("TENANT_INFO");
+		//if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) {
+		//  response.sendRedirect("../pages/index.jag");
+		//}
+	}
+});
+%>
