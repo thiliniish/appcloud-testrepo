@@ -34,11 +34,11 @@ public class SSOConfig {
     private String trustStorePassword;
 
     @XmlElement(name = "TrustStore", nillable = false)
-    public String getKeyStorePath() {
+    public String getTrustStorePath() {
         return trustStore;
     }
 
-    public void setKeyStorePath(String trustStore) {
+    public void setTrustStorePath(String trustStore) {
         this.trustStore = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator
                           + "resources" + File.separator + "security" + File.separator + trustStore;
     }
