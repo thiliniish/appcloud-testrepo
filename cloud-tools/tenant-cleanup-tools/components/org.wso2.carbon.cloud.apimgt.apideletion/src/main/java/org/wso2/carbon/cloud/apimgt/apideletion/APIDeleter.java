@@ -79,7 +79,7 @@ public class APIDeleter implements Runnable {
      *
      * @throws UserStoreException
      */
-    public void delete() throws InterruptedException, UserStoreException {
+    private void delete() throws InterruptedException, UserStoreException {
         //read and get tenant domains from the file.
         List<String> tenantDomains = readFile(System.getProperty(ApiDeleterConstants.TENANT_FILE));
         Map<String, Integer> tenantDomainIdMap = new HashMap<String, Integer>();
