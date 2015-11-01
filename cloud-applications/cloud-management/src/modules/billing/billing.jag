@@ -672,7 +672,7 @@ var getSubscribersOfTenant = function () {
 			tmpSubscriber.displayName = tmpUser.displayName;
 			tmpSubscriber.email = tmpUser.email;
 			tmpSubscriber.subscriptionType = "free";
-			tmpSubscriber.subscriptionPlan = "gold";
+			tmpSubscriber.complimentary = "complimentary";
 			//tmpSubscriber.;
 			//tmpSubscriber.;
 			//tmpSubscriber.;

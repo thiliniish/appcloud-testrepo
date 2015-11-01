@@ -31,7 +31,6 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
                     jagg.message({type:'error',content:"Unable to retrieve the subscriber list at the moment. Please contact WSO2 Cloud Team for help. "});
                 });
        }
-
        function displaySubscribers(subscribers){
             var $userListContainer = $('#userListContainer');
             var noOfSubscribers = subscribers.length;
@@ -41,7 +40,6 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
             } else{
                 $('#subscriberCount').replaceWith('<h2 id="subscriberCount" class="big push_bottom_40">'+ noOfSubscribers+' Subscribers</h2>');
             }
-
      		$('.cleanable').remove();
      		//looping until the max number of Subscribers in a page is added
  	      	for (var i=((pageNumber-1)*maxItemsInPage); i <noOfSubscribers && i < (pageNumber*maxItemsInPage); i++ ) {
@@ -75,15 +73,13 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
                                                         '<div style="padding-left: 21px;padding-top: 15px;" class="list_col_content">'+subscriber.subscriptionType+'</div>'+
                                                     '</li>'+
                                                     '<li class="list_col  team_role">'+
-                                                        '<div style="padding-left: 21px;padding-top: 15px;" class="list_col_content">'+subscriber.subscriptionPlan+'</div>'+
+                                                        '<div style="padding-left: 21px;padding-top: 15px;" class="list_col_content">'+subscriber.complimentary+'</div>'+
                                                     '</li>'+
                                                 '</ul>'+
                                               '</li>');
                 $userListContainer.append($userListContainerRow);
             }
        }
-
-
        $(document).ready(function($){
     	   getSubscribers();
            /*getting the total number of pages using max items in a page
@@ -156,7 +152,7 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
 									</li>
 									<li class="list_col  team_role cursover_remover">
 										<h2 class="list_col_heading"
-											style="padding-left: 11px; font-size: 14px">Subscription Plan</h2>
+											style="padding-left: 11px; font-size: 14px">Test or Complimentary</h2>
 									</li>
 								</ul>
 							</li>
