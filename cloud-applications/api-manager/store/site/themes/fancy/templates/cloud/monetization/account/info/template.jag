@@ -18,7 +18,6 @@ monetizationConfigFile.close();
 var cloudMgtURL = configs.cloud.mgt_url;
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
 var isBillingEnabled = true;
-log.info("Inside account summary");
 
 %>
 
@@ -123,7 +122,7 @@ log.info("Inside account summary");
         var maxNumberOfItems =  <%=itemsPerPage%>;
      
         
-      $(document).ready(function(){
+      $(document).ready(function() {
         
         // Check for billing enable/disable mode
         var isBillingEnabled = $("#isBillingEnabled").attr('value');
@@ -141,7 +140,7 @@ log.info("Inside account summary");
 
     </script>
 <script type="text/javascript"> 
-     function updateAccountInfo(){
+     function updateAccountInfo() {
         	 //call backend and load data
         	
             $.ajax({
@@ -185,11 +184,11 @@ log.info("Inside account summary");
                           var actionData = '<td><a onclick="loadChangePlanPage()" ><i class="fa fa-edit" ></i> Change Plan</a> &nbsp; '
                        + '<a onclick="verifyCancel(\'' + tempSubs.ratePlans[0].productName + '\')"><i class="fa fa-times" ></i> Cancel</a></td></tr>';
 
-                        if(tempSubs.status == "Cancelled"){
+                       if (tempSubs.status == "Cancelled") {
                         actionData = '<td><a class="fa fa-edit" href="<%=jagg.getAbsoluteUrl("/site/pages/contact-us.jag")%>"> Contact Us</a></td></tr>' ;
                        }
                        var termEndDate = tempSubs.termEndDate;
-                       if(termEndDate == null ){
+                       if (termEndDate == null ) {
                        termEndDate = ' - ';
                        }
                         $("#subscription-tbody").append($('<tr>'
@@ -225,21 +224,20 @@ log.info("Inside account summary");
 
         }
         
-		function updateInvoiceTable(invoicesObj){
+		function updateInvoiceTable(invoicesObj) {
 		    $(".cleanableInvoice").remove();
-		    if(totalInvoicePages >1){
-		        $('.invoiceFooter').bootpag({total: totalInvoicePages, page:invoicePageNumber}).on("page", function(event, num){
+		    if(totalInvoicePages >1) {
+		        $('.invoiceFooter').bootpag({total: totalInvoicePages, page:invoicePageNumber}).on("page", function(event, num) {
 				    invoicePageNumber=num;
-				    if(invoicesObj != null){
+				    if(invoicesObj != null) {
 				    	updateInvoiceTable(invoicesObj);
-				    }else{
 				    	updateAccountInfo();
 				    }
 				});
-			}else{
+			} else {
 				$('.invoiceFooter').hide();
 			}
-            for(var i=((invoicePageNumber-1) * maxNumberOfItems); i <invoicesObj.length && i < (invoicePageNumber * maxNumberOfItems); i++ ) {
+            for (var i=((invoicePageNumber-1) * maxNumberOfItems); i <invoicesObj.length && i < (invoicePageNumber * maxNumberOfItems); i++ ) {
 				var invoice = invoicesObj[i];
                 $("#invoices-tbody").append($('<tr class ="cleanableInvoice">'
                    + '<td>' + invoice.invoiceDate + '</td>'
@@ -252,10 +250,10 @@ log.info("Inside account summary");
             }
 		}
 
-        function updatePaymentTable(paymentsObj){
+        function updatePaymentTable(paymentsObj) {
             $(".cleanablePayment").remove();
-            if(totalPaymentPages >1){
-                $('.paymentFooter').bootpag({total: totalPaymentPages, page:paymentPageNumber}).on("page", function(event, num){
+            if (totalPaymentPages >1) {
+                $('.paymentFooter').bootpag({total: totalPaymentPages, page:paymentPageNumber}).on("page", function(event, num) {
                     paymentPageNumber = num;
                     if(paymentsObj != null){
                         updatePaymentTable(paymentsObj);
@@ -263,16 +261,16 @@ log.info("Inside account summary");
 				        updateAccountInfo();
 				    }
 				});
-			}else{
+			} else {
 			    $('.paymentFooter').hide();
 			}
-            for(var i=((paymentPageNumber-1) * maxNumberOfItems); i < paymentsObj.length && i < (paymentPageNumber * maxNumberOfItems); i++ ) {
+            for (var i=((paymentPageNumber-1) * maxNumberOfItems); i < paymentsObj.length && i < (paymentPageNumber * maxNumberOfItems); i++ ) {
                 var payment = paymentsObj[i];
                 var paidInvoices = null;
                 var paidInvoicesArray = payment.paidInvoices;
-                for (var k=0; k<paidInvoicesArray.length; k++){
+                for (var k=0; k<paidInvoicesArray.length; k++) {
                     var paidInvoice = payment.paidInvoices[k];
-                    if (paidInvoices == null){
+                    if (paidInvoices == null) {
                         paidInvoices = paidInvoice.invoiceNumber;
                     } else {
                         paidInvoices = ", " + paidInvoice.invoiceNumber;
@@ -310,8 +308,8 @@ log.info("Inside account summary");
             location.href="javascript:location.href='payment-methods.jag?tenant=<%=tenantDomain%>'";
         }
 
-        function updateContactInfo(){
-            if(contactInfo == null){
+        function updateContactInfo() {
+            if(contactInfo == null) {
             	updateAccountInfo();
             }
             

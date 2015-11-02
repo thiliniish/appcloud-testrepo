@@ -58,13 +58,13 @@ th,td {
                        var fullDiscount = 0;
                        var fullAmount = 0;
 
-                       for(var i = 0; i < invoiceItems.length; i++) {
+                       for (var i = 0; i < invoiceItems.length; i++) {
                            var invoiceItem = invoiceItems[i];
                            if(invoiceItem.amount < 0){
                                invoiceItem.chargeName = invoiceItem.chargeName + " -- Proration Credit";
                                }
                            var displayDiscount = invoiceItem.discount; 
-                           if(invoiceItem.discount == 0){
+                           if (invoiceItem.discount == 0) {
                                displayDiscount == "";
                                }
                            $("#payments-tbody").append($('<tr>'
@@ -78,17 +78,17 @@ th,td {
                            fullDiscount += parseFloat(invoiceItem.discount);
                            fullAmount += parseFloat(invoiceItem.amount);
                            fullTotal += parseFloat(invoiceItem.amount+invoiceItem.discount);
-                           if(invoiceItem.amount < 0){
+                           if (invoiceItem.amount < 0) {
                                document.getElementById(("amount"+i)).style.color="red";
                                }
-                           if(invoiceItem.discount < 0){
+                           if (invoiceItem.discount < 0) {
                                document.getElementById("discount"+i).style.color="red";
                                }
-                            if((invoiceItem.amount + invoiceItem.discount) < 0){
+                           if ((invoiceItem.amount + invoiceItem.discount) < 0) {
                                 document.getElementById("total"+i).style.color="red";
                                 }
                             }
-                       if(fullDiscount < 0){
+                       if (fullDiscount < 0) {
                            document.getElementById('fDiscount').style.color="red";
                            }
                        //setting the total pricing values
