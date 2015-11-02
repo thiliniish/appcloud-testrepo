@@ -114,7 +114,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                     super.publishEvents(workflowDTO);
                     return workflowResponse;
                 }
-            } else {
+            } else if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart())) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Subscriber not available. adding subscriber");
                 }
@@ -130,6 +130,10 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                 //TODO redirecting to collect payment plans and create zuora account
                 httpworkflowResponse.setRedirectUrl("http://www.defense.gov/");
                 return httpworkflowResponse;
+            } else {
+                throw new WorkflowException(
+                        ERROR_MSG + " element should be: " + SUBSCRIBERS_ELEMENT + " not " + subscribers.getQName()
+                                .getLocalPart());
             }
         } catch (AxisFault | XMLStreamException e) {
             throw new WorkflowException(ERROR_MSG, e);
