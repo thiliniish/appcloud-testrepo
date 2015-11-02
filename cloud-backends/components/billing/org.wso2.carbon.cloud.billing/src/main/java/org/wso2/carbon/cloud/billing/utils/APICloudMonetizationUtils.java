@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class APICloudMonetizationUtils {
 
-    private static final String IS_TEST_ACCOUNT = "testAccount";
+    private static final String IS_TEST_ACCOUNT = "isTestAccount";
     private static final String ACCOUNT_NUMBER = "accountNumber";
     private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory
             .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
