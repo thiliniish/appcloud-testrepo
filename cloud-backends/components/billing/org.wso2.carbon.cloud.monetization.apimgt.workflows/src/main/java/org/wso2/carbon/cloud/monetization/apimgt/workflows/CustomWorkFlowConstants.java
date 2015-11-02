@@ -25,7 +25,7 @@ public class CustomWorkFlowConstants {
 
     public static final String SUBSCRIBER_INFO_PAYLOAD =
             "<ser:getAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
-                    "  <ser:username>$1y</ser:username>\n" +
+                    "  <ser:username>$1</ser:username>\n" +
                     "  <ser:tenantDomain>$2</ser:tenantDomain>\n" +
                     "</ser:getAPISubscriberInfo>";
 

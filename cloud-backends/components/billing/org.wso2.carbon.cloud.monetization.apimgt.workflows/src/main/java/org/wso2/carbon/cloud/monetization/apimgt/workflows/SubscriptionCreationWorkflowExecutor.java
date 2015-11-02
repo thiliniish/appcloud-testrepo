@@ -52,6 +52,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     private static final String ERROR_MSG = "Could not complete subscription creation workflow.";
     private static final String IS_TEST_ACCOUNT = "testAccount";
     private static final String ACCOUNT_NUMBER = "accountNumber";
+    private static final String SUBSCRIBERS_ELEMENT = "subscribers";
 
     private String serviceEndpoint;
     private String username;
@@ -85,8 +86,10 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
             OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
             OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
 
-            OMElement subscriberOM = (OMElement) AXIOMUtil.stringToOM(response.getText()).getFirstOMChild();
-            if (subscriberOM != null) {
+            OMElement subscribers = AXIOMUtil.stringToOM(response.getText());
+            OMElement subscriberOM = (OMElement) subscribers.getFirstOMChild();
+            if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart()) && subscriberOM != null) {
+
                 boolean isTestAccount = Boolean.parseBoolean(
                         ((OMElement) (subscriberOM.getChildrenWithLocalName(IS_TEST_ACCOUNT).next())).getText());
 
