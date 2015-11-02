@@ -15,37 +15,61 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.wso2.carbon.cloud.appfactory.appdeletion.internal;
 
-package org.wso2.carbon.apimgt.apideletion.internal;
-
-import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService;
+import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 
 public class ServiceHolder {
-    //Registry Service which is used to get registry data.
-    private static RegistryService registryService;
+
+    private ServiceHolder() {
+    }
+
     //Realm Service which is used to get tenant data.
     private static RealmService realmService;
-    //Regeistry loader to load tenant's registry data
+    //Tenant Registry loader which is used to load registry of the tenant
     private static TenantRegistryLoader tenantRegLoader;
+    //ApplicationInfo service which is used to get application related information
+    private static ApplicationInfoService appInfoService;
+    //App Factory Tenant management service which is used to manage tenant related information
+    private static TenantManagementService tenantManagementService;
 
     /**
-     * Method to get RegistryService.
+     * Method to get TenantManagementService.
      *
-     * @return registryService.
+     * @return TenantManagementService.
      */
-    public static RegistryService getRegistryService() {
-        return registryService;
+    public static TenantManagementService getTenantManagementService() {
+        return tenantManagementService;
     }
 
     /**
-     * Method to set registry RegistryService.
+     * Method to set TenantManagementService.
      *
-     * @param service registryService.
+     * @param service tenantManagementService.
      */
-    public static void setRegistryService(RegistryService service) {
-        registryService = service;
+    public static void setTenantManagementService(TenantManagementService service) {
+        ServiceHolder.tenantManagementService = service;
+    }
+
+    /**
+     * Method to get AppinfoService.
+     *
+     * @return appinfoService.
+     */
+    public static ApplicationInfoService getAppinfoService() {
+        return appInfoService;
+    }
+
+    /**
+     * Method to set ApplicationInfoService.
+     *
+     * @param service appinfoService.
+     */
+    public static void setAppinfoService(ApplicationInfoService service) {
+        ServiceHolder.appInfoService = service;
     }
 
     /**
@@ -83,4 +107,5 @@ public class ServiceHolder {
     public static void setTenantRegLoader(TenantRegistryLoader service) {
         tenantRegLoader = service;
     }
+
 }

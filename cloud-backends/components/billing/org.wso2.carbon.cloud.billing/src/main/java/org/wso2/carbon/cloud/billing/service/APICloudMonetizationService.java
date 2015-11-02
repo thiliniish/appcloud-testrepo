@@ -29,4 +29,9 @@ public class APICloudMonetizationService {
     public String getAPISubscriberInfo(String username, String tenantDomain) throws CloudMonetizationException {
         return APICloudMonetizationUtils.getAPISubscriberInfo(username, tenantDomain);
     }
+
+    public void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
+            String accountNumber) throws CloudMonetizationException {
+        APICloudMonetizationUtils.updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber);
+    }
 }

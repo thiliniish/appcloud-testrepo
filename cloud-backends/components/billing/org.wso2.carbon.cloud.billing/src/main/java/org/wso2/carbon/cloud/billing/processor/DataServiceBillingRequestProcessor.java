@@ -89,12 +89,8 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      * @throws CloudBillingException
      */
     public String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+        setTrustStoreParams();
         GetMethod get = new GetMethod(url);
-        String trustStorePath = ssoConfig.getKeyStorePath();
-        String password = ssoConfig.getTrustStorePassword();
-        System.setProperty(BillingConstants.TRUST_STORE_NAME_PROPERTY, trustStorePath);
-        System.setProperty(BillingConstants.TRUST_STORE_PASSWORD_PROPERTY, password);
-
         if (basicAuthHeader == null || basicAuthHeader.isEmpty()) {
             throw new IllegalStateException("Data Service Billing Processor is not initialized properly");
         }
@@ -135,20 +131,22 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      * Data service POST request
      *
      * @param url          URL
-     * @param keyValuePair name value pair
-     * @return reponse
+     * @param nameValuePairs name value pair
+     * @return response
      * @throws CloudBillingException
      */
     @Override
-    public String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException {
+    public String doPost(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+        setTrustStoreParams();
         PostMethod post = new PostMethod(url);
         // indicate accept response body in JSON
-        String trustStorePath = ssoConfig.getKeyStorePath();
-        String password = ssoConfig.getTrustStorePassword();
-        System.setProperty(BillingConstants.TRUST_STORE_NAME_PROPERTY, trustStorePath);
-        System.setProperty(BillingConstants.TRUST_STORE_PASSWORD_PROPERTY, password);
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
-        post.setRequestBody(keyValuePair);
+        post.setRequestBody(nameValuePairs);
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    private void setTrustStoreParams() {
+        System.setProperty(BillingConstants.TRUST_STORE_NAME_PROPERTY, ssoConfig.getTrustStorePath());
+        System.setProperty(BillingConstants.TRUST_STORE_PASSWORD_PROPERTY, ssoConfig.getTrustStorePassword());
     }
 }
