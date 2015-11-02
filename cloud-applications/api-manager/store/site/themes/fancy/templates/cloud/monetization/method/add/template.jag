@@ -148,7 +148,7 @@ function submitPage() {
 	enable();
 }
 
-function generateParameters (){
+function generateParameters () {
 	var serviceId =  $("#serviceId").attr('value');
 	$.ajax({
 		url: "../../blocks/cloud/monetization/method/add/ajax/add.jag",
@@ -199,7 +199,7 @@ function showErrorMessage(){
 	}
 }
 
-$(document).ready(function($){
+$(document).ready(function($) {
 	 
 	var isBillingEnabled = $("#isBillingEnabled").attr('value');
 	if (isBillingEnabled) {

@@ -53,8 +53,8 @@ if(callsPerDay != null){
 	callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
 }
 var serviceId = session.get("SERVICE_ID");
-if("Response_From_Submit_Page" == responseFrom) {
-	if("true" == request.getParameter("success")[0]) {
+if ("Response_From_Submit_Page" == responseFrom) {
+	if ("true" == request.getParameter("success")[0]) {
 
 		var claims = jagg.module("user/profile").getProfile();
 		profileFirstName = claims.firstname || "";
@@ -77,7 +77,7 @@ if("Response_From_Submit_Page" == responseFrom) {
 	}
 	log.debug("Request received from payment method creation page. Callback from Zuora");
 
-}else if (EDIT_USER_INFO == responseFrom){
+} else if (EDIT_USER_INFO == responseFrom) {
 	profileFirstName = request.getParameter("firstName");
 	userEmail =  request.getParameter("email");
 	profileLastName = request.getParameter("lastName");
@@ -214,7 +214,7 @@ function doSubmit() {
 }
 
 
-        function validateEmail(){
+        function validateEmail() {
 
         var isEmailValid=true;
         var email = $("#email").val();
@@ -479,7 +479,7 @@ function doSubmit() {
 		</div>
 
 		<% }
-	if(responseFrom != IS_FROM_CHANGE_PLAN) {%>
+	if (responseFrom != IS_FROM_CHANGE_PLAN) {%>
 		<div class="row">
 			<div class="container col-md-12">
 				<div class="wr-head">

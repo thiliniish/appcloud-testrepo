@@ -32,7 +32,7 @@ var isBillingEnabled = true;
 </style>
 
 <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function() {
         // Check for billing enable/disable mode
         var isBillingEnabled = $("#isBillingEnabled").attr('value');
         if (isBillingEnabled) {
@@ -98,7 +98,7 @@ var isBillingEnabled = true;
 
             });
 
-            if('<%= secondaryCCStatus%>' != null && '<%= secondaryCCStatus%>' == "success") {
+            if ('<%= secondaryCCStatus%>' != null && '<%= secondaryCCStatus%>' == "success") {
                 jagg.message({
                     content:'Successfully added credit card information.',
                     type:'success'
@@ -133,7 +133,7 @@ var isBillingEnabled = true;
              });
         }
         
-        function removePaymentMethod(methodId){
+        function removePaymentMethod(methodId) {
        	 $.ajax({
                 url: "../../blocks/cloud/monetization/method/info/ajax/get.jag",
                 data: {
