@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.cloud.apimgt.apideletion;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
@@ -77,7 +78,7 @@ public class APIDeleter implements Runnable {
     /**
      * Method to delete APIs of given tenants.
      *
-     * @throws UserStoreException
+     * @throws UserStoreException, InterruptedException
      */
     private void delete() throws InterruptedException, UserStoreException {
         //read and get tenant domains from the file.
@@ -105,9 +106,6 @@ public class APIDeleter implements Runnable {
                 }
             }
             log.info("Size of the tenant list = " + tenantDomainIdMap.size() + ".");
-        } catch (UserStoreException e) {
-            log.error("Error occurred while retrieving tenants.", e);
-            throw e;
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -134,8 +132,7 @@ public class APIDeleter implements Runnable {
                 GenericArtifactManager manager = new GenericArtifactManager(registry, ApiDeleterConstants.API);
                 GovernanceUtils.loadGovernanceArtifacts((UserRegistry) registry);
                 GenericArtifact[] artifacts = manager.getAllGenericArtifacts();
-                if (!registry.resourceExists(APIConstants.API_ROOT_LOCATION) || (artifacts == null) || (artifacts.length
-                        == 0)) {
+                if (!registry.resourceExists(APIConstants.API_ROOT_LOCATION) || ArrayUtils.isEmpty(artifacts)) {
                     log.info("No apis are available for tenant " + tenantDomain + "[" + tenantID + "]");
                     continue;
                 }
