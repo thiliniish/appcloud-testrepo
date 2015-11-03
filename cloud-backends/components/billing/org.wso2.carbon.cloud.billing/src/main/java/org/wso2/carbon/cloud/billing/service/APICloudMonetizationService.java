@@ -18,9 +18,45 @@
 
 package org.wso2.carbon.cloud.billing.service;
 
+import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
+import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
+
 /**
- * API Cloud Specific monetization service
+ * API Cloud monetization service.
  */
 public class APICloudMonetizationService {
 
+    /**
+     * Retrieve subscriber information from
+     *
+     * @param username     username of the subscriber
+     * @param tenantDomain tenant domain
+     * @return <subscribers xmlns="http://ws.wso2.org/dataservice">
+     * <subscriber>
+     * <tenant xmlns="http://ws.wso2.org/dataservice">fordmustang</tenant>
+     * <username xmlns="http://ws.wso2.org/dataservice">methiapr.fakeinbox.com@fordmustang</username>
+     * <testAccount xmlns="http://ws.wso2.org/dataservice">false</testAccount>
+     * <accountNumber xmlns="http://ws.wso2.org/dataservice" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     * xsi:nil="true"/>
+     * </subscriber>
+     * </subscribers>
+     * @throws CloudMonetizationException
+     */
+    public String getAPISubscriberInfo(String username, String tenantDomain) throws CloudMonetizationException {
+        return APICloudMonetizationUtils.getAPISubscriberInfo(username, tenantDomain);
+    }
+
+    /**
+     * Insert into subscriber information
+     *
+     * @param username subscriber user name
+     * @param tenantDomain tenant domain
+     * @param isTestAccount boolean test account or not
+     * @param accountNumber account number. this would be null for non paid subscribers
+     * @throws CloudMonetizationException
+     */
+    public void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
+            String accountNumber) throws CloudMonetizationException {
+        APICloudMonetizationUtils.updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber);
+    }
 }

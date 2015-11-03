@@ -168,7 +168,7 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getAccountSummary(String accountId) throws CloudBillingException {
-        return zuoraApi.doGet(accountsUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId));
+        return zuoraApi.doGet(accountsUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null);
 
     }
 
@@ -180,7 +180,7 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getInvoices(String accountId) throws CloudBillingException {
-        return zuoraApi.doGet(invoicesUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId));
+        return zuoraApi.doGet(invoicesUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null);
     }
 
     /**
@@ -191,7 +191,7 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getPayments(String accountId) throws CloudBillingException {
-        return zuoraApi.doGet(paymentsUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId));
+        return zuoraApi.doGet(paymentsUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null);
     }
 
     /**
@@ -208,7 +208,7 @@ public class ZuoraRESTUtils {
         JSONArray currentRatePlanList = new JSONArray();
         JSONArray starterRatePlanList = new JSONArray();
 
-        response = zuoraApi.doGet(ratePlansUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId));
+        response = zuoraApi.doGet(ratePlansUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null);
         JSONArray subscriptions = getSubscriptions(accountId, response);
         for (Object subscription : subscriptions) {
             // get all rate plans
@@ -250,7 +250,7 @@ public class ZuoraRESTUtils {
         String response = null;
 
         try {
-            response = zuoraApi.doGet(zuoraProductsUrl);
+            response = zuoraApi.doGet(zuoraProductsUrl, null);
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
             // getting all subscriptions elements for accountId

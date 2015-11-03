@@ -28,6 +28,13 @@ import java.io.IOException;
 public class FileManager {
 
     /**
+     * Private constructor to prevent instantiation
+     */
+    private FileManager(){
+
+    }
+
+    /**
      * given string file path this method is used to read the file
      * @param filePath String file path
      * @return  string of file content

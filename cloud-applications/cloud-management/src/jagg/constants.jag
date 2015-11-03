@@ -172,6 +172,9 @@ var EXPIRED_RATE_PALN = "Expired";
 var DISCOUNT_CHARGE_NAME ="Discount";
 var MONTHLY_SUBSCRIPTION_CHARGE_NAME ="Monthly subscription fee";
 
+//Billing Commons
+var BILLING_SUGGESTED_PLAN = "Getting Traction";
+
 //password related
 var PASSWORD_VALIDATION_REGEX=/(?=.*\d)(?=.*[a-z])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])(?=.*[A-Z]).{8,}/;
 

@@ -53,7 +53,7 @@ public class Node {
         StringBuilder childNodesString = new StringBuilder();
 
         for (Node node : childNodes) {
-            childNodesString.append(node.toString() + "\n");
+            childNodesString.append(node.toString()).append("\n");
         }
 
         return childNodesString.toString();
@@ -103,15 +103,6 @@ public class Node {
     }
 
     /**
-     * Returns properties Map of this Node.
-     *
-     * @return Map whose keys and values are String.
-     */
-    public Map<String, String> getProperties() {
-        return properties;
-    }
-
-    /**
      * Returns the value of a given property.
      *
      * @param key name of a property.
@@ -134,7 +125,7 @@ public class Node {
     public String propertiesToString() {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : properties.entrySet()) {
-            sb.append(entry.getKey() + "\t" + entry.getValue() + ";\n");
+            sb.append(entry.getKey()).append("\t").append(entry.getValue()).append(";\n");
         }
         return sb.toString();
     }
@@ -185,11 +176,9 @@ public class Node {
      */
     public String toString() {
 
-        String nodeString = getName() + " {\n" +
+        return getName() + " {\n" +
                             (propertiesToString()) +
                             (childNodesToString()) +
                             "}";
-
-        return nodeString;
     }
 }

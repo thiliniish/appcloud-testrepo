@@ -136,6 +136,7 @@
         var cloudName = $("#Cloud option:selected").val();
         var serverName = $("#Server option:selected").val();
         var testName = $("#test-name option:selected").val();
+        var severity = $("#severity option:selected").val();
         var dateSelectorTime = jQuery.parseJSON(JSON.stringify($("#datePicker").daterangepicker("getRange")));
         var array = Array();
         var startTime;
@@ -159,7 +160,7 @@
                 type: 'POST',
                 url: 'update_serverList.jsp',
                 data: {
-                    cloudName: cloudName, serverName: "All"
+                    cloudName: cloudName, serverName: "All", severity: severity
                 },
                 dataType: "JSON",
                 success: function (json) {
@@ -168,7 +169,7 @@
                     $.fn.populateServers(json.Services);
                 }
             });
-            var severity = $("#severity option:selected").val();
+
             $("#uptime-info").empty();
             $("#uptime-info").append($("<th>Start Time</th> <th>End Time</th> <th>Duration (s)</th><th>Server Name</th> <th>Test Name</th><th>Severity</th><th></th>"));
             $.ajax({
@@ -195,7 +196,7 @@
                 type: 'POST',
                 url: 'update_serverList.jsp',
                 data: {
-                    cloudName: cloudName, serverName: serverName
+                    cloudName: cloudName, serverName: serverName, severity: severity
                 },
                 dataType: "JSON",
                 success: function (json) {
@@ -210,7 +211,7 @@
                 type: 'POST',
                 url: 'update_serverList.jsp',
                 data: {
-                    cloudName: cloudName, serverName: serverName
+                    cloudName: cloudName, serverName: serverName, severity: severity
                 },
                 dataType: "JSON",
                 success: function (json) {

@@ -227,7 +227,7 @@
         <wso2carbon.version.421>4.2.1</wso2carbon.version.421>
         <wso2carbon.version.422>4.2.2</wso2carbon.version.422>
         <orbit.version.json>2.0.0.wso2v1</orbit.version.json>
-        <orbit.version.json-simple>1.1.wso2v1</orbit.version.json-simple>
+        <orbit.version.json-simple>1.1.wso2v1</orbit.version.json-simple>      
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.source>1.6</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -267,7 +267,8 @@
         <org.wso2.carbon.automation.version>4.2.5</org.wso2.carbon.automation.version>
         <apache.axis2.wso2.version>1.6.1.wso2v10</apache.axis2.wso2.version>
         <slf4j.version>1.7.6</slf4j.version>
-        <smslib.version>3.5.2</smslib.version>
+        <slf4j-simple.version>1.6.4</slf4j-simple.version>
+        <smslib.version>3.5.2</smslib.version> 
         <quartz.version>2.1.7</quartz.version>
         <mysql.connector.version>5.1.26</mysql.connector.version>
         <gitblit.version>1.2.0</gitblit.version>
@@ -283,6 +284,17 @@
         <org.wso2.carbon.jaggery.app.mgt.stub.version>4.2.0</org.wso2.carbon.jaggery.app.mgt.stub.version>
         <org.wso2.carbon.jaggery.app.mgt.stub.version>1.0.0</org.wso2.carbon.jaggery.app.mgt.stub.version>
         <bcprov-jdk16.version>1.46</bcprov-jdk16.version>
+        <slf4j-api.version>1.7.5</slf4j-api.version>
+        <mysql-connector.version>5.1.34</mysql-connector.version>
+        <slf4j-log4j12.version>1.7.5</slf4j-log4j12.version>
+        <org.json.version>20140107</org.json.version>
+        <org.wso2.carbon.identity.sso.agent.version>1.2.0</org.wso2.carbon.identity.sso.agent.version>
+        <axis2-kernel.version>1.3</axis2-kernel.version>
+        <axis2-transport-http.version>1.6.2</axis2-transport-http.version>
+        <org.wso2.carbon.um.ws.api.stub.version>4.2.2</org.wso2.carbon.um.ws.api.stub.version>
+        <maven-war-plugin.version>2.4</maven-war-plugin.version>
+        <commons-dbcp.version>1.4</commons-dbcp.version>
+        <carbon.apimgt.version>4.3.0-SNAPSHOT</carbon.apimgt.version>
 
         <imp.pkg.version.axiom>[1.2.11.wso2v4, 1.3.0)</imp.pkg.version.axiom>
         <imp.pkg.version.axis2>[1.6.1.wso2v10, 1.7.0)</imp.pkg.version.axis2>

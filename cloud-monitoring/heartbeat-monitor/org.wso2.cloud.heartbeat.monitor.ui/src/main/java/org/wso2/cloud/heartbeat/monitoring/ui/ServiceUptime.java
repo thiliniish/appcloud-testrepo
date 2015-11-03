@@ -15,6 +15,7 @@
   * specific language governing permissions and limitations
   * under the License.
   */
+
 package org.wso2.cloud.heartbeat.monitoring.ui;
 
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx.utils.Constants;
@@ -32,7 +33,7 @@ import java.util.*;
  * uptime information map for timestamp to failure status
  */
 public class ServiceUptime {
-    List<Long> filteredPositiveList;
+    private List<Long> filteredPositiveList;
     private Map<Timestamp, Byte> upTimeInfo;
     private List<Timestamp> positiveUpTimeInfo;
     private List<Pair> mergedNegativeIntervals;
@@ -55,15 +56,8 @@ public class ServiceUptime {
         this.positiveUpTimeInfo = new ArrayList<Timestamp>();
     }
 
-    public void addUptimeInfo(Timestamp dateTime, Boolean status) throws ParseException {
-        byte statusInt = 0;
-        if (!status) {
-            statusInt = 0;
-        } else {
-            statusInt = 1;
-            positiveUpTimeInfo.add(dateTime);
-        }
-        upTimeInfo.put(dateTime, statusInt);
+    public void addUptimeInfo(Timestamp dateTime, byte status) {
+        upTimeInfo.put(dateTime, status);
     }
 
     public List<Timestamp> getPositiveUpTimeInfo() {
@@ -146,6 +140,10 @@ public class ServiceUptime {
 
     public void setSeverity(int severityVal) {
         severity = severityVal;
+    }
+
+    public void setPositiveUpTimeInfo(Timestamp timeStamp){
+        this.positiveUpTimeInfo.add(timeStamp);
     }
 
     public String getUptimePercentage() {

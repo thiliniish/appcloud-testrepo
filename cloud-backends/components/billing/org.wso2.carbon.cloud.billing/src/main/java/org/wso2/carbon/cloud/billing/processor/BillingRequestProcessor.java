@@ -28,7 +28,7 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
  */
 public interface BillingRequestProcessor {
 
-    String doGet(String url) throws CloudBillingException;
+    String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
 
     void doUpload() throws CloudBillingException;
 

@@ -1,0 +1,104 @@
+<%
+jagg.module("cloud/monetization", {
+	createAccount:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").createAccount.apply(this, arguments);
+	},
+	generateParams:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").generateParams.apply(this, arguments);
+	},
+	getEmailOfUser:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getEmailOfUser.apply(this, arguments);
+	},
+	getTenantUsage:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getTenantUsage.apply(this, arguments);
+	},
+	getRatePlans:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getRatePlans.apply(this, arguments);
+	},
+	isPaidAccount:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").isPaidAccount.apply(this, arguments);
+	},
+	cancelSubscription:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").cancelSubscription.apply(this, arguments);
+	},
+	getCurrentRatePlan:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getCurrentRatePlan.apply(this, arguments);
+	},
+	getAccountId:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getAccountId.apply(this, arguments);
+	},
+	changeSubscriptionPlan:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").changeSubscriptionPlan.apply(this, arguments);
+	},
+	getAllPaymentMethods:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getAllPaymentMethods.apply(this, arguments);
+	},
+	updateDefaultPaymentMethod:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").updateDefaultPaymentMethod.apply(this, arguments);
+	},
+	getPaymentPlanFromId:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getPaymentPlanFromId.apply(this, arguments);
+	},
+	addTenantTomonetization:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").addTenantTomonetization.apply(this, arguments);
+	},
+	removePaymentMethod:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").removePaymentMethod.apply(this, arguments);
+	},
+	getAccountStatus:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getAccountStatus.apply(this, arguments);
+	},
+	validateServiceId:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").validateServiceId.apply(this, arguments);
+	},
+	extendTrial:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").extendTrial.apply(this, arguments);
+	},
+	getCouponProductRatePlanId:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getCouponProductRatePlanId.apply(this, arguments);
+	},
+	addCloudSubmissionToRightwave:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").addCloudSubmissionToRightwave.apply(this, arguments);
+	},
+	getBillingInvoiceData:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getBillingInvoiceData.apply(this, arguments);
+	},
+	getCancelSubscriptionEffectiveDate:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getCancelSubscriptionEffectiveDate.apply(this, arguments);
+	},
+	updateContactInfo:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").updateContactInfo.apply(this, arguments);
+	},
+	calculateDiscountForCoupon:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").calculateDiscountForCoupon.apply(this, arguments);
+	},
+	isPlanUpgrade:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").isPlanUpgrade.apply(this, arguments);
+	},
+	notifyRightwaveForUnfinishedUpgrades:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").notifyRightwaveForUnfinishedUpgrades.apply(this, arguments);
+	},
+	getCloudURL:function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getCloudURL.apply(this, arguments);
+	},
+	getActualPaymentAmount: function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getActualPaymentAmount.apply(this, arguments);
+	},
+	isValidCoupon: function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").isValidCoupon.apply(this, arguments);
+	},
+	getTrialPeriod: function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getTrialPeriod.apply(this, arguments);
+	},
+	getAPICloudUsageDisplayPeriod: function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getAPICloudUsageDisplayPeriod.apply(this, arguments);
+	},
+	getCurrencyUsed: function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").getCurrencyUsed.apply(this, arguments);
+	},
+	ismonetizationEnable: function () {
+		return jagg.require(jagg.getModulesDir() + "cloud/monetization/monetization.jag").ismonetizationEnable.apply(this, arguments);
+	}
+
+});
+%>

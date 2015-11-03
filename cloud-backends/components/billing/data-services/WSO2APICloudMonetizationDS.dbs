@@ -1,0 +1,57 @@
+<data name="WSO2APICloudMonetizationDS">
+    <description>WSO2 API Cloud Monetization data service</description>
+    <config id="apim_stat">
+        <property name="carbon_datasource_name">apim_stats</property>
+    </config>
+    <config id="cloud_mgt">
+        <property name="carbon_datasource_name">cloud_mgt</property>
+    </config>
+    <query id="getSubscriberInfoQ" useConfig="cloud_mgt">
+        <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS
+        WHERE USER_NAME = :USER_NAME AND TENANT_DOMAIN = :TENANT_DOMAIN</sql>
+        <result element="subscribers" rowName="subscriber">
+            <element column="TENANT_DOMAIN" name="tenant" xsdType="string"/>
+            <element column="USER_NAME" name="username" xsdType="string"/>
+            <element column="TEST_ACCOUNT" name="testAccount" xsdType="boolean"/>
+            <element column="ACCOUNT_NUMBER" name="accountNumber" xsdType="string"/>
+        </result>
+        <param name="USER_NAME" sqlType="STRING"/>
+        <param name="TENANT_DOMAIN" sqlType="STRING"/>
+    </query>
+    <query id="updateSubscriberInfoQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
+            VALUES (:USER_NAME, :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER)</sql>
+         <param name="USER_NAME" sqlType="STRING"/>
+         <param name="TENANT_DOMAIN" sqlType="STRING"/>
+         <param name="TEST_ACCOUNT" sqlType="BOOLEAN"/>
+         <param name="ACCOUNT_NUMBER" defaultValue="#{NULL}" sqlType="STRING"/>
+    </query>
+    <operation name="getSubscriber">
+        <call-query href="getSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+        </call-query>
+    </operation>
+    <operation name="updateSubscriber">
+        <call-query href="updateSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </operation>
+    <resource method="GET" path="v1/subscribers/{tenant}/{username}">
+        <call-query href="getSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+        </call-query>
+    </resource>
+    <resource method="POST" path="v1/subscribers/{tenant}/{username}">
+        <call-query href="updateSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </resource>
+</data>

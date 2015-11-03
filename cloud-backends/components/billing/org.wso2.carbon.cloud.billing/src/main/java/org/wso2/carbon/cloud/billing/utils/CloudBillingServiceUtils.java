@@ -50,7 +50,8 @@ public class CloudBillingServiceUtils {
                      .getDSConfig()
                      .getHttpClientConfig());
     private static APICloudUsageManager usageManager = new APICloudUsageManager();
-    private static String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getServiceUrl()
+    private static String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                                                  .getCloudBillingServiceUrl()
                                           + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
 
     private CloudBillingServiceUtils() {
@@ -66,7 +67,7 @@ public class CloudBillingServiceUtils {
     public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
 
         String response = dsBRProcessor.doGet(getAccountUrl.replace(BillingConstants.TENANT_DOMAIN_PARAM,
-                                                                    tenantDomain));
+                                                                    tenantDomain), null);
         try {
             if (response != null && !response.isEmpty()) {
                 OMElement elements = AXIOMUtil.stringToOM(response);

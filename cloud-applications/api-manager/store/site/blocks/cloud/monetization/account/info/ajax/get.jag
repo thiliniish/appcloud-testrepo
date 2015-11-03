@@ -1,0 +1,20 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site/blocks/cloud/monetization/account/info/ajax/get.jag");
+var carbon = require('carbon');
+var server = carbon.server;
+(function () {
+	var action = request.getParameter("action");
+	var tenantDomain = session.get("LOGGED_IN_TENANT");
+	if(tenantDomain != null ){
+		var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+		var accountId = billingService.getAccountId(tenantDomain);
+		var summary  = billingService.getAccountSummary(accountId);
+		print(summary);
+	}
+
+}());
+%>
+
+

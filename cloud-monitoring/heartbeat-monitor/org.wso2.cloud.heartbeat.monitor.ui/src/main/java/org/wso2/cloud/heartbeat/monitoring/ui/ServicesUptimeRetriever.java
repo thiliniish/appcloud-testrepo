@@ -15,6 +15,7 @@
   * specific language governing permissions and limitations
   * under the License.
   */
+
 package org.wso2.cloud.heartbeat.monitoring.ui;
 
 import org.apache.commons.logging.Log;
@@ -22,13 +23,12 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx.utils.Constants;
 import org.wso2.cloud.heartbeat.monitoring.ui.utils.*;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 
 /**
  * Data retrieval Class for all the uptime related information, acts as the broker between
@@ -37,7 +37,6 @@ import java.util.*;
 
 public class ServicesUptimeRetriever {
     private static final Log log = LogFactory.getLog(ServicesUptimeRetriever.class);
-    ConfigReader configObject;
     private List<ServiceUptime> serviceUptimes;
     private DataAccessManager dataAccessManager;
     private Long fromDateTime;
@@ -46,9 +45,9 @@ public class ServicesUptimeRetriever {
     /**
      * Constructor
      */
-    public ServicesUptimeRetriever() {
+    public ServicesUptimeRetriever() throws HeartbeatException {
         this.serviceUptimes = new ArrayList<ServiceUptime>();
-        configObject = ConfigReader.getInstance();
+        dataAccessManager = DataAccessManager.getInstance();
     }
 
     /**
@@ -58,20 +57,12 @@ public class ServicesUptimeRetriever {
      * @param testName    String Name of the Expected test
      * @return List of service Uptime Details
      */
-    public List<ServiceUptime> getServiceUptimes(String serviceName, String testName,
-                                                 String severityLevel)
-            throws HeartbeatExceptions, SQLException {
-        dataAccessManager = new DataAccessManager(configObject.getDataSourceFromNode());
+    public List<ServiceUptime> getServiceUptimes(String serviceName, String testName, String severityLevel)
+            throws HeartbeatException {
         try {
             getUptimeInfo(serviceName, testName, severityLevel);
-        } catch (SQLException e) {
-            log.error(Constants.SQL_EXCEPTION, e);
-            throw new HeartbeatExceptions(Constants.SQL_EXCEPTION, e);
-        } catch (ParseException e) {
-            log.error(Constants.PARSE_EXCEPTION, e);
-            throw new HeartbeatExceptions(Constants.PARSE_EXCEPTION, e);
-        } finally {
-            dataAccessManager.closeConnection();
+        } catch (HeartbeatException e) {
+            throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
         }
         return serviceUptimes;
     }
@@ -80,11 +71,12 @@ public class ServicesUptimeRetriever {
      * Populate ArrayList from database using
      *
      * @param testName String Test Name to retrieve
-     * @throws SQLException
+     * @throws HeartbeatException
      */
-    public void getUptimeInfo(String serviceName, String testName, String severityLevel)
-            throws SQLException, ParseException {
-        ResultSet resultSet;
+    public void getUptimeInfo(String serviceName, String testName, String severityLevel) throws HeartbeatException {
+        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
+        Connection con = null;
         ServiceUptime serviceUptime;
         int failureCount = 0;
 
@@ -97,154 +89,155 @@ public class ServicesUptimeRetriever {
         List<Long> negativeList = new ArrayList<Long>();
         List<Long> valuesToRemove = new ArrayList<Long>();
         IntervalMerger mergeIntervals = new IntervalMerger();
-        Map<Map<String, Map>, List<Pair>> failureSummary =
-                new HashMap<Map<String, Map>, List<Pair>>();
+        Map<Map<String, Map>, List<Pair>> failureSummary = new HashMap<Map<String, Map>, List<Pair>>();
 
-        if (testName.equals((Constants.AGGREGATION_CLAUSE))) {
+        log.info("Heartbeat - Monitor - Retrieving results for :" + serviceName + "Server and " + testName + "test");
+
+        if (testName.equals(Constants.AGGREGATION_CLAUSE)) {
             qualifiedTests.addAll(getTestsForServer(serviceName, severityLevel));
         } else {
             qualifiedTests.add(testName);
         }
-        log.info("Heartbeat - Monitor - Retrieving Test Results for : " + serviceName);
-        queryParameters
-                .addAll(Arrays.asList(serviceName, toDateTime.toString(), fromDateTime.toString()));
-        for (String individualTest : qualifiedTests) {
-            Map<String, Map> failureKey = new HashMap<String, Map>();
-            Map<String, String> testToSeverity = new HashMap<String, String>();
-            String severity = "2";
-            queryParameters.add(1, individualTest);
-            dataAccessManager = new DataAccessManager(configObject.getDataSourceFromNode());
-            resultSet =
-                    dataAccessManager.runQuery(Constants.GET_UPTIME_INFO_QUERY, queryParameters);
-            queryParameters.remove(1);
-            log.info("Heartbeat - Monitor - Obtaining down time intervals for test : " +
-                     individualTest);
-            Map<Long, Byte> individualTestUptime = new TreeMap<Long, Byte>();
-
-            while (resultSet.next()) {
-                individualTestUptime.put(resultSet.getLong(Constants.DB_TIMESTAMP),
-                                         resultSet.getByte(Constants.DB_STATUS));
-                severity = resultSet.getString(Constants.DB_SEVERITY);
+        if (!qualifiedTests.isEmpty()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Heartbeat - Monitor - Retrieving Test Results for : " + serviceName);
             }
-            resultSet.close();
-            dataAccessManager.closeConnection();
+            queryParameters.addAll(Arrays.asList(serviceName, toDateTime.toString(), fromDateTime.toString()));
+            try {
+                con = dataAccessManager.getConnection();
+                for (String individualTest : qualifiedTests) {
+                    Map<String, Map> failureKey = new HashMap<String, Map>();
+                    Map<String, String> testToSeverity = new HashMap<String, String>();
+                    String severity = Constants.DEFAULT_SEVERITY;
+                    queryParameters.add(1, individualTest);
+                    Map<Long, Byte> individualTestUptime = new TreeMap<Long, Byte>();
+                    preparedStatement =
+                            dataAccessManager.prepareStatement(con, Constants.GET_UPTIME_INFO_QUERY, queryParameters);
+                    resultSet = preparedStatement.executeQuery();
+                    queryParameters.remove(1);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Heartbeat - Monitor - Obtaining down time intervals for test : " + individualTest);
+                    }
 
-            failureIntervals = getDownTimeIntervals(individualTestUptime);
+                    while (resultSet.next()) {
+                        individualTestUptime
+                                .put(resultSet.getLong(Constants.DB_TIMESTAMP), resultSet.getByte(Constants.DB_STATUS));
+                        severity = resultSet.getString(Constants.DB_SEVERITY);
+                    }
+                    failureIntervals = getDownTimeIntervals(individualTestUptime);
 
-            negativeIntervals.addAll(failureIntervals.getListPair());
-            positiveList.addAll(failureIntervals.getListLong());
-            failureCount = failureCount + failureIntervals.getFailureCount();
+                    negativeIntervals.addAll(failureIntervals.getListPair());
+                    positiveList.addAll(failureIntervals.getListLong());
+                    failureCount = failureCount + failureIntervals.getFailureCount();
 
-            if (failureIntervals.getFailureCount() > 0) {
-                testToSeverity.put(individualTest, severity);
-                failureKey.put(serviceName, testToSeverity);
-                failureSummary.put(failureKey, failureIntervals.getListPair());
+                    if (failureIntervals.getFailureCount() > 0) {
+                        testToSeverity.put(individualTest, severity);
+                        failureKey.put(serviceName, testToSeverity);
+                        failureSummary.put(failureKey, failureIntervals.getListPair());
+                    }
+                }
+            } catch (SQLException e) {
+                throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
+            } finally {
+                dataAccessManager.closeConnection(con, preparedStatement, resultSet);
             }
-        }
 
-        List<Pair> mergedNegativeTimeIntervals = mergeIntervals.merge(negativeIntervals);
+            List<Pair> mergedNegativeTimeIntervals = mergeIntervals.merge(negativeIntervals);
 
-        //Removing Values within the Time Interval to emphasize downtime of a particular server
-        for (Pair individualInterval : mergedNegativeTimeIntervals) {
-            negativeList.addAll(Arrays.asList(individualInterval.getLeft(),
-                                              individualInterval.getRight()));
-            for (Long positiveEntry : positiveList) {
-                if (individualInterval.getLeft() < positiveEntry &&
-                    individualInterval.getRight() > positiveEntry) {
-                    valuesToRemove.add(positiveEntry);
+            //Removing Values within the Time Interval to emphasize downtime of a particular server
+            for (Pair individualInterval : mergedNegativeTimeIntervals) {
+                negativeList.addAll(Arrays.asList(individualInterval.getLeft(), individualInterval.getRight()));
+                for (Long positiveEntry : positiveList) {
+                    if (individualInterval.getLeft() < positiveEntry && individualInterval.getRight() > positiveEntry) {
+                        valuesToRemove.add(positiveEntry);
+                    }
                 }
             }
-        }
-        positiveList.removeAll(valuesToRemove);
+            positiveList.removeAll(valuesToRemove);
 
-        //Building the merged uptime Information Graph and Service Uptime object for all tests
-        serviceUptime = new ServiceUptime(serviceName, testName);
-        serviceUptime.setPairedFailureDetail(failureSummary);
-        serviceUptime.setMergedNegativeIntervals(mergedNegativeTimeIntervals);
-        serviceUptime.setFilteredPositiveList(positiveList);
-        for (Long postiveRecord : positiveList) {
-            serviceUptime.addUptimeInfo(new Timestamp(postiveRecord), true);
+            //Building the merged uptime Information Graph and Service Uptime object for all tests
+            serviceUptime = new ServiceUptime(serviceName, testName);
+            serviceUptime.setPairedFailureDetail(failureSummary);
+            serviceUptime.setMergedNegativeIntervals(mergedNegativeTimeIntervals);
+            serviceUptime.setFilteredPositiveList(positiveList);
+            for (Long postiveRecord : positiveList) {
+                Timestamp timeStamp = new Timestamp(postiveRecord);
+                serviceUptime.addUptimeInfo(timeStamp, (byte) 1);
+                serviceUptime.setPositiveUpTimeInfo(timeStamp);
+            }
+            for (Long negativeRecord : negativeList) {
+                serviceUptime.addUptimeInfo(new Timestamp(negativeRecord), (byte) 0);
+            }
+            serviceUptime.setFailureCount(negativeIntervals.size());
+            if (!negativeIntervals.isEmpty() || positiveList.isEmpty()) {
+                try {
+                    serviceUptime.countFailureTime();
+                } catch (ParseException e) {
+                    throw new HeartbeatException("Parse Exception occurred while counting failure time" + e);
+                }
+            } else {
+                serviceUptime.setPositiveUptime(Constants.TOTAL_UPTIME);
+            }
+            serviceUptimes.add(serviceUptime);
         }
-        for (Long negativeRecord : negativeList) {
-            serviceUptime.addUptimeInfo(new Timestamp(negativeRecord), false);
-        }
-        //serviceUptime.setFailureCount(failureCount);
-        serviceUptime.setFailureCount(negativeIntervals.size());
-        if (negativeIntervals.size() > 0 || positiveList.isEmpty()) {
-            //serviceUptime.setFailureCount(mergedNegativeTimeIntervals.size());
-            serviceUptime.countFailureTime();
-        } else {
-            serviceUptime.setPositiveUptime(100);
-        }
-        serviceUptimes.add(serviceUptime);
     }
 
     /**
      * Getting Downtime interval gaps and Uptime Information Map out of result set
      *
      * @return Map with a Uptime Information Map and List of interval pairs
-     * @throws SQLException
-     * @throws ParseException
      */
-    public FailureIntervals getDownTimeIntervals(Map<Long, Byte> testUptime)
-            throws SQLException, ParseException {
+    public FailureIntervals getDownTimeIntervals(Map<Long, Byte> testUptime) {
         int failureCount = 0;
         Long finalZeroAt;
+        int uptimeMapSize;
         Long newTestRecordedAt;
         List<Long> positiveList = new LinkedList<Long>();
         List<Pair> negativePairs = new ArrayList<Pair>();
 
-        Map<Long, Byte> individualTestUptime = testUptime;
-        int uptimeMapSize = individualTestUptime.keySet().size();
-        Object firstElement = individualTestUptime.keySet().toArray()[0];
-        Object lastElement = individualTestUptime.keySet().toArray()[uptimeMapSize - 1];
-        byte currentStatus = individualTestUptime.get(firstElement);
-        Long lastStatusRecordedAt = (Long) firstElement;
+        uptimeMapSize = testUptime.keySet().size();
+        Long firstElement = (Long) testUptime.keySet().toArray()[0];
+        Long lastElement = (Long) testUptime.keySet().toArray()[uptimeMapSize - 1];
+        byte currentStatus = testUptime.get(firstElement);
 
-        if (individualTestUptime.get(firstElement) == 0) {
-            finalZeroAt = (Long) firstElement;
+        if (testUptime.get(firstElement) == 0) {
+            finalZeroAt = firstElement;
         } else {
             finalZeroAt = null;
         }
 
-        for (Map.Entry<Long, Byte> entry : individualTestUptime.entrySet()) {
+        for (Map.Entry<Long, Byte> entry : testUptime.entrySet()) {
             newTestRecordedAt = entry.getKey();
             if (entry.getValue() == currentStatus) {
                 if (currentStatus == 0) {
-                    lastStatusRecordedAt = newTestRecordedAt;
                     failureCount++;
                 } else if (currentStatus == 1) {
-                    lastStatusRecordedAt = newTestRecordedAt;
                     positiveList.add(newTestRecordedAt);
                 }
             } else {
                 if (currentStatus == 0) {
                     Pair pair = new Pair(finalZeroAt, newTestRecordedAt);
                     negativePairs.add(pair);
-                    lastStatusRecordedAt = newTestRecordedAt;
                     positiveList.add(newTestRecordedAt);
                     currentStatus = 1;
                 } else {
                     finalZeroAt = newTestRecordedAt;
-                    lastStatusRecordedAt = newTestRecordedAt;
                     currentStatus = 0;
                     failureCount++;
                 }
             }
         }
 
-        if (individualTestUptime.get(lastElement) == 0) {
-            Pair pair = new Pair(finalZeroAt, (Long) lastElement);
+        if (testUptime.get(lastElement) == 0) {
+            Pair pair = new Pair(finalZeroAt, lastElement);
             negativePairs.add(pair);
         }
-        if (positiveList.isEmpty() && individualTestUptime.get(firstElement) == 0 &&
+        if (positiveList.isEmpty() && testUptime.get(firstElement) == 0 &&
             negativePairs.isEmpty()) {
-            Pair pair = new Pair((Long) firstElement, (Long) lastElement);
+            Pair pair = new Pair(firstElement, lastElement);
             negativePairs.add(pair);
         }
-        FailureIntervals failureIntervals =
-                new FailureIntervals(negativePairs, positiveList, failureCount);
-        return failureIntervals;
+        return new FailureIntervals(negativePairs, positiveList, failureCount);
     }
 
     /**
@@ -252,19 +245,30 @@ public class ServicesUptimeRetriever {
      *
      * @param serverName Name of the server to be checked
      * @return boolean result of availability of records
-     * @throws SQLException
+     * @throws HeartbeatException
      */
-    public Boolean hasRecords(String serverName) throws SQLException {
+    public Boolean hasRecords(String serverName, String severity) throws HeartbeatException {
         boolean hasRecord = false;
-        ResultSet resultSet;
-        dataAccessManager = new DataAccessManager(configObject.getDataSourceFromNode());
+        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
+        Connection con = null;
         List<String> queryParameters = new ArrayList<String>();
         queryParameters.add(serverName);
-        resultSet = dataAccessManager.runQuery(Constants.COUNT_SERVER_RECORDS, queryParameters);
-        while (resultSet.next()) {
-            hasRecord = resultSet.getInt("count") > 0;
+        queryParameters.add(severity);
+        try {
+            con = dataAccessManager.getConnection();
+            preparedStatement =
+                    dataAccessManager.prepareStatement(con, Constants.COUNT_SERVER_RECORDS, queryParameters);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                hasRecord = resultSet.getInt("count") > 0;
+            }
+        } catch (SQLException e) {
+            log.error(Constants.SQL_EXCEPTION, e);
+            throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
+        } finally {
+            dataAccessManager.closeConnection(con, preparedStatement, resultSet);
         }
-        dataAccessManager.closeConnection();
         return hasRecord;
     }
 
@@ -273,45 +277,49 @@ public class ServicesUptimeRetriever {
      *
      * @param serverName name of the server
      * @return String Map of Test Names with severity
-     * @throws SQLException
+     * @throws HeartbeatException
      */
-    public List<String> getTestsForServer(String serverName, String severityLevel)
-            throws SQLException {
-        ResultSet resultSet;
+    public List<String> getTestsForServer(String serverName, String severityLevel) throws HeartbeatException {
+        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
+        Connection con = null;
         List<String> queryParameters = new ArrayList<String>();
         List<String> testsForServer = new LinkedList<String>();
-        queryParameters.addAll(Arrays.asList(serverName, severityLevel, toDateTime.toString(),
-                                             fromDateTime.toString()));
-        dataAccessManager = new DataAccessManager(configObject.getDataSourceFromNode());
-        resultSet = dataAccessManager.runQuery(Constants.GET_TEST_LIST, queryParameters);
-        while (resultSet.next()) {
-            testsForServer.add(resultSet.getString(Constants.DB_TEST));
+        queryParameters
+                .addAll(Arrays.asList(serverName, severityLevel, toDateTime.toString(), fromDateTime.toString()));
+        try {
+            con = dataAccessManager.getConnection();
+            preparedStatement = dataAccessManager.prepareStatement(con, Constants.GET_TEST_LIST, queryParameters);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                testsForServer.add(resultSet.getString(Constants.DB_TEST));
+            }
+        } catch (SQLException e) {
+            throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
+        } finally {
+            dataAccessManager.closeConnection(con, preparedStatement, resultSet);
         }
-        resultSet.close();
-        dataAccessManager.closeConnection();
         return testsForServer;
     }
 
     /**
-     * set time interval for data retrieval
+     * Set time interval for data retrieval
      *
      * @param fromDateTime String for start of time interval (nearest time) default format "yyyy-MM-dd HH:mm:ss"
      * @param toDateTime   String for end of time interval (farthest time) default format "yyyy-MM-dd HH:mm:ss"
-     * @throws HeartbeatExceptions
+     * @throws HeartbeatException
      */
-    public void setDateTime(String fromDateTime, String toDateTime) {
+    public void setDateTime(String fromDateTime, String toDateTime) throws HeartbeatException {
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date toDate = null;
-        Date fromDate = null;
+        Date toDate;
+        Date fromDate;
         try {
             toDate = formatter.parse(toDateTime);
             fromDate = formatter.parse(fromDateTime);
         } catch (ParseException e) {
-
+            throw new HeartbeatException(
+                    "Error occurred while parsing date string" + toDateTime + " and " + fromDateTime + " : " + e);
         }
-        // Timestamp toTimeStampDate = new Timestamp(toDate.getTime());
-        // Timestamp fromTimeStampDate = new Timestamp(fromDate.getTime());
-
         this.toDateTime = toDate.getTime();
         this.fromDateTime = fromDate.getTime();
     }
@@ -321,62 +329,83 @@ public class ServicesUptimeRetriever {
      *
      * @param serverName name of the server
      * @param testName   test Name for the server
-     * @return
-     * @throws SQLException
+     * @return Map with a timestamp to failure detail string
+     * @throws HeartbeatException
      */
-    public Map<Timestamp, List<String>> getFailureDetail(String serverName, String testName,
-                                                         String toTime, String fromTime)
-            throws SQLException {
+    public Map<Timestamp, List<String>> getFailureDetail(String serverName, String testName, String toTime,
+                                                         String fromTime) throws HeartbeatException {
         Map<Timestamp, List<String>> failuredetail = new TreeMap<Timestamp, List<String>>();
-        ResultSet resultSet;
+        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
+        Connection con = null;
         List<String> queryParameters = new ArrayList<String>();
-        dataAccessManager = new DataAccessManager(configObject.getDataSourceFromNode());
         queryParameters.addAll(Arrays.asList(serverName, testName, fromTime, toTime));
-        resultSet = dataAccessManager.runQuery(Constants.GET_FAILURE_DETAIL_QUERY, queryParameters);
-        while (resultSet.next()) {
-            List<String> failureInfo = new ArrayList<String>();
-            failureInfo.addAll(Arrays.asList(resultSet.getString("DETAIL"),
-                                             resultSet.getString("FAILUREINDEX"),
-                                             resultSet.getString("JIRALINK")));
-            failuredetail.put(new Timestamp(resultSet.getLong("TIMESTAMP")), failureInfo);
+        try {
+            con = dataAccessManager.getConnection();
+            preparedStatement =
+                    dataAccessManager.prepareStatement(con, Constants.GET_FAILURE_DETAIL_QUERY, queryParameters);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                List<String> failureInfo = new ArrayList<String>();
+                failureInfo.addAll(Arrays.asList(resultSet.getString("DETAIL"), resultSet.getString("FAILUREINDEX"),
+                                                 resultSet.getString("JIRALINK")));
+                failuredetail.put(new Timestamp(resultSet.getLong("TIMESTAMP")), failureInfo);
+            }
+        } catch (SQLException e) {
+            log.error(Constants.SQL_EXCEPTION, e);
+            throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
+        } finally {
+            dataAccessManager.closeConnection(con, preparedStatement, resultSet);
         }
-        resultSet.close();
-        dataAccessManager.closeConnection();
         return failuredetail;
     }
 
     /**
-     * @param failureIndexes
-     * @return
-     * @throws SQLException
+     * In case of a false alarm by parsing the failure indexes we can mark them as true
+     *
+     * @param failureIndexes index values of failures selected
+     * @return success or failure status
+     * @throws HeartbeatException
      */
-    public int setFalseToTrue(String failureIndexes) throws SQLException {
-        dataAccessManager = new DataAccessManager(configObject.getDataSourceFromNode());
+    public int setFalseToTrue(String failureIndexes) throws HeartbeatException {
         int resultSet = 0;
-        ResultSet indexesForLiveStatus;
+        ResultSet indexesForLiveStatus = null;
+        PreparedStatement preparedStatement = null;
+        PreparedStatement preparedStatementForLiveStatus = null;
+        Connection con = null;
         List<String> queryParametersToAlarmStatus = new ArrayList<String>();
         List<String> queryParametersToGetLiveStatus = new ArrayList<String>();
-
         String multipleUpdateQuery = Constants.SET_ALARM_STATUS_FALSE + failureIndexes + ")";
-        dataAccessManager.updateQuery(multipleUpdateQuery, queryParametersToAlarmStatus);
-
-        String getIndexForLiveStatus =
-                "SELECT SERVICE, TEST, TIMESTAMP FROM FAILURE_DETAIL WHERE FAILUREINDEX IN (" +
-                failureIndexes + ")";
-        indexesForLiveStatus =
-                dataAccessManager.runQuery(getIndexForLiveStatus, queryParametersToGetLiveStatus);
-
-        while (indexesForLiveStatus.next()) {
-            List<String> queryParameters = new ArrayList<String>();
-            queryParameters.addAll(Arrays.asList(indexesForLiveStatus.getString("SERVICE"),
-                                                 indexesForLiveStatus.getString("TEST"),
-                                                 Long.toString(indexesForLiveStatus
-                                                                       .getLong("TIMESTAMP"))));
-            resultSet =
-                    dataAccessManager.updateQuery(Constants.SET_FAILURE_TO_TRUE, queryParameters);
+        log.info("Heartbeat - Monitor - Setting false reason for " + failureIndexes);
+        try {
+            con = dataAccessManager.getConnection();
+            preparedStatement =
+                    dataAccessManager.prepareStatement(con, multipleUpdateQuery, queryParametersToAlarmStatus);
+            preparedStatement.executeUpdate();
+            String getIndexForLiveStatus = Constants.GET_LIVE_STATUS_INDEX +
+                                           failureIndexes + ")";
+            preparedStatementForLiveStatus =
+                    dataAccessManager.prepareStatement(con, getIndexForLiveStatus, queryParametersToGetLiveStatus);
+            indexesForLiveStatus = preparedStatementForLiveStatus.executeQuery();
+            while (indexesForLiveStatus.next()) {
+                List<String> queryParameters = new ArrayList<String>();
+                queryParameters.addAll(Arrays.asList(indexesForLiveStatus.getString("SERVICE"),
+                                                     indexesForLiveStatus.getString("TEST"),
+                                                     Long.toString(indexesForLiveStatus.getLong("TIMESTAMP"))));
+                resultSet = dataAccessManager.prepareStatement(con, Constants.SET_FAILURE_TO_TRUE, queryParameters)
+                                             .executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
+        } finally {
+            dataAccessManager.closeConnection(con, preparedStatement, indexesForLiveStatus);
+            try {
+                if (preparedStatementForLiveStatus != null)
+                    preparedStatementForLiveStatus.close();
+            } catch (SQLException e) {
+                return resultSet;
+            }
         }
-
-        dataAccessManager.closeConnection();
         return resultSet;
     }
 
@@ -386,45 +415,63 @@ public class ServicesUptimeRetriever {
      * @param failureIndex index of the failure detail
      * @param userId       user Id of the person who is making the change
      * @param changeReason reason to make the the change
-     * @return status of reults query
-     * @throws SQLException
+     * @return status of results query
+     * @throws HeartbeatException
      */
 
     public int inputFalseFailureReason(String failureIndex, String userId, String changeReason)
-            throws SQLException {
-        dataAccessManager = new DataAccessManager(configObject.getDataSourceFromNode());
+            throws HeartbeatException {
         int resultSet = 0;
-
+        PreparedStatement preparedStatement = null;
         String[] indexesToAdd = failureIndex.split(",");
         Date date = new Date();
+        Connection con = null;
         Timestamp timeStamp = new Timestamp(date.getTime());
-
-        for (int count = 0; count < indexesToAdd.length; count++) {
-            List<String> queryParameters = new ArrayList<String>();
-            queryParameters.addAll(Arrays.asList(indexesToAdd[count], timeStamp.toString(), userId,
-                                                 changeReason));
-            resultSet = dataAccessManager
-                    .updateQuery(Constants.FALSE_FAILURE_REASON_INPUT_QUERY, queryParameters);
+        log.info("Heartbeat - Monitor - Setting failure reason for " + failureIndex);
+        try {
+            con = dataAccessManager.getConnection();
+            for (String indexToAdd : indexesToAdd) {
+                List<String> queryParameters = new ArrayList<String>();
+                queryParameters.addAll(Arrays.asList(indexToAdd, timeStamp.toString(), userId, changeReason));
+                preparedStatement = dataAccessManager
+                        .prepareStatement(con, Constants.FALSE_FAILURE_REASON_INPUT_QUERY, queryParameters);
+                resultSet = preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
+        } finally {
+            dataAccessManager.closeConnectionAndStatement(con, preparedStatement);
         }
-
-        dataAccessManager.closeConnection();
         return resultSet;
     }
 
     /**
-     * @param jiraUrl
-     * @param failureIdList
-     * @return
-     * @throws SQLException
+     * Setting jira links for failure list
+     *
+     * @param jiraUrl       url parsed to record the jira
+     * @param failureIdList list of failures to mark the jira
+     * @return status of success or failure
+     * @throws HeartbeatException
      */
-    public int setJiraLink(String jiraUrl, String failureIdList) throws SQLException {
-        dataAccessManager = new DataAccessManager(configObject.getDataSourceFromNode());
+    public int setJiraLink(String jiraUrl, String failureIdList) throws HeartbeatException {
         int resultSet;
         List<String> queryParameters = new ArrayList<String>();
+        PreparedStatement preparedStatement = null;
+        Connection con = null;
         String multipleUpdateQuery = Constants.UPDATE_JIRA_URL + failureIdList + ")";
-        queryParameters.addAll(Arrays.asList(jiraUrl));
-        resultSet = dataAccessManager.updateQuery(multipleUpdateQuery, queryParameters);
-        dataAccessManager.closeConnection();
+        if (log.isDebugEnabled()) {
+            log.debug("Heartbeat - Monitor - Setting jira link for " + failureIdList);
+        }
+        try {
+            con = dataAccessManager.getConnection();
+            queryParameters.addAll(Collections.singletonList(jiraUrl));
+            preparedStatement = dataAccessManager.prepareStatement(con, multipleUpdateQuery, queryParameters);
+            resultSet = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new HeartbeatException(Constants.SQL_EXCEPTION, e);
+        } finally {
+            dataAccessManager.closeConnectionAndStatement(con, preparedStatement);
+        }
         return resultSet;
     }
 

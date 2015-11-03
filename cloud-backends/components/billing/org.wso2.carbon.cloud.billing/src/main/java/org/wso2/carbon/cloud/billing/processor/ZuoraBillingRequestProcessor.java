@@ -27,6 +27,7 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.lang.ArrayUtils;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
@@ -84,12 +85,13 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
     /**
      * Zuora GET request
      *
-     * @param url URL
+     * @param url            URL
+     * @param nameValuePairs query params
      * @return response
      * @throws CloudBillingException
      */
     @Override
-    public String doGet(String url) throws CloudBillingException {
+    public String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
         GetMethod get = new GetMethod(url);
 
         String apiAccessKeyId = zuoraConfig.getUser();
@@ -101,6 +103,9 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
         // for a GET call, chase redirects
         get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
+        if (!ArrayUtils.isEmpty(nameValuePairs)) {
+            get.setQueryString(nameValuePairs);
+        }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
     }
 
