@@ -50,6 +50,14 @@ public class APICloudMonetizationUtils {
     private APICloudMonetizationUtils() {
     }
 
+    /**
+     * Retrieve subscriber information
+     *
+     * @param username subscriber username
+     * @param tenantDomain tenant domain
+     * @return String xml response
+     * @throws CloudMonetizationException
+     */
     public static String getAPISubscriberInfo(String username, String tenantDomain) throws CloudMonetizationException {
 
         try {
@@ -65,6 +73,15 @@ public class APICloudMonetizationUtils {
         }
     }
 
+    /**
+     * Update subscriber information table
+     *
+     * @param username subscriber username
+     * @param tenantDomain tenant domain
+     * @param isTestAccount boolean test account or not
+     * @param accountNumber zuora account number
+     * @throws CloudMonetizationException
+     */
     public static void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
             String accountNumber) throws CloudMonetizationException {
         try {
