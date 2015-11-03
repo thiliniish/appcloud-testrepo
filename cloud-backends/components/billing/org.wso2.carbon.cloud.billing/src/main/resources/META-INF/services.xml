@@ -27,7 +27,7 @@
         </parameter>
         <parameter name="adminService" locked="true">true</parameter>
         <parameter name="hiddenService" locked="true">true</parameter>
-        <parameter name="AuthorizationAction" locked="true">/permission/admin</parameter>
+        <parameter name="AuthorizationAction" locked="true">/permission/admin/billing</parameter>
     </service>
     <service name="APICloudMonetizationService" scope="transportsession">
         <transports>
@@ -38,6 +38,6 @@
         </parameter>
         <parameter name="adminService" locked="true">true</parameter>
         <parameter name="hiddenService" locked="true">true</parameter>
-        <parameter name="AuthorizationAction" locked="true">/permission/admin</parameter>
+        <parameter name="AuthorizationAction" locked="true">/permission/admin/billing</parameter>
     </service>
 </serviceGroup>
