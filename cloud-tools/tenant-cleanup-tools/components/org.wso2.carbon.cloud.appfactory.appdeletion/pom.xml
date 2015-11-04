@@ -91,19 +91,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-api</artifactId>
-            <version>${imp.pkg.version.axiom}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-impl</artifactId>
-            <version>${imp.pkg.version.axiom}</version>
-        </dependency>
-        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk16</artifactId>
-            <version>1.46</version>
+            <version>${bcprov-jdk16.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -124,17 +114,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.api</artifactId>
             <version>${imp.pkg.version.carbon.platform}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
             <version>${imp.pkg.version.carbon.platform}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-scxml.wso2</groupId>
-            <artifactId>commons-scxml</artifactId>
-            <version>${commons-scxml.wso2.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -162,13 +146,5 @@
             <version>${org.wso2.appfactory.version}</version>
         </dependency>
     </dependencies>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.apache.ws.commons.axiom.version>1.2.14</org.apache.ws.commons.axiom.version>
-        <org.apache.ws.commons.axiom.wso2.version>1.2.11.wso2v5</org.apache.ws.commons.axiom.wso2.version>
-        <commons-scxml.wso2.version>0.9.0.wso2v1</commons-scxml.wso2.version>
-    </properties>
-
 
 </project>
