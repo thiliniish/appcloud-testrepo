@@ -65,7 +65,7 @@
                             org.wso2.carbon.context; version="${imp.pkg.version.carbon.platform}",
                             org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
                             org.wso2.carbon.registry.*; version="${imp.pkg.version.carbon.kernel.registry}",
-                            org.wso2.carbon.apimgt.impl; version="${org.wso2.carbon.apimgt.impl.version}",
+                            org.wso2.carbon.apimgt.impl; version="${imp.pkg.version.carbon.apimgt}",
                             org.wso2.carbon.apimgt.*; version="${org.wso2.carbon.apimgt.api.version}",
                             org.wso2.carbon.user.api; version="${imp.pkg.version.carbon.user.api}",
                             org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
@@ -89,24 +89,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-api</artifactId>
-            <version>${imp.pkg.version.axiom}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-impl</artifactId>
-            <version>${imp.pkg.version.axiom}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.commons.axiom.wso2</groupId>
-            <artifactId>axiom</artifactId>
-            <version>${imp.pkg.version.axiom}</version>
-        </dependency>
-        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk16</artifactId>
-            <version>1.46</version>
+            <version>${bcprov-jdk16.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -127,7 +112,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.api</artifactId>
             <version>${imp.pkg.version.carbon.platform}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -152,12 +136,12 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.apimgt.impl</artifactId>
-            <version>${org.wso2.carbon.apimgt.impl.version}</version>
+            <version>${imp.pkg.version.carbon.apimgt}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.apimgt.api</artifactId>
-            <version>${org.wso2.carbon.apimgt.api.version}</version>
+            <version>${imp.pkg.version.carbon.apimgt}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -167,9 +151,7 @@
     </dependencies>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.wso2.carbon.apimgt.impl.version>[1.2.0, 1.2.5)</org.wso2.carbon.apimgt.impl.version>
-        <org.wso2.carbon.apimgt.api.version>[1.2.0, 1.2.5)</org.wso2.carbon.apimgt.api.version>
+        <imp.pkg.version.carbon.apimgt>[1.2.0, 1.2.5)</imp.pkg.version.carbon.apimgt>
         <commons-scxml.wso2.version>0.9.0.wso2v1</commons-scxml.wso2.version>
     </properties>
 

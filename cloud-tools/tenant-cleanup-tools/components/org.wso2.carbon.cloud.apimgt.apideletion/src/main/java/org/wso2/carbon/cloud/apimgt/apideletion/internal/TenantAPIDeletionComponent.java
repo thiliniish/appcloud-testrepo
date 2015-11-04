@@ -61,7 +61,9 @@ public class TenantAPIDeletionComponent {
      * @param context OSGi component context.
      */
     protected void deactivate(ComponentContext context) {
-        log.debug("Tenant Api Deletion bundle is deactivated.");
+        if (log.isDebugEnabled()) {
+            log.debug("Tenant Api Deletion bundle is deactivated.");
+        }
     }
 
     /**
