@@ -50,9 +50,9 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
 
     private static final Log LOGGER = LogFactory.getLog(SubscriptionCreationWorkflowExecutor.class);
     private static final String ERROR_MSG = "Could not complete subscription creation workflow.";
-    private static final String IS_TEST_ACCOUNT = "testAccount";
-    private static final String ACCOUNT_NUMBER = "accountNumber";
-    private static final String SUBSCRIBERS_ELEMENT = "subscribers";
+    private static final String IS_TEST_ACCOUNT_ELEMENT = "TestAccount";
+    private static final String ACCOUNT_NUMBER_ELEMENT = "AccountNumber";
+    private static final String SUBSCRIBERS_ELEMENT = "Subscribers";
 
     private String serviceEndpoint;
     private String username;
@@ -91,12 +91,12 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
             if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart()) && subscriberOM != null) {
 
                 boolean isTestAccount = Boolean.parseBoolean(
-                        ((OMElement) (subscriberOM.getChildrenWithLocalName(IS_TEST_ACCOUNT).next())).getText());
+                        ((OMElement) (subscriberOM.getChildrenWithLocalName(IS_TEST_ACCOUNT_ELEMENT).next())).getText());
 
                 //Check subscribers is a test/complementary subscriber
                 if (!isTestAccount) {
                     HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
-                    String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER).next()))
+                    String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER_ELEMENT).next()))
                             .getText();
                     // checks for null or empty for account number
                     if (StringUtils.isNotBlank(accountNumber)) {
