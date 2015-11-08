@@ -1,7 +1,7 @@
 <%
 jagg.initializer("cloud/page/billing-messages", {
-	preInitialize: function () {
+    preInitialize: function () {
 
-	}
+    }
 });
 %>

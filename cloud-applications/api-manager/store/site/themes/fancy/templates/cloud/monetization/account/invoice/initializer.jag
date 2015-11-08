@@ -1,10 +1,7 @@
 <%
 jagg.initializer("cloud/monetization/account/invoice", {
-	preInitialize : function () {
-		// var tenantDomain = session.get("LOGGED_IN_TENANT");
-		//    if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) {
-		//       response.sendRedirect("../pages/index.jag");
-			//   }
-		}
+    preInitialize: function () {
+
+    }
 });
 %>
