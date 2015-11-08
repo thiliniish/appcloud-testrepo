@@ -1,4 +1,4 @@
-<% jagg.template("cloud/page/messages", function(inputs, outputs, jagg) { %>
+<% jagg.template("cloud/page/messages", function (inputs, outputs, jagg) { %>
 <div class="message_box">
 	<div class="message warning_message" style="display: none;">
 		<div class="content">
@@ -11,4 +11,5 @@
 </div>
 
 <a id="qtip" href="#" style="display: none">Qtip</a>
-<% }); %>
+<%
+}); %>
