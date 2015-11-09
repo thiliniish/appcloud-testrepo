@@ -70,7 +70,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     public WorkflowResponse execute(WorkflowDTO workflowDTO) throws WorkflowException {
         //Check if monetization is enabled for tenant: this workflow should only be deployed for monetization
         // enabled tenants. Once they enable monetization for a tenant. this workflow should be automatically deployed
-
+        //ToDo check the tier is paid or not
         //Check for zuora account
 
         super.execute(workflowDTO);
