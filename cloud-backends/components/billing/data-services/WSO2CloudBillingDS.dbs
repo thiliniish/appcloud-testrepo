@@ -14,7 +14,7 @@
          <element column="year" name="year" xsdType="string"/>
          <element column="month" name="month" xsdType="string"/>
          <element column="day" name="day" xsdType="string"/>
-         <call-query href="getAccountFromUserId" requiredRoles="">
+         <call-query href="getAccountFromUserName" requiredRoles="">
             <with-param column="apiPublisher" name="TENANT_DOMAIN"/>
          </call-query>
       </result>
@@ -31,7 +31,7 @@
          <element column="day" name="day" xsdType="string"/>
          <element column="year" name="year" xsdType="string"/>
          <element column="month" name="month" xsdType="string"/>
-         <call-query href="getAccountFromUserId" requiredRoles="">
+         <call-query href="getAccountFromUserName" requiredRoles="">
             <with-param column="apiPublisher" name="TENANT_DOMAIN"/>
          </call-query>
       </result>
@@ -46,7 +46,7 @@
       </result>
       <param name="TENANT_DOMAIN" sqlType="STRING"/>
    </query>
-   <query id="getAccountFromUserId" useConfig="cloud_mgt">
+   <query id="getAccountFromUserName" useConfig="cloud_mgt">
       <sql>SELECT ACCOUNT_NUMBER FROM BILLING_ACCOUNT INNER JOIN BILLING_STATUS ON BILLING_STATUS.TENANT_DOMAIN=BILLING_ACCOUNT.TENANT_DOMAIN WHERE TYPE='PAID' AND  (STATUS='ACTIVE' OR STATUS='DISABLED' OR STATUS='PENDING_DISABLE') AND BILLING_STATUS.TENANT_DOMAIN=(SUBSTRING(:TENANT_DOMAIN, LOCATE('@', :TENANT_DOMAIN)+1))</sql>
       <result element="Accounts" rowName="Account">
          <element column="ACCOUNT_NUMBER" name="ACCOUNT_ID" xsdType="string"/>
