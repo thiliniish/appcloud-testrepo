@@ -38,7 +38,7 @@ public class UsageProcessorFactory {
      * Usage processor type
      */
     public enum UsageProcessorType {
-        API_CLOUD, DEFAULT
+        API_CLOUD
     }
 
 }
