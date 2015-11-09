@@ -20,6 +20,7 @@ package org.wso2.cloud.heartbeat.monitoring.ui;
 
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx.utils.Constants;
 import org.wso2.cloud.heartbeat.monitoring.ui.utils.Pair;
+import org.wso2.cloud.heartbeat.monitoring.ui.utils.TimestampPair;
 
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
@@ -37,7 +38,7 @@ public class ServiceUptime {
     private Map<Timestamp, Byte> upTimeInfo;
     private List<Timestamp> positiveUpTimeInfo;
     private List<Pair> mergedNegativeIntervals;
-    private Map<Map<String, Map>, List<Pair>> pairedFailureDetail;
+    private Map<Map<String, Map>, List<TimestampPair>> pairedFailureDetail;
     private int failureCount;
     private int successCount;
     private String serviceName;
@@ -72,11 +73,11 @@ public class ServiceUptime {
         this.mergedNegativeIntervals = mergedNegativeIntervals;
     }
 
-    public Map<Map<String, Map>, List<Pair>> getPairedFailureDetail() {
+    public Map<Map<String, Map>, List<TimestampPair>> getPairedFailureDetail() {
         return pairedFailureDetail;
     }
 
-    public void setPairedFailureDetail(Map<Map<String, Map>, List<Pair>> pairedFailureDetail) {
+    public void setPairedFailureDetail(Map<Map<String, Map>, List<TimestampPair>> pairedFailureDetail) {
         this.pairedFailureDetail = pairedFailureDetail;
     }
 

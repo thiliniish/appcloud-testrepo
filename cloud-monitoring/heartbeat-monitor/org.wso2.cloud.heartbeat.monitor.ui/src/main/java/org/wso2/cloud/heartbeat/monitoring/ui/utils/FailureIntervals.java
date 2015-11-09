@@ -18,51 +18,68 @@
 
 package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class to create objects to hold failure intervals and their reletive failure counts
  */
 public class FailureIntervals {
-    private List<Pair> listPair;
-    private List<Long> listLong;
-    private int failureCount;
+	private List<Pair> listPair;
+	private List<Long> listLong;
+	private int failureCount;
 
-    /**
-     * Creates the failure interval data structure to hold failure interval list pairs,
-     * failure information and failure count for each clouds / server / test
-     *
-     * @param listPair timestamp pairs for failed test records
-     * @param listLong  list of timestamps for success records
-     * @param failureCount total number of failure count
-     */
-    public FailureIntervals(List<Pair> listPair, List<Long> listLong, int failureCount) {
-        this.listPair = listPair;
-        this.listLong = listLong;
-        this.failureCount = failureCount;
-    }
+	/**
+	 * Creates the failure interval data structure to hold failure interval list pairs,
+	 * failure information and failure count for each clouds / server / test
+	 *
+	 * @param listPair     timestamp pairs for failed test records
+	 * @param listLong     list of timestamps for success records
+	 * @param failureCount total number of failure count
+	 */
+	public FailureIntervals(List<Pair> listPair, List<Long> listLong, int failureCount) {
+		this.listPair = listPair;
+		this.listLong = listLong;
+		this.failureCount = failureCount;
+	}
 
-    /**
-     * Returns the list of failure timestamp pairs
-     * @return list of pairs
-     */
-    public List<Pair> getListPair() {
-        return listPair;
-    }
+	/**
+	 * Returns the list of failure timestamp pairs
+	 *
+	 * @return list of pairs
+	 */
+	public List<Pair> getListPair() {
+		return listPair;
+	}
 
-    /**
-     * returns the list of positive timestamp pairs
-     * @return List of long type
-     */
-    public List<Long> getListLong() {
-        return listLong;
-    }
+	/**
+	 * returns the list of positive timestamp pairs
+	 *
+	 * @return List of long type
+	 */
+	public List<Long> getListLong() {
+		return listLong;
+	}
 
-    /**
-     * returns the failure count
-     * @return integer failure count
-     */
-    public int getFailureCount() {
-        return failureCount;
-    }
+	/**
+	 * returns the failure count
+	 *
+	 * @return integer failure count
+	 */
+	public int getFailureCount() {
+		return failureCount;
+	}
+
+	public List<TimestampPair> mapTimeStamp() {
+		List<TimestampPair> listTimeStampPair = new ArrayList<TimestampPair>();
+		for(Pair singlePair : listPair){
+			TimestampPair tmPair = new TimestampPair(new Timestamp(singlePair.getLeft()), new Timestamp(singlePair.getRight()));
+			listTimeStampPair.add(tmPair);
+		}
+		return listTimeStampPair;
+	}
+
 }

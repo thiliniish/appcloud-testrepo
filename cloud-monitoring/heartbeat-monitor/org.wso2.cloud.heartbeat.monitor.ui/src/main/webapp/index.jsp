@@ -115,5 +115,6 @@
         &copy;2015WSO2
     </div>
 </div>
+<script src="js/moment-timezone.min.js"></script>
 </body>
 </html>

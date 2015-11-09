@@ -18,6 +18,7 @@
 
 package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
+
 /**
  * Manage Long Pairs used for list interfaces
  */
@@ -59,5 +60,4 @@ public class Pair {
     public String toString() {
         return "[" + left + ", " + right + "]";
     }
-
 }

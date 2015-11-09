@@ -82,11 +82,10 @@
             var testSeverity = splitted[2];
             var indexn;
             for (indexn = 0; indexn < value.length; indexn++) {
-                var startTime = value[indexn]["left"];
-                var endTime = value[indexn]["right"];
-                var duration = Math.round((endTime - startTime) / 1000);
-
-                $("#uptime-info").append($("<tr id=" + startTime + "><td>" + new Date(startTime) + "</td><td>" + new Date(endTime) + "</td><td>" + duration + " s</td><td>" + serverName + "</td><td>" + testNameU + "</td><td>" + testSeverity + "</td><td><button class='changeStatus' value='" + startTime + "/" + endTime + "/" + serverName + "/" + testNameU + "'></button></td></tr>"));
+                var startTime = value[indexn]["leftTimestamp"];
+                var endTime = value[indexn]["rightTimestamp"];
+                var duration = Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / 1000);
+                $("#uptime-info").append($("<tr id=" + moment.tz(startTime, "America/Los_Angeles").valueOf() + "><td>" + startTime + "</td><td>" + endTime+ "</td><td>" + duration + " s</td><td>" + serverName + "</td><td>" + testNameU + "</td><td>" + testSeverity + "</td><td><button class='changeStatus' value='" + startTime + "/" + endTime + "/" + serverName + "/" + testNameU + "'></button></td></tr>"));
             }
         });
         $.fn.plotFunction(array, json.successRate, json.failureCount, json.downTime);
@@ -285,10 +284,7 @@
             },
             colors: ["#01DF3A"]
         };
-
-
         $.plot("#placeholder", [array.sort()], options);
-
         $("#successRate").text(successRate + "%");
         $("#failureCount").text("(" + failureCount + " outages)");
         var num = downTime;
@@ -454,8 +450,11 @@
             <script>
                 $(function () {
                     $("#datePicker").daterangepicker();
-                    var today = moment().subtract(0, 'days').startOf('day').toDate();
-                    var yesterday = moment().subtract(<%=configurationInstance.getTimeInterval()%>, 'days').startOf('day').toDate();
+                    moment.tz.add('America/Los_Angeles|PST PDT|80 70|01010101010|1Lzm0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0');
+                    moment.tz.link('America/Los_Angeles|US/Pacific');
+                    var today = moment().subtract(0, 'days').startOf('day').toDate();;
+                    console.log(today);
+                    var yesterday = moment().subtract(<%=configurationInstance.getTimeInterval()%>, 'days').endOf('day').toDate();
                     $("#datePicker").daterangepicker("setRange", {start: yesterday, end: today});
                     $("#datePicker").change(function () {
                         $.fn.serviceUptimeUpdateFunction();

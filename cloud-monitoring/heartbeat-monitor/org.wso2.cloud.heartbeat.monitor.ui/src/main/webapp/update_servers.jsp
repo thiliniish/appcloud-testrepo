@@ -7,7 +7,7 @@
 <%@ page import="org.wso2.cloud.heartbeat.monitoring.ui.utils.IntervalMerger"%>
 <%@ page import="org.wso2.cloud.heartbeat.monitoring.ui.utils.Pair"%>
 <%@ page import="java.sql.Timestamp"%>
-<%@ page import="java.util.*"%>
+<%@ page import="java.util.*"%><%@ page import="org.wso2.cloud.heartbeat.monitoring.ui.utils.TimestampPair"%>
 <%
 String cloudName = request.getParameter("cloudName");
 String timeIntervalStart = request.getParameter("timeIntervalStart");
@@ -23,7 +23,7 @@ List<Long> valuesToRemove = new ArrayList<Long>();
 IntervalMerger mergeIntervals = new IntervalMerger();
 List<Pair> allServerNegativeIntervals = new ArrayList<Pair>();
 List<Long> allServerFilteredPositiveTimes  = new ArrayList<Long>();
-Map<Map<String, Map>,List<Pair>>  failureSummary = new HashMap< Map<String, Map>,List<Pair>>();
+Map<Map<String, Map>,List<TimestampPair>>  failureSummary = new HashMap< Map<String, Map>,List<TimestampPair>>();
 int failureCount=0;
 
 ServicesUptimeRetriever serviceUptimeRetriever = new ServicesUptimeRetriever();
