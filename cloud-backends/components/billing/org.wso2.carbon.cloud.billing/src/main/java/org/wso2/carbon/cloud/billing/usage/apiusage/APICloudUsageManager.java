@@ -29,7 +29,6 @@ import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
-import org.wso2.carbon.cloud.billing.usage.UsageProcessor;
 import org.wso2.carbon.cloud.billing.usage.UsageProcessorContext;
 import org.wso2.carbon.cloud.billing.usage.UsageProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.utils.APIUsageProcessorUtil;
@@ -46,28 +45,25 @@ import java.util.Date;
 public class APICloudUsageManager {
 
     private static final Log LOGGER = LogFactory.getLog(APICloudUsageManager.class);
-    private static String dailyUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                                                  .getCloudBillingServiceUrl()
-                                          + BillingConstants.DS_API_URI_REQUEST_COUNT;
-    private static String usageForTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                                                      .getCloudBillingServiceUrl()
-                                              + BillingConstants.DS_API_URI_USAGE;
+    private static String dailyUsageUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+                    + BillingConstants.DS_API_URI_REQUEST_COUNT;
+    private static String usageForTenantUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+                    + BillingConstants.DS_API_URI_USAGE;
 
     private BillingRequestProcessor dsBRProcessor;
     private BillingRequestProcessor zuoraBRProcessor;
 
     public APICloudUsageManager() {
         BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
-        dsBRProcessor =
-                BillingRequestProcessorFactory.getBillingRequestProcessor(
-                        BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
+        dsBRProcessor = BillingRequestProcessorFactory
+                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
                         billingConfig.getDSConfig().getHttpClientConfig());
-        zuoraBRProcessor =
-                BillingRequestProcessorFactory.getBillingRequestProcessor(
-                        BillingRequestProcessorFactory.ProcessorType.ZUORA,
+        zuoraBRProcessor = BillingRequestProcessorFactory
+                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA,
                         billingConfig.getZuoraConfig().getHttpClientConfig());
     }
-
 
     private String getDailyUsage() throws CloudBillingException {
 
@@ -75,25 +71,20 @@ public class APICloudUsageManager {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
-        NameValuePair[] nameValuePairs = new NameValuePair[]{
+        NameValuePair[] nameValuePairs = new NameValuePair[] {
                 new NameValuePair("year", String.valueOf(cal.get(Calendar.YEAR))),
                 new NameValuePair("month", String.valueOf((cal.get(Calendar.MONTH) + 1))),
-                new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)))
-        };
+                new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) };
 
         return dsBRProcessor.doGet(dailyUsageUrl, nameValuePairs);
     }
 
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
-        NameValuePair[] nameValuePairs = new NameValuePair[]{
-                new NameValuePair("apiPublisher", "%25@" + tenantDomain),
-                new NameValuePair("startDate", startDate),
-                new NameValuePair("endDate", endDate)
-        };
+        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("apiPublisher", "%25@" + tenantDomain),
+                new NameValuePair("startDate", startDate), new NameValuePair("endDate", endDate) };
         return dsBRProcessor.doGet(usageForTenantUrl, nameValuePairs);
     }
-
 
     public void uploadDailyAPIUsage() throws CloudBillingException {
         SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
@@ -108,9 +99,8 @@ public class APICloudUsageManager {
         }
     }
 
-    public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName,
-                                                              String startDate, String endDate)
-            throws CloudBillingException {
+    public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName, String startDate,
+            String endDate) throws CloudBillingException {
         // get accountId from tenant
         String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
         String response = getUsageForTenant(tenantDomain, startDate, endDate);
@@ -118,18 +108,11 @@ public class APICloudUsageManager {
         UsageProcessorContext context = new UsageProcessorContext();
         context.setResponse(response);
         context.setAccountId(accountId);
-
-        if (accountId == null) {
-            return UsageProcessorFactory.createUsageProcessor(
-                    UsageProcessorFactory.UsageProcessorType.DEFAULT).process(context);
-        }
         context.setStartDate(startDate);
         context.setEndDate(endDate);
 
-        UsageProcessorFactory.UsageProcessorType type =
-                UsageProcessorFactory.UsageProcessorType.valueOf(productName);
-        UsageProcessor processor = UsageProcessorFactory.createUsageProcessor(type);
-        return processor.process(context);
+        return UsageProcessorFactory.createUsageProcessor(UsageProcessorFactory.UsageProcessorType.API_CLOUD)
+                .process(context);
     }
 
 }

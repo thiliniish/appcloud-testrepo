@@ -27,10 +27,10 @@ public class UsageProcessorFactory {
 
     public static UsageProcessor createUsageProcessor(UsageProcessorType type) {
         switch (type) {
-            case API_CLOUD:
-                return new APICloudUsageProcessor();
-            default:
-                throw new IllegalArgumentException("Unsupported Usage processor type requested");
+        case API_CLOUD:
+            return new APICloudUsageProcessor();
+        default:
+            throw new IllegalArgumentException("Unsupported Usage processor type requested");
         }
     }
 
@@ -38,7 +38,7 @@ public class UsageProcessorFactory {
      * Usage processor type
      */
     public enum UsageProcessorType {
-        API_CLOUD, DEFAULT
+        API_CLOUD
     }
 
 }
