@@ -27,11 +27,11 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon</groupId>
-    <artifactId>org.wso2.carbon.cloud.appfactory.appdeletion</artifactId>
+    <artifactId>org.wso2.carbon.cloud.apimgt.apideletion</artifactId>
     <version>1.0.0</version>
     <packaging>bundle</packaging>
-    <name>Cloud - Application deletion component</name>
-    <description>Tenant's application deletion bundle</description>
+    <name>Cloud - Api deletion component</name>
+    <description>Tenant's api deletion bundle</description>
 
     <build>
         <plugins>
@@ -56,32 +56,30 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.cloud.appfactory.appdeletion.internal
+                            org.wso2.carbon.cloud.apimgt.apideletion.internal
                         </Private-Package>
                         <Import-Package>
                             org.wso2.carbon.user.core.*; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.utils; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.core; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.context; version="${imp.pkg.version.carbon.platform}",
-                            org.wso2.carbon.appfactory.tenant.mgt.*; version="${org.wso2.appfactory.version}",
-                            org.wso2.carbon.appfactory.core.*; version="${org.wso2.appfactory.version}",
-                            org.wso2.carbon.appfactory.application.mgt.*; version="${org.wso2.appfactory.version}",
-                            org.wso2.carbon.appfactory.common.*; version="${org.wso2.appfactory.version}",
                             org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
+                            org.wso2.carbon.registry.*; version="${imp.pkg.version.carbon.kernel.registry}",
+                            org.wso2.carbon.apimgt.impl; version="${imp.pkg.version.carbon.apimgt}",
+                            org.wso2.carbon.apimgt.*; version="${imp.pkg.version.carbon.apimgt}",
                             org.wso2.carbon.user.api; version="${imp.pkg.version.carbon.user.api}",
                             org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
                             org.osgi.framework; version="${imp.pkg.version.osgi.framework}",
-                            org.wso2.carbon.registry.*; version="${imp.pkg.version.carbon.kernel.registry}",
                             org.apache.commons.lang; version="${imp.pkg.version.commons-lang}",
+                            org.wso2.carbon.governance.api.*; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.ntask.common,
                             org.w3c.dom,
-                            org.json.simple.*,
                             javax.net.ssl,
                             javax.net,
                             javax.crypto,
                             javax.xml.namespace,
                             javax.xml.parsers,
-                            javax.xml.bind,
+                            javax.xml.bind
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -94,11 +92,6 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk16</artifactId>
             <version>${bcprov-jdk16.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.core.services</artifactId>
-            <version>${wso2carbon.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -131,20 +124,24 @@
             <version>${commons.logging.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory</groupId>
-            <artifactId>org.wso2.carbon.appfactory.application.mgt</artifactId>
-            <version>${org.wso2.appfactory.version}</version>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.apimgt.impl</artifactId>
+            <version>${org.wso2.carbon.apimgt.api.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory</groupId>
-            <artifactId>org.wso2.carbon.appfactory.core</artifactId>
-            <version>${org.wso2.appfactory.version}</version>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.apimgt.api</artifactId>
+            <version>${org.wso2.carbon.apimgt.api.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory</groupId>
-            <artifactId>org.wso2.carbon.appfactory.tenant.mgt</artifactId>
-            <version>${org.wso2.appfactory.version}</version>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+            <version>${wso2carbon.version}</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <imp.pkg.version.carbon.apimgt>[1.2.0, 1.2.5)</imp.pkg.version.carbon.apimgt>
+    </properties>
 
 </project>

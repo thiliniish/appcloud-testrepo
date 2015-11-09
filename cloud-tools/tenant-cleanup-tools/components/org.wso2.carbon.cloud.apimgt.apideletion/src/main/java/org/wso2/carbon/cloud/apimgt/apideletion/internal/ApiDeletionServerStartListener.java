@@ -15,37 +15,37 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.carbon.cloud.appfactory.appdeletion.internal;
 
+package org.wso2.carbon.cloud.apimgt.apideletion.internal;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.appfactory.appdeletion.AppDeleter;
-import org.wso2.carbon.cloud.appfactory.appdeletion.util.AppDeleterConstants;
+import org.wso2.carbon.cloud.apimgt.apideletion.APIDeleter;
+import org.wso2.carbon.cloud.apimgt.apideletion.util.ApiDeleterConstants;
 import org.wso2.carbon.core.ServerStartupHandler;
-import org.apache.commons.lang.StringUtils;
 
-public class AppDeletionServerStartListener implements ServerStartupHandler {
+public class ApiDeletionServerStartListener implements ServerStartupHandler {
 
-    private static final Log log = LogFactory.getLog(AppDeletionServerStartListener.class);
+    private static final Log log = LogFactory.getLog(ApiDeletionServerStartListener.class);
 
     /**
      * This method waits until the server starts for the execution
      */
     @Override
     public void invoke() {
-
-        String tenantFile = System.getProperty(AppDeleterConstants.TENANT_FILE);
-        String napTime = System.getProperty(AppDeleterConstants.NAP_TIME);
-        //checks for null,empty and whitespace values
+        String tenantFile = System.getProperty(ApiDeleterConstants.TENANT_FILE);
+        String napTime = System.getProperty(ApiDeleterConstants.NAP_TIME);
+        //checks for null and empty values
         if (StringUtils.isNotBlank(tenantFile) && StringUtils.isNotBlank(napTime)) {
-            log.info("Tenant app deletion for tenant list located at: " + tenantFile + " will start after " + napTime
-                    + " milli-seconds.");
-            //A separate thread is created for app deletion.
-            Thread t1 = new Thread(new AppDeleter());
+            log.info("Tenant api deletion for tenant-file located at: " + tenantFile + "will start after " + napTime +
+                     "milli-seconds.");
+            //A separate thread is created for api deletion.
+            Thread t1 = new Thread(new APIDeleter());
             t1.start();
         } else {
-            log.warn(
-                    "Required system properties tenantFile/napTime are not specified for starting app deletion, no apps will be deleted");
+            log.info(
+                    "Required system properties tenantFile/napTime are not specified for starting api deletion, no apis will be deleted.");
         }
     }
 }
