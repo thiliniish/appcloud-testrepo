@@ -16,12 +16,16 @@
  *  under the License.
  */
 
-package org.wso2.carbon.apimgt.apideletion.util;
+package org.wso2.carbon.cloud.apimgt.apideletion.util;
 
 public class ApiDeleterConstants {
+
+    private ApiDeleterConstants() {
+    }
 
     public static final String TENANT_FILE = "tenantFile";
     public static final String API = "api";
     public static final String NAP_TIME = "napTime";
+    public static final String AT_SYMBOL = "@";
 
 }

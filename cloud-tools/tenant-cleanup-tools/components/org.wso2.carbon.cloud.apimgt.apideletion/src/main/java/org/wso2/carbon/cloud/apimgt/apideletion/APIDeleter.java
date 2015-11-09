@@ -16,8 +16,9 @@
  *  under the License.
  */
 
-package org.wso2.carbon.apimgt.apideletion;
+package org.wso2.carbon.cloud.apimgt.apideletion;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
@@ -26,8 +27,8 @@ import org.wso2.carbon.apimgt.api.model.API;
 import org.wso2.carbon.apimgt.api.model.Application;
 import org.wso2.carbon.apimgt.api.model.SubscribedAPI;
 import org.wso2.carbon.apimgt.api.model.Subscriber;
-import org.wso2.carbon.apimgt.apideletion.internal.ServiceHolder;
-import org.wso2.carbon.apimgt.apideletion.util.ApiDeleterConstants;
+import org.wso2.carbon.cloud.apimgt.apideletion.internal.ServiceHolder;
+import org.wso2.carbon.cloud.apimgt.apideletion.util.ApiDeleterConstants;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerFactory;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
@@ -51,7 +52,7 @@ import java.util.*;
 public class APIDeleter implements Runnable {
 
     private static final Log log = LogFactory.getLog(APIDeleter.class);
-
+    @Override
     public void run() {
         try {
             /*
@@ -77,9 +78,9 @@ public class APIDeleter implements Runnable {
     /**
      * Method to delete APIs of given tenants.
      *
-     * @throws UserStoreException
+     * @throws UserStoreException, InterruptedException
      */
-    public void delete() throws InterruptedException, UserStoreException {
+    private void delete() throws InterruptedException, UserStoreException {
         //read and get tenant domains from the file.
         List<String> tenantDomains = readFile(System.getProperty(ApiDeleterConstants.TENANT_FILE));
         Map<String, Integer> tenantDomainIdMap = new HashMap<String, Integer>();
@@ -92,7 +93,7 @@ public class APIDeleter implements Runnable {
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                                   .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                    .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             TenantManager tenantManager = ServiceHolder.getRealmService().getTenantManager();
             //retrieve tenants for tenant domain names.
@@ -105,9 +106,6 @@ public class APIDeleter implements Runnable {
                 }
             }
             log.info("Size of the tenant list = " + tenantDomainIdMap.size() + ".");
-        } catch (UserStoreException e) {
-            log.error("Error occurred while retrieving tenants.", e);
-            throw e;
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -131,11 +129,10 @@ public class APIDeleter implements Runnable {
                 ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenantID);
                 //get tenant's api artifacts from the registry
                 Registry registry = ServiceHolder.getRegistryService().getGovernanceUserRegistry(adminName, tenantID);
-                GenericArtifactManager   manager = new GenericArtifactManager(registry, ApiDeleterConstants.API);
+                GenericArtifactManager manager = new GenericArtifactManager(registry, ApiDeleterConstants.API);
                 GovernanceUtils.loadGovernanceArtifacts((UserRegistry) registry);
                 GenericArtifact[] artifacts = manager.getAllGenericArtifacts();
-                if (!registry.resourceExists(APIConstants.API_ROOT_LOCATION) || (artifacts == null) || (artifacts.length
-                        == 0)) {
+                if (!registry.resourceExists(APIConstants.API_ROOT_LOCATION) || ArrayUtils.isEmpty(artifacts)) {
                     log.info("No apis are available for tenant " + tenantDomain + "[" + tenantID + "]");
                     continue;
                 }
@@ -145,7 +142,7 @@ public class APIDeleter implements Runnable {
                         String providerName;
                         API api = APIUtil.getAPI(artifact, registry);
                         apiId = api.getId().toString();
-                        providerName = api.getId().getProviderName().replace("-AT-", "@");
+                        providerName = api.getId().getProviderName().replace("-AT-", ApiDeleterConstants.AT_SYMBOL);
                         APIProvider apiProvider = APIManagerFactory.getInstance().getAPIProvider(providerName);
                         log.info("Api provider " + providerName + " is retrieved for " + apiId + "of tenant "
                                 + tenantDomain + "[" + tenantID + "]");
@@ -154,20 +151,20 @@ public class APIDeleter implements Runnable {
                         if (!subscribers.isEmpty()) {
                             Iterator subscribersIterator = subscribers.iterator();
                             while (subscribersIterator.hasNext()) {
-                                log.info("Subscription deletion started for " + apiId + "of tenant "
-                                        + tenantDomain + "[" + tenantID + "]");
+                                log.info("Subscription deletion started for " + apiId + "of tenant " + tenantDomain + "["
+                                                + tenantID + "]");
                                 Subscriber subscriber = (Subscriber) subscribersIterator.next();
                                 Set<SubscribedAPI> subscribedAPIs = APIManagerFactory.getInstance()
                                         .getAPIConsumer(providerName).getSubscribedAPIs(subscriber);
-                                Iterator SubscribedApiIterator = subscribedAPIs.iterator();
-                                while (SubscribedApiIterator.hasNext()) {
-                                    SubscribedAPI subscribedAPI = (SubscribedAPI) SubscribedApiIterator.next();
+                                Iterator subscribedApiIterator = subscribedAPIs.iterator();
+                                while (subscribedApiIterator.hasNext()) {
+                                    SubscribedAPI subscribedAPI = (SubscribedAPI) subscribedApiIterator.next();
                                     //if the subscribed api is the api under consideration, delete the
                                     // application(this will remove subscriptions)
                                     if (subscribedAPI.getApiId().toString().equals(apiId)) {
                                         Application application = subscribedAPI.getApplication();
                                         APIManagerFactory.getInstance().getAPIConsumer(providerName)
-                                                         .removeApplication(application);
+                                                .removeApplication(application);
                                     }
                                 }
                                 log.info("Subscription deletion completed for " + apiId + "of tenant " + tenantDomain
@@ -180,19 +177,18 @@ public class APIDeleter implements Runnable {
                         apiProvider.deleteAPI(api.getId());
                         log.info("Deletion successful for api :" + apiId + " of tenant " + tenantDomain + "[" + tenantID
                                 + "]");
+                     /*
+                      The program will continue if there is an exception. The reason is there can be corrupted tenants or
+                      apis which tend throw exceptions. The deletion process should not stop in such scenarios.
+                      */
                     } catch (APIManagementException e) {
                         log.error("Error while deleting apis of tenant " + tenantDomain + "[" + tenantID + "]", e);
                     } catch (Exception e) {
                         log.error("Unexpected error occurred while deleting apis" + " of tenant " + tenantDomain + "["
                                 + tenantID + "]", e);
                     }
-                    try {
-                        //sleep 5 seconds before starting next to avoid connection exhaustion.
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        log.error(e);
-                        throw e;
-                    }
+                    //sleep 5 seconds before starting next to avoid connection exhaustion.
+                    Thread.sleep(5000);
                 }
             } catch (RegistryException e) {
                 log.error("Error while getting artifacts for  " + tenantDomain, e);

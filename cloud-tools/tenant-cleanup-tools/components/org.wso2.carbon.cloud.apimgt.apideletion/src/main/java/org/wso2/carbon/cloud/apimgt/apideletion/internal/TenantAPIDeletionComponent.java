@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.carbon.apimgt.apideletion.internal;
+package org.wso2.carbon.cloud.apimgt.apideletion.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +52,6 @@ public class TenantAPIDeletionComponent {
         //register the server start up handler which hold the execution of its invoke method until the server starts
         context.getBundleContext()
                 .registerService(ServerStartupHandler.class.getName(), new ApiDeletionServerStartListener(), null);
-
         log.info("Tenant api Deletion bundle activated successfully.");
     }
 
@@ -62,7 +61,9 @@ public class TenantAPIDeletionComponent {
      * @param context OSGi component context.
      */
     protected void deactivate(ComponentContext context) {
-        log.debug("Tenant Api Deletion bundle is deactivated.");
+        if (log.isDebugEnabled()) {
+            log.debug("Tenant Api Deletion bundle is deactivated.");
+        }
     }
 
     /**
@@ -71,7 +72,9 @@ public class TenantAPIDeletionComponent {
      * @param registryService service to get tenant data.
      */
     protected void setRegistryService(RegistryService registryService) {
-        log.debug("Setting RegistryService.");
+        if (log.isDebugEnabled()) {
+            log.debug("Setting RegistryService.");
+        }
         ServiceHolder.setRegistryService(registryService);
     }
 
@@ -81,7 +84,9 @@ public class TenantAPIDeletionComponent {
      * @param registryService service to get registry data.
      */
     protected void unsetRegistryService(RegistryService registryService) {
-        log.debug("Unset Registry service.");
+        if (log.isDebugEnabled()) {
+            log.debug("Unset Registry service.");
+        }
         ServiceHolder.setRegistryService(null);
     }
 
@@ -91,7 +96,9 @@ public class TenantAPIDeletionComponent {
      * @param realmService service to get tenant data.
      */
     protected void setRealmService(RealmService realmService) {
-        log.debug("Setting RealmService.");
+        if (log.isDebugEnabled()) {
+            log.debug("Setting RealmService.");
+        }
         ServiceHolder.setRealmService(realmService);
     }
 
@@ -101,7 +108,9 @@ public class TenantAPIDeletionComponent {
      * @param realmService service to get tenant data.
      */
     protected void unsetRealmService(RealmService realmService) {
-        log.debug("Unset Realm service.");
+        if (log.isDebugEnabled()) {
+            log.debug("Unset Realm service.");
+        }
         ServiceHolder.setRealmService(null);
     }
 
@@ -111,7 +120,9 @@ public class TenantAPIDeletionComponent {
      * @param tenantRegLoader tenant registry loader
      */
     protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegLoader) {
-        log.debug("Setting TenantRegistryLoader.");
+        if (log.isDebugEnabled()) {
+            log.debug("Setting TenantRegistryLoader.");
+        }
         ServiceHolder.setTenantRegLoader(tenantRegLoader);
     }
 
@@ -121,7 +132,9 @@ public class TenantAPIDeletionComponent {
      * @param tenantRegLoader tenant registry loader
      */
     protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegLoader) {
-        log.debug("Unset Tenant Registry Loader.");
+        if (log.isDebugEnabled()) {
+            log.debug("Unset Tenant Registry Loader.");
+        }
         ServiceHolder.setTenantRegLoader(null);
     }
 

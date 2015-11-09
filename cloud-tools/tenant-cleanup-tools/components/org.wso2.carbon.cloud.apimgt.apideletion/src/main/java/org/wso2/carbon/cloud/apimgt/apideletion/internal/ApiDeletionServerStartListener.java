@@ -16,12 +16,13 @@
  *  under the License.
  */
 
-package org.wso2.carbon.apimgt.apideletion.internal;
+package org.wso2.carbon.cloud.apimgt.apideletion.internal;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.apimgt.apideletion.APIDeleter;
-import org.wso2.carbon.apimgt.apideletion.util.ApiDeleterConstants;
+import org.wso2.carbon.cloud.apimgt.apideletion.APIDeleter;
+import org.wso2.carbon.cloud.apimgt.apideletion.util.ApiDeleterConstants;
 import org.wso2.carbon.core.ServerStartupHandler;
 
 public class ApiDeletionServerStartListener implements ServerStartupHandler {
@@ -31,11 +32,12 @@ public class ApiDeletionServerStartListener implements ServerStartupHandler {
     /**
      * This method waits until the server starts for the execution
      */
+    @Override
     public void invoke() {
         String tenantFile = System.getProperty(ApiDeleterConstants.TENANT_FILE);
         String napTime = System.getProperty(ApiDeleterConstants.NAP_TIME);
         //checks for null and empty values
-        if ((!"".equals(tenantFile)) && (!"".equals(napTime))) {
+        if (StringUtils.isNotBlank(tenantFile) && StringUtils.isNotBlank(napTime)) {
             log.info("Tenant api deletion for tenant-file located at: " + tenantFile + "will start after " + napTime +
                      "milli-seconds.");
             //A separate thread is created for api deletion.
