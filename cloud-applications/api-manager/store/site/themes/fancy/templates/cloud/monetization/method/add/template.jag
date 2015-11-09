@@ -1,57 +1,60 @@
-<% jagg.template("cloud/monetization/method/add", function(inputs, outputs, jagg) { %>
-<script
-	type="text/javascript"
-	src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/cloud/zuora-min.js'))%>"></script>
-<%
+<% jagg.template("cloud/monetization/method/add", function (inputs, outputs, jagg) {
+    %>
+   <script
+       type="text/javascript"
+       src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/cloud/zuora-min.js'))
+    %>"></script>
+    <%
 
-var log = new Log("site/themes/default/templates/cloud/monetization/method/add/template.jag");
-include("/jagg/cloud/constants.jag");
-var monetizationConfigFile = new File("/site/conf/monetization_conf.json");
-monetizationConfigFile.open("r");
-var configs = parse(monetizationConfigFile.readAll());
-monetizationConfigFile.close();
-var cloudmgtURL = configs.cloud.mgt_url;
-var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-var tenantDomain = session.get("LOGGED_IN_TENANT");
-var isBillingEnabled = true;// jagg.module("cloud/monetization").isBillingEnable();
-if (isBillingEnabled) {
-	var errorMessage = "NA";
-	var userName = session.get("LOGGED_IN_USER");
-	var userEmail = session.get("LOGGED_IN_USER_EMAIL");
+    var log = new Log("site/themes/default/templates/cloud/monetization/method/add/template.jag");
+    include("/jagg/cloud/constants.jag");
+    var monetizationConfigFile = new File("/site/conf/monetization_conf.json");
+    monetizationConfigFile.open("r");
+    var configs = parse(monetizationConfigFile.readAll());
+    monetizationConfigFile.close();
+    var cloudmgtURL = configs.cloud.mgt_url;
+    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+    var tenantDomain = session.get("LOGGED_IN_TENANT");
+    var isBillingEnabled = true;// jagg.module("cloud/monetization").isBillingEnable();
+    if (isBillingEnabled) {
+        var errorMessage = "NA";
+        var userName = session.get("LOGGED_IN_USER");
+        var userEmail = session.get("LOGGED_IN_USER_EMAIL");
 
-	var currRatePlan = session.get("CURRENT_RATE_PLAN");
-	var accounts = session.get("ACCOUNTS");
-	var callsPerDay = session.get("CALLS_PER_DAY");
-	var callsAbovePlan = session.get("CALLS_ABOVE_PLAN");
-	var monthlyRental = session.get("MONTHLY_RENTAL");
-	var couponDiscount = session.get("COUPON_DISCOUNT");
-	var l = Packages.java.util.Locale.getDefault();
-	var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-	if (callsPerDay != null) {
-		callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
-	}
-	//TODO improve error handling
-	if ("Response_From_Submit_Page" == (request.getParameter("responseFrom"))) {
-		if ("false" == escapeSpecialChars(request.getParameter("success")[0])) {
-			errorMessage = "Invalid in your payment information The reason is: " + request.getParameter("errorMessage");
-		}
-	}
-	var accountId = "";
-	if (request.getParameter("accountId") != null) {
-		accountId = escapeSpecialChars(request.getParameter("accountId"));
-	}
+        var currRatePlan = session.get("CURRENT_RATE_PLAN");
+        var accounts = session.get("ACCOUNTS");
+        var callsPerDay = session.get("CALLS_PER_DAY");
+        var callsAbovePlan = session.get("CALLS_ABOVE_PLAN");
+        var monthlyRental = session.get("MONTHLY_RENTAL");
+        var couponDiscount = session.get("COUPON_DISCOUNT");
+        var l = Packages.java.util.Locale.getDefault();
+        var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+        if (callsPerDay != null) {
+            callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
+        }
+        //TODO improve error handling
+        if ("Response_From_Submit_Page" == (request.getParameter("responseFrom"))) {
+            if ("false" == escapeSpecialChars(request.getParameter("success")[0])) {
+                errorMessage = "Invalid in your payment information The reason is: " + request.getParameter("errorMessage");
+            }
+        }
+        var accountId = "";
+        if (request.getParameter("accountId") != null) {
+            accountId = escapeSpecialChars(request.getParameter("accountId"));
+        }
 
-	//  var productRatePlanId = session.get("PRODUCT_PLAN_ID");
-	// session.remove("PRODUCT_PLAN_ID");
-	var serviceId ="api_cloud";
-	var paymentPlanName;
-	//if (accountId == "") {
-	//  paymentPlanName = jagg.module("cloud/monetization").getPaymentPlanFromId(serviceId, productRatePlanId);
-	//}
-}
+        //  var productRatePlanId = session.get("PRODUCT_PLAN_ID");
+        // session.remove("PRODUCT_PLAN_ID");
+        var serviceId = "api_cloud";
+        var paymentPlanName;
+        //if (accountId == "") {
+        //  paymentPlanName = jagg.module("cloud/monetization").getPaymentPlanFromId(serviceId, productRatePlanId);
+        //}
+    }
 
-function escapeSpecialChars (str) {
-	return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {
+    function escapeSpecialChars(str) {
+        return str.replace( / [\0\x08\x09\x1a\n\r
+        "'\\\%]/g, function (char) {
 			switch (char) {
 			case "\0":
 			return "\\0";
@@ -273,7 +276,8 @@ $(document).ready(function($) {
 <div class="container content-starter">
 <div class="row">
 <div class="col-lg-12">
-		    <% if (accountId != "" ) { %>
+		    <% if (accountId != "
+        " ) { %>
 <h1>New Payment Method</h1>
 <% } else { %>
 <h1>Upgrade Account</h1>
@@ -288,7 +292,9 @@ $(document).ready(function($) {
 
 <!-- content/body -->
 <div class="container c-both wr-billing-white info-message-parent">
-	<% jagg.includeBlock("cloud/page/billing-messages", null); %>
+	<% jagg.includeBlock("
+        cloud / page / billing - messages
+        ", null); %>
 
 	<div class="row">
 		<div class="container col-md-12">
@@ -298,57 +304,64 @@ $(document).ready(function($) {
 		</div>
 	</div>
 	<% var buttonValue;
-	if(accountId != "") {
-                    buttonValue = "Add";
+        if (accountId != "") {
+            buttonValue = "Add";
 
-                 } else {
-                    buttonValue = "Continue";
-                 }%>
+        } else {
+            buttonValue = "Continue";
+        }
+        %>
 
-	<div class="row">
-		<div class="container col-md-8 wr-text-gray">
-			<p>Please enter your card information</p>
-			<div class="col-md-12">
-				<form name="inputData" class='form-horizontal' id='registerForm'
-					role="form">
-					<div class="form-group">
-						<div id="zuora_payment"></div>
-					</div>
-					<input type="hidden" name="isBillingEnabled" id="isBillingEnabled"
-						value="<%=isBillingEnabled%>" /> <input type="hidden"
+            <div class="row">
+                <div class="container col-md-8 wr-text-gray">
+                    <p>Please enter your card information</p>
+                    <div class="col-md-12">
+                        <form name="inputData" class='form-horizontal' id='registerForm'
+                            role="form">
+                            <div class="form-group">
+                                <div id="zuora_payment"></div>
+                            </div>
+                            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"
+                                value="<%=isBillingEnabled%>" /> <input type="hidden"
 						name="monthlyRental" id="monthlyRental" value="<%=monthlyRental%>" />
 					<input type="hidden" name="cloudmgtURL" id="cloudmgtURL"
 						value="<%=cloudmgtURL%>" /> <input type="hidden"
 						name="errorMessage" id="errorMessage" value="<%=errorMessage%>" />
 					<input type="hidden" name="serviceId" id="serviceId"
 						value="<%=serviceId%>" /> <input type="hidden" name="accountId"
-						id="accountId" value="<%=accountId%>" /> <input type="hidden"
-						name="unavailableErrorPage" id="unavailableErrorPage"
-						value="<%= unavailableErrorPage %>" />
-				</form>
-				<div class="signin"></div>
-			</div>
-		</div>
-		<%if(accountId != "") {  %>
-		<div class="wr-text col-sm-8">
-			<input id="submitbtn" type='button' value=<%=buttonValue%>
+						id="accountId" value="<%=accountId
+        %>" /> <input type="hidden"
+                                name="unavailableErrorPage" id="unavailableErrorPage"
+                                value="<%=
+        unavailableErrorPage
+        %>" />
+                       </form>
+                       <div class="signin"></div>
+                   </div>
+               </div>
+               <%if (accountId != "") {
+            %>
+                  <div class="wr-text col-sm-8">
+                      <input id="submitbtn" type='button' value=<%=buttonValue%>
 				style="font-weight: normal;"
 				class="btn btn-default btn-redeem col-md-6 col-xs-12 " /> <a
 				id="btn_cancel"
-				href="javascript:location.href='account-summary.jag?tenant=<%=tenantDomain%>'">Cancel</a>
-			<i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner"
-				style="display: none; margin-left: 10px;"></i>
-		</div>
-		<% } else {
-			%>
-		<div class="container col-md-4">
-			<div class="wr-text">
+				href="javascript:location.href='account-summary.jag?tenant=<%=tenantDomain
+            %>'">Cancel</a>
+                        <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner"
+                            style="display: none; margin-left: 10px;"></i>
+                    </div>
+                    <%
+        } else {
+            %>
+        <div class="container col-md-4">
+            <div class="wr-text">
 
-				<div id="product-container">
-					<p class="product-summery">PRODUCT SUMMARY</p>
-					<p>
-						<span class="selected-plan-txt">SELECTED PLAN: </span> <span
-							class="product-planname"><%=currRatePlan%> </span>
+                <div id="product-container">
+                    <p class="product-summery">PRODUCT SUMMARY</p>
+                    <p>
+                        <span class="selected-plan-txt">SELECTED PLAN: </span> <span
+                            class="product-planname"><%=currRatePlan%> </span>
 					</p>
 					<ul>
 						<li><%=accounts%> accounts</li>
@@ -364,46 +377,55 @@ $(document).ready(function($) {
 					</p>
 					<p class="col-md-8 nopad">Subscription Fee (per/m)</p>
 					<p id="monthlyRentalPara" class="col-md-4 nopad tright">
-						<%=Number(monthlyRental).toFixed(2)%>
-					</p>
-					<p class="col-md-8 nopad">Discount from coupon</p>
-					<p id="discountPara" class="col-md-4 nopad tright">
-						<%=Number(couponDiscount).toFixed(2)%>
-					</p>
-					<br class="c-both" />
-					<div class="col-md-8 nopad blue">&nbsp;</div>
-					<div class="col-md-4 nopad tright ">
-						<p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
-						<p id="payableAmountPara"
-							class="col-md-12 nopad nomargin blue-line-right">
-							<span id="payable-ammount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%>
-							</span>
-						</p>
-					</div>
-					<br class="c-both" />
-				</div>
-				<div id="action-container">
-					<button id="backbtn" type="button"
-						class="btn btn-default btn-back col-md-5 col-xs-12">Back</button>
-					<button id="submitbtn" type="button" style="font-weight: normal;"
-						class="btn btn-default btn-redeem col-md-6 col-xs-12 col-md-push-1">Proceed</button>
-					<i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner"
-						style="display: none; margin-left: 10px;"></i> <br class="c-both" />
-				</div>
-			</div>
-		</div>
-		<% }%>
-	</div>
-	<div class="row pad-bot-50">
-		<div class="container col-md-8">&nbsp;</div>
-		<div class="container col-md-4">&nbsp;</div>
-		<br class="c-both " />
-	</div>
+						<%=Number(monthlyRental).toFixed(2)
+            %>
+                                </p>
+                                <p class="col-md-8 nopad">Discount from coupon</p>
+                                <p id="discountPara" class="col-md-4 nopad tright">
+                                    <%=Number(couponDiscount).toFixed(2)
+            %>
+                                </p>
+                                <br class="c-both" />
+                                <div class="col-md-8 nopad blue">&nbsp;</div>
+                                <div class="col-md-4 nopad tright ">
+                                    <p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
+                                    <p id="payableAmountPara"
+                                        class="col-md-12 nopad nomargin blue-line-right">
+                                        <span id="payable-ammount"><%=Number(monthlyRental - couponDiscount).toFixed(2)
+            %>
+                                        </span>
+                                    </p>
+                                </div>
+                                <br class="c-both" />
+                            </div>
+                            <div id="action-container">
+                                <button id="backbtn" type="button"
+                                    class="btn btn-default btn-back col-md-5 col-xs-12">Back</button>
+                                <button id="submitbtn" type="button" style="font-weight: normal;"
+                                    class="btn btn-default btn-redeem col-md-6 col-xs-12 col-md-push-1">Proceed</button>
+                                <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner"
+                                    style="display: none; margin-left: 10px;"></i> <br class="c-both" />
+                            </div>
+                        </div>
+                    </div>
+                    <%
+        }
+        %>
+            </div>
+            <div class="row pad-bot-50">
+                <div class="container col-md-8">&nbsp;</div>
+                <div class="container col-md-4">&nbsp;</div>
+                <br class="c-both " />
+            </div>
 
-</div>
-<!-- /content/body -->
+        </div>
+        <!-- /content/body -->
 
-</div>
-<div class="clearfix"></div>
+        </div>
+        <div class="clearfix"></div>
 
-<% }); %>
+        <%
+    }
+
+    )
+    ; %>
