@@ -34,6 +34,7 @@ public class DataServiceConfig {
     private String billingHistory;
     private String user;
     private String password;
+    private String subscriptionMapping;
     private HttpClientConfig httpClientConfig;
 
     @XmlElement(name = "RequestCount", nillable = false, required = true)
@@ -134,4 +135,11 @@ public class DataServiceConfig {
     public void setBillingHistory(String billingHistory) {
         this.billingHistory = billingHistory;
     }
+
+    @XmlElement(name="SubscriptionMapping", nillable = false, required = true)
+    public String getSubscriptionMapping() {
+	    return subscriptionMapping;
+    }
+
+    public void setSubscriptionMapping(String subscriptionMapping) { this.subscriptionMapping = subscriptionMapping; }
 }

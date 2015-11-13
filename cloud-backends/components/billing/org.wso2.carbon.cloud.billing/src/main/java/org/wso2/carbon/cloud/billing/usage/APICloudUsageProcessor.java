@@ -82,4 +82,10 @@ public class APICloudUsageProcessor implements UsageProcessor {
         return billingRequestProcessor.doGet(url);
     }
 
+    public String getSubscriptionMapping(String ratePlanId) throws CloudBillingException {
+        String url = CloudBillingUtils.getBillingConfiguration().getDSConfig().getSubscriptionMapping();
+        url = url + "?newSubscriptionId=" + ratePlanId;
+        return billingRequestProcessor.doGet(url);
+    }
+
 }

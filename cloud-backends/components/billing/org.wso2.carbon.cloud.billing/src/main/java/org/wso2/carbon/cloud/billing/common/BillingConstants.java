@@ -152,6 +152,8 @@ public final class BillingConstants {
 
     public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
 
+    public static final String RATE_PLAN_ID = "productRatePlanId";
+
     public static final class SecureValueProperties {
         public static final String SECRET_ALIAS_ATTRIBUTE_NAME_WITH_NAMESPACE = "secretAlias";
         public static final String SECURE_VAULT_NS = "http://org.wso2.securevault/configuration";

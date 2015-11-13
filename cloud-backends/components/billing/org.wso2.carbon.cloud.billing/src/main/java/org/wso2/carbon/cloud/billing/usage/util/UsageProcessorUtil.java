@@ -27,6 +27,8 @@ import org.wso2.carbon.cloud.billing.common.BillingConstants;
 import org.wso2.carbon.cloud.billing.common.CloudBillingException;
 import org.wso2.carbon.cloud.billing.common.config.APICloudPlan;
 import org.wso2.carbon.cloud.billing.common.zuora.ZuoraUtils;
+import org.wso2.carbon.cloud.billing.usage.APICloudUsageProcessor;
+import org.wso2.carbon.cloud.billing.usage.CloudUsageManager;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
 
 import javax.xml.namespace.QName;
@@ -45,12 +47,15 @@ public class UsageProcessorUtil {
     public static AccountUsage[] getTenantUsageFromAPIM(String response, String accountId, boolean hasAmendments,
                                                         String amendmentResponse) throws CloudBillingException {
         OMElement elements;
+        OMElement subscriptionElements;
         APICloudPlan plan = null;
+        String ratePlanId = null;
+        String currentRatePlan = null;
         try {
             // checking to see if there are amendments
             if (!hasAmendments) {
                 JSONArray ratePlans = ZuoraUtils.getCurrentRatePlan(BillingConstants.API_CLOUD, accountId);
-                String ratePlanId = getCurrentRatePlanId(ratePlans);
+                ratePlanId = getCurrentRatePlanId(ratePlans);
                 plan = (APICloudPlan) CloudBillingUtils
                         .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, ratePlanId);
             }
@@ -76,24 +81,27 @@ public class UsageProcessorUtil {
                                     BillingConstants.API_PUBLISHER))
                                     .next()).getText();
                     if (hasAmendments) {
-                        String currentRatePlan = getRatePlanIdForDate(amendmentResponse, date);
+                        currentRatePlan = getRatePlanIdForDate(amendmentResponse, date);
                         plan = (APICloudPlan) CloudBillingUtils
                                 .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, currentRatePlan);
                     }
-                    if (plan != null) {
-                        String overUsageRate = plan.getOverUsage();
-                        int maxUsage = plan.getMaxDailyUsage();
-                        float overage = calculateCharge(plan.getMaxDailyUsage(), qty, overUsageRate);
-                        usage.setAccountId(accountId);
-                        usage.setDate(date);
-                        usage.setMaxDailyUsage(maxUsage);
-                        usage.setOverage(overage);
-                        usage.setPaidAccount(true);
-                        usage.setProductName(BillingConstants.API_CLOUD);
-                        usage.setRatePlan(overUsageRate);
-                        usage.setTenantDomain(tenantDomain);
-                        usage.setUsage(qty);
-                        usageList.add(usage);
+                    if (plan == null) {
+                        APICloudUsageProcessor apiCloudUsageProcessor = new APICloudUsageProcessor();
+                        String subscriptionMappingResponse = null;
+                        if (ratePlanId != null) {
+                            subscriptionMappingResponse = apiCloudUsageProcessor.getSubscriptionMapping(ratePlanId);
+                        } else if (currentRatePlan != null) {
+                            subscriptionMappingResponse = apiCloudUsageProcessor.getSubscriptionMapping(currentRatePlan);
+                        }
+                        if(subscriptionMappingResponse != null){
+                            subscriptionElements = AXIOMUtil.stringToOM(subscriptionMappingResponse);
+                            String productRatePlanId = ((OMElement) subscriptionElements.getChildrenWithName(new QName(BillingConstants.RATE_PLAN_ID)).next()).getText();
+                            plan = (APICloudPlan) CloudBillingUtils
+                                    .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, productRatePlanId);
+                            setUsageForPlan(plan, usage, accountId, qty, date, tenantDomain, usageList);
+                        }
+                    } else {
+                        setUsageForPlan(plan, usage, accountId, qty, date, tenantDomain, usageList);
                     }
                 }
             }
@@ -181,9 +189,9 @@ public class UsageProcessorUtil {
                 AccountUsage usage = new AccountUsage();
                 OMElement usageEle = (OMElement) entries.next();
 
-                int qty = Integer.parseInt(((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants
-                                                                                                       .TOTAL_COUNT))
-                        .next()).getText());
+                int qty = Integer.parseInt(
+                        ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TOTAL_COUNT)).next())
+                                .getText());
                 String date = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.YEAR)).next())
                                       .getText() + "/" +
                               ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.MONTH)).next())
@@ -273,6 +281,22 @@ public class UsageProcessorUtil {
         int maxUsage = plan.getMaxDailyUsage();
         int overUsage = usage - maxUsage;
         return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage : 0;
+    }
+
+    private static void setUsageForPlan(APICloudPlan plan, AccountUsage usage, String accountId, int qty, String date, String tenantDomain, List<AccountUsage> usageList){
+        String overUsageRate = plan.getOverUsage();
+        int maxUsage = plan.getMaxDailyUsage();
+        float overage = calculateCharge(plan.getMaxDailyUsage(), qty, overUsageRate);
+        usage.setAccountId(accountId);
+        usage.setDate(date);
+        usage.setMaxDailyUsage(maxUsage);
+        usage.setOverage(overage);
+        usage.setPaidAccount(true);
+        usage.setProductName(BillingConstants.API_CLOUD);
+        usage.setRatePlan(overUsageRate);
+        usage.setTenantDomain(tenantDomain);
+        usage.setUsage(qty);
+        usageList.add(usage);
     }
 
 }
