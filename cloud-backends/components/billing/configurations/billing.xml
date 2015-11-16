@@ -26,8 +26,8 @@
         <PendingDisableTenants>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/pendingdisables</PendingDisableTenants>
         <DisableTenant>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/disabletenant</DisableTenant>
         <SubscriptionStatus>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/subscriptionstatus</SubscriptionStatus>
-	<BillingHistory>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/billinghistory</BillingHistory>
-	<SubscriptionMapping>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/mappingforsubscription</SubscriptionMapping>
+	 <BillingHistory>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/billinghistory</BillingHistory>
+	 <SubscriptionMapping>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/mappingforsubscription</SubscriptionMapping>
         <User>admin</User>
         <Password>admin</Password>
         <HttpClientConfig>
