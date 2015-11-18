@@ -15,36 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.carbon.cloud.billing.commons.config;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Config element that represent the Utils xml object
+ * Config element that represent the Notification xml object
  */
-@XmlRootElement(name = "Utils")
-public class UtilsConfig {
+@XmlRootElement(name = "Notification") public class NotificationConfig {
+    private EmailConfig emailNotification;
 
-    private APICloudUtils apiCloud;
-    private NotificationConfig notifications;
-
-    @XmlElement(name = "APICloud", nillable = false)
-    public APICloudUtils getApiCloud() {
-        return apiCloud;
+    @XmlElement(name = "Email", nillable = false) public EmailConfig getEmailNotification() {
+        return emailNotification;
     }
 
-    public void setApiCloud(APICloudUtils apiCloud) {
-        this.apiCloud = apiCloud;
+    public void setEmailNotification(EmailConfig emailNotification) {
+        this.emailNotification = emailNotification;
     }
-
-    @XmlElement(name = "Notification", nillable = false) public NotificationConfig getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(NotificationConfig notifications) {
-        this.notifications = notifications;
-    }
-
 }
