@@ -21,6 +21,8 @@ package org.wso2.carbon.cloud.billing.utils;
 import com.google.gson.Gson;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
@@ -33,6 +35,7 @@ import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -46,13 +49,16 @@ public class CloudBillingServiceUtils {
     private static volatile String configObj;
     private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getBillingRequestProcessor
             (BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-             BillingConfigUtils.getBillingConfiguration()
-                     .getDSConfig()
-                     .getHttpClientConfig());
+                    BillingConfigUtils.getBillingConfiguration()
+                            .getDSConfig()
+                            .getHttpClientConfig());
     private static APICloudUsageManager usageManager = new APICloudUsageManager();
     private static String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                                                  .getCloudBillingServiceUrl()
-                                          + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
+            .getCloudBillingServiceUrl()
+            + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
+    private static String monetizationStatusUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+            .getCloudBillingServiceUrl() + BillingConstants.DS_API_URI_MONETIZATION_STATUS;
+
 
     private CloudBillingServiceUtils() {
     }
@@ -67,7 +73,7 @@ public class CloudBillingServiceUtils {
     public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
 
         String response = dsBRProcessor.doGet(getAccountUrl.replace(BillingConstants.TENANT_DOMAIN_PARAM,
-                                                                    tenantDomain), null);
+                tenantDomain), null);
         try {
             if (response != null && !response.isEmpty()) {
                 OMElement elements = AXIOMUtil.stringToOM(response);
@@ -213,4 +219,28 @@ public class CloudBillingServiceUtils {
         return BillingConfigUtils.getBillingConfiguration().isBillingEnabled();
     }
 
+    public static boolean isMonetizationEnabled(String tenantDomain, String application) throws CloudBillingException {
+        String response = null;
+        try {
+            NameValuePair[] nameValuePairs = new NameValuePair[]{
+                    new NameValuePair("tenant", tenantDomain),
+                    new NameValuePair("cloudType", application)
+            };
+            response = dsBRProcessor.doGet(monetizationStatusUrl, nameValuePairs);
+            OMElement elements = AXIOMUtil.stringToOM(response);
+
+            OMElement status = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
+                    BillingConstants.STATUS));
+            //Since the tenants' who are not enabled monetization. will not have an entry in the rdbms.
+            //ToDo refactor if the schema changed.
+            if (status != null && StringUtils.isNotBlank(status.getText())) {
+                return Boolean.valueOf(status.getText());
+            } else {
+                return false;
+            }
+
+        } catch (XMLStreamException e) {
+            throw new CloudBillingException("Error occurred while parsing response: " + response, e);
+        }
+    }
 }

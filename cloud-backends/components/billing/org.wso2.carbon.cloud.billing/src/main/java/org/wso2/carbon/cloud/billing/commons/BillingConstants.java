@@ -34,6 +34,7 @@ public final class BillingConstants {
     public static final String TOTAL_COUNT = "totalCount";
     public static final String API_PUBLISHER = "apiPublisher";
     public static final String ACCOUNTS = "Accounts";
+    public static final String STATUS = "Status";
 
     public static final String ENCODING = "UTF-8";
     public static final String HTTP_REQ_HEADER_AUTHZ = "Authorization";
@@ -132,6 +133,8 @@ public final class BillingConstants {
                                                              "= '?'";
 
     /*Data service API v1 URIs*/
+    public static final String DS_NAMESPACE_URI = "http://ws.wso2.org/dataservice";
+
     public static final String DS_API_URI_REQUEST_COUNT = "/requestcount";
     public static final String DS_API_URI_USAGE = "/usage";
     public static final String DS_API_URI_AMENDMENTS = "/amendments";
@@ -140,6 +143,7 @@ public final class BillingConstants {
     public static final String DS_API_URI_DISABLE_TENANT = "/disabletenant";
     public static final String DS_API_URI_SUBSCRIPTION_STATUS = "/subscriptionstatus";
     public static final String DS_API_URI_BILLING_HISTORY = "/billinghistory";
+    public static final String DS_API_URI_MONETIZATION_STATUS = "/monetization-status";
 
     /*Zuora REST API v1 URIs*/
     public static final String ZUORA_REST_API_URI_USAGE = "/v1/usage";

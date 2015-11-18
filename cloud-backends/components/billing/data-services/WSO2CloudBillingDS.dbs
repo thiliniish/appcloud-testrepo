@@ -89,6 +89,14 @@
       <param name="END_DATE" sqlType="DATE"/>
       <param name="TENANT_ID" sqlType="INTEGER"/>
    </query>
+   <query id="getMonetizationStatusQ" useConfig="cloud_mgt">
+      <sql>SELECT STATUS FROM MONETIZATION_STATUS WHERE TENANT_DOMAIN=:TENANT_DOMAIN AND CLOUD_APPLICATION=:CLOUD_APPLICATION</sql>
+      <result element="Entry" rowName="">
+         <element column="STATUS" name="Status" xsdType="boolean"/>
+      </result>
+      <param name="TENANT_DOMAIN" sqlType="STRING"/>
+      <param name="CLOUD_APPLICATION" sqlType="STRING"/>
+   </query>
    <operation name="getTotalRequestCountPerDay">
       <call-query href="getTotalRequestCountPerDayQ">
          <with-param name="year" query-param="year"/>
@@ -143,6 +151,12 @@
          <with-param name="TENANT_ID" query-param="TENANT_ID"/>
       </call-query>
    </operation>
+   <operation name="getMonetizationStatus">
+      <call-query href="getMonetizationStatusQ">
+         <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+         <with-param name="CLOUD_APPLICATION" query-param="cloudType"/>
+      </call-query>
+   </operation>
    <resource method="GET" path="requestcount">
       <call-query href="getTotalRequestCountPerDayQ">
          <with-param name="year" query-param="year"/>
@@ -195,6 +209,12 @@
          <with-param name="START_DATE" query-param="START_DATE"/>
          <with-param name="END_DATE" query-param="END_DATE"/>
          <with-param name="TENANT_ID" query-param="TENANT_ID"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="monetization-status">
+      <call-query href="getMonetizationStatusQ">
+         <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+         <with-param name="CLOUD_APPLICATION" query-param="cloudType"/>
       </call-query>
    </resource>
 </data>

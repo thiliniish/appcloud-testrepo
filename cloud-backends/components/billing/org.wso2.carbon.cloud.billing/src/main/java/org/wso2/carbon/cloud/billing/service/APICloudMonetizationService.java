@@ -18,8 +18,11 @@
 
 package org.wso2.carbon.cloud.billing.service;
 
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
+import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 
 /**
  * API Cloud monetization service.
@@ -49,14 +52,24 @@ public class APICloudMonetizationService {
     /**
      * Insert into subscriber information
      *
-     * @param username subscriber user name
-     * @param tenantDomain tenant domain
+     * @param username      subscriber user name
+     * @param tenantDomain  tenant domain
      * @param isTestAccount boolean test account or not
      * @param accountNumber account number. this would be null for non paid subscribers
      * @throws CloudMonetizationException
      */
     public void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-            String accountNumber) throws CloudMonetizationException {
+                                        String accountNumber) throws CloudMonetizationException {
         APICloudMonetizationUtils.updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber);
+    }
+
+    /**
+     * Check whether monetization enabled for API Cloud
+     *
+     * @param tenantDomain tenant domain
+     * @return boolean enabled status
+     */
+    public boolean isMonetizationEnabled(String tenantDomain) throws CloudBillingException {
+        return CloudBillingServiceUtils.isMonetizationEnabled(tenantDomain, BillingConstants.API_CLOUD_SUBSCRIPTION_ID);
     }
 }
