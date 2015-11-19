@@ -25,6 +25,7 @@ import org.json.simple.JSONObject;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.beans.usage.Usage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.config.APICloudPlan;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
@@ -283,6 +284,71 @@ public class APIUsageProcessorUtil {
         } else {
             throw new CloudBillingException("Subscription plan for accountId: " + accountId + " cannot be null");
         }
+    }
+
+    public static Usage[] getDailyUsageDataForPaidSubscribers(String response) throws CloudBillingException {
+        try {
+            OMElement elements = AXIOMUtil.stringToOM(response);
+            Iterator<?> entries = elements.getChildrenWithName(new QName(MonetizationConstants.ENTRY));
+            List<Usage> usageList = new ArrayList<Usage>();
+            while (entries.hasNext()) {
+                OMElement usageEle = (OMElement) entries.next();
+                OMElement account =
+                        (OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.ACCOUNT))
+                                            .next();
+                //filtering only the monetization enabled child accounts
+                if (account.getChildElements().next() != null) {
+
+                    Usage usage = APIUsageProcessorUtil.getUsageForPaidSubscribers(usageEle);
+                    usage.setAccountId(account.getFirstElement().getText());
+                    int dailyUsage = Integer.parseInt(
+                            ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.TOTAL_COUNT))
+                                                 .next()).getText());
+                    //Getting the subscription id
+                    OMElement subscription =
+                            (OMElement) account.getChildrenWithName(new QName(MonetizationConstants.SUBSCRIPTION))
+                                               .next();
+                    usage.setSubscriptionId(subscription.getFirstElement().getText());
+
+                    //Getting the rate plan details
+                    OMElement ratePlanDetails =
+                            (OMElement) subscription.getChildrenWithName(new QName(MonetizationConstants.RATE_PLAN))
+                                                    .next();
+                    int maxDailyUsage = Integer.parseInt((((OMElement) ratePlanDetails
+                            .getChildrenWithName(new QName(MonetizationConstants.MAX_DAILY_USAGE)).next()).getText()));
+                    int unitOfMeasure = Integer.parseInt((((OMElement) ratePlanDetails
+                            .getChildrenWithName(new QName(MonetizationConstants.UNIT_OF_MEASURE)).next()).getText()));
+
+
+                    //Calculating the over used Api calls
+                    int overUsageCount = dailyUsage - maxDailyUsage;
+                    int overUsageUnits = (overUsageCount > BillingConstants.OVER_USAGE_THRESHOLD) ?
+                                         (overUsageCount / unitOfMeasure) : 0;
+
+                    if (overUsageUnits > MonetizationConstants.OVER_USAGE_THRESHOLD) {
+                        usage.setQty(overUsageUnits);
+                        usageList.add(usage);
+                    }
+                }
+            }
+            return usageList.toArray(new Usage[usageList.size()]);
+        } catch (XMLStreamException e) {
+            throw new CloudBillingException("Error while reading xml response from data service", e);
+        }
+    }
+
+    private static Usage getUsageForPaidSubscribers(OMElement usageEle) throws CloudBillingException {
+        Usage usage = new Usage();
+        usage.setUom(MonetizationConstants.UNIT_OF_MEASURE_DISPLAY_NAME);
+        String date = ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.MONTH)).next()).getText() +
+                      "/" +
+                      ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.DAY)).next()).getText() +
+                      "/" +
+                      ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.YEAR)).next()).getText();
+        usage.setDescription("Usage Data");
+        usage.setStartDate(date);
+        usage.setEndDate(date);
+        return usage;
     }
 
 }
