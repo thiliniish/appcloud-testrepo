@@ -79,14 +79,14 @@ var log = new Log();
 			var email;
             try {
                 email = session.get('registration-email');
-                var subject = "Alert-Tenant creation failure for tenant : " + organizationDomain;
+                var subject = "Tenant creation failed for tenant : " + companyName;
                 var body = "Initial tenant creation failed for newly signed-up user : " + email +
-                  "\n\n Exception occurred while creating tenant: " + organizationDomain + " Email: " + email + " " + e;
+                  "\n\n Exception occurred while creating tenant: " + companyName + " Email: " + email + " " + e;
                 var result = modContact.sendSupportRequest(email, subject, body);
 
             } catch (ex) {
-                log.error("Error while sending email alert for tenant creation failure for organizationDomain : " +
-                organizationDomain + " Email: " + email + " " + ex);
+                log.error("Error while sending email alert for tenant creation failure for organization : " +
+                companyName + " Email: " + email + " " + ex);
             }
 			if(message.indexOf("Captcha validation failed") !== -1){
 				response.status = 500
