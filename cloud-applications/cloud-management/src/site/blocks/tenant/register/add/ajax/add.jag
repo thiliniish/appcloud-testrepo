@@ -4,10 +4,11 @@ include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 var log = new Log();
 (function () {
-	var mod, obj, result,
+	var mod, modContact, obj, result,
 	action = request.getParameter("action"),
 	site = require("/site/conf/site.json");
 	mod = jagg.module("tenant");
+	modContact = jagg.module("contact");
 
 	if (action == "generateCaptchaFromCloud") {
 		try {
@@ -75,6 +76,18 @@ var log = new Log();
 			}
 		} catch (e) {
 			var message = e.toString();
+			var email;
+            try {
+                email = session.get('registration-email');
+                var subject = "Alert-Tenant creation failure for tenant : " + organizationDomain;
+                var body = "Initial tenant creation failed for newly signed-up user : " + email +
+                  "\n\n Exception occurred while creating tenant: " + organizationDomain + " Email: " + email + " " + e;
+                var result = modContact.sendSupportRequest(email, subject, body);
+
+            } catch (ex) {
+                log.error("Error while sending email alert for tenant creation failure for organizationDomain : " +
+                organizationDomain + " Email: " + email + " " + ex);
+            }
 			if(message.indexOf("Captcha validation failed") !== -1){
 				response.status = 500
 				print("Captcha validation failed");

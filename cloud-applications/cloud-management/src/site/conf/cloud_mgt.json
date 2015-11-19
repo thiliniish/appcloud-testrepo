@@ -83,7 +83,8 @@
     "host": "smtp.gmail.com",
     "port": "25",
     "tls": "true",
-    "targetEpr": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/confirm-verification.jag"
+    "targetEpr": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/confirm-verification.jag",
+    "signupEpr": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/signup.jag"
   },
   "bamConfiguration": {
     "hostUrls": "tcp://localhost:7613,tcp://localhost:7617",
