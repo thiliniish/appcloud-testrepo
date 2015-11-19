@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.commons.Notifications;
+package org.wso2.carbon.cloud.billing.commons.notifications;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
