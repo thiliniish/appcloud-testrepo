@@ -26,13 +26,12 @@ public final class MonetizationConstants {
 
     /*API Cloud Monetization DSS v1 suffixes*/
     public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
+    public static final String DS_API_URI_MON_APIC_DAILY_USAGE = "/v1/usage/daily-usage";
 
     //resource identifiers
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
     public static final String RESOURCE_IDENTIFIER_USERNAME = "{username}";
 
-    //Data service API V1 URIs
-    public static final String DS_API_DAILY_USAGE = "/v1/usage/daily-usage";
     public static final String ACCOUNT = "Account";
     public static final String RATE_PLAN = "RatePlan";
     public static final String SUBSCRIPTION = "Subscription";
@@ -43,7 +42,6 @@ public final class MonetizationConstants {
     public static final String DAY = "Day";
     public static final String UNIT_OF_MEASURE = "OverUsageUnits";
     public static final int OVER_USAGE_THRESHOLD = 0;
-
     public static final String TOTAL_COUNT = "TotalCount";
     public static final String CSV_EXTENSION = ".csv";
     public static final String UNIT_OF_MEASURE_DISPLAY_NAME = "10K Overage Daily API Calls";

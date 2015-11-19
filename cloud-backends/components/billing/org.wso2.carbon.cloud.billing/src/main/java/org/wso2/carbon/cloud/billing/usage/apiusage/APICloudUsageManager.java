@@ -56,8 +56,7 @@ public class APICloudUsageManager {
                     + BillingConstants.DS_API_URI_USAGE;
     private static String dailyMonetizationUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                                                                         .getApiCloudMonetizationServiceUrl()
-                                                      + MonetizationConstants.DS_API_DAILY_USAGE;
-
+                                                      + MonetizationConstants.DS_API_URI_MON_APIC_DAILY_USAGE;
     private BillingRequestProcessor dsBRProcessor;
     private BillingRequestProcessor zuoraBRProcessor;
 
