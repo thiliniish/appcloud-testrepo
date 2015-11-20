@@ -12,6 +12,7 @@ var userName =  session.get("LOGGED_IN_USER");
 
 
 var sendSupportRequest = function(customerEmail,subject ,body) {
+       log.info("Sending a support request for customer email : " + customerEmail);
        var sender;
        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
        var senderEmail =cloudConfig.registrationEmail.username;
@@ -21,9 +22,7 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
        var senderPort = parseInt(cloudConfig.registrationEmail.port);
        var tls = cloudConfig.registrationEmail.tls.toString();
        var senderPassword = cloudConfig.registrationEmail.password;
-
-       var  emailBody ="Support requested from the tenant user : "+userName+ " email : "+customerEmail+"\n\n"+body;
-    
+  
        var email = require('email');
        if (tls == "true") {
          sender = new email.Sender(senderHost, senderPort.toString(), senderEmail,senderPassword,"tls");
@@ -33,7 +32,7 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
        sender.to = to;
        sender.from = from;
        sender.subject = subject;
-       sender.text = emailBody;
+       sender.text = body;
        sender.send();
 
        log.info("Support request sent");
@@ -152,7 +151,8 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
   */
  var sendSupportRequestAndCreateJira = function(customerEmail,subject ,body){
      try{
-       var resultSupportRequest = sendSupportRequest(customerEmail,subject ,body);
+       var emailBody ="Support requested from the tenant user : " + userName + " email : " + customerEmail + "\n\n" + body;
+       var resultSupportRequest = sendSupportRequest(customerEmail, subject, emailBody);
 
      } catch(e){
         log.error("Error while sending support email: " + e);
