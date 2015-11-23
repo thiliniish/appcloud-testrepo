@@ -3,18 +3,18 @@ include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
 (function () {
     jagg.render({
-        "name":"page/base",
-        "inputs":{
-            "title":"WSO2 Cloud Mgt",
-            "pagePath":"/site/pages/subscribers-list.jag",
-            "body":[
+        "name": "page/base",
+        "inputs": {
+            "title": "WSO2 Cloud Mgt",
+            "pagePath": "/site/pages/subscribers-list.jag",
+            "body": [
                 {
-                    "name":"layout/base",
-                    "inputs":{
-                        "title":"Subscriber Mgt",
-                        "middle":[
+                    "name": "layout/base",
+                    "inputs": {
+                        "title": "Subscriber Mgt",
+                        "middle": [
                             {
-                                "name":"monetizing/subscriber/list"
+                                "name": "monetizing/subscriber/list"
                             }
                         ]
                     }
