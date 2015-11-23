@@ -6,6 +6,9 @@
     <config id="cloud_mgt">
         <property name="carbon_datasource_name">cloud_mgt</property>
     </config>
+    <config id="apim_db">
+      <property name="carbon_datasource_name">apim_db</property>
+   </config>
     <query id="getSubscriberInfoQ" useConfig="cloud_mgt">
         <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE
             USER_NAME = :USER_NAME AND TENANT_DOMAIN = :TENANT_DOMAIN
@@ -126,6 +129,12 @@
         </result>
         <param name="RATE_PLAN_ID" sqlType="STRING"/>
     </query>
+    <query id="updateApiSubscriptionsStatusQ" useConfig="apim_db">
+      <sql>UPDATE AM_SUBSCRIPTION AMS INNER JOIN (SELECT SP.SUBSCRIPTION_ID AS SUBSCRIPTION_ID FROM AM_SUBSCRIPTION SP, AM_API API, AM_SUBSCRIBER SB, AM_APPLICATION APP WHERE SB.USER_ID = :USER_ID AND SB.TENANT_ID = :TENANT_ID AND SB.SUBSCRIBER_ID = APP.SUBSCRIBER_ID AND APP.APPLICATION_ID=SP.APPLICATION_ID AND API.API_ID = SP.API_ID GROUP BY SUBSCRIPTION_ID) SELECTED_AMS ON AMS.SUBSCRIPTION_ID = SELECTED_AMS.SUBSCRIPTION_ID SET AMS.SUB_STATUS = :SUB_STATUS</sql>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="TENANT_ID" sqlType="STRING"/>
+      <param name="SUB_STATUS" sqlType="STRING"/>
+   </query>
     <operation name="getSubscriber">
         <call-query href="getSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -182,4 +191,11 @@
             <with-param name="END_DATE" query-param="endDate"/>
         </call-query>
     </resource>
+       <resource method="PUT" path="v1/apim/subscription/subscriptions" returnRequestStatus="true">
+      <call-query href="updateApiSubscriptionsStatusQ">
+         <with-param name="USER_ID" query-param="userId"/>
+         <with-param name="TENANT_ID" query-param="tenantId"/>
+         <with-param name="SUB_STATUS" query-param="subStatus"/>
+      </call-query>
+   </resource>
 </data>
