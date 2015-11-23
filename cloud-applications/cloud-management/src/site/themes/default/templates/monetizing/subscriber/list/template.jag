@@ -1,14 +1,9 @@
-<% jagg.template("billing/subscriber/list", function(inputs, outputs, jagg) { %>
+<% jagg.template("monetizing/subscriber/list", function(inputs, outputs, jagg) { %>
 <%
-var userName =  session.get("LOGGED_IN_USER");
-var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
-var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-var carbon = require('carbon');
-var server = carbon.server;
+    var carbon = require('carbon');
+    var server = carbon.server;
 //getting the max items per page
-var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
-    log.info("itemsPerPage:"+itemsPerPage);
+    var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
 %>
 <style type="text/css">
     .team_role .list_col_content {
@@ -21,8 +16,9 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
 		var maxItemsInPage=<%=itemsPerPage%>;
      	var pageNumber=1;
      	var totalPages=1;
+
        function getSubscribers() {
-            jagg.syncPost("../blocks/billing/subscriber/list/ajax/list.jag", {
+            jagg.syncPost("../blocks/monetizing/subscriber/list/ajax/list.jag", {
                              action:"getSubscribersOfTenant"
                 }, function (result) {
                     subscriberArray = result;
@@ -44,19 +40,16 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
      		//looping until the max number of Subscribers in a page is added
  	      	for (var i=((pageNumber-1)*maxItemsInPage); i <noOfSubscribers && i < (pageNumber*maxItemsInPage); i++ ) {
                 var subscriber = subscribers[i];
+                //var  checkBoxString="";
                 var  checkBoxString="";
-                //if(subscriber.adminUser){
-                //    hasAdminPermission = true;
-                  //  checkBoxString='<input id="ck_'+i+'" type="radio" name="action_check" id="action_check" class="action_check" data-subscriber="'+subscriber.subscriberDomain+'" data-name="'+subscriber.displayName+'"/>';
-              // }
+                //if(tenant.adminUser){
+               //     hasAdminPermission = true;
+                    checkBoxString = '<input id="ck_'+i+'" type="checkbox" name="action_check" id="action_check" class="action_check" data-subscriber="'+subscriber.email+'" data-name="'+subscriber.displayName+'">';
+
+
 
                 var $userListContainerRow = $('<li class="list_row_item cleanable" data-subscriber="'+subscriber.email+'" data-name="'+subscriber.displayName+'">'+
                                                 '<ul class="list_row" id="'+subscriber.email+'">'+
-                                                    '<li class="list_col first_list_col item_select" >'+
-                                                        '<div class="list_col_content">'+
-                                                            checkBoxString+
-                                                        '</div>'+
-                                                    '</li>'+
                                                     '<li class="list_col team_member">'+
                                                         '<div class="list_col_content">'+
                                                             '<div class="image_list">'+
@@ -72,14 +65,62 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
                                                     '<li class="list_col  team_role">'+
                                                         '<div style="padding-left: 21px;padding-top: 15px;" class="list_col_content">'+subscriber.subscriptionType+'</div>'+
                                                     '</li>'+
-                                                    '<li class="list_col  team_role">'+
-                                                        '<div style="padding-left: 21px;padding-top: 15px;" class="list_col_content">'+subscriber.complimentary+'</div>'+
+                                                    '<li class="list_col first_list_col item_select" >'+
+                                                        '<div class="list_col_content">'+
+                                                            checkBoxString+
+                                                        '</div>'+
                                                     '</li>'+
                                                 '</ul>'+
                                               '</li>');
                 $userListContainer.append($userListContainerRow);
+                if(subscriber.complimentary){
+                    selectCheckBox(i);
+                }
             }
        }
+
+        function selectCheckBox(id){
+            var isChecked = $('#ck_'+id).is(':checked');
+            if(isChecked){
+                $('#ck_'+id).removeAttr('checked');
+            } else {
+                $("#ck_"+id).attr('checked',true);
+            }
+        }
+
+       function getUpdatedSubscribers(){
+            var complimentaryAddedSubscribers = [];
+            var complimentaryRemovedSubscribers = [];
+            for (var i=0;i<subscriberArray.length;i++) {
+                var subscriber = subscriberArray[i];
+                var isChecked = $('#ck_'+i).is(':checked');
+                if (subscriber.complimentary == false && isChecked == true) {
+                    complimentaryAddedSubscribers.push(subscriber);
+                } else if (subscriber.complimentary == true && isChecked == false ){
+                    complimentaryRemovedSubscribers.push(subscriber);
+                }
+            }
+            if(complimentaryAddedSubscribers.length > 0 || complimentaryRemovedSubscribers.length > 0){
+            updateSubscribersTestStatuses(JSON.stringify(complimentaryAddedSubscribers),JSON.stringify(complimentaryRemovedSubscribers));
+            }
+       }
+
+        function updateSubscribersTestStatuses(complimentaryAdded, complimentaryRemoved) {
+            jagg.post("../blocks/monetizing/subscriber/update/ajax/update.jag", {
+                             action:"updateSubscribersTestStatus",
+                             complimentaryAddedSubscribers:complimentaryAdded,
+                             complimentaryRemovedSubscribers:complimentaryRemoved
+                },
+                function (result) {
+                        jagg.message({type:'success',content:'You have successfully updated subscriber accounts.',type:'success',cbk:function(){
+                        window.location.reload();
+                    }});
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({type:'error',content:"Error occurred while updating subscriber accounts. Please contact WSO2 Cloud Team for help. "});
+                })
+       }
+
        $(document).ready(function($){
     	   getSubscribers();
            /*getting the total number of pages using max items in a page
@@ -101,12 +142,6 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
        });
 
 </script>
-
-
-
-
-
-
 
     <div class="container content-starter">
         <div class="row">
@@ -144,15 +179,15 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
 									</li>
 									<li class="list_col team_member cursover_remover" >
 										<h2 class="list_col_heading"
-											style="padding-left: 11px; font-size: 14px">Email</h2>
+											style="padding-left: 80px; font-size: 14px">Email</h2>
 									</li>
 									<li class="list_col  team_role cursover_remover">
 										<h2 class="list_col_heading"
-											style="padding-left: 11px; font-size: 14px">Subscription Type</h2>
+											style="padding-left: 115px; font-size: 14px">Subscription Type</h2>
 									</li>
 									<li class="list_col  team_role cursover_remover">
 										<h2 class="list_col_heading"
-											style="padding-left: 11px; font-size: 14px">Test or Complimentary</h2>
+											style="padding-left: 121px; font-size: 14px">Test or Complimentary</h2>
 									</li>
 								</ul>
 							</li>
@@ -161,7 +196,10 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
 				</section>
  				<div class="pagefooter" style="width:30%; margin:0 auto"></div>
 				<div class="clearfix"></div>
-				<br />
+				<br/>
+				<div class="right">
+					<a id="btnUpdateC" onclick="getUpdatedSubscribers()" class='btn btn-primary'>Change Account Types</a>
+				</div>
 			</article>
 		</div>
 	</div>

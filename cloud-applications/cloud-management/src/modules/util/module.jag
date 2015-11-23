@@ -51,6 +51,12 @@ jagg.module("util", {
     sendSubscriptionCancellationEmail: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").sendSubscriptionCancellationEmail.apply(this, arguments);
     },
+    getEmailEffectiveDate: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getEmailEffectiveDate.apply(this, arguments);
+    },
+    dateTimeFormatter: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").dateTimeFormatter.apply(this, arguments);
+    },
     sendBillingPlanChangedNotification: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").sendBillingPlanChangedNotification.apply(this, arguments);
     },

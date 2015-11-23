@@ -96,9 +96,6 @@ jagg.module("billing", {
 	isBillingEnabled: function () {
 		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isBillingEnabled.apply(this, arguments);
 	},
-	getSubscribersOfTenant: function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getSubscribersOfTenant.apply(this, arguments);
-	}
     
 });
 %>

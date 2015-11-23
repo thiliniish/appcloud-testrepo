@@ -5,7 +5,6 @@ var log = new Log();
 (function () {
 
     var userName = session.get("LOGGED_IN_USER");
-    var sessionId = session.getId();
     if(userName == null | userName == 'anonymous user') {
     } else {
 
@@ -14,7 +13,7 @@ var log = new Log();
         "name":"page/base",
         "inputs":{
             "title":"WSO2 Cloud Mgt",
-            "pagePath":"/site/pages/subscriber.jag",
+            "pagePath":"/site/pages/subscribers-list.jag",
             "body":[
                 {
                     "name":"layout/base",
@@ -22,7 +21,7 @@ var log = new Log();
                         "title":"Subscriber Mgt",
                         "middle":[
                             {
-                                "name":"billing/subscriber/list"
+                                "name":"monetizing/subscriber/list"
                             }
                         ]
                     }

@@ -19,8 +19,7 @@
 package org.wso2.carbon.cloud.billing.processor;
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -143,6 +142,27 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
         post.setRequestBody(nameValuePairs);
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * Data service PUT request
+     *
+     * @param url
+     * @param jsonPayLoad
+     * @return
+     * @throws CloudBillingException
+     */
+    @Override public String doPut(String url, String jsonPayLoad) throws CloudBillingException {
+        setTrustStoreParams();
+        PutMethod put = new PutMethod(url);
+        put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+        try {
+            put.setRequestEntity(new StringRequestEntity(jsonPayLoad, BillingConstants.HTTP_RESPONSE_TYPE_JSON,
+                    BillingConstants.ENCODING));
+        } catch (UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error occurred while initializing encoding request payload", e);
+        }
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), put, DEFAULT_CONNECTION_RETRIES);
     }
 
     private void setTrustStoreParams() {

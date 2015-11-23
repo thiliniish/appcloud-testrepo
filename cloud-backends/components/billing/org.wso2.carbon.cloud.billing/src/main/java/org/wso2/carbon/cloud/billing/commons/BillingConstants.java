@@ -157,6 +157,8 @@ public final class BillingConstants {
 
     /*Zuora types*/
     public static final String ZUORA_ACCOUNT = "Account";
+    public static final String ZUORA_SUBSCRIPTION_STATUS = "status";
+    public static final String SUBSCRIPTION_STATUS_ACTIVE = "Active";
 
     private BillingConstants() {
     }

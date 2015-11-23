@@ -1,0 +1,10 @@
+<%
+jagg.module("monetizing", {
+    getSubscribersOfTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscribersOfTenant.apply(this, arguments);
+    },
+    updateSubscribersTestStatus: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").updateSubscribersTestStatus.apply(this, arguments);
+    }
+});
+%>

@@ -265,7 +265,6 @@ var getUserInfo = function getUserInfo(userName) {
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         var userMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         var user = userMgtService.getUserInfo(userName);
-        log.info("retreived user object"+ user+stringify(user));
         }catch (e){
           	log.error(e);
          }finally{
@@ -350,15 +349,11 @@ var getUserListOfRole = function (role) {
         var realm = realmService.getTenantUserRealm(tenantId);
         var userStoreManager = realm.getUserStoreManager();
         var result = userStoreManager.getUserListOfRole(role);
-        log.info("users " + stringify(result));
-        for (var i = 0; i < result.length; i++) {
-            log.info("user name :" + result[i]);
-        }
         return result;
     } catch (e) {
+        log.error("Error occurred while getting users of role " + " " + role + " for tenant " + tenantDomain);
         log.error(e);
-        log.error("Error occurred while getting users of role " + role);
-        throw "Error occurred while getting users of role " + role;
+        throw e;
     } finally {
         context.endTenantFlow();
     }
