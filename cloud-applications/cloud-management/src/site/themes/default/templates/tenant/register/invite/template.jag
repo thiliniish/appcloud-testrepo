@@ -268,9 +268,9 @@ function resendInvitationEmail() {
                 <p><a href = "" id="help-options">Still haven't received the email after a few minutes?</a><p/>
                 <p><div id="more-options">
                 <ul>
-                <li><a href = ><strong>I made a typo in email address. Let me fix it.</strong></a></li>
-                <li><a href ="" onclick = 'resendInvitationEmail();' id = "resend-email"><strong>Resend Invitation Email</strong></a></li>
-                <li><strong>contact us at <a href="mailto:cloud@wso2.com">cloud@wso2.com</a> </strong></li>
+                <a href = ><li><strong>Re-type the email address</strong></li></a>
+                <a href ="" onclick = 'resendInvitationEmail();' id = "resend-email"><li><strong>Resend the invitation</strong></li></a>                
+                <a href="mailto:cloud@wso2.com"><li><strong>Contact support</strong></li></a>
                 </ul></div>   </p>
             </div>
 		</div>
