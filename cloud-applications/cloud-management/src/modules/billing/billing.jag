@@ -150,12 +150,6 @@ var cancelSubscription = function(serviceName) {
 		url = url.replace("{subscription-key}", subscriptionId);
 		var response = sendHTTPRequest(url, "PUT", null, data);
 		if (response.success === true) {
-			for (i = 0; i < subscriptionsType.length; i++) {
-				if ((subscriptionsType[i].name).equals(serviceName)) {
-					serviceId= subscriptionsType[i].id;
-					break;
-				}
-			}
 			if (serviceId != null) {
 	            updateBillingStatus(status.PENDING_DISABLE, effectiveDate, type.PAID, serviceId, tenantDomain);
             }

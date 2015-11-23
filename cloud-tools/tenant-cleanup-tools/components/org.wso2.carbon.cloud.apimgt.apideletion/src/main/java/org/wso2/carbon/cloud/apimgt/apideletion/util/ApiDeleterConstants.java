@@ -16,29 +16,16 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.usage;
+package org.wso2.carbon.cloud.apimgt.apideletion.util;
 
-import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageProcessor;
+public class ApiDeleterConstants {
 
-/**
- * Usage processor factory
- */
-public class UsageProcessorFactory {
-
-    public static UsageProcessor createUsageProcessor(UsageProcessorType type) {
-        switch (type) {
-            case API_CLOUD:
-                return new APICloudUsageProcessor();
-            default:
-                throw new IllegalArgumentException("Unsupported Usage processor type requested");
-        }
+    private ApiDeleterConstants() {
     }
 
-    /**
-     * Usage processor type
-     */
-    public enum UsageProcessorType {
-        API_CLOUD
-    }
+    public static final String TENANT_FILE = "tenantFile";
+    public static final String API = "api";
+    public static final String NAP_TIME = "napTime";
+    public static final String AT_SYMBOL = "@";
 
 }

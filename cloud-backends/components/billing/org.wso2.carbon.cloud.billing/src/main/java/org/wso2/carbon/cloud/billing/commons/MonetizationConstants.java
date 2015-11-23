@@ -26,11 +26,31 @@ public final class MonetizationConstants {
 
     /*API Cloud Monetization DSS v1 suffixes*/
     public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
+    public static final String DS_API_URI_MON_APIC_DAILY_USAGE = "/v1/usage/daily-usage";
 
-
-    /*resource identifiers*/
+    //resource identifiers
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
     public static final String RESOURCE_IDENTIFIER_USERNAME = "{username}";
+
+    public static final String ACCOUNT = "Account";
+    public static final String RATE_PLAN = "RatePlan";
+    public static final String SUBSCRIPTION = "Subscription";
+    public static final String MAX_DAILY_USAGE = "MaxDailyUsage";
+    public static final String ENTRY = "Entry";
+    public static final String YEAR = "Year";
+    public static final String MONTH = "Month";
+    public static final String DAY = "Day";
+    public static final String UNIT_OF_MEASURE = "OverUsageUnits";
+    public static final int OVER_USAGE_THRESHOLD = 0;
+    public static final String TOTAL_COUNT = "TotalCount";
+    public static final String CSV_EXTENSION = ".csv";
+    public static final String UNIT_OF_MEASURE_DISPLAY_NAME = "10K Overage Daily API Calls";
+
+    //Email related Constants
+    public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +
+                                                           " overage data to zuora on {today}. Please verify.";
+    public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data " ;
+    public static final String REPLACE_TODAY = "{today}";
 
     private MonetizationConstants() {
     }

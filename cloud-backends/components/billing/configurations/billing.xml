@@ -133,5 +133,15 @@
             <!--This is for statistical purposes .Usage display period in days-->
             <UsageDisplayPeriod>30</UsageDisplayPeriod>
         </APICloud>
+        <Notification>
+            <Email>
+                <Host>smtp.gmail.com</Host>
+                <Port>25</Port>
+                <Username>userName</Username>
+                <Password>password</Password>
+                <tls>true</tls>
+                <Sender>WSO2 Cloud Team &lt;cloud@wso2.com&gt;</Sender>
+            </Email>
+        </Notification>
     </Utils>
 </CloudBilling>

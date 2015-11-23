@@ -15,30 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.wso2.carbon.cloud.billing.commons.config;
 
-package org.wso2.carbon.cloud.billing.usage;
-
-import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageProcessor;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Usage processor factory
+ * Config element that represent the Notification xml object
  */
-public class UsageProcessorFactory {
+@XmlRootElement(name = "Notification") public class NotificationConfig {
+    private EmailConfig emailNotification;
 
-    public static UsageProcessor createUsageProcessor(UsageProcessorType type) {
-        switch (type) {
-            case API_CLOUD:
-                return new APICloudUsageProcessor();
-            default:
-                throw new IllegalArgumentException("Unsupported Usage processor type requested");
-        }
+    @XmlElement(name = "Email", nillable = false) public EmailConfig getEmailNotification() {
+        return emailNotification;
     }
 
-    /**
-     * Usage processor type
-     */
-    public enum UsageProcessorType {
-        API_CLOUD
+    public void setEmailNotification(EmailConfig emailNotification) {
+        this.emailNotification = emailNotification;
     }
-
 }

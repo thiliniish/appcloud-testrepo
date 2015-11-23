@@ -33,6 +33,7 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -107,8 +108,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      *
      * @throws CloudBillingException
      */
-    @Override
-    public void doUpload() throws CloudBillingException {
+    @Override public void doUpload(File file) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported for Data Service Billing request "
                                                 + "processor");
     }

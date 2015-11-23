@@ -1,41 +1,41 @@
-<% jagg.template("cloud/monetization/account/invoice", function(inputs, outputs, jagg) { 
-	include("/jagg/cloud/constants.jag");
-	var monetizationConfigFile = new File("/site/conf/monetization_conf.json");
-	monetizationConfigFile.open("r");
-	var configs = parse(monetizationConfigFile.readAll());
-	monetizationConfigFile.close();
-	var cloudMgtURL = configs.cloud.mgt_url;
-	var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-	var isBillingEnabled = true;
-	var tenantDomain = session.get("LOGGED_IN_TENANT");
-	var currency = (jagg.module("cloud/monetization").getCurrencyUsed()).toString();
-	var invoiceId = request.getParameter("invoiceId");
-	%>
+<% jagg.template("cloud/monetization/account/invoice", function (inputs, outputs, jagg) {
+    include("/jagg/cloud/constants.jag");
+    var monetizationConfigFile = new File("/site/conf/monetization_conf.json");
+    monetizationConfigFile.open("r");
+    var configs = parse(monetizationConfigFile.readAll());
+    monetizationConfigFile.close();
+    var cloudMgtURL = configs.cloud.mgt_url;
+    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+    var isBillingEnabled = true;
+    var tenantDomain = session.get("LOGGED_IN_TENANT");
+    var currency = (jagg.module("cloud/monetization").getCurrencyUsed()).toString();
+    var invoiceId = request.getParameter("invoiceId");
+    %>
 
 
 <style type="text/css">
 th,td {
-	text-align: left;
+    text-align: left;
 }
 
 .totalHeader {
-	text-align: right;
+    text-align: right;
 }
 
 .totaldata {
-	text-align: left;
+    text-align: left;
 }
 
 .label-style {
-	text-align: left !important;
+    text-align: left !important;
 }
 
 .panel-header {
-	font-weight: bold !important;
+    font-weight: bold !important;
 }
 
 .title-label {
-	font-weight: bold !important;
+    font-weight: bold !important;
 }
 </style>
 
@@ -99,75 +99,78 @@ th,td {
                        $('#lblOrg').text(invoiceObj.accountName);
                        $('#lblInvoiceNum').text(invoiceObj.invoiceNumber);
                        $('#lblInvoiceDate').text(invoiceObj.invoiceDate);
-                       $('#lblInvoiceAmount').text(invoiceObj.amount + " <%=currency%>");
-                    }, error : function (jqXHR, textStatus, errorThrown) {
-                        $('.message_box').empty();
-                        jagg.message({content:"Unable to load the Invoice data at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
-                            	window.location.href = cloudMgtURL+"/site/pages/contact-us.jag";
-                            	}
-                    	});
-                    	}
-            });
- 	   } else {
-             var cloudMgtURL =  $("#cloudmgtURL").attr('value');
-             var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
-             window.location.href = cloudMgtURL + unavailableErrorPage;
-         }
-    });
-</script>
+                       $('#lblInvoiceAmount').text(invoiceObj.amount + " <%=currency
+    %>");
+                        }, error : function (jqXHR, textStatus, errorThrown) {
+                            $('.message_box').empty();
+                            jagg.message({content:"Unable to load the Invoice data at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
+                                    window.location.href = cloudMgtURL+"/site/pages/contact-us.jag";
+                                    }
+                            });
+                            }
+                });
+            } else {
+                 var cloudMgtURL =  $("#cloudmgtURL").attr('value');
+                 var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
+                 window.location.href = cloudMgtURL + unavailableErrorPage;
+             }
+        });
+    </script>
 
-<div class="container content-starter">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1>Invoice</h1>
-			<div class="helper_text" id="helper_text"></div>
-		</div>
-	</div>
-</div>
-<% jagg.includeBlock("cloud/page/messages", null); %>
-<div class="container content-section-wrapper" id="form_div">
-	<div class="row">
+    <div class="container content-starter">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Invoice</h1>
+                <div class="helper_text" id="helper_text"></div>
+            </div>
+        </div>
+    </div>
+    <%
+    jagg.includeBlock("cloud/page/messages", null);
+    %>
+   <div class="container content-section-wrapper" id="form_div">
+       <div class="row">
 
-		<div class="col-lg-12 content-section">
-			<form class='form-horizontal'>
-				<div class="panel panel-default">
+           <div class="col-lg-12 content-section">
+               <form class='form-horizontal'>
+                   <div class="panel panel-default">
 
-					<div class="panel-heading panel-header">Basic Information</div>
-					<div class="panel-body">
+                       <div class="panel-heading panel-header">Basic Information</div>
+                       <div class="panel-body">
 
-						<div class="col-lg-6 content-section-wrapper">
-							<label class="control-label  title-label  label-style"> Account
-								Name :</label> <label id="lblOrg" name="lblOrg"
-								class="control-label  label-style"></label>
-						</div>
-						<div class="col-lg-6 content-section-wrapper">
-							<label class="control-label label-style title-label">Invoice
-								Number :</label> <label id="lblInvoiceNum" name="lblInvoiceNum"
-								class="control-label  label-style"></label>
-						</div>
-						<div class="col-lg-6 content-section-wrapper">
-							<label class="control-label  title-label  label-style">Invoice
-								Date :</label> <label id="lblInvoiceDate" name="lblInvoiceDate"
-								class="control-label  label-style"></label>
-						</div>
-						<div class="col-lg-6 content-section-wrapper">
-							<label class="control-label  title-label  label-style">Invoiced
-								Amount :</label> <label id="lblInvoiceAmount"
-								name="lblInvoiceAmount" class="control-label  label-style"></label>
-						</div>
-					</div>
-				</div>
-			</form>
-			<div class="panel panel-default">
-				<div class="panel-heading panel-header">Invoice Details</div>
-				<div class="panel-body">
-					<table class="table table-hover">
-						<thead>
-							<tr>
-								<th>Charge Date</th>
-								<th>Charge Name</th>
-								<th>Service Period</th>
-								<th>Amount (<%=currency%>)
+                           <div class="col-lg-6 content-section-wrapper">
+                               <label class="control-label  title-label  label-style"> Account
+                                   Name :</label> <label id="lblOrg" name="lblOrg"
+                                   class="control-label  label-style"></label>
+                           </div>
+                           <div class="col-lg-6 content-section-wrapper">
+                               <label class="control-label label-style title-label">Invoice
+                                   Number :</label> <label id="lblInvoiceNum" name="lblInvoiceNum"
+                                   class="control-label  label-style"></label>
+                           </div>
+                           <div class="col-lg-6 content-section-wrapper">
+                               <label class="control-label  title-label  label-style">Invoice
+                                   Date :</label> <label id="lblInvoiceDate" name="lblInvoiceDate"
+                                   class="control-label  label-style"></label>
+                           </div>
+                           <div class="col-lg-6 content-section-wrapper">
+                               <label class="control-label  title-label  label-style">Invoiced
+                                   Amount :</label> <label id="lblInvoiceAmount"
+                                   name="lblInvoiceAmount" class="control-label  label-style"></label>
+                           </div>
+                       </div>
+                   </div>
+               </form>
+               <div class="panel panel-default">
+                   <div class="panel-heading panel-header">Invoice Details</div>
+                   <div class="panel-body">
+                       <table class="table table-hover">
+                           <thead>
+                               <tr>
+                                   <th>Charge Date</th>
+                                   <th>Charge Name</th>
+                                   <th>Service Period</th>
+                                   <th>Amount (<%=currency%>)
 								</th>
 								<th>Discount (<%=currency%>)
 								</th>
@@ -210,13 +213,19 @@ th,td {
 				<a class="btn btn-primary"
 					href="javascript:location.href='account-summary.jag?tenant=<%=tenantDomain%>'"%>">
 					Back </a> <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"
-					value="<%=cloudMgtURL%>" /> <input type="hidden"
-					name="isBillingEnabled" id="isBillingEnabled"
-					value="<%= isBillingEnabled %>" /> <input type="hidden"
-					name="unavailableErrorPage" id="unavailableErrorPage"
-					value="<%= unavailableErrorPage %>" />
-			</div>
-		</div>
-	</div>
-</div>
-<% }); %>
+					value="<%=cloudMgtURL
+    %>" /> <input type="hidden"
+                        name="isBillingEnabled" id="isBillingEnabled"
+                        value="<%=
+    isBillingEnabled
+    %>" /> <input type="hidden"
+                       name="unavailableErrorPage" id="unavailableErrorPage"
+                       value="<%=
+    unavailableErrorPage
+    %>" />
+               </div>
+           </div>
+       </div>
+   </div>
+   <%
+}); %>

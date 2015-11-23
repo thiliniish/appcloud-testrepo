@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class UtilsConfig {
 
     private APICloudUtils apiCloud;
+    private NotificationConfig notifications;
 
     @XmlElement(name = "APICloud", nillable = false)
     public APICloudUtils getApiCloud() {
@@ -37,4 +38,13 @@ public class UtilsConfig {
     public void setApiCloud(APICloudUtils apiCloud) {
         this.apiCloud = apiCloud;
     }
+
+    @XmlElement(name = "Notification", nillable = false) public NotificationConfig getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(NotificationConfig notifications) {
+        this.notifications = notifications;
+    }
+
 }
