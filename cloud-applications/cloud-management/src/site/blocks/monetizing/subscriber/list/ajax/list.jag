@@ -16,10 +16,11 @@ var log = new Log();
                 if (result != null) {
                     print(result);
                 } else {
-                    throw "Error while getting the subscribers of the tenant";
+                    throw "Error while getting the subscribers of the tenant :" + tenantDomain;
                 }
             } catch (e) {
-                log.error("Error while getting the subscribers of the tenant " + e);
+                log.error(e);
+                log.error("Error while getting the subscribers of the tenant " + tenantDomain);
                 throw "Error while getting the subscribers of the tenant";
             }
         } else {

@@ -1,101 +1,101 @@
 <%
 jagg.module("billing", {
-	createAccount:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").createAccount.apply(this, arguments);
-	},
-	generateParams:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").generateParams.apply(this, arguments);
-	},
-	getTenantUsage:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTenantUsage.apply(this, arguments);
-	},
-	getRatePlans:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getRatePlans.apply(this, arguments);
-	},
-	isPaidAccount:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isPaidAccount.apply(this, arguments);
-	},
-	cancelSubscription:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").cancelSubscription.apply(this, arguments);
-	},
-	getCurrentRatePlan:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCurrentRatePlan.apply(this, arguments);
-	},
-	getAccountId:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAccountId.apply(this, arguments);
-	},
-	changeSubscriptionPlan:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").changeSubscriptionPlan.apply(this, arguments);
-	},
-	getAllPaymentMethods:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAllPaymentMethods.apply(this, arguments);
-	},
-	updateDefaultPaymentMethod:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").updateDefaultPaymentMethod.apply(this, arguments);
-	},
-	getPaymentPlanFromId:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getPaymentPlanFromId.apply(this, arguments);
-	},
-	addTenantToBilling:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").addTenantToBilling.apply(this, arguments);
-	},
-	removePaymentMethod:function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").removePaymentMethod.apply(this, arguments);
-	},
-    getAccountStatus:function () {
+    createAccount: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").createAccount.apply(this, arguments);
+    },
+    generateParams: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").generateParams.apply(this, arguments);
+    },
+    getTenantUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTenantUsage.apply(this, arguments);
+    },
+    getRatePlans: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getRatePlans.apply(this, arguments);
+    },
+    isPaidAccount: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isPaidAccount.apply(this, arguments);
+    },
+    cancelSubscription: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").cancelSubscription.apply(this, arguments);
+    },
+    getCurrentRatePlan: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCurrentRatePlan.apply(this, arguments);
+    },
+    getAccountId: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAccountId.apply(this, arguments);
+    },
+    changeSubscriptionPlan: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").changeSubscriptionPlan.apply(this, arguments);
+    },
+    getAllPaymentMethods: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAllPaymentMethods.apply(this, arguments);
+    },
+    updateDefaultPaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").updateDefaultPaymentMethod.apply(this, arguments);
+    },
+    getPaymentPlanFromId: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getPaymentPlanFromId.apply(this, arguments);
+    },
+    addTenantToBilling: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").addTenantToBilling.apply(this, arguments);
+    },
+    removePaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").removePaymentMethod.apply(this, arguments);
+    },
+    getAccountStatus: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAccountStatus.apply(this, arguments);
     },
-    validateServiceId:function () {
+    validateServiceId: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").validateServiceId.apply(this, arguments);
     },
-    extendTrial:function () {
+    extendTrial: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").extendTrial.apply(this, arguments);
     },
-    getCouponProductRatePlanId:function () {
+    getCouponProductRatePlanId: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCouponProductRatePlanId.apply(this, arguments);
     },
-    addCloudSubmissionToRightwave:function () {
+    addCloudSubmissionToRightwave: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").addCloudSubmissionToRightwave.apply(this, arguments);
     },
-    getBillingInvoiceData:function () {
+    getBillingInvoiceData: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getBillingInvoiceData.apply(this, arguments);
     },
-    getCancelSubscriptionEffectiveDate:function () {
+    getCancelSubscriptionEffectiveDate: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCancelSubscriptionEffectiveDate.apply(this, arguments);
     },
-    updateContactInfo:function () {
+    updateContactInfo: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").updateContactInfo.apply(this, arguments);
     },
-    calculateDiscountForCoupon:function () {
+    calculateDiscountForCoupon: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").calculateDiscountForCoupon.apply(this, arguments);
     },
-    isPlanUpgrade:function () {
-    	return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isPlanUpgrade.apply(this, arguments);
+    isPlanUpgrade: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isPlanUpgrade.apply(this, arguments);
     },
-    notifyRightwaveForUnfinishedUpgrades:function () {
-    	return jagg.require(jagg.getModulesDir() + "billing/billing.jag").notifyRightwaveForUnfinishedUpgrades.apply(this, arguments);
+    notifyRightwaveForUnfinishedUpgrades: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").notifyRightwaveForUnfinishedUpgrades.apply(this, arguments);
     },
-    getCloudURL:function () {
+    getCloudURL: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCloudURL.apply(this, arguments);
-	},
-	getActualPaymentAmount: function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getActualPaymentAmount.apply(this, arguments);
-	},
-	isValidCoupon: function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isValidCoupon.apply(this, arguments);
-	},
-	getTrialPeriod: function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTrialPeriod.apply(this, arguments);
-	},
-	getAPICloudUsageDisplayPeriod: function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAPICloudUsageDisplayPeriod.apply(this, arguments);
-	},
-	getCurrencyUsed: function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCurrencyUsed.apply(this, arguments);
-	},
-	isBillingEnabled: function () {
-		return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isBillingEnabled.apply(this, arguments);
-	},
-    
+    },
+    getActualPaymentAmount: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getActualPaymentAmount.apply(this, arguments);
+    },
+    isValidCoupon: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isValidCoupon.apply(this, arguments);
+    },
+    getTrialPeriod: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTrialPeriod.apply(this, arguments);
+    },
+    getAPICloudUsageDisplayPeriod: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAPICloudUsageDisplayPeriod.apply(this, arguments);
+    },
+    getCurrencyUsed: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCurrencyUsed.apply(this, arguments);
+    },
+    isBillingEnabled: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isBillingEnabled.apply(this, arguments);
+    }
+
 });
 %>

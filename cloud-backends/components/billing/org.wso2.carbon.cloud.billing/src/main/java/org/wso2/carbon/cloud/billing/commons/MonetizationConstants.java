@@ -23,7 +23,6 @@ package org.wso2.carbon.cloud.billing.commons;
  */
 public final class MonetizationConstants {
 
-
     /*API Cloud Monetization DSS v1 suffixes*/
     public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
     public static final String DS_API_URI_MON_APIC_DAILY_USAGE = "/v1/usage/daily-usage";
@@ -61,7 +60,6 @@ public final class MonetizationConstants {
     public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data " ;
     public static final String REPLACE_TODAY = "{today}";
 
-    
     private MonetizationConstants() {
     }
 }
