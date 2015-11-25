@@ -191,7 +191,7 @@
             <with-param name="END_DATE" query-param="endDate"/>
         </call-query>
     </resource>
-       <resource method="PUT" path="v1/apim/subscription/subscriptions" returnRequestStatus="true">
+   <resource method="PUT" path="v1/apim/subscriptions/{tenantId}" returnRequestStatus="true">
       <call-query href="updateApiSubscriptionsStatusQ">
          <with-param name="USER_ID" query-param="userId"/>
          <with-param name="TENANT_ID" query-param="tenantId"/>

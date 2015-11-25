@@ -90,13 +90,13 @@ public class APICloudMonetizationService {
      * @return
      * @throws CloudBillingException
      */
-    public void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudBillingException {
+    public void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudMonetizationException {
         try {
             APICloudMonetizationUtils.blockApiSubscriptionsOfUser(userId, tenantId);
-        } catch (CloudBillingException ex) {
+        } catch (CloudMonetizationException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while blocking api subscriptions of user : " + userId);
+            throw new CloudMonetizationException("Error occurred while blocking api subscriptions of user : " + userId);
         }
     }
 }

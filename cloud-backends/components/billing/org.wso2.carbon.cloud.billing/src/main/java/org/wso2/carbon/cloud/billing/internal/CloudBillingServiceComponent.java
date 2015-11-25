@@ -90,6 +90,7 @@ public class CloudBillingServiceComponent {
      */
     protected void deactivate(ComponentContext context) {
         this.billingServiceRef.unregister();
+        this.apiCloudMonetizationServicebillingServiceRef.unregister();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Cloud billingService  bundle is deactivated ");
         }

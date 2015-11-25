@@ -20,8 +20,6 @@ package org.wso2.carbon.cloud.billing.utils;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
@@ -112,24 +110,22 @@ public class APICloudMonetizationUtils {
         }
     }
 
-    public static void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudBillingException {
-        JSONObject payLoad = new JSONObject();
-        JSONObject params = new JSONObject();
+    public static void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudMonetizationException {
         try {
             //TODO use an api to update apim databases instead of using a data service.
-            params.put(MonetizationConstants.USER_ID, userId);
-            params.put(MonetizationConstants.API_SUBSCRIPTION_STATUS,
+            String url = updateApiSubscriptionUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT_ID,
+                    URLEncoder.encode(tenantId, BillingConstants.ENCODING));
+            List<NameValuePair> nameValuePairs = new ArrayList<>();
+            NameValuePair userIdNVP = new NameValuePair(MonetizationConstants.USER_ID, userId);
+            NameValuePair statusNVP = new NameValuePair(MonetizationConstants.API_SUBSCRIPTION_STATUS,
                     MonetizationConstants.API_SUBSCRIPTION_BLOCKED_STATUS);
-            params.put(MonetizationConstants.TENANT_ID, tenantId);
-            payLoad.put("putv1_apim_subscription_subscriptions", params);
-            String jsonResponse = dsBRProcessor.doPut(updateApiSubscriptionUrl, payLoad.toString());
-            String response = new JSONObject(jsonResponse).get(MonetizationConstants.DS_API_UPDATE_SUBSCRIPTION_STATUS)
-                    .toString();
-            if (!StringUtils.equals(response, MonetizationConstants.SUCCESSFUL)) {
-                throw new CloudBillingException("Blocking api subscriptions of user :" + userId + " is unsuccessful.");
-            }
-        } catch (JSONException e) {
-            throw new CloudBillingException("Error while sending update request to data service.", e);
+            nameValuePairs.add(userIdNVP);
+            nameValuePairs.add(statusNVP);
+            dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException(
+                    "Error while sending block subscriptions request to data service for user :" + " tenant Id :"
+                            + tenantId, e);
         }
     }
 }

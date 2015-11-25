@@ -107,7 +107,8 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      *
      * @throws CloudBillingException
      */
-    @Override public void doUpload(File file) throws CloudBillingException {
+    @Override
+    public void doUpload(File file) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported for Data Service Billing request "
                                                 + "processor");
     }
@@ -147,21 +148,18 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
     /**
      * Data service PUT request
      *
-     * @param url
-     * @param jsonPayLoad
-     * @return
+     * @param url            URL
+     * @param nameValuePairs name value pair
+     * @return response
      * @throws CloudBillingException
      */
-    @Override public String doPut(String url, String jsonPayLoad) throws CloudBillingException {
+    @Override public String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
         setTrustStoreParams();
         PutMethod put = new PutMethod(url);
+        // indicate accept response body in JSON
         put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
-        try {
-            put.setRequestEntity(new StringRequestEntity(jsonPayLoad, BillingConstants.HTTP_RESPONSE_TYPE_JSON,
-                    BillingConstants.ENCODING));
-        } catch (UnsupportedEncodingException e) {
-            throw new CloudBillingException("Error occurred while initializing encoding request payload", e);
-        }
+        put.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_QUERY_STRING_CONTENT);
+        put.setQueryString(nameValuePairs);
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), put, DEFAULT_CONNECTION_RETRIES);
     }
 

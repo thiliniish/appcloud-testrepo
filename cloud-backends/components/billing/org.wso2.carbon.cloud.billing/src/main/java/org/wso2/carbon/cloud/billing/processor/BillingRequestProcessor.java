@@ -38,5 +38,5 @@ public interface BillingRequestProcessor {
 
     String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException;
 
-    String doPut(String url, String payLoad) throws CloudBillingException;
+    String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
 }

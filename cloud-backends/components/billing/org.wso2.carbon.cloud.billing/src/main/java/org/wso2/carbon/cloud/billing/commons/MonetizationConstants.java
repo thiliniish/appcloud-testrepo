@@ -26,19 +26,17 @@ public final class MonetizationConstants {
     /*API Cloud Monetization DSS v1 suffixes*/
     public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
     public static final String DS_API_URI_MON_APIC_DAILY_USAGE = "/v1/usage/daily-usage";
-    public static final String DS_API_URI_UPDATE_API_SUBSCRIPTION = "/v1/apim/subscription/subscriptions";
+    public static final String DS_API_URI_UPDATE_API_SUBSCRIPTION = "/v1/apim/subscriptions/{tenantId}";
 
     /*resource identifiers*/
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
+    public static final String RESOURCE_IDENTIFIER_TENANT_ID = "{tenantId}";
     public static final String RESOURCE_IDENTIFIER_USERNAME = "{username}";
 
     /*api manager use subscriptions related */
     public static final String USER_ID = "userId";
-    public static final String TENANT_ID = "tenantId";
-    public static final String API_SUBSCRIPTION_STATUS = "SubStatus";
+    public static final String API_SUBSCRIPTION_STATUS = "subStatus";
     public static final String API_SUBSCRIPTION_BLOCKED_STATUS = "BLOCKED";
-    public static final String SUCCESSFUL = "SUCCESSFUL";
-    public static final String DS_API_UPDATE_SUBSCRIPTION_STATUS = "REQUEST_STATUS";
 
     public static final String ACCOUNT = "Account";
     public static final String RATE_PLAN = "RatePlan";

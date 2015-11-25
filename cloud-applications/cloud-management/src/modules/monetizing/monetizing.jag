@@ -23,7 +23,8 @@ var getSubscribersOfTenant = function () {
         try {
             //get the tenant users that have the subscriber role
             var subscriberList = modTenant.getUserListOfRole(ROLE_SUBSCRIBER);
-            for (var i = 0; i < subscriberList.length; i++) {
+            var len = subscriberList.length;
+            for (var i = 0; i < len; i++) {
                 var tmpSubscriber = {};
                 var userName = subscriberList[i];
                 var tmpUser = modTenant.getUserInfo(userName);
@@ -95,7 +96,8 @@ var makeSubscriberAccountsTest = function (complimentaryAddedSubscribers) {
     var sqlDateFormat = modUtil.dateTimeFormatter(MYSQL_DATETIME_FORMAT);
     var effectiveDate = new Packages.java.util.Date();
     var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
-    for (var i = 0; i < complimentaryAddedSubscribers.length; i++) {
+    var subscribersLen = complimentaryAddedSubscribers.length;
+    for (var i = 0; i < subscribersLen; i++) {
         var subscriber = complimentaryAddedSubscribers[i];
         var accountId = subscriber.accountId;
         var userName = subscriber.userName;
@@ -105,7 +107,8 @@ var makeSubscriberAccountsTest = function (complimentaryAddedSubscribers) {
         try {
             if (subscriber.subscriptionType == ACC_PAID) {
                 var subscriptionIds = JSON.parse(monetizationService.getActiveSubscriptionIdsForAccountId(accountId, productName));
-                for (var j = 0; j < subscriptionIds.length; j++) {
+                var subsLen = subscriptionIds.length;
+                for (var j = 0; j < subsLen; j++) {
                     //cancel subscriptions
                     var subscriptionId = subscriptionIds[j];
                     //cancel paid subscriptions form zuora
@@ -154,7 +157,8 @@ var removeTestSubscriberAccounts = function (complimentaryRemovedSubscribers) {
     var tenantId = modManager.getTenantId(tenantDomain);
     var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
     var effectiveDate = new Packages.java.util.Date();
-    for (var i = 0; i < complimentaryRemovedSubscribers.length; i++) {
+    var subscriberLen = complimentaryRemovedSubscribers.length;
+    for (var i = 0; i < subscriberLen; i++) {
         var subscriber = complimentaryRemovedSubscribers[i];
         var userName = subscriber.userName;
         var apimSubscriberId = userName + "@" + tenantDomain;
