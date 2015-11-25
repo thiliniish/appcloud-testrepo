@@ -124,8 +124,8 @@ public class APICloudMonetizationUtils {
             dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
-                    "Error while sending block subscriptions request to data service for user :" + " tenant Id :"
-                            + tenantId, e);
+                    "Error while sending block subscriptions request to data service for user :" + userId
+                            + " tenant Id :" + tenantId, e);
         }
     }
 }
