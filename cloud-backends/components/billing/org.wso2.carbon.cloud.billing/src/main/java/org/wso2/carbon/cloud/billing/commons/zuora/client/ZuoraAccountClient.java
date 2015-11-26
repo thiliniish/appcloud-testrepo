@@ -279,7 +279,7 @@ public class ZuoraAccountClient extends ZuoraClient {
     }
 
     /**
-     * @param childAccName child account name
+     * @param childAccNo child account name
      * @param parentAccNo child account number
      * @return json object
      * {
@@ -316,15 +316,15 @@ public class ZuoraAccountClient extends ZuoraClient {
      * }
      * @throws CloudBillingZuoraException
      */
-    public JsonObject addAccountParent(String childAccName, String parentAccNo) throws CloudBillingZuoraException {
+    public JsonObject addAccountParent(String childAccNo, String parentAccNo) throws CloudBillingZuoraException {
         try {
-            Account childAccount = getAccountByName(childAccName);
+            Account childAccount = getAccountByAccountNo(childAccNo);
             Account parentAccount = getAccountByAccountNo(parentAccNo);
             childAccount.setParentId(parentAccount.getId());
             SaveResult result = updateAccount(childAccount);
             return objectToJson(result);
         } catch (IOException e) {
-            throw new CloudBillingZuoraException("IOException " + ACCOUNT_UPDATE_ERROR + childAccName, e);
+            throw new CloudBillingZuoraException("IOException " + ACCOUNT_UPDATE_ERROR + childAccNo, e);
         }
     }
 

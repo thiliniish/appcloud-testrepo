@@ -314,7 +314,7 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * Add parent to the account.
      *
-     * @param childAccountName child account name
+     * @param childAccountNo child account name
      * @param parentAccountNo parent account no
      * @return json object in String
      * {
@@ -351,9 +351,9 @@ public class CloudBillingService extends AbstractAdmin {
      * }
      * @throws CloudBillingException
      */
-    public String addAccountParent(String childAccountName, String parentAccountNo) throws CloudBillingException {
+    public String addAccountParent(String childAccountNo, String parentAccountNo) throws CloudBillingException {
         try {
-            JsonObject result = CloudBillingServiceUtils.addAccountParent(childAccountName, parentAccountNo);
+            JsonObject result = CloudBillingServiceUtils.addAccountParent(childAccountNo, parentAccountNo);
             return result.toString();
         }catch (CloudBillingException ex) {
             throw ex;

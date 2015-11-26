@@ -250,14 +250,14 @@ public class CloudBillingServiceUtils {
     /**
      * Add child account parent
      *
-     * @param childAccountName child account name
+     * @param childAccountNo child account number
      * @param parentAccountNo parent account number
      * @return success json object
      * @throws CloudBillingZuoraException
      */
-    public static JsonObject addAccountParent(String childAccountName, String parentAccountNo)
+    public static JsonObject addAccountParent(String childAccountNo, String parentAccountNo)
             throws CloudBillingZuoraException {
         ZuoraAccountClient client = new ZuoraAccountClient();
-        return client.addAccountParent(childAccountName, parentAccountNo);
+        return client.addAccountParent(childAccountNo, parentAccountNo);
     }
 }
