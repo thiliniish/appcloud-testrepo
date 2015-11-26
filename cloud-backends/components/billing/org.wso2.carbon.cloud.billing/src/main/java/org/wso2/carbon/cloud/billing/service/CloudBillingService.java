@@ -355,8 +355,9 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             JsonObject result = CloudBillingServiceUtils.addAccountParent(childAccountName, parentAccountNo);
             return result.toString();
+        }catch (CloudBillingException ex) {
+            throw ex;
         } catch (Exception ex) {
-            LOGGER.error("Error occurred while adding parent to the account : ", ex);
             throw new CloudBillingException("Error occurred while adding parent to the account : ", ex);
         }
     }
