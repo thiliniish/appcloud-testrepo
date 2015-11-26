@@ -105,7 +105,9 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                         return httpworkflowResponse;
                     } else {
                         //TODO redirecting to collect payment plans and create zuora account
-                        httpworkflowResponse.setRedirectUrl("http://www.defense.gov/");
+                        httpworkflowResponse.setRedirectUrl("https://milestones.appfactory.wso2.com:9643/store/site/pages/pricing/add-payment-method.jag");
+                        httpworkflowResponse.setAdditionalParameters("workflowReference" , workflowDTO.getExternalWorkflowReference());
+                        httpworkflowResponse.setDisplayUrl("http://wso2.com");
                         return httpworkflowResponse;
                     }
                 } else {

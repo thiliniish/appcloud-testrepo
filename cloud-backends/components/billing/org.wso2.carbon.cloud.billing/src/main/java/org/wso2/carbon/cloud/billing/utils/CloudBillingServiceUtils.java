@@ -19,6 +19,7 @@
 package org.wso2.carbon.cloud.billing.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
@@ -30,7 +31,9 @@ import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.config.Subscription;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.zuora.client.ZuoraAccountClient;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
@@ -242,5 +245,19 @@ public class CloudBillingServiceUtils {
         } catch (XMLStreamException e) {
             throw new CloudBillingException("Error occurred while parsing response: " + response, e);
         }
+    }
+
+    /**
+     * Add child account parent
+     *
+     * @param childAccountName child account name
+     * @param parentAccountNo parent account number
+     * @return success json object
+     * @throws CloudBillingZuoraException
+     */
+    public static JsonObject addAccountParent(String childAccountName, String parentAccountNo)
+            throws CloudBillingZuoraException {
+        ZuoraAccountClient client = new ZuoraAccountClient();
+        return client.addAccountParent(childAccountName, parentAccountNo);
     }
 }

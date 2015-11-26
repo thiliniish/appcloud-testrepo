@@ -19,6 +19,9 @@
 package org.wso2.carbon.cloud.billing.service;
 
 
+import com.google.gson.JsonObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
@@ -34,6 +37,7 @@ import org.wso2.carbon.core.AbstractAdmin;
 
 public class CloudBillingService extends AbstractAdmin {
 
+    private static final Log LOGGER = LogFactory.getLog(CloudBillingService.class);
     /**
      * Retrieve cloud billing configuration as a json string
      *
@@ -305,5 +309,55 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public boolean isBillingEnabled() {
         return CloudBillingServiceUtils.isBillingEnabled();
+    }
+
+    /**
+     * Add parent to the account.
+     *
+     * @param childAccountName child account name
+     * @param parentAccountNo parent account no
+     * @return json object in String
+     * {
+     *    "errors": null,
+     *    "errorsSpecified": false,
+     *    "id": {
+     *        "id": "2c92c0fb5133f6380151439c0980718d"
+     *    },
+     *   "idSpecified": true,
+     *    "success": true,
+     *    "successSpecified": true
+     * }
+     * <p/>
+     * or
+     * <p/>
+     * {
+     *    "errors": [
+     *        {
+     *            "code": {
+     *                "value": "INVALID_VALUE"
+     *            },
+     *            "codeSpecified": true,
+     *            "field": null,
+     *            "fieldSpecified": false,
+     *            "message": "The account number T-1444288585567 is invalid.",
+     *            "messageSpecified": true
+     *        }
+     *    ],
+     *    "errorsSpecified": true,
+     *    "id": null,
+     *    "idSpecified": false,
+     *    "success": false,
+     *    "successSpecified": true
+     * }
+     * @throws CloudBillingException
+     */
+    public String addAccountParent(String childAccountName, String parentAccountNo) throws CloudBillingException {
+        try {
+            JsonObject result = CloudBillingServiceUtils.addAccountParent(childAccountName, parentAccountNo);
+            return result.toString();
+        } catch (Exception ex) {
+            LOGGER.error("Error occurred while adding parent to the account : ", ex);
+            throw new CloudBillingException("Error occurred while adding parent to the account : ", ex);
+        }
     }
 }

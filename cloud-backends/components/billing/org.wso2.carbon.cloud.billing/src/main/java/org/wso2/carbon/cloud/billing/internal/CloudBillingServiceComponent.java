@@ -26,6 +26,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.service.APICloudMonetizationService;
 import org.wso2.carbon.cloud.billing.service.CloudBillingService;
 import org.wso2.carbon.cloud.billing.subscription.tasks.BillingDbUpdateScheduler;
 import org.wso2.carbon.cloud.billing.usage.scheduler.UsageUploadScheduler;
@@ -55,6 +56,7 @@ public class CloudBillingServiceComponent {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceComponent.class);
     private ServiceRegistration billingServiceRef;
+    private ServiceRegistration apiMonServiceRef;
 
     /**
      * {@inheritDoc}
@@ -67,8 +69,10 @@ public class CloudBillingServiceComponent {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Billing bundle activation is started");
             }
-            this.billingServiceRef =
-                    bundleContext.registerService(CloudBillingService.class.getName(), new CloudBillingService(), null);
+            this.billingServiceRef = bundleContext.registerService(CloudBillingService.class.getName(), new
+                    CloudBillingService(), null);
+            this.apiMonServiceRef = bundleContext.registerService(APICloudMonetizationService.class.getName(), new
+                    APICloudMonetizationService(), null);
 
             activateScheduledTasks();
             if (LOGGER.isDebugEnabled()) {
@@ -86,6 +90,7 @@ public class CloudBillingServiceComponent {
      */
     protected void deactivate(ComponentContext context) {
         this.billingServiceRef.unregister();
+        this.apiMonServiceRef.unregister();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Cloud billingService  bundle is deactivated ");
         }

@@ -90,7 +90,8 @@
       <param name="TENANT_ID" sqlType="INTEGER"/>
    </query>
    <query id="getMonetizationStatusQ" useConfig="cloud_mgt">
-      <sql>SELECT STATUS FROM MONETIZATION_STATUS WHERE TENANT_DOMAIN=:TENANT_DOMAIN AND CLOUD_APPLICATION=:CLOUD_APPLICATION</sql>
+      <sql>SELECT EXISTS (SELECT * FROM MONETIZATION_STATUS WHERE TENANT_DOMAIN=:TENANT_DOMAIN AND
+      CLOUD_APPLICATION=:CLOUD_APPLICATION) AS STATUS</sql>
       <result element="Entry" rowName="">
          <element column="STATUS" name="Status" xsdType="boolean"/>
       </result>

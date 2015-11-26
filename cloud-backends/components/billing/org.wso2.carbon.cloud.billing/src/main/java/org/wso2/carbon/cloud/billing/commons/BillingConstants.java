@@ -127,10 +127,14 @@ public final class BillingConstants {
 
     public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
 
+
+
     /* Zuora queries */
-    //ToDo Subject to change
-    public static final String QUERY_ZUORA_ACCOUNT_BY_NAME = "SELECT id, name, accountnumber FROM account WHERE name " +
-                                                             "= '?'";
+    private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid, " +
+            "communicationprofileid, createddate, invoicetemplateid, parentid, status, defaultpaymentmethodid FROM account ";
+    public static final String QUERY_ZUORA_ACCOUNT_BY_NAME = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE name = '?'";
+    public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE accountnumber " +
+            "= '?'";
 
     /*Data service API v1 URIs*/
     public static final String DS_NAMESPACE_URI = "http://ws.wso2.org/dataservice";

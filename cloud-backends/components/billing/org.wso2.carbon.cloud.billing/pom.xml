@@ -87,6 +87,16 @@
             <artifactId>gson</artifactId>
             <version>${com.google.gson.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>${org.codehaus.jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>${org.codehaus.jackson.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -145,6 +155,7 @@
                             javax.xml.namespace,
                             javax.xml.parsers,
                             javax.xml.bind,
+                            org.codehaus.jackson.*; version="${imp.pkg.version.codehaus.jackson}",
                             javax.xml.bind.annotation.*; resolution:=optional,
                             com.zuora.api.*; version="${zuora.stub.version}"
                         </Import-Package>
