@@ -22,6 +22,9 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 
+/**
+ * Represents the data holder for the api deletion component
+ */
 public class ServiceHolder {
 
     private ServiceHolder() {
