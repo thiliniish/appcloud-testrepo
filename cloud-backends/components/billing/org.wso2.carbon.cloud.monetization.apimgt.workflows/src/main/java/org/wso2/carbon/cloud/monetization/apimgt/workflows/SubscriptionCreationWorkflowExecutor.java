@@ -154,9 +154,11 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
             case APPROVED:
                 apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
                         APIConstants.SubscriptionStatus.UNBLOCKED);
+                break;
             case REJECTED:
                 apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
                         APIConstants.SubscriptionStatus.REJECTED);
+                break;
             }
             return new GeneralWorkflowResponse();
         } catch (APIManagementException e) {
