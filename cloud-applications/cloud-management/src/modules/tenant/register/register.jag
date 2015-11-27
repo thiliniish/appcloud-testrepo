@@ -424,6 +424,26 @@ var sendInvite = function (email, token) {
     return email;
 };
 
+var reInvite = function (email) {
+    log.info("Resending invitation for self signed user: " + email);
+    var queryString1 = SQL_QUERY_STRINGS.SELECT_UUID_FROM_TEMP_REGISTRATION;
+    var parameters =[email];
+    var results = jagg.module("database").executeQuery(queryString1, parameters);
+    var uuid;
+    if (results.length >= 1) {
+        uuid = results[0]["UUID"];
+    } else {
+        uuid = jagg.module("util").generateUUId();
+        storeTempRegistration(email, uuid, 0);
+    }
+    if(log.isDebugEnabled()){
+        log.debug("UUID fetched from db for email " + email + " = " + uuid);
+    }
+    var link = targetEpr + "?confirmation=" + uuid;
+    sendEmail(email, link);
+    return email;
+};
+
 var sendEmail = function (to, link) {
     try {
         body = body.replace("$link", link).replace("$link", link);
@@ -439,7 +459,7 @@ var sendEmail = function (to, link) {
         sender.subject = subject;
         sender.html = body;
         sender.send();
-        log.info("email successfully sent to " + to);
+        log.info("email successfully sent to " + to + " link : " + link);
     } catch (e) {
         log.error("Error while sending email to : " + to);
         log.error(e);
