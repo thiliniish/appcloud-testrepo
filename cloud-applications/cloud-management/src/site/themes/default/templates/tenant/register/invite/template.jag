@@ -9,6 +9,7 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var otEmail = request.getParameter("email");
 var sourceToken = request.getParameter("sourceToken");
 var signupEpr = cloudConfig.registrationEmail.signupEpr.toString();
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 
 %>
 
@@ -171,6 +172,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 function doSubmit() {
     var email = $("#email").attr('value');
+    var cloudmgtURL =  $("#cloudmgtURL").attr('value');
     var token = $("#sourceToken").attr('value');
     disable();
     var isValidMail = validateEmail();
@@ -227,29 +229,35 @@ function doSubmit() {
     }
 }
 
-var elementResendMail = document.getElementById('resend-email');
-elementResendMail.onclick = resendInvitationEmail;
-
 function resendInvitationEmail() {
   var email = $("#email").attr('value');
 
-                jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
-                    action:"reInvite",
-                    email:email
-                },
-                function (result) {
-                    $(".content-starter h1").text("Check Your Email");
-                        $(".content-starter h1").css('color','white');
-                        $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>" + email + "</b>. Please click the link in the email to continue signing up.</h5>");
-                        $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
-                        $("#helper_text").hide();
-                        $("#success-message").show();
-                        $(".content-section-wrapper").hide();
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    window.location.href = "index.jag";
-                });
-  return true;
+    jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
+        action:"reInvite",
+        email:email
+        },
+        function (result) {
+        $(".content-starter h1").text("Check Your Email");
+            $(".content-starter h1").css('color','white');
+            $("#email-sent-to").replaceWith("<br><h5> We have re-sent you the welcome email to <b>" + email + "</b>. Please click the link in the email to continue signing up.</h5>");
+            $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
+            $("#helper_text").hide();
+            $("#success-message").show();
+            $(".content-section-wrapper");
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                window.location.href = "index.jag";
+            });
+    return true;
+}
+
+function getUserEmail() {
+    cloudmgtURL = $("#cloudmgtURL").attr('value');
+    userEmail = document.getElementById('email').value;
+    var link = cloudmgtURL + "/site/pages/contact-us.jag?registration-help=true&email=" + userEmail;
+    document.getElementById('contact-us-link').setAttribute('href', link);
+
+    return true;
 }
 
 </script>
@@ -268,9 +276,10 @@ function resendInvitationEmail() {
                 <p><a href = "" id="help-options">Still haven't received the email after a few minutes?</a><p/>
                 <p><div id="more-options">
                 <ul>
-                <a href = ><li><strong>Re-type the email address</strong></li></a>
-                <a href ="" onclick = 'resendInvitationEmail();' id = "resend-email"><li><strong>Resend the invitation</strong></li></a>                
-                <a href="mailto:cloud@wso2.com"><li><strong>Contact support</strong></li></a>
+                <a href ="signup.jag" ><li><strong>Re-type the email address</strong></li></a>
+                <a href ="signup.jag" onclick = 'resendInvitationEmail();' id = "resend-email"><li><strong>Resend the invitation</strong></li></a>
+                <a href ="index.jag" id ="contact-us-link" onclick = 'getUserEmail();'><li><strong>Contact support</strong></li></a>
+
                 </ul></div>   </p>
             </div>
 		</div>
@@ -306,6 +315,7 @@ function resendInvitationEmail() {
 				<input type="hidden" name="sourceToken" id="sourceToken"
 					value="<%=sourceToken%>" /> <input type="hidden" name="imagePath"
 					id="imagePath" value="" />
+                <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
 			</form>
 		</div>
 	</div>

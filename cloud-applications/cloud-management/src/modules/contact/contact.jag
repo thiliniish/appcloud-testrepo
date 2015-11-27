@@ -151,7 +151,12 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
   */
  var sendSupportRequestAndCreateJira = function(customerEmail,subject ,body){
      try{
-       var emailBody ="Support requested from the tenant user : " + userName + " email : " + customerEmail + "\n\n" + body;
+       var emailBody;
+       if(userName == null || userName == 'null'){
+           emailBody = "Support requested from a New User email : " + customerEmail + "\n\n" + body;
+       }else {
+           emailBody = "Support requested from the tenant user : " + userName + " email : " + customerEmail + "\n\n" + body;
+       }
        var resultSupportRequest = sendSupportRequest(customerEmail, subject, emailBody);
 
      } catch(e){
