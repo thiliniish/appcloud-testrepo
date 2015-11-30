@@ -28,10 +28,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.WorkflowResponse;
+import org.wso2.carbon.apimgt.api.model.Tier;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
 import org.wso2.carbon.apimgt.impl.dto.SubscriptionWorkflowDTO;
 import org.wso2.carbon.apimgt.impl.dto.WorkflowDTO;
+import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.impl.workflow.GeneralWorkflowResponse;
 import org.wso2.carbon.apimgt.impl.workflow.HttpWorkflowResponse;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowConstants;
@@ -53,92 +55,117 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     private static final String IS_TEST_ACCOUNT_ELEMENT = "TestAccount";
     private static final String ACCOUNT_NUMBER_ELEMENT = "AccountNumber";
     private static final String SUBSCRIBERS_ELEMENT = "Subscribers";
+    private static final String TIER_PLAN_COMMERCIAL = "COMMERCIAL";
+    private static final String TIER_PLAN_FREE = "FREE";
+
+    private static final String ADD_PAYMENT_METHOD_PAGE_SUFFIX = "../site/pages/pricing/add-payment-method.jag";
 
     private String serviceEndpoint;
     private String username;
     private String password;
     private String contentType;
 
-    @Override public String getWorkflowType() {
+    @Override
+    public String getWorkflowType() {
         return WorkflowConstants.WF_TYPE_AM_SUBSCRIPTION_CREATION;
     }
 
-    @Override public List<WorkflowDTO> getWorkflowDetails(String s) throws WorkflowException {
+    @Override
+    public List<WorkflowDTO> getWorkflowDetails(String s) throws WorkflowException {
         return null;
     }
 
     public WorkflowResponse execute(WorkflowDTO workflowDTO) throws WorkflowException {
         //Check if monetization is enabled for tenant: this workflow should only be deployed for monetization
         // enabled tenants. Once they enable monetization for a tenant. this workflow should be automatically deployed
-        //ToDo check the tier is paid or not
-        //Check for zuora account
-
         super.execute(workflowDTO);
+        SubscriptionWorkflowDTO subscriptionWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
         try {
-            ServiceClient client = WorkFlowUtils
-                    .getClient(CustomWorkFlowConstants.SOAP_ACTION_GET_SUBSCRIBER, serviceEndpoint, contentType,
-                            username, password);
-
-            SubscriptionWorkflowDTO subscriptionWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
-            String payload = CustomWorkFlowConstants.SUBSCRIBER_INFO_PAYLOAD
-                    .replace("$1", subscriptionWorkflowDTO.getSubscriber())
-                    .replace("$2", subscriptionWorkflowDTO.getTenantDomain());
-            OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
-            OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
-
-            OMElement subscribers = AXIOMUtil.stringToOM(response.getText());
-            OMElement subscriberOM = (OMElement) subscribers.getFirstOMChild();
-            if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart()) && subscriberOM != null) {
-
-                boolean isTestAccount = Boolean.parseBoolean(
-                        ((OMElement) (subscriberOM.getChildrenWithLocalName(IS_TEST_ACCOUNT_ELEMENT).next())).getText());
-
-                //Check subscribers is a test/complementary subscriber
-                if (!isTestAccount) {
-                    HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
-                    String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER_ELEMENT).next()))
-                            .getText();
-                    // checks for null or empty for account number
-                    if (StringUtils.isNotBlank(accountNumber)) {
-                        //TODO redirecting to create the subscription
-                        httpworkflowResponse.setRedirectUrl("http://www.google.lk/");
-                        return httpworkflowResponse;
-                    } else {
-                        //TODO redirecting to collect payment plans and create zuora account
-                        httpworkflowResponse.setRedirectUrl("https://milestones.appfactory.wso2.com:9643/store/site/pages/pricing/add-payment-method.jag");
-                        httpworkflowResponse.setAdditionalParameters("workflowReference" , workflowDTO.getExternalWorkflowReference());
-                        httpworkflowResponse.setDisplayUrl("http://wso2.com");
-                        return httpworkflowResponse;
-                    }
+            Tier tier = APIUtil.getTierFromCache(subscriptionWorkflowDTO.getTierName(),
+                    subscriptionWorkflowDTO.getTenantDomain());
+            if (tier != null && StringUtils.isNotBlank(tier.getTierPlan())) {
+                String tierPlan = tier.getTierPlan();
+                if (TIER_PLAN_COMMERCIAL.equals(tierPlan)) {
+                    return handleCommercialPlan(subscriptionWorkflowDTO);
+                    //Null tier plan for the plans taken from tiers.xml
+                } else if (TIER_PLAN_FREE.equals(tierPlan)) {
+                    return handleFreePlan(subscriptionWorkflowDTO);
                 } else {
-                    workflowDTO.setStatus(APPROVED);
-                    WorkflowResponse workflowResponse = complete(workflowDTO);
-                    super.publishEvents(workflowDTO);
-                    return workflowResponse;
+                    throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + "not " +
+                            "available.");
                 }
-            } else if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart())) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Subscriber not available. adding subscriber");
-                }
-
-                payload = CustomWorkFlowConstants.SUBSCRIBER_UPDATE_PAYLOAD
-                        .replace("$1", subscriptionWorkflowDTO.getSubscriber())
-                        .replace("$2", subscriptionWorkflowDTO.getTenantDomain()).replace("$3", "false");
-                client = WorkFlowUtils
-                        .getClient(CustomWorkFlowConstants.SOAP_ACTION_UPDATE_SUBSCRIBER, serviceEndpoint, contentType,
-                                username, password);
-                client.fireAndForget(AXIOMUtil.stringToOM(payload));
-                HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
-                //TODO redirecting to collect payment plans and create zuora account
-                httpworkflowResponse.setRedirectUrl("http://www.defense.gov/");
-                return httpworkflowResponse;
             } else {
-                throw new WorkflowException(
-                        ERROR_MSG + " element should be: " + SUBSCRIBERS_ELEMENT + " not " + subscribers.getQName()
-                                .getLocalPart());
+                throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + "not " +
+                        "available.");
             }
         } catch (AxisFault | XMLStreamException e) {
             throw new WorkflowException(ERROR_MSG, e);
+        } catch (APIManagementException e) {
+            throw new WorkflowException(ERROR_MSG + " Error occurred while querying the tier information. ", e);
+        }
+    }
+
+    private WorkflowResponse handleFreePlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws WorkflowException {
+        subscriptionWorkflowDTO.setStatus(APPROVED);
+        WorkflowResponse workflowResponse = complete(subscriptionWorkflowDTO);
+        super.publishEvents(subscriptionWorkflowDTO);
+        return workflowResponse;
+    }
+
+    private WorkflowResponse handleCommercialPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
+            throws AxisFault, XMLStreamException, WorkflowException {
+        ServiceClient client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_GET_SUBSCRIBER,
+                serviceEndpoint, contentType, username, password);
+        String payload = CustomWorkFlowConstants.SUBSCRIBER_INFO_PAYLOAD
+                .replace("$1", subscriptionWorkflowDTO.getSubscriber())
+                .replace("$2", subscriptionWorkflowDTO.getTenantDomain());
+        OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
+        OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
+
+        OMElement subscribers = AXIOMUtil.stringToOM(response.getText());
+        OMElement subscriberOM = (OMElement) subscribers.getFirstOMChild();
+        if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart()) && subscriberOM != null) {
+
+            boolean isTestAccount = Boolean.parseBoolean(
+                    ((OMElement) (subscriberOM.getChildrenWithLocalName(IS_TEST_ACCOUNT_ELEMENT).next())).getText());
+
+            //Check subscribers is a test/complementary subscriber
+            if (!isTestAccount) {
+                HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
+                String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER_ELEMENT).next()))
+                        .getText();
+                httpworkflowResponse.setAdditionalParameters("workflowReference", subscriptionWorkflowDTO.getExternalWorkflowReference());
+                if (StringUtils.isNotBlank(accountNumber)) {
+                    //TODO redirecting to create the subscription
+                    httpworkflowResponse.setRedirectUrl("http://www.google.lk/");
+                    return httpworkflowResponse;
+                } else {
+                    httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
+                    return httpworkflowResponse;
+                }
+            } else {
+                return handleFreePlan(subscriptionWorkflowDTO);
+            }
+        } else if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart())) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Subscriber not available. adding subscriber");
+            }
+
+            payload = CustomWorkFlowConstants.SUBSCRIBER_UPDATE_PAYLOAD
+                    .replace("$1", subscriptionWorkflowDTO.getSubscriber())
+                    .replace("$2", subscriptionWorkflowDTO.getTenantDomain()).replace("$3", "false");
+            client = WorkFlowUtils
+                    .getClient(CustomWorkFlowConstants.SOAP_ACTION_UPDATE_SUBSCRIBER, serviceEndpoint, contentType,
+                            username, password);
+            client.fireAndForget(AXIOMUtil.stringToOM(payload));
+            HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
+            httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
+            httpworkflowResponse.setAdditionalParameters("workflowReference", subscriptionWorkflowDTO.getExternalWorkflowReference());
+            return httpworkflowResponse;
+        } else {
+            throw new WorkflowException(
+                    ERROR_MSG + " element should be: " + SUBSCRIBERS_ELEMENT + " not " + subscribers.getQName()
+                            .getLocalPart());
         }
     }
 
@@ -151,14 +178,14 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
 
         try {
             switch (workflowDTO.getStatus()) {
-            case APPROVED:
-                apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
-                        APIConstants.SubscriptionStatus.UNBLOCKED);
-                break;
-            case REJECTED:
-                apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
-                        APIConstants.SubscriptionStatus.REJECTED);
-                break;
+                case APPROVED:
+                    apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
+                            APIConstants.SubscriptionStatus.UNBLOCKED);
+                    break;
+                case REJECTED:
+                    apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
+                            APIConstants.SubscriptionStatus.REJECTED);
+                    break;
             }
             return new GeneralWorkflowResponse();
         } catch (APIManagementException e) {
