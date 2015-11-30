@@ -75,6 +75,7 @@
         var invoicesObj = null;
         var paymentsObj = null;
         var accountId;
+        var accountName;
         var contactInfo = null;
         var totalInvoicePages = 1;
         var totalPaymentPages = 1;
@@ -105,6 +106,7 @@
                     var accountObj = jQuery.parseJSON(data);
                     accountId = accountObj.basicInfo.id;
                     contactInfo = accountObj.billToContact;
+                    accountName = accountObj.basicInfo.name;
                     // set account summary
                     $('#accName').text(accountObj.basicInfo.name);
                     $('#lastPayment').text(accountObj.basicInfo.lastPaymentAmount + " " + accountObj.basicInfo.currency);
@@ -265,9 +267,8 @@
             if(contactInfo == null){
             	updateAccountInfo();
             }
-            
-            var contactInfoString = JSON.stringify(contactInfo).toString();
             var formContactInfo = $('<form action="add-billing-account.jag" method="post">' +
+                    '<input type="hidden" name="organizationName" value = "' + accountName + '"/>' +
             		'<input type="hidden" name="firstName" value = "' + contactInfo.firstName + '"/>' +
             		'<input type="hidden" name="lastName" value = "' + contactInfo.lastName + '"/>' +
             		'<input type="hidden" name="city" value = "' + contactInfo.city + '"/>' +
