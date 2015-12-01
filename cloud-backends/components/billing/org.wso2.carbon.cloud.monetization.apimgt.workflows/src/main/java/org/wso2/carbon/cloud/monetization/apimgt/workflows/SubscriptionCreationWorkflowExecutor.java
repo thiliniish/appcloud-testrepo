@@ -156,7 +156,13 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
      */
     public WorkflowResponse execute(WorkflowDTO workflowDTO) throws WorkflowException {
         super.execute(workflowDTO);
-        SubscriptionWorkflowDTO subscriptionWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
+        SubscriptionWorkflowDTO subscriptionWorkflowDTO;
+        if (workflowDTO instanceof SubscriptionWorkflowDTO) {
+            subscriptionWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
+        } else {
+            throw new WorkflowException(ERROR_MSG + " WorkflowDTO doesn't match the required type");
+        }
+
         try {
             Tier tier = APIUtil.getTierFromCache(subscriptionWorkflowDTO.getTierName(),
                     subscriptionWorkflowDTO.getTenantDomain());
@@ -205,6 +211,8 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                     apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
                             APIConstants.SubscriptionStatus.REJECTED);
                     break;
+                default:
+                    throw new WorkflowException(ERROR_MSG + "workflow status undefined. " + workflowDTO.getStatus());
             }
             return new GeneralWorkflowResponse();
         } catch (APIManagementException e) {
