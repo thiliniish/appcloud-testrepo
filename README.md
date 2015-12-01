@@ -11,7 +11,7 @@
 (4.) Dependencies to compile and build components -
 
         (i) Apache Maven 3.0.5 or above.
-        (ii) Oracle JDK 1.7.
+        (ii) Oracle JDK 1.6.
         (iii) Need to compile and build the patch0012 of Carbon Kernel 4.2.0 patches prior compiling any
              of WSO2 Cloud components. ( svn location : https://svn.wso2.org/repos/wso2/carbon/kernel/branches/4.2.0/patches )
 
