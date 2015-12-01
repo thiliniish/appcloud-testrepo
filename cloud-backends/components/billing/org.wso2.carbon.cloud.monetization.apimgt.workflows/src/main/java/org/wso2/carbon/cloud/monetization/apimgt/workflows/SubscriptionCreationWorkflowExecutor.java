@@ -47,6 +47,8 @@ import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.APPROVED;
 
 /**
  * API Cloud monetization specific subscription creation workflow
+ * Check if monetization is enabled for tenant: this workflow should only be deployed for monetization
+ * enabled tenants. Once they enable monetization for a tenant, this workflow should be automatically deployed
  */
 public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
 
@@ -153,8 +155,6 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
      * {@inheritDoc}
      */
     public WorkflowResponse execute(WorkflowDTO workflowDTO) throws WorkflowException {
-        //Check if monetization is enabled for tenant: this workflow should only be deployed for monetization
-        // enabled tenants. Once they enable monetization for a tenant. this workflow should be automatically deployed
         super.execute(workflowDTO);
         SubscriptionWorkflowDTO subscriptionWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
         try {
