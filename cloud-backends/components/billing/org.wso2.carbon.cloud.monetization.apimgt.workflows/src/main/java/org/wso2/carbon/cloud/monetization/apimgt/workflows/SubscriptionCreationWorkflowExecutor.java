@@ -150,7 +150,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     }
 
     /**
-     *{@inheritDoc}
+     * {@inheritDoc}
      */
     public WorkflowResponse execute(WorkflowDTO workflowDTO) throws WorkflowException {
         //Check if monetization is enabled for tenant: this workflow should only be deployed for monetization
@@ -163,13 +163,14 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
             //Check tier information
             if (tier != null && StringUtils.isNotBlank(tier.getTierPlan())) {
                 String tierPlan = tier.getTierPlan();
-                if (TIER_PLAN_COMMERCIAL.equals(tierPlan)) {
-                    return handleCommercialPlan(subscriptionWorkflowDTO);
-                } else if (TIER_PLAN_FREE.equals(tierPlan)) {
-                    return handleFreePlan(subscriptionWorkflowDTO);
-                } else {
-                    throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + "not " +
-                            "available.");
+                switch (tierPlan) {
+                    case TIER_PLAN_COMMERCIAL:
+                        return handleCommercialPlan(subscriptionWorkflowDTO);
+                    case TIER_PLAN_FREE:
+                        return handleFreePlan(subscriptionWorkflowDTO);
+                    default:
+                        throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() +
+                                "not " + "available.");
                 }
             } else {
                 throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + "not " +
@@ -183,7 +184,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     }
 
     /**
-     *{@inheritDoc}
+     * {@inheritDoc}
      */
     public WorkflowResponse complete(WorkflowDTO workflowDTO) throws WorkflowException {
         workflowDTO.setUpdatedTime(System.currentTimeMillis());
