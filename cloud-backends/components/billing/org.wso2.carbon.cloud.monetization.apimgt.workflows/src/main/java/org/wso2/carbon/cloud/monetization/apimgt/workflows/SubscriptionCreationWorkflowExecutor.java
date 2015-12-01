@@ -175,12 +175,11 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                     case TIER_PLAN_FREE:
                         return handleFreePlan(subscriptionWorkflowDTO);
                     default:
-                        throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() +
-                                "not " + "available.");
+                        throw new WorkflowException(ERROR_MSG + " Tier plan " + tierPlan + " not " + "available.");
                 }
             } else {
-                throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + "not " +
-                        "available.");
+                throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + " not " +
+                        "available or tier plan not available.");
             }
         } catch (AxisFault | XMLStreamException e) {
             throw new WorkflowException(ERROR_MSG, e);
