@@ -37,14 +37,19 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                 } else {
                     var response = billing.addCloudSubmissionToRightwave(userEmail, domainName, type);
                     var msg = JSON.parse(response['data']);
-                    if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                        queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
-                        parameters = [type, 1, domainName, userEmail];
-                        modDb.executeQuery(queryString, parameters);
-                        actionString =  actionString + "Success";
-                        log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
+                    if (msg != null) {
+                        if (msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                            queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
+                            parameters = [type, 1, domainName, userEmail];
+                            modDb.executeQuery(queryString, parameters);
+                            actionString = actionString + "Success";
+                            log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
+                        } else {
+                            actionString = actionString + "Failed";
+                            log.error("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
+                        }
                     } else {
-                        actionString =  actionString + "Failed";
+                        actionString = actionString + "Failed";
                         log.error("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
                     }
                     var event = {};
@@ -59,14 +64,19 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
             } else {
                 var response = billing.addCloudSubmissionToRightwave(userEmail, domainName, type);
                 var msg = JSON.parse(response['data']);
-                if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                    queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
-                    parameters = [type, domainName, 1, userEmail];
-                    modDb.executeQuery(queryString, parameters);
-                    actionString =  actionString + "Success";
-                    log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
+                if (msg != null) {
+                    if (msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                        queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
+                        parameters = [type, domainName, 1, userEmail];
+                        modDb.executeQuery(queryString, parameters);
+                        actionString = actionString + "Success";
+                        log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
+                    } else {
+                        actionString = actionString + "Failed";
+                        log.error("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
+                    }
                 } else {
-                    actionString =  actionString + "Failed";
+                    actionString = actionString + "Failed";
                     log.error("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
                 }
                 var event = {};
