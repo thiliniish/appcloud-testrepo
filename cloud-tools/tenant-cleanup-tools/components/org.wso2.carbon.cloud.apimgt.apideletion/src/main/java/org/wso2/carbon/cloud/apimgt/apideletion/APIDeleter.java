@@ -210,7 +210,6 @@ public class APIDeleter implements Runnable {
      *
      * @param tenantFile path to the tenant file
      */
-
     private List<String> readFile(String tenantFile) {
         List<String> tenants = new ArrayList<String>();
         BufferedReader reader = null;
