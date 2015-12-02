@@ -70,6 +70,9 @@ jagg.module("tenant", {
 	confirmUser:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").confirmUser.apply(this, arguments);
 	},
+	reInvite:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").reInvite.apply(this, arguments);
+	},
 	getApplicatioinKeysOfUser:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getApplicatioinKeysOfUser.apply(this, arguments);
 	},

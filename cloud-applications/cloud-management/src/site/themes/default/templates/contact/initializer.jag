@@ -15,7 +15,7 @@ jagg.initializer("contact", {
                 if (jagg.module("billing").validateServiceId(cloudType) && requestExtension == 'true'){
                     session.put("TEMP_QUERY_PARAMS", "cloud-type="+cloudType+"&request-extension=true");
                 }
-            } else {
+            } else if(request.getParameter("registration-help") != 'true') {
                 response.sendRedirect("../pages/index.jag");
             }
 

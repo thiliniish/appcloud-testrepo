@@ -1,13 +1,16 @@
 <% jagg.template("tenant/register/invite", function(inputs, outputs, jagg) { %>
 <%
 //var userName =  session.get("LOGGED_IN_USER");
-var log = new Log();
+var log = new Log('site/theme/default/templates/tenant/register/invite/template.jag');
 //session.put("wso2carbon.admin.logged.in", userName);
-var log = new Log();
+
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var otEmail = request.getParameter("email");
 var sourceToken = request.getParameter("sourceToken");
+var signupEpr = cloudConfig.registrationEmail.signupEpr.toString();
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+
 %>
 
 <style>
@@ -79,6 +82,15 @@ section.start_content div.subs-cont {
 #success-message{
     display:none;
 }
+
+#more-options{
+    display:none;
+    width: 50%;
+    margin: 0 auto;
+    text-align:left;
+}
+
+
 </style>
 
 <!-- Google Tag Manager -->
@@ -108,7 +120,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         return isEmailValid;
     }
 
-    $(document).ready(function($){
+    $(document).ready(function( $){
+    
         var otEmail = $("#otEmail").val();
         if(otEmail != "null" ) {
             $('#userForm').hide();
@@ -136,6 +149,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         });
     });
 
+   $(function() {
+       $('#help-options').click(function() {
+           $('#more-options').show();
+           return false;
+       });
+   });
+
 	function disable() {
 		document.getElementById("spinner").style.display = '';
 		 var submitButton = document.getElementById('submitbtn');
@@ -152,6 +172,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 function doSubmit() {
     var email = $("#email").attr('value');
+    var cloudmgtURL =  $("#cloudmgtURL").attr('value');
     var token = $("#sourceToken").attr('value');
     disable();
     var isValidMail = validateEmail();
@@ -208,21 +229,59 @@ function doSubmit() {
     }
 }
 
+function resendInvitationEmail() {
+  var email = $("#email").attr('value');
+
+    jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
+        action:"reInvite",
+        email:email
+        },
+        function (result) {
+        $(".content-starter h1").text("Check Your Email");
+            $(".content-starter h1").css('color','white');
+            $("#email-sent-to").replaceWith("<br><h5> We have re-sent you the welcome email to <b>" + email + "</b>. Please click the link in the email to continue signing up.</h5>");
+            $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
+            $("#helper_text").hide();
+            $("#success-message").show();
+            $(".content-section-wrapper");
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                window.location.href = "index.jag";
+            });
+    return true;
+}
+
+function getUserEmail() {
+    cloudmgtURL = $("#cloudmgtURL").attr('value');
+    userEmail = document.getElementById('email').value;
+    var link = cloudmgtURL + "/site/pages/contact-us.jag?registration-help=true&email=" + userEmail;
+    document.getElementById('contact-us-link').setAttribute('href', link);
+
+    return true;
+}
+
 </script>
 
 
 <div class="container content-starter">
 	<div class="row">
 		<div class="col-lg-12">
-			<h1>Sign-Up to WSO2 App Cloud</h1>
+			<h1>Sign-Up to WSO2 Cloud</h1>
 			<div class="helper_text" id="helper_text">
 			    <p>The world's most comprehensive platform-as-a-service</p>
 		    </div>
 		    <div class="helper_text" id="success-message">
-                        <p id="email-sent-to"></p>
-                        <br><p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no typos and that the email didn’t get caught in your spam folder.</p>
-                        <p>If the email still cannot be found, contact us at <a href="mailto:cloud@wso2.com">cloud@wso2.com</a></p>
-                     </div>
+                <p id="email-sent-to"></p>
+                <br><p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no typos and that the email didn’t get caught in your spam folder.</p>
+                <p><a href = "" id="help-options">Still haven't received the email after a few minutes?</a><p/>
+                <p><div id="more-options">
+                <ul>
+                <a href ="signup.jag" ><li><strong>Re-type the email address</strong></li></a>
+                <a href ="signup.jag" onclick = 'resendInvitationEmail();' id = "resend-email"><li><strong>Resend the invitation</strong></li></a>
+                <a href ="index.jag" id ="contact-us-link" onclick = 'getUserEmail();'><li><strong>Contact support</strong></li></a>
+
+                </ul></div>   </p>
+            </div>
 		</div>
 
 	</div>
@@ -256,6 +315,7 @@ function doSubmit() {
 				<input type="hidden" name="sourceToken" id="sourceToken"
 					value="<%=sourceToken%>" /> <input type="hidden" name="imagePath"
 					id="imagePath" value="" />
+                <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
 			</form>
 		</div>
 	</div>
