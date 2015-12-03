@@ -66,11 +66,21 @@ var log = new Log();
 		var confirmationKey = request.getParameter("confirmationKey");
 		var firstName = request.getParameter("firstName");
 		var lastName = request.getParameter("lastName");
+		var userName = request.getParameter("userName");
+		var registrationResult;
 		try {
-			var result = mod.registerOrg(companyName, adminPassword, usagePlan, confirmationKey, firstName, lastName);
+			var result = mod.registerOrg(companyName, adminPassword, usagePlan, confirmationKey, firstName, lastName, userName);
 
 			if (result != null) {
-				print(result);
+				if (result) {
+					registrationResult = "success";
+				} else {
+					registrationResult = "userExists";
+					if (log.isDebugEnabled()) {
+						log.debug("User " + userName + " already exists therefore not adding the user again");
+					}
+				}
+				print(registrationResult);
 			} else {
 				throw "Error while registering an organization " + companyName;
 			}

@@ -110,6 +110,7 @@ ul
              var companyName = $("#companyName").attr('value');
              var firstName = $("#firstName").attr('value');
              var lastName = $("#lastName").attr('value');
+             var userName = '<%=userName%>';
              jagg.post("../blocks/tenant/register/add/ajax/add.jag", {
                  action:"registerOrg",
                  adminPassword:adminPassword ,
@@ -117,14 +118,23 @@ ul
                  usagePlan:'Demo',
                  confirmationKey:confirmationKey,
                  firstName:firstName,
-                 lastName:lastName
+                 lastName:lastName,
+                 userName:userName
              },
              function (result) {
-                 jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
+                if (result.trim() == "userExists") {
+                    jagg.message({content:'Looks like you have an account with wso2.com - So please use the password that you have to log in',type:'success',cbk:function(){
                          window.location.href = cloudmgtURL;
-                     }, cbkBtnText:'Login'
-                 });
-                 disableSpinner();
+                        }, cbkBtnText:'Login'
+                    });
+                } else {
+
+                    jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
+                         window.location.href = cloudmgtURL;
+                        }, cbkBtnText:'Login'
+                    });
+                }
+             disableSpinner();
              },
              function (jqXHR, textStatus, errorThrown) {
                  jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
