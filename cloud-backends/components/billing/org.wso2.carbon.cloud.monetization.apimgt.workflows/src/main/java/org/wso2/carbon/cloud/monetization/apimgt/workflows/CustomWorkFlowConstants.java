@@ -29,17 +29,17 @@ public class CustomWorkFlowConstants {
                     "  <ser:tenantDomain>$2</ser:tenantDomain>\n" +
                     "</ser:getAPISubscriberInfo>";
 
-    public static final String SUBSCRIBER_UPDATE_PAYLOAD =
-            "<ser:updateAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+    public static final String ADD_SUBSCRIBER_PAYLOAD =
+            "<ser:addAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
                     "  <ser:username>$1</ser:username>\n" +
                     "  <ser:tenantDomain>$2</ser:tenantDomain>\n" +
                     "  <ser:isTestAccount>$3</ser:isTestAccount>\n" +
                     "  <ser:accountNumber ser:nil=\"true\"/>\n" +
-                    "</ser:updateAPISubscriberInfo>";
+                    "</ser:addAPISubscriberInfo>";
 
     /*SOAP actions*/
     public static final String SOAP_ACTION_GET_SUBSCRIBER = "urn:getAPISubscriberInfo";
-    public static final String SOAP_ACTION_UPDATE_SUBSCRIBER = "urn:updateAPISubscriberInfo";
+    public static final String SOAP_ACTION_UPDATE_SUBSCRIBER = "urn:addAPISubscriberInfo";
 
     private CustomWorkFlowConstants() {
     }

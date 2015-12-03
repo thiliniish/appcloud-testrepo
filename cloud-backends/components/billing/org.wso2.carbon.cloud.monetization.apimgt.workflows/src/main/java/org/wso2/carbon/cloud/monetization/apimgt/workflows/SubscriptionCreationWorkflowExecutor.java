@@ -133,7 +133,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
             LOGGER.debug("Subscriber not available. adding subscriber");
         }
 
-        payload = CustomWorkFlowConstants.SUBSCRIBER_UPDATE_PAYLOAD
+        payload = CustomWorkFlowConstants.ADD_SUBSCRIBER_PAYLOAD
                 .replace("$1", subscriptionWorkflowDTO.getSubscriber())
                 .replace("$2", subscriptionWorkflowDTO.getTenantDomain()).replace("$3", "false");
         client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_UPDATE_SUBSCRIBER, serviceEndpoint,

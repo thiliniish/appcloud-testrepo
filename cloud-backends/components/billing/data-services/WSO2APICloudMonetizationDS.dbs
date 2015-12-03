@@ -10,21 +10,29 @@
       <property name="carbon_datasource_name">apim_db</property>
    </config>
     <query id="getSubscriberInfoQ" useConfig="cloud_mgt">
-        <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE
-            USER_NAME = :USER_NAME AND TENANT_DOMAIN = :TENANT_DOMAIN
-        </sql>
+        <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS
+        WHERE (USER_NAME, TENANT_DOMAIN) = (:USER_NAME, :TENANT_DOMAIN);</sql>
         <result element="Subscribers" rowName="Subscriber">
             <element column="TENANT_DOMAIN" name="Tenant" xsdType="string"/>
             <element column="USER_NAME" name="Username" xsdType="string"/>
             <element column="TEST_ACCOUNT" name="TestAccount" xsdType="boolean"/>
             <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
         </result>
-        <param name="USER_NAME" sqlType="STRING"/>
         <param name="TENANT_DOMAIN" sqlType="STRING"/>
+        <param name="USER_NAME" sqlType="STRING"/>
+    </query>
+    <query id="addSubscriberInfoQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
+            VALUES (:USER_NAME, :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER);</sql>
+         <param name="USER_NAME" sqlType="STRING"/>
+         <param name="TENANT_DOMAIN" sqlType="STRING"/>
+         <param name="TEST_ACCOUNT" sqlType="BOOLEAN"/>
+         <param name="ACCOUNT_NUMBER" defaultValue="#{NULL}" sqlType="STRING"/>
     </query>
     <query id="updateSubscriberInfoQ" useConfig="cloud_mgt">
          <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
-            VALUES (:USER_NAME, :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER)</sql>
+          VALUES (:USER_NAME, :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER) ON DUPLICATE KEY UPDATE TEST_ACCOUNT=
+          (:TEST_ACCOUNT), ACCOUNT_NUMBER=(:ACCOUNT_NUMBER);</sql>
          <param name="USER_NAME" sqlType="STRING"/>
          <param name="TENANT_DOMAIN" sqlType="STRING"/>
          <param name="TEST_ACCOUNT" sqlType="BOOLEAN"/>
@@ -141,6 +149,14 @@
             <with-param name="USER_NAME" query-param="username"/>
         </call-query>
     </operation>
+    <operation name="addSubscriber">
+        <call-query href="addSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </operation>
     <operation name="updateSubscriber">
         <call-query href="updateSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -170,6 +186,14 @@
         </call-query>
     </resource>
     <resource method="POST" path="v1/subscribers/{tenant}/{username}">
+        <call-query href="addSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </resource>
+    <resource method="PUT" path="v1/subscribers/{tenant}/{username}">
         <call-query href="updateSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
             <with-param name="USER_NAME" query-param="username"/>

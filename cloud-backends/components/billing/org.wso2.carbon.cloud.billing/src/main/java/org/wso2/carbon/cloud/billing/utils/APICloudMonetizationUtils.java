@@ -56,7 +56,7 @@ public class APICloudMonetizationUtils {
     /**
      * Retrieve subscriber information
      *
-     * @param username subscriber username
+     * @param username     subscriber username
      * @param tenantDomain tenant domain
      * @return String xml response
      * @throws CloudMonetizationException
@@ -65,9 +65,9 @@ public class APICloudMonetizationUtils {
 
         try {
             String url = subscribersUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                    URLEncoder.encode(tenantDomain, BillingConstants.ENCODING))
+                    URLEncoder.encode(tenantDomain.trim(), BillingConstants.ENCODING))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
-                            URLEncoder.encode(username, BillingConstants.ENCODING));
+                            URLEncoder.encode(username.trim(), BillingConstants.ENCODING));
             return dsBRProcessor.doGet(url, null);
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
@@ -79,28 +79,33 @@ public class APICloudMonetizationUtils {
     /**
      * Update subscriber information table
      *
-     * @param username subscriber username
-     * @param tenantDomain tenant domain
-     * @param isTestAccount boolean test account or not
-     * @param accountNumber zuora account number
+     * @param username       subscriber username
+     * @param tenantDomain   tenant domain
+     * @param isTestAccount  boolean test account or not
+     * @param accountNumber  zuora account number
+     * @param isExistingUser boolean existence of the user
      * @throws CloudMonetizationException
      */
     public static void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-            String accountNumber) throws CloudMonetizationException {
+                                               String accountNumber, boolean isExistingUser) throws CloudMonetizationException {
         try {
             String url = subscribersUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                    URLEncoder.encode(tenantDomain, BillingConstants.ENCODING))
+                    URLEncoder.encode(tenantDomain.trim(), BillingConstants.ENCODING))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
-                            URLEncoder.encode(username, BillingConstants.ENCODING));
+                            URLEncoder.encode(username.trim(), BillingConstants.ENCODING));
             List<NameValuePair> nameValuePairs = new ArrayList<>();
             NameValuePair testAccountNVP = new NameValuePair(IS_TEST_ACCOUNT, String.valueOf(isTestAccount));
             nameValuePairs.add(testAccountNVP);
 
             if (StringUtils.isNotBlank(accountNumber)) {
-                NameValuePair accountNumberNVP = new NameValuePair(ACCOUNT_NUMBER, accountNumber);
+                NameValuePair accountNumberNVP = new NameValuePair(ACCOUNT_NUMBER, accountNumber.trim());
                 nameValuePairs.add(accountNumberNVP);
             }
-            dsBRProcessor.doPost(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+            if (!isExistingUser) {
+                dsBRProcessor.doPost(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+            } else {
+                dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+            }
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
                     "Error while retrieving API subscribers for user: " + username + " tenant domain: " + tenantDomain,
@@ -109,9 +114,9 @@ public class APICloudMonetizationUtils {
     }
 
     /**
-     *Block api subscriptions of the user
+     * Block api subscriptions of the user
      *
-     * @param userId user id of the user
+     * @param userId   user id of the user
      * @param tenantId tenant id
      * @throws CloudMonetizationException
      */
@@ -119,9 +124,9 @@ public class APICloudMonetizationUtils {
         try {
             //TODO use an api to update apim databases instead of using a data service.
             String url = updateApiSubscriptionUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT_ID,
-                    URLEncoder.encode(tenantId, BillingConstants.ENCODING));
+                    URLEncoder.encode(tenantId.trim(), BillingConstants.ENCODING));
             List<NameValuePair> nameValuePairs = new ArrayList<>();
-            NameValuePair userIdNVP = new NameValuePair(MonetizationConstants.USER_ID, userId);
+            NameValuePair userIdNVP = new NameValuePair(MonetizationConstants.USER_ID, userId.trim());
             NameValuePair statusNVP = new NameValuePair(MonetizationConstants.API_SUBSCRIPTION_STATUS,
                     MonetizationConstants.API_SUBSCRIPTION_BLOCKED_STATUS);
             nameValuePairs.add(userIdNVP);
