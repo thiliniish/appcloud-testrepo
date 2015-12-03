@@ -66,9 +66,9 @@ public class APICloudMonetizationService {
     /**
      * Retrieve active subscriptions for a given account id
      *
-     * @param accountId
-     * @param serviceName
-     * @return
+     * @param accountId customer accountId
+     * @param serviceName cloud service name
+     * @return Json string of active subscription ids
      * @throws CloudBillingException
      */
     public JSONArray getActiveSubscriptionIdsForAccountId(String accountId, String serviceName)
@@ -86,9 +86,9 @@ public class APICloudMonetizationService {
     /**
      * Block api subscriptions of a given user
      *
-     * @param userId
-     * @return
-     * @throws CloudBillingException
+     * @param userId user id of the user
+     * @param tenantId tenant id
+     * @throws CloudMonetizationException
      */
     public void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudMonetizationException {
         try {
