@@ -24,7 +24,7 @@ jagg.template("header", function(inputs, outputs, jagg) {
 	}else if(requestURI.indexOf("confirmemail.jag") != -1 || requestURI.indexOf("confirm-verification.jag") != -1 || requestURI.indexOf("add-tenant.jag") != -1 ||  requestURI.indexOf("signup.jag") != -1) {
 		checkSSO = false;
 	}else if(requestURI.indexOf("contact-us.jag") != -1 && request.getParameter("registration-help") != null){
-            checkSSO = false;
+        checkSSO = false;
 	}
 
 	var isLoggedIn = session.get("LOGGED_IN_USER")!=null;
