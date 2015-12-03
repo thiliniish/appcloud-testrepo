@@ -46,6 +46,10 @@ body#home {
 	text-align: right;
 }
 
+.email-resent-msg {
+     color: white;
+}
+
 #tenantDomain {
 	width: 87%;
 	margin-left: 7px;
@@ -147,6 +151,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 doSubmit();
             }
         });
+        $( "#resend-email" ).click(function( event ) {
+            event.preventDefault();
+            resendInvitationEmail();
+        });
+       $('#resent-success').hide();
     });
 
    $(function() {
@@ -175,6 +184,7 @@ function doSubmit() {
     var cloudmgtURL =  $("#cloudmgtURL").attr('value');
     var token = $("#sourceToken").attr('value');
     disable();
+    $('#resent-success').hide();
     var isValidMail = validateEmail();
     if (isValidMail) {
         jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
@@ -232,22 +242,18 @@ function doSubmit() {
 function resendInvitationEmail() {
   var email = $("#email").attr('value');
 
-    jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
+    $.post("../blocks/tenant/register/invite/ajax/invite.jag", {
         action:"reInvite",
         email:email
         },
         function (result) {
-        $(".content-starter h1").text("Check Your Email");
-            $(".content-starter h1").css('color','white');
-            $("#email-sent-to").replaceWith("<br><h5> We have re-sent you the welcome email to <b>" + email + "</b>. Please click the link in the email to continue signing up.</h5>");
-            $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
-            $("#helper_text").hide();
-            $("#success-message").show();
-            $(".content-section-wrapper");
+                $('#resend-mail').text("We have re-sent your email. Please check your inbox.");
             },
             function (jqXHR, textStatus, errorThrown) {
-                window.location.href = "index.jag";
+                $('#resend-mail').text("Error re-sending email.Please Please contact support.");
             });
+            $('#resent-success').show();
+
     return true;
 }
 
@@ -277,7 +283,7 @@ function getUserEmail() {
                 <p><div id="more-options">
                 <ul>
                 <a href ="signup.jag" ><li><strong>Re-type the email address</strong></li></a>
-                <a href ="signup.jag" onclick = 'resendInvitationEmail();' id = "resend-email"><li><strong>Resend the invitation</strong></li></a>
+                <a href ="signup.jag" id = "resend-email"><li><strong>Resend the invitation</strong></li></a>
                 <a href ="index.jag" id ="contact-us-link" onclick = 'getUserEmail();'><li><strong>Contact support</strong></li></a>
 
                 </ul></div>   </p>
@@ -319,5 +325,8 @@ function getUserEmail() {
 			</form>
 		</div>
 	</div>
+</div>
+<div id = "resent-success" class ="container content-starter email-resent-msg h5">
+    <p id = "resend-mail ">We have re-sent your email. Please check your inbox.</p>
 </div>
 <% }); %>
