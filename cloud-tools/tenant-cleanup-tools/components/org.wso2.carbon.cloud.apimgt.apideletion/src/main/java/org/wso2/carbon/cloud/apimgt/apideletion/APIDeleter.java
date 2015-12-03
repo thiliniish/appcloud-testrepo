@@ -86,12 +86,13 @@ public class APIDeleter implements Runnable {
     private void delete() throws InterruptedException, UserStoreException {
         //read and get tenant domains from the file.
         List<String> tenantDomains = readFile(System.getProperty(ApiDeleterConstants.TENANT_FILE));
-        Map<String, Integer> tenantDomainIdMap = new HashMap<String, Integer>();
         //if an exception occurred or no tenants in the file.
         if (tenantDomains.isEmpty()) {
             log.info("No tenants to be deleted.");
             return;
         }
+        //This map keeps tenant domain as key and tenant id as the value
+        Map<String, Integer> tenantDomainIdMap = new HashMap<String, Integer>();
         //load super tenant in the new thread to get tenants for tenant domain names.
         try {
             PrivilegedCarbonContext.startTenantFlow();
