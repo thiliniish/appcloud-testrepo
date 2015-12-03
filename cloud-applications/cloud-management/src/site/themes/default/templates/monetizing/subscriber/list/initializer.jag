@@ -1,0 +1,5 @@
+<%
+jagg.initializer("monetizing/subscriber/list", {
+    preInitialize: function () {
+    }
+});

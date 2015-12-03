@@ -1,0 +1,232 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/modules/database/dataaccess.jag");
+
+var log = new Log("modules/monetizing/monetizing.jag");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var modDb = jagg.module("database");
+var modUtil = jagg.module("util");
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var billingConstants = Packages.org.wso2.carbon.cloud.billing.commons.BillingConstants;
+
+var getSubscribersOfTenant = function () {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        var modTenant = jagg.module("tenant");
+        var subscribers = [];
+        try {
+            //get the tenant users that have the subscriber role
+            var subscriberList = modTenant.getUserListOfRole(ROLE_SUBSCRIBER);
+            var len = subscriberList.length;
+            for (var i = 0; i < len; i++) {
+                var tmpSubscriber = {};
+                var userName = subscriberList[i];
+                var tmpUser = modTenant.getUserInfo(userName);
+                tmpSubscriber.userName = userName;
+                tmpSubscriber.displayName = tmpUser.displayName;
+                tmpSubscriber.email = tmpUser.email;
+                var queryString = SQL_QUERY_STRINGS.SELECT_SUBSCRIBER_FROM_MONETIZATION_API_CLOUD_SUBSCRIBERS;
+                var parameters = [userName, tenantDomain];
+                var results = modDb.executeQuery(queryString, parameters);
+                if (results == null || results == "") {
+                    tmpSubscriber.subscriptionType = ACC_FREE;
+                    tmpSubscriber.complimentary = false;
+                } else {
+                    var isTest = results[0]["TEST_ACCOUNT"];
+                    var accNo = results[0]["ACCOUNT_NUMBER"];
+                    tmpSubscriber.accountId = accNo;
+                    tmpSubscriber.complimentary = isTest;
+                    if (isTest) {
+                        tmpSubscriber.subscriptionType = ACC_TEST;
+                    }
+                    else if (accNo != null && accNo != "null" && accNo != "") {
+                        tmpSubscriber.subscriptionType = ACC_PAID;
+                    } else {
+                        tmpSubscriber.subscriptionType = ACC_FREE;
+                    }
+                }
+                subscribers.push(tmpSubscriber);
+            }
+            return subscribers;
+        } catch (e) {
+            log.error("Error while getting subscribers of the tenant :" + tenantDomain);
+            log.error(e);
+            throw e;
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+        log.error(msg);
+        return false;
+    }
+};
+
+var cancelSubscriberSubscription = function (subscriptionId, effectiveDate) {
+    var dateFormatter = modUtil.dateTimeFormatter(ZUORA_DATE_FORMAT);
+    try {
+        var data = {};
+        data.cancellationPolicy = 'SpecificDate';
+        data.cancellationEffectiveDate = dateFormatter.format(effectiveDate);
+        data.invoiceCollect = true;
+        var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION;
+        //send cancellation requests for subscription
+        url = url.replace("{subscription-key}", subscriptionId);
+        var response = sendHTTPRequest(url, "PUT", null, data);
+        if (response.success === true) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    } catch (e) {
+        log.error("Error cancelling subscription for subscription id " + subscriptionId);
+        throw e;
+    }
+};
+
+var makeSubscriberAccountsTest = function (complimentaryAddedSubscribers) {
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
+    var productName = tenantDomain + "_api_cloud";
+    var sqlDateFormat = modUtil.dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+    var effectiveDate = new Packages.java.util.Date();
+    var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+    var subscribersLen = complimentaryAddedSubscribers.length;
+    for (var i = 0; i < subscribersLen; i++) {
+        var subscriber = complimentaryAddedSubscribers[i];
+        var accountId = subscriber.accountId;
+        var userName = subscriber.userName;
+        if (log.isDebugEnabled()) {
+            log.debug("Updating account to test for user :" + userName + " of tenant :" + tenantDomain);
+        }
+        try {
+            if (subscriber.subscriptionType == ACC_PAID) {
+                var subscriptionIds = JSON.parse(monetizationService.getActiveSubscriptionIdsForAccountId(accountId, productName));
+                var subsLen = subscriptionIds.length;
+                for (var j = 0; j < subsLen; j++) {
+                    //cancel subscriptions
+                    var subscriptionId = subscriptionIds[j];
+                    //cancel paid subscriptions form zuora
+                    if (cancelSubscriberSubscription(subscriptionId, effectiveDate)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Zuora subscription :" + subscriptionId + " of subscriber :" + userName + " of tenant :" + tenantDomain + " cancellation successful");
+                        }
+                        //insert in to monetization subscription history table
+                        var insertSubHistoryQuery = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY;
+                        var parameters = [formattedEffectiveDate, accountId, subscriptionId];
+                        modDb.executeQuery(insertSubHistoryQuery, parameters);
+                        //delete subscription from monetization subscription table
+                        var deleteSubscriptionQuery = SQL_QUERY_STRINGS.DELETE_FROM_MONETIZATION_API_CLOUD_SUBSCRIPTIONS;
+                        parameters = [accountId, subscriptionId];
+                        modDb.executeQuery(deleteSubscriptionQuery, parameters);
+                    } else {
+                        throw new Error("Subscription cancellation failed for user " + userName + " of tenant :" + tenantDomain);
+                    }
+                }
+                //update monetization subscriber table
+                updateMonetizationSubscriberTable(true, userName, tenantDomain);
+                //send notification email
+                sendUpdatedToTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
+            }
+            else {
+                //insert into monetization subscriber table
+                var insertQueryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIBERS;
+                var parameters = [userName, tenantDomain, true, null, true];
+                modDb.executeQuery(insertQueryString, parameters);
+                //send notification email
+                sendUpdatedToTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
+            }
+            log.info("Updating account to test for user :" + userName + " of tenant :" + tenantDomain + " is successful");
+        } catch (e) {
+            log.error("Error while updating subscriber account to test for user :" + userName + " of the tenant :" + tenantDomain + ".");
+            throw e;
+        }
+    }
+    if (log.isDebugEnabled()) {
+        log.debug("Updating subscriber accounts to test is successful for tenant :" + tenantDomain);
+    }
+};
+
+var removeTestSubscriberAccounts = function (complimentaryRemovedSubscribers) {
+    var tenantDomain = modManager.getTenantDomain();
+    var tenantId = modManager.getTenantId(tenantDomain);
+    var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
+    var effectiveDate = new Packages.java.util.Date();
+    var subscriberLen = complimentaryRemovedSubscribers.length;
+    for (var i = 0; i < subscriberLen; i++) {
+        var subscriber = complimentaryRemovedSubscribers[i];
+        var userName = subscriber.userName;
+        var apimSubscriberId = userName + "@" + tenantDomain;
+        if (log.isDebugEnabled()) {
+            log.debug("Removing test account status of user :" + userName + " of tenant :" + tenantDomain);
+        }
+        //block api subscriptions from apim
+        try {
+            monetizationService.blockApiSubscriptionsOfUser(apimSubscriberId, tenantId);
+            //update monetization subscriber table
+            updateMonetizationSubscriberTable(false, userName, tenantDomain);
+            //send notification email
+            sendRemoveTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
+            log.info("Removing test account status of user :" + userName + " of tenant :" + tenantDomain + " is successful.");
+        } catch (e) {
+            log.error("Error while removing test account status of subscriber :" + userName + " of the tenant :" + tenantDomain + ".");
+            throw e;
+        }
+    }
+    if (log.isDebugEnabled()) {
+        log.debug("Removing subscriber accounts test statuses is successful for tenant :" + tenantDomain);
+    }
+};
+
+var updateMonetizationSubscriberTable = function (isTest, userName, tenantDomain) {
+    var queryString = SQL_QUERY_STRINGS.UPDATE_MONETIZATION_API_CLOUD_SUBSCRIBERS;
+    var parameters = [isTest, userName, tenantDomain];
+    modDb.executeQuery(queryString, parameters);
+};
+
+var updateSubscribersTestStatus = function (complimentaryAddedSubscribers, complimentaryRemovedSubscribers) {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            if (null != complimentaryAddedSubscribers && complimentaryAddedSubscribers.length > 0 && complimentaryAddedSubscribers != "") {
+                makeSubscriberAccountsTest(complimentaryAddedSubscribers);
+            }
+            if (null != complimentaryRemovedSubscribers && complimentaryRemovedSubscribers.length > 0 && complimentaryRemovedSubscribers != "") {
+                removeTestSubscriberAccounts(complimentaryRemovedSubscribers);
+            }
+            log.info("Successfully updated subscriber accounts test statuses of tenant :" + tenantDomain);
+            return true;
+        } catch (e) {
+            log.error("Error while updating subscriber accounts test statuses of tenant " + tenantDomain);
+            log.error(e);
+            throw e;
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return false;
+    }
+};
+
+var sendUpdatedToTestAccountEmail = function (displayName, service, endDate, userEmail) {
+    var body = modUtil.getObjFromFile("/site/conf/emails/monetization_api_subscription_create_test_account_email_body.txt");
+    var mailEndDate = modUtil.getEmailEffectiveDate(endDate);
+    body = body.replace("$tenant", displayName).replace("$tenant", displayName).replace("$effective-date", mailEndDate);
+    var subject = "WSO2 Cloud Services - WSO2 " + service + " subscriber account of " + displayName + " upgraded to a complimentary account";
+    modUtil.sendEmail(body, subject, userEmail);
+};
+
+var sendRemoveTestAccountEmail = function (displayName, service, endDate, userEmail) {
+    var body = modUtil.getObjFromFile("/site/conf/emails/monetization_api_subscription_remove_test_account_email_body.txt");
+    var mailEndDate = modUtil.getEmailEffectiveDate(endDate);
+    body = body.replace("$tenant", displayName).replace("$effective-date", mailEndDate).replace("$tenant", displayName);
+    var subject = "WSO2 Cloud Services - Removed complimentary status of WSO2 " + service + " subscriber account of " + displayName;
+    modUtil.sendEmail(body, subject, userEmail);
+};
+
+%>

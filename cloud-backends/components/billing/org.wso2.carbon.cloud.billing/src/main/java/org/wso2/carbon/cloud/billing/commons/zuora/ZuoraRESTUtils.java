@@ -267,4 +267,31 @@ public class ZuoraRESTUtils {
         }
         throw new CloudBillingException("Unable to find the specified product name: " + productName);
     }
+
+    /**
+     * Retrieve account subscriptions
+     *
+     * @param accountId zuora accountId
+     * @return json string of subscriptions
+     * @throws CloudBillingException
+     */
+    public static JSONArray getActiveSubscriptionIdsForAccountId(String accountId, String productName)
+            throws CloudBillingException {
+        String response = getAccountSummary(accountId);
+        JSONArray subscriptions = getSubscriptions(accountId, response);
+        JSONArray subscriptionIdList = new JSONArray();
+        for (Object subscriptionObj : subscriptions) {
+            JSONObject subscription = (JSONObject) subscriptionObj;
+            //Any of the rate plans can be taken since only there is a one to one mapping between subscription and
+            //product according to cloud use case: hence the magic number 0
+            JSONObject ratePlan = (JSONObject) ((JSONArray) subscription.get(BillingConstants.RATE_PLANS)).get(0);
+            String subscriptionProductPlan = (String) ratePlan.get(BillingConstants.PRODUCT_NAME);
+            String subscriptionStatus = (String) subscription.get(BillingConstants.ZUORA_SUBSCRIPTION_STATUS);
+            if (productName.equals(subscriptionProductPlan) && BillingConstants.SUBSCRIPTION_STATUS_ACTIVE
+                    .equals(subscriptionStatus)) {
+                subscriptionIdList.add(subscription.get(BillingConstants.SUBSCRIPTION_NUMBER));
+            }
+        }
+        return subscriptionIdList;
+    }
 }

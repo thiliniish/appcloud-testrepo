@@ -150,4 +150,18 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
     public String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by Zuora Billing Request Processor");
     }
+
+    /**
+     * PUT with name value pairs not supported for zuora
+     *
+     * @param url
+     * @param nameValuePairs
+     * @return
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+        throw new UnsupportedOperationException(
+                "PUT method with name value pairs is not supported by Zuora Billing Request Processor");
+    }
 }
