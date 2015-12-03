@@ -273,7 +273,7 @@
         <mysql.connector.version>5.1.26</mysql.connector.version>
         <gitblit.version>1.2.0</gitblit.version>
         <log4j.version>1.2.17</log4j.version>
-        <zuora.stub.version>70.0</zuora.stub.version>
+        <zuora.stub.version>72.0</zuora.stub.version>
         <org.wso2.appfactory.version>2.2.0-SNAPSHOT</org.wso2.appfactory.version>
         <org.json.wso2.version>3.0.0.wso2v1</org.json.wso2.version>
         <org.wso2.carbon.jaggery.app.mgt.stub.version>1.0.0</org.wso2.carbon.jaggery.app.mgt.stub.version>
