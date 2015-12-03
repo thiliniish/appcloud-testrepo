@@ -57,8 +57,7 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      *
      * @throws CloudBillingException
      */
-    @Override
-    public void doUpload() throws CloudBillingException {
+    @Override public void doUpload(File file) throws CloudBillingException {
         PostMethod post = new PostMethod(uploadURL);
         // indicate accept response body in JSON
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
@@ -67,10 +66,7 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         post.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
         post.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
 
-        /**
-         * Initializing the multipart contents used by the usage file uploader functionality.
-         */
-        File file = new File(zuoraConfig.getUsageConfig().getUsageUploadFileLocation());
+        //Initializing the multipart contents used by the usage file uploader functionality.
         Part part;
         try {
             part = new FilePart(BillingConstants.FILE_PART_NAME, file);
@@ -80,6 +76,8 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         RequestEntity uploadReqEntity = new MultipartRequestEntity(new Part[]{part}, new HttpClientParams());
         post.setRequestEntity(uploadReqEntity);
         ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
+        //removing the file after successful upload
+        file.delete();
     }
 
     /**
@@ -151,5 +149,19 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
     @Override
     public String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by Zuora Billing Request Processor");
+    }
+
+    /**
+     * PUT with name value pairs not supported for zuora
+     *
+     * @param url
+     * @param nameValuePairs
+     * @return
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+        throw new UnsupportedOperationException(
+                "PUT method with name value pairs is not supported by Zuora Billing Request Processor");
     }
 }

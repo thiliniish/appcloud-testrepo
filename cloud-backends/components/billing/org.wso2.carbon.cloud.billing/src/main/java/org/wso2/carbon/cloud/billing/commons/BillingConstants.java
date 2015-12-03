@@ -74,6 +74,8 @@ public final class BillingConstants {
     public static final String HTTP_RESPONSE_TYPE_ACCEPT = "Accept";
     public static final String HTTP_RESPONSE_TYPE_JSON = "application/json";
     public static final String HTTP_FOLLOW_REDIRECT = "follow_redirect";
+    public static final String HTTP_CONTENT_TYPE = "Content-Type";
+    public static final String HTTP_QUERY_STRING_CONTENT = "application/x-www-form-urlencoded";
     // Account summary json elements
     public static final String PRODUCTS = "products";
     public static final String NAME = "name";
@@ -165,6 +167,8 @@ public final class BillingConstants {
 
     /*Zuora types*/
     public static final String ZUORA_ACCOUNT = "Account";
+    public static final String ZUORA_SUBSCRIPTION_STATUS = "status";
+    public static final String SUBSCRIPTION_STATUS_ACTIVE = "Active";
 
     private BillingConstants() {
     }

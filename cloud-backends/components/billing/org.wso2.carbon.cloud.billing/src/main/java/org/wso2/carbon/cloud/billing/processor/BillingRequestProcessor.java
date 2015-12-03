@@ -22,6 +22,8 @@ package org.wso2.carbon.cloud.billing.processor;
 import org.apache.commons.httpclient.NameValuePair;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
+import java.io.File;
+
 /**
  * Represents the API invocation methods which are needed for cloud billing
  * platform.
@@ -30,10 +32,11 @@ public interface BillingRequestProcessor {
 
     String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
 
-    void doUpload() throws CloudBillingException;
+    void doUpload(File file) throws CloudBillingException;
 
     String doPost(String url, String jsonPayload) throws CloudBillingException;
 
     String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException;
 
+    String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
 }

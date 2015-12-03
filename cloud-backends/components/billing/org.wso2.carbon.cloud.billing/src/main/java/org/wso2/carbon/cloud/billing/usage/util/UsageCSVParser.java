@@ -20,7 +20,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.beans.usage.Usage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
 import java.io.FileWriter;
@@ -45,17 +44,15 @@ public class UsageCSVParser {
      * @param usage usage stats
      * @throws CloudBillingException
      */
-    public static void writeCSVData(Usage[] usage) throws CloudBillingException {
-        String csvFile = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
-                .getUsageUploadFileLocation();
+    public static void writeCSVData(Usage[] usage, String filePath) throws CloudBillingException {
         CSVWriter csvWriter;
         try {
             csvWriter =
-                    new CSVWriter(new FileWriter(csvFile), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
+                    new CSVWriter(new FileWriter(filePath), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
             List<String[]> data = toStringArray(usage);
             csvWriter.writeAll(data);
             csvWriter.close();
-            LOGGER.info("Successfully created the csv file in  " + csvFile);
+            LOGGER.info("Successfully created the csv file in  " + filePath);
         } catch (IOException e) {
             throw new CloudBillingException("Error while creating the csv file", e);
         }

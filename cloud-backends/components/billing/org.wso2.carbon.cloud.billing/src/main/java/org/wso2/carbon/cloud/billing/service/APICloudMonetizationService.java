@@ -18,7 +18,9 @@
 
 package org.wso2.carbon.cloud.billing.service;
 
+import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
@@ -71,5 +73,42 @@ public class APICloudMonetizationService {
      */
     public boolean isMonetizationEnabled(String tenantDomain) throws CloudBillingException {
         return CloudBillingServiceUtils.isMonetizationEnabled(tenantDomain, BillingConstants.API_CLOUD_SUBSCRIPTION_ID);
+    }
+
+    /**
+     * Retrieve active subscriptions for a given account id
+     *
+     * @param accountId
+     * @param serviceName
+     * @return
+     * @throws CloudBillingException
+     */
+    public JSONArray getActiveSubscriptionIdsForAccountId(String accountId, String serviceName)
+            throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.getActiveSubscriptionIdsForAccountId(accountId, serviceName);
+        } catch (CloudBillingException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new CloudBillingException(
+                    "Error occurred while retrieving active subscription ids for account ID: " + accountId);
+        }
+    }
+
+    /**
+     * Block api subscriptions of a given user
+     *
+     * @param userId
+     * @return
+     * @throws CloudBillingException
+     */
+    public void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudMonetizationException {
+        try {
+            APICloudMonetizationUtils.blockApiSubscriptionsOfUser(userId, tenantId);
+        } catch (CloudMonetizationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new CloudMonetizationException("Error occurred while blocking api subscriptions of user : " + userId);
+        }
     }
 }

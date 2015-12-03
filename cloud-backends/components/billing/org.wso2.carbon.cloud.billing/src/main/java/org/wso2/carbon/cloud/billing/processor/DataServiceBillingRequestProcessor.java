@@ -19,8 +19,7 @@
 package org.wso2.carbon.cloud.billing.processor;
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +32,7 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -108,7 +108,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      * @throws CloudBillingException
      */
     @Override
-    public void doUpload() throws CloudBillingException {
+    public void doUpload(File file) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported for Data Service Billing request "
                                                 + "processor");
     }
@@ -143,6 +143,24 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
         post.setRequestBody(nameValuePairs);
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * Data service PUT request
+     *
+     * @param url            URL
+     * @param nameValuePairs name value pair
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override public String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+        setTrustStoreParams();
+        PutMethod put = new PutMethod(url);
+        // indicate accept response body in JSON
+        put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+        put.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_QUERY_STRING_CONTENT);
+        put.setQueryString(nameValuePairs);
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), put, DEFAULT_CONNECTION_RETRIES);
     }
 
     private void setTrustStoreParams() {

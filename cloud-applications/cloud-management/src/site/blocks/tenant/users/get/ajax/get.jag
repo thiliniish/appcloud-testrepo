@@ -84,13 +84,29 @@ var log = new Log();
             result.message=e.javaException.getCause().toString().split(":")[1];
             print(stringify(result));
         }
-
+    } else if (action == "getUserListOfRole") {
+        mod = jagg.module("tenant");
+        var role = request.getParameter("role");
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+            try {
+                var result = mod.getUserListOfRole(role);
+                if (result != null) {
+                    print(result);
+                } else {
+                    throw("Error occurred while getting users of role " + role + " for tenant " + tenantDomain);
+                }
+            } catch (e) {
+                log.error(e);
+                throw "Error occurred while getting users of role " + role + " for tenant " + tenantDomain;
+            }
+        } else {
+            throw "You don't have permission to getting users of role " + tenantDomain;
+        }
     } else if (action == "getUserRolesByCloudType") {
         mod = jagg.module("tenant");
         var userName = request.getParameter("userName");
         var cloudType = request.getParameter("cloudType");
         var result;
-
         try {
             result = mod.getUserRolesByCloudType(userName, cloudType);
             if (result != null) {
