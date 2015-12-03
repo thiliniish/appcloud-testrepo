@@ -405,18 +405,13 @@ var sendInvite = function (email, token) {
             var page = "Rightwave";
             var item = type;
             var events = [];
-            if (msg != null) {
-                if (msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
                     actionString = actionString + "Success";
                     log.info("Rightwave cloud signup api call success for the user " + email);
                 } else {
                     actionString = actionString + "Failed";
                     log.error("Rightwave cloud signup api call failed for the user " + email + " : " + msg);
                 }
-            } else {
-                actionString = actionString + "Failed";
-                log.error("Rightwave cloud signup api call failed for the user " + email + " : " + msg);
-            }
             var event = {};
             event.item = item;
             event.timestamp = new Date().getTime();
