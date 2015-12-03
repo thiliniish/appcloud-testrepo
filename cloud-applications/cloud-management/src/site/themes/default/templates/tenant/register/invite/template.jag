@@ -8,7 +8,6 @@ var log = new Log('site/theme/default/templates/tenant/register/invite/template.
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var otEmail = request.getParameter("email");
 var sourceToken = request.getParameter("sourceToken");
-var signupEpr = cloudConfig.registrationEmail.signupEpr.toString();
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 
 %>
