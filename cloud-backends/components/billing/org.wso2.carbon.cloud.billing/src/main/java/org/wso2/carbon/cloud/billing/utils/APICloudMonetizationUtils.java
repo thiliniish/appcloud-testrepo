@@ -108,6 +108,13 @@ public class APICloudMonetizationUtils {
         }
     }
 
+    /**
+     *Block api subscriptions of the user
+     *
+     * @param userId user id of the user
+     * @param tenantId tenant id
+     * @throws CloudMonetizationException
+     */
     public static void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudMonetizationException {
         try {
             //TODO use an api to update apim databases instead of using a data service.
