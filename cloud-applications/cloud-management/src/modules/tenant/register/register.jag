@@ -88,7 +88,7 @@ var getConfirmationEmail = function(confirm){
         } else {
             log.error("Error while getting confirmation email: " + confirm + ". Email value is not available");
         }
-    }catch (e){
+    } catch (e) {
         log.error("Error while getting confirmation email: " + confirm);
         log.error(e);
         throw (e);
@@ -160,7 +160,7 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
         log.info("Tenant Registration completed.");
         return true;
     } else {
-        log.info("User "  +userName + " already exists in the system.");
+        log.info("User " +userName + " already exists in the system.");
         return false;
     }
 };
