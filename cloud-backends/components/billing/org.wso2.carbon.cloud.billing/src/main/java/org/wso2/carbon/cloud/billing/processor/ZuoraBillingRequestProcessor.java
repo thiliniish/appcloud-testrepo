@@ -154,9 +154,9 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
     /**
      * PUT with name value pairs not supported for zuora
      *
-     * @param url
-     * @param nameValuePairs
-     * @return
+     * @param url URL
+     * @param nameValuePairs name value pair
+     * @return response
      * @throws CloudBillingException
      */
     @Override
