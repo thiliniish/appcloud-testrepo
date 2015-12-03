@@ -2,11 +2,11 @@
 jagg.initializer("billing/usage/get", {
     preInitialize : function () {
         if (request.getParameter("cloud-type") == null) { %>
-            <script> window.location.href="../pages/index.jag"; </script>
+            <script> window.location.href = "../pages/index.jag"; </script>
         <% }
         var tenantInfo = session.get("TENANT_INFO");
         if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) { %>
-            <script> window.location.href="../pages/index.jag"; </script>
+            <script> window.location.href = "../pages/index.jag"; </script>
         <% }
     }
 });
