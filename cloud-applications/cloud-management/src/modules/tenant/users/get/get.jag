@@ -49,14 +49,15 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
             tmpUser.lastName=tmplastName;
             var allRoles="";
             for(var j=0;j<tmproles.length;j++) {
-               if(tmproles[j] == CLOUD_DEFAULT_ROLE){
-                 continue;
-               }
-               if(allRoles != ""){
-                 allRoles= tmproles[j]+"\n"+allRoles;
-               } else {
-                 allRoles= tmproles[j];
-               }
+                //This was introduced as a temporary fix; Please refer https://support.wso2.com/jira/browse/WSOTWOCLOUD-342
+                if (tmproles[j] == CLOUD_DEFAULT_ROLE || tmproles[j].indexOf("Internal/") != -1) {
+                    continue;
+                }
+                if (allRoles != "") {
+                    allRoles = tmproles[j] + "\n" + allRoles;
+                } else {
+                    allRoles = tmproles[j];
+                }
             }
             
             tmpUser.roles=allRoles;
@@ -126,7 +127,8 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
             tmpUser.lastName = tmpLastName;
             tmpUser.roleTypes = [];
             for (var j = 0; j < tmpRoles.length; j++) {
-                if (tmpRoles[j] == CLOUD_DEFAULT_ROLE) {
+                //This was introduced as a temporary fix; Please refer https://support.wso2.com/jira/browse/WSOTWOCLOUD-342
+                if (tmpRoles[j] == CLOUD_DEFAULT_ROLE  || tmproles[j].indexOf("Internal/") != -1) {
                     continue;
                 }
                 if (tmpRoles[j] == 'admin') {
