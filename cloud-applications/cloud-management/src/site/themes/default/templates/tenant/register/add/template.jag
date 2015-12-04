@@ -93,14 +93,14 @@ ul
                   lastName:lastName
               },
               function (result) {
-                  jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
+                  jagg.message({content:'You have successfully registered to WSO2 Cloud.', type:'success', cbk:function() {
                           window.location.href = result;
                       }, cbkBtnText:'Login'
                   });
                   disableSpinner();
               },
               function (jqXHR, textStatus, errorThrown) {
-                  jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
+                  jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error', cbk:function() {
                           window.location.href = cloudmgtURL;
                       }
                   });
@@ -120,14 +120,14 @@ ul
                  lastName:lastName
              },
              function (result) {
-                 jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
+                 jagg.message({content:'You have successfully registered to WSO2 Cloud.', type:'success', cbk:function() {
                          window.location.href = cloudmgtURL;
                      }, cbkBtnText:'Login'
                  });
                  disableSpinner();
              },
              function (jqXHR, textStatus, errorThrown) {
-                 jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
+                 jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error', cbk:function() {
                          window.location.href = cloudmgtURL;
                      }
                  });
@@ -140,7 +140,7 @@ ul
         var key =  $("#confirmationKey").attr('value');
         var cloudmgtURL =  $("#cloudmgtURL").attr('value');
         if(key == 'null' || key == ""){
-            jagg.message({content:"You have either already clicked the link that was emailed to you or it must have been expired", type:'error',cbk:function(){
+            jagg.message({content:"You have either already clicked the link that was emailed to you or it must have been expired", type:'error', cbk:function() {
                     window.location.href = cloudmgtURL;
                 }
             });
