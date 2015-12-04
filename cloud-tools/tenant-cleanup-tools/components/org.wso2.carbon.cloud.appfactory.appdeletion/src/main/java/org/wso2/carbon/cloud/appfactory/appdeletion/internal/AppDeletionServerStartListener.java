@@ -36,8 +36,8 @@ public class AppDeletionServerStartListener implements ServerStartupHandler {
 
         String tenantFile = System.getProperty(AppDeleterConstants.TENANT_FILE);
         String napTime = System.getProperty(AppDeleterConstants.NAP_TIME);
-        //checks for null,empty and whitespace values
-        if (StringUtils.isNotBlank(tenantFile) && StringUtils.isNotBlank(napTime)) {
+        //Checks for null,empty and whitespace values
+        if( StringUtils.isNotBlank(tenantFile) && StringUtils.isNotBlank(napTime)){
             log.info("Tenant app deletion for tenant list located at: " + tenantFile + " will start after " + napTime
                     + " milli-seconds.");
             //A separate thread is created for app deletion.

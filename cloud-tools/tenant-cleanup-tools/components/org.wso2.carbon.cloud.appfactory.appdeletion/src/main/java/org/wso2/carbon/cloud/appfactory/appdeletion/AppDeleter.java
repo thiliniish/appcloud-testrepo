@@ -75,17 +75,17 @@ public class AppDeleter implements Runnable {
      */
     public void delete() throws UserStoreException {
         TenantManager tenantManager = ServiceHolder.getRealmService().getTenantManager();
-        //this variable keeps the number of attempted tenants
+        //This variable keeps the number of attempted tenants
         int totalAttemptedTenants = 0;
         List<String> tenantDomains = readFile(System.getProperty(AppDeleterConstants.TENANT_FILE));
-        //if an exception occurred or no tenants in the file
+        //If an exception occurred or no tenants in the file
         if (tenantDomains.isEmpty()) {
             log.info("No tenants to be deleted.");
             return;
         } else {
             log.info("Total tenant domains in the list: " + tenantDomains.size());
         }
-        //get the tenants for the given tenant domain names and delete their applications
+        //Get the tenants for the given tenant domain names and delete their applications
         for (String tenantDomain : tenantDomains) {
             int tenantID;
             try {
@@ -94,12 +94,12 @@ public class AppDeleter implements Runnable {
                 log.info("Error occurred while retrieving tenantId for domain name: " + tenantDomain, e);
                 continue;
             }
-            //if a tenant is not available for given tenant domain skip to the next iteration
+            //If a tenant is not available for given tenant domain skip to the next iteration
             if (tenantID == MultitenantConstants.SUPER_TENANT_ID || tenantID == -1) {
                 log.info("Tenant not found for domain name: " + tenantDomain);
                 continue;
             }
-            //increment the number of attempted tenants by 1
+            //Increment the number of attempted tenants by 1
             totalAttemptedTenants++;
             log.info("App deletion started for tenant " + tenantDomain + "[" + tenantID + "]");
             try {
@@ -138,7 +138,7 @@ public class AppDeleter implements Runnable {
                             + tenantDomain + ".");
                 }
                 log.info("Deletion successful for tenant " + tenantDomain + "[" + tenantID + "]");
-                //program does not terminate if a tenant gave an exception, There can be corrupted tenants
+                //Program does not terminate if a tenant gave an exception, There can be corrupted tenants
                 //or applications which throw exceptions. The deletion process should not stop in such scenarios.
             } catch (AppFactoryException e) {
                 log.error("AppFactory Exception occurred while deleting applications of  " + tenantDomain, e);
