@@ -81,7 +81,7 @@ public class APIDeleter implements Runnable {
      * @throws UserStoreException, InterruptedException
      */
     private void delete() throws InterruptedException, UserStoreException {
-        //read and get tenant domains from the file.
+        //Read and get tenant domains from the file.
         List<String> tenantDomains = readFile(System.getProperty(ApiDeleterConstants.TENANT_FILE));
         Map<String, Integer> tenantDomainIdMap = new HashMap<String, Integer>();
         //if an exception occurred or no tenants in the file.
@@ -89,7 +89,7 @@ public class APIDeleter implements Runnable {
             log.info("No tenants to be deleted.");
             return;
         }
-        //load super tenant in the new thread to get tenants for tenant domain names.
+        //Load super tenant in the new thread to get tenants for tenant domain names.
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
@@ -109,7 +109,7 @@ public class APIDeleter implements Runnable {
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
-        //if no tenant retrieved for given tenant domains, return.
+        //If no tenant retrieved for given tenant domains, return.
         if (tenantDomainIdMap.isEmpty()) {
             log.info("No tenants to be deleted.");
             return;
@@ -127,7 +127,7 @@ public class APIDeleter implements Runnable {
                 String adminName = ServiceHolder.getRealmService().getTenantUserRealm(tenantID).getRealmConfiguration()
                         .getAdminUserName();
                 ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenantID);
-                //get tenant's api artifacts from the registry
+                //Get tenant's api artifacts from the registry
                 Registry registry = ServiceHolder.getRegistryService().getGovernanceUserRegistry(adminName, tenantID);
                 GenericArtifactManager manager = new GenericArtifactManager(registry, ApiDeleterConstants.API);
                 GovernanceUtils.loadGovernanceArtifacts((UserRegistry) registry);
@@ -147,7 +147,7 @@ public class APIDeleter implements Runnable {
                         log.info("Api provider " + providerName + " is retrieved for " + apiId + "of tenant "
                                 + tenantDomain + "[" + tenantID + "]");
                         Set<Subscriber> subscribers = apiProvider.getSubscribersOfAPI(api.getId());
-                        //remove subscriptions if there are any.
+                        //Remove subscriptions if there are any.
                         if (!subscribers.isEmpty()) {
                             Iterator subscribersIterator = subscribers.iterator();
                             while (subscribersIterator.hasNext()) {
@@ -159,7 +159,7 @@ public class APIDeleter implements Runnable {
                                 Iterator subscribedApiIterator = subscribedAPIs.iterator();
                                 while (subscribedApiIterator.hasNext()) {
                                     SubscribedAPI subscribedAPI = (SubscribedAPI) subscribedApiIterator.next();
-                                    //if the subscribed api is the api under consideration, delete the
+                                    //If the subscribed api is the api under consideration, delete the
                                     // application(this will remove subscriptions)
                                     if (subscribedAPI.getApiId().toString().equals(apiId)) {
                                         Application application = subscribedAPI.getApplication();
@@ -173,7 +173,7 @@ public class APIDeleter implements Runnable {
                         } else {
                             log.info("No subscriptions for " + apiId + "of tenant " + tenantDomain + "[" + tenantID + "]");
                         }
-                        //delete the api after subscriptions and applications are deleted.
+                        //Delete the api after subscriptions and applications are deleted.
                         apiProvider.deleteAPI(api.getId());
                         log.info("Deletion successful for api :" + apiId + " of tenant " + tenantDomain + "[" + tenantID
                                 + "]");
@@ -187,7 +187,7 @@ public class APIDeleter implements Runnable {
                         log.error("Unexpected error occurred while deleting apis" + " of tenant " + tenantDomain + "["
                                 + tenantID + "]", e);
                     }
-                    //sleep 5 seconds before starting next to avoid connection exhaustion.
+                    //Sleep 5 seconds before starting next to avoid connection exhaustion.
                     Thread.sleep(5000);
                 }
             } catch (RegistryException e) {

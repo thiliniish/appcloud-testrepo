@@ -36,7 +36,7 @@ public class ApiDeletionServerStartListener implements ServerStartupHandler {
     public void invoke() {
         String tenantFile = System.getProperty(ApiDeleterConstants.TENANT_FILE);
         String napTime = System.getProperty(ApiDeleterConstants.NAP_TIME);
-        //checks for null and empty values
+        //Checks for null and empty values
         if (StringUtils.isNotBlank(tenantFile) && StringUtils.isNotBlank(napTime)) {
             log.info("Tenant api deletion for tenant-file located at: " + tenantFile + "will start after " + napTime +
                      "milli-seconds.");

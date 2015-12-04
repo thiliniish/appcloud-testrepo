@@ -49,7 +49,7 @@ public class TenantAPIDeletionComponent {
      */
     protected void activate(ComponentContext context) {
 
-        //register the server start up handler which hold the execution of its invoke method until the server starts
+        //Register the server start up handler which hold the execution of its invoke method until the server starts
         context.getBundleContext()
                 .registerService(ServerStartupHandler.class.getName(), new ApiDeletionServerStartListener(), null);
         log.info("Tenant api Deletion bundle activated successfully.");
