@@ -1,0 +1,33 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var mod, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    mod = jagg.module("monetizing");
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    if (action == "getSubscribersOfTenant") {
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+            try {
+                result = mod.getSubscribersOfTenant();
+                if (result != null) {
+                    print(result);
+                } else {
+                    throw "Error while getting the subscribers of the tenant :" + tenantDomain;
+                }
+            } catch (e) {
+                log.error(e);
+                log.error("Error while getting the subscribers of the tenant " + tenantDomain);
+                throw "Error while getting the subscribers of the tenant";
+            }
+        } else {
+            throw "User do not have permission to view the list of subscribers of tenant :" + tenantDomain;
+        }
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

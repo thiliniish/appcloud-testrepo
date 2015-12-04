@@ -20,6 +20,8 @@ package org.wso2.carbon.cloud.billing.utils;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
@@ -46,6 +48,9 @@ public class APICloudMonetizationUtils {
     private static String subscribersUrl =
             BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
                     + MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIBER;
+    private static String updateApiSubscriptionUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                    + MonetizationConstants.DS_API_URI_UPDATE_API_SUBSCRIPTION;
 
     private APICloudMonetizationUtils() {
     }
@@ -89,7 +94,6 @@ public class APICloudMonetizationUtils {
                     URLEncoder.encode(tenantDomain, BillingConstants.ENCODING))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
                             URLEncoder.encode(username, BillingConstants.ENCODING));
-
             List<NameValuePair> nameValuePairs = new ArrayList<>();
             NameValuePair testAccountNVP = new NameValuePair(IS_TEST_ACCOUNT, String.valueOf(isTestAccount));
             nameValuePairs.add(testAccountNVP);
@@ -98,12 +102,37 @@ public class APICloudMonetizationUtils {
                 NameValuePair accountNumberNVP = new NameValuePair(ACCOUNT_NUMBER, accountNumber);
                 nameValuePairs.add(accountNumberNVP);
             }
-
             dsBRProcessor.doPost(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
                     "Error while retrieving API subscribers for user: " + username + " tenant domain: " + tenantDomain,
                     e);
+        }
+    }
+
+    /**
+     *Block api subscriptions of the user
+     *
+     * @param userId user id of the user
+     * @param tenantId tenant id
+     * @throws CloudMonetizationException
+     */
+    public static void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudMonetizationException {
+        try {
+            //TODO use an api to update apim databases instead of using a data service.
+            String url = updateApiSubscriptionUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT_ID,
+                    URLEncoder.encode(tenantId, BillingConstants.ENCODING));
+            List<NameValuePair> nameValuePairs = new ArrayList<>();
+            NameValuePair userIdNVP = new NameValuePair(MonetizationConstants.USER_ID, userId);
+            NameValuePair statusNVP = new NameValuePair(MonetizationConstants.API_SUBSCRIPTION_STATUS,
+                    MonetizationConstants.API_SUBSCRIPTION_BLOCKED_STATUS);
+            nameValuePairs.add(userIdNVP);
+            nameValuePairs.add(statusNVP);
+            dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException(
+                    "Error while sending block subscriptions request to data service for user :" + userId
+                            + " tenant Id :" + tenantId, e);
         }
     }
 }

@@ -1,0 +1,33 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var mod, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    mod = jagg.module("monetizing");
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    if (action == "updateSubscribersTestStatus") {
+        var complimentaryAddedSubscribers = request.getParameter("complimentaryAddedSubscribers");
+        var complimentaryRemovedSubscribers = request.getParameter("complimentaryRemovedSubscribers");
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+            try {
+                result = mod.updateSubscribersTestStatus(JSON.parse(complimentaryAddedSubscribers), JSON.parse(complimentaryRemovedSubscribers));
+                if (result != null) {
+                    print(result);
+                } else {
+                    throw "Error while updating subscriber accounts test statuses of tenant :" + tenantDomain;
+                }
+            } catch (e) {
+                throw "Error while updating subscriber accounts test statuses of tenant :" + tenantDomain;
+            }
+        } else {
+            throw "You don't have permission to updating subscriber accounts test statuses :" + tenantDomain;
+        }
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>
