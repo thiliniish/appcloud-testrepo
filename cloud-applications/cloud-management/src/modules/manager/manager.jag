@@ -37,15 +37,11 @@ var isEmailUserNameEnabled = function () {
  * @return String userName
  */
 var getUserNameFromEmail = function (email) {
-    if (email != null) {
         if (isEmailUserNameEnabled()) {
             return email;
         } else {
             return email.replace(/@/g, ".");
         }
-    } else {
-        log.error("Value of the email is null");
-    }
 };
 
 /**

@@ -4,7 +4,10 @@
 <%
 include("/jagg/constants.jag");
 var log = new Log("site/themes/default/templates/tenant/register/add/template.jag");
-
+var userName = null;
+var isInvitee = null;
+var email = null;
+var isUserAvail = null;
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 var types = cloudConfig.subscriptions.type;
@@ -20,10 +23,15 @@ var eulaDoc= new XML(eulaData);
 var eulaContent =  eulaDoc.EULA.text();
 
 var confirmationKey = session.get("registration-intermediate-data");
-var email = session.get("registration-email");
-var userName = jagg.module("manager").getUserNameFromEmail(email);
-var isInvitee = session.get("isInvitee");
-var isUserAvail = session.get("isUserAvail");
+
+    if(session.get("registration-email") != null && session.get("isInvitee") !=null && session.get("isUserAvail") !=null) {
+        email = session.get("registration-email");
+        userName = jagg.module("manager").getUserNameFromEmail(email);
+        isInvitee = session.get("isInvitee");
+        isUserAvail = session.get("isUserAvail");
+    } else {
+        log.error("Required parameter values are not available for the account registration");
+    }
 %>
 
 <style>
