@@ -14,7 +14,7 @@
          <element column="year" name="year" xsdType="string"/>
          <element column="month" name="month" xsdType="string"/>
          <element column="day" name="day" xsdType="string"/>
-         <call-query href="getAccountForTenant" requiredRoles="">
+         <call-query href="getAccountFromUserNameQ" requiredRoles="">
             <with-param column="apiPublisher" name="TENANT_DOMAIN"/>
          </call-query>
       </result>
@@ -31,7 +31,7 @@
          <element column="day" name="day" xsdType="string"/>
          <element column="year" name="year" xsdType="string"/>
          <element column="month" name="month" xsdType="string"/>
-         <call-query href="getAccountForTenant" requiredRoles="">
+         <call-query href="getAccountFromUserNameQ" requiredRoles="">
             <with-param column="apiPublisher" name="TENANT_DOMAIN"/>
          </call-query>
       </result>
@@ -41,6 +41,13 @@
    </query>
    <query id="getAccountForTenant" useConfig="cloud_mgt">
       <sql>SELECT ACCOUNT_NUMBER FROM BILLING_ACCOUNT INNER JOIN BILLING_STATUS ON BILLING_STATUS.TENANT_DOMAIN=BILLING_ACCOUNT.TENANT_DOMAIN WHERE TYPE='PAID' AND  (STATUS='ACTIVE' OR STATUS='DISABLED' OR STATUS='PENDING_DISABLE') AND BILLING_STATUS.TENANT_DOMAIN=:TENANT_DOMAIN</sql>
+      <result element="Accounts" rowName="Account">
+         <element column="ACCOUNT_NUMBER" name="ACCOUNT_ID" xsdType="string"/>
+      </result>
+      <param name="TENANT_DOMAIN" sqlType="STRING"/>
+   </query>
+   <query id="getAccountFromUserNameQ" useConfig="cloud_mgt">
+      <sql>SELECT ACCOUNT_NUMBER FROM BILLING_ACCOUNT INNER JOIN BILLING_STATUS ON BILLING_STATUS.TENANT_DOMAIN=BILLING_ACCOUNT.TENANT_DOMAIN WHERE TYPE='PAID' AND  (STATUS='ACTIVE' OR STATUS='DISABLED' OR STATUS='PENDING_DISABLE') AND BILLING_STATUS.TENANT_DOMAIN=(SUBSTRING(:TENANT_DOMAIN, LOCATE('@', :TENANT_DOMAIN)+1))</sql>
       <result element="Accounts" rowName="Account">
          <element column="ACCOUNT_NUMBER" name="ACCOUNT_ID" xsdType="string"/>
       </result>
@@ -88,6 +95,13 @@
       <param name="START_DATE" sqlType="DATE"/>
       <param name="END_DATE" sqlType="DATE"/>
       <param name="TENANT_ID" sqlType="INTEGER"/>
+   </query>
+   <query id="getMappingForSubscriptionQ" useConfig="cloud_mgt">
+      <sql>select PRODUCT_RATE_PLAN_ID from BILLING_SUBSCRIPTION_MAPPING where CUSTOM_SUBSCRIPTION_ID=:NEW_SUBSCRIPTION_ID</sql>
+      <result element="RatePlanId" rowName="">
+         <element column="PRODUCT_RATE_PLAN_ID" name="productRatePlanId" xsdType="string"/>
+      </result>
+      <param name="NEW_SUBSCRIPTION_ID" sqlType="STRING"/>
    </query>
    <operation name="getTotalRequestCountPerDay">
       <call-query href="getTotalRequestCountPerDayQ">
@@ -143,6 +157,11 @@
          <with-param name="TENANT_ID" query-param="TENANT_ID"/>
       </call-query>
    </operation>
+   <operation name="getMappingForSubscription">
+      <call-query href="getMappingForSubscriptionQ">
+         <with-param name="NEW_SUBSCRIPTION_ID" query-param="NEW_SUBSCRIPTION_ID"/>
+      </call-query>
+   </operation>
    <resource method="GET" path="requestcount">
       <call-query href="getTotalRequestCountPerDayQ">
          <with-param name="year" query-param="year"/>
@@ -195,6 +214,11 @@
          <with-param name="START_DATE" query-param="START_DATE"/>
          <with-param name="END_DATE" query-param="END_DATE"/>
          <with-param name="TENANT_ID" query-param="TENANT_ID"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="mappingforsubscription">
+      <call-query href="getMappingForSubscriptionQ">
+         <with-param name="NEW_SUBSCRIPTION_ID" query-param="NEW_SUBSCRIPTION_ID"/>
       </call-query>
    </resource>
 </data>

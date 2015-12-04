@@ -96,7 +96,7 @@ public class APIUsageProcessorUtil {
                     if (plan != null) {
                         String overUsageRate = plan.getOverUsage();
                         int maxUsage = plan.getMaxDailyUsage();
-                        float overage = calculateCharge(plan.getMaxDailyUsage(), qty, overUsageRate);
+                        float overage = calculateCharge(maxUsage, qty, overUsageRate);
                         usage.setAccountId(accountId);
                         usage.setDate(date);
                         usage.setMaxDailyUsage(maxUsage);
@@ -142,7 +142,7 @@ public class APIUsageProcessorUtil {
         // get the amount of dollars which needs to be added
         int ratePrice = Integer.parseInt(rate.split("/")[0].replace("$", ""));
         // Max number of API calls per a given rate
-        int overageValue = Integer.parseInt(rate.split("/")[1].replace("K", "")) * 1000;
+        int overageValue = Integer.parseInt(rate.split("/")[1]);
 
         int dailyPriceRate = overUsage / overageValue;
         return dailyPriceRate * ratePrice;
@@ -271,16 +271,18 @@ public class APIUsageProcessorUtil {
     }
 
     private static int calculateOverUsage(int usage, String accountId, String productName)
-            throws CloudBillingException {
+            throws CloudBillingException, XMLStreamException {
 
         JSONArray ratePlans = ZuoraRESTUtils.getCurrentRatePlan(productName, accountId);
         String productRatePlanId = getCurrentRatePlanId(ratePlans);
         APICloudPlan plan = (APICloudPlan) CloudBillingServiceUtils
                 .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, productRatePlanId);
         if (plan != null) {
+            String overUsageRate = plan.getOverUsage();
+            int overageValue = Integer.parseInt(overUsageRate.split("/")[1]);
             int maxUsage = plan.getMaxDailyUsage();
             int overUsage = usage - maxUsage;
-            return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage : 0;
+            return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage / overageValue : 0;
         } else {
             throw new CloudBillingException("Subscription plan for accountId: " + accountId + " cannot be null");
         }
