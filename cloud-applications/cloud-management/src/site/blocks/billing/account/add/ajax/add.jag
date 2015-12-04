@@ -12,6 +12,7 @@ var ratePlans = session.get("RATE_PLANS");
 	action = request.getParameter("action"),
 	site = require("/site/conf/site.json");
 	mod = jagg.module("billing");
+	var organizationName;
 
 	if (action == "createAccount") {
 		var accountData = {
@@ -19,6 +20,7 @@ var ratePlans = session.get("RATE_PLANS");
 		var metaData = {
 		};
 
+		organizationName = request.getParameter("orgName");
 		accountData.firstName = request.getParameter("firstName");
 		accountData.lastName = request.getParameter("lastName");
 		accountData.address1 = request.getParameter("address1");
@@ -37,7 +39,7 @@ var ratePlans = session.get("RATE_PLANS");
 		responseFrom = request.getParameter("responseFrom");
 		try {
 			if(responseFrom == EDIT_USER_INFO){
-				result = mod.updateContactInfo(accountData);
+				result = mod.updateContactInfo(accountData, organizationName);
 			} else if(responseFrom == IS_FROM_CHANGE_PLAN) {
 
 	       	    var serviceId = session.get("SERVICE_ID");
@@ -47,9 +49,9 @@ var ratePlans = session.get("RATE_PLANS");
 	       	    var productRatePlanId = session.get("PRODUCT_PLAN_ID");
 	     	    result = mod.changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
 			} else {
-				result = mod.createAccount(accountData, metaData);
+				result = mod.createAccount(accountData, metaData, organizationName);
 			}
-			
+
 			if (result != null) {
 				print(result);
 			} else {

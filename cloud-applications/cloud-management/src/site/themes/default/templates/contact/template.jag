@@ -10,6 +10,9 @@ if (jagg.module("util").isUserInAdminRole()){
     isExtensionRequest = request.getParameter("request-extension");
 }
 
+var isRegistrationHelp = request.getParameter("registration-help");
+var userEmail = request.getParameter('email');
+
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var publisherUrl = (cloudConfig.subscriptions.type)[1].urls.cloudTypeUrl;
@@ -197,7 +200,11 @@ section.start_content div.subs-cont{
           <div class="form-group">
             <label for="from" class="col-sm-2 control-label">From</label>
             <div class="col-sm-8">
+            <%if (email == null && isRegistrationHelp == 'true'){ %>
+                <input type="text" id="from" name="from" readonly size="50" style="width:60%" value="<%=userEmail%>" />
+            <%} else {%>
               <input type="text" id="from" name="from" readonly size="50" style="width:60%" value="<%=email%>" />
+              <%}%>
             </div>
           </div>
 

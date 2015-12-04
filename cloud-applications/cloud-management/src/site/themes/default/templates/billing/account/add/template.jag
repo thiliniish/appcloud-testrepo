@@ -12,6 +12,7 @@
     var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
     var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3;
     var creditCardCity, creditCardCountry, creditCardAddress1, creditCardAddress2, creditCardState, creditCardPostalCode;
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
     var eulaData = jagg.module("util").getObjFromFile("/site/conf/eula.xml");
     var eulaDoc= new XML(eulaData);
@@ -20,6 +21,7 @@
     var paymentPlanName = "";
     var profileFirstName = null;
     var profileLastName = null;
+    var organizationName = "";
     var currRatePlan =  session.get("CURRENT_RATE_PLAN");
     var accounts =  session.get("ACCOUNTS");
     var callsPerDay =  session.get("CALLS_PER_DAY");
@@ -31,7 +33,6 @@
     var actualPaymentAmount = session.get("ACTUAL_PAYMENT_AMOUNT");
     var l = Packages.java.util.Locale.getDefault();
     var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-    
     var selectedRatePlanId =  session.get("PRODUCT_PLAN_ID");
     var previousRatePlanId =  session.get("OLD_PLAN_ID");
     var ratePlans =  session.get("RATE_PLANS");
@@ -47,7 +48,6 @@
     }
 
     var isDowngrade = session.get("IS_DOWNGRADE");
-    
     if(callsPerDay != null){
         callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
     }
@@ -74,8 +74,8 @@
 
         }
         log.debug("Request received from payment method creation page. Callback from Zuora");
-        
     }else if (EDIT_USER_INFO == responseFrom){
+        organizationName = request.getParameter("organizationName");
         profileFirstName = request.getParameter("firstName");
         profileLastName = request.getParameter("lastName");
         creditCardCity = request.getParameter("city");
@@ -84,7 +84,6 @@
         creditCardAddress2 = request.getParameter("address2");
         creditCardState = request.getParameter("state");
         creditCardPostalCode  = request.getParameter("zipCode");
-		
     } else {
         log.debug("Request received directly");
     }
@@ -194,12 +193,17 @@
             var responseFrom = '<%= responseFrom %>';
             var EDIT_USER_INFO = '<%= EDIT_USER_INFO %>';
             var IS_FROM_CHANGE_PLAN = '<%= IS_FROM_CHANGE_PLAN %>';
+            var organizationName =  '<%= tenantDomain %>';
+            if($("#orgName").attr('value') != ""){
+                organizationName = $("#orgName").attr('value');
+            }
 
             var cloudmgtURL =  $("#cloudmgtURL").attr('value');
 
-            jagg.message({content:'Please Wait. Your request is being processed..',type:'success'});
+            jagg.message({content:'Please wait. Your request is being processed..',type:'success'});
             jagg.post("../blocks/billing/account/add/ajax/add.jag", {
                 action:"createAccount",
+                orgName : organizationName,
                 firstName :$("#firstName").attr('value'),
                 lastName :$("#lastName").attr('value'),
                 address1 :$("#addressLine1").attr('value'),
@@ -472,6 +476,10 @@
 	<div class="row">
 	<%if(responseFrom != IS_FROM_CHANGE_PLAN) {%>
 		<div class="container col-md-8 wr-text">
+			<label class="input-label col-md-5">Organization Name</label>
+			<div class="input-control input-full-width col-md-7 text">
+				<input type="text" id="orgName" name="orgName" value="<%=organizationName%>" placeholder="" />
+			</div>
 			<label class="input-label col-md-5">First Name</label>
 			<div class="input-control input-full-width col-md-7 text">
 				<input type="text" id="firstName" name="firstName" value="<%=profileFirstName%>" placeholder="Eg: John"/>

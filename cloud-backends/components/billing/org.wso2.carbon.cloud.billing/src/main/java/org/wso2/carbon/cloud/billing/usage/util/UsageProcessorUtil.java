@@ -46,6 +46,7 @@ public class UsageProcessorUtil {
                                                         String amendmentResponse) throws CloudBillingException {
         OMElement elements;
         APICloudPlan plan = null;
+
         try {
             // checking to see if there are amendments
             if (!hasAmendments) {
@@ -61,20 +62,17 @@ public class UsageProcessorUtil {
                 AccountUsage usage = new AccountUsage();
                 OMElement usageEle = (OMElement) entries.next();
                 OMElement accounts =
-                        (OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.ACCOUNTS))
-                                .next();
+                        (OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.ACCOUNTS)).next();
                 if (accounts.getChildElements().next() != null) {
-                    int qty =
-                            Integer.parseInt(((OMElement) usageEle.getChildrenWithName(new QName(
-                                    BillingConstants.TOTAL_COUNT))
-                                    .next()).getText());
+                    int qty = Integer.parseInt(
+                            ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TOTAL_COUNT)).next())
+                                    .getText());
                     String date = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TIME)).next())
                             .getText();
 
                     String tenantDomain =
-                            ((OMElement) usageEle.getChildrenWithName(new QName(
-                                    BillingConstants.API_PUBLISHER))
-                                    .next()).getText();
+                            ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.API_PUBLISHER)).next())
+                                    .getText();
                     if (hasAmendments) {
                         String currentRatePlan = getRatePlanIdForDate(amendmentResponse, date);
                         plan = (APICloudPlan) CloudBillingUtils
@@ -83,7 +81,7 @@ public class UsageProcessorUtil {
                     if (plan != null) {
                         String overUsageRate = plan.getOverUsage();
                         int maxUsage = plan.getMaxDailyUsage();
-                        float overage = calculateCharge(plan.getMaxDailyUsage(), qty, overUsageRate);
+                        float overage = calculateCharge(maxUsage, qty, overUsageRate);
                         usage.setAccountId(accountId);
                         usage.setDate(date);
                         usage.setMaxDailyUsage(maxUsage);
@@ -123,11 +121,10 @@ public class UsageProcessorUtil {
         if (overUsage < BillingConstants.OVER_USAGE_THRESHOLD) {
             return 0;
         }
-        // get the amount of dollers which needs to be added
+        // get the amount of dollars which needs to be added
         int ratePrice = Integer.parseInt(rate.split("/")[0].replace("$", ""));
         // Max number of API calls per a given rate
-        int overageValue = Integer.parseInt(rate.split("/")[1].replace("K", "")) * 1000;
-
+        int overageValue = Integer.parseInt(rate.split("/")[1]);
         int dailyPriceRate = overUsage / overageValue;
         // TODO confirm whether we are going bill for the reminder
         int dailyPriceReminder = (int) (overUsage % overageValue);
@@ -181,9 +178,9 @@ public class UsageProcessorUtil {
                 AccountUsage usage = new AccountUsage();
                 OMElement usageEle = (OMElement) entries.next();
 
-                int qty = Integer.parseInt(((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants
-                                                                                                       .TOTAL_COUNT))
-                        .next()).getText());
+                int qty = Integer.parseInt(
+                        ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TOTAL_COUNT)).next())
+                                .getText());
                 String date = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.YEAR)).next())
                                       .getText() + "/" +
                               ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.MONTH)).next())
@@ -264,15 +261,16 @@ public class UsageProcessorUtil {
     }
 
     private static int calculateOverUsage(int usage, String accountId, String productName)
-            throws CloudBillingException {
+            throws CloudBillingException, XMLStreamException {
 
         JSONArray ratePlans = ZuoraUtils.getCurrentRatePlan(productName, accountId);
         String productRatePlanId = getCurrentRatePlanId(ratePlans);
         APICloudPlan plan = (APICloudPlan) CloudBillingUtils
                 .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, productRatePlanId);
+        String overUsageRate = plan.getOverUsage();
+        int overageValue = Integer.parseInt(overUsageRate.split("/")[1]);
         int maxUsage = plan.getMaxDailyUsage();
         int overUsage = usage - maxUsage;
-        return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage : 0;
+        return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage / overageValue : 0;
     }
-
 }

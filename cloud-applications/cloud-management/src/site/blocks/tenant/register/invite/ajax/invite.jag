@@ -40,6 +40,16 @@ var log = new Log();
         } catch (e) {
             throw "Error while checking existence of user:  " + userName;
         }
+    }  else if (action == "reInvite") {
+        var email = request.getParameter("email");
+        try {
+            var result = mod.reInvite(email);
+            if (result != null) {
+                print(result);
+            }
+        } catch (e) {
+            throw "Error while resending email for the user:  " + email;
+        }
     } else {
         throw new Error("No action specified");
     }
