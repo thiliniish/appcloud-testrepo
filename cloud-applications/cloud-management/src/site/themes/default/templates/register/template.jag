@@ -78,14 +78,14 @@ var eulaContent =  eulaDoc.EULA.text();
                              domainName:organizationDomain
                         },
                         function (result) {
-                            jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
+                            jagg.message({content:'You have successfully registered to WSO2 Cloud.', type:'success', cbk:function() {
                                     window.location.href = cloudmgtURL;
                                 }
                             });
                              $('#registerForm').hide();
                         },
                         function (jqXHR, textStatus, errorThrown) {
-                            jagg.message({content:'Error while sending registration email.',type:'error',cbk:function(){
+                            jagg.message({content:'Error while sending registration email.', type:'error', cbk:function() {
                                     window.location.href = cloudmgtURL;
                                 }
                             });
@@ -93,7 +93,7 @@ var eulaContent =  eulaDoc.EULA.text();
                         });
                     },
                     function (jqXHR, textStatus, errorThrown) {
-                        jagg.message({content:'Error while storing subscription details.',type:'error',cbk:function(){
+                        jagg.message({content:'Error while storing subscription details.', type:'error', cbk:function() {
                                 window.location.href = cloudmgtURL;
                             }
                         });
@@ -101,7 +101,7 @@ var eulaContent =  eulaDoc.EULA.text();
                     });
             },
             function (jqXHR, textStatus, errorThrown) {
-                jagg.message({content:'An error occurred while registering the organization. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
+                jagg.message({content:'An error occurred while registering the organization. Please contact WSO2 Cloud Team for help.', type:'error', cbk:function() {
                         window.location.href = "register.jag";
                     }
                 });
@@ -151,7 +151,7 @@ function generateCaptcha() {
             		showKaptcha(result);
               },
               function (jqXHR, textStatus, errorThrown) {
-                  jagg.message({content:'getting captcha - ERROR.',type:'info', cbk:function(){
+                  jagg.message({content:'getting captcha - ERROR.', type:'info', cbk:function() {
             		window.location.href = "#";
                   	}
                   });
