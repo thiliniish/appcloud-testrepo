@@ -171,8 +171,8 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
         log.info("Tenant Registration completed.");
 
         //removing registration data from the session after successful registration.
-        session.put("registration-intermediate-data", null);
-        session.put("registration-email", null);
+        session.remove("registration-intermediate-data");
+        session.remove("registration-email");
         return true;
 };
 
