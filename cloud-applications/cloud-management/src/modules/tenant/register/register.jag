@@ -75,19 +75,28 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
 
 var getConfirmationEmail = function(confirm){
     try {
-        var queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
-        var parameters =[confirm];
+        var queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
+        var tempUserDataQueryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_REGISTRATION;
+        var parameters = [confirm];
+        var tempUserData = jagg.module("database").executeQuery(tempUserDataQueryString, parameters);
         var results = jagg.module("database").executeQuery(queryString, parameters);
-        if (results.length >= 1) {
-            var email = results[0]["email"];
-            var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
-            var parameters = [confirm];
-            var results = jagg.module("database").executeQuery(deleteString, parameters);
-            log.info("Confirmation Email: " + email);
-            return email;
+        var email = null;
+
+        //to check if there exists a record for the confirmation code.
+        if (tempUserData.length >= 1) {
+            if (results.length >= 1) {
+                email = results[0]["email"];
+                var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
+                var parameters = [confirm];
+                var results = jagg.module("database").executeQuery(deleteString, parameters);
+                log.info("Confirmation Email: " + email);
+            } else {
+                log.error("Error while getting confirmation email: " + confirm + ". Email value is not available");
+            }
         } else {
-            log.error("Error while getting confirmation email: " + confirm + ". Email value is not available");
+            log.error("No temporary record for confirmation code: " + confirm);
         }
+    return email;
     } catch (e) {
         log.error("Error while getting confirmation email: " + confirm);
         log.error(e);
@@ -95,16 +104,18 @@ var getConfirmationEmail = function(confirm){
     }
 };
 
-var registerOrg = function (organizationName, password, usagePlan, confirmationKey, firstName, lastName, userName) {
+var registerOrg = function (organizationName, password, usagePlan, confirmationKey, firstName, lastName) {
     log.info("Registering Organization: " + organizationName) ;
     var email;
     var newUser = true;
     var adminUserName;
-    var isUserAvail = isExistingUser(userName);
-    if(!isUserAvail) {
         if (confirmationKey != null) {
             email = getConfirmationEmail(confirmationKey);
-            adminUserName = modManager.getUserNameFromEmail(email.toString());
+            if (email != null) {
+                adminUserName = modManager.getUserNameFromEmail(email.toString());
+            } else {
+                return false;
+            }
         } else {
             var fullUserName = String(session.get("LOGGED_IN_USER"));
             adminUserName = modManager.getTenantAwareUsername(fullUserName);
@@ -158,11 +169,11 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
         log.info("Billing account created for tenant: " + organizationDomain);
 
         log.info("Tenant Registration completed.");
+
+        //removing registration data from the session after successful registration.
+        session.put("registration-intermediate-data", null);
+        session.put("registration-email", null);
         return true;
-    } else {
-        log.info("User " +userName + " already exists in the system.");
-        return false;
-    }
 };
 
 var hasATenant = function (userName) {
