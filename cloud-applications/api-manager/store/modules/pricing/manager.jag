@@ -1,0 +1,129 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+include("/modules/pricing/utils.jag");
+
+var log = new Log("modules/pricing/manager.jag");
+var mdAlgorithm = "SHA-512";
+
+var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var billingConstants = Packages.org.wso2.carbon.cloud.billing.commons.BillingConstants;
+
+var zuoraObj = (getConfigInJson()).zuoraConfig;
+var zuoraServiceUrl = zuoraObj.serviceUrl;
+
+//Generate zuora HPM page parameters
+var generateParams = function (productRatePlanId, workflowRefId) {
+
+    var clientParams = JSON.parse(billingService.prepareParams());
+    session.put(ZUORA_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
+    clientParams.field_passthrough1 = clientParams.token;
+    clientParams.field_passthrough3 = productRatePlanId;
+    clientParams.field_passthrough4 = workflowRefId;
+    if (log.isDebugEnabled()) {
+        log.debug("Parameters generated for tenant: " + clientParams.tenantId);
+    }
+    return clientParams;
+};
+
+var isMonetizationEnabled = function (tenantDomain) {
+    return apiMonService.isMonetizationEnabled(tenantDomain);
+};
+
+var createAccount = function (accountData, metaData, workflowRefData) {
+
+    var tierName, appName, apiName, apiVersion, subscriptionId, errorMsg;
+    var username = jagg.getUser().username;
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(username);
+
+    if (workflowRefData == null || "".equals(workflowRefData)) {
+        errorMsg = "Workflow refId is invalid. it should be neither null nor empty";
+        log.error(errorMsg);
+        return {
+            error: true,
+            statusCode: 500,
+            message: errorMsg
+        };
+    }
+
+    var apiData = JSON.parse(apiMonService.decryptWorkflowData(workflowRefData));
+
+    try {
+
+        var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNTS;
+        var parentAccNo = billingService.getAccountId(tenantDomain);
+        var effectiveDate = new Packages.java.util.Date();
+        var data = populateAccountInfo(accountData, metaData, effectiveDate);
+        var response = sendHTTPRequest(url, "POST", null, data, zuoraObj.user, zuoraObj.password);
+
+        var addParentAccResult, updateSubscriberResult, addSubscriptionResult;
+        //Query template account and add that profiles
+        if (response.success) {
+            var childAccNo = response.accountNumber;
+            addParentAccResult = billingService.addAccountParent(childAccNo, parentAccNo);
+            updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
+                    childAccNo);
+            addSubscriptionResult = apiMonService.addSubscriptionInformation(response.accountNumber, response
+                    .subscriptionId, apiData, effectiveDate);
+        } else {
+            errorMsg = "Billing account creation failed. ";
+            log.error(errorMsg);
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg
+            };
+        }
+
+        var resultObj = JSON.parse(addParentAccResult);
+
+        var modWorkflow = jagg.module("workflow");
+        var workflowStatus;
+        var workflowDesc;
+        if (resultObj.success == true && updateSubscriberResult && addSubscriptionResult) {
+            workflowStatus = "APPROVED";
+            workflowDesc = "subscription successful";
+        } else {
+            workflowStatus = "REJECTED";
+            workflowDesc = "subscription unsuccessful";
+        }
+
+        return modWorkflow.resumeWorkflow(apiData.workflowRefId, workflowStatus, workflowDesc);
+    } catch (e) {
+        log.error(e.message);
+        return {
+            error: true,
+            statusCode: 500,
+            message: e.message
+        };
+    }
+};
+
+//populate account information object
+var populateAccountInfo = function (accountData, metaData, effectiveDate) {
+    var subscribeToRatePlans = [];
+    var data = {};
+    var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+
+    data.name = accountData.firstName + " " + accountData.lastName;
+    data.autoPay = true;
+    data.currency = "USD";
+    data.billToContact = {};
+    item = {};
+    item["productRatePlanId"] = "2c92c0f84b0795b8014b0b1ac63e6713";
+    subscribeToRatePlans.push(item);
+    data.subscription = {
+        "termType": "EVERGREEN",
+        "autoRenew": true,
+        "subscribeToRatePlans": subscribeToRatePlans,
+        "contractEffectiveDate": dateFormatter.format(effectiveDate)
+    };
+
+    data.hpmCreditCardPaymentMethodId = metaData.refId;
+    data.billToContact = accountData;
+    data.invoiceCollect = true;
+    data.invoiceTargetDate = dateFormatter.format(effectiveDate);
+    return data;
+};
+%>

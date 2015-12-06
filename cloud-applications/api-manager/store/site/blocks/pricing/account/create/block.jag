@@ -1,0 +1,7 @@
+<%
+jagg.block("pricing/account/create", {
+    initialize:function (data) {
+
+    }
+});
+%>

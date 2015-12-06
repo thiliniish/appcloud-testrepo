@@ -1,0 +1,32 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+//include("/jagg/config_reader.jag");
+
+var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
+(function () {
+    var mod, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    mod = jagg.module("pricing");
+    if (action == "generateParams") {
+        var productRatePlanId = request.getParameter("productRatePlanId");
+        var workFlowRefId = request.getParameter("workFlowRefId");
+        try {
+            result = mod.generateParams(productRatePlanId, workFlowRefId);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Client parameters cannot be null";
+            }
+        } catch (e) {
+            log.error("Error while generating the params " + e.message);
+            log.error(e);
+            throw new Error("Error while generating the params " + e.message);
+        }
+
+    }  else {
+        throw new Error("No action specified");
+    }
+}());
+%>

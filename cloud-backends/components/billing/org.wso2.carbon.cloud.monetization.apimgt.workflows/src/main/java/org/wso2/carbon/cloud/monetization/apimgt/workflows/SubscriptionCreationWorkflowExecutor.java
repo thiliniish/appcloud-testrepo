@@ -39,8 +39,13 @@ import org.wso2.carbon.apimgt.impl.workflow.HttpWorkflowResponse;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowConstants;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowExecutor;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.APPROVED;
@@ -79,10 +84,13 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     }
 
     private WorkflowResponse handleCommercialPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
-            throws AxisFault, XMLStreamException, WorkflowException {
+            throws AxisFault, XMLStreamException, WorkflowException, CryptoException, UnsupportedEncodingException {
         OMElement subscribers = getSubscriberInfo(subscriptionWorkflowDTO);
         OMElement subscriberOM = (OMElement) subscribers.getFirstOMChild();
         HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
+
+        //Encrypt and base64 encode api data
+        String apiInfo = URLEncoder.encode(getEncryptionInfo(subscriptionWorkflowDTO), CustomWorkFlowConstants.ENCODING);
         //Check subscriber information availability
         if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart()) && subscriberOM != null) {
             boolean isTestAccount = Boolean.parseBoolean(
@@ -91,7 +99,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
             //Check subscribers is a test/complementary subscriber
             if (!isTestAccount) {
                 String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER_ELEMENT).next())).getText();
-                httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, subscriptionWorkflowDTO.getExternalWorkflowReference());
+                httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
                 if (StringUtils.isNotBlank(accountNumber)) {
                     //TODO redirecting to create the subscription
                     httpworkflowResponse.setRedirectUrl("http://www.google.lk/");
@@ -106,12 +114,20 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         } else if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart())) {
             addSubscriber(subscriptionWorkflowDTO);
             httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
-            httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, subscriptionWorkflowDTO.getExternalWorkflowReference());
+            httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
             return httpworkflowResponse;
         } else {
             throw new WorkflowException(ERROR_MSG + " element should be: " + SUBSCRIBERS_ELEMENT + " not "
                     + subscribers.getQName().getLocalPart());
         }
+    }
+
+    private String getEncryptionInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws CryptoException {
+        String stringBuilder = subscriptionWorkflowDTO.getExternalWorkflowReference() + ":" +
+                subscriptionWorkflowDTO.getTierName() + ":" + subscriptionWorkflowDTO.getApplicationName() +
+                ":" + subscriptionWorkflowDTO.getApiName() + "" + subscriptionWorkflowDTO.getApiVersion();
+        return CryptoUtil.getDefaultCryptoUtil()
+                .encryptAndBase64Encode(stringBuilder.getBytes(Charset.defaultCharset()));
     }
 
     private OMElement getSubscriberInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws AxisFault, XMLStreamException {
@@ -181,7 +197,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                 throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + " not " +
                         "available or tier plan not available.");
             }
-        } catch (AxisFault | XMLStreamException e) {
+        } catch (AxisFault | XMLStreamException | UnsupportedEncodingException | CryptoException e) {
             throw new WorkflowException(ERROR_MSG, e);
         } catch (APIManagementException e) {
             throw new WorkflowException(ERROR_MSG + " Error occurred while querying the tier information. ", e);

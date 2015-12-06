@@ -164,11 +164,29 @@ public final class BillingConstants {
     public static final String ZUORA_REST_API_URI_PAYMENT_INFO = "/v1/transactions/payments/accounts/{account-key}";
     public static final String ZUORA_REST_API_URI_PRODUCTS = "/v1/catalog/products";
 
+    /*data service param names*/
+    public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";
+    public static final String PARAM_ZUORA_PRODUCT_NAME = "zuoraProductName";
+    public static final String PARAM_RATE_PLAN_NAME = "ratePlanName";
+    public static final String PARAM_SUBSCRIPTION_ID = "subscriptionId";
+    public static final String PARAM_START_DATE = "startDate";
+    public static final String PARAM_TENANT = "tenant";
 
     /*Zuora types*/
     public static final String ZUORA_ACCOUNT = "Account";
     public static final String ZUORA_SUBSCRIPTION_STATUS = "status";
     public static final String SUBSCRIPTION_STATUS_ACTIVE = "Active";
+
+
+    //Zuora communication & invoice template child account suffix
+    public static final String ZUORA_TEMPLATE_ACCOUNT_SUFFIX = "__TEMPLATE__";
+
+    /*Zuora soap elements*/
+    public static final String ZUORA_ACCOUNT_NUMBER = "accountNumber";
+    public static final String ZUORA_INVOICE_TEMPLATE_ID = "invoiceTemplateId";
+    public static final String ZUORA_COMMUNICATION_PROFILE_ID = "communicationProfileId";
+    public static final String ZUORA_RESPONSE_SUCCESS = "success";
+
 
     private BillingConstants() {
     }

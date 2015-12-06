@@ -27,11 +27,20 @@ public final class MonetizationConstants {
     public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
     public static final String DS_API_URI_MON_APIC_DAILY_USAGE = "/v1/usage/daily-usage";
     public static final String DS_API_URI_UPDATE_API_SUBSCRIPTION = "/v1/apim/subscriptions/{tenantId}";
+    public static final String DS_API_URI_MON_APIC_SUBSCRIPTION =
+            "/v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}";
 
     /*resource identifiers*/
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
     public static final String RESOURCE_IDENTIFIER_TENANT_ID = "{tenantId}";
     public static final String RESOURCE_IDENTIFIER_USERNAME = "{username}";
+    public static final String RESOURCE_IDENTIFIER_ACCOUNT_NO = "{accountNumber}";
+    public static final String RESOURCE_IDENTIFIER_APP_NAME = "{appName}";
+    public static final String RESOURCE_IDENTIFIER_API_NAME = "{apiName}";
+    public static final String RESOURCE_IDENTIFIER_API_VERSION = "{apiVersion}";
+
+    /*param names*/
+    public static final String PARAM_IS_TEST_ACCOUNT = "isTestAccount";
 
     /*api manager use subscriptions related */
     public static final String USER_ID = "userId";

@@ -20,7 +20,10 @@ package org.wso2.carbon.cloud.billing.commons.utils;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Iterator;
 
 /**
@@ -46,5 +49,16 @@ public class CloudBillingUtils {
         } else {
             return true; // standalone mode
         }
+    }
+
+    /**
+     * Encoding url parameters with UTF-8
+     *
+     * @param parameter parameter
+     * @return trimmed & UTF-8 encoded parameter
+     * @throws UnsupportedEncodingException
+     */
+    public static String encodeUrlParam(String parameter) throws UnsupportedEncodingException {
+        return URLEncoder.encode(parameter.trim(), BillingConstants.ENCODING);
     }
 }

@@ -1,0 +1,43 @@
+<%
+var carbon = require('carbon');
+var server = carbon.server;
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+
+var getConfigInJson = function () {
+    try {
+        return JSON.parse(billingService.getConfigInJson());
+    } catch (e) {
+        log.error("Error while getting the billing configurations as JSON");
+        throw e;
+    }
+};
+
+var dateTimeFormatter = function (dateTimeFormat) {
+    return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
+};
+
+var sendHTTPRequest = function (url, type, headers, data, username, password) {
+
+    var xhr = new XMLHttpRequest();
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('apiAccessKeyId', username);
+    xhr.setRequestHeader('apiSecretAccessKey', password);
+
+    if (headers != null) {
+        for (var i = 0; i < headers.length; i++) {
+            xhr.setRequestHeader(headers[i].name, headers[i].value);
+        }
+    }
+
+    xhr.open(type, url);
+    xhr.send(data);
+
+    var response = xhr.responseText;
+    if (response != null) {
+        return JSON.parse(response);
+    } else {
+        log.error("HTTP request: response from zuora cannot be null");
+        throw new Error("Response from zuora cannot be null");
+    }
+};
+%>

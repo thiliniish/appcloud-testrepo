@@ -18,37 +18,51 @@
 
 package org.wso2.carbon.cloud.billing.utils;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Model to represent Utilities for Cloud monetization service
  */
-public class APICloudMonetizationUtils {
+public final class APICloudMonetizationUtils {
 
-    private static final String IS_TEST_ACCOUNT = "isTestAccount";
-    private static final String ACCOUNT_NUMBER = "accountNumber";
+    /*body constants*/
+    private static final String APP_NAME = "appName";
+    private static final String API_NAME = "apiName";
+    private static final String API_VERSION = "apiVersion";
+
+    /*Database http request processor*/
     private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory
             .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
                     BillingConfigUtils.getBillingConfiguration().getDSConfig().getHttpClientConfig());
-    private static String subscribersUrl =
+
+
+    /*Data service URIs*/
+    private static String subscribersUri =
             BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
                     + MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIBER;
-    private static String updateApiSubscriptionUrl =
+    private static String apiSubscriptionUri =
             BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
                     + MonetizationConstants.DS_API_URI_UPDATE_API_SUBSCRIPTION;
+    private static String subscriptionUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+            .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIPTION;
 
     private APICloudMonetizationUtils() {
     }
@@ -64,10 +78,9 @@ public class APICloudMonetizationUtils {
     public static String getAPISubscriberInfo(String username, String tenantDomain) throws CloudMonetizationException {
 
         try {
-            String url = subscribersUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                    URLEncoder.encode(tenantDomain.trim(), BillingConstants.ENCODING))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
-                            URLEncoder.encode(username.trim(), BillingConstants.ENCODING));
+            String url = subscribersUri
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT, CloudBillingUtils.encodeUrlParam(tenantDomain))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME, CloudBillingUtils.encodeUrlParam(username));
             return dsBRProcessor.doGet(url, null);
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
@@ -89,16 +102,17 @@ public class APICloudMonetizationUtils {
     public static void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
                                                String accountNumber, boolean isExistingUser) throws CloudMonetizationException {
         try {
-            String url = subscribersUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                    URLEncoder.encode(tenantDomain.trim(), BillingConstants.ENCODING))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
-                            URLEncoder.encode(username.trim(), BillingConstants.ENCODING));
+            String url = subscribersUri
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT, CloudBillingUtils.encodeUrlParam(tenantDomain))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME, CloudBillingUtils.encodeUrlParam(username));
             List<NameValuePair> nameValuePairs = new ArrayList<>();
-            NameValuePair testAccountNVP = new NameValuePair(IS_TEST_ACCOUNT, String.valueOf(isTestAccount));
+            NameValuePair testAccountNVP = new NameValuePair(MonetizationConstants.PARAM_IS_TEST_ACCOUNT,
+                    String.valueOf(isTestAccount));
             nameValuePairs.add(testAccountNVP);
 
             if (StringUtils.isNotBlank(accountNumber)) {
-                NameValuePair accountNumberNVP = new NameValuePair(ACCOUNT_NUMBER, accountNumber.trim());
+                NameValuePair accountNumberNVP = new NameValuePair(BillingConstants.PARAM_ACCOUNT_NUMBER,
+                        accountNumber.trim());
                 nameValuePairs.add(accountNumberNVP);
             }
             if (!isExistingUser) {
@@ -123,8 +137,8 @@ public class APICloudMonetizationUtils {
     public static void blockApiSubscriptionsOfUser(String userId, String tenantId) throws CloudMonetizationException {
         try {
             //TODO use an api to update apim databases instead of using a data service.
-            String url = updateApiSubscriptionUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT_ID,
-                    URLEncoder.encode(tenantId.trim(), BillingConstants.ENCODING));
+            String url = apiSubscriptionUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT_ID,
+                    CloudBillingUtils.encodeUrlParam(tenantId));
             List<NameValuePair> nameValuePairs = new ArrayList<>();
             NameValuePair userIdNVP = new NameValuePair(MonetizationConstants.USER_ID, userId.trim());
             NameValuePair statusNVP = new NameValuePair(MonetizationConstants.API_SUBSCRIPTION_STATUS,
@@ -133,9 +147,78 @@ public class APICloudMonetizationUtils {
             nameValuePairs.add(statusNVP);
             dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
         } catch (CloudBillingException | UnsupportedEncodingException e) {
-            throw new CloudMonetizationException(
-                    "Error while sending block subscriptions request to data service for user :" + userId
-                            + " tenant Id :" + tenantId, e);
+            throw new CloudMonetizationException("Error while sending block subscriptions request to data service for" +
+                    " user :" + userId + " tenant Id :" + tenantId, e);
+        }
+    }
+
+    /**
+     *
+     *
+     * @param tenantDomain
+     * @param accountNumber
+     * @param apiData
+     * @param effectiveDate
+     * @return
+     * @throws CloudMonetizationException
+     */
+    public static String addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
+                                                    String effectiveDate) throws CloudMonetizationException {
+        JsonObject apiDataObj = (JsonObject) new JsonParser().parse(apiData);
+        try {
+            String url = subscriptionUri
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils
+                            .encodeUrlParam(apiDataObj.get(BillingConstants.PARAM_ACCOUNT_NUMBER).getAsString()))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils
+                            .encodeUrlParam(apiDataObj.get(APP_NAME).getAsString()))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils
+                            .encodeUrlParam(apiDataObj.get(API_NAME).getAsString()))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils
+                            .encodeUrlParam(apiDataObj.get(API_VERSION).getAsString()));
+
+            NameValuePair[] nameValuePairs = new NameValuePair[]{
+                    new NameValuePair(BillingConstants.PARAM_TENANT, tenantDomain.trim()),
+                    new NameValuePair(BillingConstants.PARAM_ZUORA_PRODUCT_NAME, tenantDomain.trim() + BillingConstants
+                            .ZUORA_TEMPLATE_ACCOUNT_SUFFIX),
+                    new NameValuePair(BillingConstants.PARAM_RATE_PLAN_NAME, apiDataObj.get(BillingConstants
+                            .PARAM_RATE_PLAN_NAME).getAsString()),
+                    new NameValuePair(BillingConstants.PARAM_SUBSCRIPTION_ID, apiDataObj.get(BillingConstants
+                            .PARAM_SUBSCRIPTION_ID).getAsString()),
+                    new NameValuePair(BillingConstants.PARAM_START_DATE, effectiveDate.trim())
+            };
+
+            return dsBRProcessor.doPost(url, nameValuePairs);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while adding subscription information for child account: " +
+                    accountNumber + " of the parent tenant: " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * Decrypt and base64 decode the workflow data
+     *
+     * @param workflowData base64encoded encrypted string
+     * @return decrypted workflow data
+     * @throws CloudMonetizationException
+     */
+    public static String decryptWorkflowData(String workflowData) throws CloudMonetizationException {
+
+        try {
+            String workflowRefData = new String(CryptoUtil.getDefaultCryptoUtil().base64DecodeAndDecrypt
+                    (workflowData), Charset.defaultCharset());
+            JsonObject resData = new JsonObject();
+
+            if (StringUtils.isNotBlank(workflowRefData)) {
+                String[] data = workflowRefData.trim().split(":");
+                resData.addProperty("workflowRefId", data[0]);
+                resData.addProperty("tierName", data[1]);
+                resData.addProperty("applicationName", data[2]);
+                resData.addProperty("apiName", data[3]);
+                resData.addProperty("apiVersion", data[4]);
+            }
+            return resData.toString();
+        } catch (CryptoException e) {
+            throw new CloudMonetizationException("Invalid workflow data or workflow data corrupted", e);
         }
     }
 }

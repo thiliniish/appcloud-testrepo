@@ -41,6 +41,9 @@ public class CustomWorkFlowConstants {
     public static final String SOAP_ACTION_GET_SUBSCRIBER = "urn:getAPISubscriberInfo";
     public static final String SOAP_ACTION_UPDATE_SUBSCRIBER = "urn:addAPISubscriberInfo";
 
+    /*Util constants*/
+    public static final String ENCODING = "UTF-8";
+
     private CustomWorkFlowConstants() {
     }
 }

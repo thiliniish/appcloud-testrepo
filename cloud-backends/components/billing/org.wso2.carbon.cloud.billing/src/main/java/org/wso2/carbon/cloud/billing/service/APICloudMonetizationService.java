@@ -61,7 +61,7 @@ public class APICloudMonetizationService {
      * @throws CloudMonetizationException
      */
     public void addAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-                                        String accountNumber) throws CloudMonetizationException {
+                                     String accountNumber) throws CloudMonetizationException {
         APICloudMonetizationUtils.updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, false);
     }
 
@@ -85,14 +85,19 @@ public class APICloudMonetizationService {
      * @param tenantDomain tenant domain
      * @return boolean enabled status
      */
-    public boolean isMonetizationEnabled(String tenantDomain) throws CloudBillingException {
-        return CloudBillingServiceUtils.isMonetizationEnabled(tenantDomain, BillingConstants.API_CLOUD_SUBSCRIPTION_ID);
+    public boolean isMonetizationEnabled(String tenantDomain) throws CloudMonetizationException {
+        try {
+            return CloudBillingServiceUtils.isMonetizationEnabled(tenantDomain, BillingConstants.API_CLOUD_SUBSCRIPTION_ID);
+        } catch (CloudBillingException e) {
+            throw new CloudMonetizationException("Error while checking monetization status for tenant: " +
+                    tenantDomain, e);
+        }
     }
 
     /**
      * Retrieve active subscriptions for a given account id
      *
-     * @param accountId customer accountId
+     * @param accountId   customer accountId
      * @param serviceName cloud service name
      * @return Json string of active subscription ids
      * @throws CloudBillingException
@@ -112,7 +117,7 @@ public class APICloudMonetizationService {
     /**
      * Block api subscriptions of a given user
      *
-     * @param userId user id of the user
+     * @param userId   user id of the user
      * @param tenantId tenant id
      * @throws CloudMonetizationException
      */
@@ -124,5 +129,31 @@ public class APICloudMonetizationService {
         } catch (Exception ex) {
             throw new CloudMonetizationException("Error occurred while blocking api subscriptions of user : " + userId);
         }
+    }
+
+    /**
+     * Decrypt and base64 decode the workflow data
+     *
+     * @param workflowData base64encoded encrypted string
+     * @return decrypted workflow data
+     * @throws CloudMonetizationException
+     */
+    public String decryptWorkflowData(String workflowData) throws CloudMonetizationException {
+        return APICloudMonetizationUtils.decryptWorkflowData(workflowData);
+    }
+
+    /**
+     *
+     *
+     * @param tenantDomain
+     * @param accountNumber
+     * @param apiData
+     * @param effectiveDate
+     * @return
+     * @throws CloudMonetizationException
+     */
+    public String addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
+                                             String effectiveDate) throws CloudMonetizationException {
+        return APICloudMonetizationUtils.addSubscriptionInformation(tenantDomain, accountNumber, apiData, effectiveDate);
     }
 }

@@ -127,6 +127,7 @@
                             org.wso2.carbon.utils; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.securevault; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.core; version="[4.2.0, 4.5.0)",
+                            org.wso2.carbon.core.util; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.context; version="[4.2.0, 4.5.0)",
                             javax.xml.stream.*; version="${imp.pkg.version.javax.xml.stream}",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
