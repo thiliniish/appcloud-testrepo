@@ -128,6 +128,8 @@ public final class BillingConstants {
 
     public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
 
+    public static final String RATE_PLAN_ID = "productRatePlanId";
+
     /* Zuora queries */
     //ToDo Subject to change
     public static final String QUERY_ZUORA_ACCOUNT_BY_NAME = "SELECT id, name, accountnumber FROM account WHERE name " +
@@ -142,6 +144,7 @@ public final class BillingConstants {
     public static final String DS_API_URI_DISABLE_TENANT = "/disabletenant";
     public static final String DS_API_URI_SUBSCRIPTION_STATUS = "/subscriptionstatus";
     public static final String DS_API_URI_BILLING_HISTORY = "/billinghistory";
+    public static final String DS_API_URI_MAPPING_FOR_SUBSCRIPTION =  "/mappingforsubscription";
 
     /*Zuora REST API v1 URIs*/
     public static final String ZUORA_REST_API_URI_USAGE = "/v1/usage";

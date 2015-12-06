@@ -86,7 +86,7 @@ public class APICloudUsageManager {
 
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
-        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("apiPublisher", "%25@" + tenantDomain),
+        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("apiPublisher", "%@" + tenantDomain),
                 new NameValuePair("startDate", startDate), new NameValuePair("endDate", endDate) };
         return dsBRProcessor.doGet(usageForTenantUrl, nameValuePairs);
     }

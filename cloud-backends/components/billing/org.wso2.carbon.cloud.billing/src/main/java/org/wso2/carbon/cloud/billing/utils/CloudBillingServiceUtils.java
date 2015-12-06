@@ -21,6 +21,7 @@ package org.wso2.carbon.cloud.billing.utils;
 import com.google.gson.Gson;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
@@ -28,10 +29,13 @@ import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.config.Subscription;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
+import javax.xml.namespace.QName;
+import java.util.Iterator;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -147,11 +151,34 @@ public class CloudBillingServiceUtils {
      * @return rate plan
      * @throws CloudBillingException
      */
-    public static Plan getSubscriptionForId(String subscriptionId, String ratePlanId) throws CloudBillingException {
-        for (Subscription sub : BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions()) {
+    public static Plan getSubscriptionForId(String subscriptionId, String ratePlanId)
+            throws CloudBillingException, XMLStreamException {
+        Plan plan = getSubscriptionInfo(subscriptionId, ratePlanId);
+        OMElement subscriptionElements;
+        if (plan == null) {
+            String subscriptionMappingResponse;
+            subscriptionMappingResponse = getSubscriptionMapping(ratePlanId);
+            if (subscriptionMappingResponse != null) {
+                subscriptionElements = AXIOMUtil.stringToOM(subscriptionMappingResponse);
+                Iterator<?> iterator =
+                        subscriptionElements.getChildrenWithName(new QName(BillingConstants.RATE_PLAN_ID));
+                while (iterator.hasNext()) {
+                    OMElement ratePlanIdElement = (OMElement) iterator.next();
+                    String productRatePlanId = ratePlanIdElement.getText();
+                    plan = getSubscriptionInfo(subscriptionId, productRatePlanId);
+                }
+            }
+        }
+        return plan;
+    }
+
+
+    private static Plan getSubscriptionInfo(String subscriptionId, String id) throws CloudBillingException {
+        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions();
+        for (Subscription sub : subscriptions) {
             if (subscriptionId.equalsIgnoreCase(sub.getId())) {
                 for (Plan plan : sub.getPlans()) {
-                    if ((plan.getId()).equals(ratePlanId)) {
+                    if ((plan.getId()).equals(id)) {
                         return plan;
                     }
                 }
@@ -211,6 +238,12 @@ public class CloudBillingServiceUtils {
      */
     public static boolean isBillingEnabled() {
         return BillingConfigUtils.getBillingConfiguration().isBillingEnabled();
+    }
+
+    private static String getSubscriptionMapping(String ratePlanId) throws CloudBillingException {
+        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl() + BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
+        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
+        return dsBRProcessor.doGet(url, nameValuePairs);
     }
 
 }
