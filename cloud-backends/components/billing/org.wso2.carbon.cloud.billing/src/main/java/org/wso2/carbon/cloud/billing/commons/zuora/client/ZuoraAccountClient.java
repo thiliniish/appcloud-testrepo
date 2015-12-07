@@ -18,12 +18,15 @@
 
 package org.wso2.carbon.cloud.billing.commons.zuora.client;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.zuora.api.DeleteResult;
 import com.zuora.api.ID;
 import com.zuora.api.QueryResult;
 import com.zuora.api.SaveResult;
 import com.zuora.api.object.Account;
+import com.zuora.api.object.ZObject;
 import com.zuora.api.wso2.stub.InvalidQueryLocatorFault;
 import com.zuora.api.wso2.stub.InvalidTypeFault;
 import com.zuora.api.wso2.stub.InvalidValueFault;
@@ -51,6 +54,9 @@ public class ZuoraAccountClient extends ZuoraClient {
     private static final String ACCOUNT_DELETION_ERROR = "occurred while deleting customer account";
     private static final String ACCOUNT_QUERY_BY_NAME_ERROR = "occurred while querying customer account by name";
     private static final String ACCOUNT_QUERY_BY_ACC_NO_ERROR = "occurred while querying customer account by account no";
+
+    private static final String ERROR_JSON_OBJ_INVALID_ACCOUNT = "{\"code\": null,\"codeSpecified\": true,\"field\": " +
+            "null,\"fieldSpecified\": false,\"message\": \"Invalid account name. \",\"messageSpecified\": true}";
 
 
     public ZuoraAccountClient() throws CloudBillingZuoraException {
@@ -153,7 +159,11 @@ public class ZuoraAccountClient extends ZuoraClient {
     public JsonObject queryAccountByName(String accountName) throws CloudBillingZuoraException {
         try {
             Account account = getAccountByName(accountName);
-            return objectToJson(account);
+            if (account != null) {
+                return objectToJson(account);
+            } else {
+                return objectToJson(new Account());
+            }
         } catch (IOException e) {
             throw new CloudBillingZuoraException("IOException " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName, e);
         }
@@ -195,8 +205,22 @@ public class ZuoraAccountClient extends ZuoraClient {
     public JsonObject deleteAccount(String accountName) throws CloudBillingZuoraException {
         try {
             Account account = getAccountByName(accountName);
-            DeleteResult result = zuoraClientUtils.delete(BillingConstants.ZUORA_ACCOUNT, account.getId());
-            return objectToJson(result);
+            if(account != null) {
+                DeleteResult result = zuoraClientUtils.delete(BillingConstants.ZUORA_ACCOUNT, account.getId());
+                return objectToJson(result);
+            } else {
+                JsonObject errorResponse = new JsonObject();
+                errorResponse.addProperty("success", false);
+                errorResponse.addProperty("successSpecified", true);
+                errorResponse.addProperty("errorsSpecified", true);
+
+                JsonObject[] errorObjs  = new JsonObject[] {
+                        new JsonParser().parse(ERROR_JSON_OBJ_INVALID_ACCOUNT).getAsJsonObject()
+                };
+                errorResponse.add("errors", new Gson().toJsonTree(errorObjs));
+                return errorResponse;
+            }
+
         } catch (RemoteException e) {
             throw new CloudBillingZuoraException("Remote exception " + ACCOUNT_DELETION_ERROR + accountName, e);
         } catch (UnexpectedErrorFault e) {
@@ -339,7 +363,11 @@ public class ZuoraAccountClient extends ZuoraClient {
         try {
             String query = ZuoraClientUtils.prepareZQuery(BillingConstants.QUERY_ZUORA_ACCOUNT_BY_NAME, new String[]{accountName});
             QueryResult result = zuoraClientUtils.query(query, null);
-            return (Account) result.getRecords()[0];
+            if((result.getRecords())[0] != null) {
+                return (Account) result.getRecords()[0];
+            } else {
+                return null;
+            }
         } catch (RemoteException e) {
             throw new CloudBillingZuoraException("Remote exception " + ACCOUNT_QUERY_BY_NAME_ERROR + accountName, e);
         } catch (InvalidQueryLocatorFault e) {

@@ -147,7 +147,6 @@ public final class BillingConstants {
     public static final String DS_API_URI_DISABLE_TENANT = "/disabletenant";
     public static final String DS_API_URI_SUBSCRIPTION_STATUS = "/subscriptionstatus";
     public static final String DS_API_URI_BILLING_HISTORY = "/billinghistory";
-    public static final String DS_API_URI_MONETIZATION_STATUS = "/monetization-status";
     public static final String DS_API_URI_MAPPING_FOR_SUBSCRIPTION =  "/mappingforsubscription";
 
     /*Zuora REST API v1 URIs*/
@@ -167,6 +166,7 @@ public final class BillingConstants {
     public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";
     public static final String PARAM_ZUORA_PRODUCT_NAME = "zuoraProductName";
     public static final String PARAM_RATE_PLAN_NAME = "ratePlanName";
+    public static final String PARAM_RATE_PLAN_ID = "ratePlanId";
     public static final String PARAM_SUBSCRIPTION_ID = "subscriptionId";
     public static final String PARAM_START_DATE = "startDate";
     public static final String PARAM_TENANT = "tenant";
@@ -179,6 +179,7 @@ public final class BillingConstants {
 
     //Zuora communication & invoice template child account suffix
     public static final String ZUORA_TEMPLATE_ACCOUNT_SUFFIX = "__TEMPLATE__";
+    public static final String ZUORA_DEFAULT_TEMPLATE_ACCOUNT_SUFFIX = "DEFAULT__TEMPLATE__";
 
     /*Zuora soap elements*/
     public static final String ZUORA_ACCOUNT_NUMBER = "accountNumber";

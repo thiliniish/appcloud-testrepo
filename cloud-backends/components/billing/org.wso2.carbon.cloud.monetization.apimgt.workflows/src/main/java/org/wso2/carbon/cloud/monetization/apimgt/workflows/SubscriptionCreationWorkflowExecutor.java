@@ -60,6 +60,9 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     private static final Log LOGGER = LogFactory.getLog(SubscriptionCreationWorkflowExecutor.class);
     private static final String ERROR_MSG = "Could not complete subscription creation workflow.";
 
+    /*Data separator for the encrypting data string*/
+    private static final String DATA_SEPARATOR = ":";
+
     private static final String IS_TEST_ACCOUNT_ELEMENT = "TestAccount";
     private static final String ACCOUNT_NUMBER_ELEMENT = "AccountNumber";
     private static final String SUBSCRIBERS_ELEMENT = "Subscribers";
@@ -123,9 +126,9 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     }
 
     private String getEncryptionInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws CryptoException {
-        String stringBuilder = subscriptionWorkflowDTO.getExternalWorkflowReference() + ":" +
-                subscriptionWorkflowDTO.getTierName() + ":" + subscriptionWorkflowDTO.getApplicationName() +
-                ":" + subscriptionWorkflowDTO.getApiName() + "" + subscriptionWorkflowDTO.getApiVersion();
+        String stringBuilder = subscriptionWorkflowDTO.getExternalWorkflowReference() + DATA_SEPARATOR +
+                subscriptionWorkflowDTO.getTierName() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApplicationName() +
+                DATA_SEPARATOR + subscriptionWorkflowDTO.getApiName() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApiVersion();
         return CryptoUtil.getDefaultCryptoUtil()
                 .encryptAndBase64Encode(stringBuilder.getBytes(Charset.defaultCharset()));
     }

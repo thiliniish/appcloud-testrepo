@@ -95,6 +95,21 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * Get rate plan id for rate plan name
+     *
+     * @param tenantDomain tenant domain
+     * @param ratePlanName rate plan name
+     * @return rate plan id
+     */
+    public String getRatePlanId(String tenantDomain, String ratePlanName) throws CloudMonetizationException {
+        try {
+            return CloudBillingServiceUtils.getRatePlanId(tenantDomain, ratePlanName);
+        } catch (CloudBillingException e) {
+            throw new CloudMonetizationException("Error while getting rate plan id for tenant: " + tenantDomain, e);
+        }
+    }
+
+    /**
      * Retrieve active subscriptions for a given account id
      *
      * @param accountId   customer accountId
@@ -132,24 +147,11 @@ public class APICloudMonetizationService {
     }
 
     /**
-     * Decrypt and base64 decode the workflow data
-     *
-     * @param workflowData base64encoded encrypted string
-     * @return decrypted workflow data
-     * @throws CloudMonetizationException
-     */
-    public String decryptWorkflowData(String workflowData) throws CloudMonetizationException {
-        return APICloudMonetizationUtils.decryptWorkflowData(workflowData);
-    }
-
-    /**
-     *
-     *
-     * @param tenantDomain
-     * @param accountNumber
-     * @param apiData
-     * @param effectiveDate
-     * @return
+     * @param tenantDomain  tenant domain
+     * @param accountNumber account number
+     * @param apiData       api data json object
+     * @param effectiveDate effective date
+     * @return success information
      * @throws CloudMonetizationException
      */
     public String addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,

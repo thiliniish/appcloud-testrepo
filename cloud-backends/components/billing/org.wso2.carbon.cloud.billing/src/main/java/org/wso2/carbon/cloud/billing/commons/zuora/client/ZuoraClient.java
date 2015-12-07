@@ -46,6 +46,6 @@ public abstract class ZuoraClient {
     protected JsonObject objectToJson(Object obj) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         String result = mapper.writeValueAsString(obj);
-        return (JsonObject) (new JsonParser().parse(result));
+        return new JsonParser().parse(result).getAsJsonObject();
     }
 }

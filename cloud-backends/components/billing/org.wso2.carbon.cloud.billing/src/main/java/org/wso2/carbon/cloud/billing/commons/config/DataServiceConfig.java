@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class DataServiceConfig {
 
     private String cloudBillingServiceUrl;
+    private String cloudMonetizationServiceUrl;
     private String apiCloudMonetizationServiceUrl;
     private String user;
     private String password;
@@ -76,5 +77,14 @@ public class DataServiceConfig {
 
     public void setApiCloudMonetizationServiceUrl(String apiCloudMonetizationServiceUrl) {
         this.apiCloudMonetizationServiceUrl = apiCloudMonetizationServiceUrl;
+    }
+
+    @XmlElement(name = "CloudMonetizationServiceURL", nillable = false, required = true)
+    public String getCloudMonetizationServiceUrl() {
+        return cloudMonetizationServiceUrl;
+    }
+
+    public void setCloudMonetizationServiceUrl(String cloudMonetizationServiceUrl) {
+        this.cloudMonetizationServiceUrl = cloudMonetizationServiceUrl;
     }
 }

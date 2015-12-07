@@ -30,11 +30,8 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
-import org.wso2.carbon.core.util.CryptoException;
-import org.wso2.carbon.core.util.CryptoUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -153,22 +150,20 @@ public final class APICloudMonetizationUtils {
     }
 
     /**
-     *
-     *
-     * @param tenantDomain
-     * @param accountNumber
-     * @param apiData
-     * @param effectiveDate
-     * @return
+     * @param tenantDomain  tenant domain
+     * @param accountNumber account number
+     * @param apiData       api data json object
+     * @param effectiveDate effective date
+     * @return success information
      * @throws CloudMonetizationException
      */
     public static String addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
                                                     String effectiveDate) throws CloudMonetizationException {
-        JsonObject apiDataObj = (JsonObject) new JsonParser().parse(apiData);
+        JsonObject apiDataObj = new JsonParser().parse(apiData).getAsJsonObject();
         try {
             String url = subscriptionUri
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils
-                            .encodeUrlParam(apiDataObj.get(BillingConstants.PARAM_ACCOUNT_NUMBER).getAsString()))
+                            .encodeUrlParam(accountNumber))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils
                             .encodeUrlParam(apiDataObj.get(APP_NAME).getAsString()))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils
@@ -177,11 +172,8 @@ public final class APICloudMonetizationUtils {
                             .encodeUrlParam(apiDataObj.get(API_VERSION).getAsString()));
 
             NameValuePair[] nameValuePairs = new NameValuePair[]{
-                    new NameValuePair(BillingConstants.PARAM_TENANT, tenantDomain.trim()),
-                    new NameValuePair(BillingConstants.PARAM_ZUORA_PRODUCT_NAME, tenantDomain.trim() + BillingConstants
-                            .ZUORA_TEMPLATE_ACCOUNT_SUFFIX),
-                    new NameValuePair(BillingConstants.PARAM_RATE_PLAN_NAME, apiDataObj.get(BillingConstants
-                            .PARAM_RATE_PLAN_NAME).getAsString()),
+                    new NameValuePair(BillingConstants.PARAM_RATE_PLAN_ID, apiDataObj.get(BillingConstants
+                            .PARAM_RATE_PLAN_ID).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_SUBSCRIPTION_ID, apiDataObj.get(BillingConstants
                             .PARAM_SUBSCRIPTION_ID).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_START_DATE, effectiveDate.trim())
@@ -191,34 +183,6 @@ public final class APICloudMonetizationUtils {
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException("Error while adding subscription information for child account: " +
                     accountNumber + " of the parent tenant: " + tenantDomain, e);
-        }
-    }
-
-    /**
-     * Decrypt and base64 decode the workflow data
-     *
-     * @param workflowData base64encoded encrypted string
-     * @return decrypted workflow data
-     * @throws CloudMonetizationException
-     */
-    public static String decryptWorkflowData(String workflowData) throws CloudMonetizationException {
-
-        try {
-            String workflowRefData = new String(CryptoUtil.getDefaultCryptoUtil().base64DecodeAndDecrypt
-                    (workflowData), Charset.defaultCharset());
-            JsonObject resData = new JsonObject();
-
-            if (StringUtils.isNotBlank(workflowRefData)) {
-                String[] data = workflowRefData.trim().split(":");
-                resData.addProperty("workflowRefId", data[0]);
-                resData.addProperty("tierName", data[1]);
-                resData.addProperty("applicationName", data[2]);
-                resData.addProperty("apiName", data[3]);
-                resData.addProperty("apiVersion", data[4]);
-            }
-            return resData.toString();
-        } catch (CryptoException e) {
-            throw new CloudMonetizationException("Invalid workflow data or workflow data corrupted", e);
         }
     }
 }

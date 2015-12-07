@@ -23,6 +23,11 @@ package org.wso2.carbon.cloud.billing.commons;
  */
 public final class MonetizationConstants {
 
+    /*Common cloud monetization DSS v1 suffixes*/
+    public static final String DS_API_URI_MONETIZATION_STATUS = "/v1/monetization-status/{tenant}/{cloudType}";
+    public static final String DS_API_URI_MONETIZATION_TENANT_RATE_PLAN =
+            "/v1/rate-plans/{tenant}/{zuoraProductName}/{ratePlanName}";
+
     /*API Cloud Monetization DSS v1 suffixes*/
     public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
     public static final String DS_API_URI_MON_APIC_DAILY_USAGE = "/v1/usage/daily-usage";
@@ -38,6 +43,9 @@ public final class MonetizationConstants {
     public static final String RESOURCE_IDENTIFIER_APP_NAME = "{appName}";
     public static final String RESOURCE_IDENTIFIER_API_NAME = "{apiName}";
     public static final String RESOURCE_IDENTIFIER_API_VERSION = "{apiVersion}";
+    public static final String RESOURCE_IDENTIFIER_CLOUD_TYPE = "{cloudType}";
+    public static final String RESOURCE_IDENTIFIER_ZUORA_PRODUCT_NAME = "{zuoraProductName}";
+    public static final String RESOURCE_IDENTIFIER_RATE_PLAN_NAME = "{ratePlanName}";
 
     /*param names*/
     public static final String PARAM_IS_TEST_ACCOUNT = "isTestAccount";
@@ -49,6 +57,7 @@ public final class MonetizationConstants {
 
     public static final String ACCOUNT = "Account";
     public static final String RATE_PLAN = "RatePlan";
+    public static final String RATE_PLAN_ID = "RatePlanId";
     public static final String SUBSCRIPTION = "Subscription";
     public static final String MAX_DAILY_USAGE = "MaxDailyUsage";
     public static final String ENTRY = "Entry";

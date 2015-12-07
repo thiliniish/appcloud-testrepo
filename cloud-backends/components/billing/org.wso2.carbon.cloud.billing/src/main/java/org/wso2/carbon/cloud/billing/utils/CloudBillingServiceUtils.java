@@ -29,9 +29,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.config.Subscription;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.ZuoraAccountClient;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
@@ -41,6 +43,7 @@ import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 
 /**
@@ -49,6 +52,9 @@ import java.util.Iterator;
 
 public final class CloudBillingServiceUtils {
 
+    /*Zuora REST custom response identifiers*/
+    private static final String ZUORA_CUSTOM_CREATE_CHILD_RES = "createChildResponse";
+    private static final String ZUORA_CUSTOM_ADD_PARENT_RES = "addParentResponse";
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceUtils.class);
     private static volatile String configObj;
@@ -62,6 +68,8 @@ public final class CloudBillingServiceUtils {
                     .getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
     private static APICloudUsageManager usageManager = new APICloudUsageManager();
     private static String billingServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl();
+    private static String monetizationServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+            .getCloudMonetizationServiceUrl();
 
     private CloudBillingServiceUtils() {
     }
@@ -248,14 +256,13 @@ public final class CloudBillingServiceUtils {
     }
 
     public static boolean isMonetizationEnabled(String tenantDomain, String application) throws CloudBillingException {
-        String monetizationStatusUrl = billingServiceURI + BillingConstants.DS_API_URI_MONETIZATION_STATUS;
+        String monetizationStatusUrl = monetizationServiceURI + MonetizationConstants.DS_API_URI_MONETIZATION_STATUS;
         String response = null;
         try {
-            NameValuePair[] nameValuePairs = new NameValuePair[]{
-                    new NameValuePair("tenant", tenantDomain),
-                    new NameValuePair("cloudType", application)
-            };
-            response = dsBRProcessor.doGet(monetizationStatusUrl, nameValuePairs);
+            String url = monetizationStatusUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
+                    CloudBillingUtils.encodeUrlParam(tenantDomain)).replace(MonetizationConstants
+                    .RESOURCE_IDENTIFIER_CLOUD_TYPE, CloudBillingUtils.encodeUrlParam(application));
+            response = dsBRProcessor.doGet(url, null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
             OMElement status = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
@@ -268,7 +275,33 @@ public final class CloudBillingServiceUtils {
                 return false;
             }
 
-        } catch (XMLStreamException e) {
+        } catch (XMLStreamException | UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error occurred while parsing response: " + response, e);
+        }
+    }
+
+    public static String getRatePlanId(String tenantDomain, String ratePlanName) throws CloudBillingException {
+        String ratePlanUrl = monetizationServiceURI + MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN;
+        String response = null;
+        String zuoraProductName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
+        try {
+            String url = ratePlanUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
+                    CloudBillingUtils.encodeUrlParam(tenantDomain)).replace(MonetizationConstants
+                    .RESOURCE_IDENTIFIER_ZUORA_PRODUCT_NAME, CloudBillingUtils.encodeUrlParam(zuoraProductName))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_RATE_PLAN_NAME, CloudBillingUtils
+                            .encodeUrlParam(ratePlanName));
+            response = dsBRProcessor.doGet(url, null);
+            OMElement elements = AXIOMUtil.stringToOM(response);
+
+            OMElement ratePlanId = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
+                    MonetizationConstants.RATE_PLAN_ID));
+            if (ratePlanId != null && StringUtils.isNotBlank(ratePlanId.getText())) {
+                return ratePlanId.getText().trim();
+            } else {
+                return BillingConstants.EMPTY_STRING;
+            }
+
+        } catch (XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while parsing response: " + response, e);
         }
     }
@@ -288,9 +321,9 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
-     * @param tenantDomain
-     * @param accountInfoJson
-     * @return
+     * @param tenantDomain tenant domain
+     * @param accountInfoJson account information in json
+     * @return return json object
      * @throws CloudBillingException
      */
     public static JsonObject createChildAccount(String tenantDomain, String accountInfoJson) throws CloudBillingException {
@@ -303,30 +336,46 @@ public final class CloudBillingServiceUtils {
         ZuoraAccountClient client;
         try {
             client = new ZuoraAccountClient();
-            JsonObject templateAccount = client.queryAccountByName(tenantDomain + BillingConstants.ZUORA_TEMPLATE_ACCOUNT_SUFFIX);
-            JsonObject childAccountObj = ((JsonObject) parser.parse(accountInfoJson));
+            JsonObject templateAccount = getTemplateAccount(tenantDomain, client);
+            JsonObject childAccountObj = parser.parse(accountInfoJson).getAsJsonObject();
 
-            childAccountObj.addProperty(BillingConstants.ZUORA_INVOICE_TEMPLATE_ID, templateAccount
-                    .get(BillingConstants.ZUORA_INVOICE_TEMPLATE_ID).getAsString());
-            childAccountObj.addProperty(BillingConstants.ZUORA_COMMUNICATION_PROFILE_ID, templateAccount
-                    .get(BillingConstants.ZUORA_COMMUNICATION_PROFILE_ID).getAsString());
-
-            response = zuoraReqProcessor.doPost(zuoraAccountURI, childAccountObj.getAsString());
+            addProfilePropertyIfExists(templateAccount, childAccountObj, BillingConstants.ZUORA_INVOICE_TEMPLATE_ID);
+            addProfilePropertyIfExists(templateAccount, childAccountObj, BillingConstants.ZUORA_COMMUNICATION_PROFILE_ID);
+            response = zuoraReqProcessor.doPost(zuoraAccountURI, childAccountObj.toString());
         } catch (CloudBillingException e) {
             throw new CloudBillingException("Creating child account failed. ", e);
         }
 
+        JsonObject resultObj = new JsonObject();
         try {
-            JsonObject responseObj = ((JsonObject) parser.parse(response));
-            if (responseObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
-                String childAccountNo = responseObj.get(BillingConstants.ZUORA_ACCOUNT_NUMBER).getAsString();
+            JsonObject createChildResponse = parser.parse(response).getAsJsonObject();
+            resultObj.add(ZUORA_CUSTOM_CREATE_CHILD_RES, createChildResponse);
+            if (createChildResponse.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
+                String childAccountNo = createChildResponse.get(BillingConstants.ZUORA_ACCOUNT_NUMBER).getAsString();
                 String parentAccountNo = getAccountIdForTenant(tenantDomain);
-                return client.addAccountParent(childAccountNo, parentAccountNo);
-            } else {
-                return responseObj;
+                JsonObject addParentResponse = client.addAccountParent(childAccountNo, parentAccountNo);
+                resultObj.add(ZUORA_CUSTOM_ADD_PARENT_RES, addParentResponse);
             }
+            return resultObj;
         } catch (CloudBillingException e) {
             throw new CloudBillingException("Adding parent account details to child account failed. ", e);
+        }
+    }
+
+    private static JsonObject getTemplateAccount(String tenantDomain, ZuoraAccountClient client) throws CloudBillingZuoraException {
+
+        JsonObject templateAccount = client.queryAccountByName(tenantDomain + BillingConstants.ZUORA_TEMPLATE_ACCOUNT_SUFFIX);
+        if (!templateAccount.get("nameSpecified").getAsBoolean()) {
+            templateAccount = client.queryAccountByName(BillingConstants.ZUORA_DEFAULT_TEMPLATE_ACCOUNT_SUFFIX);
+        }
+        return templateAccount;
+    }
+
+    private static void addProfilePropertyIfExists(JsonObject templateAccount, JsonObject childAccountObj, String property)
+            throws CloudBillingException {
+        String propertySpecifiedSuffix = "Specified";
+        if (templateAccount.get(property + propertySpecifiedSuffix).getAsBoolean()) {
+            childAccountObj.addProperty(property, templateAccount.get(property).getAsJsonObject().get("id").getAsString());
         }
     }
 
