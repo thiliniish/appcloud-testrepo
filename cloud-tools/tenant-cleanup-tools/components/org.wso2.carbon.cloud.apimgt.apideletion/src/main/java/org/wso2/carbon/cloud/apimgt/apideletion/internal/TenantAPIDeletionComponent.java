@@ -38,6 +38,9 @@ import org.wso2.carbon.user.core.service.RealmService;
  * policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
  */
 
+/**
+ * Represents the tenant api deletion component
+ */
 public class TenantAPIDeletionComponent {
 
     private static final Log log = LogFactory.getLog(TenantAPIDeletionComponent.class);
