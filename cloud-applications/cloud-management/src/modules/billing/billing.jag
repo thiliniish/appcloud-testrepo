@@ -253,11 +253,12 @@ var getTenantUsage = function (fromDate,toDate) {
 	}
 };
 
-var updateContactInfo = function (accountData) {
+var updateContactInfo = function (accountData, organizationName) {
     var accountId = getAccountId();
     var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNTS + "/" + accountId;
     var data = {};
     data.billToContact = accountData;
+    data.name = organizationName;
     var response = sendHTTPRequest(url, "PUT", null, data);
     if (response.success === true) {
         return "Your contact information is successfully added"
@@ -265,7 +266,7 @@ var updateContactInfo = function (accountData) {
         log.error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
         throw new Error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
     }
-}
+};
 
 var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 
@@ -311,7 +312,7 @@ var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
 };
 
 //Create Zuora account for tenant
-var createAccount = function (accountData, metaData) {
+var createAccount = function (accountData, metaData, organizationName) {
 
 	var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNTS;
 	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
@@ -328,7 +329,7 @@ var createAccount = function (accountData, metaData) {
 
 		var effectiveDate = new Packages.java.util.Date();
 
-		var data = populateAccountInfo(tenantDomain, accountData, metaData, effectiveDate);
+		var data = populateAccountInfo(organizationName, accountData, metaData, effectiveDate);
         if (log.isDebugEnabled()){
             log.debug("Creating Zuora account with data: " + data);
         }
@@ -954,7 +955,7 @@ var validatePassThroughHash = function (token) {
 };
 
 //populate account information object
-var populateAccountInfo = function (tenantDomain, accountData, metaData, effectiveDate) {
+var populateAccountInfo = function (organizationName, accountData, metaData, effectiveDate) {
 	var couponData = session.get("PRODUCT_COUPON_DATA");
 	var serviceId = session.get("SERVICE_ID");
 	session.remove("PRODUCT_COUPON_DATA");
@@ -973,7 +974,7 @@ var populateAccountInfo = function (tenantDomain, accountData, metaData, effecti
 	var data = {};
 	var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
 
-	data.name = tenantDomain;
+	data.name = organizationName;
 	data.autoPay = true;
 	data.currency = zuoraObj.currency;
 	data.billToContact = {};
