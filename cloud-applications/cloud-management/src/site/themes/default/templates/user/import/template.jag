@@ -18,7 +18,7 @@
         var type = <%=type%>;
         //getting the roles of each subscriptions
         var jsonData = [];
-        var blockSubscriptions= getBlcokedSubscriptions();
+        var blockSubscriptions= getBlockedSubscriptions();
         for(var index in type){
             if(blockSubscriptions.indexOf(type[index].id) <0 || blockSubscriptions==null){
             var tempRoleArray= type[index].roleTypes;
@@ -66,12 +66,10 @@
         });
     }
 
-    function getBlcokedSubscriptions(){
-        var tenantDomain = '<%=session.get("TENANT_INFO").tenantDomain%>';
+    function getBlockedSubscriptions(){
         var blockedSubs;
         jagg.syncPost("../blocks/tenant/users/add/ajax/add.jag", {
-            action:"getBlockedSubscriptions",
-            tenantDomain:tenantDomain
+            action:"getBlockedSubscriptions"
         },
         function (result) {
             blockedSubs=result;

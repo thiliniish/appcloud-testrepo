@@ -129,8 +129,6 @@ public final class BillingConstants {
 
     public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
 
-
-
     /* Zuora queries */
     private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid, " +
             "communicationprofileid, createddate, invoicetemplateid, parentid, status, defaultpaymentmethodid FROM account ";
@@ -150,6 +148,7 @@ public final class BillingConstants {
     public static final String DS_API_URI_SUBSCRIPTION_STATUS = "/subscriptionstatus";
     public static final String DS_API_URI_BILLING_HISTORY = "/billinghistory";
     public static final String DS_API_URI_MONETIZATION_STATUS = "/monetization-status";
+    public static final String DS_API_URI_MAPPING_FOR_SUBSCRIPTION =  "/mappingforsubscription";
 
     /*Zuora REST API v1 URIs*/
     public static final String ZUORA_REST_API_URI_USAGE = "/v1/usage";

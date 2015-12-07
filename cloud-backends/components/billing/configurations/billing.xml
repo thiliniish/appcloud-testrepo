@@ -70,7 +70,7 @@
                     <Name>Starter</Name>
                     <MaxDailyUsage>500</MaxDailyUsage>
                     <MaxAccounts>10</MaxAccounts>
-                    <OverUsage>$5/1K</OverUsage>
+                    <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$100</MonthlyRental>
                     <PremiumLevel>1</PremiumLevel>
                 </Plan>
@@ -79,7 +79,7 @@
                     <Name>Getting Traction</Name>
                     <MaxDailyUsage>100000</MaxDailyUsage>
                     <MaxAccounts>100</MaxAccounts>
-                    <OverUsage>$5/1K</OverUsage>
+                    <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$250</MonthlyRental>
                     <PremiumLevel>2</PremiumLevel>
                 </Plan>
@@ -88,7 +88,7 @@
                     <Name>Medium</Name>
                     <MaxDailyUsage>500</MaxDailyUsage>
                     <MaxAccounts>10</MaxAccounts>
-                    <OverUsage>$5/1K</OverUsage>
+                    <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$100</MonthlyRental>
                     <PremiumLevel>3</PremiumLevel>
                 </Plan>
@@ -97,7 +97,7 @@
                     <Name>Large</Name>
                     <MaxDailyUsage>100000</MaxDailyUsage>
                     <MaxAccounts>100</MaxAccounts>
-                    <OverUsage>$5/1K</OverUsage>
+                    <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$250</MonthlyRental>
                     <PremiumLevel>4</PremiumLevel>
                 </Plan>
@@ -106,7 +106,7 @@
                     <Name>Extra-large</Name>
                     <MaxDailyUsage>500</MaxDailyUsage>
                     <MaxAccounts>10</MaxAccounts>
-                    <OverUsage>$5/1K</OverUsage>
+                    <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$100</MonthlyRental>
                     <PremiumLevel>5</PremiumLevel>
                 </Plan>

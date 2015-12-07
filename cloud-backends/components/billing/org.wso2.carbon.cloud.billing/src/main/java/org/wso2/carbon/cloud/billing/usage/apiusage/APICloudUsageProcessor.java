@@ -89,5 +89,4 @@ public class APICloudUsageProcessor implements UsageProcessor {
                 new NameValuePair("SUBSCRIPTION", BillingConstants.API_CLOUD_SUBSCRIPTION_ID) };
         return billingRequestProcessor.doGet(amendmentsUrl, nameValuePairs);
     }
-
 }

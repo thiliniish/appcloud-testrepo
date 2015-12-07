@@ -41,6 +41,7 @@ import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import java.util.Iterator;
 
 /**
  * Model to represent Utilities for Cloud Billing module
@@ -157,11 +158,34 @@ public final class CloudBillingServiceUtils {
      * @return rate plan
      * @throws CloudBillingException
      */
-    public static Plan getSubscriptionForId(String subscriptionId, String ratePlanId) throws CloudBillingException {
-        for (Subscription sub : BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions()) {
+    public static Plan getSubscriptionForId(String subscriptionId, String ratePlanId)
+            throws CloudBillingException, XMLStreamException {
+        Plan plan = getSubscriptionInfo(subscriptionId, ratePlanId);
+        OMElement subscriptionElements;
+        if (plan == null) {
+            String subscriptionMappingResponse;
+            subscriptionMappingResponse = getSubscriptionMapping(ratePlanId);
+            if (subscriptionMappingResponse != null) {
+                subscriptionElements = AXIOMUtil.stringToOM(subscriptionMappingResponse);
+                Iterator<?> iterator =
+                        subscriptionElements.getChildrenWithName(new QName(BillingConstants.PRODUCT_RATE_PLAN_ID));
+                while (iterator.hasNext()) {
+                    OMElement ratePlanIdElement = (OMElement) iterator.next();
+                    String productRatePlanId = ratePlanIdElement.getText();
+                    plan = getSubscriptionInfo(subscriptionId, productRatePlanId);
+                }
+            }
+        }
+        return plan;
+    }
+
+
+    private static Plan getSubscriptionInfo(String subscriptionId, String id) throws CloudBillingException {
+        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions();
+        for (Subscription sub : subscriptions) {
             if (subscriptionId.equalsIgnoreCase(sub.getId())) {
                 for (Plan plan : sub.getPlans()) {
-                    if ((plan.getId()).equals(ratePlanId)) {
+                    if ((plan.getId()).equals(id)) {
                         return plan;
                     }
                 }
@@ -264,8 +288,6 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
-     * 
-     *
      * @param tenantDomain
      * @param accountInfoJson
      * @return
@@ -306,5 +328,12 @@ public final class CloudBillingServiceUtils {
         } catch (CloudBillingException e) {
             throw new CloudBillingException("Adding parent account details to child account failed. ", e);
         }
+    }
+
+    private static String getSubscriptionMapping(String ratePlanId) throws CloudBillingException {
+        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+                + BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
+        NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
+        return dsBRProcessor.doGet(url, nameValuePairs);
     }
 }
