@@ -69,8 +69,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
         var effectiveDate = new Packages.java.util.Date();
         var data = populateAccountInfo(accountData, metaData, effectiveDate, ratePlanId);
         var response = billingService.createChildAccount(tenantDomain, stringify(data));
-
-        log.info("Create child account response: " + response);
+        
         var responseObj = JSON.parse(response);
         var createChildResObj = responseObj.createChildResponse;
         var addParentObj = responseObj.addParentResponse;
@@ -81,7 +80,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
                     createChildResObj.accountNumber);
             apiData.subscriptionId = createChildResObj.subscriptionId;
             apiData.ratePlanId = ratePlanId;
-            var sqlDateFormat = dateTimeFormatter(ZUORA_DATE_FORMAT);
+            var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
             var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
             addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildResObj
                     .accountNumber, stringify(apiData), formattedEffectiveDate);
@@ -122,19 +121,15 @@ var decryptWorkflowData = function (workflowData) {
     var cryptoUtil = Packages.org.wso2.carbon.core.util.CryptoUtil.getDefaultCryptoUtil();
     var charset = Packages.java.nio.charset.Charset.defaultCharset();
     var decryptedDataString = new Packages.java.lang.String(cryptoUtil.base64DecodeAndDecrypt(workflowData), charset);
-    log.info("Decrypted data String "+ decryptedDataString);
     var decryptedData = {};
     if (decryptedDataString != null && !"".equals(decryptedDataString)) {
-        log.info("Decrypted data Hit 1");
         var dataArray = decryptedDataString.trim().split(":");
-        log.info("Decrypted data Hit 2" + stringify(dataArray));
         decryptedData.workflowRefId = dataArray[0];
         decryptedData.ratePlanName = dataArray[1];
         decryptedData.appName = dataArray[2];
         decryptedData.apiName = dataArray[3];
         decryptedData.apiVersion = dataArray[4];
     }
-    log.info("Decrypted data "+ stringify(decryptedData));
     return decryptedData;
 };
 

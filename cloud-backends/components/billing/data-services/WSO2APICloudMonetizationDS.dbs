@@ -39,7 +39,7 @@
          <param name="AM_API_VERSION" sqlType="STRING"/>
          <param name="RATE_PLAN_ID" sqlType="STRING"/>
          <param name="SUBSCRIPTION_ID" sqlType="STRING"/>
-         <param name="START_DATE" sqlType="DATE"/>
+         <param name="START_DATE" sqlType="STRING"/>
     </query>
     <query id="updateSubscriberInfoQ" useConfig="cloud_mgt">
          <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
