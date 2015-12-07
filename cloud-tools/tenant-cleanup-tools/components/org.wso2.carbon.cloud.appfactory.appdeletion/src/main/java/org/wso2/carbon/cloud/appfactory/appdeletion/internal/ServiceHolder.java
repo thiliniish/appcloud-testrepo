@@ -22,6 +22,9 @@ import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 
+/**
+ * Represents the data holder for the app deletion component
+ */
 public class ServiceHolder {
 
     private ServiceHolder() {
