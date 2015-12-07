@@ -29,7 +29,7 @@ import javax.cache.Caching;
  * Cache for user email
  */
 public class CloudUserEmailCache {
-    private static Log log = LogFactory.getLog(CloudUserEmailCache.class);
+    private static final Log LOGGER = LogFactory.getLog(CloudUserEmailCache.class);
 
     public static final String USER_EMAIL_CACHE = "CLOUD_USER_EMAIL_CACHE";
     public static final String USER_EMAIL_CACHE_MANAGER = "CLOUD_USER_EMAIL_CACHE_MANAGER";
@@ -55,14 +55,14 @@ public class CloudUserEmailCache {
      */
     private boolean isCacheNull(Cache<String, String> cache) {
         if (cache == null) {
-            if (log.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 StackTraceElement[] elements = Thread.currentThread().getStackTrace();
                 String traceString = "";
                 for (int i = 1; i < elements.length; ++i) {
                     traceString += elements[i] + System.getProperty("line.separator");
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug("USER_EMAIL_CACHE doesn't exist in CacheManager:\n" + traceString);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("USER_EMAIL_CACHE doesn't exist in CacheManager : \n" + traceString);
                 }
             }
             return true;

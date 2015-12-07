@@ -17,7 +17,8 @@
   ~  under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.cloud</groupId>
@@ -30,7 +31,7 @@
     <artifactId>org.wso2.carbon.cloud.userstore</artifactId>
     <version>1.0.0</version>
     <packaging>bundle</packaging>
-    <name>Cloud - User Realm</name>
+    <name>WSO2 Cloud - User Realm</name>
     <description>User Store implementation for Cloud</description>
     <url>http://www.wso2.com</url>
 
@@ -68,9 +69,13 @@
                 <configuration>
                     <instructions>
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
-                        <Bundle-SymbolicName>
-                            ${project.artifactId}
-                        </Bundle-SymbolicName>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Activator>
+                            org.wso2.carbon.cloud.userstore.internal.CloudUserStoreComponent
+                        </Bundle-Activator>
+                        <Private-Package>
+                            org.wso2.carbon.cloud.userstore.internal
+                        </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.cloud.userstore.internal,
                             org.wso2.carbon.cloud.userstore.*;version="1.0.0"

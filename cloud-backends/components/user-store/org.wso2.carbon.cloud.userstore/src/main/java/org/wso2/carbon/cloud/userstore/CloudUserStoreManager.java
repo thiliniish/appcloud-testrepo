@@ -39,7 +39,7 @@ import java.util.Set;
  */
 public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
 
-    private static Log log = LogFactory.getLog(CloudUserStoreManager.class);
+    private static final Log LOGGER = LogFactory.getLog(CloudUserStoreManager.class);
 
     public CloudUserStoreManager() {
     }
@@ -90,48 +90,48 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
                 String[] usersInRole = userStoreManager.getUserListOfRole(role);
                 users.addAll(Arrays.asList(usersInRole));
             }
-
-            // change filter to matching with regular expression any number of
-            // characters.
-            if (searchFilter.contains("*")) {
-                searchFilter = searchFilter.replace("*", ".*");
-            }
-
-            // unlimited user search
-            if (maxItemLimit == -1) {
-                for (String user : users) {
-                    // if all users are matched(*)
-                    if ("*".equals(searchFilter)) {
-                        resultedUsers.addAll(users);
-                        break;
-                    }
-
-                    // add users only if they matching with search filter
-                    if (user.matches(searchFilter)) {
-                        resultedUsers.add(user);
-                    }
-                }
-            } else {
-                int currentUserCount = 0;
-                for (String user : users) {
-                    // add users up to the search count
-                    if (!(currentUserCount < maxItemLimit)) {
-                        break;
-                    }
-                    // add users only if they matching with search filter
-                    if (user.matches(searchFilter)) {
-                        resultedUsers.add(user);
-                        currentUserCount++;
-                    }
-                }
-            }
-
-            return resultedUsers.toArray(new String[resultedUsers.size()]);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String msg = "Unable to list users in solution provider roles.";
-            log.error(msg, e);
+            String msg = "Unable to list users.";
+            LOGGER.error(msg, e);
             throw new UserStoreException(msg, e);
         }
+
+        // change filter to matching with regular expression any number of
+        // characters.
+        if (searchFilter.contains("*")) {
+            searchFilter = searchFilter.replace("*", ".*");
+        }
+
+        // unlimited user search
+        if (maxItemLimit == -1) {
+            for (String user : users) {
+                // if all users are matched(*)
+                if ("*".equals(searchFilter)) {
+                    resultedUsers.addAll(users);
+                    break;
+                }
+
+                // add users only if they matching with search filter
+                if (user.matches(searchFilter)) {
+                    resultedUsers.add(user);
+                }
+            }
+        } else {
+            int currentUserCount = 0;
+            for (String user : users) {
+                // add users up to the search count
+                if (!(currentUserCount < maxItemLimit)) {
+                    break;
+                }
+                // add users only if they matching with search filter
+                if (user.matches(searchFilter)) {
+                    resultedUsers.add(user);
+                    currentUserCount++;
+                }
+            }
+        }
+
+        return resultedUsers.toArray(new String[resultedUsers.size()]);
     }
 
 }

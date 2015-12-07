@@ -39,8 +39,9 @@ import java.util.Map;
 
 public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
 
-    private static Log logger = LogFactory.getLog(CloudRealmConfigBuilder.class);
+    private static final Log LOGGER = LogFactory.getLog(CloudRealmConfigBuilder.class);
 
+    @Override
     public RealmConfiguration getRealmConfigForTenantToPersist(RealmConfiguration bootStrapConfig,
             TenantMgtConfiguration tenantMgtConfig, Tenant tenantInfo, int tenantId) throws UserStoreException {
 
@@ -137,8 +138,8 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration " +
                     "to be persisted for tenant id : " + tenantId;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         }
