@@ -59,6 +59,7 @@ public class APIUsageProcessorUtil {
                                                         String amendmentResponse) throws CloudBillingException {
         OMElement elements;
         APICloudPlan plan = null;
+
         try {
             // checking to see if there are amendments
             if (!hasAmendments) {
@@ -74,20 +75,17 @@ public class APIUsageProcessorUtil {
                 AccountUsage usage = new AccountUsage();
                 OMElement usageEle = (OMElement) entries.next();
                 OMElement accounts =
-                        (OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.ACCOUNTS))
-                                .next();
+                        (OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.ACCOUNTS)).next();
                 if (accounts.getChildElements().next() != null) {
-                    int qty =
-                            Integer.parseInt(((OMElement) usageEle.getChildrenWithName(new QName(
-                                    BillingConstants.TOTAL_COUNT))
-                                    .next()).getText());
+                    int qty = Integer.parseInt(
+                            ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TOTAL_COUNT)).next())
+                                    .getText());
                     String date = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TIME)).next())
                             .getText();
 
                     String tenantDomain =
-                            ((OMElement) usageEle.getChildrenWithName(new QName(
-                                    BillingConstants.API_PUBLISHER))
-                                    .next()).getText();
+                            ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.API_PUBLISHER)).next())
+                                    .getText();
                     if (hasAmendments) {
                         String currentRatePlan = getRatePlanIdForDate(amendmentResponse, date);
                         plan = (APICloudPlan) CloudBillingServiceUtils
@@ -192,9 +190,9 @@ public class APIUsageProcessorUtil {
                 AccountUsage usage = new AccountUsage();
                 OMElement usageEle = (OMElement) entries.next();
 
-                int qty = Integer.parseInt(((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants
-                                                                                                       .TOTAL_COUNT))
-                        .next()).getText());
+                int qty = Integer.parseInt(
+                        ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TOTAL_COUNT)).next())
+                                .getText());
                 String date = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.YEAR)).next())
                                       .getText() + "/" +
                               ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.MONTH)).next())
@@ -352,5 +350,4 @@ public class APIUsageProcessorUtil {
         usage.setEndDate(date);
         return usage;
     }
-
 }
