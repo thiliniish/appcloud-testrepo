@@ -75,16 +75,29 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
 
 var getConfirmationEmail = function(confirm){
     try {
-        var queryString =SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
-        var parameters =[confirm];
+        var queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
+        var tempUserDataQueryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_REGISTRATION;
+        var parameters = [confirm];
+        var tempUserData = jagg.module("database").executeQuery(tempUserDataQueryString, parameters);
         var results = jagg.module("database").executeQuery(queryString, parameters);
-        var email = results[0]["email"];
-        var deleteString =SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
-        var parameters =[confirm];
-        var results = jagg.module("database").executeQuery(deleteString, parameters);
-        log.info("Confirmation Email: " + email);
-        return email;
-    }catch (e){
+        var email = null;
+
+        //to check if there exists a record for the confirmation code.
+        if (tempUserData.length >= 1) {
+            if (results.length >= 1) {
+                email = results[0]["email"];
+                var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
+                var parameters = [confirm];
+                var results = jagg.module("database").executeQuery(deleteString, parameters);
+                log.info("Confirmation Email: " + email);
+            } else {
+                log.error("Error while getting confirmation email: " + confirm + ". Email value is not available");
+            }
+        } else {
+            log.error("No temporary record for confirmation code: " + confirm);
+        }
+    return email;
+    } catch (e) {
         log.error("Error while getting confirmation email: " + confirm);
         log.error(e);
         throw (e);
@@ -96,63 +109,71 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     var email;
     var newUser = true;
     var adminUserName;
-    if(confirmationKey != null){
-        email = getConfirmationEmail(confirmationKey);
-        adminUserName = modManager.getUserNameFromEmail(email.toString());
-    } else {
-        var fullUserName = String(session.get("LOGGED_IN_USER"));
-        adminUserName = modManager.getTenantAwareUsername(fullUserName);
-        var tmpUser = jagg.module("tenant").getUserInfo(adminUserName);
-        firstName = tmpUser.firstName;
-        lastName = tmpUser.lastName;
-        email = tmpUser.email;
-        newUser = false;
-    }
-    log.info("User Information [ adminUserName: " + adminUserName +", FirstName: " + firstName +", LastName: "
-            + lastName + ", Email: " + email + " ]");
-    newUser = !isExistingUser(adminUserName);
-    var organizationDomain = getCompanyId(organizationName);
-    log.info("Organization Information [ Display Name: " + organizationName + ", Platform Tenant Domain: " + organizationDomain + " ]");
-    var adminPassword = jagg.module("util").escapeSpecialCharsXML(password);
-    var id =registerTenantForTrustedUser(organizationDomain,adminUserName,adminPassword, firstName,lastName,email,usagePlan);
-    log.info("Created Tenant in platform.");
-    var isUserInCloud = hasATenant(adminUserName);
-        if(!isUserInCloud){
-        log.info("Sending tenant creation events to BAM");
-        server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName,"ADD");
+        if (confirmationKey != null) {
+            email = getConfirmationEmail(confirmationKey);
+            if (email != null) {
+                adminUserName = modManager.getUserNameFromEmail(email.toString());
+            } else {
+                return false;
+            }
+        } else {
+            var fullUserName = String(session.get("LOGGED_IN_USER"));
+            adminUserName = modManager.getTenantAwareUsername(fullUserName);
+            var tmpUser = jagg.module("tenant").getUserInfo(adminUserName);
+            firstName = tmpUser.firstName;
+            lastName = tmpUser.lastName;
+            email = tmpUser.email;
+            newUser = false;
+        }
+        log.info("User Information [ adminUserName: " + adminUserName + ", FirstName: " + firstName + ", LastName: "
+                 + lastName + ", Email: " + email + " ]");
+        newUser = !isExistingUser(adminUserName);
+        var organizationDomain = getCompanyId(organizationName);
+        log.info("Organization Information [ Display Name: " + organizationName + ", Platform Tenant Domain: " + organizationDomain + " ]");
+        var adminPassword = jagg.module("util").escapeSpecialCharsXML(password);
+        var id = registerTenantForTrustedUser(organizationDomain, adminUserName, adminPassword, firstName, lastName, email, usagePlan);
+        log.info("Created Tenant in platform.");
+        var isUserInCloud = hasATenant(adminUserName);
+        if (!isUserInCloud) {
+            log.info("Sending tenant creation events to BAM");
+            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName, "ADD");
 
-        try {
-            jagg.module("util").addUserToOT(email, adminPassword, firstName, lastName);
-            //jagg.module("util").addUserToRightWave(email);
-        } catch (e) {
-            log.error("Error while registering organization: " + organizationDomain + " Email: " + email);
-            log.error(e);
-            throw (e);
+            try {
+                jagg.module("util").addUserToOT(email, adminPassword, firstName, lastName);
+                //jagg.module("util").addUserToRightWave(email);
+            } catch (e) {
+                log.error("Error while registering organization: " + organizationDomain + " Email: " + email);
+                log.error(e);
+                throw (e);
+            }
+
         }
 
-    }
+        //adding tenant mapping to the table
+        //TODO - Move the below to a listener
+        storeTenantMGTRegistration(adminUserName, organizationDomain);
+        storeTenantDisplayNameMapping(organizationDomain, organizationName);
+        if (newUser) {
+            addDefaultLoginRole(adminUserName);
+            log.info("Successfully Added default role ");
+        }
+        storeSubscription(organizationDomain);
 
-    //adding tenant mapping to the table
-	//TODO - Move the below to a listener
-    storeTenantMGTRegistration(adminUserName,organizationDomain);
-    storeTenantDisplayNameMapping(organizationDomain,organizationName);
-    if(newUser){
-        addDefaultLoginRole(adminUserName);
-        log.info("Successfully Added default role ");
-    }
-    storeSubscription(organizationDomain);
+        //Add tenant to billing account database tables
+        var tenantId = modManager.getTenantId(organizationDomain);
 
-    //Add tenant to billing account database tables
-    var tenantId = modManager.getTenantId(organizationDomain);
+        //Adding tenant to billing Account part removed temporarily.
+        //TODO uncomment following lines
 
-    //Adding tenant to billing Account part removed temporarily.
-    //TODO uncomment following lines
+        jagg.module("billing").addTenantToBilling(tenantId, organizationDomain);
+        log.info("Billing account created for tenant: " + organizationDomain);
 
-    jagg.module("billing").addTenantToBilling(tenantId, organizationDomain);
-    log.info("Billing account created for tenant: " + organizationDomain);
+        log.info("Tenant Registration completed.");
 
-    log.info("Tenant Registration completed.");
-    return true;
+        //removing registration data from the session after successful registration.
+        session.remove("registration-intermediate-data");
+        session.remove("registration-email");
+        return true;
 };
 
 var hasATenant = function (userName) {
