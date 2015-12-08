@@ -340,8 +340,9 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         log.info("Updating the user roles of user " + userName);
         server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(userName, assignedRoles, null);
     } catch (e) {
-        log.error("Error while importing " + firstName + " " + lastName + "." + e);
-        throw "Error while importing " + firstName + " " + lastName + "." + e;
+        log.error("Error while importing " + firstName + " " + lastName + ": " + e.message);
+        log.error(e);
+        throw e;
     } finally {
         context.endTenantFlow();
     }
@@ -354,8 +355,9 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         parameters = [confirmationKey];
         results = jagg.module("database").executeQuery(deleteString, parameters);
     } catch (e) {
-        log.error("Error while adding tenant user mapping for user : " + userName + " with tenant domain : " + tenantDomain + ". " + e);
-        throw "Error while adding tenant user mapping " + e;
+        log.error("Error while adding tenant user mapping for user: " + userName + " with tenant domain: " + tenantDomain + ": " + e.message);
+        log.error(e);
+        throw e;
     }
     return roles;
 };
