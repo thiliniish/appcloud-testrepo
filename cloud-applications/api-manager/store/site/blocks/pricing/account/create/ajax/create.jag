@@ -7,13 +7,12 @@ var serviceId = session.get("SERVICE_ID");
 var ratePlans = session.get("RATE_PLANS");
 var msg = require("/site/conf/ui-messages.jag");
 var user = jagg.getUser();
-//var accountId = request.getParameter("accountId");
+
 (function () {
 	var mod,result, obj,
 	action = request.getParameter("action"),
 	site = require("/site/conf/site.json");
 	mod = jagg.module("pricing");
-    log.info("Action log: "+action);
 	if (action == "createAccount") {
 		var accountData = {
 		};
@@ -33,12 +32,10 @@ var user = jagg.getUser();
 		metaData.refId = request.getParameter("refId");
 		metaData.signature = request.getParameter("signature");
 		metaData.field_passthrough1 = request.getParameter("field_passthrough1");
-		metaData.serviceId = request.getParameter("serviceId");
-		metaData.productRatePlanId = request.getParameter("productRatePlanId");
 		responseFrom = request.getParameter("responseFrom");
-		var workFlowRefId = request.getParameter("workFlowRefId");
+		var workflowReference = request.getParameter("workflowReference");
 		try {
-				result = mod.createAccount(accountData, metaData, workFlowRefId);
+				result = mod.createAccount(accountData, metaData, workflowReference);
 			if (result != null) {
 				if (result.error) {
 					var message = result.message;
@@ -60,17 +57,40 @@ var user = jagg.getUser();
 				}
 				print(obj);
 			} else {
-			/*	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-				log.error("Created zuora account Id cannot be null for tenant: " + tenantDomain);
-				throw new Error("Created zuora account Id cannot be null for tenant: " + tenantDomain);*/
+				print({
+					error:true,
+					statusCode: 500,
+					message: "account creation failure. Please retry...."
+				});
 			}
 		} catch (e) {
 			if(EDIT_USER_INFO == responseFrom){
-				throw new Error("Error while updating contact info: " + e);
+				var errorMsg = "Error while updating contact info ";
+				log.error(errorMsg);
+				log.error(e);
+				print({
+					error:true,
+					statusCode: 500,
+					message: errorMsg + " Please retry...."
+				});
 			}if(IS_FROM_CHANGE_PLAN == responseFrom){
-				throw new Error("Error while changing billing account: " + e);
+				errorMsg = "Error while changing billing account. ";
+				log.error(errorMsg);
+				log.error(e);
+				print({
+					error:true,
+					statusCode: 500,
+					message: errorMsg + " Please retry...."
+				});
 			}else {
-			    throw new Error("Billing account creation failure: " + e);
+				errorMsg = "Account creation failure. ";
+				log.error(errorMsg);
+				log.error(e);
+				print({
+					error:true,
+					statusCode: 500,
+					message: errorMsg + " Please retry...."
+				});
 			}
 		}
 	}  else {

@@ -10,19 +10,27 @@ var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
             site = require("/site/conf/site.json");
     mod = jagg.module("pricing");
     if (action == "generateParams") {
-        var productRatePlanId = request.getParameter("productRatePlanId");
-        var workFlowRefId = request.getParameter("workFlowRefId");
+        var workflowReference = request.getParameter("workflowReference");
         try {
-            result = mod.generateParams(productRatePlanId, workFlowRefId);
+            result = mod.generateParams(workflowReference);
             if (result != null) {
                 print(result);
             } else {
-                throw "Client parameters cannot be null";
+                log.error("Client parameters cannot be null");
+                print({
+                    error: true,
+                    statusCode: 500,
+                    message: "Internal error. please retry.."
+                });
             }
         } catch (e) {
-            log.error("Error while generating the params " + e.message);
+            log.error("Client parameters cannot be null");
             log.error(e);
-            throw new Error("Error while generating the params " + e.message);
+            print({
+                error: true,
+                statusCode: 500,
+                message: "Internal error. please retry.."
+            });
         }
 
     }  else {
