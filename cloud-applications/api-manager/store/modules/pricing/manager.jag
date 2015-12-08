@@ -133,7 +133,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
                 log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
                         + " will get deleted. Please issue a refund for " + data.name + " in tenant: " + tenantDomain);
                 var deleteResponse = JSON.parse(billingService.deleteAccount(data.name));
-                if (deleteResponse.successSpecified && deleteResponse.success) {
+                if (deleteResponse != null && deleteResponse.success != null && deleteResponse.success) {
                     //Send error notification to cloud to issue a refund
                     return {
                         error: true,
