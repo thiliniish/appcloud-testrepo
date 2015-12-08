@@ -143,7 +143,6 @@ ul
         }
     }
 
-
     function checkConfirmation() {
         var key =  $("#confirmationKey").attr('value');
         var cloudmgtURL =  $("#cloudmgtURL").attr('value');
