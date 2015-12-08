@@ -46,13 +46,15 @@
             $("#storeSSLFileUploadLocation").css("display", "block");
             $("#storeDomainVerifyBtn").prop("disabled", true);
             $("#storeDomain").prop("disabled", true);
-            $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span>");
+            $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span><br/><br/>" +
+             "<span class='label label-success'>Please note that it will take about 10 minutes to update servers once custom url is <b>submitted</b>.</span>");
             $("#storeProcessBtn").prop("disabled", false);
         } else {
             $("#gatewaySSLFileUploadLocation").css("display", "block");
             $("#gatewayDomainVerifyBtn").prop("disabled", true);
             $("#gatewayDomain").prop("disabled", true);
-            $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span>");
+            $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span><br/><br/>" +
+             "<span class='label label-success'>Please note that it will take about 10 minutes to update servers once custom url is <b>submitted</b>.</span>");
             $("#gatewayProcessBtn").prop("disabled", false);
         }
     }
@@ -243,6 +245,11 @@
                                 <li>Encrypt the public key in the RSA format</li>
                             </ul>
                         </div>
+                    </div>
+                    <div class="float-left">
+                       <ul>
+                           <li>Please note that it will take upto 10 minutes to update changes.</li>
+                       </ul>
                     </div>
                 </div>
 
