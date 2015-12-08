@@ -30,6 +30,7 @@ var confirmationKey = session.get("registration-intermediate-data");
         isInvitee = session.get("isInvitee");
         isUserAvail = session.get("isUserAvail");
     } else {
+        confirmationKey = null;
         log.error("Required parameter values are not available for the account registration");
     }
 %>
