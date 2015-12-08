@@ -321,7 +321,7 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
-     * @param tenantDomain tenant domain
+     * @param tenantDomain    tenant domain
      * @param accountInfoJson account information in json
      * @return return json object
      * @throws CloudBillingException
@@ -360,6 +360,18 @@ public final class CloudBillingServiceUtils {
         } catch (CloudBillingException e) {
             throw new CloudBillingException("Adding parent account details to child account failed. ", e);
         }
+    }
+
+    /**
+     * Delete zuora account by name
+     *
+     * @param accountName account name
+     * @return success json string
+     * @throws CloudBillingZuoraException
+     */
+    public static JsonObject deleteAccount(String accountName) throws CloudBillingZuoraException {
+        ZuoraAccountClient client = new ZuoraAccountClient();
+        return client.deleteAccount(accountName);
     }
 
     private static JsonObject getTemplateAccount(String tenantDomain, ZuoraAccountClient client) throws CloudBillingZuoraException {

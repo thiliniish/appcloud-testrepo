@@ -18,9 +18,14 @@
 
 package org.wso2.carbon.cloud.billing.processor;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
@@ -32,6 +37,7 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 
@@ -161,6 +167,24 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         put.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_QUERY_STRING_CONTENT);
         put.setQueryString(nameValuePairs);
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), put, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * Utility method to check the status. This can only be used
+     * when the DS's particular request is configured to send back the request status
+     *
+     * ex status response
+     * <axis2ns7:REQUEST_STATUS xmlns:axis2ns7="http://ws.wso2.org/dataservice">SUCCESSFUL</axis2ns7:REQUEST_STATUS>
+     *
+     * @param response response string
+     * @return boolean
+     * @throws XMLStreamException
+     */
+    public static boolean isRequestSuccess(String response) throws XMLStreamException {
+        OMElement resultOME = AXIOMUtil.stringToOM(response);
+        return resultOME != null && BillingConstants.DS_REQUEST_STATUS.equals(resultOME.getLocalName())
+                && StringUtils.isNotBlank(resultOME.getText())
+                && BillingConstants.DS_REQUEST_STATUS_SUCCESS.equals(resultOME.getText().trim());
     }
 
     private void setTrustStoreParams() {

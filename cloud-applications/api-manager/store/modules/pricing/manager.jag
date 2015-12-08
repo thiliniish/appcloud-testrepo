@@ -56,7 +56,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
             };
         }
     } catch (e) {
-        log.error(e.message);
+        log.error(e.stack);
         return {
             error: true,
             statusCode: 500,
@@ -65,11 +65,10 @@ var createAccount = function (accountData, metaData, workflowRefData) {
     }
 
     try {
-
         var effectiveDate = new Packages.java.util.Date();
         var data = populateAccountInfo(accountData, metaData, effectiveDate, ratePlanId);
         var response = billingService.createChildAccount(tenantDomain, stringify(data));
-        
+
         var responseObj = JSON.parse(response);
         var createChildResObj = responseObj.createChildResponse;
         var addParentObj = responseObj.addParentResponse;
@@ -78,12 +77,43 @@ var createAccount = function (accountData, metaData, workflowRefData) {
         if (createChildResObj.success) {
             updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
                     createChildResObj.accountNumber);
-            apiData.subscriptionId = createChildResObj.subscriptionId;
-            apiData.ratePlanId = ratePlanId;
-            var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
-            var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
-            addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildResObj
-                    .accountNumber, stringify(apiData), formattedEffectiveDate);
+            log.info("update subscriber status: " + updateSubscriberResult);
+            if (updateSubscriberResult) {
+                apiData.subscriptionId = createChildResObj.subscriptionId;
+                apiData.ratePlanId = ratePlanId;
+                var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+                var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+                addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildResObj
+                        .accountNumber, stringify(apiData), formattedEffectiveDate);
+                log.info("Add subscription status: " + addSubscriptionResult);
+                if (!addSubscriptionResult) {
+                    log.error("Error while updating subscription information. subscription information update failed. "
+                    + "account name: "+ data.name + " account number: " +createChildResObj.accountNumber + "for tenant:"
+                    + tenantDomain);
+                    //Send error notification. Roll back won't happen since the subscriptions has been already paid
+                    return {
+                        error: true,
+                        statusCode: 500,
+                        message: "Subscription unsuccessful. Since the payment has already been processed, please contact" +
+                        "support."
+                    };
+                }
+            } else {
+                log.error("Error while updating subscriber information. Account update failed. account name: "
+                        + data.name + "for tenant: " + tenantDomain);
+                //Send error notification. Roll back won't happen since the subscriptions has been already paid
+                return {
+                    error: true,
+                    statusCode: 500,
+                    message: "Subscription unsuccessful. Since the payment has already been processed, please contact" +
+                            "support."
+                };
+            }
+
+            if (!addParentObj.successSpecified || !addParentObj.success) {
+                log.error("Adding parent failed for child." + " Tenant: "+ tenantDomain +" For monetizing. Reasons: "
+                        + stringify(createChildResObj.reasons));
+            }
         } else {
             errorMsg = "Billing account creation failed.";
             log.error(errorMsg + " Tenant: "+ tenantDomain +" For monetizing. Reasons: " + stringify
@@ -98,17 +128,27 @@ var createAccount = function (accountData, metaData, workflowRefData) {
         var modWorkflow = jagg.module("workflow");
         var workflowStatus;
         var workflowDesc;
+        var workflowReference = apiData.workflowRefId;
         if (updateSubscriberResult && addSubscriptionResult) {
             workflowStatus = "APPROVED";
             workflowDesc = "subscription successful";
+            return modWorkflow.resumeWorkflow(workflowReference, workflowStatus, workflowDesc);
         } else {
             workflowStatus = "REJECTED";
             workflowDesc = "subscription unsuccessful";
+            modWorkflow.resumeWorkflow(workflowReference, workflowStatus, workflowDesc);
+            //Send error notification. Roll back won't happen since the subscriptions has been already paid
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg + "Subscription failed. API will not be activated." +
+                "Since the payment has already been processed, please contact support."
+            };
         }
 
-        return modWorkflow.resumeWorkflow(apiData.workflowRefId, workflowStatus, workflowDesc);
+
     } catch (e) {
-        log.error(e.message);
+        log.error(e.stack);
         return {
             error: true,
             statusCode: 500,
@@ -124,11 +164,11 @@ var decryptWorkflowData = function (workflowData) {
     var decryptedData = {};
     if (decryptedDataString != null && !"".equals(decryptedDataString)) {
         var dataArray = decryptedDataString.trim().split(":");
-        decryptedData.workflowRefId = dataArray[0];
-        decryptedData.ratePlanName = dataArray[1];
-        decryptedData.appName = dataArray[2];
-        decryptedData.apiName = dataArray[3];
-        decryptedData.apiVersion = dataArray[4];
+        decryptedData.workflowRefId = String(dataArray[0]);
+        decryptedData.ratePlanName = String(dataArray[1]);
+        decryptedData.appName = String(dataArray[2]);
+        decryptedData.apiName = String(dataArray[3]);
+        decryptedData.apiVersion = String(dataArray[4]);
     }
     return decryptedData;
 };

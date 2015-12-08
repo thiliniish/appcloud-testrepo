@@ -74,9 +74,9 @@ public class APICloudMonetizationService {
      * @param accountNumber account number. this would be null for non paid subscribers
      * @throws CloudMonetizationException
      */
-    public void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
+    public boolean updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
                                         String accountNumber) throws CloudMonetizationException {
-        APICloudMonetizationUtils.updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
+        return APICloudMonetizationUtils.updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
     }
 
     /**
@@ -154,7 +154,7 @@ public class APICloudMonetizationService {
      * @return success information
      * @throws CloudMonetizationException
      */
-    public String addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
+    public boolean addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
                                              String effectiveDate) throws CloudMonetizationException {
         return APICloudMonetizationUtils.addSubscriptionInformation(tenantDomain, accountNumber, apiData, effectiveDate);
     }

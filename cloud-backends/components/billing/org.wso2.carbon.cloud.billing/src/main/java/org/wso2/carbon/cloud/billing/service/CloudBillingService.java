@@ -28,6 +28,7 @@ import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
 
@@ -370,6 +371,34 @@ public class CloudBillingService extends AbstractAdmin {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while creating child account under tenant: "+ tenantDomain, ex);
+        }
+    }
+
+    /**
+     * Delete zuora account by name
+     *
+     * @param accountName account name
+     * @return success json string
+     * {
+     *     "errors": null,
+     *     "errorsSpecified": false,
+     *     "id": {
+     *         "id": "2c92c0f8501d4405015046de02cf0542"
+     *     },
+     *     "idSpecified": true,
+     *     "success": true,
+     *     "successSpecified": true
+     * }
+     * @throws CloudBillingZuoraException
+     */
+    public String deleteAccount(String accountName) throws CloudBillingException {
+        try {
+            JsonObject result = CloudBillingServiceUtils.deleteAccount(accountName);
+            return result.toString();
+        }catch (CloudBillingException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new CloudBillingException("Error occurred while deleting account: "+ accountName, ex);
         }
     }
 }

@@ -136,9 +136,12 @@ public final class BillingConstants {
     public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE accountnumber " +
             "= '?'";
 
-    /*Data service API v1 URIs*/
+    /*DS Service utility constants*/
     public static final String DS_NAMESPACE_URI = "http://ws.wso2.org/dataservice";
+    public static final String DS_REQUEST_STATUS = "REQUEST_STATUS";
+    public static final String DS_REQUEST_STATUS_SUCCESS = "SUCCESSFUL";
 
+    /*Data service API v1 URIs*/
     public static final String DS_API_URI_REQUEST_COUNT = "/requestcount";
     public static final String DS_API_URI_USAGE = "/usage";
     public static final String DS_API_URI_AMENDMENTS = "/amendments";

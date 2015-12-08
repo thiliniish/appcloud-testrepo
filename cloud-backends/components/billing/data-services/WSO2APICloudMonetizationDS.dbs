@@ -208,7 +208,7 @@
             <with-param name="USER_NAME" query-param="username"/>
         </call-query>
     </resource>
-    <resource method="POST" path="v1/subscribers/{tenant}/{username}">
+    <resource method="POST" path="v1/subscribers/{tenant}/{username}" returnRequestStatus="true">
         <call-query href="addSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
             <with-param name="USER_NAME" query-param="username"/>
@@ -216,7 +216,7 @@
             <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
         </call-query>
     </resource>
-    <resource method="PUT" path="v1/subscribers/{tenant}/{username}">
+    <resource method="PUT" path="v1/subscribers/{tenant}/{username}" returnRequestStatus="true">
         <call-query href="updateSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
             <with-param name="USER_NAME" query-param="username"/>
@@ -224,7 +224,7 @@
             <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
         </call-query>
     </resource>
-    <resource method="POST" path="v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}">
+    <resource method="POST" path="v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}" returnRequestStatus="true">
         <call-query href="addSubscriptionInfoQ">
             <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
             <with-param name="AM_APP_NAME" query-param="appName"/>

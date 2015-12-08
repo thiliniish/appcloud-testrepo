@@ -9,7 +9,7 @@ var msg = require("/site/conf/ui-messages.jag");
 var user = jagg.getUser();
 //var accountId = request.getParameter("accountId");
 (function () {
-	var mod,result,
+	var mod,result, obj,
 	action = request.getParameter("action"),
 	site = require("/site/conf/site.json");
 	mod = jagg.module("pricing");
@@ -60,9 +60,9 @@ var user = jagg.getUser();
 				}
 				print(obj);
 			} else {
-				var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+			/*	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 				log.error("Created zuora account Id cannot be null for tenant: " + tenantDomain);
-				throw new Error("Created zuora account Id cannot be null for tenant: " + tenantDomain);
+				throw new Error("Created zuora account Id cannot be null for tenant: " + tenantDomain);*/
 			}
 		} catch (e) {
 			if(EDIT_USER_INFO == responseFrom){

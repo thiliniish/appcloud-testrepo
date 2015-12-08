@@ -30,7 +30,9 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.cloud.billing.processor.DataServiceBillingRequestProcessor;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +98,7 @@ public final class APICloudMonetizationUtils {
      * @param isExistingUser boolean existence of the user
      * @throws CloudMonetizationException
      */
-    public static void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
+    public static boolean updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
                                                String accountNumber, boolean isExistingUser) throws CloudMonetizationException {
         try {
             String url = subscribersUri
@@ -112,14 +114,17 @@ public final class APICloudMonetizationUtils {
                         accountNumber.trim());
                 nameValuePairs.add(accountNumberNVP);
             }
+            String response;
             if (!isExistingUser) {
-                dsBRProcessor.doPost(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                response = dsBRProcessor.doPost(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             } else {
-                dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                response = dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             }
-        } catch (CloudBillingException | UnsupportedEncodingException e) {
+
+            return DataServiceBillingRequestProcessor.isRequestSuccess(response);
+        } catch (CloudBillingException | UnsupportedEncodingException | XMLStreamException e) {
             throw new CloudMonetizationException(
-                    "Error while retrieving API subscribers for user: " + username + " tenant domain: " + tenantDomain,
+                    "Error while updating API subscribers. For user: " + username + " tenant domain: " + tenantDomain,
                     e);
         }
     }
@@ -157,7 +162,7 @@ public final class APICloudMonetizationUtils {
      * @return success information
      * @throws CloudMonetizationException
      */
-    public static String addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
+    public static boolean addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
                                                     String effectiveDate) throws CloudMonetizationException {
         JsonObject apiDataObj = new JsonParser().parse(apiData).getAsJsonObject();
         try {
@@ -179,8 +184,9 @@ public final class APICloudMonetizationUtils {
                     new NameValuePair(BillingConstants.PARAM_START_DATE, effectiveDate.trim())
             };
 
-            return dsBRProcessor.doPost(url, nameValuePairs);
-        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            String response = dsBRProcessor.doPost(url, nameValuePairs);
+            return DataServiceBillingRequestProcessor.isRequestSuccess(response);
+        } catch (CloudBillingException | UnsupportedEncodingException | XMLStreamException e) {
             throw new CloudMonetizationException("Error while adding subscription information for child account: " +
                     accountNumber + " of the parent tenant: " + tenantDomain, e);
         }

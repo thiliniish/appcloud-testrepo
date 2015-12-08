@@ -214,7 +214,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         workflowDTO.setUpdatedTime(System.currentTimeMillis());
         super.complete(workflowDTO);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.info("Subscription Creation [Complete] Workflow Invoked. Workflow ID : " + workflowDTO
+            LOGGER.debug("Subscription Creation [Complete] Workflow Invoked. Workflow ID : " + workflowDTO
                     .getExternalWorkflowReference() + "Workflow State : " + workflowDTO.getStatus());
         }
         ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
