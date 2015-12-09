@@ -4,7 +4,10 @@
 <%
 include("/jagg/constants.jag");
 var log = new Log("site/themes/default/templates/tenant/register/add/template.jag");
-
+var userName = null;
+var isInvitee = null;
+var email = null;
+var isUserAvail = null;
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 var types = cloudConfig.subscriptions.type;
@@ -20,10 +23,16 @@ var eulaDoc= new XML(eulaData);
 var eulaContent =  eulaDoc.EULA.text();
 
 var confirmationKey = session.get("registration-intermediate-data");
-var email = session.get("registration-email");
-var userName = jagg.module("manager").getUserNameFromEmail(email);
-var isInvitee = session.get("isInvitee");
-var isUserAvail = session.get("isUserAvail");
+
+    if (session.get("registration-email") != null && session.get("isInvitee") !=null && session.get("isUserAvail") !=null) {
+        email = session.get("registration-email");
+        userName = jagg.module("manager").getUserNameFromEmail(email);
+        isInvitee = session.get("isInvitee");
+        isUserAvail = session.get("isUserAvail");
+    } else {
+        confirmationKey = null;
+        log.error("Required parameter values are not available for the account registration");
+    }
 %>
 
 <style>
@@ -120,14 +129,21 @@ ul
                  lastName:lastName
              },
              function (result) {
-                 jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
+                if (result == false || result.trim() == "false") {
+                    jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error', cbk:function() {
                          window.location.href = cloudmgtURL;
-                     }, cbkBtnText:'Login'
+                     }
                  });
-                 disableSpinner();
+                } else {
+                    jagg.message({content:'You have successfully registered to WSO2 Cloud.', type:'success', cbk:function() {
+                         window.location.href = cloudmgtURL;
+                        }, cbkBtnText:'Login'
+                    });
+                }
+             disableSpinner();
              },
              function (jqXHR, textStatus, errorThrown) {
-                 jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
+                 jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error', cbk:function() {
                          window.location.href = cloudmgtURL;
                      }
                  });
@@ -140,7 +156,7 @@ ul
         var key =  $("#confirmationKey").attr('value');
         var cloudmgtURL =  $("#cloudmgtURL").attr('value');
         if(key == 'null' || key == ""){
-            jagg.message({content:"You have either already clicked the link that was emailed to you or it must have been expired", type:'error',cbk:function(){
+            jagg.message({content:"You have either already clicked the link that was emailed to you or it must have been expired", type:'error', cbk:function() {
                     window.location.href = cloudmgtURL;
                 }
             });

@@ -31,7 +31,7 @@ include("/jagg/config_reader.jag");
                 var server = carbon.server;
                 var utilModule = jagg.module("util");
                 var cloudConfig = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-                var BPSURL = cloudConfig.ServerUrls.bps.toString();
+                var BPSURL = cloudConfig.selfSignUpProperties.ServerUrls.bpsServerURL;
                 var cookie = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
 
                 //calling the service to upload the files to the BPS server

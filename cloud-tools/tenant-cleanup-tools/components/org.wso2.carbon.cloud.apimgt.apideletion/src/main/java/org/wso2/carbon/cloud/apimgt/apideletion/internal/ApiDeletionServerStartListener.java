@@ -25,6 +25,9 @@ import org.wso2.carbon.cloud.apimgt.apideletion.APIDeleter;
 import org.wso2.carbon.cloud.apimgt.apideletion.util.ApiDeleterConstants;
 import org.wso2.carbon.core.ServerStartupHandler;
 
+/**
+ * Represents the listener that identify the server startup
+ */
 public class ApiDeletionServerStartListener implements ServerStartupHandler {
 
     private static final Log log = LogFactory.getLog(ApiDeletionServerStartListener.class);
@@ -38,7 +41,7 @@ public class ApiDeletionServerStartListener implements ServerStartupHandler {
         String napTime = System.getProperty(ApiDeleterConstants.NAP_TIME);
         //Checks for null and empty values
         if (StringUtils.isNotBlank(tenantFile) && StringUtils.isNotBlank(napTime)) {
-            log.info("Tenant api deletion for tenant-file located at: " + tenantFile + "will start after " + napTime +
+            log.info("Tenant api deletion for tenant-file located at: " + tenantFile + " will start after " + napTime +
                      "milli-seconds.");
             //A separate thread is created for api deletion.
             Thread t1 = new Thread(new APIDeleter());

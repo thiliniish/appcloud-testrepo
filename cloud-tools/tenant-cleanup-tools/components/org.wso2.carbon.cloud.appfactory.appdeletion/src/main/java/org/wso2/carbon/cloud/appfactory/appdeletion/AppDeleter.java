@@ -41,6 +41,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the tenant app deletion operation
+ */
 public class AppDeleter implements Runnable {
 
     private static final Log log = LogFactory.getLog(AppDeleter.class);
@@ -101,7 +104,7 @@ public class AppDeleter implements Runnable {
             }
             //Increment the number of attempted tenants by 1
             totalAttemptedTenants++;
-            log.info("App deletion started for tenant " + tenantDomain + "[" + tenantID + "]");
+            log.info("App deletion started for tenant: " + tenantDomain + "[" + tenantID + "]");
             try {
                 //Start a new tenant flow
                 PrivilegedCarbonContext.startTenantFlow();
@@ -113,31 +116,31 @@ public class AppDeleter implements Runnable {
                 TenantManagementService tenantManagementService = ServiceHolder.getTenantManagementService();
                 UserInfoBean[] userInfoBeans = tenantManagementService.getUsersofTenant();
                 if (ArrayUtils.isEmpty(userInfoBeans)) {
-                    log.info("No users for tenant : " + tenantDomain + "[" + tenantID + "]");
+                    log.info("No users for tenant: " + tenantDomain + "[" + tenantID + "]");
                     continue;
                 }
                 //Applications are removed user-wise
                 for (UserInfoBean user : userInfoBeans) {
                     PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(user.getUserName());
-                    log.info("Deleting apps of user :" + user.getUserName() + " of tenant " + tenantDomain + ".");
+                    log.info("Deleting apps of user: " + user.getUserName() + " of tenant " + tenantDomain + ".");
                     Application[] applications = applicationInfoService.getApplicationsCreatedByUser(
                             user.getUserName() + AppDeleterConstants.AT_SYMBOL + tenantDomain);
                     if (ArrayUtils.isEmpty(applications)) {
-                        log.info("No applications to be deleted for user :" + user.getUserName() + " of tenant "
+                        log.info("No applications to be deleted for user: " + user.getUserName() + " of tenant "
                                 + tenantDomain + ".");
                         continue;
                     }
                     for (Application application : applications) {
-                        log.info("Trying to delete application :" + application.getName());
+                        log.info("Trying to delete application: " + application.getName());
                         applicationInfoService.deleteApplication(application,
                                 user.getUserName() + AppDeleterConstants.AT_SYMBOL + tenantDomain, tenantDomain);
-                        log.info("Deletion successful for application : " + application.getName() +
-                                " of user: " + user.getUserName() + " of tenant " + tenantDomain + ".");
+                        log.info("Deletion successful for application: " + application.getName() +
+                                " of user: " + user.getUserName() + " of tenant: " + tenantDomain + ".");
                     }
-                    log.info("Application deletion successful for user :" + user.getUserName() + " of tenant "
+                    log.info("Application deletion successful for user: " + user.getUserName() + " of tenant "
                             + tenantDomain + ".");
                 }
-                log.info("Deletion successful for tenant " + tenantDomain + "[" + tenantID + "]");
+                log.info("Deletion successful for tenant: " + tenantDomain + "[" + tenantID + "]");
                 //Program does not terminate if a tenant gave an exception, There can be corrupted tenants
                 //or applications which throw exceptions. The deletion process should not stop in such scenarios.
             } catch (AppFactoryException e) {
@@ -148,7 +151,7 @@ public class AppDeleter implements Runnable {
                 log.error("Tenant Management Exception occurred while deleting applications of  " + tenantDomain, e);
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
-                log.info("Application deletion is completed for tenant " + tenantDomain + "[" + tenantID + "]");
+                log.info("Application deletion is completed for tenant: " + tenantDomain + "[" + tenantID + "]");
             }
         }
         log.info("Application deletion is completed for " + totalAttemptedTenants + " tenants.");

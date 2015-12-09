@@ -24,6 +24,9 @@ import org.wso2.carbon.cloud.appfactory.appdeletion.util.AppDeleterConstants;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * Represents the listener that identify the server startup
+ */
 public class AppDeletionServerStartListener implements ServerStartupHandler {
 
     private static final Log log = LogFactory.getLog(AppDeletionServerStartListener.class);
