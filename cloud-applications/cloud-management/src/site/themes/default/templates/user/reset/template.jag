@@ -94,12 +94,12 @@ span.error {
                         }
                     });
                 } else if(json.message.indexOf("Expired code") != -1){
-                    jagg.message({content:"The one-time password reset link has been expired. Please try again by generating a new link.", type:'error',cbk:function(){
+                    jagg.message({content:"The one-time password reset link has been expired. Please try again by generating a new link.", type:'error', cbk:function() {
                             window.location.href = "initiate.jag";
                         }
                     });
                 } else {
-                    jagg.message({content:"You have either already clicked the link that was emailed to you or it must have been expired", type:'error',cbk:function(){
+                    jagg.message({content:"You have either already clicked the link that was emailed to you or it must have been expired", type:'error', cbk:function() {
                             window.location.href = "index.jag";
                         }
                     });
