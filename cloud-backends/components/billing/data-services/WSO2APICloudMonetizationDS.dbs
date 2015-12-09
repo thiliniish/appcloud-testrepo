@@ -11,7 +11,7 @@
    </config>
     <query id="getSubscriberInfoQ" useConfig="cloud_mgt">
         <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS
-        WHERE (USER_NAME, TENANT_DOMAIN) = (:USER_NAME, :TENANT_DOMAIN);</sql>
+        WHERE (USER_NAME, TENANT_DOMAIN) = (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN);</sql>
         <result element="Subscribers" rowName="Subscriber">
             <element column="TENANT_DOMAIN" name="Tenant" xsdType="string"/>
             <element column="USER_NAME" name="Username" xsdType="string"/>
@@ -23,7 +23,7 @@
     </query>
     <query id="addSubscriberInfoQ" useConfig="cloud_mgt">
          <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
-            VALUES (:USER_NAME, :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER);</sql>
+            VALUES (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER);</sql>
          <param name="USER_NAME" sqlType="STRING"/>
          <param name="TENANT_DOMAIN" sqlType="STRING"/>
          <param name="TEST_ACCOUNT" sqlType="BOOLEAN"/>
@@ -43,7 +43,7 @@
     </query>
     <query id="updateSubscriberInfoQ" useConfig="cloud_mgt">
          <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
-          VALUES (:USER_NAME, :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER) ON DUPLICATE KEY UPDATE TEST_ACCOUNT=
+          VALUES (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER) ON DUPLICATE KEY UPDATE TEST_ACCOUNT=
           (:TEST_ACCOUNT), ACCOUNT_NUMBER=(:ACCOUNT_NUMBER);</sql>
          <param name="USER_NAME" sqlType="STRING"/>
          <param name="TENANT_DOMAIN" sqlType="STRING"/>
