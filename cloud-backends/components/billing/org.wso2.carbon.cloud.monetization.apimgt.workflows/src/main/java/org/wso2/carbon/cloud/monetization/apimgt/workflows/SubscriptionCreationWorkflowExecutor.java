@@ -91,6 +91,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         OMElement subscribers = getSubscriberInfo(subscriptionWorkflowDTO);
         OMElement subscriberOM = (OMElement) subscribers.getFirstOMChild();
         HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
+        httpworkflowResponse.setRedirectConfirmationMsg(null);
 
         //Encrypt and base64 encode api data
         String apiInfo = URLEncoder.encode(getEncryptionInfo(subscriptionWorkflowDTO), CustomWorkFlowConstants.ENCODING);
