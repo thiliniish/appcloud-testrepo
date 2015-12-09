@@ -86,7 +86,7 @@ public class APIDeleter implements Runnable {
     private void delete() throws InterruptedException, UserStoreException {
         //Read and get tenant domains from the file.
         List<String> tenantDomains = readFile(System.getProperty(ApiDeleterConstants.TENANT_FILE));
-        //if an exception occurred or no tenants in the file.
+        //If an exception occurred or no tenants in the file.
         if (tenantDomains.isEmpty()) {
             log.info("No tenants to be deleted.");
             return;
