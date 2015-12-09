@@ -49,6 +49,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Represents the tenant api deletion operation
+ */
 public class APIDeleter implements Runnable {
 
     private static final Log log = LogFactory.getLog(APIDeleter.class);
@@ -83,12 +86,13 @@ public class APIDeleter implements Runnable {
     private void delete() throws InterruptedException, UserStoreException {
         //read and get tenant domains from the file.
         List<String> tenantDomains = readFile(System.getProperty(ApiDeleterConstants.TENANT_FILE));
-        Map<String, Integer> tenantDomainIdMap = new HashMap<String, Integer>();
         //if an exception occurred or no tenants in the file.
         if (tenantDomains.isEmpty()) {
             log.info("No tenants to be deleted.");
             return;
         }
+        //This map keeps tenant domain as key and tenant id as the value
+        Map<String, Integer> tenantDomainIdMap = new HashMap<String, Integer>();
         //load super tenant in the new thread to get tenants for tenant domain names.
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -118,7 +122,7 @@ public class APIDeleter implements Runnable {
         for (Map.Entry<String, Integer> entry : tenantDomainIdMap.entrySet()) {
             String tenantDomain = entry.getKey();
             int tenantID = entry.getValue();
-            log.info("Api deletion started for tenant " + tenantDomain + "[" + tenantID + "]");
+            log.info("Api deletion started for tenant: " + tenantDomain + "[" + tenantID + "]");
             try {
                 //Start a new tenant flow
                 PrivilegedCarbonContext.startTenantFlow();
@@ -133,7 +137,7 @@ public class APIDeleter implements Runnable {
                 GovernanceUtils.loadGovernanceArtifacts((UserRegistry) registry);
                 GenericArtifact[] artifacts = manager.getAllGenericArtifacts();
                 if (!registry.resourceExists(APIConstants.API_ROOT_LOCATION) || ArrayUtils.isEmpty(artifacts)) {
-                    log.info("No apis are available for tenant " + tenantDomain + "[" + tenantID + "]");
+                    log.info("No apis are available for tenant: " + tenantDomain + "[" + tenantID + "]");
                     continue;
                 }
                 for (GenericArtifact artifact : artifacts) {
@@ -144,14 +148,14 @@ public class APIDeleter implements Runnable {
                         apiId = api.getId().toString();
                         providerName = api.getId().getProviderName().replace("-AT-", ApiDeleterConstants.AT_SYMBOL);
                         APIProvider apiProvider = APIManagerFactory.getInstance().getAPIProvider(providerName);
-                        log.info("Api provider " + providerName + " is retrieved for " + apiId + "of tenant "
+                        log.info("Api provider " + providerName + " is retrieved for " + apiId + "of tenant: "
                                 + tenantDomain + "[" + tenantID + "]");
                         Set<Subscriber> subscribers = apiProvider.getSubscribersOfAPI(api.getId());
                         //remove subscriptions if there are any.
                         if (!subscribers.isEmpty()) {
                             Iterator subscribersIterator = subscribers.iterator();
                             while (subscribersIterator.hasNext()) {
-                                log.info("Subscription deletion started for " + apiId + "of tenant " + tenantDomain + "["
+                                log.info("Subscription deletion started for " + apiId + "of tenant: " + tenantDomain + "["
                                                 + tenantID + "]");
                                 Subscriber subscriber = (Subscriber) subscribersIterator.next();
                                 Set<SubscribedAPI> subscribedAPIs = APIManagerFactory.getInstance()
@@ -167,24 +171,24 @@ public class APIDeleter implements Runnable {
                                                 .removeApplication(application);
                                     }
                                 }
-                                log.info("Subscription deletion completed for " + apiId + "of tenant " + tenantDomain
+                                log.info("Subscription deletion completed for " + apiId + "of tenant: " + tenantDomain
                                         + "[" + tenantID + "]");
                             }
                         } else {
-                            log.info("No subscriptions for " + apiId + "of tenant " + tenantDomain + "[" + tenantID + "]");
+                            log.info("No subscriptions for " + apiId + "of tenant: " + tenantDomain + "[" + tenantID + "]");
                         }
                         //delete the api after subscriptions and applications are deleted.
                         apiProvider.deleteAPI(api.getId());
-                        log.info("Deletion successful for api :" + apiId + " of tenant " + tenantDomain + "[" + tenantID
+                        log.info("Deletion successful for api :" + apiId + " of tenant: " + tenantDomain + "[" + tenantID
                                 + "]");
                      /*
                       The program will continue if there is an exception. The reason is there can be corrupted tenants or
                       apis which tend throw exceptions. The deletion process should not stop in such scenarios.
                       */
                     } catch (APIManagementException e) {
-                        log.error("Error while deleting apis of tenant " + tenantDomain + "[" + tenantID + "]", e);
+                        log.error("Error while deleting apis of tenant: " + tenantDomain + "[" + tenantID + "]", e);
                     } catch (Exception e) {
-                        log.error("Unexpected error occurred while deleting apis" + " of tenant " + tenantDomain + "["
+                        log.error("Unexpected error occurred while deleting apis" + " of tenant: " + tenantDomain + "["
                                 + tenantID + "]", e);
                     }
                     //sleep 5 seconds before starting next to avoid connection exhaustion.
@@ -196,7 +200,7 @@ public class APIDeleter implements Runnable {
                 log.error("Error while getting artifacts for  " + tenantDomain, e);
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
-                log.info("Tenant API Deletion is completed for  tenant " + tenantDomain + "[" + tenantID + "]");
+                log.info("Tenant API Deletion is completed for  tenant: " + tenantDomain + "[" + tenantID + "]");
             }
         }
         log.info("Api deletion completed for all the " + tenantDomainIdMap.size() + " tenants.");
@@ -207,7 +211,6 @@ public class APIDeleter implements Runnable {
      *
      * @param tenantFile path to the tenant file
      */
-
     private List<String> readFile(String tenantFile) {
         List<String> tenants = new ArrayList<String>();
         BufferedReader reader = null;
