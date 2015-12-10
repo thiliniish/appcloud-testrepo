@@ -37,11 +37,11 @@ var isEmailUserNameEnabled = function () {
  * @return String userName
  */
 var getUserNameFromEmail = function (email) {
-    if (isEmailUserNameEnabled()) {
-        return email;
-    } else {
-        return email.replace(/@/g, ".");
-    }
+        if (isEmailUserNameEnabled()) {
+            return email;
+        } else {
+            return email.replace(/@/g, ".");
+        }
 };
 
 /**
