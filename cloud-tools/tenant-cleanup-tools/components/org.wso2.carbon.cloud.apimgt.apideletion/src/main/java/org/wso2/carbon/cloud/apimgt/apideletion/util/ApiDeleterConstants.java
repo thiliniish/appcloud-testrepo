@@ -21,7 +21,7 @@ package org.wso2.carbon.cloud.apimgt.apideletion.util;
 /**
  * Represents the constants used in the component
  */
-public class ApiDeleterConstants {
+public final class ApiDeleterConstants {
 
     private ApiDeleterConstants() {
     }
