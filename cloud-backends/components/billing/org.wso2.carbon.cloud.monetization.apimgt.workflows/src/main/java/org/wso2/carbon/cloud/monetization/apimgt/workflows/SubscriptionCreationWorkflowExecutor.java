@@ -82,6 +82,13 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     private String password;
     private String contentType;
 
+    /**
+     * Handling the free plan subscription by completing the workflow
+     *
+     * @param subscriptionWorkflowDTO subscription workflow DTO
+     * @return Workflow Response
+     * @throws WorkflowException
+     */
     private WorkflowResponse handleFreePlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws WorkflowException {
         subscriptionWorkflowDTO.setStatus(APPROVED);
         WorkflowResponse workflowResponse = complete(subscriptionWorkflowDTO);
@@ -89,6 +96,17 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         return workflowResponse;
     }
 
+    /**
+     * Handle commercial plan subscription
+     *
+     * @param subscriptionWorkflowDTO subscription workflow DTO
+     * @return Workflow Response
+     * @throws AxisFault
+     * @throws XMLStreamException
+     * @throws WorkflowException
+     * @throws CryptoException
+     * @throws UnsupportedEncodingException
+     */
     private WorkflowResponse handleCommercialPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
             throws AxisFault, XMLStreamException, WorkflowException, CryptoException, UnsupportedEncodingException {
         JsonObject responseObj = getSubscriberInfo(subscriptionWorkflowDTO);
@@ -131,6 +149,13 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         }
     }
 
+    /**
+     * Encrypt the parameters using the default Crypto utility. and base 64 encode
+     *
+     * @param subscriptionWorkflowDTO Subscription Workflow DTO
+     * @return base64encoded encrypted string
+     * @throws CryptoException
+     */
     private String getEncryptionInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws CryptoException {
         String stringBuilder = subscriptionWorkflowDTO.getExternalWorkflowReference() + DATA_SEPARATOR +
                 subscriptionWorkflowDTO.getTierName() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApplicationName() +
@@ -139,6 +164,14 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                 .encryptAndBase64Encode(stringBuilder.getBytes(Charset.defaultCharset()));
     }
 
+    /**
+     * Retrieve subscribers information from the persistence
+     *
+     * @param subscriptionWorkflowDTO Subscription Workflow DTO
+     * @return subscribers details as a JsonObject
+     * @throws AxisFault
+     * @throws XMLStreamException
+     */
     private JsonObject getSubscriberInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws AxisFault, XMLStreamException {
         ServiceClient client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_GET_SUBSCRIBER,
                 serviceEndpoint, contentType, username, password);
@@ -155,6 +188,13 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         }
     }
 
+    /**
+     * Add subscriber information to persistence
+     *
+     * @param subscriptionWorkflowDTO Subscription Workflow DTO
+     * @throws AxisFault
+     * @throws XMLStreamException
+     */
     private void addSubscriber(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws AxisFault, XMLStreamException {
         String payload;
         ServiceClient client;
@@ -170,11 +210,17 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         client.fireAndForget(AXIOMUtil.stringToOM(payload));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getWorkflowType() {
         return WorkflowConstants.WF_TYPE_AM_SUBSCRIPTION_CREATION;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<WorkflowDTO> getWorkflowDetails(String s) throws WorkflowException {
         return null;

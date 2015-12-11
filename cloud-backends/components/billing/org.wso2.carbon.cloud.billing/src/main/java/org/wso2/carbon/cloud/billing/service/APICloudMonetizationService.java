@@ -37,14 +37,29 @@ public class APICloudMonetizationService {
      * @param username     username of the subscriber
      * @param tenantDomain tenant domain
      * @return <subscribers xmlns="http://ws.wso2.org/dataservice">
-     * <subscriber>
-     * <tenant xmlns="http://ws.wso2.org/dataservice">fordmustang</tenant>
-     * <username xmlns="http://ws.wso2.org/dataservice">methiapr.fakeinbox.com@fordmustang</username>
-     * <testAccount xmlns="http://ws.wso2.org/dataservice">false</testAccount>
-     * <accountNumber xmlns="http://ws.wso2.org/dataservice" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     * xsi:nil="true"/>
-     * </subscriber>
-     * </subscribers>
+     * {
+     * 	"Subscribers": {
+     * 		"Subscriber": {
+     * 		    "Tenant": "chargerhellcat"
+     * 		    "Username": "kaiphaes.fakeinbox.com"
+     * 		    "TestAccount": "false"
+     * 		    "AccountNumber": "A00000622"
+     * 		}
+     * 	}
+     * }
+     *
+     * if AccountNumber is null then
+     *
+     * {
+     * 	"Subscribers": {
+     * 		"Subscriber": {
+     * 		    "Tenant": "chargerhellcat"
+     * 		    "Username": "kaiphaes.fakeinbox.com"
+     * 		    "TestAccount": "false"
+     * 		    "AccountNumber": {"@nil": "true"}
+     * 		}
+     * 	}
+     * }
      * @throws CloudMonetizationException
      */
     public String getAPISubscriberInfo(String username, String tenantDomain) throws CloudMonetizationException {
