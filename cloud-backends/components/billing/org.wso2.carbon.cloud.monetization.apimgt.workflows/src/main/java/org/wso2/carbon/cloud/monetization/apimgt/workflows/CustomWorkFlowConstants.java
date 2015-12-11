@@ -19,9 +19,9 @@
 package org.wso2.carbon.cloud.monetization.apimgt.workflows;
 
 /**
- *
+ * Custom workflow constants
  */
-public class CustomWorkFlowConstants {
+public final class CustomWorkFlowConstants {
 
     public static final String SUBSCRIBER_INFO_PAYLOAD =
             "<ser:getAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
