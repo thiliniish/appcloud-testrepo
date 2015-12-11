@@ -96,7 +96,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
     public String doGet(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
         setTrustStoreParams();
         GetMethod get = new GetMethod(url);
-        // default accept response body in JSON
+        // default accept response body in XML
         String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_XML : acceptType;
         get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         get.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
