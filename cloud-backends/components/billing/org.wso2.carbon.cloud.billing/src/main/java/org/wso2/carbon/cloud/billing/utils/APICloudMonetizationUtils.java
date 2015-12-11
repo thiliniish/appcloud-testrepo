@@ -80,7 +80,7 @@ public final class APICloudMonetizationUtils {
             String url = subscribersUri
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT, CloudBillingUtils.encodeUrlParam(tenantDomain))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME, CloudBillingUtils.encodeUrlParam(username));
-            return dsBRProcessor.doGet(url,BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
 
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
@@ -117,9 +117,11 @@ public final class APICloudMonetizationUtils {
             }
             String response;
             if (!isExistingUser) {
-                response = dsBRProcessor.doPost(url, null, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                response = dsBRProcessor.doPost(url, BillingConstants.HTTP_TYPE_APPLICATION_XML,
+                        nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             } else {
-                response = dsBRProcessor.doPut(url, null, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                response = dsBRProcessor.doPut(url, BillingConstants.HTTP_TYPE_APPLICATION_XML,
+                        nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             }
 
             return DataServiceBillingRequestProcessor.isRequestSuccess(response);
@@ -185,7 +187,7 @@ public final class APICloudMonetizationUtils {
                     new NameValuePair(BillingConstants.PARAM_START_DATE, effectiveDate.trim())
             };
 
-            String response = dsBRProcessor.doPost(url, null, nameValuePairs);
+            String response = dsBRProcessor.doPost(url, BillingConstants.HTTP_TYPE_APPLICATION_XML, nameValuePairs);
             return DataServiceBillingRequestProcessor.isRequestSuccess(response);
         } catch (CloudBillingException | UnsupportedEncodingException | XMLStreamException e) {
             throw new CloudMonetizationException("Error while adding subscription information for child account: " +

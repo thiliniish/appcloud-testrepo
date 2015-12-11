@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.cloud.monetization.apimgt.workflows;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.llom.OMTextImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
@@ -63,9 +65,10 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
     /*Data separator for the encrypting data string*/
     private static final String DATA_SEPARATOR = ":";
 
-    private static final String IS_TEST_ACCOUNT_ELEMENT = "TestAccount";
-    private static final String ACCOUNT_NUMBER_ELEMENT = "AccountNumber";
-    private static final String SUBSCRIBERS_ELEMENT = "Subscribers";
+    private static final String IS_TEST_ACCOUNT_PROPERTY = "TestAccount";
+    private static final String ACCOUNT_NUMBER_PROPERTY = "AccountNumber";
+    private static final String SUBSCRIBERS_OBJ = "Subscribers";
+    private static final String SUBSCRIBER_OBJ = "Subscriber";
 
     private static final String TIER_PLAN_COMMERCIAL = "COMMERCIAL";
     private static final String TIER_PLAN_FREE = "FREE";
@@ -88,21 +91,24 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
 
     private WorkflowResponse handleCommercialPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
             throws AxisFault, XMLStreamException, WorkflowException, CryptoException, UnsupportedEncodingException {
-        OMElement subscribers = getSubscriberInfo(subscriptionWorkflowDTO);
-        OMElement subscriberOM = (OMElement) subscribers.getFirstOMChild();
+        JsonObject responseObj = getSubscriberInfo(subscriptionWorkflowDTO);
+        if (responseObj == null || responseObj.get(SUBSCRIBERS_OBJ) == null) {
+            throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
+        }
         HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
         httpworkflowResponse.setRedirectConfirmationMsg(null);
 
         //Encrypt and base64 encode api data
         String apiInfo = URLEncoder.encode(getEncryptionInfo(subscriptionWorkflowDTO), CustomWorkFlowConstants.ENCODING);
         //Check subscriber information availability
-        if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart()) && subscriberOM != null) {
-            boolean isTestAccount = Boolean.parseBoolean(
-                    ((OMElement) (subscriberOM.getChildrenWithLocalName(IS_TEST_ACCOUNT_ELEMENT).next())).getText());
+        if (responseObj.get(SUBSCRIBERS_OBJ).isJsonObject()) {
+            JsonObject subscriber = responseObj.getAsJsonObject(SUBSCRIBERS_OBJ).getAsJsonObject(SUBSCRIBER_OBJ);
+            boolean isTestAccount = subscriber.get(IS_TEST_ACCOUNT_PROPERTY).getAsBoolean();
 
             //Check subscribers is a test/complementary subscriber
             if (!isTestAccount) {
-                String accountNumber = ((OMElement) (subscriberOM.getChildrenWithLocalName(ACCOUNT_NUMBER_ELEMENT).next())).getText();
+                String accountNumber = subscriber.get(ACCOUNT_NUMBER_PROPERTY).isJsonPrimitive() ? subscriber.get
+                        (ACCOUNT_NUMBER_PROPERTY).getAsString() : null;
                 httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
                 if (StringUtils.isNotBlank(accountNumber)) {
                     //TODO redirecting to create the subscription
@@ -115,14 +121,13 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
             } else {
                 return handleFreePlan(subscriptionWorkflowDTO);
             }
-        } else if (SUBSCRIBERS_ELEMENT.equals(subscribers.getQName().getLocalPart())) {
+        } else if (responseObj.get(SUBSCRIBERS_OBJ).isJsonPrimitive()) {
             addSubscriber(subscriptionWorkflowDTO);
             httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
             httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
             return httpworkflowResponse;
         } else {
-            throw new WorkflowException(ERROR_MSG + " element should be: " + SUBSCRIBERS_ELEMENT + " not "
-                    + subscribers.getQName().getLocalPart());
+            throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
         }
     }
 
@@ -134,7 +139,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                 .encryptAndBase64Encode(stringBuilder.getBytes(Charset.defaultCharset()));
     }
 
-    private OMElement getSubscriberInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws AxisFault, XMLStreamException {
+    private JsonObject getSubscriberInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws AxisFault, XMLStreamException {
         ServiceClient client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_GET_SUBSCRIBER,
                 serviceEndpoint, contentType, username, password);
         String payload = CustomWorkFlowConstants.SUBSCRIBER_INFO_PAYLOAD
@@ -143,7 +148,11 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
         OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
 
-        return AXIOMUtil.stringToOM(response.getText());
+        if (StringUtils.isNotBlank(response.getText())) {
+            return new JsonParser().parse(response.getText().trim()).getAsJsonObject();
+        } else {
+            return null;
+        }
     }
 
     private void addSubscriber(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws AxisFault, XMLStreamException {
