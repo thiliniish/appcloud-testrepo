@@ -30,13 +30,13 @@ import java.io.File;
  */
 public interface BillingRequestProcessor {
 
-    String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
+    String doGet(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException;
 
-    void doUpload(File file) throws CloudBillingException;
+    void doUpload(String url, String acceptType, File file) throws CloudBillingException;
 
-    String doPost(String url, String jsonPayload) throws CloudBillingException;
+    String doPost(String url, String acceptType, String jsonPayload) throws CloudBillingException;
 
-    String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException;
+    String doPost(String url, String acceptType, NameValuePair[] keyValuePair) throws CloudBillingException;
 
-    String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException;
+    String doPut(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException;
 }

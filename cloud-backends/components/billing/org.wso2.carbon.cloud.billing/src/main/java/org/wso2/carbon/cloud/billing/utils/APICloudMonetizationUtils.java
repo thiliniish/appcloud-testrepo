@@ -20,8 +20,6 @@ package org.wso2.carbon.cloud.billing.utils;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
@@ -58,7 +56,7 @@ public class APICloudMonetizationUtils {
     /**
      * Retrieve subscriber information
      *
-     * @param username subscriber username
+     * @param username     subscriber username
      * @param tenantDomain tenant domain
      * @return String xml response
      * @throws CloudMonetizationException
@@ -70,7 +68,7 @@ public class APICloudMonetizationUtils {
                     URLEncoder.encode(tenantDomain, BillingConstants.ENCODING))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
                             URLEncoder.encode(username, BillingConstants.ENCODING));
-            return dsBRProcessor.doGet(url, null);
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
                     "Error while retrieving API subscribers for user: " + username + " tenant domain: " + tenantDomain,
@@ -81,14 +79,14 @@ public class APICloudMonetizationUtils {
     /**
      * Update subscriber information table
      *
-     * @param username subscriber username
-     * @param tenantDomain tenant domain
+     * @param username      subscriber username
+     * @param tenantDomain  tenant domain
      * @param isTestAccount boolean test account or not
      * @param accountNumber zuora account number
      * @throws CloudMonetizationException
      */
     public static void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-            String accountNumber) throws CloudMonetizationException {
+                                               String accountNumber) throws CloudMonetizationException {
         try {
             String url = subscribersUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
                     URLEncoder.encode(tenantDomain, BillingConstants.ENCODING))
@@ -102,7 +100,7 @@ public class APICloudMonetizationUtils {
                 NameValuePair accountNumberNVP = new NameValuePair(ACCOUNT_NUMBER, accountNumber);
                 nameValuePairs.add(accountNumberNVP);
             }
-            dsBRProcessor.doPost(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+            dsBRProcessor.doPost(url, null, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
                     "Error while retrieving API subscribers for user: " + username + " tenant domain: " + tenantDomain,
@@ -111,9 +109,9 @@ public class APICloudMonetizationUtils {
     }
 
     /**
-     *Block api subscriptions of the user
+     * Block api subscriptions of the user
      *
-     * @param userId user id of the user
+     * @param userId   user id of the user
      * @param tenantId tenant id
      * @throws CloudMonetizationException
      */
@@ -128,7 +126,7 @@ public class APICloudMonetizationUtils {
                     MonetizationConstants.API_SUBSCRIPTION_BLOCKED_STATUS);
             nameValuePairs.add(userIdNVP);
             nameValuePairs.add(statusNVP);
-            dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+            dsBRProcessor.doPut(url, null, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
                     "Error while sending block subscriptions request to data service for user :" + userId

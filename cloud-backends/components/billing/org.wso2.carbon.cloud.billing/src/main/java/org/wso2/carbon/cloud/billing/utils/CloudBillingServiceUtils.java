@@ -29,15 +29,14 @@ import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.config.Subscription;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
-import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
-import javax.xml.namespace.QName;
-import java.util.Iterator;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import java.util.Iterator;
 
 /**
  * Model to represent Utilities for Cloud Billing module
@@ -50,13 +49,13 @@ public class CloudBillingServiceUtils {
     private static volatile String configObj;
     private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getBillingRequestProcessor
             (BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-             BillingConfigUtils.getBillingConfiguration()
-                     .getDSConfig()
-                     .getHttpClientConfig());
+                    BillingConfigUtils.getBillingConfiguration()
+                            .getDSConfig()
+                            .getHttpClientConfig());
     private static APICloudUsageManager usageManager = new APICloudUsageManager();
     private static String getAccountUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                                                  .getCloudBillingServiceUrl()
-                                          + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
+            .getCloudBillingServiceUrl()
+            + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
 
     private CloudBillingServiceUtils() {
     }
@@ -71,7 +70,7 @@ public class CloudBillingServiceUtils {
     public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
 
         String response = dsBRProcessor.doGet(getAccountUrl.replace(BillingConstants.TENANT_DOMAIN_PARAM,
-                                                                    tenantDomain), null);
+                tenantDomain), null, null);
         try {
             if (response != null && !response.isEmpty()) {
                 OMElement elements = AXIOMUtil.stringToOM(response);
@@ -242,8 +241,8 @@ public class CloudBillingServiceUtils {
 
     private static String getSubscriptionMapping(String ratePlanId) throws CloudBillingException {
         String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl() + BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
-        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
-        return dsBRProcessor.doGet(url, nameValuePairs);
+        NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
+        return dsBRProcessor.doGet(url, null, nameValuePairs);
     }
 
 }
