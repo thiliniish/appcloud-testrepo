@@ -19,8 +19,11 @@
 package org.wso2.carbon.cloud.billing.processor;
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
@@ -74,7 +77,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         String password = dataServiceConfig.getPassword();
         try {
             return "Basic " +
-                   DatatypeConverter.printBase64Binary((userName + ":" + password).getBytes(BillingConstants.ENCODING));
+                    DatatypeConverter.printBase64Binary((userName + ":" + password).getBytes(BillingConstants.ENCODING));
         } catch (UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while initializing encoding basic auth header", e);
         }
@@ -84,16 +87,18 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      * Get request
      *
      * @param url            URL
+     * @param acceptType     Accept header
      * @param nameValuePairs query params
      * @return GET request response
      * @throws CloudBillingException
      */
-    public String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    @Override
+    public String doGet(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
         setTrustStoreParams();
         GetMethod get = new GetMethod(url);
-        if (basicAuthHeader == null || basicAuthHeader.isEmpty()) {
-            throw new IllegalStateException("Data Service Billing Processor is not initialized properly");
-        }
+        // default accept response body in XML
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_XML : acceptType;
+        get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         get.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
         get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
         if (!ArrayUtils.isEmpty(nameValuePairs)) {
@@ -108,39 +113,42 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      * @throws CloudBillingException
      */
     @Override
-    public void doUpload(File file) throws CloudBillingException {
+    public void doUpload(String url, String acceptType, File file) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported for Data Service Billing request "
-                                                + "processor");
+                + "processor");
     }
 
     /**
      * Data service POST request
      *
      * @param url         URL
+     * @param acceptType  Accept header
      * @param jsonPayload payload
      * @return response
      * @throws CloudBillingException
      */
     @Override
-    public String doPost(String url, String jsonPayload) throws CloudBillingException {
+    public String doPost(String url, String acceptType, String jsonPayload) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by Data Service Billing Request " +
-                                                "Processor");
+                "Processor");
     }
 
     /**
      * Data service POST request
      *
-     * @param url          URL
+     * @param url            URL
+     * @param acceptType     Accept header
      * @param nameValuePairs name value pair
      * @return response
      * @throws CloudBillingException
      */
     @Override
-    public String doPost(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    public String doPost(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
         setTrustStoreParams();
         PostMethod post = new PostMethod(url);
-        // indicate accept response body in JSON
-        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         post.setRequestBody(nameValuePairs);
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
     }
@@ -149,16 +157,21 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      * Data service PUT request
      *
      * @param url            URL
+     * @param acceptType     Accept header
      * @param nameValuePairs name value pair
      * @return response
      * @throws CloudBillingException
      */
-    @Override public String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    @Override
+    public String doPut(String url, String acceptType, NameValuePair[] nameValuePairs) throws
+            CloudBillingException {
         setTrustStoreParams();
         PutMethod put = new PutMethod(url);
-        // indicate accept response body in JSON
-        put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
-        put.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_QUERY_STRING_CONTENT);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+
+        put.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
         put.setQueryString(nameValuePairs);
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), put, DEFAULT_CONNECTION_RETRIES);
     }

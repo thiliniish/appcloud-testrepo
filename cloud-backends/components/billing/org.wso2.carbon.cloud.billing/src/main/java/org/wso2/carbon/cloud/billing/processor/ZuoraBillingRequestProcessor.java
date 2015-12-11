@@ -28,6 +28,7 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
@@ -45,7 +46,7 @@ import java.io.UnsupportedEncodingException;
 public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
     private static String uploadURL = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getServiceUrl()
-                                      + BillingConstants.ZUORA_REST_API_URI_USAGE;
+            + BillingConstants.ZUORA_REST_API_URI_USAGE;
     private static ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
 
     public ZuoraBillingRequestProcessor(HttpClientConfig httpClientConfig) {
@@ -55,12 +56,18 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
     /**
      * Zuora upload request
      *
+     * @param url        URL
+     * @param acceptType Accept header
      * @throws CloudBillingException
      */
-    @Override public void doUpload(File file) throws CloudBillingException {
-        PostMethod post = new PostMethod(uploadURL);
-        // indicate accept response body in JSON
-        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+    @Override
+    public void doUpload(String url, String acceptType, File file) throws CloudBillingException {
+        String endPoint = StringUtils.isNotBlank(url) ? url : uploadURL;
+        PostMethod post = new PostMethod(endPoint);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+
         String apiAccessKeyId = zuoraConfig.getUser();
         String apiSecretAccessKey = zuoraConfig.getPassword();
         post.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
@@ -84,12 +91,13 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * Zuora GET request
      *
      * @param url            URL
+     * @param acceptType     Accept header
      * @param nameValuePairs query params
      * @return response
      * @throws CloudBillingException
      */
     @Override
-    public String doGet(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    public String doGet(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
         GetMethod get = new GetMethod(url);
 
         String apiAccessKeyId = zuoraConfig.getUser();
@@ -97,8 +105,10 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         get.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
         get.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
 
-        // indicate accept response body in JSON
-        get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+
         // for a GET call, chase redirects
         get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
         if (!ArrayUtils.isEmpty(nameValuePairs)) {
@@ -111,16 +121,18 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * Zuora post request
      *
      * @param url         URL
+     * @param acceptType  Accept header
      * @param jsonPayload json payload
      * @return response
      * @throws CloudBillingException
      */
     @Override
-    public String doPost(String url, String jsonPayload) throws CloudBillingException {
+    public String doPost(String url, String acceptType, String jsonPayload) throws CloudBillingException {
 
         PostMethod post = new PostMethod(url);
-        // indicate accept response body in JSON
-        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
 
         String apiAccessKeyId = zuoraConfig.getUser();
         String apiSecretAccessKey = zuoraConfig.getPassword();
@@ -129,8 +141,8 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
 
         RequestEntity requestEntity;
         try {
-            requestEntity = new StringRequestEntity(jsonPayload, BillingConstants.HTTP_RESPONSE_TYPE_JSON,
-                                                    BillingConstants.ENCODING);
+            requestEntity = new StringRequestEntity(jsonPayload, BillingConstants.HTTP_TYPE_APPLICATION_JSON,
+                    BillingConstants.ENCODING);
             post.setRequestEntity(requestEntity);
         } catch (UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while encoding json payload" + jsonPayload, e);
@@ -142,25 +154,27 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * POST with name value pairs not supported for zuora
      *
      * @param url          URL
+     * @param acceptType   Accept header
      * @param keyValuePair name value pair
      * @return response
      * @throws CloudBillingException
      */
     @Override
-    public String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException {
+    public String doPost(String url, String acceptType, NameValuePair[] keyValuePair) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by Zuora Billing Request Processor");
     }
 
     /**
      * PUT with name value pairs not supported for zuora
      *
-     * @param url URL
+     * @param url            URL
+     * @param acceptType     Accept header
      * @param nameValuePairs name value pair
      * @return response
      * @throws CloudBillingException
      */
     @Override
-    public String doPut(String url, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    public String doPut(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
         throw new UnsupportedOperationException(
                 "PUT method with name value pairs is not supported by Zuora Billing Request Processor");
     }

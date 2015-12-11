@@ -47,7 +47,7 @@ public class BillingDbUpdateTask implements Task {
 
     private static final Log LOGGER = LogFactory.getLog(BillingDbUpdateTask.class);
     private static final String ERROR_MSG = "Error while executing task: Billing database update for un-subscribed " +
-                                            "tenants ";
+            "tenants ";
     private Map<String, String> properties;
     private BillingRequestProcessor requestProcessor;
 
@@ -66,8 +66,8 @@ public class BillingDbUpdateTask implements Task {
     public void init() {
         requestProcessor = BillingRequestProcessorFactory
                 .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-                                            BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                                                    .getHttpClientConfig());
+                        BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                                .getHttpClientConfig());
     }
 
     /**
@@ -76,7 +76,7 @@ public class BillingDbUpdateTask implements Task {
     @Override
     public void execute() {
         try {
-            String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY), null);
+            String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY), null, null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
             Iterator<?> entries = elements.getChildrenWithName(new QName(BillingConstants.ENTRY));
@@ -100,7 +100,7 @@ public class BillingDbUpdateTask implements Task {
             }
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Tenant subscriptions disabling task executed successfully, information " +
-                             "is as follows: " + elements);
+                        "is as follows: " + elements);
             }
         } catch (CloudBillingException e) {
             LOGGER.error(ERROR_MSG + " while executing http request: ", e);
@@ -144,10 +144,10 @@ public class BillingDbUpdateTask implements Task {
                 new NameValuePair(BillingConstants.TENANT_ID_QUERY_PARAM, Integer.toString(tenantId))
         };
 
-        String response = requestProcessor.doPost(url, payload);
+        String response = requestProcessor.doPost(url, null, payload);
         if (String.valueOf(HttpURLConnection.HTTP_ACCEPTED).equals(response) && LOGGER.isDebugEnabled()) {
             LOGGER.debug("Successfully added into BILLING_HISTORY after disabling subscription: " + subscription
-                         + " for tenant: " + tenantDomain);
+                    + " for tenant: " + tenantDomain);
         }
     }
 
@@ -165,10 +165,10 @@ public class BillingDbUpdateTask implements Task {
                 new NameValuePair(BillingConstants.STATUS_QUERY_PARAM, "0")
         };
 
-        String response = requestProcessor.doPost(url, payload);
+        String response = requestProcessor.doPost(url, null, payload);
         if (String.valueOf(HttpURLConnection.HTTP_ACCEPTED).equals(response) && LOGGER.isDebugEnabled()) {
             LOGGER.debug("Successfully updated SUBSCRIPTIONS table after disabling subscription: " + subscription
-                         + " for tenant: " + tenantDomain);
+                    + " for tenant: " + tenantDomain);
         }
     }
 
@@ -191,10 +191,10 @@ public class BillingDbUpdateTask implements Task {
                 new NameValuePair(BillingConstants.SUBSCRIPTION_QUERY_PARAM, subscription),
                 new NameValuePair(BillingConstants.END_DATE_QUERY_PARAM, endDateString)
         };
-        String response = requestProcessor.doPost(url, payload);
+        String response = requestProcessor.doPost(url, null, payload);
         if (String.valueOf(HttpURLConnection.HTTP_ACCEPTED).equals(response) && LOGGER.isDebugEnabled()) {
             LOGGER.debug("Successfully updated BILLING_STATUS table after disabling subscription: " + subscription
-                         + " for tenant: " + tenantDomain);
+                    + " for tenant: " + tenantDomain);
         }
     }
 }

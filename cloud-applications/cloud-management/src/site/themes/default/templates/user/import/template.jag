@@ -14,11 +14,11 @@
         submitButton.disabled = true;
     }
 
-    function updateMultiSelectRoles(){
+    function updateMultiSelectRoles() {
         var type = <%=type%>;
         //getting the roles of each subscriptions
         var jsonData = [];
-        var blockSubscriptions= getBlockedSubscriptions();
+        var blockSubscriptions = getBlockedSubscriptions();
         for(var index in type){
             if(blockSubscriptions.indexOf(type[index].id) <0 || blockSubscriptions==null){
             var tempRoleArray= type[index].roleTypes;
@@ -66,7 +66,7 @@
         });
     }
 
-    function getBlockedSubscriptions(){
+    function getBlockedSubscriptions() {
         var blockedSubs;
         jagg.syncPost("../blocks/tenant/users/add/ajax/add.jag", {
             action:"getBlockedSubscriptions"
