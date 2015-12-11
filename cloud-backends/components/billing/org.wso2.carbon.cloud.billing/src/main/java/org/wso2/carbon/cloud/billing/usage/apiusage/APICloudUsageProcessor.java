@@ -85,8 +85,8 @@ public class APICloudUsageProcessor implements UsageProcessor {
     }
 
     private String getAmendmentForPaymentPlans(String accountId) throws CloudBillingException {
-        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("ACCOUNT_NUMBER", accountId),
-                new NameValuePair("SUBSCRIPTION", BillingConstants.API_CLOUD_SUBSCRIPTION_ID) };
-        return billingRequestProcessor.doGet(amendmentsUrl, nameValuePairs);
+        NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("ACCOUNT_NUMBER", accountId),
+                new NameValuePair("SUBSCRIPTION", BillingConstants.API_CLOUD_SUBSCRIPTION_ID)};
+        return billingRequestProcessor.doGet(amendmentsUrl, null, nameValuePairs);
     }
 }

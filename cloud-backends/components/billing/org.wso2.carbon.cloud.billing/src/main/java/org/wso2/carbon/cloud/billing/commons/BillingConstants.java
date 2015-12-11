@@ -50,12 +50,12 @@ public final class BillingConstants {
 
     public static final String USAGE_UPLOADER_TASK_NAME = "usageUploader";
     public static final String USAGE_UPLOADER_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.usage.scheduler" +
-                                                                ".UsageUploaderTask";
+            ".UsageUploaderTask";
     public static final String USAGE_UPLOADER_TASK_TENANT_ID_KEY = "__TENANT_ID_PROP__";
 
     public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
     public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks" +
-                                                                   ".BillingDbUpdateTask";
+            ".BillingDbUpdateTask";
     public static final String PENDING_DISABLES_URL_KEY = "__PENDING_DISABLES__";
     public static final String DISABLE_TENANT_URL_KEY = "__DISABLE_TENANT__";
     public static final String UPDATE_SUBSCRIPTION_STATUS_URL_KEY = "__UPDATE_SUBSCRIPTION_STATUS__";
@@ -72,10 +72,14 @@ public final class BillingConstants {
     public static final int DEFAULT_MAX_TOTAL_CONNECTION = 10;
 
     public static final String HTTP_RESPONSE_TYPE_ACCEPT = "Accept";
-    public static final String HTTP_RESPONSE_TYPE_JSON = "application/json";
     public static final String HTTP_FOLLOW_REDIRECT = "follow_redirect";
     public static final String HTTP_CONTENT_TYPE = "Content-Type";
-    public static final String HTTP_QUERY_STRING_CONTENT = "application/x-www-form-urlencoded";
+
+    /*Media types*/
+    public static final String HTTP_TYPE_APPLICATION_URL_ENCODED = "application/x-www-form-urlencoded";
+    public static final String HTTP_TYPE_APPLICATION_XML = "application/xml";
+    public static final String HTTP_TYPE_APPLICATION_JSON = "application/json";
+
     // Account summary json elements
     public static final String PRODUCTS = "products";
     public static final String NAME = "name";
@@ -150,7 +154,7 @@ public final class BillingConstants {
     public static final String DS_API_URI_DISABLE_TENANT = "/disabletenant";
     public static final String DS_API_URI_SUBSCRIPTION_STATUS = "/subscriptionstatus";
     public static final String DS_API_URI_BILLING_HISTORY = "/billinghistory";
-    public static final String DS_API_URI_MAPPING_FOR_SUBSCRIPTION =  "/mappingforsubscription";
+    public static final String DS_API_URI_MAPPING_FOR_SUBSCRIPTION = "/mappingforsubscription";
 
     /*Zuora REST API v1 URIs*/
     public static final String ZUORA_REST_API_URI_USAGE = "/v1/usage";

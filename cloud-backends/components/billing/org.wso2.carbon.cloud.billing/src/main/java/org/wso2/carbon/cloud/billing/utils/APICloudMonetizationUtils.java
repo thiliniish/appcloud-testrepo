@@ -80,7 +80,8 @@ public final class APICloudMonetizationUtils {
             String url = subscribersUri
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT, CloudBillingUtils.encodeUrlParam(tenantDomain))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME, CloudBillingUtils.encodeUrlParam(username));
-            return dsBRProcessor.doGet(url, null);
+            return dsBRProcessor.doGet(url,BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
                     "Error while retrieving API subscribers for user: " + username + " tenant domain: " + tenantDomain,
@@ -116,9 +117,9 @@ public final class APICloudMonetizationUtils {
             }
             String response;
             if (!isExistingUser) {
-                response = dsBRProcessor.doPost(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                response = dsBRProcessor.doPost(url, null, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             } else {
-                response = dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                response = dsBRProcessor.doPut(url, null, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             }
 
             return DataServiceBillingRequestProcessor.isRequestSuccess(response);
@@ -147,7 +148,7 @@ public final class APICloudMonetizationUtils {
                     MonetizationConstants.API_SUBSCRIPTION_BLOCKED_STATUS);
             nameValuePairs.add(userIdNVP);
             nameValuePairs.add(statusNVP);
-            dsBRProcessor.doPut(url, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+            dsBRProcessor.doPut(url, null, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException("Error while sending block subscriptions request to data service for" +
                     " user :" + userId + " tenant Id :" + tenantId, e);
@@ -184,7 +185,7 @@ public final class APICloudMonetizationUtils {
                     new NameValuePair(BillingConstants.PARAM_START_DATE, effectiveDate.trim())
             };
 
-            String response = dsBRProcessor.doPost(url, nameValuePairs);
+            String response = dsBRProcessor.doPost(url, null, nameValuePairs);
             return DataServiceBillingRequestProcessor.isRequestSuccess(response);
         } catch (CloudBillingException | UnsupportedEncodingException | XMLStreamException e) {
             throw new CloudMonetizationException("Error while adding subscription information for child account: " +

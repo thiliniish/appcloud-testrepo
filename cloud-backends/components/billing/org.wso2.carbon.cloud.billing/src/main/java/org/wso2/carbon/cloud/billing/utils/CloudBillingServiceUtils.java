@@ -66,7 +66,6 @@ public final class CloudBillingServiceUtils {
     private static BillingRequestProcessor zuoraReqProcessor = BillingRequestProcessorFactory
             .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA, BillingConfigUtils
                     .getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
-    private static APICloudUsageManager usageManager = new APICloudUsageManager();
     private static String billingServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl();
     private static String monetizationServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig()
             .getCloudMonetizationServiceUrl();
@@ -86,7 +85,7 @@ public final class CloudBillingServiceUtils {
         String dsAccountURL = billingServiceURI + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
 
         String response = dsBRProcessor.doGet(dsAccountURL.replace(BillingConstants.TENANT_DOMAIN_PARAM,
-                tenantDomain), null);
+                tenantDomain), null, null);
         try {
             if (response != null && !response.isEmpty()) {
                 OMElement elements = AXIOMUtil.stringToOM(response);
@@ -232,6 +231,7 @@ public final class CloudBillingServiceUtils {
     public static AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName,
                                                                      String startDate, String endDate)
             throws CloudBillingException {
+        APICloudUsageManager usageManager = new APICloudUsageManager();
         return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
     }
 
@@ -262,7 +262,7 @@ public final class CloudBillingServiceUtils {
             String url = monetizationStatusUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
                     CloudBillingUtils.encodeUrlParam(tenantDomain)).replace(MonetizationConstants
                     .RESOURCE_IDENTIFIER_CLOUD_TYPE, CloudBillingUtils.encodeUrlParam(application));
-            response = dsBRProcessor.doGet(url, null);
+            response = dsBRProcessor.doGet(url, null, null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
             OMElement status = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
@@ -290,7 +290,7 @@ public final class CloudBillingServiceUtils {
                     .RESOURCE_IDENTIFIER_ZUORA_PRODUCT_NAME, CloudBillingUtils.encodeUrlParam(zuoraProductName))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_RATE_PLAN_NAME, CloudBillingUtils
                             .encodeUrlParam(ratePlanName));
-            response = dsBRProcessor.doGet(url, null);
+            response = dsBRProcessor.doGet(url, null, null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
             OMElement ratePlanId = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
@@ -341,7 +341,7 @@ public final class CloudBillingServiceUtils {
 
             addProfilePropertyIfExists(templateAccount, childAccountObj, BillingConstants.ZUORA_INVOICE_TEMPLATE_ID);
             addProfilePropertyIfExists(templateAccount, childAccountObj, BillingConstants.ZUORA_COMMUNICATION_PROFILE_ID);
-            response = zuoraReqProcessor.doPost(zuoraAccountURI, childAccountObj.toString());
+            response = zuoraReqProcessor.doPost(zuoraAccountURI, null, childAccountObj.toString());
         } catch (CloudBillingException e) {
             throw new CloudBillingException("Creating child account failed. ", e);
         }
@@ -395,6 +395,6 @@ public final class CloudBillingServiceUtils {
         String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
                 + BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
         NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
-        return dsBRProcessor.doGet(url, nameValuePairs);
+        return dsBRProcessor.doGet(url, null, nameValuePairs);
     }
 }

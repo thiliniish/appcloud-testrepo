@@ -25,8 +25,8 @@ import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.beans.usage.Usage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
-import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
@@ -55,8 +55,8 @@ public class APICloudUsageManager {
             BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
                     + BillingConstants.DS_API_URI_USAGE;
     private static String dailyMonetizationUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                                                                        .getApiCloudMonetizationServiceUrl()
-                                                      + MonetizationConstants.DS_API_URI_MON_APIC_DAILY_USAGE;
+            .getApiCloudMonetizationServiceUrl()
+            + MonetizationConstants.DS_API_URI_MON_APIC_DAILY_USAGE;
     private BillingRequestProcessor dsBRProcessor;
     private BillingRequestProcessor zuoraBRProcessor;
 
@@ -76,19 +76,19 @@ public class APICloudUsageManager {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
-        NameValuePair[] nameValuePairs = new NameValuePair[] {
+        NameValuePair[] nameValuePairs = new NameValuePair[]{
                 new NameValuePair("year", String.valueOf(cal.get(Calendar.YEAR))),
                 new NameValuePair("month", String.valueOf((cal.get(Calendar.MONTH) + 1))),
-                new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) };
+                new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)))};
 
-        return dsBRProcessor.doGet(usageUrl, nameValuePairs);
+        return dsBRProcessor.doGet(usageUrl, null, nameValuePairs);
     }
 
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
-        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("apiPublisher", "%@" + tenantDomain),
-                new NameValuePair("startDate", startDate), new NameValuePair("endDate", endDate) };
-        return dsBRProcessor.doGet(usageForTenantUrl, nameValuePairs);
+        NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("apiPublisher", "%@" + tenantDomain),
+                new NameValuePair("startDate", startDate), new NameValuePair("endDate", endDate)};
+        return dsBRProcessor.doGet(usageForTenantUrl, null, nameValuePairs);
     }
 
     public void uploadDailyAPIUsage() throws CloudBillingException {
@@ -101,22 +101,22 @@ public class APICloudUsageManager {
         Usage[] monetizationEnabledUsageList =
                 APIUsageProcessorUtil.getDailyUsageDataForPaidSubscribers(responseForMonetizationUsage);
 
-        uploadDailyAPIUsagetoZuora(usageList);
-        uploadDailyAPIUsagetoZuora(monetizationEnabledUsageList);
+        uploadDailyAPIUsageToZuora(usageList);
+        uploadDailyAPIUsageToZuora(monetizationEnabledUsageList);
     }
 
-    private void uploadDailyAPIUsagetoZuora(Usage[] usages) throws CloudBillingException {
+    private void uploadDailyAPIUsageToZuora(Usage[] usages) throws CloudBillingException {
         SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
         String today = dateFormat.format(new Date(System.currentTimeMillis()));
 
         String csvFile = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
-                                           .getUsageUploadFileLocation();
+                .getUsageUploadFileLocation();
         csvFile = csvFile + today + MonetizationConstants.CSV_EXTENSION;
         try {
             if (usages.length > 0) {
                 UsageCSVParser.writeCSVData(usages, csvFile);
                 File file = new File(csvFile);
-                zuoraBRProcessor.doUpload(file);
+                zuoraBRProcessor.doUpload(null, null, file);
             }
             // capture all exception that can occur while uploading the Over usage to zuora
         } catch (Exception e) {
@@ -127,14 +127,14 @@ public class APICloudUsageManager {
 
             //Sending the Email to Cloud Team for verify on the error occurred
             emailNotifications.send(messageBody, subject,
-                                    BillingConfigUtils.getBillingConfiguration().getUtilsConfig().getNotifications()
-                                                      .getEmailNotification().getSender());
+                    BillingConfigUtils.getBillingConfiguration().getUtilsConfig().getNotifications()
+                            .getEmailNotification().getSender());
             throw new CloudBillingException("Error occurred while uploading daily usage", e);
         }
     }
 
     public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName, String startDate,
-            String endDate) throws CloudBillingException {
+                                                              String endDate) throws CloudBillingException {
         // get accountId from tenant
         String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
         String response = getUsageForTenant(tenantDomain, startDate, endDate);
