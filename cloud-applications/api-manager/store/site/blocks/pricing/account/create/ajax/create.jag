@@ -8,7 +8,21 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
     var mod, result,
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
+    var user = jagg.getUser();
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
     mod = jagg.module("pricing");
+
+    if (!user) {
+        if(!ssoEnabled){
+            print({
+                error:true,
+                message:msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+
     if (action == "createAccount") {
         var accountData = {};
         var metaData = {};
@@ -53,7 +67,7 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
         print({
             error: true,
             statusCode: 500,
-            message: "Internal error. No action specified. Please retry..."
+            message: "No action specified. Please retry..."
         });
     }
 }());

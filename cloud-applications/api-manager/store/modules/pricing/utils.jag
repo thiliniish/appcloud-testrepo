@@ -26,6 +26,50 @@ var validatePassThroughHash = function (token) {
     return billingService.validateHash(token, tokenHash, mdAlgorithm);
 };
 
+//Base64 decode and decrypt the workflow data
+var decryptWorkflowData = function (workflowData) {
+    var cryptoUtil = Packages.org.wso2.carbon.core.util.CryptoUtil.getDefaultCryptoUtil();
+    var charset = Packages.java.nio.charset.Charset.defaultCharset();
+    var decryptedDataString = new Packages.java.lang.String(cryptoUtil.base64DecodeAndDecrypt(workflowData), charset);
+    var decryptedData = {};
+    if (decryptedDataString != null && !"".equals(decryptedDataString)) {
+        var dataArray = decryptedDataString.trim().split(":");
+        decryptedData.workflowRefId = String(dataArray[0]);
+        decryptedData.ratePlanName = String(dataArray[1]);
+        decryptedData.appName = String(dataArray[2]);
+        decryptedData.apiName = String(dataArray[3]);
+        decryptedData.apiVersion = String(dataArray[4]);
+    }
+    return decryptedData;
+};
+
+//populate account information object
+var populateAccountInfo = function (accountData, metaData, effectiveDate, ratePlanId) {
+    var subscribeToRatePlans = [];
+    var data = {};
+    var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+
+    data.name = accountData.firstName + " " + accountData.lastName;
+    data.autoPay = true;
+    data.currency = "USD";
+    data.billToContact = {};
+    var item = {};
+    item["productRatePlanId"] = ratePlanId;
+    subscribeToRatePlans.push(item);
+    data.subscription = {
+        "termType": "EVERGREEN",
+        "autoRenew": true,
+        "subscribeToRatePlans": subscribeToRatePlans,
+        "contractEffectiveDate": dateFormatter.format(effectiveDate)
+    };
+
+    data.hpmCreditCardPaymentMethodId = metaData.refId;
+    data.billToContact = accountData;
+    data.invoiceCollect = true;
+    data.invoiceTargetDate = dateFormatter.format(effectiveDate);
+    return data;
+};
+
 var sendHTTPRequest = function (url, type, headers, data, username, password) {
 
     var xhr = new XMLHttpRequest();
