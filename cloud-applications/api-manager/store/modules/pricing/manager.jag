@@ -6,6 +6,11 @@ include("/modules/pricing/utils.jag");
 var log = new Log("modules/pricing/manager.jag");
 var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
 var mdAlgorithm = "SHA-512";
+var errorObj = {
+    error: true,
+    statusCode: 500,
+    message: "Internal error. Please retry..."
+};
 
 //Generate zuora HPM page parameters
 var generateParams = function (workflowReference) {
@@ -26,15 +31,12 @@ var generateParams = function (workflowReference) {
     } catch (e) {
         log.error("Error while generating params: ");
         log.error(e);
-        return {
-            error: true,
-            statusCode: 500,
-            message: "Internal error. Please retry..."
-        }
+        return errorObj;
     }
 
 };
 
+//API monetization enabled status
 var isMonetizationEnabled = function (tenantDomain) {
     try {
         var monetizationStatus = apiMonService.isMonetizationEnabled(tenantDomain);
@@ -46,15 +48,12 @@ var isMonetizationEnabled = function (tenantDomain) {
     } catch (e) {
         log.error("Error while checking the monetization status for tenant: " + tenantDomain);
         log.error(e);
-        return {
-            error: true,
-            statusCode: 500,
-            message: "Internal error. Please retry..."
-        }
+        return errorObj;
     }
 
 };
 
+//Create billing account with the subscription
 var createAccount = function (accountData, metaData, workflowRefData) {
 
     var ratePlanId, errorMsg;
@@ -72,7 +71,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
         };
     }
 
-    //var apiData = JSON.parse(apiMonService.decryptWorkflowData(workflowRefData));
+    //base64 decode and decrypt the workflow data
     var apiData = decryptWorkflowData(workflowRefData);
     try {
         ratePlanId = apiMonService.getRatePlanId(tenantDomain, apiData.ratePlanName);
@@ -108,7 +107,6 @@ var createAccount = function (accountData, metaData, workflowRefData) {
         if (createChildResObj.success) {
             updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
                     createChildResObj.accountNumber);
-            log.info("update subscriber status: " + updateSubscriberResult);
             if (updateSubscriberResult) {
                 apiData.subscriptionId = createChildResObj.subscriptionId;
                 apiData.ratePlanId = ratePlanId;
@@ -116,7 +114,6 @@ var createAccount = function (accountData, metaData, workflowRefData) {
                 var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
                 addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildResObj
                         .accountNumber, stringify(apiData), formattedEffectiveDate);
-                log.info("Add subscription status: " + addSubscriptionResult);
                 if (!addSubscriptionResult) {
                     log.error("Error while updating subscription information. subscription information update failed. "
                             + "account name: " + data.name + " account number: " + createChildResObj.accountNumber + "for tenant:"
@@ -132,8 +129,10 @@ var createAccount = function (accountData, metaData, workflowRefData) {
             } else {
                 log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
                         + " will get deleted. Please issue a refund for " + data.name + " in tenant: " + tenantDomain);
-                var deleteResponse = JSON.parse(billingService.deleteAccount(data.name));
-                if (deleteResponse != null && deleteResponse.success != null && deleteResponse.success) {
+                //Send notification the cloud and the publisher saying to issue a refund. account will not get deleted.
+
+                //var deleteResponse = JSON.parse(billingService.deleteAccount(data.name));
+                /*if (deleteResponse.successSpecified && deleteResponse.success) {
                     //Send error notification to cloud to issue a refund
                     return {
                         error: true,
@@ -146,10 +145,10 @@ var createAccount = function (accountData, metaData, workflowRefData) {
                         statusCode: 500,
                         message: "Subscription unsuccessful. your payment has already processed. Please contact support."
                     };
-                }
+                }*/
             }
 
-            if (!addParentObj.successSpecified || !addParentObj.success) {
+            if (addParentObj.success == null || !addParentObj.success) {
                 log.error("Adding parent failed for child." + " Tenant: " + tenantDomain + " For monetizing. Reasons: "
                         + stringify(createChildResObj.reasons));
             }
@@ -197,6 +196,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
     }
 };
 
+//Base64 decode and decrypt the workflow data
 var decryptWorkflowData = function (workflowData) {
     var cryptoUtil = Packages.org.wso2.carbon.core.util.CryptoUtil.getDefaultCryptoUtil();
     var charset = Packages.java.nio.charset.Charset.defaultCharset();
