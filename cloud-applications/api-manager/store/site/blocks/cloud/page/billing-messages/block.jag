@@ -1,6 +1,0 @@
-<%
-jagg.block("cloud/page/billing-messages", {
-    initialize: function (data) {
-    }
-});
-%>

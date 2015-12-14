@@ -1,7 +1,0 @@
-<%
-jagg.block("cloud/page/messages", {
-	initialize:function (data) {
-
-	}
-});
-%>

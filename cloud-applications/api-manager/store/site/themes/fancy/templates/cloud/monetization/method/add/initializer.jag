@@ -1,7 +1,0 @@
-<%
-jagg.initializer("cloud/monetization/method/add", {
-    preInitialize: function () {
-
-    }
-});
-%>

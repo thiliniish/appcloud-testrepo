@@ -1,9 +1,0 @@
-<%
-jagg.initializer("cloud/monetization/account/add", {
-
-    preInitialize: function () {
-        var log = new Log("cloud/monetization/account/add");
-
-    }
-});
-%>

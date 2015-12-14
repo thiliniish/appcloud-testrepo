@@ -1,7 +1,0 @@
-<%
-jagg.block("cloud/monetization/account/add", {
-	initialize:function (data) {
-
-	}
-});
-%>
