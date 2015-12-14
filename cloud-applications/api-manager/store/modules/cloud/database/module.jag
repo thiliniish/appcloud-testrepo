@@ -1,8 +1,0 @@
-<%
-jagg.module("cloud/database", {
-
-    executeQuery: function () {
-        return jagg.require(jagg.getModulesDir() + "cloud/database/dataaccess.jag").executeQuery.apply(this, arguments);
-    },
-});
-%>

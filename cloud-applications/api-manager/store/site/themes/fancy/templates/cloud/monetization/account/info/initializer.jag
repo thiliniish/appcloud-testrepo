@@ -1,6 +1,0 @@
-<%
-jagg.initializer("cloud/monetization/account/info", {
-    preInitialize: function () {
-    }
-});
-%>

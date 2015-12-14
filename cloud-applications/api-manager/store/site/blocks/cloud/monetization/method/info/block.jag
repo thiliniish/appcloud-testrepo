@@ -1,7 +1,0 @@
-<%
-jagg.block("cloud/monetization/method/info", {
-	initialize:function (data) {
-
-	}
-});
-%>
