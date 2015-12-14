@@ -4,8 +4,6 @@ include("/jagg/cloud/constants.jag");
 include("/modules/pricing/utils.jag");
 
 var log = new Log("modules/pricing/manager.jag");
-var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
-var mdAlgorithm = "SHA-512";
 var errorObj = {
     error: true,
     statusCode: 500,
@@ -60,6 +58,16 @@ var createAccount = function (accountData, metaData, workflowRefData) {
     var username = jagg.getUser().username;
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
     var tenantDomain = multiTenantUtils.getTenantDomain(username);
+
+    if (!validatePassThroughHash(metaData.field_passthrough1)){
+        errorMsg = "Invalid token. ";
+        log.error(errorMsg + ". Hash value mismatch. ");
+        return {
+            error: true,
+            statusCode: 500,
+            message: errorMsg + " Please retry..."
+        };
+    }
 
     if (workflowRefData == null || "".equals(workflowRefData)) {
         errorMsg = "Workflow refId is invalid. it should be neither null nor empty";

@@ -2,6 +2,10 @@
 var carbon = require('carbon');
 var server = carbon.server;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+
+var mdAlgorithm = "SHA-512";
+
 
 var getConfigInJson = function () {
     try {
@@ -14,6 +18,12 @@ var getConfigInJson = function () {
 
 var dateTimeFormatter = function (dateTimeFormat) {
     return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
+};
+
+//validate passthrough token
+var validatePassThroughHash = function (token) {
+    var tokenHash = session.get(ZUORA_SIGNATURE_HASH);
+    return billingService.validateHash(token, tokenHash, mdAlgorithm);
 };
 
 var sendHTTPRequest = function (url, type, headers, data, username, password) {
