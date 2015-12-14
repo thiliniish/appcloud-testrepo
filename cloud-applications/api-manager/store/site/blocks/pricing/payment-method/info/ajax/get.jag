@@ -1,0 +1,56 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+var log = new Log("site.blocks.pricing.method.info.ajax.get.jag");
+
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("pricing");
+
+(function () {
+    var action = request.getParameter("action");
+    var responseObj;
+    var user = jagg.getUser();
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+    if (action == "get-payment-methods") {
+        print(mod.getAllPaymentMethods());
+    } else if (action == "setDefaultMethod") {
+        var methodId = request.getParameter("paymentMethodId");
+        print (mod.updateDefaultPaymentMethod(methodId));
+    } else if (action == "removePaymentMethod") {
+        try {
+            var methodId = request.getParameter("paymentMethodId");
+            var result = mod.removePaymentMethod(methodId);
+            responseObj = {
+                error: false,
+                message: result,
+                statusCode: 200
+            };
+            print(responseObj);
+        } catch (e) {
+            var msg = "Error while removing the payment method";
+            responseObj = {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+            print(responseObj);
+        }
+    } else {
+        msg = "Invalid Action specified for action "+action;
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+}());
+%>

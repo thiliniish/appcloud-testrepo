@@ -1,0 +1,36 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("site.blocks.pricing.account.invoice.ajax.get.jag");
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("pricing");
+var responseObj;
+var msg;
+(function () {
+    var action = request.getParameter("action");
+    var user = jagg.getUser();
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+    if (action == "gotInvoice") {
+        var invoiceId = request.getParameter("id");
+        var result = mod.getBillingInvoiceData(invoiceId);
+        print(result);
+    } else {
+        msg = "Invalid Action specified for action " + action;
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+        print(responseObj);
+    }
+
+}());
+%>

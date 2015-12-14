@@ -1,0 +1,7 @@
+<%
+jagg.block("pricing/page/messages", {
+	initialize:function (data) {
+
+	}
+});
+%>

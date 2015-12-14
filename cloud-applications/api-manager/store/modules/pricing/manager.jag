@@ -3,7 +3,12 @@ include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
 include("/modules/pricing/utils.jag");
 
-var log = new Log("modules/pricing/manager.jag");
+var zuoraObj = (getConfigInJson()).zuoraConfig;
+var user = jagg.getUser().username;
+var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+var tenantDomain = multiTenantUtils.getTenantDomain(user);
+var msg, responseObj;
+var log = new Log("modules.pricing.manager.jag");
 var errorObj = {
     error: true,
     statusCode: 500,
@@ -34,6 +39,272 @@ var generateParams = function (workflowReference) {
 
 };
 
+var getAccountDetails = function () {
+    try {
+        var accountId = getAccountId();
+        var summary = billingService.getAccountSummary(accountId);
+        responseObj = {
+            error: false,
+            message: summary,
+            statusCode: 200
+        };
+        return responseObj;
+    } catch (e) {
+        msg = "Error while getting account details.. Please retry ";
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+        log.error("ERROR while getting account details for : " + user + " - " + e.message);
+        log.error(e);
+        return responseObj;
+    }
+
+};
+var getAccountId = function () {
+    try {
+        var userName = user.substring(0, user.indexOf('@'));
+        var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(userName, tenantDomain));
+        var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
+        return accountNumber;
+    } catch (e) {
+        log.error("ERROR while getting the account number for : " + user + " - " + e.message);
+        throw e;
+    }
+};
+
+/*
+ Get Usage for a given time line.
+ */
+var getTenantUsage = function (fromDate, toDate) {
+
+};
+
+
+var updateContactInfo = function (accountData) {
+    try {
+        var accountId = getAccountId();
+        var url = zuoraObj.serviceUrl + "/v1/accounts/" + accountId;
+        var data = {};
+        data.billToContact = accountData;
+        var response = sendHTTPRequest(url, "PUT", null, data);
+        if (response.success === true) {
+            responseObj = {
+                error: false,
+                message: "Your contact information is successfully added",
+                statusCode: 200
+            };
+        } else {
+            log.error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
+            msg = "Account Update Failed.. Please retry ";
+            responseObj = {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+        }
+        return responseObj;
+    } catch (e) {
+        msg = "Account Update Failed.. Please retry ";
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+        log.error("ERROR while updating contact info for : " + user + " - " + e.message);
+        return responseObj;
+    }
+
+};
+
+
+var getCurrencyUsed = function () {
+    return zuoraObj.currency;
+};
+
+
+
+var removePaymentMethod = function (methodId) {
+    try {
+        var url = zuoraObj.serviceUrl + "/v1/payment-methods/" + methodId;
+        var result = sendHTTPRequest(url, "DELETE", null, null);
+        responseObj = {
+            error: false,
+            message: result,
+            statusCode: 200
+        };
+        return responseObj;
+    } catch (e) {
+        log.error("ERROR while getting payment methods  for : " + user + " - " + e.message);
+        log(e);
+        msg = "Error while getting payment methods";
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+        return responseObj;
+    }
+
+};
+
+var getAllPaymentMethods = function () {
+    try {
+        var accountId = getAccountId();
+        var zuoraServiceUrl = zuoraObj.serviceUrl;
+        var url = zuoraServiceUrl + "/v1/payment-methods/credit-cards/accounts/" + accountId;
+        var summary = sendHTTPRequest(url, "GET", null, null);
+        responseObj = {
+            error: false,
+            message: summary,
+            statusCode: 200
+        };
+        return responseObj;
+    } catch (e) {
+        log.error("ERROR while getting payment methods  for : " + user + " - " + e.message);
+        log(e);
+        msg = "Error while getting payment methods";
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+        return responseObj;
+    }
+
+};
+
+var updateDefaultPaymentMethod = function (methodId) {
+    try {
+        var zuoraServiceUrl = zuoraObj.serviceUrl;
+        var url = zuoraServiceUrl + "/v1/payment-methods/credit-cards/" + methodId;
+        var data = {
+            "defaultPaymentMethod": true
+        };
+        var response = sendHTTPRequest(url, "PUT", null, data);
+        responseObj = {
+            error: false,
+            message: response.success,
+            statusCode: 200
+        };
+        return responseObj;
+    } catch (e) {
+        log.error("ERROR while while updating the default payment method: " + user + " - " + e.message);
+        log(e);
+        msg = "Error while updating payment methods";
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+        return responseObj;
+    }
+
+};
+
+
+/*
+ Headers should in following format
+ var headers = [
+ {
+ 'name':'apiSecretAccessKey',
+ 'value' :'password'
+ }
+ ];
+ */
+var sendHTTPRequest = function (url, type, headers, data) {
+    var username = zuoraObj.user;
+    var password = zuoraObj.password;
+    var xhr = new XMLHttpRequest();
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('apiAccessKeyId', username);
+    xhr.setRequestHeader('apiSecretAccessKey', password);
+
+    if (headers != null) {
+        for (var i = 0; i < headers.length; i++) {
+            xhr.setRequestHeader(headers[i].name, headers[i].value);
+        }
+    }
+
+    xhr.open(type, url);
+    xhr.send(data);
+
+    var response = xhr.responseText;
+    if (response != null) {
+        return JSON.parse(response);
+    } else {
+        throw new Error("Response from Zuora cannot be null");
+    }
+};
+
+var dateTimeFormatter = function (dateTimeFormat) {
+    return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
+};
+
+var getBillingInvoiceData = function (invoiceId) {
+    try {
+        var accountId = getAccountId();
+        var summary = billingService.getInvoices(accountId);
+        var invoiceObj = JSON.parse(summary);
+        var invoices = invoiceObj.invoices;
+        for (var index = 0; index < invoices.length; index++) {
+            if (invoiceId == invoices[index].id) {
+                var invoiceItems = invoices[index].invoiceItems;
+
+                var invoiceData = {};
+
+                invoiceData["accountName"] = invoices[index].accountName;
+                invoiceData["invoiceDate"] = invoices[index].invoiceDate;
+                invoiceData["invoiceNumber"] = invoices[index].invoiceNumber;
+                invoiceData["amount"] = invoices[index].amount;
+                invoiceData["invoiceItems"] = [];
+
+                for (var i = 0; i < invoiceItems.length; i++) {
+                    var item = {};
+                    var invoiceItem = invoiceItems[i];
+                    if (invoiceItem.chargeName == MONTHLY_SUBSCRIPTION_CHARGE_NAME) {
+                        item["chargeName"] = invoiceItem.chargeName;
+                        item["amount"] = invoiceItem.chargeAmount;
+                        item["servicePeriod"] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
+                        item["chargeDate"] = invoices[index].invoiceDate;
+                        //if next invoice item is not in the next billing cycle
+                        if ((i + 1) < invoiceItems.length && invoiceItems[i + 1].chargeName == DISCOUNT_CHARGE_NAME) {
+                            item["discount"] = invoiceItems[i + 1].chargeAmount;
+                        }
+                        else {
+                            item["discount"] = 0.0;
+                        }
+                    }
+                    else {
+                        item["chargeName"] = invoiceItem.chargeName;
+                        item["amount"] = invoiceItem.chargeAmount;
+                        item["servicePeriod"] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
+                        item["chargeDate"] = invoices[index].invoiceDate;
+                        item["discount"] = 0.0;
+                    }
+                    invoiceData["invoiceItems"].push(item);
+                }
+                responseObj = {
+                    error: false,
+                    message: invoiceData,
+                    statusCode: 200
+                };
+                return responseObj;
+            }
+        }
+    } catch (e) {
+
+        msg = "Error while updating payment methods";
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+        log.error("ERROR while getting invoice data for : " + user + " - " + e.message);
+        return responseObj;
+    }
+};
 //API monetization enabled status
 var isMonetizationEnabled = function (tenantDomain) {
     try {
@@ -59,7 +330,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
     var tenantDomain = multiTenantUtils.getTenantDomain(username);
 
-    if (!validatePassThroughHash(metaData.field_passthrough1)){
+    if (!validatePassThroughHash(metaData.field_passthrough1)) {
         errorMsg = "Invalid token. ";
         log.error(errorMsg + ". Hash value mismatch. ");
         return {
@@ -141,19 +412,19 @@ var createAccount = function (accountData, metaData, workflowRefData) {
 
                 //var deleteResponse = JSON.parse(billingService.deleteAccount(data.name));
                 /*if (deleteResponse.successSpecified && deleteResponse.success) {
-                    //Send error notification to cloud to issue a refund
-                    return {
-                        error: true,
-                        statusCode: 500,
-                        message: "Subscription unsuccessful. You'll get a refund. if not please contact support."
-                    };
-                } else {
-                    return {
-                        error: true,
-                        statusCode: 500,
-                        message: "Subscription unsuccessful. your payment has already processed. Please contact support."
-                    };
-                }*/
+                 //Send error notification to cloud to issue a refund
+                 return {
+                 error: true,
+                 statusCode: 500,
+                 message: "Subscription unsuccessful. You'll get a refund. if not please contact support."
+                 };
+                 } else {
+                 return {
+                 error: true,
+                 statusCode: 500,
+                 message: "Subscription unsuccessful. your payment has already processed. Please contact support."
+                 };
+                 }*/
             }
 
             if (addParentObj.success == null || !addParentObj.success) {

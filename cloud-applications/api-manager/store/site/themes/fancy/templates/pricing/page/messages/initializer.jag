@@ -1,0 +1,7 @@
+<%
+jagg.initializer("pricing/page/messages", {
+    preInitialize: function () {
+
+    }
+});
+%>
