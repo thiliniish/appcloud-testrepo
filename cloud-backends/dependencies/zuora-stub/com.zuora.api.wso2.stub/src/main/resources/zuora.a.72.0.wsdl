@@ -72,7 +72,7 @@
 							<element minOccurs="0" name="BcdSettingOption" nillable="true" type="string" />
 							<element minOccurs="0" name="BillCycleDay" type="int" />
 							<element minOccurs="0" name="BillToId" nillable="true" type="zns:ID" />
-							<element minOccurs="0" name="CommunicationProfileId" nillable="true" type="zns:ID" />
+							<element minOccurs="0" name="CommunicationProfileId" nillable="true" type="zns:ID"/>
                				<element minOccurs="0" name="CreatedById" nillable="true" type="zns:ID"  />
                				<element minOccurs="0" name="CreatedDate" nillable="true" type="dateTime" />
 							<element minOccurs="0" name="CrmId" nillable="true" type="string" />
@@ -152,6 +152,7 @@
                				<element minOccurs="0" name="RenewalSetting" nillable="true" type="string" />
 							<element minOccurs="0" name="RenewalTerm" nillable="true" type="long" />
 							<element minOccurs="0" name="ServiceActivationDate" nillable="true" type="date"  />
+							<element minOccurs="0" name="SpecificUpdateDate" nillable="true" type="date" />
 							<element minOccurs="0" name="Status" nillable="true" type="string" />
 							<element minOccurs="0" name="SubscriptionId" nillable="true" type="zns:ID" />
 							<element minOccurs="0" name="TermStartDate" nillable="true" type="date"  />
@@ -163,7 +164,7 @@
 					</extension>
 				</complexContent>
 			</complexType>
-			<complexType name="Contact">
+			<complexType name="Contact" >
 				<complexContent>
 					<extension base="ons:zObject">
 						<sequence>
@@ -699,6 +700,7 @@
 							<element minOccurs="0" name="DeferredRevenueAccount" nillable="true" type="string"   />
 							<element minOccurs="0" name="Description" nillable="true" type="string" />
 							<element minOccurs="0" name="DiscountLevel" nillable="true" type="string" />
+							<element minOccurs="0" name="EndDateCondition" nillable="true" type="string"  />
 							<element minOccurs="0" name="IncludedUnits" nillable="true" type="decimal" />
 							<element minOccurs="0" name="LegacyRevenueReporting" nillable="true" type="boolean" />
 							<element minOccurs="0" name="ListPriceBase" nillable="true" type="string"  />
@@ -723,6 +725,7 @@
 			               	<element minOccurs="0" name="UpdatedById" nillable="true" type="zns:ID"  />
 			               	<element minOccurs="0" name="UpdatedDate" nillable="true" type="dateTime"  />
 			               	<element minOccurs="0" name="UpToPeriods" nillable="true" type="long"  />
+			               	<element minOccurs="0" name="UpToPeriodsType" nillable="true" type="string"  />
 			               	<element minOccurs="0" name="UsageRecordRatingOption" nillable="true" type="string"  />
 			               	<element minOccurs="0" name="UseDiscountSpecificAccountingCode" nillable="true" type="boolean" />
 							<element minOccurs="0" name="UseTenantDefaultForPriceChange" nillable="true" type="boolean" />
@@ -804,6 +807,7 @@
 							<element minOccurs="0" name="DTCV" nillable="true" type="decimal" />
 							<element minOccurs="0" name="EffectiveEndDate" nillable="true" type="date" />
 							<element minOccurs="0" name="EffectiveStartDate" nillable="true" type="date" />
+							<element minOccurs="0" name="EndDateCondition" nillable="true" type="string"  />
 							<element minOccurs="0" name="IncludedUnits" nillable="true" type="decimal" />
 							<element minOccurs="0" name="IsLastSegment" nillable="true" type="boolean"  />
 							<element minOccurs="0" name="ListPriceBase" nillable="true" type="string" />
@@ -826,6 +830,7 @@
 							<element minOccurs="0" name="RolloverBalance" nillable="true" type="decimal" />
 							<element minOccurs="0" name="Segment" nillable="true" type="int" />
 							<element minOccurs="0" name="SpecificBillingPeriod" nillable="true" type="long" />
+							<element minOccurs="0" name="SpecificEndDate" nillable="true" type="date" />
 							<element minOccurs="0" name="TCV" nillable="true" type="decimal" />
 							<element minOccurs="0" name="TriggerDate" nillable="true" type="date" />
 							<element minOccurs="0" name="TriggerEvent" nillable="true" type="string" />
@@ -834,6 +839,7 @@
 			               	<element minOccurs="0" name="UpdatedById" nillable="true" type="zns:ID"  />
 			               	<element minOccurs="0" name="UpdatedDate" nillable="true" type="dateTime"  />
 			               	<element minOccurs="0" name="UpToPeriods" nillable="true" type="long"  />
+			               	<element minOccurs="0" name="UpToPeriodsType" nillable="true" type="string"  />
 							<element minOccurs="0" name="UsageRecordRatingOption" nillable="true" type="string"  />
 			               	<element minOccurs="0" name="UseDiscountSpecificAccountingCode" nillable="true" type="boolean"  />
 			               	<element minOccurs="0" name="Version" nillable="true" type="long" />
@@ -1104,6 +1110,7 @@
 						<element minOccurs="0" name="NumberOfPeriods" nillable="true" type="int" />
 						<element minOccurs="0" name="PreviewThroughTermEnd" nillable="true" type="boolean" />
 						<element minOccurs="0" name="PreviewType" nillable="true" type="string" />
+						<element minOccurs="0" name="IncludeExistingDraftInvoiceItems" nillable="true" type="boolean" default="true" />
 					</sequence>
 				</complexType>
 		
@@ -1414,7 +1421,7 @@
 				</complexType>
 				<complexType name="AmendOptions" >
 					<sequence>
-						<element minOccurs="0" name="ElectronicPaymentOptions" nillable="true" type="zns:ElectronicPaymentOptions"/>
+						<element minOccurs="0" name="ElectronicPaymentOptions" nillable="true" type="zns:ElectronicPaymentOptions" />
 						<element minOccurs="0" name="ExternalPaymentOptions" nillable="true" type="zns:ExternalPaymentOptions" />
 						<element minOccurs="0" name="GenerateInvoice" nillable="true" type="xs:boolean" />
 				        <element minOccurs="0" name="InvoiceProcessingOptions" nillable="true" type="zns:InvoiceProcessingOptions" />
@@ -1459,11 +1466,12 @@
 						</sequence>
 					</complexType>
 				</element>
-		       <complexType name="ElectronicPaymentOptions">
+               <complexType name="ElectronicPaymentOptions">
 					<sequence>
 					    <element minOccurs="0" name="PaymentMethodId" nillable="true" type="zns:ID" />
 					</sequence>
-				</complexType>		
+				</complexType>
+            
 				<complexType name="ExternalPaymentOptions">
 					<sequence>
 						<element minOccurs="0" name="Amount" nillable="true" type="decimal"/>
@@ -1877,7 +1885,7 @@
 	</binding>
 	<service name="ZuoraService">
 		<port name="Soap" binding="zns:SoapBinding">
-			<soap:address location="https://www.zuora.com/apps/services/a/70.0" />
+			<soap:address location="https://www.zuora.com/apps/services/a/72.0" />
 		</port>
 	</service>
 </definitions>

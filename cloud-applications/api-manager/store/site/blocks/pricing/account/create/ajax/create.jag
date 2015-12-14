@@ -1,0 +1,74 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+
+var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
+
+(function () {
+    var mod, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var user = jagg.getUser();
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
+    mod = jagg.module("pricing");
+
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+
+    if (action == "createAccount") {
+        var accountData = {};
+        var metaData = {};
+
+        accountData.firstName = request.getParameter("firstName");
+        accountData.lastName = request.getParameter("lastName");
+        accountData.address1 = request.getParameter("address1");
+        accountData.address2 = request.getParameter("address2");
+        accountData.city = request.getParameter("city");
+        accountData.state = request.getParameter("state");
+        accountData.zipCode = request.getParameter("zipCode");
+        accountData.country = request.getParameter("country");
+        accountData.workEmail = request.getParameter("email");
+
+        metaData.refId = request.getParameter("refId");
+        metaData.signature = request.getParameter("signature");
+        metaData.field_passthrough1 = request.getParameter("field_passthrough1");
+        var workflowReference = request.getParameter("workflowReference");
+        try {
+            result = mod.createAccount(accountData, metaData, workflowReference);
+            if (result != null) {
+                print(result);
+            } else {
+                print({
+                    error: true,
+                    statusCode: 500,
+                    message: "Account creation failure. Please retry...."
+                });
+            }
+        } catch (e) {
+            var errorMsg = "Account creation failure. ";
+            log.error(errorMsg);
+            log.error(e);
+            print({
+                error: true,
+                statusCode: 500,
+                message: errorMsg + " Please retry...."
+            });
+        }
+    } else {
+        log.error("No action specified..");
+        print({
+            error: true,
+            statusCode: 500,
+            message: "No action specified. Please retry..."
+        });
+    }
+}());
+%>

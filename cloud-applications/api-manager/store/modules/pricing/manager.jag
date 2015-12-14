@@ -1,0 +1,206 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+include("/modules/pricing/utils.jag");
+
+var log = new Log("modules/pricing/manager.jag");
+var errorObj = {
+    error: true,
+    statusCode: 500,
+    message: "Internal error. Please retry..."
+};
+
+//Generate zuora HPM page parameters
+var generateParams = function (workflowReference) {
+
+    try {
+        var clientParams = JSON.parse(billingService.prepareParams());
+        session.put(ZUORA_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
+        clientParams.field_passthrough1 = clientParams.token;
+        clientParams.field_passthrough4 = workflowReference;
+        if (log.isDebugEnabled()) {
+            log.debug("Parameters generated for tenant: " + clientParams.tenantId);
+        }
+        return {
+            error: false,
+            statusCode: 200,
+            params: clientParams
+        }
+    } catch (e) {
+        log.error("Error while generating params: ");
+        log.error(e);
+        return errorObj;
+    }
+
+};
+
+//API monetization enabled status
+var isMonetizationEnabled = function (tenantDomain) {
+    try {
+        var monetizationStatus = apiMonService.isMonetizationEnabled(tenantDomain);
+        return {
+            error: false,
+            statusCode: 200,
+            monetizationEnabled: monetizationStatus
+        }
+    } catch (e) {
+        log.error("Error while checking the monetization status for tenant: " + tenantDomain);
+        log.error(e);
+        return errorObj;
+    }
+
+};
+
+//Create billing account with the subscription
+var createAccount = function (accountData, metaData, workflowRefData) {
+
+    var ratePlanId, errorMsg;
+    var username = jagg.getUser().username;
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(username);
+
+    if (!validatePassThroughHash(metaData.field_passthrough1)){
+        errorMsg = "Invalid token. ";
+        log.error(errorMsg + ". Hash value mismatch. ");
+        return {
+            error: true,
+            statusCode: 500,
+            message: errorMsg + " Please retry..."
+        };
+    }
+
+    if (workflowRefData == null || "".equals(workflowRefData)) {
+        errorMsg = "Workflow refId is invalid. it should be neither null nor empty";
+        log.error(errorMsg);
+        return {
+            error: true,
+            statusCode: 500,
+            message: errorMsg
+        };
+    }
+
+    //base64 decode and decrypt the workflow data
+    var apiData = decryptWorkflowData(workflowRefData);
+    try {
+        ratePlanId = apiMonService.getRatePlanId(tenantDomain, apiData.ratePlanName);
+        if (ratePlanId == null || "".equals(ratePlanId)) {
+            errorMsg = "Rate plan invalid. it should be neither null nor empty";
+            log.error(errorMsg);
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg
+            };
+        }
+    } catch (e) {
+        log.error("Error while getting subscribed rate plan id.");
+        log.error(e);
+        return {
+            error: true,
+            statusCode: 500,
+            message: e.message
+        };
+    }
+
+    try {
+        var effectiveDate = new Packages.java.util.Date();
+        var data = populateAccountInfo(accountData, metaData, effectiveDate, ratePlanId);
+        var response = billingService.createChildAccount(tenantDomain, stringify(data));
+
+        var responseObj = JSON.parse(response);
+        var createChildResObj = responseObj.createChildResponse;
+        var addParentObj = responseObj.addParentResponse;
+        var updateSubscriberResult, addSubscriptionResult;
+
+        if (createChildResObj.success) {
+            updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
+                    createChildResObj.accountNumber);
+            if (updateSubscriberResult) {
+                apiData.subscriptionId = createChildResObj.subscriptionId;
+                apiData.ratePlanId = ratePlanId;
+                var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+                var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+                addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildResObj
+                        .accountNumber, stringify(apiData), formattedEffectiveDate);
+                if (!addSubscriptionResult) {
+                    log.error("Error while updating subscription information. subscription information update failed. "
+                            + "account name: " + data.name + " account number: " + createChildResObj.accountNumber + "for tenant:"
+                            + tenantDomain);
+                    //Send error notification. Roll back won't happen since the subscriptions has been already paid
+                    return {
+                        error: true,
+                        statusCode: 500,
+                        message: "Subscription unsuccessful. Since the payment has already been processed, please contact" +
+                        "support."
+                    };
+                }
+            } else {
+                log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
+                        + " will get deleted. Please issue a refund for " + data.name + " in tenant: " + tenantDomain);
+                //Send notification the cloud and the publisher saying to issue a refund. account will not get deleted.
+
+                //var deleteResponse = JSON.parse(billingService.deleteAccount(data.name));
+                /*if (deleteResponse.successSpecified && deleteResponse.success) {
+                    //Send error notification to cloud to issue a refund
+                    return {
+                        error: true,
+                        statusCode: 500,
+                        message: "Subscription unsuccessful. You'll get a refund. if not please contact support."
+                    };
+                } else {
+                    return {
+                        error: true,
+                        statusCode: 500,
+                        message: "Subscription unsuccessful. your payment has already processed. Please contact support."
+                    };
+                }*/
+            }
+
+            if (addParentObj.success == null || !addParentObj.success) {
+                log.error("Adding parent failed for child." + " Tenant: " + tenantDomain + " For monetizing. Reasons: "
+                        + stringify(createChildResObj.reasons));
+            }
+        } else {
+            errorMsg = "Billing account creation failed.";
+            log.error(errorMsg + " Tenant: " + tenantDomain + " For monetizing. Reasons: " + stringify
+                    (createChildResObj.reasons));
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg + "Please Retry..."
+            };
+        }
+
+        var modWorkflow = jagg.module("workflow");
+        var workflowStatus;
+        var workflowDesc;
+        var workflowReference = apiData.workflowRefId;
+        if (updateSubscriberResult && addSubscriptionResult) {
+            workflowStatus = "APPROVED";
+            workflowDesc = "subscription successful";
+            return modWorkflow.resumeWorkflow(workflowReference, workflowStatus, workflowDesc);
+        } else {
+            workflowStatus = "REJECTED";
+            workflowDesc = "subscription unsuccessful";
+            modWorkflow.resumeWorkflow(workflowReference, workflowStatus, workflowDesc);
+            //Send error notification. Roll back won't happen since the subscriptions has been already paid
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg + "Subscription failed. API will not be activated." +
+                "Since the payment has already been processed, please contact support."
+            };
+        }
+
+
+    } catch (e) {
+        log.error("Child account creation failure. ");
+        log.error(e);
+        return {
+            error: true,
+            statusCode: 500,
+            message: e.message
+        };
+    }
+};
+%>

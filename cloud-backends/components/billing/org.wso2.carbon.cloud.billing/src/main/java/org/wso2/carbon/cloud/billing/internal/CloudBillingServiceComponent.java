@@ -56,7 +56,7 @@ public class CloudBillingServiceComponent {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceComponent.class);
     private ServiceRegistration billingServiceRef;
-    private ServiceRegistration apiCloudMonetizationServicebillingServiceRef;
+    private ServiceRegistration apiMonServiceRef;
 
     /**
      * {@inheritDoc}
@@ -69,11 +69,11 @@ public class CloudBillingServiceComponent {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Billing bundle activation is started");
             }
-            this.billingServiceRef = bundleContext
-                    .registerService(CloudBillingService.class.getName(), new CloudBillingService(), null);
-            this.apiCloudMonetizationServicebillingServiceRef = bundleContext
-                    .registerService(APICloudMonetizationService.class.getName(), new APICloudMonetizationService(),
-                            null);
+            this.billingServiceRef = bundleContext.registerService(CloudBillingService.class.getName(), new
+                    CloudBillingService(), null);
+            this.apiMonServiceRef = bundleContext.registerService(APICloudMonetizationService.class.getName(), new
+                    APICloudMonetizationService(), null);
+
             activateScheduledTasks();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Cloud billing  bundle is activated");
@@ -90,7 +90,7 @@ public class CloudBillingServiceComponent {
      */
     protected void deactivate(ComponentContext context) {
         this.billingServiceRef.unregister();
-        this.apiCloudMonetizationServicebillingServiceRef.unregister();
+        this.apiMonServiceRef.unregister();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Cloud billingService  bundle is deactivated ");
         }

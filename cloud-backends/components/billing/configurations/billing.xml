@@ -25,6 +25,7 @@
     <MgtModeEnabled>true</MgtModeEnabled>
     <DataServiceAPI>
         <CloudBillingServiceURL>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURL>
+        <CloudMonetizationServiceURL>https://localhost:9453/services/WSO2CloudMonetizationDS.SecureHTTPEndpoint</CloudMonetizationServiceURL>
         <APICloudMonetizationServiceURL>https://localhost:9453/services/WSO2APICloudMonetizationDS.SecureHTTPEndpoint</APICloudMonetizationServiceURL>
         <User>admin</User>
         <Password>admin</Password>

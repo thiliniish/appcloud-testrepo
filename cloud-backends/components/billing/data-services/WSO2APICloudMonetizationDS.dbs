@@ -10,21 +10,41 @@
       <property name="carbon_datasource_name">apim_db</property>
    </config>
     <query id="getSubscriberInfoQ" useConfig="cloud_mgt">
-        <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE
-            USER_NAME = :USER_NAME AND TENANT_DOMAIN = :TENANT_DOMAIN
-        </sql>
+        <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS
+        WHERE (USER_NAME, TENANT_DOMAIN) = (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN);</sql>
         <result element="Subscribers" rowName="Subscriber">
             <element column="TENANT_DOMAIN" name="Tenant" xsdType="string"/>
             <element column="USER_NAME" name="Username" xsdType="string"/>
             <element column="TEST_ACCOUNT" name="TestAccount" xsdType="boolean"/>
             <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
         </result>
-        <param name="USER_NAME" sqlType="STRING"/>
         <param name="TENANT_DOMAIN" sqlType="STRING"/>
+        <param name="USER_NAME" sqlType="STRING"/>
+    </query>
+    <query id="addSubscriberInfoQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
+            VALUES (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER);</sql>
+         <param name="USER_NAME" sqlType="STRING"/>
+         <param name="TENANT_DOMAIN" sqlType="STRING"/>
+         <param name="TEST_ACCOUNT" sqlType="BOOLEAN"/>
+         <param name="ACCOUNT_NUMBER" defaultValue="#{NULL}" sqlType="STRING"/>
+    </query>
+    <query id="addSubscriptionInfoQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIPTIONS (ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION,
+          RATE_PLAN_ID, SUBSCRIPTION_ID, START_DATE) VALUES ((:ACCOUNT_NUMBER), (:AM_APP_NAME), (:AM_API_NAME),
+          (:AM_API_VERSION), (:RATE_PLAN_ID), (:SUBSCRIPTION_ID), (:START_DATE));</sql>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+         <param name="AM_API_NAME" sqlType="STRING"/>
+         <param name="AM_API_VERSION" sqlType="STRING"/>
+         <param name="RATE_PLAN_ID" sqlType="STRING"/>
+         <param name="SUBSCRIPTION_ID" sqlType="STRING"/>
+         <param name="START_DATE" sqlType="STRING"/>
     </query>
     <query id="updateSubscriberInfoQ" useConfig="cloud_mgt">
          <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
-            VALUES (:USER_NAME, :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER)</sql>
+          VALUES (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER) ON DUPLICATE KEY UPDATE TEST_ACCOUNT=
+          (:TEST_ACCOUNT), ACCOUNT_NUMBER=(:ACCOUNT_NUMBER);</sql>
          <param name="USER_NAME" sqlType="STRING"/>
          <param name="TENANT_DOMAIN" sqlType="STRING"/>
          <param name="TEST_ACCOUNT" sqlType="BOOLEAN"/>
@@ -141,6 +161,25 @@
             <with-param name="USER_NAME" query-param="username"/>
         </call-query>
     </operation>
+    <operation name="addSubscriber">
+        <call-query href="addSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </operation>
+    <operation name="addSubscription">
+        <call-query href="addSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+            <with-param name="RATE_PLAN_ID" query-param="ratePlanId"/>
+            <with-param name="SUBSCRIPTION_ID" query-param="subscriptionId"/>
+            <with-param name="START_DATE" query-param="startDate"/>
+        </call-query>
+    </operation>
     <operation name="updateSubscriber">
         <call-query href="updateSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -169,12 +208,31 @@
             <with-param name="USER_NAME" query-param="username"/>
         </call-query>
     </resource>
-    <resource method="POST" path="v1/subscribers/{tenant}/{username}">
+    <resource method="POST" path="v1/subscribers/{tenant}/{username}" returnRequestStatus="true">
+        <call-query href="addSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </resource>
+    <resource method="PUT" path="v1/subscribers/{tenant}/{username}" returnRequestStatus="true">
         <call-query href="updateSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
             <with-param name="USER_NAME" query-param="username"/>
             <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
             <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </resource>
+    <resource method="POST" path="v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}" returnRequestStatus="true">
+        <call-query href="addSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+            <with-param name="RATE_PLAN_ID" query-param="ratePlanId"/>
+            <with-param name="SUBSCRIPTION_ID" query-param="subscriptionId"/>
+            <with-param name="START_DATE" query-param="startDate"/>
         </call-query>
     </resource>
     <resource method="GET" path="v1/usage/daily-usage">
