@@ -37,7 +37,7 @@ var sendHTTPRequest = function (url, type, headers, data, username, password) {
         return JSON.parse(response);
     } else {
         log.error("HTTP request: response from zuora cannot be null");
-        throw new Error("Response from zuora cannot be null");
+        throw Error("Response from zuora cannot be null");
     }
 };
 %>

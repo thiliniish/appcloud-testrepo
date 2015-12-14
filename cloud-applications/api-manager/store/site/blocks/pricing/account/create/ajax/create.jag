@@ -2,99 +2,59 @@
 include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
 
-var log = new Log("site/block/pricing/account/create/ajax/create.jag");
-var serviceId = session.get("SERVICE_ID");
-var ratePlans = session.get("RATE_PLANS");
-var msg = require("/site/conf/ui-messages.jag");
-var user = jagg.getUser();
+var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
 
 (function () {
-	var mod,result, obj,
-	action = request.getParameter("action"),
-	site = require("/site/conf/site.json");
-	mod = jagg.module("pricing");
-	if (action == "createAccount") {
-		var accountData = {
-		};
-		var metaData = {
-		};
+    var mod, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    mod = jagg.module("pricing");
+    if (action == "createAccount") {
+        var accountData = {};
+        var metaData = {};
 
-		accountData.firstName = request.getParameter("firstName");
-		accountData.lastName = request.getParameter("lastName");
-		accountData.address1 = request.getParameter("address1");
-		accountData.address2 = request.getParameter("address2");
-		accountData.city = request.getParameter("city");
-		accountData.state = request.getParameter("state");
-		accountData.zipCode = request.getParameter("zipCode");
-		accountData.country = request.getParameter("country");
+        accountData.firstName = request.getParameter("firstName");
+        accountData.lastName = request.getParameter("lastName");
+        accountData.address1 = request.getParameter("address1");
+        accountData.address2 = request.getParameter("address2");
+        accountData.city = request.getParameter("city");
+        accountData.state = request.getParameter("state");
+        accountData.zipCode = request.getParameter("zipCode");
+        accountData.country = request.getParameter("country");
         accountData.workEmail = request.getParameter("email");
 
-		metaData.refId = request.getParameter("refId");
-		metaData.signature = request.getParameter("signature");
-		metaData.field_passthrough1 = request.getParameter("field_passthrough1");
-		responseFrom = request.getParameter("responseFrom");
-		var workflowReference = request.getParameter("workflowReference");
-		try {
-				result = mod.createAccount(accountData, metaData, workflowReference);
-			if (result != null) {
-				if (result.error) {
-					var message = result.message;
-					if (message != null) {
-						message = message.replace(message.split(":")[0] + ":", "");
-					} else {
-						var username = user.username;
-						message = msg.error.authError(action, username);
-					}
-					obj = {
-						error:true,
-						message:message
-					};
-				} else {
-					obj = {
-						error:false,
-						status:result.status
-					}
-				}
-				print(obj);
-			} else {
-				print({
-					error:true,
-					statusCode: 500,
-					message: "account creation failure. Please retry...."
-				});
-			}
-		} catch (e) {
-			if(EDIT_USER_INFO == responseFrom){
-				var errorMsg = "Error while updating contact info ";
-				log.error(errorMsg);
-				log.error(e);
-				print({
-					error:true,
-					statusCode: 500,
-					message: errorMsg + " Please retry...."
-				});
-			}if(IS_FROM_CHANGE_PLAN == responseFrom){
-				errorMsg = "Error while changing billing account. ";
-				log.error(errorMsg);
-				log.error(e);
-				print({
-					error:true,
-					statusCode: 500,
-					message: errorMsg + " Please retry...."
-				});
-			}else {
-				errorMsg = "Account creation failure. ";
-				log.error(errorMsg);
-				log.error(e);
-				print({
-					error:true,
-					statusCode: 500,
-					message: errorMsg + " Please retry...."
-				});
-			}
-		}
-	}  else {
-		throw new Error("No action specified");
-	}
+        metaData.refId = request.getParameter("refId");
+        metaData.signature = request.getParameter("signature");
+        metaData.field_passthrough1 = request.getParameter("field_passthrough1");
+        var workflowReference = request.getParameter("workflowReference");
+        try {
+            result = mod.createAccount(accountData, metaData, workflowReference);
+            if (result != null) {
+                print(result);
+            } else {
+                print({
+                    error: true,
+                    statusCode: 500,
+                    message: "account creation failure. Please retry...."
+                });
+            }
+        } catch (e) {
+            var errorMsg = "Account creation failure. ";
+            log.error(errorMsg);
+            log.error(e);
+            print({
+                error: true,
+                statusCode: 500,
+                message: errorMsg + " Please retry...."
+            });
+        }
+    } else {
+        log.error("No action specified..");
+        print({
+            error: true,
+            statusCode: 500,
+            message: "Internal error. No action specified. Please retry..."
+        });
+    }
 }());
 %>

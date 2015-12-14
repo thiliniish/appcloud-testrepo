@@ -1,7 +1,6 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
-//include("/jagg/config_reader.jag");
 
 var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
 (function () {
@@ -9,6 +8,12 @@ var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     mod = jagg.module("pricing");
+    var errorObj = {
+        error: true,
+        statusCode: 500,
+        message: "Internal error. Please retry..."
+    };
+
     if (action == "generateParams") {
         var workflowReference = request.getParameter("workflowReference");
         try {
@@ -17,24 +22,21 @@ var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
                 print(result);
             } else {
                 log.error("Client parameters cannot be null");
-                print({
-                    error: true,
-                    statusCode: 500,
-                    message: "Internal error. please retry.."
-                });
+                print(errorObj);
             }
         } catch (e) {
             log.error("Client parameters cannot be null");
             log.error(e);
-            print({
-                error: true,
-                statusCode: 500,
-                message: "Internal error. please retry.."
-            });
+            print(errorObj);
         }
 
     }  else {
-        throw new Error("No action specified");
+        log.error("No action specified..");
+        print({
+            error: true,
+            statusCode: 500,
+            message: "Internal error. No action specified. Please retry..."
+        });
     }
 }());
 %>
