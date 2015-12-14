@@ -14,10 +14,10 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
     mod = jagg.module("pricing");
 
     if (!user) {
-        if(!ssoEnabled){
+        if (!ssoEnabled) {
             print({
-                error:true,
-                message:msg.error.loginRequired(action)
+                error: true,
+                message: msg.error.loginRequired(action)
             });
         }
         return;
@@ -49,7 +49,7 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
                 print({
                     error: true,
                     statusCode: 500,
-                    message: "account creation failure. Please retry...."
+                    message: "Account creation failure. Please retry...."
                 });
             }
         } catch (e) {

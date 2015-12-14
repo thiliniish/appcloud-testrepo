@@ -18,10 +18,10 @@ var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
     };
 
     if (!user) {
-        if(!ssoEnabled){
+        if (!ssoEnabled) {
             print({
-                error:true,
-                message:msg.error.loginRequired(action)
+                error: true,
+                message: msg.error.loginRequired(action)
             });
         }
         return;
@@ -43,7 +43,7 @@ var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
             print(errorObj);
         }
 
-    }  else {
+    } else {
         log.error("No action specified..");
         print({
             error: true,
