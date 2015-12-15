@@ -1,6 +1,0 @@
-<%
-jagg.initializer("pricing/account/info", {
-    preInitialize: function () {
-    }
-});
-%>

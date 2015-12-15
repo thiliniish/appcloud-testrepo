@@ -11,6 +11,9 @@ var mod = jagg.module("pricing");
     var action = request.getParameter("action");
     var responseObj;
     var user = jagg.getUser();
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
+    var message;
     if (!user) {
         if (!ssoEnabled) {
             print({
@@ -29,17 +32,12 @@ var mod = jagg.module("pricing");
         try {
             var methodId = request.getParameter("paymentMethodId");
             var result = mod.removePaymentMethod(methodId);
-            responseObj = {
-                error: false,
-                message: result,
-                statusCode: 200
-            };
-            print(responseObj);
+            print(result);
         } catch (e) {
-            var msg = "Error while removing the payment method";
+            var message = "Error while removing the payment method";
             responseObj = {
                 error: true,
-                message: msg,
+                message: message,
                 statusCode: 500
             };
             print(responseObj);

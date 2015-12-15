@@ -11,13 +11,7 @@ var COMMON_ERROR_MESSAGE = "An error occurred while processing the request. Plea
 var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
 
 var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
-var MONTHLY_SUBSCRIPTION_CHARGE_NAME ="Monthly subscription fee";
-
-//HTTP Request related constants
-var CONTENT_TYPE = "Content-Type";
-var API_ACCESS_KEY_ID = "apiAccessKeyId";
-var API_SECRECT_ACCESS_KEY = "apiSecretAccessKey";
-var JSON_CONTENT_TYPE = "application/json";
+var MONTHLY_SUBSCRIPTION_CHARGE_NAME = "Monthly subscription fee";
 
 //invoice object related constants
 var ACCOUNT_NAME = "accountName";

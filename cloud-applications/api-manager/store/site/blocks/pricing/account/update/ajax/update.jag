@@ -9,7 +9,10 @@ var mod = jagg.module("pricing");
     var result,
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
-    var responseObject,msg;
+    var responseObject;
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
+    var message;
     var user = jagg.getUser();
     if (!user) {
         if (!ssoEnabled) {
@@ -35,10 +38,10 @@ var mod = jagg.module("pricing");
         var result = mod.updateContactInfo(accountData);
         print(result);
     } else {
-        msg = "Invalid Action specified for action " + action;
+        message = "Invalid Action specified for action " + action;
         responseObj = {
             error: true,
-            message: msg,
+            message: message,
             statusCode: 500
         };
         print(responseObj);
