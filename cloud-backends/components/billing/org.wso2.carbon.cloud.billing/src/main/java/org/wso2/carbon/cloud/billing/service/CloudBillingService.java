@@ -39,6 +39,7 @@ import org.wso2.carbon.core.AbstractAdmin;
 public class CloudBillingService extends AbstractAdmin {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingService.class);
+
     /**
      * Retrieve cloud billing configuration as a json string
      *
@@ -65,7 +66,7 @@ public class CloudBillingService extends AbstractAdmin {
             return CloudBillingServiceUtils.getSubscriptions(serviceSubscriptionId);
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving subscriptions for Id: " +
-                                            serviceSubscriptionId, ex);
+                    serviceSubscriptionId, ex);
         }
     }
 
@@ -83,7 +84,7 @@ public class CloudBillingService extends AbstractAdmin {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving the account summary for Account Id: "
-                                            + accountId, ex);
+                    + accountId, ex);
         }
     }
 
@@ -101,7 +102,7 @@ public class CloudBillingService extends AbstractAdmin {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving invoices for Account Id: " + accountId,
-                                            ex);
+                    ex);
         }
     }
 
@@ -119,7 +120,7 @@ public class CloudBillingService extends AbstractAdmin {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving payments for Account Id: " + accountId,
-                                            ex);
+                    ex);
         }
     }
 
@@ -137,12 +138,12 @@ public class CloudBillingService extends AbstractAdmin {
                                                               String endDate) throws CloudBillingException {
         try {
             return CloudBillingServiceUtils.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate,
-                                                                                endDate);
+                    endDate);
         } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving usage data of tenant: " + tenantDomain
-                                            + "for product: " + productName);
+                    + "for product: " + productName);
         }
     }
 
@@ -178,7 +179,7 @@ public class CloudBillingService extends AbstractAdmin {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving subscription id for tenant: " +
-                                            tenantDomain);
+                    tenantDomain);
         }
     }
 
@@ -194,12 +195,12 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
             return (accountId != null && !accountId.isEmpty()) ?
-                   ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) : null;
+                    ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) : null;
         } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving the current rate plan of the tenant: "
-                                            + tenantDomain + " for subscription: " + productName);
+                    + tenantDomain + " for subscription: " + productName);
         }
     }
 
@@ -267,7 +268,7 @@ public class CloudBillingService extends AbstractAdmin {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while retrieving product rate plans for product: "
-                                            + productName);
+                    + productName);
         }
     }
 
@@ -284,7 +285,7 @@ public class CloudBillingService extends AbstractAdmin {
             return CloudBillingServiceUtils.validateRatePlanId(serviceId, productRatePlanId);
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while validating the rate plan: " + productRatePlanId
-                                            + " for service: " + serviceId);
+                    + " for service: " + serviceId);
         }
     }
 
@@ -315,7 +316,7 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * Add parent to the account.
      *
-     * @param childAccountNo child account name
+     * @param childAccountNo  child account name
      * @param parentAccountNo parent account no
      * @return json object in String
      * {
@@ -356,7 +357,7 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             JsonObject result = CloudBillingServiceUtils.addAccountParent(childAccountNo, parentAccountNo);
             return result.toString();
-        }catch (CloudBillingException ex) {
+        } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new CloudBillingException("Error occurred while adding parent to the account : ", ex);
@@ -366,7 +367,7 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * Create child account
      *
-     * @param tenantDomain tenant domain
+     * @param tenantDomain    tenant domain
      * @param accountInfoJson child account information in json
      * {
      *     "autoPay": true,
@@ -425,14 +426,14 @@ public class CloudBillingService extends AbstractAdmin {
      * }
      * @throws CloudBillingException
      */
-    public String createChildAccount(String tenantDomain, String accountInfoJson) throws CloudBillingException{
+    public String createChildAccount(String tenantDomain, String accountInfoJson) throws CloudBillingException {
         try {
             JsonObject result = CloudBillingServiceUtils.createChildAccount(tenantDomain, accountInfoJson);
             return result.toString();
-        }catch (CloudBillingException ex) {
+        } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while creating child account under tenant: "+ tenantDomain, ex);
+            throw new CloudBillingException("Error occurred while creating child account under tenant: " + tenantDomain, ex);
         }
     }
 
@@ -457,10 +458,10 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             JsonObject result = CloudBillingServiceUtils.deleteAccount(accountName);
             return result.toString();
-        }catch (CloudBillingException ex) {
+        } catch (CloudBillingException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while deleting account: "+ accountName, ex);
+            throw new CloudBillingException("Error occurred while deleting account: " + accountName, ex);
         }
     }
 }
