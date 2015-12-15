@@ -174,7 +174,7 @@ public final class BillingConstants {
     public static final String PARAM_ZUORA_PRODUCT_NAME = "zuoraProductName";
     public static final String PARAM_RATE_PLAN_NAME = "ratePlanName";
     public static final String PARAM_RATE_PLAN_ID = "ratePlanId";
-    public static final String PARAM_SUBSCRIPTION_ID = "subscriptionId";
+    public static final String PARAM_SUBSCRIPTION_NUMBER = "subscriptionNumber";
     public static final String PARAM_START_DATE = "startDate";
     public static final String PARAM_TENANT = "tenant";
 

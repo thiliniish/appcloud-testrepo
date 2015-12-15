@@ -182,8 +182,8 @@ public final class APICloudMonetizationUtils {
             NameValuePair[] nameValuePairs = new NameValuePair[]{
                     new NameValuePair(BillingConstants.PARAM_RATE_PLAN_ID, apiDataObj.get(BillingConstants
                             .PARAM_RATE_PLAN_ID).getAsString()),
-                    new NameValuePair(BillingConstants.PARAM_SUBSCRIPTION_ID, apiDataObj.get(BillingConstants
-                            .PARAM_SUBSCRIPTION_ID).getAsString()),
+                    new NameValuePair(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, apiDataObj.get(BillingConstants
+                            .PARAM_SUBSCRIPTION_NUMBER).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_START_DATE, effectiveDate.trim())
             };
 

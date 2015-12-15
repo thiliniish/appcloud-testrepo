@@ -387,7 +387,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
             updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
                     createChildResObj.accountNumber);
             if (updateSubscriberResult) {
-                apiData.subscriptionId = createChildResObj.subscriptionId;
+                apiData.subscriptionNumber = createChildResObj.subscriptionNumber;
                 apiData.ratePlanId = ratePlanId;
                 var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
                 var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
