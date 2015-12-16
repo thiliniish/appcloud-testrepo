@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.cloud.billing.service;
 
+import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
@@ -172,5 +173,30 @@ public class APICloudMonetizationService {
     public boolean addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
                                              String effectiveDate) throws CloudMonetizationException {
         return APICloudMonetizationUtils.addSubscriptionInformation(tenantDomain, accountNumber, apiData, effectiveDate);
+    }
+
+    /**
+     *
+     * @param tenantDomain tenant domain
+     * @param userId user id
+     * @param api api name with version
+     * @param version api version
+     * @param applicationName application name
+     * @param startDate date range - start date
+     * @param endDate date range - end date
+     * @return
+     * @throws CloudMonetizationException
+     */
+    public JSONObject getTenantMonetizationUsageDataForGivenDateRange(String tenantDomain, String userId, String api, String version,  String applicationName,
+            String startDate, String endDate) throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils
+                    .getTenantMonetizationUsageDataForGivenDateRange(tenantDomain, userId, api, version, applicationName, startDate, endDate);
+        } catch (CloudMonetizationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new CloudMonetizationException(
+                    "Error occurred while retrieving monetization usage data of tenant: " + tenantDomain);
+        }
     }
 }
