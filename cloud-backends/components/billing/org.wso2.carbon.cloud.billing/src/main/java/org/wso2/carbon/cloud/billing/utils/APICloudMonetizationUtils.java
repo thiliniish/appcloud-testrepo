@@ -236,7 +236,7 @@ public final class APICloudMonetizationUtils {
                             CloudBillingUtils.encodeUrlParam("%@" + tenantDomain));
                 } else {
                     //Usage of api A1 by all users 
-                    url = usageOfApiUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_API,
+                    url = usageOfApiUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
                             CloudBillingUtils.encodeUrlParam(api))
                             .replace(MonetizationConstants.RESOURCE_IDENTIFIER_VERSION,
                                     CloudBillingUtils.encodeUrlParam(version));
@@ -258,18 +258,18 @@ public final class APICloudMonetizationUtils {
                         String encodedVersion = CloudBillingUtils.encodeUrlParam(version);
                         url = usageOfApiBySubscriberUrl
                                 .replace(MonetizationConstants.RESOURCE_IDENTIFIER_SUBSCRIBER_ID, encodedSubId)
-                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API, encodedApi)
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, encodedApi)
                                 .replace(MonetizationConstants.RESOURCE_IDENTIFIER_VERSION, encodedVersion);
                     } else {
                         //Usage of api A1 by Subscriber S1 for application App1
                         url = usageOfApiByApplicationBySubscriberUrl
                                 .replace(MonetizationConstants.RESOURCE_IDENTIFIER_SUBSCRIBER_ID,
                                         CloudBillingUtils.encodeUrlParam(subscriberId))
-                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API,
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
                                         CloudBillingUtils.encodeUrlParam(api))
                                 .replace(MonetizationConstants.RESOURCE_IDENTIFIER_VERSION,
                                         CloudBillingUtils.encodeUrlParam(version))
-                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APPLICATION,
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
                                         CloudBillingUtils.encodeUrlParam(applicationName));
                     }
                 }
