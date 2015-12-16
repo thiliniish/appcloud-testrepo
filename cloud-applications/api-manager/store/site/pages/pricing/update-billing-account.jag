@@ -8,6 +8,8 @@ var localeResourcesBasePath = "/site/conf/locales/jaggery/";
 i18n.init(request, localeResourcesBasePath);
 var tenantDomain = jagg.getTenantDomain();
 
+
+
 (function () {
     var user = jagg.getUser(), isCreatePermitted;
     isTenantAllowed();
@@ -15,7 +17,6 @@ var tenantDomain = jagg.getTenantDomain();
         response.sendRedirect(getRedirectPathForNonAuthenticatedUser());
         return;
     }
-
 
     jagg.render({
         "name": "page/base",
@@ -37,7 +38,7 @@ var tenantDomain = jagg.getTenantDomain();
                             }
                         ],
                         "middle": {
-                            "name": "pricing/payment-method/info"
+                            "name": "pricing/account/update"
                         }
                     }
                 }

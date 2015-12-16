@@ -1,0 +1,37 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("site.blocks.pricing.account.info.ajax.get.jag");
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("pricing");
+
+(function () {
+    var action = request.getParameter("action");
+    var user = jagg.getUser();
+    var mod = jagg.module("pricing");
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
+    var message;
+    var responseObj;
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+    if (action == "get-billing-account") {
+        print(mod.getAccountDetails());
+    } else {
+        message = "Invalid Action specified for action " + action;
+        responseObj = {
+            error: true,
+            message: message,
+            statusCode: 500
+        };
+        print(responseObj);
+    }
+}());
+%>

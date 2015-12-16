@@ -3,15 +3,33 @@ var carbon = require('carbon');
 var server = carbon.server;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var user = jagg.getUser().username;
+var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+var tenantDomain = multiTenantUtils.getTenantDomain(user);
 
 var mdAlgorithm = "SHA-512";
-
 
 var getConfigInJson = function () {
     try {
         return JSON.parse(billingService.getConfigInJson());
     } catch (e) {
         log.error("Error while getting the billing configurations as JSON");
+        throw e;
+    }
+};
+
+var zuoraObj = (getConfigInJson()).zuoraConfig;
+var getCurrencyUsed = function () {
+    return zuoraObj.currency;
+};
+
+var getAccountId = function () {
+    try {
+        var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(user, tenantDomain));
+        var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
+        return accountNumber;
+    } catch (e) {
+        log.error("ERROR while getting the account number for : " + user + " - " + e.message);
         throw e;
     }
 };
