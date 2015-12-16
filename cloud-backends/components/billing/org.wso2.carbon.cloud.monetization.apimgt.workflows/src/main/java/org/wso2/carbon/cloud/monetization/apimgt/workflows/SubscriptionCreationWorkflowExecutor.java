@@ -56,6 +56,16 @@ import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.APPROVED;
  * API Cloud monetization specific subscription creation workflow
  * Check if monetization is enabled for tenant: this workflow should only be deployed for monetization
  * enabled tenants. Once they enable monetization for a tenant, this workflow should be automatically deployed
+ *
+ * Add the configuration to
+ * /_system/governance/apimgt/applicationdata/workflow-extensions.xml
+ *
+ * ex config:
+ *    <SubscriptionCreation executor="org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionCreationWorkflowExecutor">
+ *         <Property name="serviceEndpoint">https://milestones.appfactory.wso2.com:9443/services/APICloudMonetizationService/</Property>
+ *         <Property name="username">rajith.siriw.ardana.gmail.com@mustanggt350</Property>
+ *         <Property name="password">Admin</Property>
+ *    </SubscriptionCreation>
  */
 public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
 
@@ -129,7 +139,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                         (ACCOUNT_NUMBER_PROPERTY).getAsString() : null;
                 httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
                 if (StringUtils.isNotBlank(accountNumber)) {
-                    //TODO redirecting to create the subscription
+                    //TODO redirecting after creating the subscription
                     httpworkflowResponse.setRedirectUrl("http://www.google.lk/");
                     return httpworkflowResponse;
                 } else {
