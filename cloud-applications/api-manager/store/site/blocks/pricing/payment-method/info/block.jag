@@ -1,0 +1,7 @@
+<%
+jagg.block("pricing/payment-method/info", {
+	initialize:function (data) {
+
+	}
+});
+%>

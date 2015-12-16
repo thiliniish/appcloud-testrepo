@@ -1,13 +1,40 @@
 <%
 jagg.module("pricing", {
-    generateParams:function () {
+    generateParams: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").generateParams.apply(this, arguments);
     },
-    isMonetizationEnabled:function () {
+    isMonetizationEnabled: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").isMonetizationEnabled.apply(this, arguments);
     },
-    createAccount:function () {
+    createAccount: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").createAccount.apply(this, arguments);
+    },
+    getTenantUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getTenantUsage.apply(this, arguments);
+    },
+    getAccountId: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAccountId.apply(this, arguments);
+    },
+    getAllPaymentMethods: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAllPaymentMethods.apply(this, arguments);
+    },
+    updateDefaultPaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").updateDefaultPaymentMethod.apply(this, arguments);
+    },
+    removePaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").removePaymentMethod.apply(this, arguments);
+    },
+    getBillingInvoiceData: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getBillingInvoiceData.apply(this, arguments);
+    },
+    updateContactInfo: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").updateContactInfo.apply(this, arguments);
+    },
+    getAccountDetails: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAccountDetails.apply(this, arguments);
+    },
+    getCurrencyUsed: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getCurrencyUsed.apply(this, arguments);
     }
 });
 %>
