@@ -39,11 +39,21 @@ var getAccountDetails = function () {
     try {
         var accountId = getAccountId();
         var summary = billingService.getAccountSummary(accountId);
-        return {
-            error: false,
-            message: summary,
-            statusCode: 200
-        };
+        if (JSON.parse(summary.trim()).success) {
+            return {
+                error: false,
+                message: summary,
+                statusCode: 200
+            };
+        } else {
+            log.error("Get zuora account info failed. Error : " + JSON.stringify(response.reasons));
+            msg = "Getting account information failed .. Please retry ";
+            return {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+        }
     } catch (e) {
         msg = "Error while getting account details.. Please retry ";
         log.error("ERROR while getting account details for : " + user + " - " + e.message);
@@ -66,7 +76,7 @@ var updateContactInfo = function (accountData) {
         var username = zuoraObj.user;
         var password = zuoraObj.password;
         var response = sendHTTPRequest(url, "PUT", null, data, username, password);
-        if (response.success === true) {
+        if (response.success) {
             return {
                 error: false,
                 message: "Your contact information is successfully added",
@@ -99,7 +109,7 @@ var removePaymentMethod = function (methodId) {
         var username = zuoraObj.user;
         var password = zuoraObj.password;
         var result = sendHTTPRequest(url, "DELETE", null, null, username, password);
-        if (result.success === true) {
+        if (result.success) {
             return {
                 error: false,
                 message: result,
@@ -130,11 +140,11 @@ var getAllPaymentMethods = function () {
     try {
         var accountId = getAccountId();
         var zuoraServiceUrl = zuoraObj.serviceUrl;
-        var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_GET_ALL_PAYMENT_METHODS + "/" + accountId;
+        var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS + "/" + accountId;
         var username = zuoraObj.user;
         var password = zuoraObj.password;
         var summary = sendHTTPRequest(url, "GET", null, null, username, password);
-        if (summary.success === true) {
+        if (summary.success) {
             return {
                 error: false,
                 message: summary,
@@ -171,7 +181,7 @@ var updateDefaultPaymentMethod = function (methodId) {
         var username = zuoraObj.user;
         var password = zuoraObj.password;
         var response = sendHTTPRequest(url, "PUT", null, data, username, password);
-        if (response.success === true) {
+        if (response.success) {
             return {
                 error: false,
                 message: response.success,
@@ -205,50 +215,60 @@ var getBillingInvoiceData = function (invoiceId) {
         var accountId = getAccountId();
         var summary = billingService.getInvoices(accountId);
         var invoiceObj = JSON.parse(summary);
-        var invoices = invoiceObj.invoices;
-        for (var index = 0; index < invoices.length; index++) {
-            if (invoiceId == invoices[index].id) {
-                var invoiceItems = invoices[index].invoiceItems;
+        if (invoiceObj.success) {
+            var invoices = invoiceObj.invoices;
+            for (var index = 0; index < invoices.length; index++) {
+                if (invoiceId == invoices[index].id) {
+                    var invoiceItems = invoices[index].invoiceItems;
 
-                var invoiceData = {};
+                    var invoiceData = {};
 
-                invoiceData[ACCOUNT_NAME] = invoices[index].accountName;
-                invoiceData[INVOICE_DATE] = invoices[index].invoiceDate;
-                invoiceData[INVOICE_NUMBER] = invoices[index].invoiceNumber;
-                invoiceData[AMOUNT] = invoices[index].amount;
-                invoiceData[INVOICE_ITEMS] = [];
+                    invoiceData[ACCOUNT_NAME] = invoices[index].accountName;
+                    invoiceData[INVOICE_DATE] = invoices[index].invoiceDate;
+                    invoiceData[INVOICE_NUMBER] = invoices[index].invoiceNumber;
+                    invoiceData[AMOUNT] = invoices[index].amount;
+                    invoiceData[INVOICE_ITEMS] = [];
 
-                for (var i = 0; i < invoiceItems.length; i++) {
-                    var item = {};
-                    var invoiceItem = invoiceItems[i];
-                    if (invoiceItem.chargeName == MONTHLY_SUBSCRIPTION_CHARGE_NAME) {
-                        item[CHARGE_NAME] = invoiceItem.chargeName;
-                        item[AMOUNT] = invoiceItem.chargeAmount;
-                        item[SERVIVICE_PERIOD] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
-                        item[CHARGE_DATE] = invoices[index].invoiceDate;
-                        //if next invoice item is not in the next billing cycle
-                        if ((i + 1) < invoiceItems.length && invoiceItems[i + 1].chargeName == DISCOUNT_CHARGE_NAME) {
-                            item[DISCOUNT] = invoiceItems[i + 1].chargeAmount;
+                    for (var i = 0; i < invoiceItems.length; i++) {
+                        var item = {};
+                        var invoiceItem = invoiceItems[i];
+                        if (invoiceItem.chargeName == MONTHLY_SUBSCRIPTION_CHARGE_NAME) {
+                            item[CHARGE_NAME] = invoiceItem.chargeName;
+                            item[AMOUNT] = invoiceItem.chargeAmount;
+                            item[SERVIVICE_PERIOD] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
+                            item[CHARGE_DATE] = invoices[index].invoiceDate;
+                            //if next invoice item is not in the next billing cycle
+                            if ((i + 1) < invoiceItems.length && invoiceItems[i + 1].chargeName == DISCOUNT_CHARGE_NAME) {
+                                item[DISCOUNT] = invoiceItems[i + 1].chargeAmount;
+                            }
+                            else {
+                                item[DISCOUNT] = 0.0;
+                            }
                         }
                         else {
+                            item[CHARGE_NAME] = invoiceItem.chargeName;
+                            item[AMOUNT] = invoiceItem.chargeAmount;
+                            item[SERVIVICE_PERIOD] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
+                            item[CHARGE_DATE] = invoices[index].invoiceDate;
                             item[DISCOUNT] = 0.0;
                         }
+                        invoiceData[INVOICE_ITEMS].push(item);
                     }
-                    else {
-                        item[CHARGE_NAME] = invoiceItem.chargeName;
-                        item[AMOUNT] = invoiceItem.chargeAmount;
-                        item[SERVIVICE_PERIOD] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
-                        item[CHARGE_DATE] = invoices[index].invoiceDate;
-                        item[DISCOUNT] = 0.0;
-                    }
-                    invoiceData[INVOICE_ITEMS].push(item);
+                    return {
+                        error: false,
+                        message: invoiceData,
+                        statusCode: 200
+                    };
                 }
-                return {
-                    error: false,
-                    message: invoiceData,
-                    statusCode: 200
-                };
             }
+        } else {
+            log.error("Error getting billing invoice data. Error : " + JSON.stringify(response.reasons));
+            msg = "Error getting billing invoice data.. Please retry ";
+            return {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
         }
     } catch (e) {
         msg = "Error while updating payment methods";
