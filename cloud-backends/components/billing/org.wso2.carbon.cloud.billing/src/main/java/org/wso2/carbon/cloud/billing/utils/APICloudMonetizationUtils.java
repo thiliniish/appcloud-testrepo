@@ -252,7 +252,6 @@ public final class APICloudMonetizationUtils {
                 } else {
                     if ("*".equals(applicationName)) {
                         //Usage of api A1 by Subscriber S1 for all applications
-
                         String encodedSubId = CloudBillingUtils.encodeUrlParam(subscriberId);
                         String encodedApi = CloudBillingUtils.encodeUrlParam(api);
                         String encodedVersion = CloudBillingUtils.encodeUrlParam(version);
