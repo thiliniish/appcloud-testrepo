@@ -61,9 +61,7 @@ public class CloudUserEmailCache {
                 for (int i = 1; i < elements.length; ++i) {
                     traceString += elements[i] + System.getProperty("line.separator");
                 }
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("USER_EMAIL_CACHE doesn't exist in CacheManager : \n" + traceString);
-                }
+                LOGGER.debug("USER_EMAIL_CACHE doesn't exist in CacheManager : \n" + traceString);
             }
             return true;
         }
