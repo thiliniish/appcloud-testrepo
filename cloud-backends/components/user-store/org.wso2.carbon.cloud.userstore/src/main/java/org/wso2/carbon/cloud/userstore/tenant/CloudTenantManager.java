@@ -107,8 +107,8 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
                     get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
             //************ Cloud Specific Implementation ******************
             //eg: ou=users, dc=wso2,dc=com
-            String dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME + "," + partitionDN;
-//            String dnOfUserContext = orgSubContextAttribute + "=user" + "," + partitionDN;
+//            String dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME + "," + partitionDN;
+            String dnOfUserContext = orgSubContextAttribute + "=user" + "," + partitionDN;
             //*************************************************************
             String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
 
