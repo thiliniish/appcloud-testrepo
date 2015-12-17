@@ -235,7 +235,7 @@ public final class APICloudMonetizationUtils {
                     url = usageOfTenantUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
                             CloudBillingUtils.encodeUrlParam("%@" + tenantDomain));
                 } else {
-                    //Usage of api A1 by all users 
+                    //Usage of api A1 by all users
                     url = usageOfApiUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
                             CloudBillingUtils.encodeUrlParam(api))
                             .replace(MonetizationConstants.RESOURCE_IDENTIFIER_VERSION,

@@ -335,6 +335,8 @@
          <with-param name="SUB_STATUS" query-param="subStatus"/>
       </call-query>
    </resource>
+  <!-- To do with dss update -->
+  <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}/apis/{api}/{version}/applications/{application}" -->
   <resource method="GET" path="v1/usage/subscriber-application-api/{subscriberId}/{application}/{api}/{version}">
       <call-query href="getUsageOfSubscriberForApiByApplicationQ">
          <with-param name="USER_ID" query-param="subscriberId"/>
@@ -345,6 +347,7 @@
          <with-param name="VERSION" query-param="version"/>
       </call-query>
    </resource>
+   <!--path="v1/usage/tenants/{tenant}/apis/{api}/{version}" -->
    <resource method="GET" path="v1/usage/apis/{api}/{version}">
       <call-query href="getUsageOfApiQ">
          <with-param name="API" query-param="api"/>
@@ -354,6 +357,7 @@
          <with-param name="END_DATE" query-param="endDate"/>
       </call-query>
    </resource>
+   <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}" -->
    <resource method="GET" path="v1/usage/subscribers/{subscriberId}">
       <call-query href="getSubscriberUsageQ">
          <with-param name="USER_ID" query-param="subscriberId"/>
@@ -368,6 +372,7 @@
          <with-param name="END_DATE" query-param="endDate"/>
       </call-query>
    </resource>
+   <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}/apis/{api}/{version}" -->
    <resource method="GET" path="v1/usage/subscriber-api/{subscriberId}/{api}/{version}">
       <call-query href="getUsageOfSubscriberForApi">
          <with-param name="API" query-param="api"/>
