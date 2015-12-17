@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.cloud.userstore.config;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.TenantMgtConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -38,8 +36,6 @@ import java.util.Map;
  */
 
 public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
-
-    private static final Log LOGGER = LogFactory.getLog(CloudRealmConfigBuilder.class);
 
     @Override
     public RealmConfiguration getRealmConfigForTenantToPersist(RealmConfiguration bootStrapConfig,
@@ -70,9 +66,9 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
             String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties()
                     .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
             //************ Cloud Specific Implementation ******************
-//            String userContextRDN = orgSubContextAttribute + "=" +
-//                    LDAPConstants.USER_CONTEXT_NAME;
-            String userContextRDN = orgSubContextAttribute + "=user" ;
+            String userContextRDN = orgSubContextAttribute + "=" +
+                    LDAPConstants.USER_CONTEXT_NAME;
+//            String userContextRDN = orgSubContextAttribute + "=user" ;
             //eg: ou=users,dc=cloud, dc=com
             String userSearchBase = userContextRDN + "," + partitionDN;
             //*************************************************************
@@ -138,9 +134,6 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration " +
                     "to be persisted for tenant id : " + tenantId;
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(errorMessage, e);
-            }
             throw new UserStoreException(errorMessage, e);
         }
     }

@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.cloud.userstore;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreManager;
@@ -38,8 +36,6 @@ import java.util.Set;
  * Custom LDAP based user store implementation for cloud.
  */
 public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
-
-    private static final Log LOGGER = LogFactory.getLog(CloudUserStoreManager.class);
 
     public CloudUserStoreManager() {
     }
@@ -91,8 +87,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
                 users.addAll(Arrays.asList(usersInRole));
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String msg = "Unable to list users.";
-            LOGGER.error(msg, e);
+            String msg = "Unable to list users for the search filter : " + searchFilter;
             throw new UserStoreException(msg, e);
         }
 

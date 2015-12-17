@@ -81,14 +81,17 @@
                             org.wso2.carbon.cloud.userstore.*;version="1.0.0"
                         </Export-Package>
                         <Import-Package>
-                            !javax.xml.namespace,
+                            org.osgi.framework.*,
+                            org.osgi.service.component.*,
                             org.wso2.carbon.utils.*,
+                            org.wso2.carbon.user.core.*,
+                            org.wso2.carbon.user.api.*,
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             org.apache.commons.logging.*,
+                            javax.cache.*,
+                            javax.sql.*,
                             javax.naming.*,
-                            javax.xml.stream.*; version="1.0.1",
                             javax.xml.namespace; version=0.0.0,
-                            *;resolution:=optional
                         </Import-Package>
                     </instructions>
                 </configuration>
