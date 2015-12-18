@@ -97,7 +97,7 @@ function enableButton(ischecked){
 	    }
 	}
 }
-function getBlockedSubscriptions(){
+function getBlockedSubscriptions() {
     var blockedSubs;
     jagg.syncPost("../blocks/tenant/users/add/ajax/add.jag", {
         action:"getBlockedSubscriptions"
@@ -107,11 +107,11 @@ function getBlockedSubscriptions(){
     });
    return blockedSubs; 
 }
-function updatePopupUserRoles(){
+function updatePopupUserRoles() {
     var type = <%=type%>;
 	var $jsroleAssignPopupForm = $('#jsroleAssignPopupForm');
 	var $jsroleAssign ='';
-	var blockSubscriptions= getBlockedSubscriptions();
+	var blockSubscriptions = getBlockedSubscriptions();
 	//getting the roles of each subscriptions
 	for(var i=0;i < type.length;i++){
 		if(blockSubscriptions.indexOf(type[i].id) <0 || blockSubscriptions==null){

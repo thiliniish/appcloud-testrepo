@@ -16,19 +16,26 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.apimgt.apideletion.util;
+package org.wso2.carbon.cloud.userstore.internal;
 
-/**
- * Represents the constants used in the component
- */
-public final class ApiDeleterConstants {
+import org.wso2.carbon.user.core.service.RealmService;
 
-    private ApiDeleterConstants() {
+public class ServiceDataHolder {
+    private static final ServiceDataHolder SERVICE_DATA_HOLDER = new ServiceDataHolder();
+    private RealmService realmService;
+
+    private ServiceDataHolder() {
     }
 
-    public static final String TENANT_FILE = "tenantFile";
-    public static final String API = "api";
-    public static final String NAP_TIME = "napTime";
-    public static final String AT_SYMBOL = "@";
+    public static ServiceDataHolder getInstance() {
+        return SERVICE_DATA_HOLDER;
+    }
 
+    public RealmService getRealmService() {
+        return realmService;
+    }
+
+    public void setRealmService(RealmService realmService) {
+        this.realmService = realmService;
+    }
 }

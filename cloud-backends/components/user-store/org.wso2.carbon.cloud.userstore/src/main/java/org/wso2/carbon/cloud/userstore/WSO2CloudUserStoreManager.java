@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
-    private static Log log = LogFactory.getLog(WSO2CloudUserStoreManager.class);
+    private static final Log LOGGER = LogFactory.getLog(WSO2CloudUserStoreManager.class);
     private static CloudUserEmailCache cloudUserEmailCache = CloudUserEmailCache.getInstance();
     private static final String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
 
@@ -108,7 +108,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
-        if (newCredential != null && !newCredential.equals("")) {
+        if (newCredential != null && !"".equals(newCredential)) {
             super.doUpdateCredentialByAdmin(doConvert(userName), newCredential);
         }
     }
@@ -166,13 +166,13 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
     @Override
     public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
-        userName = doConvert(userName);
-        if (!(isUserInRole(userName, "default")) && (getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
+        String convertedUserName = doConvert(userName);
+        if (!(isUserInRole(convertedUserName, "default")) && (getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
             String[] roles = { "default" };
-            updateRoleListOfUser(userName, null, roles);
-            log.info("Default Role assigned for user : " + userName);
+            updateRoleListOfUser(convertedUserName, null, roles);
+            LOGGER.info("Default Role assigned for user : " + convertedUserName);
         }
-        return super.doAuthenticate(userName, credential);
+        return super.doAuthenticate(convertedUserName, credential);
     }
 
     @Override
@@ -330,7 +330,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
             cloudUserEmailCache.addToCache(userName, email);
             return email;
         } else {
-            log.warn("Email is null for user : " + userName);
+            LOGGER.warn("Email is null for user : " + userName);
         }
         return userName;
     }

@@ -76,14 +76,9 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
 var getConfirmationEmail = function(confirm){
     try {
         var queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
-        var tempUserDataQueryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_REGISTRATION;
         var parameters = [confirm];
-        var tempUserData = jagg.module("database").executeQuery(tempUserDataQueryString, parameters);
         var results = jagg.module("database").executeQuery(queryString, parameters);
         var email = null;
-
-        //to check if there exists a record for the confirmation code.
-        if (tempUserData.length >= 1) {
             if (results.length >= 1) {
                 email = results[0]["email"];
                 var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
@@ -91,11 +86,8 @@ var getConfirmationEmail = function(confirm){
                 var results = jagg.module("database").executeQuery(deleteString, parameters);
                 log.info("Confirmation Email: " + email);
             } else {
-                log.error("Error while getting confirmation email: " + confirm + ". Email value is not available");
+                log.error("No temporary record for confirmation code: " + confirm);
             }
-        } else {
-            log.error("No temporary record for confirmation code: " + confirm);
-        }
     return email;
     } catch (e) {
         log.error("Error while getting confirmation email: " + confirm);
@@ -426,13 +418,13 @@ var sendInvite = function (email, token) {
             var page = "Rightwave";
             var item = type;
             var events = [];
-            if (msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                actionString = actionString + "Success";
-                log.info("Rightwave cloud signup api call success for the user " + email);
-            } else {
-                actionString = actionString + "Failed";
-                log.error("Rightwave cloud signup api call failed for the user " + email + " : " + msg);
-            }
+                if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                    actionString = actionString + "Success";
+                    log.info("Rightwave cloud signup api call success for the user " + email);
+                } else {
+                    actionString = actionString + "Failed";
+                    log.error("Rightwave cloud signup api call failed for the user " + email + " : " + msg);
+                }
             var event = {};
             event.item = item;
             event.timestamp = new Date().getTime();

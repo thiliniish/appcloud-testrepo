@@ -109,7 +109,7 @@ function generateResponse() {
                     }
               },
               function (jqXHR, textStatus, errorThrown) {
-                 jagg.message({content:COMMON_ERROR_MESSAGE, type:'error',cbk:function(){
+                 jagg.message({content:COMMON_ERROR_MESSAGE, type:'error', cbk:function() {
             		window.location.href = "index.jag";
                   	}
                   });

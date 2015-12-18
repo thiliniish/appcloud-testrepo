@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.userstore.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.userstore.CloudUserStoreManager;
 import org.wso2.carbon.cloud.userstore.WSO2CloudUserStoreManager;
@@ -27,41 +28,41 @@ import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 
 /**
- * @scr.component name="cloud.user.store.manager.dscomponent" immediate=true
- * @scr.reference name="user.realmservice.default"
+ * @scr.component name="cloud.user.store.manager.component" immediate=true
+ * @scr.reference name="realm.service"
  * interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
  */
-public class CloudUserStoreDSComponent {
-    private static Log log = LogFactory.getLog(CloudUserStoreDSComponent.class);
-    private static RealmService realmService;
+public class CloudUserStoreComponent {
+    private static final Log LOGGER = LogFactory.getLog(CloudUserStoreComponent.class);
 
-    protected void activate(ComponentContext ctxt) {
+    private ServiceRegistration cloudUserStore;
+    private ServiceRegistration wso2CloudUserStore;
+
+    protected void activate(ComponentContext context) {
         UserStoreManager cloudUserStoreManager = new CloudUserStoreManager();
-        ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), cloudUserStoreManager, null);
+        cloudUserStore = context.getBundleContext().registerService(UserStoreManager.class.getName(), cloudUserStoreManager, null);
 
         UserStoreManager wSO2CloudUserStoreManager = new WSO2CloudUserStoreManager();
-        ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), wSO2CloudUserStoreManager, null);
+        wso2CloudUserStore = context.getBundleContext().registerService(UserStoreManager.class.getName(), wSO2CloudUserStoreManager, null);
 
-        log.info("CloudUserStoreDSComponent bundle activated successfully.");
+        LOGGER.info("CloudUserStoreComponent bundle activated successfully.");
     }
 
-    protected void deactivate(ComponentContext ctxt) {
-        if (log.isDebugEnabled()) {
-            log.debug("CloudUserStoreDSComponent is deactivated ");
+    protected void deactivate(ComponentContext context) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("CloudUserStoreComponent is deactivated ");
         }
+        this.cloudUserStore.unregister();
+        this.wso2CloudUserStore.unregister();
     }
 
-    protected RealmService getRealmService() {
-        return realmService;
-    }
-
-    protected void setRealmService(RealmService rlmService) {
-        realmService = rlmService;
+    protected void setRealmService(RealmService realmService) {
+        ServiceDataHolder.getInstance().setRealmService(realmService);
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        realmService = null;
+        ServiceDataHolder.getInstance().setRealmService(null);
     }
 }
