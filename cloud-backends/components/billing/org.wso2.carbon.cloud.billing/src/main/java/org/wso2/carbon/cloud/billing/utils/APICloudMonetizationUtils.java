@@ -229,8 +229,9 @@ public final class APICloudMonetizationUtils {
         String url;
         List<NameValuePair> nameValuePairs = new ArrayList<>();
         try {
-            if ("*".equals(subscriberId)) {
-                if ("*".equals(api)) {
+            // "*" represents the selection of "all" option
+            if (MonetizationConstants.ASTERISK_SYMBOL.equals(subscriberId)) {
+                if (MonetizationConstants.ASTERISK_SYMBOL.equals(api)) {
                     //Usage of tenant
                     url = usageOfTenantUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
                             CloudBillingUtils.encodeUrlParam("%@" + tenantDomain));
@@ -245,12 +246,12 @@ public final class APICloudMonetizationUtils {
                     nameValuePairs.add(tenantDomainNVP);
                 }
             } else {
-                if ("*".equals(api)) {
+                if (MonetizationConstants.ASTERISK_SYMBOL.equals(api)) {
                     //Usage of all apis by subscriber S1
                     url = usageOfSubscriberUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_SUBSCRIBER_ID,
                             CloudBillingUtils.encodeUrlParam(subscriberId));
                 } else {
-                    if ("*".equals(applicationName)) {
+                    if (MonetizationConstants.ASTERISK_SYMBOL.equals(applicationName)) {
                         //Usage of api A1 by Subscriber S1 for all applications
                         String encodedSubId = CloudBillingUtils.encodeUrlParam(subscriberId);
                         String encodedApi = CloudBillingUtils.encodeUrlParam(api);

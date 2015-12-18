@@ -81,6 +81,7 @@ public final class MonetizationConstants {
     public static final String START_DATE = "startDate";
     public static final String END_DATE = "endDate";
     public static final String TENANT = "tenant";
+    public static final String ASTERISK_SYMBOL = "*";
 
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +
