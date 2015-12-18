@@ -1,8 +1,8 @@
 <sequence xmlns="http://ws.apache.org/ns/synapse" name="CustomMediatorSequence">
-    <property name="messageType" value="application/json" scope="axis2"/>
+    <!--property name="messageType" value="application/hal+json" scope="axis2"/-->
     <property name="jsonMessage" expression="json-eval($.)"/>
-    <property name="xAuthentication" expression="$trp:X-Authorization"/>
-    <property name="secretKey" value="xxxxxxxxxxxxxxxxxxx"/>
+    <property name="xAuth" expression="$trp:X-Authorization"/>
+    <property name="secretKey" value="<Secret Key Shared By GSN>"/>
     <class name="org.wso2.carbon.cloud.gsn.authmediator.AuthenticationLogic"/>
     <filter source="get-property('validationStatus')" regex="false">
         <then>
@@ -23,7 +23,6 @@
             <send/>
         </then>
         <else>
-            <property name="messageType" value="application/hal+json" scope="axis2"/>
             <header name="X-WSO2-Authenticated" value="true" scope="transport"/>
         </else>
     </filter>
