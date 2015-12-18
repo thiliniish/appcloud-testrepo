@@ -52,7 +52,7 @@ public class AuthenticationLogic extends AbstractMediator {
 		String customHeader = (String) axis2MessageContext.getProperty("xAuthentication");
 
 		authBean.setSecretKey((String) axis2MessageContext.getProperty("secretKey"));
-		if (customHeader != null || !customHeader.isEmpty()) {
+		if (customHeader != null && !"".equals(customHeader)) {
 			authUtil.setAuthParameters(customHeader);
 		} else {
 			authUtil.setReturnStatus(false, "Missing Authentication Header");
@@ -60,7 +60,7 @@ public class AuthenticationLogic extends AbstractMediator {
 		}
 
 		//Retrieving timestamp from query parameter
-		if (urlPostFix != null || !urlPostFix.isEmpty()) {
+		if (urlPostFix != null && !"".equals(urlPostFix)) {
 			String queryParamString = urlPostFix.split("\\?")[1].trim();
 			List<String> queryStrings = Arrays.asList(queryParamString.split("\\&"));
 
@@ -79,7 +79,7 @@ public class AuthenticationLogic extends AbstractMediator {
 		if ("POST".equals(httpMethod) || "PUT".equals(httpMethod)) {
 			String jsonString = (String) axis2MessageContext.getProperty("jsonMessage");
 			authBean.setMessageContent(jsonString);
-			if (acknowledgeList != null | !acknowledgeList.isEmpty()) {
+			if (acknowledgeList != null && !"".equals(acknowledgeList)) {
 				authBean.appendSecretKey(acknowledgeList);
 			}
 			try {
