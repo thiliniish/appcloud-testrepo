@@ -57,12 +57,12 @@ public class UserStoreConfgurationContextObserver implements Axis2ConfigurationC
 
 	@Override
 	public void creatingConfigurationContext(int context) {
-
+		//method from interface
 	}
 
 	@Override
 	public void terminatedConfigurationContext(ConfigurationContext context) {
-
+		//method from interface
 	}
 
 	@Override
