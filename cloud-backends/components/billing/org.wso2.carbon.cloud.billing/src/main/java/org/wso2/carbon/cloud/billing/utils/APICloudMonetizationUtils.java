@@ -22,6 +22,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
@@ -62,6 +64,21 @@ public final class APICloudMonetizationUtils {
                     + MonetizationConstants.DS_API_URI_UPDATE_API_SUBSCRIPTION;
     private static String subscriptionUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
             .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIPTION;
+    private static String usageOfApiUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                    + MonetizationConstants.DS_API_URI_API_USAGE;
+    private static String usageOfSubscriberUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                    + MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE;
+    private static String usageOfApiBySubscriberUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                    + MonetizationConstants.DS_API_URI_SUBSCRIBER_API_USAGE;
+    private static String usageOfTenantUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                    + MonetizationConstants.DS_API_URI_TENANT_USAGE;
+    private static String usageOfApiByApplicationBySubscriberUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                    + MonetizationConstants.DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION;
 
     private APICloudMonetizationUtils() {
     }
@@ -192,6 +209,81 @@ public final class APICloudMonetizationUtils {
         } catch (CloudBillingException | UnsupportedEncodingException | XMLStreamException e) {
             throw new CloudMonetizationException("Error while adding subscription information for child account: " +
                     accountNumber + " of the parent tenant: " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * @param tenantDomain    tenant domain
+     * @param subscriberId    subscriber id
+     * @param api             api name
+     * @param version         api version
+     * @param applicationName application name
+     * @param startDate       date range - start date
+     * @param endDate         date range - end date
+     * @return JSON object of usage data
+     * @throws CloudMonetizationException
+     */
+    public static JSONObject getTenantMonetizationUsageDataForGivenDateRange(String tenantDomain, String subscriberId,
+            String api, String version, String applicationName, String startDate, String endDate)
+            throws CloudMonetizationException {
+        String url;
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        try {
+            // "*" represents the selection of "all" option
+            if (MonetizationConstants.ASTERISK_SYMBOL.equals(subscriberId)) {
+                if (MonetizationConstants.ASTERISK_SYMBOL.equals(api)) {
+                    //Usage of tenant
+                    url = usageOfTenantUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
+                            CloudBillingUtils.encodeUrlParam("%@" + tenantDomain));
+                } else {
+                    //Usage of api A1 by all users
+                    url = usageOfApiUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
+                            CloudBillingUtils.encodeUrlParam(api))
+                            .replace(MonetizationConstants.RESOURCE_IDENTIFIER_VERSION,
+                                    CloudBillingUtils.encodeUrlParam(version));
+                    NameValuePair tenantDomainNVP = new NameValuePair(MonetizationConstants.TENANT,
+                            "%@" + tenantDomain);
+                    nameValuePairs.add(tenantDomainNVP);
+                }
+            } else {
+                if (MonetizationConstants.ASTERISK_SYMBOL.equals(api)) {
+                    //Usage of all apis by subscriber S1
+                    url = usageOfSubscriberUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_SUBSCRIBER_ID,
+                            CloudBillingUtils.encodeUrlParam(subscriberId));
+                } else {
+                    if (MonetizationConstants.ASTERISK_SYMBOL.equals(applicationName)) {
+                        //Usage of api A1 by Subscriber S1 for all applications
+                        String encodedSubId = CloudBillingUtils.encodeUrlParam(subscriberId);
+                        String encodedApi = CloudBillingUtils.encodeUrlParam(api);
+                        String encodedVersion = CloudBillingUtils.encodeUrlParam(version);
+                        url = usageOfApiBySubscriberUrl
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_SUBSCRIBER_ID, encodedSubId)
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, encodedApi)
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_VERSION, encodedVersion);
+                    } else {
+                        //Usage of api A1 by Subscriber S1 for application App1
+                        url = usageOfApiByApplicationBySubscriberUrl
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_SUBSCRIBER_ID,
+                                        CloudBillingUtils.encodeUrlParam(subscriberId))
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
+                                        CloudBillingUtils.encodeUrlParam(api))
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_VERSION,
+                                        CloudBillingUtils.encodeUrlParam(version))
+                                .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
+                                        CloudBillingUtils.encodeUrlParam(applicationName));
+                    }
+                }
+            }
+            NameValuePair startDateNVP = new NameValuePair(MonetizationConstants.START_DATE, startDate);
+            NameValuePair endDateNVP = new NameValuePair(MonetizationConstants.END_DATE, endDate);
+            nameValuePairs.add(startDateNVP);
+            nameValuePairs.add(endDateNVP);
+            String response = dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON,
+                    nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+            return new JSONObject(response);
+        } catch (CloudBillingException | UnsupportedEncodingException | JSONException e) {
+            throw new CloudMonetizationException(
+                    "Error while getting monetization usage data of tenant: " + tenantDomain, e);
         }
     }
 }

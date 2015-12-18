@@ -155,6 +155,85 @@
       <param name="TENANT_ID" sqlType="STRING"/>
       <param name="SUB_STATUS" sqlType="STRING"/>
    </query>
+   <query id="getUsageOfSubscriberForApiByApplicationQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount, api_version,applicationName,userId,day,year,month From API_REQUEST_SUMMARY WHERE api = :API AND version = :VERSION AND userId = :USER_ID AND applicationName = :APPLICATION_NAME AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY applicationName, day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="applicationName" name="ApplicationName" xsdType="string"/>
+         <element column="userId" name="UserId" xsdType="string"/>
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="APPLICATION_NAME" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+      <param name="API" sqlType="STRING"/>
+      <param name="VERSION" sqlType="STRING"/>
+    </query>
+    <query id="getUsageOfApiQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount, api_version,day,year,month From API_REQUEST_SUMMARY WHERE api = :API AND version =:VERSION AND apiPublisher like :API_PUBLISHER AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="API" sqlType="STRING"/>
+      <param name="VERSION" sqlType="STRING"/>
+      <param name="API_PUBLISHER" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+    </query>
+    <query id="getSubscriberUsageQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount,userId,day,year,month From API_REQUEST_SUMMARY WHERE  userId = :USER_ID AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="userId" name="UserId" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+    </query>
+    <query id="getTenantUsageQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount,day,year,month From API_REQUEST_SUMMARY WHERE apiPublisher like :API_PUBLISHER AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="API_PUBLISHER" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+   </query>
+    <query id="getUsageOfSubscriberForApi" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount, api_version,userId,day,year,month From API_REQUEST_SUMMARY WHERE api = :API AND version = :VERSION AND userId = :USER_ID AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="userId" name="UserId" xsdType="string"/>
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="API" sqlType="STRING"/>
+      <param name="VERSION" sqlType="STRING"/>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+    </query>
     <operation name="getSubscriber">
         <call-query href="getSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -256,4 +335,51 @@
          <with-param name="SUB_STATUS" query-param="subStatus"/>
       </call-query>
    </resource>
+  <!-- To do with dss update -->
+  <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}/apis/{api}/{version}/applications/{application}" -->
+  <resource method="GET" path="v1/usage/subscriber-application-api/{subscriberId}/{application}/{api}/{version}">
+      <call-query href="getUsageOfSubscriberForApiByApplicationQ">
+         <with-param name="USER_ID" query-param="subscriberId"/>
+         <with-param name="APPLICATION_NAME" query-param="application"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+         <with-param name="API" query-param="api"/>
+         <with-param name="VERSION" query-param="version"/>
+      </call-query>
+   </resource>
+   <!--path="v1/usage/tenants/{tenant}/apis/{api}/{version}" -->
+   <resource method="GET" path="v1/usage/apis/{api}/{version}">
+      <call-query href="getUsageOfApiQ">
+         <with-param name="API" query-param="api"/>
+         <with-param name="VERSION" query-param="version"/>
+         <with-param name="API_PUBLISHER" query-param="tenant"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+      </call-query>
+   </resource>
+   <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}" -->
+   <resource method="GET" path="v1/usage/subscribers/{subscriberId}">
+      <call-query href="getSubscriberUsageQ">
+         <with-param name="USER_ID" query-param="subscriberId"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="v1/usage/tenants/{tenant}">
+      <call-query href="getTenantUsageQ">
+         <with-param name="API_PUBLISHER" query-param="tenant"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+      </call-query>
+   </resource>
+   <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}/apis/{api}/{version}" -->
+   <resource method="GET" path="v1/usage/subscriber-api/{subscriberId}/{api}/{version}">
+      <call-query href="getUsageOfSubscriberForApi">
+         <with-param name="API" query-param="api"/>
+         <with-param name="VERSION" query-param="version"/>
+         <with-param name="USER_ID" query-param="subscriberId"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+      </call-query>
+   </resource>   
 </data>

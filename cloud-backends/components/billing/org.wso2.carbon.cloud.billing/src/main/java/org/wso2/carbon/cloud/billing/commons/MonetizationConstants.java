@@ -34,6 +34,13 @@ public final class MonetizationConstants {
     public static final String DS_API_URI_UPDATE_API_SUBSCRIPTION = "/v1/apim/subscriptions/{tenantId}";
     public static final String DS_API_URI_MON_APIC_SUBSCRIPTION =
             "/v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}";
+    public static final String DS_API_URI_TENANT_USAGE = "/v1/usage/tenants/{tenant}";
+    public static final String DS_API_URI_API_USAGE = "/v1/usage/apis/{apiName}/{version}";
+    public static final String DS_API_URI_SUBSCRIBER_USAGE = "/v1/usage/subscribers/{subscriberId}";
+    public static final String DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION =
+            "/v1/usage/subscriber-application-api/{subscriberId}/{appName}/{apiName}/{version}";
+    public static final String DS_API_URI_SUBSCRIBER_API_USAGE =
+            "/v1/usage/subscriber-api/{subscriberId}/{apiName}/{version}";
 
     /*resource identifiers*/
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
@@ -46,6 +53,8 @@ public final class MonetizationConstants {
     public static final String RESOURCE_IDENTIFIER_CLOUD_TYPE = "{cloudType}";
     public static final String RESOURCE_IDENTIFIER_ZUORA_PRODUCT_NAME = "{zuoraProductName}";
     public static final String RESOURCE_IDENTIFIER_RATE_PLAN_NAME = "{ratePlanName}";
+    public static final String RESOURCE_IDENTIFIER_VERSION = "{version}";
+    public static final String RESOURCE_IDENTIFIER_SUBSCRIBER_ID = "{subscriberId}";
 
     /*param names*/
     public static final String PARAM_IS_TEST_ACCOUNT = "isTestAccount";
@@ -69,6 +78,10 @@ public final class MonetizationConstants {
     public static final String TOTAL_COUNT = "TotalCount";
     public static final String CSV_EXTENSION = ".csv";
     public static final String UNIT_OF_MEASURE_DISPLAY_NAME = "10K Overage Daily API Calls";
+    public static final String START_DATE = "startDate";
+    public static final String END_DATE = "endDate";
+    public static final String TENANT = "tenant";
+    public static final String ASTERISK_SYMBOL = "*";
 
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +
