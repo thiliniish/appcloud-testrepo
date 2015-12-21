@@ -47,7 +47,9 @@ public class DataAccessManager {
 			preparedStatement.setString(3, currentDate);
 			preparedStatement.setString(4, currentDate);
 			preparedStatement.executeUpdate();
-			log.debug("Updated Tenant Login to database...");
+			if (log.isDebugEnabled()) {
+				log.debug("Updated Tenant Login to database...");
+			}
 		} catch (SQLException e) {
 			log.error("SQL Exception occurred while executing query", e);
 		} finally {

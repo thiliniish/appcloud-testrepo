@@ -67,22 +67,6 @@ public class UserStoreConfgurationContextObserver implements Axis2ConfigurationC
 
 	@Override
 	public void terminatingConfigurationContext(ConfigurationContext context) {
-
-		org.wso2.carbon.user.api.UserRealm tenantRealm = CarbonContext
-				.getThreadLocalCarbonContext().getUserRealm();
-		RealmConfiguration realmConfig;
-		try {
-			realmConfig = tenantRealm.getRealmConfiguration();
-			AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) tenantRealm
-					.getUserStoreManager();
-			userStoreManager.clearAllSecondaryUserStores();
-			realmConfig.setSecondaryRealmConfig(null);
-			userStoreManager.setSecondaryUserStoreManager(null);
-			log.info("Unloaded all secondary user stores for tenant "
-					+ CarbonContext.getThreadLocalCarbonContext().getTenantId());
-		} catch (UserStoreException e) {
-			log.error("User Store exception occurred", e);
-		}
+		//method from interface
 	}
-
 }

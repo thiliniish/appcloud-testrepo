@@ -59,13 +59,12 @@ public class CloudUserOperationListener implements UserOperationEventListener {
 		Date currentTime = Calendar.getInstance().getTime();
 		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
 		DataAccessManager dbAccessor = new DataAccessManager();
-		if (MultitenantConstants.SUPER_TENANT_ID != userStoreManager.getTenantId()) {
+		int tenantId = userStoreManager.getTenantId();
+		if (MultitenantConstants.SUPER_TENANT_ID != tenantId) {
 			try {
 				String tenantDomain = ServiceHolder.getInstance().getRealmService().getTenantManager().getTenant
-						(userStoreManager.getTenantId()).getDomain();
-				int tenantId = userStoreManager.getTenantId();
+						(tenantId).getDomain();
 				dbAccessor.updateUserLogin(tenantId, tenantDomain, date.format(currentTime));
-
 			} catch (org.wso2.carbon.user.api.UserStoreException e) {
 				log.error("UserStoreException has been occurred", e);
 			}

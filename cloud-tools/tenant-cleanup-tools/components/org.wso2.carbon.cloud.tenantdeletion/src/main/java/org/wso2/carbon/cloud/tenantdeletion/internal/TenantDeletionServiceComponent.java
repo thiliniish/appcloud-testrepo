@@ -20,6 +20,8 @@ package org.wso2.carbon.cloud.tenantdeletion.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.tenantdeletion.listeners.CloudUserOperationListener;
 import org.wso2.carbon.cloud.tenantdeletion.listeners.UserStoreConfgurationContextObserver;
@@ -36,25 +38,40 @@ import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 
 public class TenantDeletionServiceComponent {
 	private final static Log logger = LogFactory.getLog(TenantDeletionServiceComponent.class);
+	private ServiceRegistration userOperationEventListenerRef;
+	private ServiceRegistration contextObserverRef;
 
-	protected void activate(ComponentContext ctx) {
+	protected void activate(ComponentContext context) {
+		BundleContext bundleContext = context.getBundleContext();
 		try {
 			CloudUserOperationListener cloudUserOperationListener = new CloudUserOperationListener();
 			UserStoreConfgurationContextObserver userStoreConfgurationContextObserver = new
 					UserStoreConfgurationContextObserver();
-			ctx.getBundleContext().registerService(UserOperationEventListener.class.getName(),
+			this.userOperationEventListenerRef = bundleContext.registerService(UserOperationEventListener.class.getName(),
 					cloudUserOperationListener, null);
-			ctx.getBundleContext().registerService(Axis2ConfigurationContextObserver.class.getName(),
+			this.contextObserverRef = bundleContext.registerService(Axis2ConfigurationContextObserver.class.getName(),
 					userStoreConfgurationContextObserver, null);
 		} catch (Exception e) {
 			logger.error("Failed to activate the Tenant Deletion service.", e);
 		}
-		logger.info("Tenant Deletion service component activated successfully.");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Tenant Deletionservice component activated successfully.");
+		}
+	}
+
+	protected void deactivate(ComponentContext context) {
+		this.userOperationEventListenerRef.unregister();
+		this.contextObserverRef.unregister();
+		if (logger.isDebugEnabled()) {
+			logger.debug("Tenant Deletionservice component is deactivated ");
+		}
 	}
 
 	protected void setRealmService(RealmService realmService) {
 		ServiceHolder.getInstance().setRealmService(realmService);
-		logger.debug("Realm service initialized");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Realm service initialized");
+		}
 	}
 
 	protected void unsetRealmService(RealmService realmService) {
