@@ -17,17 +17,14 @@
   */
 package org.wso2.carbon.cloud.gsn.authmediator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.mediators.AbstractMediator;
+import org.wso2.carbon.cloud.gsn.authmediator.exception.AuthenticationException;
 import org.wso2.carbon.cloud.gsn.authmediator.util.AuthenticationUtil;
 import org.wso2.carbon.cloud.gsn.authmediator.util.MediatorConstants;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,81 +33,78 @@ import java.util.List;
  */
 public class AuthenticationLogic extends AbstractMediator {
 
-	public final static Log log = LogFactory.getLog(AuthenticationLogic.class);
+    @Override
+    public boolean mediate(org.apache.synapse.MessageContext synapseMessageContext) {
+        AuthenticationBean authBean = new AuthenticationBean();
+        AuthenticationUtil authUtil = new AuthenticationUtil(authBean, synapseMessageContext);
+        Boolean validate = false;
+        String acknowledgeList = null;
+        Axis2MessageContext axis2MessageContext = (Axis2MessageContext) synapseMessageContext;
+        org.apache.axis2.context.MessageContext msgContext = axis2MessageContext.getAxis2MessageContext();
 
-	public boolean mediate(org.apache.synapse.MessageContext synapseMessageContext) {
-		AuthenticationBean authBean = new AuthenticationBean();
-		AuthenticationUtil authUtil = new AuthenticationUtil(authBean, synapseMessageContext);
-		Boolean validate = false;
-		String acknowledgeList = null;
-		Axis2MessageContext axis2MessageContext = (Axis2MessageContext) synapseMessageContext;
-		org.apache.axis2.context.MessageContext msgContext = axis2MessageContext.getAxis2MessageContext();
+        //Getting HTTP Method and Custom Header
+        String httpMethod = msgContext.getProperty("HTTP_METHOD").toString();
+        String urlPostFix = msgContext.getProperty("REST_URL_POSTFIX").toString();
+        String customHeader = axis2MessageContext.getProperty("xAuthentication").toString();
+        authBean.setSecretKey(axis2MessageContext.getProperty("secretKey").toString());
 
-		//Getting HTTP Method and Custom Header
-		String httpMethod = msgContext.getProperty("HTTP_METHOD").toString();
-		String urlPostFix = (String) msgContext.getProperty("REST_URL_POSTFIX");
-		String customHeader = (String) axis2MessageContext.getProperty("xAuthentication");
+        if (customHeader != null && !customHeader.isEmpty()) {
+            authUtil.setAuthParameters(customHeader);
+        } else {
+            authUtil.setReturnStatus(false, "Missing Authentication Header");
+            return true;
+        }
 
-		authBean.setSecretKey((String) axis2MessageContext.getProperty("secretKey"));
-		if (customHeader != null && !"".equals(customHeader)) {
-			authUtil.setAuthParameters(customHeader);
-		} else {
-			authUtil.setReturnStatus(false, "Missing Authentication Header");
-			return true;
-		}
+        //Retrieving timestamp from query parameter
+        if (urlPostFix != null && !urlPostFix.isEmpty()) {
+            String queryParamString = urlPostFix.split("\\?")[1].trim();
+            List<String> queryStrings = Arrays.asList(queryParamString.split("&"));
 
-		//Retrieving timestamp from query parameter
-		if (urlPostFix != null && !"".equals(urlPostFix)) {
-			String queryParamString = urlPostFix.split("\\?")[1].trim();
-			List<String> queryStrings = Arrays.asList(queryParamString.split("\\&"));
+            //Appending timestamp to secret key
+            for (String queryString : queryStrings) {
+                if (queryString.contains("timestamp=")) {
+                    authBean.appendSecretKey(queryString.split("=", 2)[1]);
+                }
+                if (queryString.contains("ack=")) {
+                    acknowledgeList = queryString.split("=", 2)[1];
+                }
+            }
+        }
 
-			//Appending timestamp to secret key
-			for (String queryString : queryStrings) {
-				if (queryString.contains("timestamp=")) {
-					authBean.appendSecretKey(queryString.split("=", 2)[1]);
-				}
-				if (queryString.contains("ack=")) {
-					acknowledgeList = queryString.split("=", 2)[1];
-				}
-			}
-		}
+        //Checking Http Method
+        if ("POST".equals(httpMethod) || "PUT".equals(httpMethod)) {
+            String jsonString = (String) axis2MessageContext.getProperty("jsonMessage");
+            authBean.setMessageContent(jsonString);
+            if (acknowledgeList != null && !acknowledgeList.isEmpty()) {
+                authBean.appendSecretKey(acknowledgeList);
+            }
+            try {
+                String md5String = authUtil.md5(authBean.getMessageContent().getBytes(MediatorConstants.ENCODING));
+                byte[] md5Bytes = md5String.getBytes();
+                validate = authUtil.validateSignature(md5Bytes);
+            } catch (AuthenticationException | UnsupportedEncodingException e) {
+                authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
+            }
 
-		//Checking Http Method
-		if ("POST".equals(httpMethod) || "PUT".equals(httpMethod)) {
-			String jsonString = (String) axis2MessageContext.getProperty("jsonMessage");
-			authBean.setMessageContent(jsonString);
-			if (acknowledgeList != null && !"".equals(acknowledgeList)) {
-				authBean.appendSecretKey(acknowledgeList);
-			}
-			try {
-				String md5String = authUtil.md5(authBean.getMessageContent().getBytes("UTF-8"));
-				byte[] md5Bytes = md5String.getBytes();
-				validate = authUtil.validateSignature(md5Bytes);
-			} catch (InvalidKeyException e) {
-				authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
-			} catch (NoSuchAlgorithmException e) {
-				authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
-			} catch (UnsupportedEncodingException e) {
-				authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
-			}
+        } else if ("GET".equals(httpMethod) || "DELETE".equals(httpMethod) || "HEAD".equals(httpMethod)) {
+            try {
+                if (urlPostFix != null && !urlPostFix.isEmpty()) {
+                    authBean.setMessageContent(URLDecoder.decode(urlPostFix, MediatorConstants.ENCODING));
+                    byte[] pathBytes =
+                            authUtil.md5(authBean.getMessageContent().getBytes(MediatorConstants.ENCODING)).getBytes();
+                    validate = authUtil.validateSignature(pathBytes);
+                } else {
+                    authUtil.setReturnStatus(false, "Missing Resource Path");
+                    return true;
+                }
+            } catch (AuthenticationException | UnsupportedEncodingException e) {
+                authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
+            }
+        }
 
-		} else if ("GET".equals(httpMethod) || "DELETE".equals(httpMethod) || "HEAD".equals(httpMethod)) {
-			try {
-				authBean.setMessageContent(URLDecoder.decode(urlPostFix, "UTF-8"));
-				byte[] pathBytes = authUtil.md5(authBean.getMessageContent().getBytes("UTF-8")).getBytes();
-				validate = authUtil.validateSignature(pathBytes);
-			} catch (UnsupportedEncodingException e) {
-				authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
-			} catch (NoSuchAlgorithmException e) {
-				authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
-			} catch (InvalidKeyException e) {
-				authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
-			}
-		}
-
-		if (!validate) {
-			authUtil.setReturnStatus(false, MediatorConstants.AUTHORIZATION_FAILED);
-		}
-		return true;
-	}
+        if (!validate) {
+            authUtil.setReturnStatus(false, MediatorConstants.AUTHORIZATION_FAILED);
+        }
+        return true;
+    }
 }

@@ -18,44 +18,44 @@
 package org.wso2.carbon.cloud.gsn.authmediator;
 
 public class AuthenticationBean {
-	private String signature;
-	private StringBuilder secretKey;
-	private String sessionId;
-	private String messageContent;
+    private String signature;
+    private StringBuilder secretKey;
+    private String sessionId;
+    private String messageContent;
 
-	public void setSignature(String signature) {
-		this.signature = signature;
-	}
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
 
-	public void setSecretKey(String secretKey) {
-		this.secretKey = new StringBuilder(secretKey);
-	}
+    public void setSecretKey(String secretKey) {
+        this.secretKey = new StringBuilder(secretKey);
+    }
 
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
-	public void setMessageContent(String messageContent){
-		this.messageContent = messageContent;
-	}
+    public void setMessageContent(String messageContent) {
+        this.messageContent = messageContent;
+    }
 
-	public void appendSecretKey(String stringToAppend) {
-		this.secretKey.append(stringToAppend);
-	}
+    public void appendSecretKey(String stringToAppend) {
+        this.secretKey.append(stringToAppend);
+    }
 
-	public String getSecretKey() {
-		return secretKey.toString();
-	}
+    public String getSecretKey() {
+        return secretKey.toString();
+    }
 
-	public String getSignature() {
-		return signature;
-	}
+    public String getSignature() {
+        return signature;
+    }
 
-	public String getSessionId() {
-		return sessionId;
-	}
+    public String getSessionId() {
+        return sessionId;
+    }
 
-	public String getMessageContent(){
-		return messageContent;
-	}
+    public String getMessageContent() {
+        return messageContent;
+    }
 }
