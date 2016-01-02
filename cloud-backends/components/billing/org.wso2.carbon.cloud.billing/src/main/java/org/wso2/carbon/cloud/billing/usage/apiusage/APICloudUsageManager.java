@@ -92,7 +92,7 @@ public class APICloudUsageManager {
     }
 
     public void uploadDailyAPIUsage() throws CloudBillingException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT);
         LOGGER.info("Uploading daily usage for  " + dateFormat.format(new Date(System.currentTimeMillis())));
         // get daily usage from data services and create a usage array
         String response = getDailyUsage(dailyUsageUrl);
@@ -106,7 +106,7 @@ public class APICloudUsageManager {
     }
 
     private void uploadDailyAPIUsageToZuora(Usage[] usages) throws CloudBillingException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT);
         String today = dateFormat.format(new Date(System.currentTimeMillis()));
 
         String csvFile = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()

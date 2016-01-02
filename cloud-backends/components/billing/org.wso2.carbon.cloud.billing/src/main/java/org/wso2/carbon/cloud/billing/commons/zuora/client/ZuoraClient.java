@@ -20,8 +20,11 @@ package org.wso2.carbon.cloud.billing.commons.zuora.client;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.axis2.AxisFault;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ClientSession;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ZuoraClientUtils;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 
 import java.io.IOException;
 
@@ -30,7 +33,25 @@ import java.io.IOException;
  */
 public abstract class ZuoraClient {
 
+    private static final String INIT_ERROR_MSG = "Error while initializing Zuora Account client";
+
     protected ZuoraClientUtils zuoraClientUtils;
+
+    public ZuoraClient() throws CloudBillingZuoraException {
+        try {
+            zuoraClientUtils = new ZuoraClientUtils();
+        } catch (AxisFault axisFault) {
+            throw new CloudBillingZuoraException(INIT_ERROR_MSG, axisFault);
+        }
+    }
+
+    public ZuoraClient(ClientSession clientSession) throws CloudBillingZuoraException {
+        try {
+            zuoraClientUtils = new ZuoraClientUtils(clientSession);
+        } catch (AxisFault axisFault) {
+            throw new CloudBillingZuoraException(INIT_ERROR_MSG, axisFault);
+        }
+    }
 
     public ZuoraClientUtils getZuoraClientUtils() {
         return zuoraClientUtils;

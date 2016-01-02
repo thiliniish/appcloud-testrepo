@@ -34,7 +34,7 @@ import java.util.Properties;
  */
 public class EmailNotifications {
 
-    private final Log LOGGER = LogFactory.getLog(EmailNotifications.class);
+    private static final Log LOGGER = LogFactory.getLog(EmailNotifications.class);
     private String host;
     private String port;
     private String userName;

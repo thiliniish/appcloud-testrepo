@@ -41,6 +41,56 @@
          <param name="SUBSCRIPTION_NUMBER" sqlType="STRING"/>
          <param name="START_DATE" sqlType="STRING"/>
     </query>
+    <query id="getSubscriptionInfoQ" useConfig="cloud_mgt">
+         <sql>SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE FROM
+         MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME) AND AM_API_NAME=(:AM_API_NAME) AND
+         AM_API_VERSION=(:AM_API_VERSION);</sql>
+         <result element="Subscription" rowName="">
+            <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
+            <element column="AM_APP_NAME" name="AppName" xsdType="string"/>
+            <element column="AM_API_NAME" name="ApiName" xsdType="string"/>
+            <element column="RATE_PLAN_ID" name="RatePlanId" xsdType="string"/>
+            <element column="SUBSCRIPTION_NUMBER" name="SubscriptionNumber" xsdType="string"/>
+            <element column="START_DATE" name="StartDate" xsdType="string"/>
+         </result>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+         <param name="AM_API_NAME" sqlType="STRING"/>
+         <param name="AM_API_VERSION" sqlType="STRING"/>
+    </query>
+    <query id="deleteSubscriptionInfoQ" useConfig="cloud_mgt">
+         <sql>DELETE FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND
+         AM_APP_NAME=(:AM_APP_NAME) AND AM_API_NAME=(:AM_API_NAME) AND AM_API_VERSION=(:AM_API_VERSION);</sql>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+         <param name="AM_API_NAME" sqlType="STRING"/>
+         <param name="AM_API_VERSION" sqlType="STRING"/>
+    </query>
+    <query id="addSubscriptionInfoToHistoryQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY (ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION,
+          RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE, END_DATE) SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION,
+           RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE, NOW() FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE
+           (ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME) AND AM_API_NAME=(:AM_API_NAME) AND
+           AM_API_VERSION=(:AM_API_VERSION));</sql>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+         <param name="AM_API_NAME" sqlType="STRING"/>
+         <param name="AM_API_VERSION" sqlType="STRING"/>
+    </query>
+    <query id="getAppSubscriptionInfoQ" useConfig="cloud_mgt">
+         <sql>SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE FROM
+         MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME);</sql>
+         <result element="Subscriptions" rowName="Subscription">
+            <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
+            <element column="AM_APP_NAME" name="AppName" xsdType="string"/>
+            <element column="AM_API_NAME" name="ApiName" xsdType="string"/>
+            <element column="RATE_PLAN_ID" name="RatePlanId" xsdType="string"/>
+            <element column="SUBSCRIPTION_NUMBER" name="SubscriptionNumber" xsdType="string"/>
+            <element column="START_DATE" name="StartDate" xsdType="string"/>
+         </result>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+    </query>
     <query id="updateSubscriberInfoQ" useConfig="cloud_mgt">
          <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
           VALUES (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER) ON DUPLICATE KEY UPDATE TEST_ACCOUNT=
@@ -180,6 +230,36 @@
             <with-param name="START_DATE" query-param="startDate"/>
         </call-query>
     </operation>
+    <operation name="getSubscription">
+        <call-query href="getSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </operation>
+    <operation name="addSubscriptionToHistory">
+        <call-query href="addSubscriptionInfoToHistoryQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </operation>
+    <operation name="deleteSubscription">
+        <call-query href="deleteSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </operation>
+    <operation name="getAppSubscription">
+        <call-query href="getAppSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+        </call-query>
+    </operation>
     <operation name="updateSubscriber">
         <call-query href="updateSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -233,6 +313,39 @@
             <with-param name="RATE_PLAN_ID" query-param="ratePlanId"/>
             <with-param name="SUBSCRIPTION_NUMBER" query-param="subscriptionNumber"/>
             <with-param name="START_DATE" query-param="startDate"/>
+        </call-query>
+    </resource>
+    <resource method="GET" path="v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}">
+        <call-query href="getSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </resource>
+    <resource method="DELETE" path="v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}"
+    returnRequestStatus="true">
+        <call-query href="deleteSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </resource>
+    <resource method="POST" path="v1/subscriptions-history/{accountNumber}/{appName}/{apiName}/{apiVersion}"
+    returnRequestStatus="true">
+        <call-query href="addSubscriptionInfoToHistoryQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </resource>
+    <!--resource method="GET" path="v1/subscriptions/{accountNumber}/{appName}"-->
+    <resource method="GET" path="v1/app-subscriptions/{accountNumber}/{appName}">
+        <call-query href="getAppSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
         </call-query>
     </resource>
     <resource method="GET" path="v1/usage/daily-usage">

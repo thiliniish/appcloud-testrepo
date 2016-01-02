@@ -41,7 +41,7 @@ import java.io.File;
 /**
  * Billing configuration utility class
  */
-public class BillingConfigUtils {
+public final class BillingConfigUtils {
 
     private static SecretResolver secretResolver;
     private static volatile BillingConfig billingConfig;

@@ -21,6 +21,7 @@ package org.wso2.carbon.cloud.billing.processor;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -104,7 +105,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         get.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
         get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
-        if (!ArrayUtils.isEmpty(nameValuePairs)) {
+        if (ArrayUtils.isNotEmpty(nameValuePairs)) {
             get.setQueryString(nameValuePairs);
         }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
@@ -152,8 +153,16 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         // default accept response body in JSON
         String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
-        post.setRequestBody(nameValuePairs);
+        if (ArrayUtils.isNotEmpty(nameValuePairs)) {
+            post.setRequestBody(nameValuePairs);
+        }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    @Override
+    public String doPut(String url, String acceptType, String jsonPayload) throws CloudBillingException {
+        throw new UnsupportedOperationException("This method is not supported by Data Service Billing Request " +
+                "Processor");
     }
 
     /**
@@ -175,14 +184,41 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
 
         put.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
-        put.setQueryString(nameValuePairs);
+        if (ArrayUtils.isNotEmpty(nameValuePairs)) {
+            put.setQueryString(nameValuePairs);
+        }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), put, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * Data service PUT request
+     *
+     * @param url            URL
+     * @param acceptType     Accept header
+     * @param nameValuePairs name value pair
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doDelete(String url, String acceptType, NameValuePair[] nameValuePairs) throws
+            CloudBillingException {
+        setTrustStoreParams();
+        DeleteMethod delete = new DeleteMethod(url);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        delete.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+
+        delete.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
+        if (ArrayUtils.isNotEmpty(nameValuePairs)) {
+            delete.setQueryString(nameValuePairs);
+        }
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), delete, DEFAULT_CONNECTION_RETRIES);
     }
 
     /**
      * Utility method to check the status. This can only be used
      * when the DS's particular request is configured to send back the request status
-     *
+     * <p/>
      * ex status response
      * <axis2ns7:REQUEST_STATUS xmlns:axis2ns7="http://ws.wso2.org/dataservice">SUCCESSFUL</axis2ns7:REQUEST_STATUS>
      *

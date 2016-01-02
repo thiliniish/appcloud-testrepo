@@ -37,12 +37,49 @@ public final class CustomWorkFlowConstants {
                     "  <ser:accountNumber ser:nil=\"true\"/>\n" +
                     "</ser:addAPISubscriberInfo>";
 
+    public static final String CANCEL_SUBSCRIPTION_PAYLOAD =
+            "<ser:cancelSubscription xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+                    " <ser:accountNumber>$1</ser:accountNumber>\n" +
+                    " <ser:appName>$2</ser:appName>\n" +
+                    " <ser:apiName>$3</ser:apiName>\n" +
+                    " <ser:apiVersion>$4</ser:apiVersion>\n" +
+                    " </ser:cancelSubscription>";
+
+    public static final String REMOVE_APP_SUBSCRIPTIONS_PAYLOAD =
+            "<ser:removeAppSubscriptions> xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+                    " <ser:accountNumber>$1</ser:accountNumber>\n" +
+                    " <ser:appName>$2</ser:appName>\n" +
+                    " </ser:removeAppSubscriptions>";
+
+    public static final String CREATE_API_SUBSCRIPTION_PAYLOAD =
+            "<ser:createAPISubscription xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+                    " <ser:accountNumber>$1</ser:accountNumber>\n" +
+                    " <ser:tenantDomain>$2</ser:tenantDomain>\n" +
+                    " <ser:tierName>$3</ser:tierName>\n" +
+                    " <ser:appName>$4</ser:appName>\n" +
+                    " <ser:apiName>$5</ser:apiName>\n" +
+                    " <ser:apiVersion>$6</ser:apiVersion>\n" +
+                    " </ser:createAPISubscription>";
+
     /*SOAP actions*/
     public static final String SOAP_ACTION_GET_SUBSCRIBER = "urn:getAPISubscriberInfo";
     public static final String SOAP_ACTION_UPDATE_SUBSCRIBER = "urn:addAPISubscriberInfo";
+    public static final String SOAP_ACTION_CANCEL_SUBSCRIPTION = "urn:cancelSubscription";
+    public static final String SOAP_ACTION_REMOVE_APP_SUBSCRIPTIONS = "urn:removeAppSubscriptions";
+    public static final String SOAP_ACTION_CREATE_API_SUBSCRIPTION = "urn:createAPISubscription";
 
     /*Util constants*/
     public static final String ENCODING = "UTF-8";
+
+    public static final String TIER_PLAN_COMMERCIAL = "COMMERCIAL";
+    public static final String TIER_PLAN_FREE = "FREE";
+
+    public static final String IS_TEST_ACCOUNT_PROPERTY = "TestAccount";
+    public static final String ACCOUNT_NUMBER_PROPERTY = "AccountNumber";
+    public static final String SUBSCRIBERS_OBJ = "Subscribers";
+    public static final String SUBSCRIBER_OBJ = "Subscriber";
+
+    public static final String ZUORA_RESPONSE_SUCCESS = "success";
 
     private CustomWorkFlowConstants() {
     }

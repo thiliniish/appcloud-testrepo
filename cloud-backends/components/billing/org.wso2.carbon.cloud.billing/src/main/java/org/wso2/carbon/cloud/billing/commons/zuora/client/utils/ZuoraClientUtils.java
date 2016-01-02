@@ -183,19 +183,38 @@ public class ZuoraClientUtils {
     public DeleteResult delete(String type, ID id)
             throws RemoteException, InvalidValueFault, InvalidTypeFault, CloudBillingZuoraException,
                    UnexpectedErrorFault {
-        DeleteResult[] response;
-        try {
-            response = zuoraServiceStub.delete(type, new ID[]{id}, getSessionHeader());
-        } catch (UnexpectedErrorFault unexpectedErrorFault) {
-            checkInvalidSessionError(unexpectedErrorFault);
-            response = zuoraServiceStub.delete(type, new ID[]{id}, getSessionHeader());
-        }
-        DeleteResult result = (DeleteResult) getValidatedResponse(response);
+        DeleteResult result = (DeleteResult) getValidatedResponse(delete(type, new ID[]{id}));
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Delete result success: " + result.getSuccess() + ". Errors specified: "
                          + result.isErrorsSpecified());
         }
         return result;
+    }
+
+    /**
+     * Delete Zuora object for Type and ID.
+     * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/delete_call"}
+     *
+     * @param ids   the ID
+     * @param type the type
+     * @return DeleteResult
+     * @throws RemoteException
+     * @throws InvalidValueFault
+     * @throws InvalidTypeFault
+     * @throws UnexpectedErrorFault
+     * @throws CloudBillingZuoraException
+     */
+    public DeleteResult[] delete(String type, ID[] ids)
+            throws RemoteException, InvalidValueFault, InvalidTypeFault, CloudBillingZuoraException,
+            UnexpectedErrorFault {
+        DeleteResult[] response;
+        try {
+            response = zuoraServiceStub.delete(type, ids, getSessionHeader());
+        } catch (UnexpectedErrorFault unexpectedErrorFault) {
+            checkInvalidSessionError(unexpectedErrorFault);
+            response = zuoraServiceStub.delete(type, ids, getSessionHeader());
+        }
+        return response;
     }
 
     /**

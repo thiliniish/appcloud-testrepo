@@ -32,6 +32,9 @@ public final class MonetizationConstants {
     public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
     public static final String DS_API_URI_MON_APIC_DAILY_USAGE = "/v1/usage/daily-usage";
     public static final String DS_API_URI_UPDATE_API_SUBSCRIPTION = "/v1/apim/subscriptions/{tenantId}";
+    public static final String DS_API_URI_API_SUBSCRIPTION_HISTORY =
+            "/v1/subscriptions-history/{accountNumber}/{appName}/{apiName}/{apiVersion}";
+    public static final String DS_API_URI_APP_SUBSCRIPTIONS = "/v1/subscriptions/{accountNumber}/{appName}";
     public static final String DS_API_URI_MON_APIC_SUBSCRIPTION =
             "/v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}";
 
@@ -59,6 +62,8 @@ public final class MonetizationConstants {
     public static final String RATE_PLAN = "RatePlan";
     public static final String RATE_PLAN_ID = "RatePlanId";
     public static final String SUBSCRIPTION = "Subscription";
+    public static final String SUBSCRIPTIONS = "Subscriptions";
+    public static final String SUBSCRIPTION_NUMBER = "SubscriptionNumber";
     public static final String MAX_DAILY_USAGE = "MaxDailyUsage";
     public static final String ENTRY = "Entry";
     public static final String YEAR = "Year";
@@ -69,6 +74,11 @@ public final class MonetizationConstants {
     public static final String TOTAL_COUNT = "TotalCount";
     public static final String CSV_EXTENSION = ".csv";
     public static final String UNIT_OF_MEASURE_DISPLAY_NAME = "10K Overage Daily API Calls";
+
+    /*SOAP body constants*/
+    public static final String SOAP_APP_NAME = "appName";
+    public static final String SOAP_API_NAME = "apiName";
+    public static final String SOAP_API_VERSION = "apiVersion";
 
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +

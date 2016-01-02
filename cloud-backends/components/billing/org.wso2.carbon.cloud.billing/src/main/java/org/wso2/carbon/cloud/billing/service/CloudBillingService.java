@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.billing.service;
 
-
 import com.google.gson.JsonObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,14 +43,9 @@ public class CloudBillingService extends AbstractAdmin {
      * Retrieve cloud billing configuration as a json string
      *
      * @return json string
-     * @throws CloudBillingException
      */
-    public static String getConfigInJson() throws CloudBillingException {
-        try {
-            return CloudBillingServiceUtils.getConfigInJson();
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while getting the configuration in JSON ", ex);
-        }
+    public static String getConfigInJson() {
+        return CloudBillingServiceUtils.getConfigInJson();
     }
 
     /**
@@ -59,15 +53,9 @@ public class CloudBillingService extends AbstractAdmin {
      *
      * @param serviceSubscriptionId subscriptionId (api_cloud/app_cloud)
      * @return Rate plans
-     * @throws CloudBillingException
      */
-    public Plan[] getPaymentPlansForServiceId(String serviceSubscriptionId) throws CloudBillingException {
-        try {
-            return CloudBillingServiceUtils.getSubscriptions(serviceSubscriptionId);
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving subscriptions for Id: " +
-                    serviceSubscriptionId, ex);
-        }
+    public Plan[] getPaymentPlansForServiceId(String serviceSubscriptionId) {
+        return CloudBillingServiceUtils.getSubscriptions(serviceSubscriptionId);
     }
 
     /**
@@ -81,10 +69,8 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.getAccountSummary(accountId);
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the account summary for Account Id: " + accountId, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving the account summary for Account Id: "
-                    + accountId, ex);
         }
     }
 
@@ -99,10 +85,8 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.getInvoices(accountId);
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving invoices for Account Id: " + accountId, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving invoices for Account Id: " + accountId,
-                    ex);
         }
     }
 
@@ -117,10 +101,8 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.getPayments(accountId);
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving payments for Account Id: " + accountId, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving payments for Account Id: " + accountId,
-                    ex);
         }
     }
 
@@ -140,10 +122,9 @@ public class CloudBillingService extends AbstractAdmin {
             return CloudBillingServiceUtils.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate,
                     endDate);
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving usage data of tenant: " + tenantDomain + "for product: " +
+                    productName, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving usage data of tenant: " + tenantDomain
-                    + "for product: " + productName);
         }
     }
 
@@ -158,9 +139,8 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving account Id tenant: " + tenantDomain, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving account Id tenant: " + tenantDomain);
         }
     }
 
@@ -176,10 +156,8 @@ public class CloudBillingService extends AbstractAdmin {
             String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
             return ZuoraRESTUtils.getSubscriptionIdForAccount(accountId, serviceId);
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving subscription id for tenant: " + tenantDomain, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving subscription id for tenant: " +
-                    tenantDomain);
         }
     }
 
@@ -197,10 +175,9 @@ public class CloudBillingService extends AbstractAdmin {
             return (accountId != null && !accountId.isEmpty()) ?
                     ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) : null;
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the current rate plan of the tenant: " + tenantDomain + " " +
+                    "for subscription: " + productName, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving the current rate plan of the tenant: "
-                    + tenantDomain + " for subscription: " + productName);
         }
     }
 
@@ -211,7 +188,12 @@ public class CloudBillingService extends AbstractAdmin {
      * @throws CloudBillingException
      */
     public String prepareParams() throws CloudBillingException {
-        return ZuoraHPMUtils.prepareParams();
+        try {
+            return ZuoraHPMUtils.prepareParams();
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error while preparing access parameters", ex);
+            throw ex;
+        }
     }
 
     /**
@@ -222,7 +204,13 @@ public class CloudBillingService extends AbstractAdmin {
      * @throws CloudBillingException
      */
     public void validateSignature(String signature, String expirationTime) throws CloudBillingException {
-        ZuoraHPMUtils.validateSignature(signature, expirationTime);
+        try {
+            ZuoraHPMUtils.validateSignature(signature, expirationTime);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while validating the signature. ", ex);
+            throw ex;
+        }
+
     }
 
     /**
@@ -236,8 +224,9 @@ public class CloudBillingService extends AbstractAdmin {
     public String generateHash(String data, String mdAlgorithm) throws CloudBillingException {
         try {
             return ZuoraHPMUtils.generateHash(data, mdAlgorithm);
-        } catch (Exception e) {
-            throw new CloudBillingException("Error occurred while generating hash value: ");
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while generating hash value ", ex);
+            throw ex;
         }
     }
 
@@ -251,7 +240,12 @@ public class CloudBillingService extends AbstractAdmin {
      * @throws CloudBillingException
      */
     public boolean validateHash(String data, String hash, String mdAlgorithm) throws CloudBillingException {
-        return ZuoraHPMUtils.validateHash(data, hash, mdAlgorithm);
+        try {
+            return ZuoraHPMUtils.validateHash(data, hash, mdAlgorithm);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error while validating the hash value. ", ex);
+            throw ex;
+        }
     }
 
     /**
@@ -265,10 +259,8 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.getProductRatePlans(productName);
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving product rate plans for product: " + productName, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while retrieving product rate plans for product: "
-                    + productName);
         }
     }
 
@@ -278,15 +270,9 @@ public class CloudBillingService extends AbstractAdmin {
      * @param serviceId         serviceId
      * @param productRatePlanId rate plan id
      * @return success boolean
-     * @throws CloudBillingException
      */
-    public boolean validateRatePlanId(String serviceId, String productRatePlanId) throws CloudBillingException {
-        try {
-            return CloudBillingServiceUtils.validateRatePlanId(serviceId, productRatePlanId);
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while validating the rate plan: " + productRatePlanId
-                    + " for service: " + serviceId);
-        }
+    public boolean validateRatePlanId(String serviceId, String productRatePlanId) {
+        return CloudBillingServiceUtils.validateRatePlanId(serviceId, productRatePlanId);
     }
 
     /**
@@ -294,14 +280,9 @@ public class CloudBillingService extends AbstractAdmin {
      *
      * @param serviceId service Id
      * @return success boolean
-     * @throws CloudBillingException
      */
-    public boolean validateServiceId(String serviceId) throws CloudBillingException {
-        try {
-            return CloudBillingServiceUtils.validateServiceId(serviceId);
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while validating the service id: " + serviceId);
-        }
+    public boolean validateServiceId(String serviceId) {
+        return CloudBillingServiceUtils.validateServiceId(serviceId);
     }
 
     /**
@@ -358,9 +339,8 @@ public class CloudBillingService extends AbstractAdmin {
             JsonObject result = CloudBillingServiceUtils.addAccountParent(childAccountNo, parentAccountNo);
             return result.toString();
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while adding parent to the account : ", ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while adding parent to the account : ", ex);
         }
     }
 
@@ -431,9 +411,8 @@ public class CloudBillingService extends AbstractAdmin {
             JsonObject result = CloudBillingServiceUtils.createChildAccount(tenantDomain, accountInfoJson);
             return result.toString();
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while creating child account under tenant: " + tenantDomain, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while creating child account under tenant: " + tenantDomain, ex);
         }
     }
 
@@ -459,9 +438,25 @@ public class CloudBillingService extends AbstractAdmin {
             JsonObject result = CloudBillingServiceUtils.deleteAccount(accountName);
             return result.toString();
         } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while deleting account: " + accountName, ex);
             throw ex;
-        } catch (Exception ex) {
-            throw new CloudBillingException("Error occurred while deleting account: " + accountName, ex);
+        }
+    }
+
+    /**
+     * Cancel subscription by the subscription number
+     *
+     * @param subscriptionNumber   subscription number
+     * @param subscriptionInfoJson subscription information in json
+     * @return
+     * @throws CloudBillingException
+     */
+    public String cancelSubscription(String subscriptionNumber, String subscriptionInfoJson) throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.cancelSubscription(subscriptionNumber, subscriptionInfoJson);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error while cancelling the subscription. subscription no: " + subscriptionNumber, ex);
+            throw ex;
         }
     }
 }
