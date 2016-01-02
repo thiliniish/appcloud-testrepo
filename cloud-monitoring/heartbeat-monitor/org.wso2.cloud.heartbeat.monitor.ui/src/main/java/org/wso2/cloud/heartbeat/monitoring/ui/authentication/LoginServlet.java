@@ -83,9 +83,10 @@ import java.util.List;
 				session.setAttribute("user", user);
 				//setting session to expire in 30 mins
 				session.setMaxInactiveInterval(30 * 60);
-				Cookie userName = new Cookie("user", user);
-				userName.setMaxAge(30 * 60);
-				response.addCookie(userName);
+				Cookie username = new Cookie("user", user);
+				username.setSecure(true);
+				username.setMaxAge(30 * 60);
+				response.addCookie(username);
 				response.sendRedirect("index.jsp");
 			} else {
 				RequestDispatcher rd = getServletContext().getRequestDispatcher("/login.html");
