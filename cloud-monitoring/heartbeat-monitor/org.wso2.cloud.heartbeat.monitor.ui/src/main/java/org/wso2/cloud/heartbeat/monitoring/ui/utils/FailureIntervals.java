@@ -20,9 +20,7 @@ package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Class to create objects to hold failure intervals and their reletive failure counts
@@ -73,10 +71,11 @@ public class FailureIntervals {
 		return failureCount;
 	}
 
-	public List<TimestampPair> mapTimeStamp() {
-		List<TimestampPair> listTimeStampPair = new ArrayList<TimestampPair>();
+	public List<TimeStampPair> mapTimeStamp() {
+		List<TimeStampPair> listTimeStampPair = new ArrayList<TimeStampPair>();
 		for(Pair singlePair : listPair){
-			TimestampPair tmPair = new TimestampPair(new Timestamp(singlePair.getLeft()), new Timestamp(singlePair.getRight()));
+			TimeStampPair
+					tmPair = new TimeStampPair(new Timestamp(singlePair.getLeft()), new Timestamp(singlePair.getRight()));
 			listTimeStampPair.add(tmPair);
 		}
 		return listTimeStampPair;

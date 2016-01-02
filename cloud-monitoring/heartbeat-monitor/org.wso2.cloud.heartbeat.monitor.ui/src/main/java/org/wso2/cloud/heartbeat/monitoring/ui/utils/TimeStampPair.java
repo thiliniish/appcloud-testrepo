@@ -19,11 +19,11 @@ package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
 import java.sql.Timestamp;
 
-public class TimestampPair {
+public class TimeStampPair {
 	private Timestamp leftTimestamp;
 	private Timestamp rightTimestamp;
 
-	public TimestampPair(Timestamp left, Timestamp right){
+	public TimeStampPair(Timestamp left, Timestamp right){
 		this.leftTimestamp = left;
 		this.rightTimestamp = right;
 	}

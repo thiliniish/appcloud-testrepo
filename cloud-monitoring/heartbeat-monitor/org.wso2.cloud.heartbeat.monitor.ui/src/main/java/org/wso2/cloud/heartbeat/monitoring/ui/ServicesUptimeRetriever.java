@@ -89,7 +89,7 @@ public class ServicesUptimeRetriever {
         List<Long> negativeList = new ArrayList<Long>();
         List<Long> valuesToRemove = new ArrayList<Long>();
         IntervalMerger mergeIntervals = new IntervalMerger();
-        Map<Map<String, Map>, List<TimestampPair>> failureSummary = new HashMap<Map<String, Map>, List<TimestampPair>>();
+        Map<Map<String, Map>, List<TimeStampPair>> failureSummary = new HashMap<Map<String, Map>, List<TimeStampPair>>();
 
         log.info("Heartbeat - Monitor - Retrieving results for :" + serviceName + "Server and " + testName + "test");
 
