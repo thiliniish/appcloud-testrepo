@@ -31,8 +31,8 @@ import java.util.*;
 import java.util.Date;
 
 /**
- * Data retrieval Class for all the uptime related information, acts as the broker between
- * UI and database to retrieve process and transfer data.
+ * Data retrieval Class for all the uptime related information,
+ * acts as the broker between UI and database to retrieve process and transfer data.
  */
 
 public class ServicesUptimeRetriever {

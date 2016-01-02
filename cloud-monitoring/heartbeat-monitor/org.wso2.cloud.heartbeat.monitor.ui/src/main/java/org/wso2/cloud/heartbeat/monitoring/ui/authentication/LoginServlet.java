@@ -42,107 +42,136 @@ import java.util.Collections;
 import java.util.List;
 
 @WebServlet("/LoginServlet") public class LoginServlet extends HttpServlet {
-	private static final Log log = LogFactory.getLog(LoginServlet.class);
+    private static final Log log = LogFactory.getLog(LoginServlet.class);
 
-	private static final long serialVersionUID = 1L;
-	private String basicAuthUserID;
-	private String basicAuthPassword;
-	private String serverUrl;
-	private List<String> authorisedRoles;
+    private static final long serialVersionUID = 1L;
+    private String basicAuthUserID;
+    private String basicAuthPassword;
+    private String serverUrl;
+    private List<String> authorisedRoles;
 
-	private static RemoteUserStoreManagerServiceStub stub = null;
+    /**
+     * doPost method to authorize and authenicating the login
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws ServletException
+     * @throws IOException
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String configPath = getServletConfig().getServletContext().getRealPath("/WEB-INF/heartbeat.conf");
+        ConfigReader configurationInstance = ConfigReader.getInstance();
+        try {
+            configurationInstance.buildConfigurationNode(configPath);
+            Node adminUserNode = configurationInstance.getAdminNode();
+            basicAuthUserID = adminUserNode.getProperty("user");
+            basicAuthPassword = adminUserNode.getProperty("password");
+            serverUrl = "https://" + adminUserNode.getProperty("server_url");
+            String authorisedRoleString = adminUserNode.getProperty("authorised_roles");
+            String[] splitRoles = authorisedRoleString.split(",");
+            authorisedRoles = new ArrayList<String>();
+            if (splitRoles.length > 0) {
+                Collections.addAll(authorisedRoles, splitRoles);
+            } else {
+                authorisedRoles.add(authorisedRoleString);
+            }
+        } catch (HeartbeatException heartbeatException) {
+            log.error(heartbeatException);
+            handleErrorResponse(request, response, "/login.html", "Login Failed Due to Internal Server Error.");
+        }
+        // get request parameters for userID and password
+        String user = request.getParameter("user").replace("@", ".");
+        String pwd = request.getParameter("pwd");
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		String configPath = getServletConfig().getServletContext().getRealPath("/WEB-INF/heartbeat.conf");
-		ConfigReader configurationInstance = ConfigReader.getInstance();
-		try {
-			configurationInstance.buildConfigurationNode(configPath);
-			Node adminUserNode = configurationInstance.getAdminNode();
-			basicAuthUserID = adminUserNode.getProperty("user");
-			basicAuthPassword = adminUserNode.getProperty("password");
-			serverUrl = "https://" + adminUserNode.getProperty("server_url");
-			String authorisedRoleString = adminUserNode.getProperty("authorised_roles");
-			String[] splitRoles = authorisedRoleString.split(",");
-			authorisedRoles = new ArrayList<String>();
-			if (splitRoles.length > 0) {
-				Collections.addAll(authorisedRoles, splitRoles);
-			} else {
-				authorisedRoles.add(authorisedRoleString);
-			}
-		} catch (HeartbeatException heartbeatException) {
-			log.error(heartbeatException);
-		}
-		// get request parameters for userID and password
-		String user = request.getParameter("user").replace("@", ".");
-		String pwd = request.getParameter("pwd");
+        try {
+            if (authenticate(user, pwd)) {
+                HttpSession session = request.getSession();
+                session.setAttribute("user", user);
+                //setting session to expire in 30 mins
+                session.setMaxInactiveInterval(30 * 60);
+                Cookie username = new Cookie("user", user);
+                username.setSecure(true);
+                username.setMaxAge(30 * 60);
+                response.addCookie(username);
+                response.sendRedirect("index.jsp");
+            } else {
+                handleErrorResponse(request, response, "/login.html",
+                                    "Either user name or password is wrong or invalid.");
+            }
+        } catch (HeartbeatException heartbeatException) {
+            log.error(heartbeatException);
+            handleErrorResponse(request, response, "/login.html", "Login Failed Due to Internal Server Error.");
+        }
 
-		try {
-			if (authenticate(user, pwd)) {
-				HttpSession session = request.getSession();
-				session.setAttribute("user", user);
-				//setting session to expire in 30 mins
-				session.setMaxInactiveInterval(30 * 60);
-				Cookie username = new Cookie("user", user);
-				username.setSecure(true);
-				username.setMaxAge(30 * 60);
-				response.addCookie(username);
-				response.sendRedirect("index.jsp");
-			} else {
-				RequestDispatcher rd = getServletContext().getRequestDispatcher("/login.html");
-				PrintWriter out = response.getWriter();
-				out.println(
-						"<div style='width:30%; margin-left:38%; margin-top:10%; margin-bottom:-13%;'><font color=red>Either user name or password is wrong or invalid.</font></div>");
-				rd.include(request, response);
-			}
-		} catch (Exception e) {
-			log.error(e);
-		}
+    }
 
-	}
+    /**
+     * Authenticating the stub with given credentials and checks for the given heartbeat role
+     *
+     * @param username   Username of the login
+     * @param credential credential Object
+     * @return boolean value of authentication status
+     * @throws HeartbeatException
+     */
+    private boolean authenticate(String username, Object credential) throws HeartbeatException {
+        if (!(credential instanceof String)) {
+            throw new HeartbeatException("Unsupported type of password");
+        }
+        try {
+            RemoteUserStoreManagerServiceStub stub;
+            stub = new RemoteUserStoreManagerServiceStub(null, serverUrl + "RemoteUserStoreManagerService");
+            HttpTransportProperties.Authenticator basicAuth = new HttpTransportProperties.Authenticator();
+            basicAuth.setUsername(basicAuthUserID);
+            basicAuth.setPassword(basicAuthPassword);
+            basicAuth.setPreemptiveAuthentication(true);
 
-	private boolean authenticate(String userName, Object credential)
-			throws HeartbeatException, RemoteException, RemoteUserStoreManagerServiceUserStoreExceptionException {
-		if (!(credential instanceof String)) {
-			log.error("Heartbeat - Monitor - Login error : Unsupported type of password");
-			throw new HeartbeatException("Unsupported type of password");
-		}
-		try {
-			if (stub == null) {
-				stub = new RemoteUserStoreManagerServiceStub(null, serverUrl + "RemoteUserStoreManagerService");
-				HttpTransportProperties.Authenticator basicAuth = new HttpTransportProperties.Authenticator();
-				basicAuth.setUsername(basicAuthUserID);
-				basicAuth.setPassword(basicAuthPassword);
-				basicAuth.setPreemptiveAuthentication(true);
+            final Options clientOptions = stub._getServiceClient().getOptions();
+            clientOptions.setProperty(HTTPConstants.AUTHENTICATE, basicAuth);
+            stub._getServiceClient().setOptions(clientOptions);
 
-				final Options clientOptions = stub._getServiceClient().getOptions();
-				clientOptions.setProperty(HTTPConstants.AUTHENTICATE, basicAuth);
-				stub._getServiceClient().setOptions(clientOptions);
-			}
-			//Check for heartbeat specific role availability
-			String[] userRoles = stub.getRoleListOfUser(userName);
-			//boolean String to hold availability
-			boolean roleIsAvailable = false;
-			boolean loginSuccessful;
-			for (String singleRole : userRoles) {
-				if (authorisedRoles.contains(singleRole)) {
-					roleIsAvailable = true;
-				}
-			}
-			loginSuccessful = stub.authenticate(userName, (String) credential) && roleIsAvailable;
-			return loginSuccessful;
-		} catch (AxisFault axisFault) {
-			log.error(
-					"Heartbeat - Monitor - Axis Fault occurred while login for user [" + userName + "] : " + axisFault);
-			return false;
-		} catch (RemoteException e) {
-			log.error("Heartbeat - Monitor - Remote Exception occurred while login for user [" + userName + "] : " + e);
-			return false;
-		} catch (RemoteUserStoreManagerServiceUserStoreExceptionException e) {
-			log.error("Heartbeat - Monitor - Remote User Store Manager Services error occurred while login for user [" +
-			          userName + "] : " + e);
-			return false;
-		}
-	}
+            //Check for heartbeat specific role availability
+            String[] userRoles = stub.getRoleListOfUser(username);
+            //boolean String to hold availability
+            boolean roleIsAvailable = false;
+            boolean loginSuccessful;
+            for (String singleRole : userRoles) {
+                if (authorisedRoles.contains(singleRole)) {
+                    roleIsAvailable = true;
+                }
+            }
+            loginSuccessful = stub.authenticate(username, (String) credential) && roleIsAvailable;
+            return loginSuccessful;
+        } catch (AxisFault axisFault) {
+            throw new HeartbeatException(
+                    "Heartbeat - Monitor - Axis Fault occurred while login for user [" + username + "] : " + axisFault);
+        } catch (RemoteException e) {
+            throw new HeartbeatException(
+                    "Heartbeat - Monitor - Remote Exception occurred while login for user [" + username + "] : " + e);
+        } catch (RemoteUserStoreManagerServiceUserStoreExceptionException e) {
+            throw new HeartbeatException(
+                    "Heartbeat - Monitor - Remote User Store Manager Services error occurred while login for user [" +
+                    username + "] : " + e);
+        }
+    }
+
+    /**
+     * Formatting and sending the error related information to the intended page
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @param path     Path which the request dispatcher should redirect to
+     * @param message  Message to be sent to front end
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void handleErrorResponse(HttpServletRequest request, HttpServletResponse response, String path,
+                                     String message) throws ServletException, IOException {
+        RequestDispatcher rd = getServletContext().getRequestDispatcher(path);
+        PrintWriter out = response.getWriter();
+        out.println("<div style='width:30%; margin-left:38%; margin-top:10%; margin-bottom:-13%;'><font color=red>" +
+                    message + "</font></div>");
+        rd.include(request, response);
+    }
 
 }

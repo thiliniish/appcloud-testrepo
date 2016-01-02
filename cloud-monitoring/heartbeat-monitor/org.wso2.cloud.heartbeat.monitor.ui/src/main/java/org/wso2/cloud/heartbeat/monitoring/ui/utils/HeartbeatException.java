@@ -30,5 +30,4 @@ public class HeartbeatException extends Exception {
     public HeartbeatException(String message, Throwable cause) {
         super(message, cause);
     }
-
 }
