@@ -70,7 +70,6 @@
     $.fn.populateUptime = function (json, array) {
         $.each(json.UptimeInfo, function (index, value) {
             var t1 = new Date(index).getTime();
-            //t1 = $.fn.addTimeZoneDiff(t1);
             array.push([t1, value]);
         });
 

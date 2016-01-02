@@ -7,7 +7,8 @@
 <%@ page import="org.wso2.cloud.heartbeat.monitoring.ui.utils.IntervalMerger"%>
 <%@ page import="org.wso2.cloud.heartbeat.monitoring.ui.utils.Pair"%>
 <%@ page import="java.sql.Timestamp"%>
-<%@ page import="java.util.*"%><%@ page import="org.wso2.cloud.heartbeat.monitoring.ui.utils.TimestampPair"%>
+<%@ page import="java.util.*"%>
+<%@ page import="org.wso2.cloud.heartbeat.monitoring.ui.utils.TimestampPair"%>
 <%
 String cloudName = request.getParameter("cloudName");
 String timeIntervalStart = request.getParameter("timeIntervalStart");

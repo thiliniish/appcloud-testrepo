@@ -366,7 +366,7 @@ public class ServicesUptimeRetriever {
         return failuredetail;
     }
 
-    /**d
+    /**
      * In case of a false alarm by parsing the failure indexes we can mark them as true
      *
      * @param failureIndexes index values of failures selected
