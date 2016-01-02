@@ -1,4 +1,4 @@
-# Cloud - Extrenal GSN GAmes
+# Cloud - Extrenal GSN Games
 
 # Custom Authentication Mediator For GSN Games - 21st December 2015
 
