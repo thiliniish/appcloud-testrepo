@@ -17,7 +17,10 @@
  */
 package org.wso2.carbon.cloud.appfactory.appdeletion.util;
 
-public class AppDeleterConstants {
+/**
+ * Represents the constants used in the component
+ */
+public final class AppDeleterConstants {
 
     private AppDeleterConstants() {
     }

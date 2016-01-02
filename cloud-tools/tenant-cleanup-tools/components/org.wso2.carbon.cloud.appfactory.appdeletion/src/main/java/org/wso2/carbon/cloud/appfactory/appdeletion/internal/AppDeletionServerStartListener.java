@@ -24,6 +24,9 @@ import org.wso2.carbon.cloud.appfactory.appdeletion.util.AppDeleterConstants;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * Represents the listener that identify the server startup
+ */
 public class AppDeletionServerStartListener implements ServerStartupHandler {
 
     private static final Log log = LogFactory.getLog(AppDeletionServerStartListener.class);
@@ -36,7 +39,7 @@ public class AppDeletionServerStartListener implements ServerStartupHandler {
 
         String tenantFile = System.getProperty(AppDeleterConstants.TENANT_FILE);
         String napTime = System.getProperty(AppDeleterConstants.NAP_TIME);
-        //checks for null,empty and whitespace values
+        //Checks for null,empty and whitespace values
         if (StringUtils.isNotBlank(tenantFile) && StringUtils.isNotBlank(napTime)) {
             log.info("Tenant app deletion for tenant list located at: " + tenantFile + " will start after " + napTime
                     + " milli-seconds.");

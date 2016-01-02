@@ -42,6 +42,9 @@ import org.wso2.carbon.user.core.service.RealmService;
  * policy="dynamic" bind="setApplicationInfoService" unbind="unsetApplicationInfoService"
  */
 
+/**
+ * Represents the tenant app deletion component
+ */
 public class TenantAppDeletionComponent {
     private static final Log log = LogFactory.getLog(TenantAppDeletionComponent.class);
 
@@ -51,7 +54,7 @@ public class TenantAppDeletionComponent {
      * @param context OSGi component context.
      */
     protected void activate(ComponentContext context) {
-        //register the server start up handler which hold the execution of its invoke method until the server starts
+        //Register the server start up handler which hold the execution of its invoke method until the server starts
         context.getBundleContext()
                 .registerService(ServerStartupHandler.class.getName(), new AppDeletionServerStartListener(), null);
         log.info("Tenant App Deletion bundle activated successfully.");

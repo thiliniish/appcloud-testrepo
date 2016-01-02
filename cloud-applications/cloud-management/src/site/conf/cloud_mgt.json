@@ -118,7 +118,8 @@
     },
     "ServerUrls": {
       "gatewayCallback": "https://localhost:8443/services/WorkflowCallbackService",
-      "bpsServiceURL": "http://localhost:9863/services/"
+      "bpsServiceURL": "http://localhost:9863/services/",
+      "bpsServerURL": "https://milestones.appfactory.wso2.com:9543/services/"
     },
     "selfSignUpApprovalClass":"org.wso2.carbon.cloud.signup.workflow.SignUpWorkflowExecuter",
     "selfSignUpDefaultClass":"org.wso2.carbon.cloud.signup.workflow.SimpleSignUpWorkflowExecuter"

@@ -40,7 +40,7 @@
                   //if the feature has already been configured.
                   if (result.trim() == "configured") {
                       $('#btn_submit').attr('disabled',true);
-                          jagg.message({content:'Self signup is already enabled.',type:'error',cbk:function(){
+                          jagg.message({content:'Self signup is already enabled.', type:'error', cbk:function() {
                            window.location.href = publisherUrl;
                            }
                           });
@@ -64,19 +64,19 @@
                         $("#helper_text").hide();
                         $("#success-message").show();
                    } else if (result.trim() == "resourcePending") {
-                        jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.',type:'success',cbk:function(){
+                        jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.', type:'success', cbk:function() {
                           window.location.href = publisherUrl;
                           }
                         });
                    } else {
-                        jagg.message({content:'An error occurred while configuring the self signup feature for your organization.',type:'error',cbk:function(){
+                        jagg.message({content:'An error occurred while configuring the self signup feature for your organization.', type:'error', cbk:function() {
                           window.location.href = publisherUrl;
                           }
                         });
                    }
                  },
                   function (jqXHR, textStatus, errorThrown) {
-                      jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                      jagg.message({content:jqXHR.responseText, type:'error', cbk:function() {
                               window.location.href = cloudMgtUrl;
                           }
                       });
