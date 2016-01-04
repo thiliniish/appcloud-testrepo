@@ -1,0 +1,50 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+
+var log = new Log("site.block.pricing.account.update.ajax.update.jag");
+var mod = jagg.module("pricing");
+
+(function () {
+    var result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var responseObject;
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
+    var message;
+    var user = jagg.getUser();
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+    if (action == "updateAccount") {
+        var accountData = {};
+        accountData.firstName = request.getParameter("firstName");
+        accountData.lastName = request.getParameter("lastName");
+        accountData.address1 = request.getParameter("address1");
+        accountData.address2 = request.getParameter("address2");
+        accountData.city = request.getParameter("city");
+        accountData.state = request.getParameter("state");
+        accountData.zipCode = request.getParameter("zipCode");
+        accountData.country = request.getParameter("country");
+        accountData.workEmail = request.getParameter("email");
+        responseFrom = request.getParameter("responseFrom");
+        var result = mod.updateContactInfo(accountData);
+        print(result);
+    } else {
+        message = "Invalid Action specified for action " + action;
+        responseObj = {
+            error: true,
+            message: message,
+            statusCode: 500
+        };
+        print(responseObj);
+    }
+}());
+%>

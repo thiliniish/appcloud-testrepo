@@ -1,12 +1,11 @@
 <%
-
 include("/jagg/jagg.jag");
 include("../header.jag");
 var site = require("/site/conf/site.json");
 var i18n = require("i18n");
 var localeResourcesBasePath = "/site/conf/locales/jaggery/";
 i18n.init(request, localeResourcesBasePath);
-var log = new Log("");
+var tenantDomain = jagg.getTenantDomain();
 
 (function () {
     var user = jagg.getUser(), isCreatePermitted;
@@ -17,11 +16,10 @@ var log = new Log("");
     }
 
 
-    var tenantDomain = jagg.getUser().username.split('@')[1];
     jagg.render({
         "name": "page/base",
         "inputs": {
-            "title": "API Store- Payment method (Credit card) ",
+            "title": "API Store- Account Summary ",
             "header": {
                 "name": "menu/primary"
             },
@@ -29,11 +27,6 @@ var log = new Log("");
                 {
                     "name": "layout/base",
                     "inputs": {
-                        "top": [{
-                            "name": "search/api-search",
-                            "inputs": null
-                        }
-                        ],
                         "left": [
                             {
                                 "name": "api/recently-added",

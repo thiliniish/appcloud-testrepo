@@ -23,6 +23,7 @@ import com.google.gson.JsonParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
@@ -151,7 +152,7 @@ public class APICloudMonetizationService {
             String zuoraProductName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
             return CloudBillingServiceUtils.getRatePlanId(tenantDomain, zuoraProductName, ratePlanName);
         } catch (CloudBillingException e) {
-            String errorMsg = "Error while getting rate plan id for tenant: " + tenantDomain  + " Rate Plan name: " +
+            String errorMsg = "Error while getting rate plan id for tenant: " + tenantDomain + " Rate Plan name: " +
                     ratePlanName;
             LOGGER.error(errorMsg, e);
             throw new CloudMonetizationException(errorMsg, e);
@@ -323,6 +324,30 @@ public class APICloudMonetizationService {
             String errorMsg = "Error while creating zuora subscription.";
             LOGGER.error(errorMsg, e);
             throw new CloudMonetizationException(errorMsg, e);
+        }
+    }
+
+    /**
+     * @param tenantDomain    tenant domain
+     * @param userId          user id
+     * @param api             api name with version
+     * @param version         api version
+     * @param applicationName application name
+     * @param startDate       date range - start date
+     * @param endDate         date range - end date
+     * @return JSON object of usage data
+     * @throws CloudMonetizationException
+     */
+    public JSONObject getTenantMonetizationUsageDataForGivenDateRange(String tenantDomain, String userId, String api,
+                                                                      String version, String applicationName, String startDate, String endDate)
+            throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils
+                    .getTenantMonetizationUsageDataForGivenDateRange(tenantDomain, userId, api, version,
+                            applicationName, startDate, endDate);
+        } catch (CloudMonetizationException ex) {
+            throw new CloudMonetizationException(
+                    "Error occurred while retrieving monetization usage data of tenant: " + tenantDomain);
         }
     }
 }

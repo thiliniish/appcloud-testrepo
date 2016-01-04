@@ -1,0 +1,6 @@
+<%
+jagg.block("pricing/account/info", {
+	initialize:function (data) {
+	}
+});
+%>

@@ -179,6 +179,7 @@ public final class BillingConstants {
     public static final String ZUORA_REST_API_URI_INVOICE_INFO = "/v1/transactions/invoices/accounts/{account-key}";
     public static final String ZUORA_REST_API_URI_PAYMENT_INFO = "/v1/transactions/payments/accounts/{account-key}";
     public static final String ZUORA_REST_API_URI_PRODUCTS = "/v1/catalog/products";
+    public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS = "/v1/payment-methods/credit-cards/accounts";
 
     /*data service param names*/
     public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";
