@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class CloudTenantManager extends CommonHybridLDAPTenantManager {
 
-    private static Log logger = LogFactory.getLog(CloudTenantManager.class);
+    private static final Log LOGGER = LogFactory.getLog(CloudTenantManager.class);
     private LDAPConnectionContext ldapConnectionSource;
     private TenantMgtConfiguration tenantMgtConfig = null;
     private RealmConfiguration realmConfig = null;
@@ -78,6 +78,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @param initialDirContext The directory connection.
      * @throws UserStoreException If an error occurred while creating.
      */
+    @Override
     protected void createOrganizationalUnit(String orgName, Tenant tenant, DirContext initialDirContext)
             throws UserStoreException {
         //e.g: ou=wso2.com
@@ -121,6 +122,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         }
     }
 
+    @Override
     protected String createAdminEntry(String dnOfUserContext, Tenant tenant, DirContext initialDirContext)
             throws UserStoreException {
         String userDN;
@@ -149,26 +151,25 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      * @throws UserStoreException
      */
     public boolean doCheckExistingUser(String userName, DirContext initialDirContext) throws UserStoreException {
-
-        userName = doConvert(userName);
+        String convertedUserName = doConvert(userName);
 
         boolean bFound = false;
-        boolean debug = logger.isDebugEnabled();
 
         try {
-            if (debug) {
-                logger.debug("Searching for user " + userName);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Searching for user " + convertedUserName);
             }
-            String name = getNameInSpaceForUserName(userName, initialDirContext);
+            String name = getNameInSpaceForUserName(convertedUserName, initialDirContext);
             if (name != null && name.length() > 0) {
                 bFound = true;
             }
-        } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(), e);
+        } catch (UserStoreException e) {
+            String msg = "Error occurred while checking existence of user : " + convertedUserName;
+            throw new UserStoreException(msg,e);
         }
 
-        if (debug) {
-            logger.debug("User: " + userName + " exist: " + bFound);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("User: " + convertedUserName + " exist: " + bFound);
         }
 
         return bFound;
@@ -212,7 +213,6 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
     }
 
     /**
-     *
      * @param userName     userName
      * @param searchBase   searchBase
      * @param searchFilter searchFilter
@@ -221,7 +221,6 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
      */
     protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter,
             DirContext dirContext) throws UserStoreException {
-        boolean debug = logger.isDebugEnabled();
         String name = null;
 
         NamingEnumeration<SearchResult> answer;
@@ -229,14 +228,8 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             SearchControls searchCtls = new SearchControls();
             searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-            if (logger.isDebugEnabled()) {
-                try {
-                    logger.debug(
-                            "Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext
-                                    .getNameInNamespace());
-                } catch (NamingException e) {
-                    logger.debug("Error while getting DN of search base", e);
-                }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + searchBase);
             }
             SearchResult userObj;
             String[] searchBases = searchBase.split("#");
@@ -250,11 +243,11 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
                     }
                 }
             }
-            if (debug) {
-                logger.debug("Name in space for " + userName + " is " + name);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Name in space for " + userName + " is " + name);
             }
-        } catch (Exception e) {
-            logger.debug(e.getMessage(), e);
+        } catch (NamingException e) {
+            throw new UserStoreException(e);
         }
         return name;
     }
