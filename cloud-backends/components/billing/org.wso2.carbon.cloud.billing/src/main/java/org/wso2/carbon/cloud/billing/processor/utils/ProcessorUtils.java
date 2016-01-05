@@ -179,10 +179,10 @@ public class ProcessorUtils {
     private static void handleExceptionWithRetry(int executionCount, int retryCount, String methodName, String uri,
                                                  Exception ex) throws CloudBillingException {
         if (retryCount >= executionCount) {
-            throw new CloudBillingException(methodName + " request failed for the " + retryCount + " attempt for URI:" +
-                                            " " + uri, ex);
+            throw new CloudBillingException(methodName + " request failed for the maximum no. of attempts(" +
+                    retryCount + ") for URL: " + uri, ex);
         } else {
-            LOGGER.warn(methodName + " request failed for URI: " + uri + " with exception : " + ex.getMessage()
+            LOGGER.warn(methodName + " request failed for URL: " + uri + " with exception : " + ex.getMessage()
                         + ". Retry attempt: " + retryCount + "/" + executionCount);
         }
     }

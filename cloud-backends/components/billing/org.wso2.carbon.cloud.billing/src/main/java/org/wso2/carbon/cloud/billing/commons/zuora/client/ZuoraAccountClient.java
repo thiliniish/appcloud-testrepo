@@ -26,16 +26,13 @@ import com.zuora.api.ID;
 import com.zuora.api.QueryResult;
 import com.zuora.api.SaveResult;
 import com.zuora.api.object.Account;
-import com.zuora.api.object.ZObject;
 import com.zuora.api.wso2.stub.InvalidQueryLocatorFault;
 import com.zuora.api.wso2.stub.InvalidTypeFault;
 import com.zuora.api.wso2.stub.InvalidValueFault;
 import com.zuora.api.wso2.stub.MalformedQueryFault;
 import com.zuora.api.wso2.stub.UnexpectedErrorFault;
-import org.apache.axis2.AxisFault;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ClientSession;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ZuoraClientUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 
@@ -48,7 +45,6 @@ import java.rmi.RemoteException;
  */
 public class ZuoraAccountClient extends ZuoraClient {
 
-    private static final String INIT_ERROR_MSG = "Error while initializing Zuora Account client";
     private static final String ACCOUNT_CREATION_ERROR = "occurred while creating customer account";
     private static final String ACCOUNT_UPDATE_ERROR = "occurred while updating the customer account";
     private static final String ACCOUNT_DELETION_ERROR = "occurred while deleting customer account";
@@ -58,21 +54,8 @@ public class ZuoraAccountClient extends ZuoraClient {
     private static final String ERROR_JSON_OBJ_INVALID_ACCOUNT = "{\"code\": null,\"codeSpecified\": true,\"field\": " +
             "null,\"fieldSpecified\": false,\"message\": \"Invalid account name. \",\"messageSpecified\": true}";
 
-
     public ZuoraAccountClient() throws CloudBillingZuoraException {
-        try {
-            zuoraClientUtils = new ZuoraClientUtils();
-        } catch (AxisFault axisFault) {
-            throw new CloudBillingZuoraException(INIT_ERROR_MSG, axisFault);
-        }
-    }
-
-    public ZuoraAccountClient(ClientSession clientSession) throws CloudBillingZuoraException {
-        try {
-            zuoraClientUtils = new ZuoraClientUtils(clientSession);
-        } catch (AxisFault axisFault) {
-            throw new CloudBillingZuoraException(INIT_ERROR_MSG, axisFault);
-        }
+        super();
     }
 
     /**
@@ -205,7 +188,7 @@ public class ZuoraAccountClient extends ZuoraClient {
     public JsonObject deleteAccount(String accountName) throws CloudBillingZuoraException {
         try {
             Account account = getAccountByName(accountName);
-            if(account != null) {
+            if (account != null) {
                 DeleteResult result = zuoraClientUtils.delete(BillingConstants.ZUORA_ACCOUNT, account.getId());
                 return objectToJson(result);
             } else {
@@ -214,7 +197,7 @@ public class ZuoraAccountClient extends ZuoraClient {
                 errorResponse.addProperty("successSpecified", true);
                 errorResponse.addProperty("errorsSpecified", true);
 
-                JsonObject[] errorObjs  = new JsonObject[] {
+                JsonObject[] errorObjs = new JsonObject[]{
                         new JsonParser().parse(ERROR_JSON_OBJ_INVALID_ACCOUNT).getAsJsonObject()
                 };
                 errorResponse.add("errors", new Gson().toJsonTree(errorObjs));
@@ -303,7 +286,7 @@ public class ZuoraAccountClient extends ZuoraClient {
     }
 
     /**
-     * @param childAccNo child account name
+     * @param childAccNo  child account name
      * @param parentAccNo child account number
      * @return json object
      * {
@@ -363,7 +346,7 @@ public class ZuoraAccountClient extends ZuoraClient {
         try {
             String query = ZuoraClientUtils.prepareZQuery(BillingConstants.QUERY_ZUORA_ACCOUNT_BY_NAME, new String[]{accountName});
             QueryResult result = zuoraClientUtils.query(query, null);
-            if((result.getRecords())[0] != null) {
+            if ((result.getRecords())[0] != null) {
                 return (Account) result.getRecords()[0];
             } else {
                 return null;

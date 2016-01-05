@@ -29,7 +29,11 @@ import java.util.Iterator;
 /**
  * Cloud billing common utilises
  */
-public class CloudBillingUtils {
+public final class CloudBillingUtils {
+
+
+    private CloudBillingUtils() {
+    }
 
     /**
      * Checks the current carbon server is the coordinator of the cluster

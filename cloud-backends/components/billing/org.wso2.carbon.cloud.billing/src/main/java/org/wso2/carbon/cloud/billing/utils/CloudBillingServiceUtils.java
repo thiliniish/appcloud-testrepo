@@ -280,10 +280,10 @@ public final class CloudBillingServiceUtils {
         }
     }
 
-    public static String getRatePlanId(String tenantDomain, String ratePlanName) throws CloudBillingException {
+    public static String getRatePlanId(String tenantDomain, String zuoraProductName, String ratePlanName) throws
+            CloudBillingException {
         String ratePlanUrl = monetizationServiceURI + MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN;
         String response = null;
-        String zuoraProductName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
         try {
             String url = ratePlanUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
                     CloudBillingUtils.encodeUrlParam(tenantDomain)).replace(MonetizationConstants

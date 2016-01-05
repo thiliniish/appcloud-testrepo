@@ -63,6 +63,7 @@ public final class BillingConstants {
 
     public static final String ACCOUNT_KEY_PARAM = "{account-key}";
     public static final String TENANT_DOMAIN_PARAM = "{tenantDomain}";
+    public static final String SUBSCRIPTION_KEY_PARAM = "{subscription-key}";
 
     //Zuora coupon details
     public static final String COUPON_HEADER = "coupon";
@@ -93,9 +94,19 @@ public final class BillingConstants {
     public static final String SUBSCRIPTION_NUMBER = "subscriptionNumber";
     public static final String PRODUCT_ID = "productId";
     public static final String RATE_PLAN_NAME = "ratePlanName";
+    public static final String CONTRACT_EFFECTIVE_DATE = "contractEffectiveDate";
+    public static final String ACCOUNT_KEY = "accountKey";
+    public static final String SUBSCRIBED_TO_RATE_PLANS = "subscribeToRatePlans";
 
-    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    public static final String DS_DATE_FORMAT = "yyyy-MM-dd";
+    public static final String CANCELLATION_POLICY = "cancellationPolicy";
+    public static final String CANCELLATION_EFFECTIVE_DATE = "cancellationEffectiveDate";
+    public static final String INVOICE_COLLECT = "invoiceCollect";
+
+    // Zuora subscription json elements
+    public static final String CANCELLATION_POLICY_SPECIFIC_DATE = "SpecificDate";
+
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
     // Commercial ProductNames
     public static final String API_CLOUD = "API Cloud";
 
@@ -195,6 +206,8 @@ public final class BillingConstants {
     public static final String ZUORA_COMMUNICATION_PROFILE_ID = "communicationProfileId";
     public static final String ZUORA_RESPONSE_SUCCESS = "success";
 
+    /*database tables updated status*/
+    public static final String MONETIZATION_DB_UPDATED = "monetizationDbUpdated";
 
     private BillingConstants() {
     }

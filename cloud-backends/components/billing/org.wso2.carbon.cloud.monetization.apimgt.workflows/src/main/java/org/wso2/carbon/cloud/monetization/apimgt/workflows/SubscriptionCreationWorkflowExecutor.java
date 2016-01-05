@@ -30,17 +30,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.WorkflowResponse;
-import org.wso2.carbon.apimgt.api.model.Tier;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
 import org.wso2.carbon.apimgt.impl.dto.SubscriptionWorkflowDTO;
 import org.wso2.carbon.apimgt.impl.dto.WorkflowDTO;
-import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.impl.workflow.GeneralWorkflowResponse;
 import org.wso2.carbon.apimgt.impl.workflow.HttpWorkflowResponse;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowConstants;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
-import org.wso2.carbon.apimgt.impl.workflow.WorkflowExecutor;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 
@@ -51,15 +48,16 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.APPROVED;
+import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.REJECTED;
 
 /**
  * API Cloud monetization specific subscription creation workflow
  * Check if monetization is enabled for tenant: this workflow should only be deployed for monetization
  * enabled tenants. Once they enable monetization for a tenant, this workflow should be automatically deployed
- *
+ * <p/>
  * Add the configuration to
  * /_system/governance/apimgt/applicationdata/workflow-extensions.xml
- *
+ * <p/>
  * ex config:
  *    <SubscriptionCreation executor="org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionCreationWorkflowExecutor">
  *         <Property name="serviceEndpoint">https://milestones.appfactory.wso2.com:9443/services/APICloudMonetizationService/</Property>
@@ -67,21 +65,13 @@ import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.APPROVED;
  *         <Property name="password">Admin</Property>
  *    </SubscriptionCreation>
  */
-public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
+public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWorkflowExecutor {
 
     private static final Log LOGGER = LogFactory.getLog(SubscriptionCreationWorkflowExecutor.class);
     private static final String ERROR_MSG = "Could not complete subscription creation workflow.";
 
     /*Data separator for the encrypting data string*/
     private static final String DATA_SEPARATOR = ":";
-
-    private static final String IS_TEST_ACCOUNT_PROPERTY = "TestAccount";
-    private static final String ACCOUNT_NUMBER_PROPERTY = "AccountNumber";
-    private static final String SUBSCRIBERS_OBJ = "Subscribers";
-    private static final String SUBSCRIBER_OBJ = "Subscriber";
-
-    private static final String TIER_PLAN_COMMERCIAL = "COMMERCIAL";
-    private static final String TIER_PLAN_FREE = "FREE";
 
     private static final String WORKFLOW_REF_PARAM = "workflowReference";
 
@@ -99,7 +89,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
      * @return Workflow Response
      * @throws WorkflowException
      */
-    private WorkflowResponse handleFreePlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws WorkflowException {
+    protected WorkflowResponse handleFreePlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws WorkflowException {
         subscriptionWorkflowDTO.setStatus(APPROVED);
         WorkflowResponse workflowResponse = complete(subscriptionWorkflowDTO);
         super.publishEvents(subscriptionWorkflowDTO);
@@ -111,51 +101,51 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
      *
      * @param subscriptionWorkflowDTO subscription workflow DTO
      * @return Workflow Response
-     * @throws AxisFault
-     * @throws XMLStreamException
      * @throws WorkflowException
-     * @throws CryptoException
-     * @throws UnsupportedEncodingException
      */
-    private WorkflowResponse handleCommercialPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
-            throws AxisFault, XMLStreamException, WorkflowException, CryptoException, UnsupportedEncodingException {
-        JsonObject responseObj = getSubscriberInfo(subscriptionWorkflowDTO);
-        if (responseObj == null || responseObj.get(SUBSCRIBERS_OBJ) == null) {
-            throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
-        }
-        HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
-        httpworkflowResponse.setRedirectConfirmationMsg(null);
+    protected WorkflowResponse handleCommercialPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
+            throws WorkflowException {
+        try {
+            JsonObject responseObj = WorkFlowUtils.getSubscriberInfo(subscriptionWorkflowDTO.getSubscriber(),
+                    subscriptionWorkflowDTO.getTenantDomain(), serviceEndpoint, contentType, username, password);
+            HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
+            httpworkflowResponse.setRedirectConfirmationMsg(null);
 
-        //Encrypt and base64 encode api data
-        String apiInfo = URLEncoder.encode(getEncryptionInfo(subscriptionWorkflowDTO), CustomWorkFlowConstants.ENCODING);
-        //Check subscriber information availability
-        if (responseObj.get(SUBSCRIBERS_OBJ).isJsonObject()) {
-            JsonObject subscriber = responseObj.getAsJsonObject(SUBSCRIBERS_OBJ).getAsJsonObject(SUBSCRIBER_OBJ);
-            boolean isTestAccount = subscriber.get(IS_TEST_ACCOUNT_PROPERTY).getAsBoolean();
+            //Encrypt and base64 encode api data
+            String apiInfo = URLEncoder.encode(getEncryptionInfo(subscriptionWorkflowDTO), CustomWorkFlowConstants.ENCODING);
+            //Check subscriber information availability
+            if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonObject()) {
+                JsonObject subscriber = responseObj.getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBERS_OBJ)
+                        .getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBER_OBJ);
+                boolean isTestAccount = subscriber.get(CustomWorkFlowConstants.IS_TEST_ACCOUNT_PROPERTY).getAsBoolean();
 
-            //Check subscribers is a test/complementary subscriber
-            if (!isTestAccount) {
-                String accountNumber = subscriber.get(ACCOUNT_NUMBER_PROPERTY).isJsonPrimitive() ? subscriber.get
-                        (ACCOUNT_NUMBER_PROPERTY).getAsString() : null;
-                httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
-                if (StringUtils.isNotBlank(accountNumber)) {
-                    //TODO redirecting after creating the subscription
-                    httpworkflowResponse.setRedirectUrl("http://www.google.lk/");
-                    return httpworkflowResponse;
+                //Check subscribers is a test/complementary subscriber
+                if (!isTestAccount) {
+                    String accountNumber = subscriber.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY).isJsonPrimitive()
+                            ? subscriber.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY).getAsString() : null;
+                    httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
+                    if (StringUtils.isNotBlank(accountNumber)) {
+                        return createSubscription(accountNumber, subscriptionWorkflowDTO, httpworkflowResponse);
+                    } else {
+                        httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
+                        return httpworkflowResponse;
+                    }
                 } else {
-                    httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
-                    return httpworkflowResponse;
+                    return handleFreePlan(subscriptionWorkflowDTO);
                 }
+            } else if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonPrimitive()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Subscriber information not available. adding subscriber");
+                }
+                addSubscriber(subscriptionWorkflowDTO);
+                httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
+                httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
+                return httpworkflowResponse;
             } else {
-                return handleFreePlan(subscriptionWorkflowDTO);
+                throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
             }
-        } else if (responseObj.get(SUBSCRIBERS_OBJ).isJsonPrimitive()) {
-            addSubscriber(subscriptionWorkflowDTO);
-            httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
-            httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
-            return httpworkflowResponse;
-        } else {
-            throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
+        } catch (AxisFault | XMLStreamException | UnsupportedEncodingException | CryptoException e) {
+            throw new WorkflowException(ERROR_MSG, e);
         }
     }
 
@@ -172,30 +162,6 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
                 DATA_SEPARATOR + subscriptionWorkflowDTO.getApiName() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApiVersion();
         return CryptoUtil.getDefaultCryptoUtil()
                 .encryptAndBase64Encode(stringBuilder.getBytes(Charset.defaultCharset()));
-    }
-
-    /**
-     * Retrieve subscribers information from the persistence
-     *
-     * @param subscriptionWorkflowDTO Subscription Workflow DTO
-     * @return subscribers details as a JsonObject
-     * @throws AxisFault
-     * @throws XMLStreamException
-     */
-    private JsonObject getSubscriberInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws AxisFault, XMLStreamException {
-        ServiceClient client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_GET_SUBSCRIBER,
-                serviceEndpoint, contentType, username, password);
-        String payload = CustomWorkFlowConstants.SUBSCRIBER_INFO_PAYLOAD
-                .replace("$1", subscriptionWorkflowDTO.getSubscriber())
-                .replace("$2", subscriptionWorkflowDTO.getTenantDomain());
-        OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
-        OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
-
-        if (StringUtils.isNotBlank(response.getText())) {
-            return new JsonParser().parse(response.getText().trim()).getAsJsonObject();
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -218,6 +184,57 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_UPDATE_SUBSCRIBER, serviceEndpoint,
                 contentType, username, password);
         client.fireAndForget(AXIOMUtil.stringToOM(payload));
+    }
+
+    /**
+     * Create subscription for subscribers already having a paid account
+     *
+     * @param accountNumber           account number
+     * @param subscriptionWorkflowDTO workflow DTO
+     * @param httpworkflowResponse    workflow response
+     * @return workflow response with added redirection url
+     * @throws AxisFault
+     * @throws XMLStreamException
+     * @throws WorkflowException
+     */
+    private WorkflowResponse createSubscription(String accountNumber, SubscriptionWorkflowDTO subscriptionWorkflowDTO,
+                                                HttpWorkflowResponse httpworkflowResponse) throws AxisFault, XMLStreamException,
+            WorkflowException {
+        String payload = CustomWorkFlowConstants.CREATE_API_SUBSCRIPTION_PAYLOAD
+                .replace("$1", accountNumber).replace("$2", subscriptionWorkflowDTO.getTenantDomain())
+                .replace("$3", subscriptionWorkflowDTO.getTierName()).replace("$4", subscriptionWorkflowDTO.getApplicationName())
+                .replace("$5", subscriptionWorkflowDTO.getApiName()).replace("$6", subscriptionWorkflowDTO
+                        .getApiVersion());
+
+        ServiceClient client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_CREATE_API_SUBSCRIPTION,
+                serviceEndpoint, contentType, username, password);
+
+        OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
+        OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
+
+        if (StringUtils.isNotBlank(response.getText())) {
+            JsonObject responseObj = new JsonParser().parse(response.getText().trim()).getAsJsonObject();
+            if (responseObj == null) {
+                throw new WorkflowException("Could not complete workflow. Subscription creation failure.");
+            }
+            if (responseObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS) != null &&
+                    responseObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj.get
+                    (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean() && responseObj.get
+                    (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
+                //TODO use the correct URL and execute complete after the redirection
+                httpworkflowResponse.setRedirectUrl("https://www.google.lk/");
+                return httpworkflowResponse;
+            } else {
+                LOGGER.error("Failure in zuora subscription creation. tenant: " + subscriptionWorkflowDTO
+                        .getTenantDomain() + " subscriber: " + accountNumber + " application: " +
+                        subscriptionWorkflowDTO.getApplicationName() + " api: " + subscriptionWorkflowDTO.getApiName
+                        () + " api version: " + subscriptionWorkflowDTO.getApiVersion());
+                subscriptionWorkflowDTO.setStatus(REJECTED);
+                return complete(subscriptionWorkflowDTO);
+            }
+        } else {
+            throw new WorkflowException("Could not complete workflow. Subscription creation failure.");
+        }
     }
 
     /**
@@ -247,30 +264,7 @@ public class SubscriptionCreationWorkflowExecutor extends WorkflowExecutor {
         } else {
             throw new WorkflowException(ERROR_MSG + " WorkflowDTO doesn't match the required type");
         }
-
-        try {
-            Tier tier = APIUtil.getTierFromCache(subscriptionWorkflowDTO.getTierName(),
-                    subscriptionWorkflowDTO.getTenantDomain());
-            //Check tier information
-            if (tier != null && StringUtils.isNotBlank(tier.getTierPlan())) {
-                String tierPlan = tier.getTierPlan();
-                switch (tierPlan) {
-                    case TIER_PLAN_COMMERCIAL:
-                        return handleCommercialPlan(subscriptionWorkflowDTO);
-                    case TIER_PLAN_FREE:
-                        return handleFreePlan(subscriptionWorkflowDTO);
-                    default:
-                        throw new WorkflowException(ERROR_MSG + " Tier plan " + tierPlan + " not " + "available.");
-                }
-            } else {
-                throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + " not " +
-                        "available or tier plan not available.");
-            }
-        } catch (AxisFault | XMLStreamException | UnsupportedEncodingException | CryptoException e) {
-            throw new WorkflowException(ERROR_MSG, e);
-        } catch (APIManagementException e) {
-            throw new WorkflowException(ERROR_MSG + " Error occurred while querying the tier information. ", e);
-        }
+        return handleTierPlan(subscriptionWorkflowDTO);
     }
 
     /**

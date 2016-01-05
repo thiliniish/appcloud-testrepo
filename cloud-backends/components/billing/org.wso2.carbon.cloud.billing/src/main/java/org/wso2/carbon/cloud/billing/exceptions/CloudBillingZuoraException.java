@@ -25,7 +25,7 @@ import org.wso2.carbon.cloud.billing.commons.BillingConstants;
  */
 public class CloudBillingZuoraException extends CloudBillingException {
 
-    private String errorCode;
+    private final String errorCode;
 
     public CloudBillingZuoraException(String s) {
         super(s);
