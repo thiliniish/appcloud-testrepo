@@ -189,9 +189,9 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
     /**
      * Create subscription for subscribers already having a paid account
      *
-     * @param accountNumber account number
+     * @param accountNumber           account number
      * @param subscriptionWorkflowDTO workflow DTO
-     * @param httpworkflowResponse workflow response
+     * @param httpworkflowResponse    workflow response
      * @return workflow response with added redirection url
      * @throws AxisFault
      * @throws XMLStreamException
@@ -218,9 +218,10 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                 throw new WorkflowException("Could not complete workflow. Subscription creation failure.");
             }
             if (responseObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS) != null &&
-                    responseObj.get("table-update") != null && responseObj.get(CustomWorkFlowConstants
-                    .ZUORA_RESPONSE_SUCCESS).getAsBoolean() && responseObj.get("table-update").getAsBoolean()) {
-                //TODO redirecting after creating the subscription
+                    responseObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj.get
+                    (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean() && responseObj.get
+                    (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
+                //TODO use the correct URL and execute complete after the redirection
                 httpworkflowResponse.setRedirectUrl("https://www.google.lk/");
                 return httpworkflowResponse;
             } else {

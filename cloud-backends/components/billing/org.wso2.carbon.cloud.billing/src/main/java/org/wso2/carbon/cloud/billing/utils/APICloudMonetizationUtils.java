@@ -160,7 +160,7 @@ public final class APICloudMonetizationUtils {
                         nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             }
 
-            return DataServiceBillingRequestProcessor.isRequestSuccess(response);
+            return DataServiceBillingRequestProcessor.isXMLResponseSuccess(response);
         } catch (CloudBillingException | UnsupportedEncodingException | XMLStreamException e) {
             throw new CloudMonetizationException(
                     "Error while updating API subscribers. For user: " + username + " tenant domain: " + tenantDomain,
@@ -223,7 +223,7 @@ public final class APICloudMonetizationUtils {
             };
 
             String response = dsBRProcessor.doPost(url, BillingConstants.HTTP_TYPE_APPLICATION_XML, nameValuePairs);
-            return DataServiceBillingRequestProcessor.isRequestSuccess(response);
+            return DataServiceBillingRequestProcessor.isXMLResponseSuccess(response);
         } catch (CloudBillingException | UnsupportedEncodingException | XMLStreamException e) {
             throw new CloudMonetizationException("Error while adding subscription information for child account: " +
                     accountNumber + " of the parent tenant: " + tenantDomain, e);
@@ -304,16 +304,45 @@ public final class APICloudMonetizationUtils {
      *      }
      *  ]
      * }
+     *
+     * When subscription data not available on databases
+     * it would be
+     *
+     * {
+     *  "subscriptionInfoNotAvailable":true
+     * }
+     *
      * @throws CloudMonetizationException
      */
     public static String cancelSubscription(String accountNumber, String appName, String apiName, String apiVersion)
             throws CloudMonetizationException {
         String subscriptionInfo = getSubscriptionInfo(accountNumber, appName, apiName, apiVersion);
-        JsonObject subscriptionObj = new JsonParser().parse(subscriptionInfo).getAsJsonObject().get
-                (MonetizationConstants.SUBSCRIPTION).getAsJsonObject();
 
-        JsonObject zuoraResponseObj = new JsonParser().parse(removeZuoraSubscription(accountNumber, subscriptionObj)).getAsJsonObject();
-        if (zuoraResponseObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()){
+        JsonElement subscriptionInfoElement = new JsonParser().parse(subscriptionInfo);
+
+        if (subscriptionInfoElement == null || subscriptionInfoElement.isJsonPrimitive()) {
+            throw new CloudMonetizationException("Error while cancelling the subscription. Subscription data " +
+                    "unavailable. Account no: " + accountNumber + ", Application name: " + appName + ", Api name: " +
+                    apiName + ", Api " + "version: " + apiVersion);
+        }
+
+        if (subscriptionInfoElement.isJsonObject() && subscriptionInfoElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION)
+                .isJsonPrimitive()) {
+            LOGGER.warn("Subscription information not available. Proceeding with the subscription cancellation. Account no: " +
+                    accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
+                    "version: " + apiVersion);
+            JsonObject responseObj = new JsonObject();
+            //This is added since some times there may be instances without subscription information on zuora side
+            responseObj.addProperty("subscriptionInfoNotAvailable", true);
+            return responseObj.toString();
+        }
+
+        JsonObject subscriptionObj = subscriptionInfoElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION)
+                .getAsJsonObject();
+
+        JsonObject zuoraResponseObj = new JsonParser().parse(removeZuoraSubscription(accountNumber, subscriptionObj))
+                .getAsJsonObject();
+        if (zuoraResponseObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
             //TODO do following with box carring
             try {
                 String subscriptionHistoryUrl = subscriptionHistoryUri
@@ -322,8 +351,8 @@ public final class APICloudMonetizationUtils {
                         .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
                         .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils.encodeUrlParam(apiVersion));
 
-                boolean response = Boolean.valueOf(dsBRProcessor.doPost(subscriptionHistoryUrl, null, new
-                        NameValuePair[]{}));
+                boolean response = DataServiceBillingRequestProcessor.isJsonResponseSuccess(dsBRProcessor.doPost
+                        (subscriptionHistoryUrl, null, new NameValuePair[]{}));
                 //TODO do following with box carring
                 if (response) {
                     String subscriptionUrl = subscriptionUri
@@ -332,16 +361,23 @@ public final class APICloudMonetizationUtils {
                             .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
                             .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils.encodeUrlParam(apiVersion));
 
-                    response = Boolean.valueOf(dsBRProcessor.doDelete(subscriptionUrl, null, new NameValuePair[]{}));
+                    response = DataServiceBillingRequestProcessor
+                            .isJsonResponseSuccess(dsBRProcessor.doDelete(subscriptionUrl, null, new NameValuePair[]{}));
                     if (response) {
-                        zuoraResponseObj.addProperty(BillingConstants.DB_TABLES_UPDATED, true);
+                        zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, true);
                         return zuoraResponseObj.toString();
                     } else {
-                        zuoraResponseObj.addProperty(BillingConstants.DB_TABLES_UPDATED, false);
+                        LOGGER.warn("Cancelling subscription: monetization tables update failure. Account no: " +
+                                accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
+                                "version: " + apiVersion);
+                        zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
                         return zuoraResponseObj.toString();
                     }
                 } else {
-                    zuoraResponseObj.addProperty(BillingConstants.DB_TABLES_UPDATED, false);
+                    LOGGER.warn("Cancelling subscription: monetization tables update failure. Account no: " +
+                            accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
+                            "version: " + apiVersion);
+                    zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
                     return zuoraResponseObj.toString();
                 }
 
@@ -350,7 +386,7 @@ public final class APICloudMonetizationUtils {
             }
         } else {
             LOGGER.error("Error while cancelling the subscription. response code: " + zuoraResponseObj.toString());
-            zuoraResponseObj.addProperty(BillingConstants.DB_TABLES_UPDATED, false);
+            zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
             return zuoraResponseObj.toString();
         }
     }

@@ -18,7 +18,9 @@
 
 package org.wso2.carbon.cloud.monetization.apimgt.workflows;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axis2.AxisFault;
@@ -80,8 +82,7 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
                     String accountNumber = subscriber.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY).isJsonPrimitive()
                             ? subscriber.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY).getAsString() : null;
                     if (StringUtils.isNotBlank(accountNumber)) {
-                        cancelSubscription(accountNumber, subscriptionWorkflowDTO);
-                        return deleteApiSubscription(subscriptionWorkflowDTO);
+                        return cancelSubscription(accountNumber, subscriptionWorkflowDTO);
                     } else {
                         throw new WorkflowException(ERROR_MSG + " Subscriber information invalid. account number cannot " +
                                 "be null or empty");
@@ -129,9 +130,8 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
      * @throws AxisFault
      * @throws XMLStreamException
      */
-    private OMElement cancelSubscription(String accountNumber, SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws
-            AxisFault,
-            XMLStreamException {
+    private WorkflowResponse cancelSubscription(String accountNumber, SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws
+            AxisFault, XMLStreamException, WorkflowException {
         String payload;
         ServiceClient client;
         if (LOGGER.isDebugEnabled()) {
@@ -145,7 +145,35 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
                 .replace("$3", subscriptionWorkflowDTO.getApiName()).replace("$4", subscriptionWorkflowDTO.getApiVersion());
         client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_CANCEL_SUBSCRIPTION, serviceEndpoint,
                 contentType, username, password);
-        return client.sendReceive(AXIOMUtil.stringToOM(payload));
+        OMElement response = client.sendReceive(AXIOMUtil.stringToOM(payload));
+        if (response.getChildrenWithLocalName("return").hasNext()) {
+            OMElement returnElement = (OMElement) response.getChildrenWithLocalName("return").next();
+            JsonElement responseElement = new JsonParser().parse(returnElement.getText());
+            if (responseElement.isJsonObject()) {
+                JsonObject resultObj = responseElement.getAsJsonObject();
+                if (resultObj.get("subscriptionInfoNotAvailable") != null && resultObj.get
+                        ("subscriptionInfoNotAvailable").getAsBoolean()) {
+                    return deleteApiSubscription(subscriptionWorkflowDTO);
+                }
+                if (resultObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS) != null && resultObj.get
+                        (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
+                    if (resultObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) == null || !resultObj.get
+                            (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
+                        LOGGER.warn("Zuora subscription has been removed successfully. But Monetization database " +
+                                "table update failure indicated for the subscription deletion process. ");
+                        //ToDo send email to correct the behaviour
+                    }
+                    return deleteApiSubscription(subscriptionWorkflowDTO);
+                } else {
+                    throw new WorkflowException("Cancel subscription failure. unsuccessful removal of zuora " +
+                            "subscription. response: " + response.toString());
+                }
+            } else {
+                throw new WorkflowException("Cancel subscription failure. response: " + response.toString());
+            }
+        } else {
+            throw new WorkflowException("Cancel subscription information cannot be empty. response: " + response.toString());
+        }
     }
 
     /**

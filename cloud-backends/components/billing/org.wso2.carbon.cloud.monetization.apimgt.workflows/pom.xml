@@ -25,7 +25,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.cloud.monetization.workflows</artifactId>
+    <artifactId>org.wso2.carbon.cloud.monetization.apimgt.workflows</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Cloud - Monetization API Workflows</name>

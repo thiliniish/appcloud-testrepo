@@ -80,6 +80,7 @@ public final class CustomWorkFlowConstants {
     public static final String SUBSCRIBER_OBJ = "Subscriber";
 
     public static final String ZUORA_RESPONSE_SUCCESS = "success";
+    public static final String MONETIZATION_TABLES_UPDATED = "monetizationDbUpdated";
 
     private CustomWorkFlowConstants() {
     }

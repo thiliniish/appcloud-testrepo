@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.cloud.billing.processor;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
@@ -153,6 +156,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         // default accept response body in JSON
         String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+        post.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
         if (ArrayUtils.isNotEmpty(nameValuePairs)) {
             post.setRequestBody(nameValuePairs);
         }
@@ -207,12 +211,40 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         // default accept response body in JSON
         String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         delete.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
-
         delete.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
         if (ArrayUtils.isNotEmpty(nameValuePairs)) {
             delete.setQueryString(nameValuePairs);
         }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), delete, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    private void setTrustStoreParams() {
+        System.setProperty(BillingConstants.TRUST_STORE_NAME_PROPERTY, ssoConfig.getTrustStorePath());
+        System.setProperty(BillingConstants.TRUST_STORE_PASSWORD_PROPERTY, ssoConfig.getTrustStorePassword());
+    }
+
+    /**
+     * Utility method to check the status. This can only be used
+     * when the DS's particular request is configured to send back the request status
+     * <p/>
+     *
+     * @param jsonResponse json response String
+     *                     {
+     *                     "REQUEST_STATUS": "SUCCESSFUL"
+     *                     }
+     * @return boolean value
+     */
+    public static boolean isJsonResponseSuccess(String jsonResponse) {
+        if (StringUtils.isBlank(jsonResponse)) {
+            return false;
+        }
+        JsonElement element = new JsonParser().parse(jsonResponse.trim());
+        if (!element.isJsonObject()) {
+            return false;
+        }
+        JsonObject result = element.getAsJsonObject();
+        return result.get(BillingConstants.DS_REQUEST_STATUS) != null && BillingConstants.DS_REQUEST_STATUS_SUCCESS
+                .equals(result.get(BillingConstants.DS_REQUEST_STATUS).getAsString());
     }
 
     /**
@@ -226,15 +258,10 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
      * @return boolean
      * @throws XMLStreamException
      */
-    public static boolean isRequestSuccess(String response) throws XMLStreamException {
+    public static boolean isXMLResponseSuccess(String response) throws XMLStreamException {
         OMElement resultOME = AXIOMUtil.stringToOM(response);
         return resultOME != null && BillingConstants.DS_REQUEST_STATUS.equals(resultOME.getLocalName())
                 && StringUtils.isNotBlank(resultOME.getText())
                 && BillingConstants.DS_REQUEST_STATUS_SUCCESS.equals(resultOME.getText().trim());
-    }
-
-    private void setTrustStoreParams() {
-        System.setProperty(BillingConstants.TRUST_STORE_NAME_PROPERTY, ssoConfig.getTrustStorePath());
-        System.setProperty(BillingConstants.TRUST_STORE_PASSWORD_PROPERTY, ssoConfig.getTrustStorePassword());
     }
 }

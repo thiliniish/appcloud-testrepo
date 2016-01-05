@@ -306,7 +306,7 @@ public class APICloudMonetizationService {
                     boolean addSubscriptionStatus = APICloudMonetizationUtils.addSubscriptionInformation(tenantDomain,
                             accountNumber, apiDataObj, (new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT))
                                     .format(planEffectiveDate));
-                    zuoraResObj.addProperty(BillingConstants.DB_TABLES_UPDATED, addSubscriptionStatus);
+                    zuoraResObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, addSubscriptionStatus);
                     return zuoraResObj.toString();
 
                 } else {

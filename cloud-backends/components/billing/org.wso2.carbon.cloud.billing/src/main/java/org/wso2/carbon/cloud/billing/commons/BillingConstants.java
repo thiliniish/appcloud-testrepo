@@ -207,7 +207,7 @@ public final class BillingConstants {
     public static final String ZUORA_RESPONSE_SUCCESS = "success";
 
     /*database tables updated status*/
-    public static final String DB_TABLES_UPDATED = "table-update";
+    public static final String MONETIZATION_DB_UPDATED = "monetizationDbUpdated";
 
     private BillingConstants() {
     }
