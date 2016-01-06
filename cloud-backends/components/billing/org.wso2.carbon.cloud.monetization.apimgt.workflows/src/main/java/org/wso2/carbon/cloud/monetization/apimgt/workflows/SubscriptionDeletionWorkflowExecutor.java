@@ -146,8 +146,9 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
         client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_CANCEL_SUBSCRIPTION, serviceEndpoint,
                 contentType, username, password);
         OMElement response = client.sendReceive(AXIOMUtil.stringToOM(payload));
-        if (response.getChildrenWithLocalName("return").hasNext()) {
-            OMElement returnElement = (OMElement) response.getChildrenWithLocalName("return").next();
+        if (response.getChildrenWithLocalName(CustomWorkFlowConstants.SOAP_RETURN_ELEMENT).hasNext()) {
+            OMElement returnElement = (OMElement) response
+                    .getChildrenWithLocalName(CustomWorkFlowConstants.SOAP_RETURN_ELEMENT).next();
             JsonElement responseElement = new JsonParser().parse(returnElement.getText());
             if (responseElement.isJsonObject()) {
                 JsonObject resultObj = responseElement.getAsJsonObject();

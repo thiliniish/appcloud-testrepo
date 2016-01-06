@@ -31,7 +31,6 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.apimgt.impl.dto.SubscriptionWorkflowDTO;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 
@@ -98,10 +97,16 @@ public final class WorkFlowUtils {
     /**
      * Retrieve subscribers information from the persistence
      *
-     * @param subscriptionWorkflowDTO Subscription Workflow DTO
+     * @param subscriber      subscriberId
+     * @param tenantDomain    tenant domain
+     * @param serviceEndpoint api monetization service endpoint
+     * @param contentType     content type
+     * @param username        admin username
+     * @param password        admin password
      * @return subscribers details as a JsonObject
      * @throws AxisFault
      * @throws XMLStreamException
+     * @throws WorkflowException
      */
     public static JsonObject getSubscriberInfo(String subscriber, String tenantDomain, String serviceEndpoint,
                                                String contentType, String username, String password)

@@ -46,7 +46,7 @@ public final class CustomWorkFlowConstants {
                     " </ser:cancelSubscription>";
 
     public static final String REMOVE_APP_SUBSCRIPTIONS_PAYLOAD =
-            "<ser:removeAppSubscriptions> xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+            "<ser:removeAppSubscriptions xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
                     " <ser:accountNumber>$1</ser:accountNumber>\n" +
                     " <ser:appName>$2</ser:appName>\n" +
                     " </ser:removeAppSubscriptions>";
@@ -59,6 +59,7 @@ public final class CustomWorkFlowConstants {
                     " <ser:appName>$4</ser:appName>\n" +
                     " <ser:apiName>$5</ser:apiName>\n" +
                     " <ser:apiVersion>$6</ser:apiVersion>\n" +
+                    " <ser:apiProvider>$7</ser:apiProvider>\n" +
                     " </ser:createAPISubscription>";
 
     /*SOAP actions*/
@@ -81,6 +82,7 @@ public final class CustomWorkFlowConstants {
 
     public static final String ZUORA_RESPONSE_SUCCESS = "success";
     public static final String MONETIZATION_TABLES_UPDATED = "monetizationDbUpdated";
+    public static final String SOAP_RETURN_ELEMENT = "return";
 
     private CustomWorkFlowConstants() {
     }
