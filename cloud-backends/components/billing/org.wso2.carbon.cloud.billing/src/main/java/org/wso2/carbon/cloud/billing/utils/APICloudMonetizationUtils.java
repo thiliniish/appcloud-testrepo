@@ -488,7 +488,7 @@ public final class APICloudMonetizationUtils {
                         "subscription no: " + subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER)
                         .getAsString() + ". Reasons: " + responseObj.get("reasons"));
                 //Check already the success value set to false
-                if (!cancellationObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
+                if (cancellationObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
                     cancellationObj.addProperty(BillingConstants.ZUORA_RESPONSE_SUCCESS, false);
                 }
             } else {

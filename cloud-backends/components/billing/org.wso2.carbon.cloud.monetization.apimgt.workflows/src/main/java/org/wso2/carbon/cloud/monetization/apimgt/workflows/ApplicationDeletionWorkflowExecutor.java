@@ -143,6 +143,10 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
 
         JsonArray removedSubscriptions = resultObj.getAsJsonArray("removedSubscriptions");
 
+        if (removedSubscriptions.size() == 0) {
+            return new GeneralWorkflowResponse();
+        }
+
         try {
             conn = APIMgtDBUtil.getConnection();
             conn.setAutoCommit(false);
