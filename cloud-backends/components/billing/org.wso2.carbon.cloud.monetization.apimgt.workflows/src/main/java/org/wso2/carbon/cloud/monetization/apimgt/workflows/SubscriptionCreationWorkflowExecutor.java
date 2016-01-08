@@ -222,7 +222,9 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                     responseObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj.get
                     (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean() && responseObj.get
                     (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
-                //TODO use the correct URL and execute complete after the redirection
+                //TODO use the correct URL
+                subscriptionWorkflowDTO.setStatus(APPROVED);
+                complete(subscriptionWorkflowDTO);
                 httpworkflowResponse.setRedirectUrl("https://www.google.lk/");
                 return httpworkflowResponse;
             } else {
