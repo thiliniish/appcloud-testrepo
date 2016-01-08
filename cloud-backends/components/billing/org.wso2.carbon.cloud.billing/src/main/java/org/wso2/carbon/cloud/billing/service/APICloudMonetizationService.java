@@ -48,7 +48,7 @@ public class APICloudMonetizationService {
      *
      * @param username     username of the subscriber
      * @param tenantDomain tenant domain
-     * @return <subscribers xmlns="http://ws.wso2.org/dataservice">
+     * @return
      * {
      * 	"Subscribers": {
      * 		"Subscriber": {
@@ -241,6 +241,35 @@ public class APICloudMonetizationService {
      * @param apiName       api name
      * @param apiVersion    api version
      * @return cancel subscription status
+     * In success
+     * {
+     *  "success": true,
+     *  "subscriptionId": "2c92c0fb51b054350151b382f3635c6f",
+     *  "cancelledDate": "2013-07-01",
+     *  "totalDeltaMrr": 0,
+     *  "totalDeltaTcv": null
+     * }
+     *
+     * failure
+     *
+     * {
+     *  "success": false,
+     *  "processId": "2E185B5582D256E7",
+     *  "reasons": [
+     *      {
+     *          "code": 53200020,
+     *          "message": "Only activated subscription can be cancelled."
+     *      }
+     *  ]
+     * }
+     *
+     * When subscription data not available on databases
+     * it would be
+     *
+     * {
+     *  "subscriptionInfoNotAvailable":true
+     * }
+     *
      * @throws CloudMonetizationException
      */
     public String cancelSubscription(String accountNumber, String appName, String apiName, String apiVersion)
@@ -257,8 +286,37 @@ public class APICloudMonetizationService {
     /**
      * Remove Application related api subscriptions
      *
-     * @param accountNumber account number
-     * @param appName       application name
+     * @param accountNumber subscriber account number
+     * @param appName application name
+     * @return
+     * {
+     *     "removedSubscriptions": [
+     *         {
+     *             "AccountNumber": "A00000657",
+     *             "ApiName": "CalculatorAPI",
+     *             "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
+     *             "ApiVersion": "1.0",
+     *             "AppName": "TESTAAA1",
+     *             "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *             "StartDate": "2016-01-06T14:37:30.000+05:30",
+     *             "SubscriptionNumber": "A-S00000699"
+     *         },
+     *         {
+     *             "AccountNumber": "A00000657",
+     *             "ApiName": "PhoneVerify",
+     *             "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
+     *             "ApiVersion": "1.0.0",
+     *             "AppName": "TESTAAA1",
+     *             "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *             "StartDate": "2016-01-06T14:43:38.000+05:30",
+     *             "SubscriptionNumber": "A-S00000700"
+     *         }
+     *     ],
+     *     "success": true
+     * }
+     *
+     * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
+     *
      * @throws CloudMonetizationException
      */
     public String removeAppSubscriptions(String accountNumber, String appName) throws CloudMonetizationException {
@@ -280,11 +338,13 @@ public class APICloudMonetizationService {
      * @param appName       application name
      * @param apiName       api name
      * @param apiVersion    api version
+     * @param apiProvider   api provider
      * @return response json object.
      * @throws CloudMonetizationException
      */
     public String createAPISubscription(String accountNumber, String tenantDomain, String tierName, String appName,
-                                        String apiName, String apiVersion) throws CloudMonetizationException {
+                                        String apiName, String apiVersion, String apiProvider) throws
+            CloudMonetizationException {
         Date planEffectiveDate = new Date();
         String ratePlanId = getRatePlanId(tenantDomain, tierName);
         if (StringUtils.isBlank(ratePlanId)) {
@@ -300,6 +360,7 @@ public class APICloudMonetizationService {
                     apiDataObj.addProperty(MonetizationConstants.SOAP_APP_NAME, appName);
                     apiDataObj.addProperty(MonetizationConstants.SOAP_API_NAME, apiName);
                     apiDataObj.addProperty(MonetizationConstants.SOAP_API_VERSION, apiVersion);
+                    apiDataObj.addProperty(MonetizationConstants.SOAP_API_PROVIDER, apiProvider);
                     apiDataObj.addProperty(BillingConstants.PARAM_RATE_PLAN_ID, ratePlanId);
                     apiDataObj.addProperty(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, zuoraResObj.get
                             (BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString());

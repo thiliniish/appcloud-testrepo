@@ -57,6 +57,7 @@ var decryptWorkflowData = function (workflowData) {
         decryptedData.appName = String(dataArray[2]);
         decryptedData.apiName = String(dataArray[3]);
         decryptedData.apiVersion = String(dataArray[4]);
+        decryptedData.apiProvider = String(dataArray[5]);
     }
     return decryptedData;
 };

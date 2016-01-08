@@ -215,6 +215,8 @@ public final class APICloudMonetizationUtils {
                             .encodeUrlParam(apiDataObj.get(MonetizationConstants.SOAP_API_VERSION).getAsString()));
 
             NameValuePair[] nameValuePairs = new NameValuePair[]{
+                    new NameValuePair(MonetizationConstants.SOAP_API_PROVIDER, apiDataObj
+                            .get(MonetizationConstants.SOAP_API_PROVIDER).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_RATE_PLAN_ID, apiDataObj.get(BillingConstants
                             .PARAM_RATE_PLAN_ID).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, apiDataObj.get(BillingConstants
@@ -343,47 +345,7 @@ public final class APICloudMonetizationUtils {
         JsonObject zuoraResponseObj = new JsonParser().parse(removeZuoraSubscription(accountNumber, subscriptionObj))
                 .getAsJsonObject();
         if (zuoraResponseObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
-            //TODO do following with box carring
-            try {
-                String subscriptionHistoryUrl = subscriptionHistoryUri
-                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
-                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName))
-                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
-                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils.encodeUrlParam(apiVersion));
-
-                boolean response = DataServiceBillingRequestProcessor.isJsonResponseSuccess(dsBRProcessor.doPost
-                        (subscriptionHistoryUrl, null, new NameValuePair[]{}));
-                //TODO do following with box carring
-                if (response) {
-                    String subscriptionUrl = subscriptionUri
-                            .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
-                            .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName))
-                            .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
-                            .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils.encodeUrlParam(apiVersion));
-
-                    response = DataServiceBillingRequestProcessor
-                            .isJsonResponseSuccess(dsBRProcessor.doDelete(subscriptionUrl, null, new NameValuePair[]{}));
-                    if (response) {
-                        zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, true);
-                        return zuoraResponseObj.toString();
-                    } else {
-                        LOGGER.warn("Cancelling subscription: monetization tables update failure. Account no: " +
-                                accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
-                                "version: " + apiVersion);
-                        zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
-                        return zuoraResponseObj.toString();
-                    }
-                } else {
-                    LOGGER.warn("Cancelling subscription: monetization tables update failure. Account no: " +
-                            accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
-                            "version: " + apiVersion);
-                    zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
-                    return zuoraResponseObj.toString();
-                }
-
-            } catch (UnsupportedEncodingException | CloudBillingException e) {
-                throw new CloudMonetizationException("Error while updating api subscription history tables. ", e);
-            }
+            return removeSubscriptionsInMonDb(accountNumber, appName, apiName, apiVersion, zuoraResponseObj);
         } else {
             LOGGER.error("Error while cancelling the subscription. response code: " + zuoraResponseObj.toString());
             zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
@@ -392,36 +354,152 @@ public final class APICloudMonetizationUtils {
     }
 
     /**
+     * Removes the subscription information from the monetization tables
+     *
+     * @param accountNumber accountNumber
+     * @param appName application name
+     * @param apiName api name
+     * @param apiVersion api version
+     * @param zuoraResponseObj zuora response object
+     * @return zuora response object with "monetizationDbUpdated" attribute
+     * @throws CloudMonetizationException
+     */
+    private static String removeSubscriptionsInMonDb(String accountNumber, String appName, String apiName,
+                                                     String apiVersion, JsonObject zuoraResponseObj)
+            throws CloudMonetizationException {
+        //TODO do following with box carring
+        try {
+            String subscriptionHistoryUrl = subscriptionHistoryUri
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils.encodeUrlParam(apiVersion));
+
+            boolean response = DataServiceBillingRequestProcessor.isJsonResponseSuccess(dsBRProcessor.doPost
+                    (subscriptionHistoryUrl, null, new NameValuePair[]{}));
+            //TODO do following with box carring
+            if (response) {
+                String subscriptionUrl = subscriptionUri
+                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
+                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName))
+                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
+                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils.encodeUrlParam(apiVersion));
+
+                response = DataServiceBillingRequestProcessor
+                        .isJsonResponseSuccess(dsBRProcessor.doDelete(subscriptionUrl, null, new NameValuePair[]{}));
+                if (response) {
+                    zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, true);
+                    return zuoraResponseObj.toString();
+                } else {
+                    LOGGER.warn("Cancelling subscription: monetization tables update failure. Account no: " +
+                            accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
+                            "version: " + apiVersion);
+                    zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
+                    return zuoraResponseObj.toString();
+                }
+            } else {
+                LOGGER.warn("Cancelling subscription: monetization tables update failure. Account no: " +
+                        accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
+                        "version: " + apiVersion);
+                zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
+                return zuoraResponseObj.toString();
+            }
+
+        } catch (UnsupportedEncodingException | CloudBillingException e) {
+            throw new CloudMonetizationException("Error while updating api subscription history tables. ", e);
+        }
+    }
+
+    /**
      * Remove all the api subscriptions of an Application
      *
      * @param accountNumber account number
      * @param appName application name
+     * @return
+     * {
+     *     "removedSubscriptions": [
+     *         {
+     *             "AccountNumber": "A00000657",
+     *             "ApiName": "CalculatorAPI",
+     *             "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
+     *             "ApiVersion": "1.0",
+     *             "AppName": "TESTAAA1",
+     *             "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *             "StartDate": "2016-01-06T14:37:30.000+05:30",
+     *             "SubscriptionNumber": "A-S00000699"
+     *         },
+     *         {
+     *             "AccountNumber": "A00000657",
+     *             "ApiName": "PhoneVerify",
+     *             "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
+     *             "ApiVersion": "1.0.0",
+     *             "AppName": "TESTAAA1",
+     *             "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *             "StartDate": "2016-01-06T14:43:38.000+05:30",
+     *             "SubscriptionNumber": "A-S00000700"
+     *         }
+     *     ],
+     *     "success": true
+     * }
+     *
+     * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
      * @throws CloudMonetizationException
      */
     public static String removeAppSubscriptions(String accountNumber, String appName) throws CloudMonetizationException {
         String subscriptionsInfo = getAppSubscriptionsInfo(accountNumber, appName);
-        JsonObject subscriptionsObj = new JsonParser().parse(subscriptionsInfo).getAsJsonObject();
-        if (subscriptionsObj.isJsonObject()) {
-            JsonArray subscriptions = subscriptionsObj.getAsJsonArray(MonetizationConstants.SUBSCRIPTION);
-            JsonObject results = new JsonObject();
 
-            for (JsonElement subscription : subscriptions) {
-                JsonObject subscriptionObj = subscription.getAsJsonObject();
-                String subscriptionNumber = subscriptionObj.get(BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString();
-                String response = removeZuoraSubscription(accountNumber, subscriptionObj);
-                JsonObject responseObj = new JsonParser().parse(response).getAsJsonObject();
-                /*if (!responseObj.isJsonObject() || !responseObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS)
-                        ==null || !responseObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
-                    LOGGER.error("Subscription cancellation failure. Account number: " + accountNumber + " , " +
-                            "subscription no: " + subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER).getAsString());
-                }*/
-                results.add(subscriptionNumber, responseObj);
-            }
-            return results.toString();
-        }  else {
-            throw new CloudMonetizationException("Error while cancelling the subscription for account: " +
-                    accountNumber + " Subscription details not available");
+        JsonElement element = new JsonParser().parse(subscriptionsInfo);
+
+        if (!element.isJsonObject()) {
+            throw new CloudMonetizationException("Error while cancelling the subscriptions for Account: " +
+                    accountNumber + ", Application name: " + appName + ". Subscription details not available.");
         }
+        JsonElement subscriptionsElement = element.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTIONS);
+
+        if (!subscriptionsElement.isJsonObject()) {
+            throw new CloudMonetizationException("Error while cancelling the subscriptions for Account: " +
+                    accountNumber + ", Application name: " + appName + ". Subscription details not available.");
+        }
+
+        JsonElement subscriptionsJElement = subscriptionsElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION);
+        JsonArray subscriptions;
+        if (subscriptionsJElement.isJsonObject()) {
+            subscriptions = new JsonArray();
+            subscriptions.add(subscriptionsJElement.getAsJsonObject());
+        } else if (subscriptionsJElement.isJsonArray()) {
+            subscriptions = subscriptionsJElement.getAsJsonArray();
+        } else {
+            throw new CloudMonetizationException("Error while cancelling the subscriptions for Account: " +
+                    accountNumber + ", Application name: " + appName + ". Subscription element should be either " +
+                    "json  array or json object. ");
+        }
+
+        JsonObject cancellationObj = new JsonObject();
+        cancellationObj.addProperty(BillingConstants.ZUORA_RESPONSE_SUCCESS, true);
+        JsonArray removedSubscriptions = new JsonArray();
+
+        for (JsonElement subscription : subscriptions) {
+            JsonObject subscriptionObj = subscription.getAsJsonObject();
+            String response = removeZuoraSubscription(accountNumber, subscriptionObj);
+            JsonObject responseObj = new JsonParser().parse(response).getAsJsonObject();
+            if (!responseObj.isJsonObject() || responseObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS)
+                    ==null || !responseObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
+                LOGGER.error("Subscription cancellation failure. Account number: " + accountNumber + " , " +
+                        "subscription no: " + subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER)
+                        .getAsString() + ". Reasons: " + responseObj.get("reasons"));
+                //Check already the success value set to false
+                if (cancellationObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
+                    cancellationObj.addProperty(BillingConstants.ZUORA_RESPONSE_SUCCESS, false);
+                }
+            } else {
+                removeSubscriptionsInMonDb(accountNumber, subscriptionObj.get(MonetizationConstants.ATTRIB_APP_NAME)
+                        .getAsString(), subscriptionObj.get(MonetizationConstants.ATTRIB_API_NAME).getAsString(),
+                        subscriptionObj.get(MonetizationConstants.ATTRIB_API_VERSION).getAsString(), responseObj);
+                removedSubscriptions.add(subscriptionObj);
+            }
+        }
+        cancellationObj.add("removedSubscriptions", removedSubscriptions);
+        return cancellationObj.toString();
     }
 
     /**

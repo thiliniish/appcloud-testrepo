@@ -159,7 +159,8 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
     private String getEncryptionInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws CryptoException {
         String stringBuilder = subscriptionWorkflowDTO.getExternalWorkflowReference() + DATA_SEPARATOR +
                 subscriptionWorkflowDTO.getTierName() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApplicationName() +
-                DATA_SEPARATOR + subscriptionWorkflowDTO.getApiName() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApiVersion();
+                DATA_SEPARATOR + subscriptionWorkflowDTO.getApiName() + DATA_SEPARATOR + subscriptionWorkflowDTO
+                .getApiVersion() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApiProvider();
         return CryptoUtil.getDefaultCryptoUtil()
                 .encryptAndBase64Encode(stringBuilder.getBytes(Charset.defaultCharset()));
     }
@@ -204,7 +205,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                 .replace("$1", accountNumber).replace("$2", subscriptionWorkflowDTO.getTenantDomain())
                 .replace("$3", subscriptionWorkflowDTO.getTierName()).replace("$4", subscriptionWorkflowDTO.getApplicationName())
                 .replace("$5", subscriptionWorkflowDTO.getApiName()).replace("$6", subscriptionWorkflowDTO
-                        .getApiVersion());
+                        .getApiVersion()).replace("$7", subscriptionWorkflowDTO.getApiProvider());
 
         ServiceClient client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_CREATE_API_SUBSCRIPTION,
                 serviceEndpoint, contentType, username, password);
@@ -221,7 +222,9 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                     responseObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj.get
                     (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean() && responseObj.get
                     (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
-                //TODO use the correct URL and execute complete after the redirection
+                //TODO use the correct URL
+                subscriptionWorkflowDTO.setStatus(APPROVED);
+                complete(subscriptionWorkflowDTO);
                 httpworkflowResponse.setRedirectUrl("https://www.google.lk/");
                 return httpworkflowResponse;
             } else {

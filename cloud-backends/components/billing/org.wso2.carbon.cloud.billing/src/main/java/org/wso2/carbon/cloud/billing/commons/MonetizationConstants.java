@@ -34,7 +34,7 @@ public final class MonetizationConstants {
     public static final String DS_API_URI_UPDATE_API_SUBSCRIPTION = "/v1/apim/subscriptions/{tenantId}";
     public static final String DS_API_URI_API_SUBSCRIPTION_HISTORY =
             "/v1/subscriptions-history/{accountNumber}/{appName}/{apiName}/{apiVersion}";
-    public static final String DS_API_URI_APP_SUBSCRIPTIONS = "/v1/subscriptions/{accountNumber}/{appName}";
+    public static final String DS_API_URI_APP_SUBSCRIPTIONS = "/v1/app-subscriptions/{accountNumber}/{appName}";
     public static final String DS_API_URI_MON_APIC_SUBSCRIPTION =
             "/v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}";
     public static final String DS_API_URI_TENANT_USAGE = "/v1/usage/tenants/{tenant}";
@@ -88,10 +88,17 @@ public final class MonetizationConstants {
     public static final String TENANT = "tenant";
     public static final String ASTERISK_SYMBOL = "*";
 
-    /*SOAP body constants*/
+    /* SOAP body constants */
     public static final String SOAP_APP_NAME = "appName";
     public static final String SOAP_API_NAME = "apiName";
     public static final String SOAP_API_VERSION = "apiVersion";
+    public static final String SOAP_API_PROVIDER = "apiProvider";
+
+    /* XML/JSON attribute constants */
+    public static final String ATTRIB_APP_NAME = "AppName";
+    public static final String ATTRIB_API_NAME = "ApiName";
+    public static final String ATTRIB_API_VERSION = "ApiVersion";
+    public static final String ATTRIB_API_PROVIDER = "ApiProvider";
 
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +

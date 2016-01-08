@@ -31,24 +31,28 @@
     </query>
     <query id="addSubscriptionInfoQ" useConfig="cloud_mgt">
          <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIPTIONS (ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION,
-          RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE) VALUES ((:ACCOUNT_NUMBER), (:AM_APP_NAME), (:AM_API_NAME),
-          (:AM_API_VERSION), (:RATE_PLAN_ID), (:SUBSCRIPTION_NUMBER), (:START_DATE));</sql>
+          AM_API_PROVIDER, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE) VALUES ((:ACCOUNT_NUMBER), (:AM_APP_NAME),
+          (:AM_API_NAME), (:AM_API_VERSION), (:AM_API_PROVIDER), (:RATE_PLAN_ID), (:SUBSCRIPTION_NUMBER),
+          (:START_DATE));</sql>
          <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
          <param name="AM_APP_NAME" sqlType="STRING"/>
          <param name="AM_API_NAME" sqlType="STRING"/>
          <param name="AM_API_VERSION" sqlType="STRING"/>
+         <param name="AM_API_PROVIDER" sqlType="STRING"/>
          <param name="RATE_PLAN_ID" sqlType="STRING"/>
          <param name="SUBSCRIPTION_NUMBER" sqlType="STRING"/>
          <param name="START_DATE" sqlType="STRING"/>
     </query>
     <query id="getSubscriptionInfoQ" useConfig="cloud_mgt">
-         <sql>SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE FROM
-         MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME) AND AM_API_NAME=(:AM_API_NAME) AND
-         AM_API_VERSION=(:AM_API_VERSION);</sql>
+         <sql>SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION, AM_API_PROVIDER, RATE_PLAN_ID,
+         SUBSCRIPTION_NUMBER, START_DATE FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=
+         (:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME) AND AM_API_NAME=(:AM_API_NAME) AND AM_API_VERSION=
+         (:AM_API_VERSION);</sql>
          <result element="Subscription" rowName="">
             <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
             <element column="AM_APP_NAME" name="AppName" xsdType="string"/>
             <element column="AM_API_NAME" name="ApiName" xsdType="string"/>
+            <element column="AM_API_PROVIDER" name="ApiProvider" xsdType="string"/>
             <element column="RATE_PLAN_ID" name="RatePlanId" xsdType="string"/>
             <element column="SUBSCRIPTION_NUMBER" name="SubscriptionNumber" xsdType="string"/>
             <element column="START_DATE" name="StartDate" xsdType="string"/>
@@ -68,22 +72,25 @@
     </query>
     <query id="addSubscriptionInfoToHistoryQ" useConfig="cloud_mgt">
          <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY (ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION,
-          RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE, END_DATE) SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION,
-           RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE, NOW() FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE
-           (ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME) AND AM_API_NAME=(:AM_API_NAME) AND
-           AM_API_VERSION=(:AM_API_VERSION));</sql>
+          AM_API_PROVIDER, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE, END_DATE) SELECT ACCOUNT_NUMBER,
+          AM_APP_NAME, AM_API_NAME, AM_API_VERSION, AM_API_PROVIDER, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE,
+          NOW() FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE (ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME)
+           AND AM_API_NAME=(:AM_API_NAME) AND AM_API_VERSION=(:AM_API_VERSION));</sql>
          <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
          <param name="AM_APP_NAME" sqlType="STRING"/>
          <param name="AM_API_NAME" sqlType="STRING"/>
          <param name="AM_API_VERSION" sqlType="STRING"/>
     </query>
     <query id="getAppSubscriptionInfoQ" useConfig="cloud_mgt">
-         <sql>SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE FROM
-         MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME);</sql>
+         <sql>SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION, AM_API_PROVIDER, RATE_PLAN_ID,
+         SUBSCRIPTION_NUMBER, START_DATE FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=
+         (:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME);</sql>
          <result element="Subscriptions" rowName="Subscription">
             <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
             <element column="AM_APP_NAME" name="AppName" xsdType="string"/>
             <element column="AM_API_NAME" name="ApiName" xsdType="string"/>
+            <element column="AM_API_VERSION" name="ApiVersion" xsdType="string"/>
+            <element column="AM_API_PROVIDER" name="ApiProvider" xsdType="string"/>
             <element column="RATE_PLAN_ID" name="RatePlanId" xsdType="string"/>
             <element column="SUBSCRIPTION_NUMBER" name="SubscriptionNumber" xsdType="string"/>
             <element column="START_DATE" name="StartDate" xsdType="string"/>
@@ -304,6 +311,7 @@
             <with-param name="AM_APP_NAME" query-param="appName"/>
             <with-param name="AM_API_NAME" query-param="apiName"/>
             <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+            <with-param name="AM_API_PROVIDER" query-param="apiProvider"/>
             <with-param name="RATE_PLAN_ID" query-param="ratePlanId"/>
             <with-param name="SUBSCRIPTION_NUMBER" query-param="subscriptionNumber"/>
             <with-param name="START_DATE" query-param="startDate"/>
@@ -389,6 +397,7 @@
             <with-param name="AM_APP_NAME" query-param="appName"/>
             <with-param name="AM_API_NAME" query-param="apiName"/>
             <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+            <with-param name="AM_API_PROVIDER" query-param="apiProvider"/>
             <with-param name="RATE_PLAN_ID" query-param="ratePlanId"/>
             <with-param name="SUBSCRIPTION_NUMBER" query-param="subscriptionNumber"/>
             <with-param name="START_DATE" query-param="startDate"/>
