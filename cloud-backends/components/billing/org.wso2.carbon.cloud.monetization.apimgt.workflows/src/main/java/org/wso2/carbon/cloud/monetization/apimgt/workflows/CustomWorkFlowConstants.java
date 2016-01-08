@@ -82,6 +82,7 @@ public final class CustomWorkFlowConstants {
 
     public static final String ZUORA_RESPONSE_SUCCESS = "success";
     public static final String MONETIZATION_TABLES_UPDATED = "monetizationDbUpdated";
+    public static final String REMOVED_SUBSCRIPTIONS = "removedSubscriptions";
     public static final String SOAP_RETURN_ELEMENT = "return";
 
     private CustomWorkFlowConstants() {

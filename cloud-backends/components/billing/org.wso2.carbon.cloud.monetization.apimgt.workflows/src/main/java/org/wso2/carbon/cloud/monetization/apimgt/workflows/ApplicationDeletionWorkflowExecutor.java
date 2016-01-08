@@ -112,6 +112,11 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
                             "cannot be null. response: " + response.toString());
                 }
                 if (resultObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        if (!resultObj.has(CustomWorkFlowConstants.REMOVED_SUBSCRIPTIONS)) {
+                            LOGGER.debug("No paid subscriptions found.");
+                        }
+                    }
                     return finalizeAppDeletion(workflowDTO);
                 } else {
                     return removeSuccessRemovals(resultObj, workflowDTO);
@@ -141,7 +146,7 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
         String errorMsg;
         ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
 
-        JsonArray removedSubscriptions = resultObj.getAsJsonArray("removedSubscriptions");
+        JsonArray removedSubscriptions = resultObj.getAsJsonArray(CustomWorkFlowConstants.REMOVED_SUBSCRIPTIONS);
 
         if (removedSubscriptions.size() == 0) {
             return new GeneralWorkflowResponse();
@@ -260,8 +265,9 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
         try {
             JsonObject responseObj = WorkFlowUtils.getSubscriberInfo(applicationWorkflowDTO.getUserName(),
                     applicationWorkflowDTO.getTenantDomain(), serviceEndpoint, contentType, username, password);
-            if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonObject()) {
-                JsonObject subscribersJsonObj = responseObj.getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBERS_OBJ);
+            JsonElement responseElement = responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ);
+            if (responseElement.isJsonObject()) {
+                JsonObject subscribersJsonObj = responseElement.getAsJsonObject();
                 if (subscribersJsonObj.get(CustomWorkFlowConstants.SUBSCRIBER_OBJ).isJsonObject()) {
                     JsonObject subscriberObj = subscribersJsonObj.getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBER_OBJ);
                     boolean isTestAccount = subscriberObj.get(CustomWorkFlowConstants.IS_TEST_ACCOUNT_PROPERTY).getAsBoolean();
@@ -282,8 +288,15 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
                 } else {
                     throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
                 }
+            } else if (responseElement.isJsonPrimitive() && responseElement.getAsString().isEmpty()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Subscriber information not available. Subscriber assumed to be only using free " +
+                            "apis");
+                }
+                return finalizeAppDeletion(applicationWorkflowDTO);
             } else {
-                throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
+                throw new WorkflowException(ERROR_MSG + " Subscriber information not available. Could be due to a " +
+                        "connection failure.");
             }
         } catch (AxisFault | XMLStreamException e) {
             throw new WorkflowException(ERROR_MSG, e);

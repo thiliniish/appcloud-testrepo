@@ -456,6 +456,13 @@ public final class APICloudMonetizationUtils {
         }
         JsonElement subscriptionsElement = element.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTIONS);
 
+        JsonObject cancellationObj = new JsonObject();
+        cancellationObj.addProperty(BillingConstants.ZUORA_RESPONSE_SUCCESS, true);
+        //Application only has free apis.
+        if (subscriptionsElement.isJsonPrimitive() && subscriptionsElement.getAsString().isEmpty()) {
+            return cancellationObj.toString();
+        }
+
         if (!subscriptionsElement.isJsonObject()) {
             throw new CloudMonetizationException("Error while cancelling the subscriptions for Account: " +
                     accountNumber + ", Application name: " + appName + ". Subscription details not available.");
@@ -474,8 +481,6 @@ public final class APICloudMonetizationUtils {
                     "json  array or json object. ");
         }
 
-        JsonObject cancellationObj = new JsonObject();
-        cancellationObj.addProperty(BillingConstants.ZUORA_RESPONSE_SUCCESS, true);
         JsonArray removedSubscriptions = new JsonArray();
 
         for (JsonElement subscription : subscriptions) {
