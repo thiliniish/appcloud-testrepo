@@ -73,7 +73,26 @@ var log = new Log();
             log.error(e);
             throw errResponseMessage;
         }
-    }else {
+    } else if (action == "getSectoken") {
+        var email = request.getParameter("email");
+        var password = request.getParameter("password");
+        var managerModule = require("manager");
+        var username = managerModule.getUserNameFromEmail(email);
+        if (session.get("TENANT_DOMAIN") != null || typeof session.get("TENANT_DOMAIN") != "undefined") {
+            var sectoken = mod.getSectoken(username, password, session.get("TENANT_DOMAIN"));
+            var secTokenPayload = {};
+            secTokenPayload.error = false;
+            secTokenPayload.sectoken = sectoken;
+            print(secTokenPayload);
+        } else {
+            var errorResponseMessage = "Error occurred while retrieving sectoken.";
+            log.error(errorResponseMessage);
+            var errorPayload = {};
+            errorPayload.error = true;
+            errorPayload.message = errorResponseMessage;
+            print(errorPayload);
+        }
+    } else {
         throw new Error("No action specified");
     }
 
