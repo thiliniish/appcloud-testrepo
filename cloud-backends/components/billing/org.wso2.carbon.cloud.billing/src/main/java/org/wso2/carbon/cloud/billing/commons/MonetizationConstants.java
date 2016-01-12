@@ -39,6 +39,8 @@ public final class MonetizationConstants {
             "/v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}";
     public static final String DS_API_URI_TENANT_USAGE = "/v1/usage/tenants/{tenant}";
     public static final String DS_API_URI_API_USAGE = "/v1/usage/apis/{apiName}/{version}";
+    public static final String DS_API_URI_USER_APIS = "/v1/apis/{username}";
+    public static final String DS_API_URI_USER_API_APPLICATIONS = "/v1/apps/{username}/{apiName}";
     public static final String DS_API_URI_SUBSCRIBER_USAGE = "/v1/usage/subscribers/{subscriberId}";
     public static final String DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION =
             "/v1/usage/subscriber-application-api/{subscriberId}/{appName}/{apiName}/{version}";

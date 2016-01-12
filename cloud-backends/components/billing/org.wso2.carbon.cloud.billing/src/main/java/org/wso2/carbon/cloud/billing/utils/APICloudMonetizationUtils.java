@@ -67,7 +67,8 @@ public final class APICloudMonetizationUtils {
     private static String usageOfApiBySubscriberUrl;
     private static String usageOfTenantUrl;
     private static String usageOfApiByApplicationBySubscriberUrl;
-
+    private static String userAPIsUri;
+    private static String userAPIApplicationsUri;
 
     static {
         dsBRProcessor = BillingRequestProcessorFactory
@@ -97,6 +98,12 @@ public final class APICloudMonetizationUtils {
         usageOfApiByApplicationBySubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants
                 .DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION;
+        userAPIsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                .getApiCloudMonetizationServiceUrl() + MonetizationConstants
+                .DS_API_URI_USER_APIS;
+        userAPIApplicationsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                .getApiCloudMonetizationServiceUrl() + MonetizationConstants
+                .DS_API_URI_USER_API_APPLICATIONS;
     }
 
     private APICloudMonetizationUtils() {
@@ -248,7 +255,8 @@ public final class APICloudMonetizationUtils {
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils.encodeUrlParam(apiVersion));
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
+                            CloudBillingUtils.encodeUrlParam(apiVersion));
 
             return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
         } catch (UnsupportedEncodingException | CloudBillingException e) {
@@ -268,7 +276,8 @@ public final class APICloudMonetizationUtils {
     public static String getAppSubscriptionsInfo(String accountNumber, String appName) throws CloudMonetizationException {
         try {
             String url = appSubscriptionsUri
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
+                            CloudBillingUtils.encodeUrlParam(accountNumber))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName));
 
             return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
@@ -630,6 +639,42 @@ public final class APICloudMonetizationUtils {
         } catch (CloudBillingException | UnsupportedEncodingException | JSONException e) {
             throw new CloudMonetizationException(
                     "Error while getting monetization usage data of tenant: " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * Retrieve APIs for a given user
+     *
+     * @param username subscriber username
+     * @return String xml response
+     * @throws CloudMonetizationException
+     */
+    public static String getUserAPIs(String username) throws CloudMonetizationException {
+        try {
+            String url = userAPIsUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
+                    CloudBillingUtils.encodeUrlParam(username));
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while retrieving APIs for user: " + username, e);
+        }
+    }
+
+    /**
+     * Retrieve Application Names for a given API for a given user
+     *
+     * @param username subscriber username
+     * @return String xml response
+     * @throws CloudMonetizationException
+     */
+    public static String getUserAPIApplications(String username, String apiName) throws CloudMonetizationException {
+        try {
+            String url = userAPIApplicationsUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
+                    CloudBillingUtils.encodeUrlParam(username))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
+                            CloudBillingUtils.encodeUrlParam(apiName));
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while retrieving applications  for user: " + username, e);
         }
     }
 }
