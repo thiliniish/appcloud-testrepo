@@ -15,14 +15,15 @@
   * specific language governing permissions and limitations
   * under the License.
   */
-package org.wso2.carbon.cloud.gsn.authmediator.util;
+
+package org.wso2.carbon.cloud.external.gsngames.authmediator.util;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.MessageContext;
-import org.wso2.carbon.cloud.gsn.authmediator.AuthenticationBean;
-import org.wso2.carbon.cloud.gsn.authmediator.exception.AuthenticationException;
+import org.wso2.carbon.cloud.external.gsngames.authmediator.AuthenticationBean;
+import org.wso2.carbon.cloud.external.gsngames.authmediator.exception.AuthenticationException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

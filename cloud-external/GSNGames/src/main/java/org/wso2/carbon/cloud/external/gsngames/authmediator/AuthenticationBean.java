@@ -15,7 +15,8 @@
   * specific language governing permissions and limitations
   * under the License.
   */
-package org.wso2.carbon.cloud.gsn.authmediator;
+
+package org.wso2.carbon.cloud.external.gsngames.authmediator;
 
 public class AuthenticationBean {
     private String signature;

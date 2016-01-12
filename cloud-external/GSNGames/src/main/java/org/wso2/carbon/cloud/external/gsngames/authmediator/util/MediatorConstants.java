@@ -15,13 +15,18 @@
   * specific language governing permissions and limitations
   * under the License.
   */
-package org.wso2.carbon.cloud.gsn.authmediator.exception;
 
-/**
- * Authentication Exception Class for GSN Games Authentication Utils
- */
-public class AuthenticationException extends Exception {
-    public AuthenticationException(String message, Throwable cause) {
-        super(message, cause);
+package org.wso2.carbon.cloud.external.gsngames.authmediator.util;
+
+public final class MediatorConstants {
+
+    private MediatorConstants() {
+
     }
+
+    public static final String VALIDATION_STATUS = "validationStatus";
+    public static final String VALIDATION_RESPONSE = "validationResponse";
+    public static final String AUTHORIZATION_EXCEPTION = "Authorization Exception";
+    public static final String AUTHORIZATION_FAILED = "Authorization Failure";
+    public static final String ENCODING = "UTF-8";
 }

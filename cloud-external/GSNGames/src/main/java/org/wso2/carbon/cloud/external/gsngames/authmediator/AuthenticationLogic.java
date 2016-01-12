@@ -15,13 +15,14 @@
   * specific language governing permissions and limitations
   * under the License.
   */
-package org.wso2.carbon.cloud.gsn.authmediator;
+
+package org.wso2.carbon.cloud.external.gsngames.authmediator;
 
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.mediators.AbstractMediator;
-import org.wso2.carbon.cloud.gsn.authmediator.exception.AuthenticationException;
-import org.wso2.carbon.cloud.gsn.authmediator.util.AuthenticationUtil;
-import org.wso2.carbon.cloud.gsn.authmediator.util.MediatorConstants;
+import org.wso2.carbon.cloud.external.gsngames.authmediator.exception.AuthenticationException;
+import org.wso2.carbon.cloud.external.gsngames.authmediator.util.AuthenticationUtil;
+import org.wso2.carbon.cloud.external.gsngames.authmediator.util.MediatorConstants;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -33,6 +34,11 @@ import java.util.List;
  */
 public class AuthenticationLogic extends AbstractMediator {
 
+    /**
+     * This is the custom mediator method to find and do the authentication using synapse message context properties
+     * @param synapseMessageContext
+     * @return true if the mediation sequence is true
+     */
     @Override
     public boolean mediate(org.apache.synapse.MessageContext synapseMessageContext) {
         AuthenticationBean authBean = new AuthenticationBean();

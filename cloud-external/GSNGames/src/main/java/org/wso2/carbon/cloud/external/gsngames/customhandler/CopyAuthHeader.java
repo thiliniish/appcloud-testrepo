@@ -15,7 +15,8 @@
   * specific language governing permissions and limitations
   * under the License.
   */
-package org.wso2.carbon.cloud.gsn.customhandler;
+
+package org.wso2.carbon.cloud.external.gsngames.customhandler;
 
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
