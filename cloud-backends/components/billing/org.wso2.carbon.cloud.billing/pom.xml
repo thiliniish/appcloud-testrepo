@@ -156,6 +156,7 @@
                             javax.xml.namespace,
                             javax.xml.parsers,
                             javax.xml.bind,
+                            javax.mail.*,
                             org.codehaus.jackson.*; version="${imp.pkg.version.codehaus.jackson}",
                             javax.xml.bind.annotation.*; resolution:=optional,
                             com.zuora.api.*; version="${zuora.stub.version}"
