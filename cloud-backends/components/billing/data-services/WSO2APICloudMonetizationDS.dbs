@@ -291,6 +291,21 @@
       <param name="START_DATE" sqlType="STRING"/>
       <param name="END_DATE" sqlType="STRING"/>
     </query>
+    <query id="getAppListForUserAPIQ" useConfig="apim_stat">
+      <sql>select distinct applicationName from API_REQUEST_SUMMARY where userId=:USER_ID AND api_version=:API_VERSION</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="applicationName" name="applicationName" xsdType="string"/>
+      </result>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="API_VERSION" sqlType="STRING"/>
+    </query>
+   <query id="getApiListForUserQ" useConfig="apim_stat">
+      <sql>select DISTINCT api_version from API_REQUEST_SUMMARY where userId=:USER_ID</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+      </result>
+      <param name="USER_ID" sqlType="STRING"/>
+   </query>
     <operation name="getSubscriber">
         <call-query href="getSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -504,4 +519,17 @@
          <with-param name="END_DATE" query-param="endDate"/>
       </call-query>
    </resource>   
+    <!--path="v1/usage/subscribers/apis/{username}" -->
+    <resource method="GET" path="v1/apis/{username}" >
+      <call-query href="getApiListForUserQ">
+         <with-param name="USER_ID" query-param="username"/>
+      </call-query>
+   </resource>
+    <!--path="v1/usage/subscribers/apis/apps/{username}/{apiName}" -->
+   <resource method="GET" path="v1/apps/{username}/{apiName}">
+      <call-query href="getAppListForUserAPIQ">
+         <with-param name="USER_ID" query-param="username"/>
+         <with-param name="API_VERSION" query-param="apiName"/>
+      </call-query>
+   </resource>
 </data>
