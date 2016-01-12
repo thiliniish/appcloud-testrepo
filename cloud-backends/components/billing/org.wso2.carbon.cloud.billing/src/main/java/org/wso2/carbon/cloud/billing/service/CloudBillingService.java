@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
+import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
@@ -458,5 +459,16 @@ public class CloudBillingService extends AbstractAdmin {
             LOGGER.error("Error while cancelling the subscription. subscription no: " + subscriptionNumber, ex);
             throw ex;
         }
+    }
+
+    /**
+     * Send notification emails for billing service
+     *
+     * @param receiver receiver email address
+     * @param subject email subject
+     * @param msgBody email body
+     */
+    public void sendEmailNotification(String receiver, String subject, String msgBody) {
+        EmailNotifications.getInstance().addToMailQueue(msgBody, subject, receiver);
     }
 }

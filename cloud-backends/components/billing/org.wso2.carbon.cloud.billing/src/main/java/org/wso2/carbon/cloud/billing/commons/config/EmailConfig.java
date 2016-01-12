@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
     private String host;
     private String port;
-    private String userName;
+    private String username;
     private String password;
     private String sender;
     private String tls;
@@ -49,12 +49,12 @@ import javax.xml.bind.annotation.XmlRootElement;
         this.port = port;
     }
 
-    @XmlElement(name = "UserName", nillable = false) public String getUserName() {
-        return userName;
+    @XmlElement(name = "Username", nillable = false) public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @XmlElement(name = "Password", nillable = false) public String getPassword() {
