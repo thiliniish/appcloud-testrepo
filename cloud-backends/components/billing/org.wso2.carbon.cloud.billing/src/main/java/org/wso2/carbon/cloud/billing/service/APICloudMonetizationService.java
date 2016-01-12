@@ -411,4 +411,38 @@ public class APICloudMonetizationService {
                     "Error occurred while retrieving monetization usage data of tenant: " + tenantDomain);
         }
     }
+
+    /**
+     * Get APIs for a given user from API Stat tables.
+     *
+     * @param username
+     * @return JSON object of api names
+     * @throws CloudMonetizationException
+     */
+    public String getUserAPIs(String username) throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.getUserAPIs(username);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error while getting API list for the user: " + username, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Get the list of applications by looking at the user name and api name from API Stat tables
+     *
+     * @param username
+     * @param apiName API Name
+     * @return JSON object of Application names
+     * @throws CloudMonetizationException
+     */
+    public String getUserAPIApplications(String username, String apiName) throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.getUserAPIApplications(username, apiName);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error while getting Application list for the user: " + username, ex);
+            throw ex;
+        }
+    }
+
 }
