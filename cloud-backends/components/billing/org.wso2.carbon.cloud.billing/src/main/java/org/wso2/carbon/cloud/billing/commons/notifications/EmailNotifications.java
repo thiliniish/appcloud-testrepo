@@ -53,28 +53,30 @@ public class EmailNotifications extends Observable {
 
     private static EmailNotifications instance = new EmailNotifications();
 
-    private ConcurrentLinkedQueue<Map> emails;
+    private ConcurrentLinkedQueue<Map> mailQueue;
     private ExecutorService executorService;
 
     private String host;
     private String port;
-    private String userName;
+    private String username;
     private String password;
     private String sender;
     private String tls;
+    private Session session;
 
     private EmailNotifications() {
         BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
         EmailConfig emailConfig = billingConfig.getUtilsConfig().getNotifications().getEmailNotification();
-        host = emailConfig.getHost();
-        port = emailConfig.getPort();
-        userName = emailConfig.getUsername();
-        password = emailConfig.getPassword();
-        sender = emailConfig.getSender();
-        tls = emailConfig.getTls();
+        host = emailConfig.getHost().trim();
+        port = emailConfig.getPort().trim();
+        username = emailConfig.getUsername().trim();
+        password = emailConfig.getPassword().trim();
+        sender = emailConfig.getSender().trim();
+        tls = emailConfig.getTls().trim();
+        session = setSession();
 
-        emails = new ConcurrentLinkedQueue<>();
-        executorService = Executors.newFixedThreadPool(2);
+        mailQueue = new ConcurrentLinkedQueue<>();
+        executorService = Executors.newFixedThreadPool(3);
         MailQueueObserver mailQueueObserver = new MailQueueObserver();
         addObserver(mailQueueObserver);
     }
@@ -83,14 +85,47 @@ public class EmailNotifications extends Observable {
         return instance;
     }
 
+    /**
+     * Add email to the mail queue
+     *
+     * @param messageBody email body
+     * @param subject     email subject
+     * @param receiver    receivers
+     */
     public void addToMailQueue(String messageBody, String subject, String receiver) {
         Map<String, String> mail = new HashMap<>();
         mail.put(MESSAGE_BODY, messageBody);
         mail.put(MESSAGE_SUBJECT, subject);
         mail.put(MESSAGE_RECEIVER, receiver);
-        emails.add(mail);
+        mailQueue.add(mail);
         setChanged();
         notifyObservers();
+    }
+
+    /**
+     * Set email session
+     *
+     * @return Session obj
+     */
+    private Session setSession() {
+        Properties props = new Properties();
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.port", port);
+
+        Session session;
+        if (Boolean.valueOf(tls)) {
+            props.put("mail.smtp.auth", "true");
+            session = Session.getInstance(props, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(username, password);
+                }
+            });
+        } else {
+            session = Session.getDefaultInstance(props);
+        }
+        return session;
     }
 
     /**
@@ -114,7 +149,16 @@ public class EmailNotifications extends Observable {
         }
     }
 
+    /**
+     * Mail queue observer which allocates the threads and sends the email
+     */
     protected class MailQueueObserver implements Observer {
+
+        private MailSenderErrorObserver mailSenderErrorObserver;
+
+        MailQueueObserver() {
+            mailSenderErrorObserver = new MailSenderErrorObserver();
+        }
 
         /**
          * {@inheritDoc}
@@ -122,19 +166,55 @@ public class EmailNotifications extends Observable {
         @Override
         public void update(Observable o, Object arg) {
             do {
-                Map email = emails.poll();
-                MailSender mailSender = new MailSender(email);
+                Map email = mailQueue.poll();
+                MailSender mailSender = new MailSender(mailSenderErrorObserver, email);
                 executorService.execute(mailSender);
-            } while (!emails.isEmpty());
+            } while (!mailQueue.isEmpty());
         }
     }
 
-    protected class MailSender implements Runnable {
+    /**
+     * This is to keep the sending failed emails and try sending them again
+     * once the error has been fixed
+     */
+    protected class MailSenderErrorObserver implements Observer {
 
-        Map email;
+        private ConcurrentLinkedQueue<Map> failedEmailQueue;
 
-        MailSender(Map email) {
+        MailSenderErrorObserver() {
+            failedEmailQueue = new ConcurrentLinkedQueue<>();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void update(Observable o, Object arg) {
+            if (arg instanceof Map) {
+                Map email = (Map) arg;
+                failedEmailQueue.add(email);
+            } else if (arg instanceof Boolean && (Boolean) arg) {
+                for (Map email : failedEmailQueue) {
+                    EmailNotifications.getInstance().addToMailQueue(email.get(MESSAGE_BODY).toString(), email.get
+                            (MESSAGE_SUBJECT).toString(), email.get(MESSAGE_RECEIVER).toString());
+                    failedEmailQueue.remove(email);
+                }
+            } else {
+                LOGGER.error("No argument specified. ");
+            }
+        }
+    }
+
+    /**
+     * Mail sending thread
+     */
+    protected class MailSender extends Observable implements Runnable {
+
+        private Map email;
+
+        MailSender(MailSenderErrorObserver errorObserver, Map email) {
             this.email = email;
+            addObserver(errorObserver);
         }
 
         /**
@@ -142,23 +222,6 @@ public class EmailNotifications extends Observable {
          */
         @Override
         public void run() {
-            Properties props = new Properties();
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.host", host);
-            props.put("mail.smtp.port", port);
-
-            Session session;
-            if ("true".equals(tls)) {
-                props.put("mail.smtp.auth", "true");
-                session = Session.getInstance(props, new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(userName, password);
-                    }
-                });
-            } else {
-                session = Session.getDefaultInstance(props);
-            }
             try {
                 Message message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(sender));
@@ -167,9 +230,15 @@ public class EmailNotifications extends Observable {
                 message.setText(email.get(MESSAGE_BODY).toString());
 
                 Transport.send(message);
-                //Catching the generic exception here to avoid throwing exceptions while executing this sub task
+                setChanged();
+                notifyObservers(true);
             } catch (Exception e) {
-                LOGGER.error("Error while sending the email notification - " + e);
+                //Catching the generic exception here to avoid throwing exceptions while executing this sub task
+                setChanged();
+                notifyObservers(email);
+                LOGGER.error("Error while sending the email notification to: " + email.get(MESSAGE_RECEIVER).toString
+                        () + " under subject: " + email.get(MESSAGE_SUBJECT).toString() + ". Email is added " +
+                        "back to the queue. once the error is fixed it will try again ", e);
             }
         }
     }
