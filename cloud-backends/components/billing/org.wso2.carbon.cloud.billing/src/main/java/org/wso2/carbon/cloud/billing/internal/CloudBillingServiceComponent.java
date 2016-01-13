@@ -25,6 +25,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.service.APICloudMonetizationService;
 import org.wso2.carbon.cloud.billing.service.CloudBillingService;
@@ -97,6 +98,7 @@ public class CloudBillingServiceComponent {
      * @param context
      */
     protected void deactivate(ComponentContext context) {
+        EmailNotifications.getInstance().shutdownAndAwaitTermination();
         this.billingServiceRef.unregister();
         this.apiMonServiceRef.unregister();
         if (LOGGER.isDebugEnabled()) {

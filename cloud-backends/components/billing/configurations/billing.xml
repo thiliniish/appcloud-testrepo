@@ -138,9 +138,9 @@
             <Email>
                 <Host>smtp.gmail.com</Host>
                 <Port>25</Port>
-                <Username>userName</Username>
+                <Username>username</Username>
                 <Password>password</Password>
-                <tls>true</tls>
+                <Tls>true</Tls>
                 <Sender>WSO2 Cloud Team &lt;cloud@wso2.com&gt;</Sender>
             </Email>
         </Notification>

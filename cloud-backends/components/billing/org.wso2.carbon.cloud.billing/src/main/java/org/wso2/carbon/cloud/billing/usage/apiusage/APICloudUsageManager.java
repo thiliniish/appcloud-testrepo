@@ -120,13 +120,12 @@ public class APICloudUsageManager {
             }
             // capture all exception that can occur while uploading the Over usage to zuora
         } catch (Exception e) {
-            EmailNotifications emailNotifications = new EmailNotifications();
             String subject = MonetizationConstants.EMAIL_SUBJECT_OVERAGE_FAILURE + today;
             String messageBody = MonetizationConstants.EMAIL_BODY_OVERAGE_FAILURE
                     .replace(MonetizationConstants.REPLACE_TODAY, today);
 
             //Sending the Email to Cloud Team for verify on the error occurred
-            emailNotifications.send(messageBody, subject,
+            EmailNotifications.getInstance().addToMailQueue(messageBody, subject,
                     BillingConfigUtils.getBillingConfiguration().getUtilsConfig().getNotifications()
                             .getEmailNotification().getSender());
             throw new CloudBillingException("Error occurred while uploading daily usage", e);
