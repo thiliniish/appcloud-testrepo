@@ -1,0 +1,27 @@
+<sequence xmlns="http://ws.apache.org/ns/synapse" name="CustomMediatorSequence">
+    <property name="jsonMessage" expression="json-eval($.)"/>
+    <property name="xAuthentication" expression="get-property('X-Preserved-Authorization')"/>
+    <property name="secretKey" value="<Secret Key Shared By GSN>"/>
+    <class name="org.wso2.carbon.cloud.external.gsngames.authmediator.AuthenticationLogic"/>
+    <filter source="get-property('validationStatus')" regex="false">
+        <then>
+            <payloadFactory media-type="json">
+                <format>{ "error": "401", "message": "Unauthorised"}</format>
+            </payloadFactory>
+            <property name="HTTP_SC" value="401" scope="axis2"/>
+            <property name="RESPONSE" value="true"/>
+            <property name="secretKey" action="remove"/>
+            <property name="NO_ENTITY_BODY" scope="axis2" action="remove"/>
+            <property name="Authorization" scope="transport" action="remove"/>
+            <property name="X-Authorization" scope="transport" action="remove"/>
+            <property name="Host" scope="transport" action="remove"/>
+            <property name="Accept" scope="transport" action="remove"/>
+            <property name="X-JWT-Assertion" scope="transport" action="remove"/>
+            <property name="messageType" value="application/json" scope="axis2"/>
+            <respond/>
+        </then>
+        <else>
+            <header name="X-WSO2-Authenticated" value="<Secret Key between WSO2 and GSNGames>" scope="transport"/>
+        </else>
+    </filter>
+</sequence>
