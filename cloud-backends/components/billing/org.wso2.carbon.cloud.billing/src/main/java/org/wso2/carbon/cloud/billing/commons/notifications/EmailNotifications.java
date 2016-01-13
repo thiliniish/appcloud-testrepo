@@ -29,6 +29,7 @@ import javax.mail.Message;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
@@ -93,13 +94,19 @@ public class EmailNotifications extends Observable {
      * @param receiver    receivers
      */
     public void addToMailQueue(String messageBody, String subject, String receiver) {
-        Map<String, String> mail = new HashMap<>();
-        mail.put(MESSAGE_BODY, messageBody);
-        mail.put(MESSAGE_SUBJECT, subject);
-        mail.put(MESSAGE_RECEIVER, receiver);
-        mailQueue.add(mail);
-        setChanged();
-        notifyObservers();
+        try {
+            InternetAddress emailAddr = new InternetAddress(receiver);
+            emailAddr.validate();
+            Map<String, String> mail = new HashMap<>();
+            mail.put(MESSAGE_BODY, messageBody);
+            mail.put(MESSAGE_SUBJECT, subject);
+            mail.put(MESSAGE_RECEIVER, receiver);
+            mailQueue.add(mail);
+            setChanged();
+            notifyObservers();
+        } catch (AddressException e) {
+            LOGGER.error("Email sending failed. Invalid receiver address specified: " + receiver);
+        }
     }
 
     /**
