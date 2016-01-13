@@ -21,7 +21,7 @@ package org.wso2.carbon.cloud.billing.commons.utils;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.Registry;
@@ -81,10 +81,10 @@ public final class CloudBillingUtils {
      * @param tenantDomain tenant domain
      * @param resourceUrl resource url
      * @return registry resource
-     * @throws CloudMonetizationException
+     * @throws CloudBillingException
      */
     public static Resource getRegistryResource(String tenantDomain, String resourceUrl)
-            throws CloudMonetizationException {
+            throws CloudBillingException {
         Resource resource;
         try {
             TenantManager tenantManager = ServiceDataHolder.getInstance().getRealmService().getTenantManager();
@@ -102,15 +102,15 @@ public final class CloudBillingUtils {
                     resource = registry.get(resourceUrl.trim());
                     return resource;
                 } else {
-                    throw new CloudMonetizationException(
+                    throw new CloudBillingException(
                             "Unable to find the registry resource in the given location: " + resourceUrl);
                 }
             } else {
-                throw new CloudMonetizationException(
+                throw new CloudBillingException(
                         "Error while retrieving tenant id for tenant domain: " + tenantDomain);
             }
         } catch (RegistryException | UserStoreException e) {
-            throw new CloudMonetizationException(
+            throw new CloudBillingException(
                     "Error occurred while accessing registry resources for tenant " + tenantDomain + ".", e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();

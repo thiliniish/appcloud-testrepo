@@ -46,8 +46,6 @@ public final class MonetizationConstants {
     public static final String DS_API_URI_SUBSCRIBER_USAGE = "/v1/usage/subscribers/{subscriberId}";
     public static final String DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION =
             "/v1/usage/subscriber-application-api/{subscriberId}/{appName}/{apiName}/{version}";
-    public static final String DS_API_URI_USER_APIS = "/v1/apis/{username}";
-    public static final String DS_API_URI_USER_API_APPLICATIONS = "/v1/apps/{username}/{apiName}";
     public static final String DS_API_URI_SUBSCRIBER_API_USAGE =
             "/v1/usage/subscriber-api/{subscriberId}/{apiName}/{version}";
     public static final String DS_API_URI_REMOVE_API_SUBSCRIPTION = "/v1/apim/{tenantId}/{subscriberId}/subscriptions";

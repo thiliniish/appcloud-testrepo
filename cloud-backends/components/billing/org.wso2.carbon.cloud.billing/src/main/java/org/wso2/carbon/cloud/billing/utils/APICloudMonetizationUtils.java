@@ -85,21 +85,19 @@ public final class APICloudMonetizationUtils {
         dsBRProcessor = BillingRequestProcessorFactory
                 .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
                         BillingConfigUtils.getBillingConfiguration().getDSConfig().getHttpClientConfig());
-
         subscribersUri =
                 BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
                         + MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIBER;
-        apiSubscriptionUri =
-                BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                        + MonetizationConstants.DS_API_URI_UPDATE_API_SUBSCRIPTION;
+        apiSubscriptionUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_UPDATE_API_SUBSCRIPTION;
         subscriptionUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIPTION;
         appSubscriptionsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_APP_SUBSCRIPTIONS;
         subscriptionHistoryUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_API_SUBSCRIPTION_HISTORY;
-        usageOfApiUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                + MonetizationConstants.DS_API_URI_API_USAGE;
+        usageOfApiUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_API_USAGE;
         usageOfSubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE;
         usageOfApiBySubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
@@ -107,16 +105,13 @@ public final class APICloudMonetizationUtils {
         usageOfTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_TENANT_USAGE;
         usageOfApiByApplicationBySubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants
-                .DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION;
-        userAPIsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                + MonetizationConstants.DS_API_URI_USER_APIS;
-        userAPIApplicationsUri =
-                BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                        + MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS;
-        apiSubscriptionRemovalUri =
-                BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                        + MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION;
+                .getApiCloudMonetizationServiceUrl() + MonetizationConstants .DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION;
+        userAPIsUri = BillingConfigUtils.getBillingConfiguration()
+                .getDSConfig().getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_USER_APIS;
+        userAPIApplicationsUri = BillingConfigUtils.getBillingConfiguration()
+                .getDSConfig().getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS;
+        apiSubscriptionRemovalUri = BillingConfigUtils.getBillingConfiguration()
+                .getDSConfig().getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION;
     }
 
     private APICloudMonetizationUtils() {
@@ -297,8 +292,9 @@ public final class APICloudMonetizationUtils {
                 throw new CloudMonetizationException(
                         "tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
             }
-        } catch (RegistryException | XMLStreamException e) {
-            throw new CloudMonetizationException("Error occurred while getting free tiers of tenant: " + tenantDomain + ".", e);
+        } catch (CloudBillingException | RegistryException | XMLStreamException e) {
+            throw new CloudMonetizationException(
+                    "Error occurred while getting free tiers of tenant: " + tenantDomain + ".", e);
         }
     }
 
@@ -311,7 +307,7 @@ public final class APICloudMonetizationUtils {
          * @throws CloudMonetizationException
          */
     public static boolean addSubscriptionInformation(String tenantDomain, String accountNumber, JsonObject apiDataObj,
-            String effectiveDate) throws CloudMonetizationException {
+                                                     String effectiveDate) throws CloudMonetizationException {
         try {
             String url = subscriptionUri
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils
@@ -325,7 +321,8 @@ public final class APICloudMonetizationUtils {
 
             NameValuePair[] nameValuePairs = new NameValuePair[]{
                     new NameValuePair(MonetizationConstants.SOAP_API_PROVIDER, apiDataObj
-                            .get(MonetizationConstants.SOAP_API_PROVIDER).getAsString()), new NameValuePair(BillingConstants.PARAM_RATE_PLAN_ID, apiDataObj.get(BillingConstants
+                             .get(MonetizationConstants.SOAP_API_PROVIDER).getAsString()),
+                    new NameValuePair(BillingConstants.PARAM_RATE_PLAN_ID, apiDataObj.get(BillingConstants
                             .PARAM_RATE_PLAN_ID).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, apiDataObj.get(BillingConstants
                             .PARAM_SUBSCRIPTION_NUMBER).getAsString()),
@@ -352,7 +349,9 @@ public final class APICloudMonetizationUtils {
     public static String getSubscriptionInfo(String accountNumber, String appName, String apiName, String apiVersion)
             throws CloudMonetizationException {
         try {
-            String url = subscriptionUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
+            String url = subscriptionUri
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
+                            CloudBillingUtils.encodeUrlParam(accountNumber))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
@@ -474,7 +473,7 @@ public final class APICloudMonetizationUtils {
      * @throws CloudMonetizationException
      */
     private static String removeSubscriptionsInMonDb(String accountNumber, String appName, String apiName,
-            String apiVersion, JsonObject zuoraResponseObj)
+                                                     String apiVersion, JsonObject zuoraResponseObj)
             throws CloudMonetizationException {
         //TODO do following with box carring
         try {
@@ -606,8 +605,9 @@ public final class APICloudMonetizationUtils {
                     cancellationObj.addProperty(BillingConstants.ZUORA_RESPONSE_SUCCESS, false);
                 }
             } else {
-                removeSubscriptionsInMonDb(accountNumber, subscriptionObj.get(MonetizationConstants.ATTRIB_APP_NAME)
-                                .getAsString(), subscriptionObj.get(MonetizationConstants.ATTRIB_API_NAME).getAsString(),
+                removeSubscriptionsInMonDb(accountNumber,
+                        subscriptionObj.get(MonetizationConstants.ATTRIB_APP_NAME).getAsString(),
+                        subscriptionObj.get(MonetizationConstants.ATTRIB_API_NAME).getAsString(),
                         subscriptionObj.get(MonetizationConstants.ATTRIB_API_VERSION).getAsString(), responseObj);
                 removedSubscriptions.add(subscriptionObj);
             }
