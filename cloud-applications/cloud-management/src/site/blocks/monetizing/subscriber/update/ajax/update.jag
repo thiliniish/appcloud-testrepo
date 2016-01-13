@@ -4,30 +4,62 @@ include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 var log = new Log();
 (function () {
-    var mod, result,
+    var mod, result, obj,
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-    if (action == "updateSubscribersTestStatus") {
-        var complimentaryAddedSubscribers = request.getParameter("complimentaryAddedSubscribers");
-        var complimentaryRemovedSubscribers = request.getParameter("complimentaryRemovedSubscribers");
-        if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
-            try {
-                result = mod.updateSubscribersTestStatus(JSON.parse(complimentaryAddedSubscribers), JSON.parse(complimentaryRemovedSubscribers));
-                if (result != null) {
-                    print(result);
-                } else {
-                    throw "Error while updating subscriber accounts test statuses of tenant :" + tenantDomain;
-                }
-            } catch (e) {
-                throw "Error while updating subscriber accounts test statuses of tenant :" + tenantDomain;
+    if (action == "makeSubscriberAccountTest") {
+        var subscriber = request.getParameter("subscriber");
+        result = mod.makeSubscriberAccountTest(JSON.parse(subscriber));
+        if (result == null || result.error) {
+            var message = result.message;
+            if (message == null) {
+                message = "Error while updating account to test for subscriber, " + subscriber + " tenant, " + tenantDomain;
+            } else {
+                message = message.replace(message.split(":")[0] + ":", "");
             }
+            obj = {
+                error: true,
+                message: message,
+                status: false
+            };
         } else {
-            throw "You don't have permission to updating subscriber accounts test statuses :" + tenantDomain;
+            obj = {
+                error: false,
+                status: result.status
+            }
         }
-    } else {
-        throw new Error("No action specified");
+        print(obj);
+    } else if (action == "makeTestSubscriberAccountRegular") {
+        var subscriber = request.getParameter("subscriber");
+        result = mod.makeTestSubscriberAccountRegular(JSON.parse(subscriber));
+        if (result == null || result.error) {
+            var message = result.message;
+            if (message == null) {
+                message = "Error while changing test account back to a regular account for subscriber, " + subscriber + " tenant, " + tenantDomain;
+            } else {
+                message = message.replace(message.split(":")[0] + ":", "");
+            }
+            obj = {
+                error: true,
+                message: message,
+                status: false
+            };
+        } else {
+            obj = {
+                error: false,
+                status: result.status
+            }
+        }
+        print(obj);
+    }
+    else {
+        var msg = "Invalid action " + action;
+        print({
+            error: true,
+            message: msg
+        });
     }
 }());
 %>

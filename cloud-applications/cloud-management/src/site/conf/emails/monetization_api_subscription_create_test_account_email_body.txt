@@ -18,7 +18,7 @@
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
                  Your account has been modified to a complimentary account as requested by administration of organization <span style="color: #141414;">$tenant</span>.
-                 Now you can subscribe to any api of the organization free of charge. All the paid subscriptions to apis of <span style="color: #141414;">$tenant</span> have been cancelled.
+                 Now you can subscribe to any api of the organization free of charge. All paid subscriptions to apis of <span style="color: #141414;">$tenant</span> have been cancelled.
                  The change will go into effect on <span style="color: #141414;">$effective-date</span>.
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 20px 0px 5px;">

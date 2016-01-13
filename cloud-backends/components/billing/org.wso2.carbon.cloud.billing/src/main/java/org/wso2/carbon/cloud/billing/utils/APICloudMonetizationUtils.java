@@ -38,11 +38,21 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.processor.DataServiceBillingRequestProcessor;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
+
+import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Date;
 import java.util.List;
 
@@ -67,7 +77,9 @@ public final class APICloudMonetizationUtils {
     private static String usageOfApiBySubscriberUrl;
     private static String usageOfTenantUrl;
     private static String usageOfApiByApplicationBySubscriberUrl;
-
+    private static String userAPIsUri;
+    private static String userAPIApplicationsUri;
+    private static String apiSubscriptionRemovalUri;
 
     static {
         dsBRProcessor = BillingRequestProcessorFactory
@@ -87,7 +99,7 @@ public final class APICloudMonetizationUtils {
         subscriptionHistoryUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_API_SUBSCRIPTION_HISTORY;
         usageOfApiUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                        + MonetizationConstants.DS_API_URI_API_USAGE;
+                + MonetizationConstants.DS_API_URI_API_USAGE;
         usageOfSubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE;
         usageOfApiBySubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
@@ -97,6 +109,14 @@ public final class APICloudMonetizationUtils {
         usageOfApiByApplicationBySubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants
                 .DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION;
+        userAPIsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                + MonetizationConstants.DS_API_URI_USER_APIS;
+        userAPIApplicationsUri =
+                BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                        + MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS;
+        apiSubscriptionRemovalUri =
+                BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                        + MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION;
     }
 
     private APICloudMonetizationUtils() {
@@ -136,7 +156,7 @@ public final class APICloudMonetizationUtils {
      * @throws CloudMonetizationException
      */
     public static boolean updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-                                                  String accountNumber, boolean isExistingUser) throws CloudMonetizationException {
+            String accountNumber, boolean isExistingUser) throws CloudMonetizationException {
         try {
             String url = subscribersUri
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT, CloudBillingUtils.encodeUrlParam(tenantDomain))
@@ -194,15 +214,104 @@ public final class APICloudMonetizationUtils {
     }
 
     /**
-     * @param tenantDomain  tenant domain
-     * @param accountNumber account number
-     * @param apiDataObj       api data json object
-     * @param effectiveDate effective date
-     * @return success information
+     * Removes paid api subscriptions of the user
+     *
+     * @param subscriberId subscriber id
+     * @param tenantDomain tenant domain
+     * @return boolean status of the db transaction
      * @throws CloudMonetizationException
      */
+    public static boolean removePaidApiSubscriptionsOfUser(String subscriberId, String tenantDomain)
+            throws CloudMonetizationException {
+        try {
+            //TODO use an api from api manager to access apim databases instead of using a data service.
+            TenantManager tenantManager = ServiceDataHolder.getInstance().getRealmService().getTenantManager();
+            int tenantId = tenantManager.getTenantId(tenantDomain);
+            if (tenantId != MultitenantConstants.SUPER_TENANT_ID && tenantId != -1) {
+                String url = apiSubscriptionRemovalUri
+                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT_ID, String.valueOf(tenantId))
+                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_SUBSCRIBER_ID,
+                                CloudBillingUtils.encodeUrlParam(subscriberId).trim());
+                List<String> freeTiersList = getFreeTiersOfTenant(tenantDomain);
+                List<NameValuePair> nameValuePairs = new ArrayList<>();
+                for (String freeTier : freeTiersList) {
+                    NameValuePair tmpFreeTierNVP = new NameValuePair(MonetizationConstants.FREE_TIER, freeTier.trim());
+                    nameValuePairs.add(tmpFreeTierNVP);
+                }
+                String response = dsBRProcessor.doDelete(url, BillingConstants.HTTP_TYPE_APPLICATION_XML,
+                        nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                return DataServiceBillingRequestProcessor.isXMLResponseSuccess(response);
+            } else {
+                throw new CloudMonetizationException(
+                        "Error while retrieving tenant id for tenant domain: " + tenantDomain);
+            }
+        } catch (CloudBillingException | UserStoreException | UnsupportedEncodingException | XMLStreamException e) {
+            throw new CloudMonetizationException(
+                    "Error while sending remove api subscriptions request to data service for" +
+                            " user: " + subscriberId + " tenant domain: " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * Retrieve a list of free tiers of a given tenant
+     *
+     * @param tenantDomain tenant domain
+     * @return list of free tier IDs
+     * @throws CloudMonetizationException
+     */
+    public static List<String> getFreeTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
+        try {
+            Resource tiersXmlResource = CloudBillingUtils
+                    .getRegistryResource(tenantDomain, MonetizationConstants.tiersXmlUrl);
+            if (tiersXmlResource != null) {
+                String content = new String((byte[]) tiersXmlResource.getContent());
+                List<String> freeTiers = new ArrayList<String>();
+                OMElement element = AXIOMUtil.stringToOM(content);
+                OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
+                Iterator policies = assertion.getChildrenWithName(MonetizationConstants.POLICY_ELEMENT);
+                while (policies.hasNext()) {
+                    OMElement attributes = null;
+                    OMElement policy = (OMElement) policies.next();
+                    OMElement id = policy.getFirstChildWithName(MonetizationConstants.THROTTLE_ID_ELEMENT);
+                    String tierName = id.getText();
+                    if (MonetizationConstants.UNAUTHENTICATED.equalsIgnoreCase(tierName)) {
+                        continue;
+                    }
+                    OMElement tier = policy.getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
+                            .getFirstChildWithName(MonetizationConstants.THROTTLE_CONTROL_ELEMENT)
+                            .getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
+                            .getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT);
+                    if (tier != null) {
+                        attributes = tier.getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_ELEMENT);
+                    }
+                    if (attributes != null) {
+                        OMElement billingPlan = attributes
+                                .getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT);
+                        if (billingPlan != null && MonetizationConstants.FREE.equals(billingPlan.getText())) {
+                            freeTiers.add(tierName);
+                        }
+                    }
+                }
+                return freeTiers;
+            } else {
+                throw new CloudMonetizationException(
+                        "tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
+            }
+        } catch (RegistryException | XMLStreamException e) {
+            throw new CloudMonetizationException("Error occurred while getting free tiers of tenant: " + tenantDomain + ".", e);
+        }
+    }
+
+        /**
+         * @param tenantDomain  tenant domain
+         * @param accountNumber account number
+         * @param apiDataObj       api data json object
+         * @param effectiveDate effective date
+         * @return success information
+         * @throws CloudMonetizationException
+         */
     public static boolean addSubscriptionInformation(String tenantDomain, String accountNumber, JsonObject apiDataObj,
-                                                     String effectiveDate) throws CloudMonetizationException {
+            String effectiveDate) throws CloudMonetizationException {
         try {
             String url = subscriptionUri
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils
@@ -216,8 +325,7 @@ public final class APICloudMonetizationUtils {
 
             NameValuePair[] nameValuePairs = new NameValuePair[]{
                     new NameValuePair(MonetizationConstants.SOAP_API_PROVIDER, apiDataObj
-                            .get(MonetizationConstants.SOAP_API_PROVIDER).getAsString()),
-                    new NameValuePair(BillingConstants.PARAM_RATE_PLAN_ID, apiDataObj.get(BillingConstants
+                            .get(MonetizationConstants.SOAP_API_PROVIDER).getAsString()), new NameValuePair(BillingConstants.PARAM_RATE_PLAN_ID, apiDataObj.get(BillingConstants
                             .PARAM_RATE_PLAN_ID).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, apiDataObj.get(BillingConstants
                             .PARAM_SUBSCRIPTION_NUMBER).getAsString()),
@@ -244,11 +352,11 @@ public final class APICloudMonetizationUtils {
     public static String getSubscriptionInfo(String accountNumber, String appName, String apiName, String apiVersion)
             throws CloudMonetizationException {
         try {
-            String url = subscriptionUri
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
+            String url = subscriptionUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils.encodeUrlParam(apiName))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils.encodeUrlParam(apiVersion));
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
+                            CloudBillingUtils.encodeUrlParam(apiVersion));
 
             return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
         } catch (UnsupportedEncodingException | CloudBillingException e) {
@@ -268,7 +376,8 @@ public final class APICloudMonetizationUtils {
     public static String getAppSubscriptionsInfo(String accountNumber, String appName) throws CloudMonetizationException {
         try {
             String url = appSubscriptionsUri
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO, CloudBillingUtils.encodeUrlParam(accountNumber))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
+                            CloudBillingUtils.encodeUrlParam(accountNumber))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils.encodeUrlParam(appName));
 
             return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
@@ -365,7 +474,7 @@ public final class APICloudMonetizationUtils {
      * @throws CloudMonetizationException
      */
     private static String removeSubscriptionsInMonDb(String accountNumber, String appName, String apiName,
-                                                     String apiVersion, JsonObject zuoraResponseObj)
+            String apiVersion, JsonObject zuoraResponseObj)
             throws CloudMonetizationException {
         //TODO do following with box carring
         try {
@@ -498,7 +607,7 @@ public final class APICloudMonetizationUtils {
                 }
             } else {
                 removeSubscriptionsInMonDb(accountNumber, subscriptionObj.get(MonetizationConstants.ATTRIB_APP_NAME)
-                        .getAsString(), subscriptionObj.get(MonetizationConstants.ATTRIB_API_NAME).getAsString(),
+                                .getAsString(), subscriptionObj.get(MonetizationConstants.ATTRIB_API_NAME).getAsString(),
                         subscriptionObj.get(MonetizationConstants.ATTRIB_API_VERSION).getAsString(), responseObj);
                 removedSubscriptions.add(subscriptionObj);
             }
@@ -630,6 +739,42 @@ public final class APICloudMonetizationUtils {
         } catch (CloudBillingException | UnsupportedEncodingException | JSONException e) {
             throw new CloudMonetizationException(
                     "Error while getting monetization usage data of tenant: " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * Retrieve APIs for a given user
+     *
+     * @param username subscriber username
+     * @return String xml response
+     * @throws CloudMonetizationException
+     */
+    public static String getUserAPIs(String username) throws CloudMonetizationException {
+        try {
+            String url = userAPIsUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
+                    CloudBillingUtils.encodeUrlParam(username));
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while retrieving APIs for user: " + username, e);
+        }
+    }
+
+    /**
+     * Retrieve Application Names for a given API for a given user
+     *
+     * @param username subscriber username
+     * @return String xml response
+     * @throws CloudMonetizationException
+     */
+    public static String getUserAPIApplications(String username, String apiName) throws CloudMonetizationException {
+        try {
+            String url = userAPIApplicationsUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
+                    CloudBillingUtils.encodeUrlParam(username))
+                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
+                            CloudBillingUtils.encodeUrlParam(apiName));
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while retrieving applications  for user: " + username, e);
         }
     }
 }

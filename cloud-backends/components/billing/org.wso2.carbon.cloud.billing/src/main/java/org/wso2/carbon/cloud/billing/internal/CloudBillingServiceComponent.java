@@ -33,6 +33,8 @@ import org.wso2.carbon.cloud.billing.usage.scheduler.UsageUploadScheduler;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.service.TaskService;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -51,6 +53,12 @@ import org.wso2.carbon.user.core.service.RealmService;
  * interface="org.wso2.carbon.securevault.SecretCallbackHandlerService"
  * cardinality="1..1" policy="dynamic"
  * bind="setSecretCallbackHandlerService" unbind="unsetSecretCallbackHandlerService"
+ * @scr.reference name="registry.service"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService" cardinality="1..1"
+ * policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService
+ * @scr.reference name="tenant.registryloader"
+ * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader" cardinality="1..1"
+ * policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
  */
 public class CloudBillingServiceComponent {
 
@@ -158,6 +166,54 @@ public class CloudBillingServiceComponent {
      */
     protected void unsetRealmService(RealmService realmService) {
         ServiceDataHolder.getInstance().setRealmService(null);
+    }
+
+    /**
+     * Set registry service.
+     *
+     * @param registryService registry service
+     */
+    protected void setRegistryService(RegistryService registryService) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("RegistryService is acquired.");
+        }
+        ServiceDataHolder.getInstance().setRegistryService(registryService);
+    }
+
+    /**
+     * Remove registry service.
+     *
+     * @param registryService registry service
+     */
+    protected void unsetRegistryService(RegistryService registryService) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Unset Registry service.");
+        }
+        ServiceDataHolder.getInstance().setRegistryService(null);
+    }
+
+    /**
+     * Set tenant registry loader
+     *
+     * @param tenantRegLoader tenant registry loader
+     */
+    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegLoader) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("TenantRegistryLoader is aquired.");
+        }
+        ServiceDataHolder.getInstance().setTenantRegistryLoader(tenantRegLoader);
+    }
+
+    /**
+     * Remove tenant registry loader
+     *
+     * @param tenantRegLoader tenant registry loader
+     */
+    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegLoader) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Unset Tenant Registry Loader.");
+        }
+        ServiceDataHolder.getInstance().setTenantRegistryLoader(null);
     }
 
     /**
