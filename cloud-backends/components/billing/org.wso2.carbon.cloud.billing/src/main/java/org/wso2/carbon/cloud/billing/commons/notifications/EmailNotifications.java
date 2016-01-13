@@ -58,7 +58,7 @@ public class EmailNotifications extends Observable {
 
     private String host;
     private String port;
-    private String userName;
+    private String username;
     private String password;
     private String sender;
     private String tls;
@@ -69,7 +69,7 @@ public class EmailNotifications extends Observable {
         EmailConfig emailConfig = billingConfig.getUtilsConfig().getNotifications().getEmailNotification();
         host = emailConfig.getHost().trim();
         port = emailConfig.getPort().trim();
-        userName = emailConfig.getUsername().trim();
+        username = emailConfig.getUsername().trim();
         password = emailConfig.getPassword().trim();
         sender = emailConfig.getSender().trim();
         tls = emailConfig.getTls().trim();
@@ -119,7 +119,7 @@ public class EmailNotifications extends Observable {
             session = Session.getInstance(props, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(userName, password);
+                    return new PasswordAuthentication(username, password);
                 }
             });
         } else {
@@ -236,7 +236,8 @@ public class EmailNotifications extends Observable {
                 //Catching the generic exception here to avoid throwing exceptions while executing this sub task
                 setChanged();
                 notifyObservers(email);
-                LOGGER.error("Error while sending the email notification: " + email.toString() + ". Email is added " +
+                LOGGER.error("Error while sending the email notification to: " + email.get(MESSAGE_RECEIVER).toString
+                        () + " under subject: " + email.get(MESSAGE_SUBJECT).toString() + ". Email is added " +
                         "back to the queue. once the error is fixed it will try again ", e);
             }
         }
