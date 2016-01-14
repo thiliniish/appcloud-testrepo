@@ -144,9 +144,3 @@ public class EndpointInvokeTest implements Job {
         this.contextPath = contextPath;
     }
 }
-
-
-
-
-
-
