@@ -172,11 +172,11 @@ public class EmailNotifications extends Observable {
          */
         @Override
         public void update(Observable o, Object arg) {
-            do {
+            while (!mailQueue.isEmpty()) {
                 Map email = mailQueue.poll();
                 MailSender mailSender = new MailSender(mailSenderErrorObserver, email);
                 executorService.execute(mailSender);
-            } while (!mailQueue.isEmpty());
+            }
         }
     }
 
@@ -201,10 +201,10 @@ public class EmailNotifications extends Observable {
                 Map email = (Map) arg;
                 failedEmailQueue.add(email);
             } else if (arg instanceof Boolean && (Boolean) arg) {
-                for (Map email : failedEmailQueue) {
+                while (!failedEmailQueue.isEmpty()) {
+                    Map email = failedEmailQueue.poll();
                     EmailNotifications.getInstance().addToMailQueue(email.get(MESSAGE_BODY).toString(), email.get
                             (MESSAGE_SUBJECT).toString(), email.get(MESSAGE_RECEIVER).toString());
-                    failedEmailQueue.remove(email);
                 }
             } else {
                 LOGGER.error("No argument specified. ");
