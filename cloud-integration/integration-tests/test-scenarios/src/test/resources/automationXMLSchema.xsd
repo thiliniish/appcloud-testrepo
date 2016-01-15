@@ -643,6 +643,30 @@
                             <xs:element name ="allTenantRoles" type="xs:string" maxOccurs="1"
                                         minOccurs="0">
                             </xs:element>
+                            <xs:element name="support">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="userEmail"/>
+                                        <xs:element type="xs:string" name="jiraCreationEnabled"/>
+                                        <xs:element name="supportRequest">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element type="xs:string" name="emailSubject"/>
+                                                    <xs:element type="xs:string" name="emailBody"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="accountExtension">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element type="xs:string" name="emailSubject"/>
+                                                    <xs:element type="xs:string" name="emailBody"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
