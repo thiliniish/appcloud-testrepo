@@ -34,9 +34,11 @@ if (action == "sendExtensionRequest") {
         throw "Error while sending the support request for " + from + "  " +e;
     }
 
-}else {
+} else if (action == "isJiraCreationEnabled") {
+    var result = mod.isJiraCreationEnabled();
+    print(result);
+} else {
     throw new Error("No action specified");
 }
-
 }());
 %>
