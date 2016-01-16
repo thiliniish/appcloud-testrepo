@@ -103,7 +103,8 @@ public final class CloudBillingUtils {
                     return resource;
                 } else {
                     throw new CloudBillingException(
-                            "Unable to find the registry resource in the given location: " + resourceUrl);
+                            "Unable to find the registry resource in the given location: " + resourceUrl
+                                    + " for tenant domain: " + tenantDomain);
                 }
             } else {
                 throw new CloudBillingException(

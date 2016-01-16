@@ -2,63 +2,59 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
-var log = new Log();
 (function () {
-    var mod, result, obj,
+    var mod, result, returnObj,
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     if (action == "makeSubscriberAccountTest") {
         var subscriber = request.getParameter("subscriber");
-        result = mod.makeSubscriberAccountTest(JSON.parse(subscriber));
+        result = mod.makeSubscriberAccountTest(subscriber);
         if (result == null || result.error) {
             var message = result.message;
             if (message == null) {
-                message = "Error while updating account to test for subscriber, " + subscriber + " tenant, " + tenantDomain;
-            } else {
-                message = message.replace(message.split(":")[0] + ":", "");
+                message = "Error while updating an account to test for tenant: " + tenantDomain;
             }
-            obj = {
+            returnObj = {
                 error: true,
                 message: message,
-                status: false
+                status: result.status
             };
         } else {
-            obj = {
+            returnObj = {
                 error: false,
                 status: result.status
             }
         }
-        print(obj);
+        print(returnObj);
     } else if (action == "makeTestSubscriberAccountRegular") {
         var subscriber = request.getParameter("subscriber");
-        result = mod.makeTestSubscriberAccountRegular(JSON.parse(subscriber));
+        result = mod.makeTestSubscriberAccountRegular(subscriber);
         if (result == null || result.error) {
             var message = result.message;
             if (message == null) {
-                message = "Error while changing test account back to a regular account for subscriber, " + subscriber + " tenant, " + tenantDomain;
-            } else {
-                message = message.replace(message.split(":")[0] + ":", "");
+                message = "Error while changing a test account back to a regular account for tenant: " + tenantDomain;
             }
-            obj = {
+            returnObj = {
                 error: true,
                 message: message,
-                status: false
+                status: result.status
             };
         } else {
-            obj = {
+            returnObj = {
                 error: false,
                 status: result.status
             }
         }
-        print(obj);
+        print(returnObj);
     }
     else {
-        var msg = "Invalid action " + action;
+        var msg = "Invalid action: " + action;
         print({
             error: true,
-            message: msg
+            message: msg,
+            status: "400"
         });
     }
 }());

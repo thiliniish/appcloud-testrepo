@@ -2,9 +2,8 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
-var log = new Log();
 (function () {
-    var mod, result, obj,
+    var mod, result, returnObj,
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
@@ -15,26 +14,27 @@ var log = new Log();
             var message = result.message;
             if (message == null) {
                 message = "An error occurred while getting subscribers of the tenant: " + tenantDomain;
-            } else {
-                message = message.replace(message.split(":")[0] + ":", "");
             }
-            obj = {
+            returnObj = {
                 error: true,
-                message: message
+                message: message,
+                status: result.status
             };
         } else {
-            obj = {
+            returnObj = {
                 error: false,
-                subObj: result.subObj
+                subObj: result.subObj,
+                status: result.status
             }
         }
-        print(obj);
+        print(returnObj);
     }
     else {
-        var msg = "Invalid action " + action;
+        var msg = "Invalid action: " + action;
         print({
             error: true,
-            message: msg
+            message: msg,
+            status: "400"
         });
     }
 }());
