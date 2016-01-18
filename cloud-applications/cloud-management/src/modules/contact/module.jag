@@ -8,7 +8,9 @@ sendSupportRequest: function () {
     },
     sendSupportRequestAndCreateJira: function() {
         return jagg.require(jagg.getModulesDir() + "contact/contact.jag").sendSupportRequestAndCreateJira.apply(this, arguments);
+    },
+    isJiraCreationEnabled: function() {
+        return jagg.require(jagg.getModulesDir() + "contact/contact.jag").isJiraCreationEnabled.apply(this, arguments);
     }
-
 });
 %>

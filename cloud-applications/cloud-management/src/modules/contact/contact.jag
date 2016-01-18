@@ -7,15 +7,14 @@ var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
-
 var userName =  session.get("LOGGED_IN_USER");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 
 var sendSupportRequest = function(customerEmail,subject ,body) {
        log.info("Sending a support request for customer email : " + customerEmail);
        var sender;
-       var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-       var senderEmail =cloudConfig.registrationEmail.username;
+       var senderEmail = cloudConfig.registrationEmail.username;
        var senderHost = cloudConfig.registrationEmail.host;
        var to = cloudConfig.supportContact.to;
        var from = cloudConfig.registrationEmail.from;
@@ -37,7 +36,7 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
 
        log.info("Support request sent");
       return true;
-    }
+}
 
 
 /*
@@ -47,18 +46,16 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
  * @param  body : jira ticket description
  */
  var createJiraTicket = function (customerEmail,subject, body) {
-     subject =jagg.module("util").escapeSpecialCharsXML(subject);
-     body =jagg.module("util").escapeSpecialCharsXML(body);
-
+     subject = jagg.module("util").escapeSpecialCharsXML(subject);
+     body = jagg.module("util").escapeSpecialCharsXML(body);
+     var resultCreateJira = "error";
      var tenantDomain = modManager.getTenantDomain();
      subject = subject + " for " + customerEmail +" of tenant " + tenantDomain;
+
      log.info("creating jira ticket for " + customerEmail +" of tenant " + tenantDomain +" message : " + body);
      var ws = require('ws');
-     var finalResult = {};
      try{
-
-        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-        var enabled = cloudConfig.JIRAContact.enable;
+        var enabled = isJiraCreationEnabled();
         if (enabled == "true") {
             var endPoint = cloudConfig.JIRAContact.url;
             var username = cloudConfig.JIRAContact.username;
@@ -90,18 +87,18 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
                        '</soapenv:Envelope>';
 
             // Send the POST request
-            response =xmlhttp.send(data);
-            log.info("Jira ticket created for " + customerEmail +" of tenant " + tenantDomain )
+            response = xmlhttp.send(data);
 
-            }else{
-                log.info("Support request Jira creation is not enabled! " + + "\n"+ " for " + customerEmail +" of tenant " + tenantDomain +" message : " + body);
+            log.info("Jira ticket created for " + customerEmail +" of tenant " + tenantDomain );
+            resultCreateJira="success";
+            } else {
+                log.info("Support request Jira creation is not enabled!. " + + "\n"+ " For " + customerEmail +" of tenant " + tenantDomain +" message : " + body);
+                resultCreateJira="disabled";
             }
-          
-
      } catch (e) {
-        log.error("Error while creating jira ticket! Exception:" + e + "\n"+ " for " + customerEmail +" of tenant " + tenantDomain +" message : " + body);
+        log.error("Error while creating jira ticket! Exception:" + e + "\n"+ " For " + customerEmail +" of tenant " + tenantDomain +" message : " + body);
      }
-
+     return resultCreateJira;
  }
  /*
   * generate auth token by sending login request to api
@@ -109,7 +106,7 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
   * @param  password : password
   * @param  url : api url
   */
- var generateAuthToken = function(userName, password , url){
+ var generateAuthToken = function(userName, password , url) {
      try{
          var xhr = new XMLHttpRequest();
          xhr.setRequestHeader('SOAPAction', 'urn:login');
@@ -133,12 +130,12 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
          var substr = response.substring(0,pos);
          var pos1 = substr.lastIndexOf(">");
          var authtoken = substr.slice(pos1+1);
-         if(authtoken == null){
+         if (authtoken == null) {
             throw("Error while generation Auth token : for " + userName );
          }
          return authtoken;
 
-     } catch(e){
+     } catch(e) {
         log.error("Error while generation Auth token : " + e);
      }
  }
@@ -151,25 +148,34 @@ var sendSupportRequest = function(customerEmail,subject ,body) {
   */
  var sendSupportRequestAndCreateJira = function(customerEmail,subject ,body){
      try{
-       var emailBody;
-       if(userName == null || userName == 'null'){
+         var emailBody;
+         var supportRequestResult={};
+         var resultSupportRequest=false;
+         if (userName == null || userName == 'null') {
            emailBody = "Support requested from a New User email : " + customerEmail + "\n\n" + body;
-       }else {
+         } else {
            emailBody = "Support requested from the tenant user : " + userName + " email : " + customerEmail + "\n\n" + body;
-       }
-       var resultSupportRequest = sendSupportRequest(customerEmail, subject, emailBody);
-
-     } catch(e){
-        log.error("Error while sending support email: " + e);
+         }
+         var resultSupportRequest = sendSupportRequest(customerEmail, subject, emailBody);
+     } catch(e) {
+         log.error("Error while sending support email: " + e);
      }
-     try{
-        var resultCreateJira = createJiraTicket(customerEmail,subject ,body);
-     } catch(e){
-        log.error("Error while creating jira : " + e);
+     try {
+         var resultCreateJira = createJiraTicket(customerEmail,subject ,body);
+     } catch(e) {
+         log.error("Error while creating jira : " + e);
      }
-         return resultSupportRequest + " : " + resultCreateJira;
-
+     supportRequestResult.sendSupportEmailResult = resultSupportRequest;
+     supportRequestResult.createJiraTicketResult = resultCreateJira;
+     return supportRequestResult;
  }
 
+/*
+ * Checks if the JIRA creation is enabled/disabled.
+ * In order to make sure the Jira creation is disabled when running the automated test cases.
+ */
+var isJiraCreationEnabled = function() {
+    return cloudConfig.JIRAContact.enable;
+}
 
 %>
