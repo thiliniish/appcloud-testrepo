@@ -329,21 +329,21 @@ ul
 </script>
 
 <%
-            var SSO_NAME = cloudConfig.SSORelyingParty.name;
-            var SSO_PROVIDER = cloudConfig.SSORelyingParty.identityProviderURL;
-            var SSO_KEYSTORE_PASSWORD = cloudConfig.SSORelyingParty.keyStorePassword;
-            var SSO_KEY_ALIAS = cloudConfig.SSORelyingParty.identityKeyAlias;
-            var SSO_KEYSTORE_NAME = cloudConfig.SSORelyingParty.keyStoreName;
+            var ssoName = cloudConfig.SSORelyingParty.name;
+            var ssoProvider = cloudConfig.SSORelyingParty.identityProviderURL;
+            var ssoKeystorePassword = cloudConfig.SSORelyingParty.keyStorePassword;
+            var ssoKeyAlias = cloudConfig.SSORelyingParty.identityKeyAlias;
+            var ssoKeystoreName = cloudConfig.SSORelyingParty.keyStoreName;
 
             var security = require("sso");
-            var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+            var ssoRelyingParty = new security.SSORelyingParty(ssoName);
             var sessionId = session.getId();
             var requestURI = request.getRequestURI();
 
-            ssoRelyingParty.setProperty("identityProviderURL", SSO_PROVIDER);
-            ssoRelyingParty.setProperty("keyStorePassword", SSO_KEYSTORE_PASSWORD);
-            ssoRelyingParty.setProperty("identityAlias",SSO_KEY_ALIAS);
-            ssoRelyingParty.setProperty("keyStoreName", SSO_KEYSTORE_NAME);
+            ssoRelyingParty.setProperty("identityProviderURL", ssoProvider);
+            ssoRelyingParty.setProperty("keyStorePassword", ssoKeystorePassword);
+            ssoRelyingParty.setProperty("identityAlias",ssoKeyAlias);
+            ssoRelyingParty.setProperty("keyStoreName", ssoKeystoreName);
 
             var samlAuthRequest = ssoRelyingParty.getSAMLAuthRequest();
             var encodedRequest = ssoRelyingParty.encode(samlAuthRequest);
