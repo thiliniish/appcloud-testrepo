@@ -12,6 +12,9 @@ jagg.module("user/authenticate", {
     },
     loginWithSAMLToken: function () {
         return jagg.require(jagg.getModulesDir() + "user/authenticate/login.jag").loginWithSAMLToken.apply(this, arguments);
+    },
+    getSectoken: function() {
+        return jagg.require(jagg.getModulesDir() + "user/authenticate/login.jag").getSectoken.apply(this, arguments);
     }
 
 });
