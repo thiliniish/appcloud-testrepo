@@ -102,19 +102,15 @@ ul
                   lastName:lastName
               },
               function (result) {
-                  jagg.message({content:'You have successfully registered to WSO2 Cloud.',type:'success',cbk:function(){
-                          window.location.href = result;
-                      }, cbkBtnText:'Login'
-                  });
-                  disableSpinner();
+                  loginWithoutIdpScreen();
               },
               function (jqXHR, textStatus, errorThrown) {
                   jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
                           window.location.href = cloudmgtURL;
                       }
                   });
-                  disableSpinner();
               });
+              disableSpinner();
         } else {
              var companyName = $("#companyName").attr('value');
              var firstName = $("#firstName").attr('value');
@@ -135,10 +131,7 @@ ul
                      }
                  });
                 } else {
-                    jagg.message({content:'You have successfully registered to WSO2 Cloud.', type:'success', cbk:function() {
-                         window.location.href = cloudmgtURL;
-                        }, cbkBtnText:'Login'
-                    });
+                    loginWithoutIdpScreen();
                 }
              disableSpinner();
              },
@@ -178,6 +171,28 @@ ul
             function (jqXHR, textStatus, errorThrown) {
                 jagg.message({type:'error',content:"Unable to retrieve the user profile at the moment. Please contact WSO2 Cloud Team for help. "});
             })
+    }
+
+    function loginWithoutIdpScreen(){
+        jagg.syncPost("../blocks/user/authenticate/ajax/login.jag", {
+                 action:"getSectoken",
+                 email:"<%=email%>",
+                 password:"" + $("#password").attr('value')
+             },
+             function (result) {
+                $('<input />').attr('type', 'hidden')
+                      .attr('name', "sectoken")
+                      .attr('value', "" + result.sectoken)
+                      .appendTo('#OneTimeLoginSubmitForm');
+               $('#OneTimeLoginSubmitForm').submit();
+             },
+             function (jqXHR, textStatus, errorThrown) {
+                 jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+                         window.location.href = cloudmgtURL;
+                    }
+                });
+              }
+        );
     }
 
     function displayClaims(claims){
@@ -312,6 +327,36 @@ ul
 
     });
 </script>
+
+<%
+            var ssoName = cloudConfig.SSORelyingParty.name;
+            var ssoProvider = cloudConfig.SSORelyingParty.identityProviderURL;
+            var ssoKeystorePassword = cloudConfig.SSORelyingParty.keyStorePassword;
+            var ssoKeyAlias = cloudConfig.SSORelyingParty.identityKeyAlias;
+            var ssoKeystoreName = cloudConfig.SSORelyingParty.keyStoreName;
+
+            var security = require("sso");
+            var ssoRelyingParty = new security.SSORelyingParty(ssoName);
+            var sessionId = session.getId();
+            var requestURI = request.getRequestURI();
+
+            ssoRelyingParty.setProperty("identityProviderURL", ssoProvider);
+            ssoRelyingParty.setProperty("keyStorePassword", ssoKeystorePassword);
+            ssoRelyingParty.setProperty("identityAlias",ssoKeyAlias);
+            ssoRelyingParty.setProperty("keyStoreName", ssoKeystoreName);
+
+            var samlAuthRequest = ssoRelyingParty.getSAMLAuthRequest();
+            var encodedRequest = ssoRelyingParty.encode(samlAuthRequest);
+            var relayState = ssoRelyingParty.getUUID();
+            ssoRelyingParty.setRelayStateProperty(relayState, "/cloudmgt/site/pages/index.jag");
+            var idpURL = ssoRelyingParty.getProperty("identityProviderURL") + "?SAML2.HTTPBinding=HTTP-POST";
+%>
+
+ <form method="post" action="<%=idpURL%>" id="OneTimeLoginSubmitForm">
+    <input type="hidden" name="SAMLRequest" value="<%= encodedRequest %>"/>
+    <input type="hidden" name="RelayState" value="<%= relayState %>"/>
+    <input type="hidden" name="SSOAuthSessionID" value="<%= sessionId %>"/>
+</form>
 
 <div class="container content-starter">
 	<div class="row">
