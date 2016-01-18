@@ -121,6 +121,7 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
                  + lastName + ", Email: " + email + " ]");
         newUser = !isExistingUser(adminUserName);
         var organizationDomain = getCompanyId(organizationName);
+        session.put("TENANT_DOMAIN", organizationDomain);
         log.info("Organization Information [ Display Name: " + organizationName + ", Platform Tenant Domain: " + organizationDomain + " ]");
         var adminPassword = jagg.module("util").escapeSpecialCharsXML(password);
         var id = registerTenantForTrustedUser(organizationDomain, adminUserName, adminPassword, firstName, lastName, email, usagePlan);

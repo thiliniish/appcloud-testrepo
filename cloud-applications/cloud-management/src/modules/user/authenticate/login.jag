@@ -175,5 +175,12 @@ var loginWithSAMLToken = function (token) {
     return finalResult;
 };
 
+var getSectoken = function (username, password, tenantDomain) {
+    var security = require("sso");
+    var SSO_NAME =  cloudConfig.SSORelyingParty.name;
+    var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+    return ssoRelyingParty.encode(username + "@" + tenantDomain + ":" + password);
+};
+
 %>
 
