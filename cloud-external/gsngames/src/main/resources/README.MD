@@ -22,7 +22,7 @@ in <axisconfig>
                      <handler class="org.wso2.carbon.cloud.external.gsngames.customhandler.CopyAuthHeader" />
                      #end
 
-(4.) Build and Deploy the gsngames-authentication-mediator-1.0.0.jar into <APIM-HOME>/repository/components/lib/
+(4.) Build and Deploy the gsngames-authenticator-1.0.0.jar into <APIM-HOME>/repository/components/lib/
 
 (5.) Start APIM by sh <APIM-HOME>/bin/wso2server.sh start
 

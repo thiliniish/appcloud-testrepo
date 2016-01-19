@@ -50,7 +50,7 @@ public class AuthenticationLogic extends AbstractMediator {
 
         //Getting HTTP Method and Custom Header
         String httpMethod = msgContext.getProperty("HTTP_METHOD").toString();
-        String urlPostFix = msgContext.getProperty("REST_URL_POSTFIX").toString();
+        String transportInUrl = msgContext.getProperty("TransportInURL").toString();
         String customHeader = axis2MessageContext.getProperty("xAuthentication").toString();
         authBean.setSecretKey(axis2MessageContext.getProperty("secretKey").toString());
 
@@ -62,8 +62,8 @@ public class AuthenticationLogic extends AbstractMediator {
         }
 
         //Retrieving timestamp from query parameter
-        if (urlPostFix != null && !urlPostFix.isEmpty()) {
-            String queryParamString = urlPostFix.split("\\?")[1].trim();
+        if (transportInUrl != null && !transportInUrl.isEmpty()) {
+            String queryParamString = transportInUrl.split("\\?")[1].trim();
             List<String> queryStrings = Arrays.asList(queryParamString.split("&"));
 
             //Appending timestamp to secret key
@@ -94,8 +94,8 @@ public class AuthenticationLogic extends AbstractMediator {
 
         } else if ("GET".equals(httpMethod) || "DELETE".equals(httpMethod) || "HEAD".equals(httpMethod)) {
             try {
-                if (urlPostFix != null && !urlPostFix.isEmpty()) {
-                    authBean.setMessageContent(URLDecoder.decode(urlPostFix, MediatorConstants.ENCODING));
+                if (transportInUrl != null && !transportInUrl.isEmpty()) {
+                    authBean.setMessageContent(URLDecoder.decode(transportInUrl, MediatorConstants.ENCODING));
                     byte[] pathBytes =
                             authUtil.md5(authBean.getMessageContent().getBytes(MediatorConstants.ENCODING)).getBytes();
                     validate = authUtil.validateSignature(pathBytes);
