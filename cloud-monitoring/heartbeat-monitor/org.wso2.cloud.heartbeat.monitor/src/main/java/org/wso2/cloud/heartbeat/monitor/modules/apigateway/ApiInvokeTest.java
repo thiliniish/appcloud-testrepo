@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.cloud.heartbeat.monitor.modules.apimanager;
+package org.wso2.cloud.heartbeat.monitor.modules.apigateway;
 
 import java.io.IOException;
 
