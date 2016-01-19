@@ -24,6 +24,7 @@ import org.quartz.SchedulerFactory;
 import org.wso2.cloud.heartbeat.monitor.core.configuration.Node;
 import org.wso2.cloud.heartbeat.monitor.core.configuration.parser.nginx.NodeBuilder;
 import org.wso2.cloud.heartbeat.monitor.core.schedule.utils.UtilJobScheduler;
+import org.wso2.cloud.heartbeat.monitor.modules.apigateway.ApiInvokeTest;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiLifeCycleTest;
 import org.wso2.cloud.heartbeat.monitor.core.status.LiveStatusConnector;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiStatisticTest;
@@ -35,6 +36,7 @@ import org.wso2.cloud.heartbeat.monitor.modules.bam.DataPublishingTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.HiveScriptExecutionTest;
 import org.wso2.cloud.heartbeat.monitor.modules.cloudmgt.ChangePassswordTest;
 import org.wso2.cloud.heartbeat.monitor.modules.cloudmgt.ImportUserMembersToTenantTest;
+import org.wso2.cloud.heartbeat.monitor.modules.common.tests.EndpointInvokeTest;
 import org.wso2.cloud.heartbeat.monitor.modules.gitblit.GitCloneAndPushTest;
 import org.wso2.cloud.heartbeat.monitor.modules.gitblit.GitTenantLoginTest;
 import org.wso2.cloud.heartbeat.monitor.modules.jenkins.JenkinsTenantLoginTest;
@@ -260,14 +262,17 @@ public class ScheduleManager {
         //Application Servers (Development, Test, Production)
         if(modules.findChildNodeByName(Constants.APPLICATION_SERVER_DEV)!=null){
             List<Class> asDevClasses= new ArrayList<Class>();
+            asDevClasses.add(EndpointInvokeTest.class);
             scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_DEV),asDevClasses);
         }
         if(modules.findChildNodeByName(Constants.APPLICATION_SERVER_TEST)!=null){
             List<Class> asTestClasses= new ArrayList<Class>();
+            asTestClasses.add(EndpointInvokeTest.class);
             scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_TEST),asTestClasses);
         }
         if(modules.findChildNodeByName(Constants.APPLICATION_SERVER_PROD)!=null){
             List<Class> asProdClasses= new ArrayList<Class>();
+            asProdClasses.add(EndpointInvokeTest.class);
             scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_PROD),asProdClasses);
         }
 
@@ -313,6 +318,7 @@ public class ScheduleManager {
         //API  - Gateway
         if(modules.findChildNodeByName(Constants.API_GATEWAY)!=null){
             List<Class> gatewayClasses = new ArrayList<Class>();
+            gatewayClasses.add(ApiInvokeTest.class);
             scheduleJobs(modules.findChildNodeByName(Constants.API_GATEWAY),gatewayClasses);
         }
 
