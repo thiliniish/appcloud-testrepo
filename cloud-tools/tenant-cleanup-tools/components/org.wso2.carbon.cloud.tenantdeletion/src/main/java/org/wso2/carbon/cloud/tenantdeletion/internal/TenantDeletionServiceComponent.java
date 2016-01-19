@@ -24,7 +24,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.tenantdeletion.listeners.CloudUserOperationListener;
-import org.wso2.carbon.cloud.tenantdeletion.listeners.UserStoreConfgurationContextObserver;
+import org.wso2.carbon.cloud.tenantdeletion.listeners.TenantLoaderObserver;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
@@ -45,12 +45,12 @@ public class TenantDeletionServiceComponent {
 		BundleContext bundleContext = context.getBundleContext();
 		try {
 			CloudUserOperationListener cloudUserOperationListener = new CloudUserOperationListener();
-			UserStoreConfgurationContextObserver userStoreConfgurationContextObserver = new
-					UserStoreConfgurationContextObserver();
+			TenantLoaderObserver tenantLoaderObserver = new
+					TenantLoaderObserver();
 			this.userOperationEventListenerRef = bundleContext.registerService(UserOperationEventListener.class.getName(),
 					cloudUserOperationListener, null);
 			this.contextObserverRef = bundleContext.registerService(Axis2ConfigurationContextObserver.class.getName(),
-					userStoreConfgurationContextObserver, null);
+					tenantLoaderObserver, null);
 		} catch (Exception e) {
 			logger.error("Failed to activate the Tenant Deletion service.", e);
 		}

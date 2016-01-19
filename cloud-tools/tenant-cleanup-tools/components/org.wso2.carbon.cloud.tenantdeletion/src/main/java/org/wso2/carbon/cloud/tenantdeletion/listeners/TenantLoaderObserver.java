@@ -36,7 +36,7 @@ import java.util.Date;
 /**
  * Represents class for Tenant Loading Listener.
  */
-public class UserStoreConfgurationContextObserver implements Axis2ConfigurationContextObserver {
+public class TenantLoaderObserver implements Axis2ConfigurationContextObserver {
 
 	private static Log log = LogFactory.getLog(Axis2ConfigurationContextObserver.class);
 
