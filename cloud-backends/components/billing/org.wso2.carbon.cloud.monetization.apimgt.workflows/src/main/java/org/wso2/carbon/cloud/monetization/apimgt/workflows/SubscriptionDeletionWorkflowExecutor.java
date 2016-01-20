@@ -77,7 +77,7 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
                 JsonElement subscriberElement = responseObj.getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBERS_OBJ)
                         .get(CustomWorkFlowConstants.SUBSCRIBER_OBJ);
 
-                if (!subscriberElement.isJsonObject()) {
+                if (subscriberElement == null || !subscriberElement.isJsonObject()) {
                     return handleSubscriptionIfInactive(subscriptionWorkflowDTO);
                 }
 
