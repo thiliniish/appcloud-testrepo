@@ -3,8 +3,11 @@ jagg.module("monetizing", {
     getSubscribersOfTenant: function () {
         return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscribersOfTenant.apply(this, arguments);
     },
-    updateSubscribersTestStatus: function () {
-        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").updateSubscribersTestStatus.apply(this, arguments);
+    makeSubscriberAccountTest: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").makeSubscriberAccountTest.apply(this, arguments);
+    },
+    makeTestSubscriberAccountRegular: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").makeTestSubscriberAccountRegular.apply(this, arguments);
     }
 });
 %>

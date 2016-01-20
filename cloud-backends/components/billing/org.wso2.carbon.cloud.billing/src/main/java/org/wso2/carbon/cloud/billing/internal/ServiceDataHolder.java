@@ -23,6 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.TaskManager;
 import org.wso2.carbon.ntask.core.service.TaskService;
+import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -35,6 +37,8 @@ public class ServiceDataHolder {
     private TaskService taskService;
     private SecretCallbackHandlerService secretCallbackHandlerService;
     private RealmService realmService;
+    private RegistryService registryService;
+    private TenantRegistryLoader tenantRegistryLoader;
 
     private ServiceDataHolder() {
     }
@@ -46,6 +50,42 @@ public class ServiceDataHolder {
      */
     public static ServiceDataHolder getInstance() {
         return SERVICE_DATA_HOLDER;
+    }
+
+    /**
+     * Set registry service
+     *
+     * @param registryService registryService
+     */
+    public void setRegistryService(RegistryService registryService) {
+        this.registryService = registryService;
+    }
+
+    /**
+     * Get registry service
+     *
+     * @return registry service
+     */
+    public RegistryService getRegistryService() {
+        return registryService;
+    }
+
+    /**
+     * Set tenant registry loader
+     *
+     * @param tenantRegistryLoader registry loader
+     */
+    public void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        this.tenantRegistryLoader = tenantRegistryLoader;
+    }
+
+    /**
+     * Get tenant registry loader
+     *
+     * @return tenant registry loader
+     */
+    public TenantRegistryLoader gerTenantRegistryLoader() {
+        return tenantRegistryLoader;
     }
 
     /**
