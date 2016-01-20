@@ -8,7 +8,7 @@ i18n.init(request, localeResourcesBasePath);
 var tenantDomain = jagg.getTenantDomain();
 
 (function () {
-    var user = jagg.getUser(), isMonetizationEnabledObj, selectedApp;
+    var user = jagg.getUser(), isMonetizationEnabledObj, selectedApp, middleObj;
 
     isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
     isTenantAllowed();
@@ -51,39 +51,10 @@ var tenantDomain = jagg.getTenantDomain();
     if (action == null) {
         response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
     } else if ("paymentMethod".equals(action)) {
-        jagg.render({
-            "name": "page/base",
-            "inputs": {
-                "title": "My Account",
-                "pagePath":"/site/pages/pricing/add-payment-method.jag",
-                "body": [
-                    {
-                        "name": "layout/base",
-                        "title": "My Account",
-                        "inputs": {
-                            "top": [
-
-                                {
-                                    "name": "search/api-search",
-                                    "inputs": null
-                                }
-                            ],
-                            "left": [
-                                {
-                                    "name": "api/recently-added",
-                                    "inputs": {"tenant":tenantDomain}
-                                }
-                            ],
-                            "middle": [{
-                                "name": "pricing/payment-method/add",
-                                "inputs": inputsObj
-                            }],
-                            "right":null
-                        }
-                    }
-                ]
-            }
-        });
+        middleObj = [{
+            "name": "pricing/payment-method/add",
+            "inputs": inputsObj
+        }];
     } else if ("createAccount".equals(action)) {
         var signature = request.getParameter("signature");
         var refId = request.getParameter("refId");
@@ -95,82 +66,53 @@ var tenantDomain = jagg.getTenantDomain();
         inputsObj.field_passthrough1 = field_passthrough1;
         inputsObj.selectedApp = selectedApp;
 
-        jagg.render({
-            "name":"page/base",
-            "inputs":{
-                "title": "My Account",
-                "pagePath":"/site/pages/pricing/add-billing-account.jag",
-                "body":[
-                    {
-                        "name":"layout/base",
-                        "inputs":{
-                            "top": [{
-                                "name": "search/api-search",
-                                "inputs": null
-                            }
-                            ],
-                            "left": [
-                                {
-                                    "name": "api/recently-added",
-                                    "inputs": {
-                                        "tenant": tenantDomain
-                                    }
-                                }
-                            ],
-                            "middle":[
-                                {
-                                    "name":"pricing/account/create",
-                                    "inputs": inputsObj
-                                }
-                            ],
-                            "right":null
-                        }
-                    }
-                ]
-            }
-        });
+        middleObj = [{
+            "name": "pricing/account/create",
+            "inputs": inputsObj
+        }];
     } else if ("subscribed".equals(action)) {
         selectedApp = request.getParameter("selectedApp");
         inputsObj.redirectUrl = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?") +
                 "&selectedApp=" + selectedApp;
-        jagg.render({
-            "name":"page/base",
-            "inputs":{
-                "title": "My Account",
-                "pagePath":"/site/pages/pricing/payment-confirmation.jag",
-                "body":[
-                    {
-                        "name":"layout/base",
-                        "title":"My Account",
-                        "inputs":{
-                            "top": [
-
-                                {
-                                    "name": "search/api-search",
-                                    "inputs": null
-                                }
-                            ],
-                            "left": [
-                                {
-                                    "name": "api/recently-added",
-                                    "inputs": {"tenant":tenantDomain}
-                                }
-                            ],
-                            "middle":[
-                                {
-                                    "name":"pricing/payment-confirm",
-                                    "inputs": inputsObj
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        });
+        middleObj = [{
+                "name":"pricing/payment-confirm",
+                "inputs": inputsObj
+        }];
     } else {
         response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+        return;
     }
 
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title": "My Account",
+            "pagePath":"/site/pages/pricing/manage-account.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "title":"My Account",
+                    "inputs":{
+                        "top": [
+
+                            {
+                                "name": "search/api-search",
+                                "inputs": null
+                            }
+                        ],
+                        "left": [
+                            {
+                                "name": "api/recently-added",
+                                "inputs": {"tenant":tenantDomain}
+                            }
+                        ],
+                        "middle":middleObj,
+                        "right":null
+                    }
+                }
+            ]
+        }
+    });
 }());
 
 %>
