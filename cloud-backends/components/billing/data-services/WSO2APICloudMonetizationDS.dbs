@@ -206,6 +206,20 @@
         </result>
         <param name="RATE_PLAN_ID" sqlType="STRING"/>
     </query>
+    <query id="getRatePlansInfoForTenantQ"  useConfig="cloud_mgt">
+      <sql>SELECT RATE_PLAN_NAME, MAX_DAILY_USAGE, MONTHLY_RENTAL, UOM_UNIT, UOM_PRICE FROM
+      MONETIZATION_API_CLOUD_PLANS_INFO AS A INNER JOIN (SELECT RATE_PLAN_ID, RATE_PLAN_NAME FROM
+      MONETIZATION_PRODUCT_PLANS WHERE TENANT_DOMAIN=(:TENANT_DOMAIN) AND ZUORA_PRODUCT_NAME=CONCAT(
+      (:TENANT_DOMAIN), '_api_cloud')) AS B ON A.RATE_PLAN_ID=B.RATE_PLAN_ID;</sql>
+        <result element="Entry" rowName="RatePlans">
+            <element column="RATE_PLAN_NAME" name="RatePlanName" xsdType="string"/>
+            <element column="MAX_DAILY_USAGE" name="MaxDailyUsage" xsdType="string"/>
+            <element column="MONTHLY_RENTAL" name="MonthlyRental" xsdType="double"/>
+            <element column="UOM_UNIT" name="OverUsageUnits" xsdType="integer"/>
+            <element column="UOM_PRICE" name="OverUsageUnitsPrice" xsdType="double"/>
+        </result>
+      <param name="TENANT_DOMAIN" sqlType="STRING"/>
+    </query>
     <query id="updateApiSubscriptionsStatusQ" useConfig="apim_db">
       <sql>UPDATE AM_SUBSCRIPTION AMS INNER JOIN (SELECT SP.SUBSCRIPTION_ID AS SUBSCRIPTION_ID FROM AM_SUBSCRIPTION SP, AM_API API, AM_SUBSCRIBER SB, AM_APPLICATION APP WHERE SB.USER_ID = :USER_ID AND SB.TENANT_ID = :TENANT_ID AND SB.SUBSCRIBER_ID = APP.SUBSCRIBER_ID AND APP.APPLICATION_ID=SP.APPLICATION_ID AND API.API_ID = SP.API_ID GROUP BY SUBSCRIPTION_ID) SELECTED_AMS ON AMS.SUBSCRIPTION_ID = SELECTED_AMS.SUBSCRIPTION_ID SET AMS.SUB_STATUS = :SUB_STATUS</sql>
       <param name="USER_ID" sqlType="STRING"/>
@@ -369,6 +383,11 @@
             <with-param name="END_DATE" query-param="endDate"/>
         </call-query>
     </operation>
+    <operation name="getRatePlansInfoForTenant">
+        <call-query href="getRatePlansInfoForTenantQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenantDomain"/>
+        </call-query>
+    </operation>
     <resource method="GET" path="v1/subscribers/{tenant}/{username}">
         <call-query href="getSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -434,6 +453,11 @@
         <call-query href="getAppSubscriptionInfoQ">
             <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
             <with-param name="AM_APP_NAME" query-param="appName"/>
+        </call-query>
+    </resource>
+    <resource method="GET" path="v1/rate-plans/tenants/{tenant}/api-cloud">
+        <call-query href="getRatePlansInfoForTenantQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
         </call-query>
     </resource>
     <resource method="GET" path="v1/usage/daily-usage">

@@ -2,6 +2,10 @@
 jagg.block("pricing/payment-method/add", {
     initialize:function (data) {
 
+    },
+
+    getOutputs:function (inputs) {
+        return inputs;
     }
 });
 %>

@@ -1,0 +1,11 @@
+<%
+jagg.block("pricing/payment-confirm", {
+    initialize:function (data) {
+
+    },
+
+    getOutputs:function (inputs) {
+        return inputs;
+    }
+});
+%>

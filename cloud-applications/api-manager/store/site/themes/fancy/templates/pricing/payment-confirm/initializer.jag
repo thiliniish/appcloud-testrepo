@@ -1,0 +1,35 @@
+<%
+jagg.initializer("pricing/payment-confirm", {
+    preInitialize:function () {
+        jagg.addHeaderCSS("pricing/payment-confirm", "bootstrap-min",
+                "templates/pricing/manage-account/css/bootstrap.min.css");
+        jagg.addHeaderCSS("pricing/payment-confirm", "common",
+                "templates/pricing/manage-account/css/common.css");
+        jagg.addHeaderCSS("pricing/payment-confirm", "custom",
+                "templates/pricing/manage-account/css/custom.css");
+        jagg.addHeaderCSS("pricing/payment-confirm", "style",
+                "templates/pricing/manage-account/css/style.css");
+        jagg.addHeaderCSS("pricing/payment-confirm", "Roboto",
+                "templates/pricing/css/web-fonts/Roboto.css");
+        jagg.addHeaderCSS("pricing/payment-confirm", "font-awesome.min",
+                "templates/pricing/css/font-awesome-4.2.0/font-awesome.min.css");
+        jagg.addHeaderCSS("pricing/payment-confirm", "font-wso2",
+                "templates/pricing/css/fontwso2-1.2/css/font-wso2.css");
+
+        jagg.addHeaderJS("pricing/payment-confirm", "html5shiv.min",
+                "templates/pricing/manage-account/js/html5shiv.min.js");
+        jagg.addHeaderJS("pricing/payment-confirm", "respond.min",
+                "templates/pricing/manage-account/js/respond.min.js");
+
+        jagg.addHeaderJS("pricing/payment-confirm", "jquery.min",
+                "templates/pricing/js/jquery-1.11.1/jquery.min.js");
+        jagg.addHeaderJS("pricing/payment-confirm", "bootstrap.min",
+                "templates/pricing/manage-account/js/bootstrap.min.js");
+        jagg.addHeaderJS("pricing/payment-confirm", "custom",
+                "templates/pricing/js/custom/custom.js");
+
+        jagg.addHeaderCode("pricing/account/create", "charset", '<meta charset="utf-8">');
+        jagg.addHeaderCode("pricing/account/create", "viewpoint", '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+    }
+});
+%>

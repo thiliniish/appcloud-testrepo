@@ -35,6 +35,9 @@ jagg.module("pricing", {
     },
     getCurrencyUsed: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getCurrencyUsed.apply(this, arguments);
+    },
+    getRatePlanInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getRatePlanInfo.apply(this, arguments);
     }
 });
 %>

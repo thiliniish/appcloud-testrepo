@@ -46,6 +46,7 @@ public final class MonetizationConstants {
             "/v1/usage/subscriber-application-api/{subscriberId}/{appName}/{apiName}/{version}";
     public static final String DS_API_URI_SUBSCRIBER_API_USAGE =
             "/v1/usage/subscriber-api/{subscriberId}/{apiName}/{version}";
+    public static final String DS_API_URI_APIC_RATE_PLANS = "/v1/rate-plans/tenants/{tenant}/api-cloud";
 
     /*resource identifiers*/
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
@@ -71,6 +72,7 @@ public final class MonetizationConstants {
 
     public static final String ACCOUNT = "Account";
     public static final String RATE_PLAN = "RatePlan";
+    public static final String RATE_PLANS = "RatePlans";
     public static final String RATE_PLAN_ID = "RatePlanId";
     public static final String SUBSCRIPTION = "Subscription";
     public static final String SUBSCRIPTIONS = "Subscriptions";

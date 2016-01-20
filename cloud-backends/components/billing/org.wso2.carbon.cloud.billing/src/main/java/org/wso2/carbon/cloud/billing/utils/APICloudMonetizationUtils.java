@@ -69,6 +69,7 @@ public final class APICloudMonetizationUtils {
     private static String usageOfApiByApplicationBySubscriberUrl;
     private static String userAPIsUri;
     private static String userAPIApplicationsUri;
+    private static String ratePlanInfoUri;
 
     static {
         dsBRProcessor = BillingRequestProcessorFactory
@@ -104,6 +105,8 @@ public final class APICloudMonetizationUtils {
         userAPIApplicationsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants
                 .DS_API_URI_USER_API_APPLICATIONS;
+        ratePlanInfoUri = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                + MonetizationConstants.DS_API_URI_APIC_RATE_PLANS;
     }
 
     private APICloudMonetizationUtils() {
@@ -675,6 +678,16 @@ public final class APICloudMonetizationUtils {
             return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException("Error while retrieving applications  for user: " + username, e);
+        }
+    }
+
+    public static String getRatePlanInfo(String tenantDomain) throws CloudMonetizationException {
+        try {
+            String url = ratePlanInfoUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT, CloudBillingUtils
+                    .encodeUrlParam(tenantDomain));
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while retrieving rate plans for tenant: " + tenantDomain, e);
         }
     }
 }
