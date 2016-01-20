@@ -17,7 +17,7 @@ in <axisconfig>
         <messageBuilders>
            <messageBuilder contentType="application/hal+json" class="org.apache.synapse.commons.json.JsonStreamBuilder"/>
 
-(3.) Add the below configuration in to <APIM_HOME>/repository/resources/api_templates/velocity_template.xml following <handlers xmlns="http://ws.apache.org/ns/synapse">
+(3.) Add the below configuration in to <APIM_HOME>/repository/resources/api_templates/velocity_template.xml and <APIM_HOME>/repository/resources/api_templates/default_api_template.xml following <handlers xmlns="http://ws.apache.org/ns/synapse">
     #if ( $apiContext.contains("add the tenant domain within "/Tenant Domain/"   Format") )
                      <handler class="org.wso2.carbon.cloud.external.gsngames.customhandler.CopyAuthHeader" />
                      #end
