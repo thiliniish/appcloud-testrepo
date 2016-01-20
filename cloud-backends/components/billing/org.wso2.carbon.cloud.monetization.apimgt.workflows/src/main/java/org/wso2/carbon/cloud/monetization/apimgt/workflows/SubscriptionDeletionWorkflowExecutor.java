@@ -141,7 +141,14 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
                 subscriptionWorkflowDTO.getSubscriber());
         String subscriptionStatus = apiMgtDAO.getSubscriptionStatus(apiIdentifier, applicationId);
 
-        return APIConstants.SubscriptionStatus.UNBLOCKED.equals(subscriptionStatus.trim());
+        if (StringUtils.isNotBlank(subscriptionStatus)) {
+            return APIConstants.SubscriptionStatus.UNBLOCKED.equals(subscriptionStatus.trim());
+        } else {
+            throw new APIManagementException("Subscription status unavailable. Tenant: "
+                    + subscriptionWorkflowDTO.getTenantDomain() + ", Subscriber: " + subscriptionWorkflowDTO
+                    .getSubscriber() + ",  Application: " + subscriptionWorkflowDTO.getApplicationName() + ", Api: "
+                    + subscriptionWorkflowDTO.getApiName() + ", API version: " + subscriptionWorkflowDTO.getApiVersion());
+        }
     }
 
     /**
