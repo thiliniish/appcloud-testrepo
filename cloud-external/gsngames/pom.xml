@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.carbon.cloud</groupId>
-    <artifactId>gsngames-authentication-mediator</artifactId>
+    <artifactId>gsngames-authenticator</artifactId>
     <version>1.0.0</version>
 
     <repositories>
