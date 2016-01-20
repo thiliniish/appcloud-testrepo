@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.cloud.billing.commons;
 
+import javax.xml.namespace.QName;
+
 /**
  * API Cloud Monetization specific constants
  */
@@ -47,6 +49,7 @@ public final class MonetizationConstants {
     public static final String DS_API_URI_SUBSCRIBER_API_USAGE =
             "/v1/usage/subscriber-api/{subscriberId}/{apiName}/{version}";
     public static final String DS_API_URI_APIC_RATE_PLANS = "/v1/rate-plans/tenants/{tenant}/api-cloud";
+    public static final String DS_API_URI_REMOVE_API_SUBSCRIPTION = "/v1/apim/{tenantId}/{subscriberId}/subscriptions";
 
     /*resource identifiers*/
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
@@ -65,10 +68,12 @@ public final class MonetizationConstants {
     /*param names*/
     public static final String PARAM_IS_TEST_ACCOUNT = "isTestAccount";
 
-    /*api manager use subscriptions related */
+    /*api manager user subscriptions related */
     public static final String USER_ID = "userId";
     public static final String API_SUBSCRIPTION_STATUS = "subStatus";
     public static final String API_SUBSCRIPTION_BLOCKED_STATUS = "BLOCKED";
+    public static final String FREE_TIER = "freeTier";
+    public static final String FREE = "FREE";
 
     public static final String ACCOUNT = "Account";
     public static final String RATE_PLAN = "RatePlan";
@@ -103,6 +108,18 @@ public final class MonetizationConstants {
     public static final String ATTRIB_API_NAME = "ApiName";
     public static final String ATTRIB_API_VERSION = "ApiVersion";
     public static final String ATTRIB_API_PROVIDER = "ApiProvider";
+
+    /*tiers.xml related attributes*/
+    public static final String tiersXmlUrl = "/apimgt/applicationdata/tiers.xml";
+    public static final String UNAUTHENTICATED = "Unauthenticated";
+    public static final String THROTTLE_NAMESPACE = "http://www.wso2.org/products/wso2commons/throttle";
+    public static final QName ASSERTION_ELEMENT = new QName(THROTTLE_NAMESPACE, "MediatorThrottleAssertion");
+    public static final QName POLICY_ELEMENT = new QName("http://schemas.xmlsoap.org/ws/2004/09/policy", "Policy");
+    public static final QName THROTTLE_ID_ELEMENT = new QName(THROTTLE_NAMESPACE, "ID");
+    public static final QName THROTTLE_CONTROL_ELEMENT = new QName(THROTTLE_NAMESPACE, "Control");
+    public static final QName THROTTLE_ATTRIBUTES_ELEMENT = new QName(THROTTLE_NAMESPACE, "Attributes");
+    public static final QName THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT = new QName(
+            MonetizationConstants.THROTTLE_NAMESPACE, "BillingPlan");
 
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +

@@ -196,6 +196,25 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * Remove paid api subscriptions of a subscriber of a given tenant
+     *
+     * @param subscriberId subscriber id
+     * @param tenantDomain tenant domain
+     * @return boolean remove subscription status
+     * @throws CloudMonetizationException
+     */
+    public boolean removePaidApiSubscriptionsOfUser(String subscriberId, String tenantDomain)
+            throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.removePaidApiSubscriptionsOfUser(subscriberId, tenantDomain);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error occurred while removing paid api subscriptions of subscriber: " + subscriberId +
+                    " of tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
+    /**
      * @param tenantDomain  tenant domain
      * @param accountNumber account number
      * @param apiData       api data json object
@@ -391,6 +410,8 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * Retrieve subscriber related usage data
+     *
      * @param tenantDomain    tenant domain
      * @param userId          user id
      * @param api             api name with version
@@ -402,15 +423,15 @@ public class APICloudMonetizationService {
      * @throws CloudMonetizationException
      */
     public JSONObject getTenantMonetizationUsageDataForGivenDateRange(String tenantDomain, String userId, String api,
-                                                                      String version, String applicationName, String startDate, String endDate)
+            String version, String applicationName, String startDate, String endDate)
             throws CloudMonetizationException {
         try {
             return APICloudMonetizationUtils
                     .getTenantMonetizationUsageDataForGivenDateRange(tenantDomain, userId, api, version,
                             applicationName, startDate, endDate);
         } catch (CloudMonetizationException ex) {
-            throw new CloudMonetizationException(
-                    "Error occurred while retrieving monetization usage data of tenant: " + tenantDomain);
+            LOGGER.error("Error occurred while retrieving monetization usage data of tenant: " + tenantDomain, ex);
+            throw ex;
         }
     }
 

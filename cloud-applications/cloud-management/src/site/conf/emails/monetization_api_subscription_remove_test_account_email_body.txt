@@ -17,8 +17,8 @@
                     Hi,
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
-                 Your complimentary subscriber account has been modified to a regular subscriber account as requested by administration of organization <span style="color: #141414;">$tenant</span>.
-                 Your previous api subscriptions will be blocked and no longer accessible. You will have to re-subscribe to apis through api store. The change will go into effect on <span style="color: #141414;">$effective-date</span>.
+                 Your complimentary subscriber account has been changed back to a regular subscriber account as requested by administration of organization <span style="color: #141414;">$tenant</span>.
+                 Your current subscriptions to commercial apis will be automatically removed and will no longer be accessible. You will have to re-subscribe to commercial apis through api store. The change will go into effect on <span style="color: #141414;">$effective-date</span>.
                  Please contact WSO2 cloud or <span style="color: #141414;">$tenant</span> for further clarifications.
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 20px 0px 5px;">
