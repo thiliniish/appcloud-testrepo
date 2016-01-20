@@ -1,7 +1,7 @@
 <%
 jagg.initializer("pricing/account/create", {
 
-    preInitialize : function () {
+    preInitialize: function () {
 
         jagg.addHeaderCSS("pricing/account/create", "bootstrap-min",
                 "templates/pricing/manage-account/css/bootstrap.min.css");

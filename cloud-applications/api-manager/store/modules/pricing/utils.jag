@@ -89,8 +89,8 @@ var populateAccountInfo = function (accountData, metaData, effectiveDate, ratePl
     return data;
 };
 
-var getRatePlan = function (ratePlanName, ratePlans){
-    for(var i = 0; i < ratePlans.length; i++) {
+var getRatePlan = function (ratePlanName, ratePlans) {
+    for (var i = 0; i < ratePlans.length; i++) {
         var planObj = ratePlans[i];
         if (ratePlanName.equals(planObj['RatePlanName'])) {
             return planObj;

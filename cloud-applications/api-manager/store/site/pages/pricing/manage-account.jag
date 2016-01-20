@@ -43,9 +43,9 @@ var tenantDomain = jagg.getTenantDomain();
     }
 
     var inputsObj = {
-        "workflowReference":workflowReference,
-        "ratePlan":ratePlanObj.ratePlan,
-        "tenant":tenantDomain
+        "workflowReference": workflowReference,
+        "ratePlan": ratePlanObj.ratePlan,
+        "tenant": tenantDomain
     };
 
     if (action == null) {
@@ -75,8 +75,8 @@ var tenantDomain = jagg.getTenantDomain();
         inputsObj.redirectUrl = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?") +
                 "&selectedApp=" + selectedApp;
         middleObj = [{
-                "name":"pricing/payment-confirm",
-                "inputs": inputsObj
+            "name": "pricing/payment-confirm",
+            "inputs": inputsObj
         }];
     } else {
         response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
@@ -84,15 +84,15 @@ var tenantDomain = jagg.getTenantDomain();
     }
 
     jagg.render({
-        "name":"page/base",
-        "inputs":{
+        "name": "page/base",
+        "inputs": {
             "title": "My Account",
-            "pagePath":"/site/pages/pricing/manage-account.jag",
-            "body":[
+            "pagePath": "/site/pages/pricing/manage-account.jag",
+            "body": [
                 {
-                    "name":"layout/base",
-                    "title":"My Account",
-                    "inputs":{
+                    "name": "layout/base",
+                    "title": "My Account",
+                    "inputs": {
                         "top": [
 
                             {
@@ -103,11 +103,11 @@ var tenantDomain = jagg.getTenantDomain();
                         "left": [
                             {
                                 "name": "api/recently-added",
-                                "inputs": {"tenant":tenantDomain}
+                                "inputs": {"tenant": tenantDomain}
                             }
                         ],
-                        "middle":middleObj,
-                        "right":null
+                        "middle": middleObj,
+                        "right": null
                     }
                 }
             ]

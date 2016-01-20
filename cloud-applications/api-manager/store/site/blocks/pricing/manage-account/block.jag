@@ -1,6 +1,6 @@
 <%
 jagg.block("pricing/manage-account", {
-    initialize:function (data) {
+    initialize: function (data) {
 
     }
 });

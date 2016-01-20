@@ -1,19 +1,20 @@
 var params;
 
 var callback = function (response) {
-    var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-    if(!response.success) {
+    var cloudmgtURL = $("#cloudmgtURL").attr('value');
+    if (!response.success) {
         $('.message_box').empty();
-        jagg.message({content:JSON.stringify(response), type:'error',cbk:function(){
-            window.location.href = cloudmgtURL + "/site/pages/index.jag";
-        }
+        jagg.message({
+            content: JSON.stringify(response), type: 'error', cbk: function () {
+                window.location.href = cloudmgtURL + "/site/pages/index.jag";
+            }
         });
     }
 };
 
 function showPage() {
     var zuoraDiv = document.getElementById('zuora_payment');
-    zuoraDiv.innerHTML="";
+    zuoraDiv.innerHTML = "";
     Z.render(params, null, callback);
 }
 
@@ -25,26 +26,26 @@ function submitPage() {
 
 function disable() {
     var submitButton = document.getElementById('submitbtn');
-    $('#submitbtn').css('background-color','#F9BFBB');
+    $('#submitbtn').css('background-color', '#F9BFBB');
     submitButton.disabled = true;
 }
 
 function enable() {
     document.getElementById("spinner").style.display = 'none';
     var submitButton = document.getElementById('submitbtn');
-    $('#submitbtn').css('background-color','#428BCA');
+    $('#submitbtn').css('background-color', '#428BCA');
     submitButton.disabled = false;
 }
 
 function generateParameters() {
-    var workflowReference =  $("#workflowReference").attr('value');
-    var tenant =  $("#tenant").attr('value');
+    var workflowReference = $("#workflowReference").attr('value');
+    var tenant = $("#tenant").attr('value');
     jagg.post("/site/blocks/pricing/payment-method/add/ajax/add.jag", {
         action: "generateParams",
         workflowReference: workflowReference,
         tenant: tenant
     }, function (result) {
-        if (!result.error){
+        if (!result.error) {
             params = result.params;
             showPage();
         }
@@ -52,13 +53,13 @@ function generateParameters() {
 }
 
 //A Custom function is needed
-(function() {
+(function () {
     // Your base, I'm in it!
     var originalAddClassMethod = jQuery.fn.addClass;
 
-    jQuery.fn.addClass = function(){
+    jQuery.fn.addClass = function () {
         // Execute the original method.
-        var result = originalAddClassMethod.apply( this, arguments );
+        var result = originalAddClassMethod.apply(this, arguments);
 
         // trigger a custom event
         jQuery(this).trigger('elementClassChanged');
@@ -73,14 +74,14 @@ $('.myaffix').affix();
 
 var previousWidth = $('.myaffix').css('width');
 
-$('.myaffix').bind('elementClassChanged', function(e){
-    if(e.currentTarget.classList.contains('affix')){
+$('.myaffix').bind('elementClassChanged', function (e) {
+    if (e.currentTarget.classList.contains('affix')) {
         $('.myaffix').css('width', parseInt(previousWidth));
-    }else if(e.currentTarget.classList.contains('affix-top')){
+    } else if (e.currentTarget.classList.contains('affix-top')) {
         $('.myaffix').removeAttr('style');
     }
 });
 
-$(document).ready(function($) {
-        generateParameters();
+$(document).ready(function ($) {
+    generateParameters();
 });

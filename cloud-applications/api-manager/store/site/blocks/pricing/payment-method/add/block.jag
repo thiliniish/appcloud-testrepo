@@ -1,10 +1,10 @@
 <%
 jagg.block("pricing/payment-method/add", {
-    initialize:function (data) {
+    initialize: function (data) {
 
     },
 
-    getOutputs:function (inputs) {
+    getOutputs: function (inputs) {
         return inputs;
     }
 });

@@ -1,6 +1,6 @@
 <%
 jagg.initializer("pricing/payment-confirm", {
-    preInitialize:function () {
+    preInitialize: function () {
         jagg.addHeaderCSS("pricing/payment-confirm", "bootstrap-min",
                 "templates/pricing/manage-account/css/bootstrap.min.css");
         jagg.addHeaderCSS("pricing/payment-confirm", "common",

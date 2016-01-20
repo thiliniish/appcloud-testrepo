@@ -1,6 +1,6 @@
 <%
 jagg.initializer("pricing/payment-method/add", {
-    preInitialize:function () {
+    preInitialize: function () {
         jagg.addHeaderCSS("pricing/payment-method/add", "bootstrap-min",
                 "templates/pricing/manage-account/css/bootstrap.min.css");
         jagg.addHeaderCSS("pricing/payment-method/add", "common",
