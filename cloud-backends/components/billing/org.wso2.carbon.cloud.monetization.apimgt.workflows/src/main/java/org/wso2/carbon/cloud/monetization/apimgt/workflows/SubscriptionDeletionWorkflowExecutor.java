@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.WorkflowResponse;
 import org.wso2.carbon.apimgt.api.model.APIIdentifier;
+import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
 import org.wso2.carbon.apimgt.impl.dto.SubscriptionWorkflowDTO;
 import org.wso2.carbon.apimgt.impl.dto.WorkflowDTO;
@@ -73,8 +74,14 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
             JsonObject responseObj = WorkFlowUtils.getSubscriberInfo(subscriptionWorkflowDTO.getSubscriber(),
                     subscriptionWorkflowDTO.getTenantDomain(), serviceEndpoint, contentType, username, password);
             if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonObject()) {
-                JsonObject subscriber = responseObj.getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBERS_OBJ)
-                        .getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBER_OBJ);
+                JsonElement subscriberElement = responseObj.getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBERS_OBJ)
+                        .get(CustomWorkFlowConstants.SUBSCRIBER_OBJ);
+
+                if (!subscriberElement.isJsonObject()) {
+                    return handleSubscriptionIfInactive(subscriptionWorkflowDTO);
+                }
+
+                JsonObject subscriber = subscriberElement.getAsJsonObject();
                 boolean isTestAccount = subscriber.get(CustomWorkFlowConstants.IS_TEST_ACCOUNT_PROPERTY).getAsBoolean();
 
                 //Check subscribers is a test/complementary subscriber
@@ -84,18 +91,57 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
                     if (StringUtils.isNotBlank(accountNumber)) {
                         return cancelSubscription(accountNumber, subscriptionWorkflowDTO);
                     } else {
-                        throw new WorkflowException(ERROR_MSG + " Subscriber information invalid. account number cannot " +
-                                "be null or empty");
+                        return handleSubscriptionIfInactive(subscriptionWorkflowDTO);
                     }
                 } else {
                     return handleFreePlan(subscriptionWorkflowDTO);
                 }
-            } else {
-                throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
-            }
-        } catch (AxisFault | XMLStreamException e) {
-            throw new WorkflowException(ERROR_MSG + " Error while cancelling the subscription .", e);
+            } else return handleSubscriptionIfInactive(subscriptionWorkflowDTO);
+        } catch (AxisFault | APIManagementException | XMLStreamException e) {
+            throw new WorkflowException(ERROR_MSG + " Error while cancelling the subscription. Tenant: "
+                    + subscriptionWorkflowDTO.getTenantDomain() + ", Subscriber: " + subscriptionWorkflowDTO.getSubscriber()
+                    + ",  Application: " + subscriptionWorkflowDTO.getApplicationName() + ", Api: "
+                    + subscriptionWorkflowDTO.getApiName() + ", API version: " + subscriptionWorkflowDTO.getApiVersion(), e);
         }
+    }
+
+    /**
+     * if the subscription is not in UNBLOCKED state, it will also be
+     * handled as a free plan
+     *
+     * @param subscriptionWorkflowDTO subscriptionWorkflowDTO
+     * @return workflow reference
+     * @throws APIManagementException
+     * @throws WorkflowException
+     */
+    private WorkflowResponse handleSubscriptionIfInactive(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
+            throws APIManagementException, WorkflowException {
+        if (!isAnActiveSubscription(subscriptionWorkflowDTO)) {
+            return handleFreePlan(subscriptionWorkflowDTO);
+        } else {
+            throw new WorkflowException(ERROR_MSG + " Subscriber information not available. Tenant: "
+                    + subscriptionWorkflowDTO.getTenantDomain() + ", Subscriber: " + subscriptionWorkflowDTO
+                    .getSubscriber() + ",  Application: " + subscriptionWorkflowDTO.getApplicationName() + ", Api: "
+                    + subscriptionWorkflowDTO.getApiName() + ", API version: " + subscriptionWorkflowDTO.getApiVersion());
+        }
+    }
+
+    /**
+     * Check whether the API subscription is in active state
+     *
+     * @param subscriptionWorkflowDTO subscriptionWorkflowDTO
+     * @return is active boolean
+     * @throws APIManagementException
+     */
+    private boolean isAnActiveSubscription(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws APIManagementException {
+        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
+        APIIdentifier apiIdentifier = new APIIdentifier(subscriptionWorkflowDTO.getApiProvider(),
+                subscriptionWorkflowDTO.getApiName(), subscriptionWorkflowDTO.getApiVersion());
+        int applicationId = apiMgtDAO.getApplicationId(subscriptionWorkflowDTO.getApplicationName(),
+                subscriptionWorkflowDTO.getSubscriber());
+        String subscriptionStatus = apiMgtDAO.getSubscriptionStatus(apiIdentifier, applicationId);
+
+        return APIConstants.SubscriptionStatus.UNBLOCKED.equals(subscriptionStatus.trim());
     }
 
     /**
