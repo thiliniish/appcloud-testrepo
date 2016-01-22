@@ -11,11 +11,13 @@
     }
     var success = getUrlParameter('success');
     var tenant = getUrlParameter('field_passthrough3');
+    var actionString;
     if (success != null && "true" == success) {
-        window.top.location.href = "../../../../site/pages/pricing/manage-account.jag?tenant=" +
-                encodeURIComponent(tenant) + "&action=createAccount&" + window.location.search.substring(1)
+        actionString = "&action=createAccount&";
     } else {
-        window.top.location.href = "../../../../site/pages/pricing/manage-account.jag?tenant=" +
-                encodeURIComponent(tenant) + "&action=paymentMethod&" + window.location.search.substring(1)
+        actionString = "&action=paymentMethod&";
     }
+
+    window.top.location.href = "../../../../site/pages/pricing/manage-account.jag?tenant=" +
+            encodeURIComponent(tenant) + actionString + window.location.search.substring(1)
 </script>
