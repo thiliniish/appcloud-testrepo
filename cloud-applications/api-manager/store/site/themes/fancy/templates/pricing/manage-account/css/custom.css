@@ -198,7 +198,6 @@ h4 {
 	font-weight:700;
 	margin-bottom:20px;	
 	font-size:15px;
-	text-transform: uppercase;
 }
 .wr-separate{
 	border: none;
@@ -423,4 +422,8 @@ h4 {
 
 .myaffix.affix {
 	width: inherit;
+}
+.popup-toc {
+	color: #08c;
+	text-decoration: none;
 }

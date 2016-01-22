@@ -1,7 +1,7 @@
 body {
-    font-family: 'Roboto', sans-serif;
-    font-size: 14px;
-    line-height: 1.42857143;
+    font-family: Arial,Helvetica,Verdana,monospace,san-serif;
+    font-size: 13px;
+    line-height: 1.42857;
     background-color: #fff;
 }
 .nav-element {

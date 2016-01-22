@@ -1,12 +1,11 @@
 var params;
 
 var callback = function (response) {
-    var cloudmgtURL = $("#cloudmgtURL").attr('value');
     if (!response.success) {
         $('.message_box').empty();
         jagg.message({
             content: JSON.stringify(response), type: 'error', cbk: function () {
-                window.location.href = cloudmgtURL + "/site/pages/index.jag";
+                window.location.href = requestURL + "site/pages/list-apis.jag?tenant=" + encodeURIComponent(tenant);
             }
         });
     }
@@ -19,22 +18,8 @@ function showPage() {
 }
 
 function submitPage() {
-    //disable();
+    jagg.message({content: 'Please Wait. Your request is being processed..', type: 'info'});
     Z.submit();
-    //enable();
-}
-
-function disable() {
-    var submitButton = document.getElementById('submitbtn');
-    $('#submitbtn').css('background-color', '#F9BFBB');
-    submitButton.disabled = true;
-}
-
-function enable() {
-    document.getElementById("spinner").style.display = 'none';
-    var submitButton = document.getElementById('submitbtn');
-    $('#submitbtn').css('background-color', '#428BCA');
-    submitButton.disabled = false;
 }
 
 function generateParameters() {
@@ -48,6 +33,8 @@ function generateParameters() {
         if (!result.error) {
             params = result.params;
             showPage();
+        } else {
+            jagg.message({content: result.message, type: "error"});
         }
     }, "json");
 }

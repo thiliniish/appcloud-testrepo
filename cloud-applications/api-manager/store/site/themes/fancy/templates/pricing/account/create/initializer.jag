@@ -2,9 +2,6 @@
 jagg.initializer("pricing/account/create", {
 
     preInitialize: function () {
-
-        jagg.addHeaderCSS("pricing/account/create", "bootstrap-min",
-                "templates/pricing/manage-account/css/bootstrap.min.css");
         jagg.addHeaderCSS("pricing/account/create", "common",
                 "templates/pricing/manage-account/css/common.css");
         jagg.addHeaderCSS("pricing/account/create", "custom",
@@ -25,8 +22,6 @@ jagg.initializer("pricing/account/create", {
 
         jagg.addHeaderJS("pricing/account/create", "jquery.min",
                 "templates/pricing/js/jquery-1.11.1/jquery.min.js");
-        jagg.addHeaderJS("pricing/account/create", "bootstrap.min",
-                "templates/pricing/manage-account/js/bootstrap.min.js");
         jagg.addHeaderJS("pricing/account/create", "custom",
                 "templates/pricing/js/custom/custom.js");
         jagg.addHeaderJS("pricing/account/create", "create-account",
