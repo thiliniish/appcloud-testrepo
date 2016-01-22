@@ -36,11 +36,15 @@ public class AuthenticationLogic extends AbstractMediator {
 
     /**
      * This is the custom mediator method to find and do the authentication using synapse message context properties
+     * <p/>
+     * Sample TransportInUrl /t/tenant/changed/v1/<resources>?<queryParamaters>
+     * Sample customHeader value will be xAuthorization: <gameId> signature=<signature>,sessionId=<sessionId>
+     * Secret key will be defined within the Custom Mediator Sequence hence it is configurable
+     *
      * @param synapseMessageContext
      * @return true if the mediation sequence is true
      */
-    @Override
-    public boolean mediate(org.apache.synapse.MessageContext synapseMessageContext) {
+    @Override public boolean mediate(org.apache.synapse.MessageContext synapseMessageContext) {
         AuthenticationBean authBean = new AuthenticationBean();
         AuthenticationUtil authUtil = new AuthenticationUtil(authBean, synapseMessageContext);
         Boolean validate = false;
@@ -48,7 +52,7 @@ public class AuthenticationLogic extends AbstractMediator {
         Axis2MessageContext axis2MessageContext = (Axis2MessageContext) synapseMessageContext;
         org.apache.axis2.context.MessageContext msgContext = axis2MessageContext.getAxis2MessageContext();
 
-        //Getting HTTP Method and Custom Header
+        //Getting HTTP Method and Custom Header parsed through handler
         String httpMethod = msgContext.getProperty("HTTP_METHOD").toString();
         String transportInUrl = msgContext.getProperty("TransportInURL").toString();
         String customHeader = axis2MessageContext.getProperty("xAuthentication").toString();
@@ -61,7 +65,7 @@ public class AuthenticationLogic extends AbstractMediator {
             return true;
         }
 
-        //Retrieving timestamp from query parameter
+        //Retrieving timestamp from query parameter list the split expression is used to split the string at ? of the url String
         if (transportInUrl != null && !transportInUrl.isEmpty()) {
             String queryParamString = transportInUrl.split("\\?")[1].trim();
             List<String> queryStrings = Arrays.asList(queryParamString.split("&"));
@@ -91,7 +95,6 @@ public class AuthenticationLogic extends AbstractMediator {
             } catch (AuthenticationException | UnsupportedEncodingException e) {
                 authUtil.setExceptionStatus(false, MediatorConstants.AUTHORIZATION_EXCEPTION, e);
             }
-
         } else if ("GET".equals(httpMethod) || "DELETE".equals(httpMethod) || "HEAD".equals(httpMethod)) {
             try {
                 if (transportInUrl != null && !transportInUrl.isEmpty()) {

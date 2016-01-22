@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.cloud.external.gsngames.authmediator;
 
+/**
+ * Bean object to store values needed for authentication
+ */
 public class AuthenticationBean {
     private String signature;
     private StringBuilder secretKey;
