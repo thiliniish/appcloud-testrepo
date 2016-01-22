@@ -19,9 +19,9 @@ function showPage() {
 }
 
 function submitPage() {
-    disable();
+    //disable();
     Z.submit();
-    enable();
+    //enable();
 }
 
 function disable() {
@@ -83,5 +83,11 @@ $('.myaffix').bind('elementClassChanged', function (e) {
 });
 
 $(document).ready(function ($) {
+    var error = decodeURIComponent(($("#errorObj").attr('value')));
+    var errorObj = JSON.parse(error);
+
+    if (errorObj.error) {
+        jagg.message({content: errorObj.errorMessage, type: "error"});
+    }
     generateParameters();
 });

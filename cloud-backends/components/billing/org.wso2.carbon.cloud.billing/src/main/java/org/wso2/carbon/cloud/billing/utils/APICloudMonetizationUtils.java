@@ -442,9 +442,10 @@ public final class APICloudMonetizationUtils {
 
         if (subscriptionInfoElement.isJsonObject() && subscriptionInfoElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION)
                 .isJsonPrimitive()) {
-            LOGGER.warn("Subscription information not available. Proceeding with the subscription cancellation. Account no: " +
-                    accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
-                    "version: " + apiVersion);
+            LOGGER.warn("Subscription information not available. Proceeding with the subscription cancellation. This " +
+                    "also could be due to the API Subscription was not properly created (ON_HOLD state and no " +
+                    "subscription on zuora). Account no: " + accountNumber + ", Application name: " + appName + ", " +
+                    "Api name: " + apiName + ", Api " + "version: " + apiVersion);
             JsonObject responseObj = new JsonObject();
             //This is added since some times there may be instances without subscription information on zuora side
             responseObj.addProperty("subscriptionInfoNotAvailable", true);

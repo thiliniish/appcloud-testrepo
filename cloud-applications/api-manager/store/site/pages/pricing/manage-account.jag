@@ -51,6 +51,20 @@ var tenantDomain = jagg.getTenantDomain();
     if (action == null) {
         response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
     } else if ("paymentMethod".equals(action)) {
+
+        //When returned from a unsuccessful payment
+        var paymentSuccess = request.getParameter("success");
+        var errorObj = {
+            "error": false
+        };
+
+        if (paymentSuccess != null && !paymentSuccess) {
+            errorObj.error = true;
+            errorObj.errorMessage = request.getParameter("errorMessage");
+        }
+
+        inputsObj.errorObj = errorObj;
+
         middleObj = [{
             "name": "pricing/payment-method/add",
             "inputs": inputsObj

@@ -28,3 +28,18 @@ function doSubmit() {
         }
     }, "json");
 }
+
+$(document).ready(function ($) {
+
+    $('#proceedBtn').prop('disabled', true);
+    $('#proceedBtn').removeClass('btn-default');
+    $('#optionsRadios1').change(function () {
+        if (this.checked) {
+            $('#proceedBtn').prop('disabled', false);
+            $('#proceedBtn').addClass('btn-default');
+        } else {
+            $('#proceedBtn').prop('disabled', true);
+            $('#proceedBtn').removeClass('btn-default');
+        }
+    });
+});

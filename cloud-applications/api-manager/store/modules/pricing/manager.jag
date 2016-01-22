@@ -24,6 +24,8 @@ var generateParams = function (tenantDomain, workflowReference) {
         clientParams.field_passthrough2 = workflowReference;
         //field_passthrough3 is tenantDomain
         clientParams.field_passthrough3 = tenantDomain;
+        //can pre-load the new page with the previously entered information so that the user does not have to re-enter the information
+        clientParams.retainValues = true;
 
         var apiData = decryptAndGetApiData(workflowReference);
         //field_passthrough4 is selectedApp
@@ -434,7 +436,7 @@ var createAccount = function (accountData, metaData, workflowRefData) {
             return {
                 error: true,
                 statusCode: 500,
-                message: errorMsg + "Please Retry..."
+                message: errorMsg + " Please Retry..."
             };
         }
 

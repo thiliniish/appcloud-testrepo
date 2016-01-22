@@ -168,8 +168,9 @@
                      </div>
                   </div>
                   <div id="action-container">
-                     <button type="button" class="btn btn-default btn-back span5 span12">Back</button>
-                     <button type="button" onclick="doSubmit()" class="btn btn-default btn-redeem span6 span12
+                     <button type="button" class="btn btn-default btn-back span5 span12" onclick="window.history.back();">Back</button>
+                     <button type="button" id="proceedBtn" onclick="doSubmit()" class="btn btn-default btn-redeem span6
+                     span12
                      pull-right">Proceed</button>
                      <br class="c-both" />
                   </div>

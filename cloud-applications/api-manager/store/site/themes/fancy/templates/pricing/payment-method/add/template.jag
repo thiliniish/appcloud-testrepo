@@ -46,6 +46,7 @@
                      </div>
                      <input type="hidden" name="workflowReference" id="workflowReference"  value="<%=outputs.workflowReference%>"/>
                      <input type="hidden" name="tenant" id="tenant" value="<%=outputs.tenant%>"/>
+                     <input type="hidden" name="errorObj" id="errorObj" value="<%=encodeURIComponent(JSON.stringify(outputs.errorObj))%>"/>
                   </form>
                </div>
             </div>
@@ -84,7 +85,7 @@
                      <br class="clearfix" />
                   </div>
                   <div id="action-container">
-                     <button type="button" class="btn btn-default btn-back span5 span12">Back</button>
+                     <button type="button" class="btn btn-default btn-back span5 span12" onclick="window.history.back();">Back</button>
                      <button id="submitbtn" type="button" onclick="submitPage()" class="btn btn-default btn-redeem span6
                         span12 pull-right">Proceed</button>
                      <br class="c-both" />
