@@ -323,10 +323,9 @@ var isMonetizationEnabled = function (tenantDomain) {
 };
 
 //Create billing account with the subscription
-var createAccount = function (accountData, metaData, workflowRefData) {
+var createAccount = function (username, accountData, metaData, workflowRefData) {
 
     var ratePlanId, errorMsg;
-    var username = jagg.getUser().username;
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
     var tenantDomain = multiTenantUtils.getTenantDomain(username);
 
