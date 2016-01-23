@@ -35,7 +35,7 @@ function doSubmit() {
 
 function validateForm() {
     var validInputObj = {"isValid": true};
-    //validateRequiredInput('organization', validInputObj);
+    validateRequiredInput('organization', validInputObj);
     validateRequiredInput('firstName', validInputObj);
     validateRequiredInput('lastName', validInputObj);
     validateRequiredInput('country', validInputObj);

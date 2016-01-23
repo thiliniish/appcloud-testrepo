@@ -27,6 +27,7 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
         var accountData = {};
         var metaData = {};
 
+        accountData.organization = request.getParameter("organization");
         accountData.firstName = request.getParameter("firstName");
         accountData.lastName = request.getParameter("lastName");
         accountData.address1 = request.getParameter("address1");

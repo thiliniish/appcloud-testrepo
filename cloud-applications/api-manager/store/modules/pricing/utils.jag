@@ -68,7 +68,8 @@ var populateAccountInfo = function (accountData, metaData, effectiveDate, ratePl
     var data = {};
     var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
 
-    data.name = accountData.firstName + " " + accountData.lastName;
+    data.name = accountData.organization;
+    delete accountData.organization;
     data.autoPay = true;
     data.currency = "USD";
     data.billToContact = {};
