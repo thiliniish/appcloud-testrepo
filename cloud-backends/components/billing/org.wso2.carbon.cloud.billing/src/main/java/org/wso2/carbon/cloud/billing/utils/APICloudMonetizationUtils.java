@@ -79,6 +79,7 @@ public final class APICloudMonetizationUtils {
     private static String usageOfApiByApplicationBySubscriberUrl;
     private static String userAPIsUri;
     private static String userAPIApplicationsUri;
+    private static String ratePlanInfoUri;
     private static String apiSubscriptionRemovalUri;
 
     static {
@@ -105,13 +106,16 @@ public final class APICloudMonetizationUtils {
         usageOfTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_TENANT_USAGE;
         usageOfApiByApplicationBySubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants .DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION;
-        userAPIsUri = BillingConfigUtils.getBillingConfiguration()
-                .getDSConfig().getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_USER_APIS;
-        userAPIApplicationsUri = BillingConfigUtils.getBillingConfiguration()
-                .getDSConfig().getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS;
-        apiSubscriptionRemovalUri = BillingConfigUtils.getBillingConfiguration()
-                .getDSConfig().getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION;
+                .getApiCloudMonetizationServiceUrl() + MonetizationConstants
+                .DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION;
+        userAPIsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                + MonetizationConstants.DS_API_URI_USER_APIS;
+        userAPIApplicationsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS;
+        ratePlanInfoUri = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
+                + MonetizationConstants.DS_API_URI_APIC_RATE_PLANS;
+        apiSubscriptionRemovalUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION;
     }
 
     private APICloudMonetizationUtils() {
@@ -438,9 +442,10 @@ public final class APICloudMonetizationUtils {
 
         if (subscriptionInfoElement.isJsonObject() && subscriptionInfoElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION)
                 .isJsonPrimitive()) {
-            LOGGER.warn("Subscription information not available. Proceeding with the subscription cancellation. Account no: " +
-                    accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
-                    "version: " + apiVersion);
+            LOGGER.warn("Subscription information not available. Proceeding with the subscription cancellation. This " +
+                    "also could be due to the API Subscription was not properly created (ON_HOLD state and no " +
+                    "subscription on zuora). Account no: " + accountNumber + ", Application name: " + appName + ", " +
+                    "Api name: " + apiName + ", Api " + "version: " + apiVersion);
             JsonObject responseObj = new JsonObject();
             //This is added since some times there may be instances without subscription information on zuora side
             responseObj.addProperty("subscriptionInfoNotAvailable", true);
@@ -775,6 +780,16 @@ public final class APICloudMonetizationUtils {
             return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
         } catch (CloudBillingException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException("Error while retrieving applications  for user: " + username, e);
+        }
+    }
+
+    public static String getRatePlanInfo(String tenantDomain) throws CloudMonetizationException {
+        try {
+            String url = ratePlanInfoUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT, CloudBillingUtils
+                    .encodeUrlParam(tenantDomain));
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while retrieving rate plans for tenant: " + tenantDomain, e);
         }
     }
 }

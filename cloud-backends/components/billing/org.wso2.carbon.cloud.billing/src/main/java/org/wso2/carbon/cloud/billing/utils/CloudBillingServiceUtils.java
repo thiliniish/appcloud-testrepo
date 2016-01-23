@@ -268,12 +268,7 @@ public final class CloudBillingServiceUtils {
             OMElement status = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
                     BillingConstants.STATUS));
             //Since the tenants' who are not enabled monetization. will not have an entry in the rdbms.
-            //ToDo refactor if the schema changed.
-            if (status != null && StringUtils.isNotBlank(status.getText())) {
-                return Boolean.valueOf(status.getText());
-            } else {
-                return false;
-            }
+            return status != null && StringUtils.isNotBlank(status.getText()) && Integer.valueOf(status.getText()) == 1;
 
         } catch (XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while parsing response: " + response, e);

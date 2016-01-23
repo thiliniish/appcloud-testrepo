@@ -74,8 +74,13 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
     private static final String DATA_SEPARATOR = ":";
 
     private static final String WORKFLOW_REF_PARAM = "workflowReference";
+    private static final String TENANT_PARAM = "tenant";
+    private static final String SELECTED_APP_PARAM = "selectedApp";
+    private static final String ACTION_PARAM = "action";
+    private static final String ADD_PAYMENT_PARAM_VALUE = "paymentMethod";
+    private static final String SUBSCRIPTION_SUCCESS_PARAM_VALUE = "subscribed";
 
-    private static final String ADD_PAYMENT_METHOD_PAGE_SUFFIX = "../site/pages/pricing/add-payment-method.jag";
+    private static final String MANAGE_ACCOUNT_SUFFIX = "../site/pages/pricing/manage-account.jag";
 
     private String serviceEndpoint;
     private String username;
@@ -109,6 +114,8 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             JsonObject responseObj = WorkFlowUtils.getSubscriberInfo(subscriptionWorkflowDTO.getSubscriber(),
                     subscriptionWorkflowDTO.getTenantDomain(), serviceEndpoint, contentType, username, password);
             HttpWorkflowResponse httpworkflowResponse = new HttpWorkflowResponse();
+            httpworkflowResponse.setAdditionalParameters(TENANT_PARAM, subscriptionWorkflowDTO.getTenantDomain());
+            httpworkflowResponse.setRedirectUrl(MANAGE_ACCOUNT_SUFFIX);
             httpworkflowResponse.setRedirectConfirmationMsg(null);
 
             //Encrypt and base64 encode api data
@@ -127,7 +134,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                     if (StringUtils.isNotBlank(accountNumber)) {
                         return createSubscription(accountNumber, subscriptionWorkflowDTO, httpworkflowResponse);
                     } else {
-                        httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
+                        httpworkflowResponse.setAdditionalParameters(ACTION_PARAM, ADD_PAYMENT_PARAM_VALUE);
                         return httpworkflowResponse;
                     }
                 } else {
@@ -138,7 +145,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                     LOGGER.debug("Subscriber information not available. adding subscriber");
                 }
                 addSubscriber(subscriptionWorkflowDTO);
-                httpworkflowResponse.setRedirectUrl(ADD_PAYMENT_METHOD_PAGE_SUFFIX);
+                httpworkflowResponse.setAdditionalParameters(ACTION_PARAM, ADD_PAYMENT_PARAM_VALUE);
                 httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
                 return httpworkflowResponse;
             } else {
@@ -222,10 +229,10 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                     responseObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj.get
                     (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean() && responseObj.get
                     (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
-                //TODO use the correct URL
                 subscriptionWorkflowDTO.setStatus(APPROVED);
                 complete(subscriptionWorkflowDTO);
-                httpworkflowResponse.setRedirectUrl("https://www.google.lk/");
+                httpworkflowResponse.setAdditionalParameters(SELECTED_APP_PARAM, subscriptionWorkflowDTO.getApplicationName());
+                httpworkflowResponse.setAdditionalParameters(ACTION_PARAM, SUBSCRIPTION_SUCCESS_PARAM_VALUE);
                 return httpworkflowResponse;
             } else {
                 LOGGER.error("Failure in zuora subscription creation. tenant: " + subscriptionWorkflowDTO

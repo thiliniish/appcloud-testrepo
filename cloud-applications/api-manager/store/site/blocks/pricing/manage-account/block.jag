@@ -1,0 +1,7 @@
+<%
+jagg.block("pricing/manage-account", {
+    initialize: function (data) {
+
+    }
+});
+%>

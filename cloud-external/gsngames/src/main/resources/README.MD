@@ -17,12 +17,12 @@ in <axisconfig>
         <messageBuilders>
            <messageBuilder contentType="application/hal+json" class="org.apache.synapse.commons.json.JsonStreamBuilder"/>
 
-(3.) Add the below configuration in to <APIM_HOME>/repository/resources/api_templates/velocity_template.xml following <handlers xmlns="http://ws.apache.org/ns/synapse">
+(3.) Add the below configuration in to <APIM_HOME>/repository/resources/api_templates/velocity_template.xml and <APIM_HOME>/repository/resources/api_templates/default_api_template.xml following <handlers xmlns="http://ws.apache.org/ns/synapse">
     #if ( $apiContext.contains("add the tenant domain within "/Tenant Domain/"   Format") )
                      <handler class="org.wso2.carbon.cloud.external.gsngames.customhandler.CopyAuthHeader" />
                      #end
 
-(4.) Build and Deploy the gsngames-authentication-mediator-1.0.0.jar into <APIM-HOME>/repository/components/lib/
+(4.) Build and Deploy the gsngames-authenticator-1.0.0.jar into <APIM-HOME>/repository/components/lib/
 
 (5.) Start APIM by sh <APIM-HOME>/bin/wso2server.sh start
 

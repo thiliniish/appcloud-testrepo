@@ -29,8 +29,9 @@ var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
 
     if (action == "generateParams") {
         var workflowReference = request.getParameter("workflowReference");
+        var tenantDomain = request.getParameter("tenant");
         try {
-            result = mod.generateParams(workflowReference);
+            result = mod.generateParams(tenantDomain, workflowReference);
             if (result != null) {
                 print(result);
             } else {

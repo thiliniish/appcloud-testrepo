@@ -27,6 +27,7 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
         var accountData = {};
         var metaData = {};
 
+        accountData.organization = request.getParameter("organization");
         accountData.firstName = request.getParameter("firstName");
         accountData.lastName = request.getParameter("lastName");
         accountData.address1 = request.getParameter("address1");
@@ -42,7 +43,7 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
         metaData.field_passthrough1 = request.getParameter("field_passthrough1");
         var workflowReference = request.getParameter("workflowReference");
         try {
-            result = mod.createAccount(accountData, metaData, workflowReference);
+            result = mod.createAccount(user.username, accountData, metaData, workflowReference);
             if (result != null) {
                 print(result);
             } else {

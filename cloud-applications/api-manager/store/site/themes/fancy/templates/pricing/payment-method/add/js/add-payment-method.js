@@ -1,124 +1,80 @@
 var params;
 
 var callback = function (response) {
-    var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-    if(!response.success) {
+    if (!response.success) {
         $('.message_box').empty();
-        jagg.message({content:JSON.stringify(response), type:'error',cbk:function(){
-            window.location.href = cloudmgtURL + "/site/pages/index.jag";
-        }
+        jagg.message({
+            content: JSON.stringify(response), type: 'error', cbk: function () {
+                window.location.href = requestURL + "site/pages/list-apis.jag?tenant=" + encodeURIComponent(tenant);
+            }
         });
     }
 };
 
 function showPage() {
     var zuoraDiv = document.getElementById('zuora_payment');
-    zuoraDiv.innerHTML="";
+    zuoraDiv.innerHTML = "";
     Z.render(params, null, callback);
 }
 
 function submitPage() {
-    disable();
+    jagg.message({content: 'Please Wait. Your request is being processed..', type: 'info'});
     Z.submit();
-    enable();
-}
-function disable() {
-    document.getElementById("spinner").style.display = '';
-    var submitButton = document.getElementById('submitbtn');
-    $('#submitbtn').css('background-color','#F9BFBB');
-    submitButton.disabled = true;
 }
 
-function enable() {
-    document.getElementById("spinner").style.display = 'none';
-    var submitButton = document.getElementById('submitbtn');
-    $('#submitbtn').css('background-color','#428BCA');
-    submitButton.disabled = false;
-}
-
-function generateParameters (){
-
-    var workflowReference =  $("#workflowReference").attr('value');
-    jagg.syncPost("/site/blocks/pricing/payment-method/add/ajax/add.jag", {
+function generateParameters() {
+    var workflowReference = $("#workflowReference").attr('value');
+    var tenant = $("#tenant").attr('value');
+    jagg.post("/site/blocks/pricing/payment-method/add/ajax/add.jag", {
         action: "generateParams",
-        workflowReference: workflowReference
+        workflowReference: workflowReference,
+        tenant: tenant
     }, function (result) {
-        params = result;
-        if(accountId != "") {
-            params.field_accountId =  accountId;
-            params.field_passthrough5 = "secondary-card";
+        if (!result.error) {
+            params = result.params;
+            showPage();
+        } else {
+            jagg.message({content: result.message, type: "error"});
         }
-        showPage();
-    }, function (jqXHR, textStatus, errorThrown) {
-        $('.message_box').empty();
-        jagg.message({content:"Unable to add a new payment method at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function() {
-            var cloudMgtURL =  $("#cloudmgtURL").attr('value');
-            window.location.href = cloudMgtURL+"/site/pages/contact-us.jag";
-        }
-        });
-    });
+    }, "json");
 }
 
-$(document).ready(function($){
-    // Check for billing enable/disable mode
-    var isBillingEnabled = true;
-    if (isBillingEnabled) {
-        //showErrorMessage();
-        generateParameters();
-        var clickwithblur = false;
-        $( "#submitbtn" ).click(function() {
+//A Custom function is needed
+(function () {
+    // Your base, I'm in it!
+    var originalAddClassMethod = jQuery.fn.addClass;
 
-            submitPage();
-        });
-        /*$( "#redeembtn" ).click(function() {
-            calculateDiscount();
-        });
-        $('#coupon').keydown(function(event) {
-            if(event.keyCode === 13) {
-                calculateDiscount();
-                return false;
-            }
-        });*/
-        $('#submitbtn').mousedown(function(){
-            clickwithblur = true;
-        });
-        $('#submitbtn').mouseup(function(){
-            clickwithblur = false;
-        });
-        $('#backbtn').click(function() {
-            if(confirm("Are you sure you want to navigate away from this page?"))
-            {
-                history.go(-1);
-            }
-            return false;
-        });
-        $('[data-toggle="tooltip"]').tooltip();
+    jQuery.fn.addClass = function () {
+        // Execute the original method.
+        var result = originalAddClassMethod.apply(this, arguments);
 
-        $("[data-toggle=popover]").popover();
+        // trigger a custom event
+        jQuery(this).trigger('elementClassChanged');
 
-        $(".ctrl-asset-type-switcher").popover({
-            html : true,
-            content: function() {
-                return $('#content-asset-types').html();
-            }
-        });
-
-        $(".ctrl-filter-type-switcher").popover({
-            html : true,
-            content: function() {
-                return $('#content-filter-types').html();
-            }
-        });
-
-        $('#nav').affix({
-            offset: {
-                top: $('header').height()
-            }
-        });
-    } else {
-        var cloudMgtURL = $("#cloudmgtURL").attr('value');
-        var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
-        window.location.href = cloudMgtURL + unavailableErrorPage;
+        // return the original result
+        return result;
     }
+})();
 
+
+$('.myaffix').affix();
+
+var previousWidth = $('.myaffix').css('width');
+
+$('.myaffix').bind('elementClassChanged', function (e) {
+    if (e.currentTarget.classList.contains('affix')) {
+        $('.myaffix').css('width', parseInt(previousWidth));
+    } else if (e.currentTarget.classList.contains('affix-top')) {
+        $('.myaffix').removeAttr('style');
+    }
+});
+
+$(document).ready(function ($) {
+    var error = decodeURIComponent(($("#errorObj").attr('value')));
+    var errorObj = JSON.parse(error);
+
+    if (errorObj.error) {
+        jagg.message({content: errorObj.errorMessage, type: "error"});
+    }
+    generateParameters();
 });

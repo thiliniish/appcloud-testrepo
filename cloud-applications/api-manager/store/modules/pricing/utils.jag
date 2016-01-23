@@ -68,7 +68,8 @@ var populateAccountInfo = function (accountData, metaData, effectiveDate, ratePl
     var data = {};
     var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
 
-    data.name = accountData.firstName + " " + accountData.lastName;
+    data.name = accountData.organization;
+    delete accountData.organization;
     data.autoPay = true;
     data.currency = "USD";
     data.billToContact = {};
@@ -87,6 +88,52 @@ var populateAccountInfo = function (accountData, metaData, effectiveDate, ratePl
     data.invoiceCollect = true;
     data.invoiceTargetDate = dateFormatter.format(effectiveDate);
     return data;
+};
+
+var getRatePlan = function (ratePlanName, ratePlans) {
+    for (var i = 0; i < ratePlans.length; i++) {
+        var planObj = ratePlans[i];
+        if (ratePlanName.equals(planObj['RatePlanName'])) {
+            return planObj;
+        }
+    }
+    return null;
+};
+
+var getAndAddRatePlanToSession = function (tenantDomain, ratePlanName) {
+    var ratePlansJsonArray = apiMonService.getRatePlansInfo(tenantDomain);
+    var ratePlansObj = JSON.parse(ratePlansJsonArray);
+    session.put(TENANT_RATE_PLANS, ratePlansObj);
+    var ratePlanObj = getRatePlan(ratePlanName, ratePlansObj);
+
+    if (ratePlanObj != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            ratePlan: ratePlanObj
+        };
+    } else {
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Rate plan information not available. Rate plan name may be invalid"
+        };
+    }
+};
+
+var decryptAndGetApiData = function (workflowRefData) {
+    var workflowHash = String(billingService.generateHash(workflowRefData, mdAlgorithm));
+    var apiData;
+
+    apiData = session.get(workflowHash);
+
+    if (apiData == null) {
+        //base64 decode and decrypt the workflow data
+        apiData = decryptWorkflowData(workflowRefData);
+        session.put(workflowHash, apiData);
+    }
+
+    return apiData;
 };
 
 var sendHTTPRequest = function (url, type, headers, data, username, password) {

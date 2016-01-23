@@ -1,0 +1,132 @@
+<%
+include("/jagg/jagg.jag");
+include("../header.jag");
+var site = require("/site/conf/site.json");
+var i18n = require("i18n");
+var localeResourcesBasePath = "/site/conf/locales/jaggery/";
+i18n.init(request, localeResourcesBasePath);
+var tenantDomain = jagg.getTenantDomain();
+
+(function () {
+    var user = jagg.getUser(), isMonetizationEnabledObj, selectedApp, middleObj;
+
+    isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+    isTenantAllowed();
+    //if user is not logged in
+    if (!user) {
+        response.sendRedirect(getRedirectPathForNonAuthenticatedUser());
+        return;
+    }
+
+    //if monetization is not available for tenant
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+        return;
+    }
+
+    var action = request.getParameter("action");
+    if (!(/^[a-z0-9]+$/i).test(action)) {
+        response.sendRedirect(jagg.url("/site/pages/error-pages/404.html"));
+        return;
+    }
+    var workflowReference = request.getParameter("workflowReference");
+
+    if (workflowReference == null && "createAccount".equals(action)) {
+        workflowReference = request.getParameter("field_passthrough2");
+    }
+
+    var ratePlanObj = jagg.module("pricing").getRatePlanInfo(tenantDomain, workflowReference);
+
+    if (ratePlanObj == null || ratePlanObj.error) {
+        response.sendRedirect(jagg.url("/site/pages/error-pages/404.html"));
+        return;
+    }
+
+    var inputsObj = {
+        "workflowReference": workflowReference,
+        "ratePlan": ratePlanObj.ratePlan,
+        "tenant": tenantDomain
+    };
+
+    if (action == null) {
+        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+    } else if ("paymentMethod".equals(action)) {
+
+        //When returned from a unsuccessful payment
+        var paymentSuccess = request.getParameter("success");
+        var errorObj = {
+            "error": false
+        };
+
+        if (paymentSuccess != null && !paymentSuccess) {
+            errorObj.error = true;
+            errorObj.errorMessage = request.getParameter("errorMessage");
+        }
+
+        inputsObj.errorObj = errorObj;
+
+        middleObj = [{
+            "name": "pricing/payment-method/add",
+            "inputs": inputsObj
+        }];
+    } else if ("createAccount".equals(action)) {
+        var signature = request.getParameter("signature");
+        var refId = request.getParameter("refId");
+        var field_passthrough1 = request.getParameter("field_passthrough1");
+        selectedApp = request.getParameter("field_passthrough4");
+
+        inputsObj.refId = refId;
+        inputsObj.signature = signature;
+        inputsObj.field_passthrough1 = field_passthrough1;
+        inputsObj.selectedApp = selectedApp;
+
+        middleObj = [{
+            "name": "pricing/account/create",
+            "inputs": inputsObj
+        }];
+    } else if ("subscribed".equals(action)) {
+        selectedApp = request.getParameter("selectedApp");
+        inputsObj.redirectUrl = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?") +
+                "&selectedApp=" + selectedApp;
+        middleObj = [{
+            "name": "pricing/payment-confirm",
+            "inputs": inputsObj
+        }];
+    } else {
+        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+        return;
+    }
+
+    jagg.render({
+        "name": "page/base",
+        "inputs": {
+            "title": "My Account",
+            "pagePath": "/site/pages/pricing/manage-account.jag",
+            "body": [
+                {
+                    "name": "layout/base",
+                    "title": "My Account",
+                    "inputs": {
+                        "top": [
+
+                            {
+                                "name": "search/api-search",
+                                "inputs": null
+                            }
+                        ],
+                        "left": [
+                            {
+                                "name": "api/recently-added",
+                                "inputs": {"tenant": tenantDomain}
+                            }
+                        ],
+                        "middle": middleObj,
+                        "right": null
+                    }
+                }
+            ]
+        }
+    });
+}());
+
+%>
