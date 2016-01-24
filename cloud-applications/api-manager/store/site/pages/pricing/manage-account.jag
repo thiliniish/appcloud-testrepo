@@ -25,7 +25,7 @@ var tenantDomain = jagg.getTenantDomain();
     }
 
     var action = request.getParameter("action");
-    if (!(/^[a-z0-9]+$/i).test(action)) {
+    if (action == null || "".equals(action) || !(/^[a-z0-9]+$/i).test(action)) {
         response.sendRedirect(jagg.url("/site/pages/error-pages/404.html"));
         return;
     }
@@ -38,6 +38,11 @@ var tenantDomain = jagg.getTenantDomain();
     var ratePlanObj = jagg.module("pricing").getRatePlanInfo(tenantDomain, workflowReference);
 
     if (ratePlanObj == null || ratePlanObj.error) {
+        response.sendRedirect(jagg.url("/site/pages/error-pages/404.html"));
+        return;
+    }
+
+    if (workflowReference == null || "".equals(workflowReference)) {
         response.sendRedirect(jagg.url("/site/pages/error-pages/404.html"));
         return;
     }
@@ -58,7 +63,7 @@ var tenantDomain = jagg.getTenantDomain();
             "error": false
         };
 
-        if (paymentSuccess != null && !paymentSuccess) {
+        if (paymentSuccess != null && !"".equals(paymentSuccess) && !paymentSuccess) {
             errorObj.error = true;
             errorObj.errorMessage = request.getParameter("errorMessage");
         }
@@ -86,8 +91,12 @@ var tenantDomain = jagg.getTenantDomain();
         }];
     } else if ("subscribed".equals(action)) {
         selectedApp = request.getParameter("selectedApp");
-        inputsObj.redirectUrl = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?") +
-                "&selectedApp=" + selectedApp;
+
+        var uri = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?");
+        if (selectedApp != null && !"".equals(selectedApp)) {
+            uri = uri + "&selectedApp=" + selectedApp;
+        }
+        inputsObj.redirectUrl = uri;
         middleObj = [{
             "name": "pricing/payment-confirm",
             "inputs": inputsObj
