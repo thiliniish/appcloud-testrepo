@@ -27,9 +27,21 @@ var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
         return;
     }
 
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        print({
+            error: true,
+            statusCode: 403,
+            message: "Feature not available for the store. Please contact store admin."
+        });
+    }
+
     if (action == "generateParams") {
         var workflowReference = request.getParameter("workflowReference");
-        var tenantDomain = request.getParameter("tenant");
+
         try {
             result = mod.generateParams(tenantDomain, workflowReference);
             if (result != null) {

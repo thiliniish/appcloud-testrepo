@@ -23,6 +23,18 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
         return;
     }
 
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        print({
+            error: true,
+            statusCode: 403,
+            message: "Feature not available for the store. Please contact store admin."
+        });
+    }
+
     if (action == "createAccount") {
         var accountData = {};
         var metaData = {};
