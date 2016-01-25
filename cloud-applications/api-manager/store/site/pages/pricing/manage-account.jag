@@ -6,6 +6,7 @@ var i18n = require("i18n");
 var localeResourcesBasePath = "/site/conf/locales/jaggery/";
 i18n.init(request, localeResourcesBasePath);
 var tenantDomain = jagg.getTenantDomain();
+var errorPageUri = "/site/pages/error-pages/404.html";
 
 (function () {
     var user = jagg.getUser(), isMonetizationEnabledObj, selectedApp, middleObj;
@@ -26,7 +27,7 @@ var tenantDomain = jagg.getTenantDomain();
 
     var action = request.getParameter("action");
     if (action == null || "".equals(action) || !(/^[a-z0-9]+$/i).test(action)) {
-        response.sendRedirect(jagg.url("/site/pages/error-pages/404.html"));
+        response.sendRedirect(jagg.url(errorPageUri));
         return;
     }
     var workflowReference = request.getParameter("workflowReference");
@@ -38,12 +39,12 @@ var tenantDomain = jagg.getTenantDomain();
     var ratePlanObj = jagg.module("pricing").getRatePlanInfo(tenantDomain, workflowReference);
 
     if (ratePlanObj == null || ratePlanObj.error) {
-        response.sendRedirect(jagg.url("/site/pages/error-pages/404.html"));
+        response.sendRedirect(jagg.url(errorPageUri));
         return;
     }
 
     if (workflowReference == null || "".equals(workflowReference)) {
-        response.sendRedirect(jagg.url("/site/pages/error-pages/404.html"));
+        response.sendRedirect(jagg.url(errorPageUri));
         return;
     }
 
