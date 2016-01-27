@@ -3,6 +3,14 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 (function () {
+
+    var loginStatus = jagg.isUserLoggedIn();
+    if(loginStatus.error){
+        response.status=401;
+        print(loginStatus);
+        return;
+    }
+
     var mod = jagg.module("customurl");
     var action = request.getParameter("action");
     var cloudType = request.getParameter("cloudType");
