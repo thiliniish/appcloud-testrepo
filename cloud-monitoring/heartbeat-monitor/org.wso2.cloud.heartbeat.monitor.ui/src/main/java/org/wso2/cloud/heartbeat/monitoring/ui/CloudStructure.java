@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class CloudStructure {
 	private String cloudName;
-	private List servicesList;
+	private List<String> servicesList;
 
 	public CloudStructure(String cloudName) {
 		this.cloudName = cloudName;

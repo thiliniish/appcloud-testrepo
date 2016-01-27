@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.um.ws.api.stub.RemoteUserStoreManagerServiceStub;
 import org.wso2.carbon.um.ws.api.stub.RemoteUserStoreManagerServiceUserStoreExceptionException;
 import org.wso2.cloud.heartbeat.monitoring.ui.configuration.Node;
+import org.wso2.cloud.heartbeat.monitoring.ui.configuration.parser.nginx.utils.Constants;
 import org.wso2.cloud.heartbeat.monitoring.ui.utils.ConfigReader;
 import org.wso2.cloud.heartbeat.monitoring.ui.utils.HeartbeatException;
 
@@ -78,30 +79,35 @@ import java.util.List;
             }
         } catch (HeartbeatException heartbeatException) {
             log.error(heartbeatException);
-            handleErrorResponse(request, response, "/login.html", "Login Failed Due to Internal Server Error.");
+            handleErrorResponse(request, response, Constants.LOGIN_PAGE, "Login failed due to internal server error.");
         }
-        // get request parameters for userID and password
-        String user = request.getParameter("user").replace("@", ".");
-        String pwd = request.getParameter("pwd");
 
         try {
-            if (authenticate(user, pwd)) {
-                HttpSession session = request.getSession();
-                session.setAttribute("user", user);
-                //setting session to expire in 30 mins
-                session.setMaxInactiveInterval(30 * 60);
-                Cookie username = new Cookie("user", user);
-                username.setSecure(true);
-                username.setMaxAge(30 * 60);
-                response.addCookie(username);
-                response.sendRedirect("index.jsp");
+            // get request parameters for userID and password
+            if (request.getParameter("user") != null && !request.getParameter("user").isEmpty() &&
+                request.getParameter("pwd") != null && !request.getParameter("pwd").isEmpty()) {
+                String user = request.getParameter("user").replace("@", ".");
+                String pwd = request.getParameter("pwd");
+                if (authenticate(user, pwd)) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute("user", user);
+                    //setting session to expire in 30 mins
+                    session.setMaxInactiveInterval(30 * 60);
+                    Cookie username = new Cookie("user", user);
+                    username.setSecure(true);
+                    username.setMaxAge(30 * 60);
+                    response.addCookie(username);
+                    response.sendRedirect("index.jsp");
+                } else {
+                    handleErrorResponse(request, response, Constants.LOGIN_PAGE,
+                                        "Either username or password is wrong or invalid.");
+                }
             } else {
-                handleErrorResponse(request, response, "/login.html",
-                                    "Either user name or password is wrong or invalid.");
+                handleErrorResponse(request, response, Constants.LOGIN_PAGE, "Username or password cannot be empty");
             }
         } catch (HeartbeatException heartbeatException) {
-            log.error(heartbeatException);
-            handleErrorResponse(request, response, "/login.html", "Login Failed Due to Internal Server Error.");
+            log.error("Heartbeat - Monitor - login failure :" + heartbeatException);
+            handleErrorResponse(request, response, Constants.LOGIN_PAGE, "Login failed due to internal server error.");
         }
 
     }
