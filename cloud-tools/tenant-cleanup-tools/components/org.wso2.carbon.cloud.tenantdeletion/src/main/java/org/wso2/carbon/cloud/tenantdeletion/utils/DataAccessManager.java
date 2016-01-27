@@ -41,7 +41,7 @@ public class DataAccessManager {
 		PreparedStatement preparedStatement = null;
 		try {
 			String query = "INSERT INTO `USER_LOGIN` (TENANT_ID, TENANT_DOMAIN, LAST_LOGIN_DATE) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE LAST_LOGIN_DATE = ? ";
-			preparedStatement = DataConnectionManager.getInstance().getConnect().prepareStatement(query);
+			preparedStatement = DataConnectionManager.getInstance().getDbConnection().prepareStatement(query);
 			preparedStatement.setInt(1, id);
 			preparedStatement.setString(2, domainName);
 			preparedStatement.setString(3, currentDate);
@@ -60,7 +60,7 @@ public class DataAccessManager {
 					log.error("Failed to close preparedStatement", e);
 				}
 			}
-			DataConnectionManager.getInstance().closeConnection();
+			DataConnectionManager.getInstance().closeDbConnection();
 		}
 	}
 }

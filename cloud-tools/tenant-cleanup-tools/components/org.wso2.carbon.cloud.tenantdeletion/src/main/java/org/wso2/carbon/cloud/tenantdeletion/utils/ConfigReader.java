@@ -42,24 +42,52 @@ import java.io.IOException;
  */
 public class ConfigReader {
 	private final static Log log = LogFactory.getLog(ConfigReader.class);
-	private String CARBON_HOME = CarbonUtils.getCarbonHome() + File.separator;
+	private static volatile ConfigReader instance;
+	private Document document = null;
+
+	private ConfigReader() {
+		String CARBON_HOME = CarbonUtils.getCarbonHome() + File.separator;
+		File inputFile = new File(CARBON_HOME + "repository/conf/tenant_deletion.xml");
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder;
+		try {
+			dBuilder = dbFactory.newDocumentBuilder();
+			document = dBuilder.parse(inputFile);
+		} catch (ParserConfigurationException e) {
+			log.error("Error while creating document builder", e);
+		} catch (SAXException e) {
+			log.error("Error while parsing XML file", e);
+		} catch (IOException e) {
+			log.error("File not found error " + e);
+		}
+	}
+
+	/**
+	 * Returns cofig reader instance, if  instance is null creates an instance
+	 * @return Config reader
+	 */
+	public static ConfigReader getInstance() {
+		if (instance == null) {
+			synchronized (ConfigReader.class) {
+				if (instance == null) {
+					instance = new ConfigReader();
+				}
+			}
+		}
+		return instance;
+	}
 
 	/**
 	 * Reads tenant_deletion.xml and returns datasource using XML parsing
 	 * @param xPath xPath to read datasource name
 	 * @return datasourse name
 	 */
-	public String getdatasource(String xPath) {
+	public String getDatasourceName(String xPath) {
 		String datasourceName = null;
 		try {
-			File inputFile = new File(CARBON_HOME + "repository/conf/tenant_deletion.xml");
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder;
-			dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(inputFile);
-			doc.getDocumentElement().normalize();
+			document.getDocumentElement().normalize();
 			XPath xPathInstance = XPathFactory.newInstance().newXPath();
-			NodeList nodeList = (NodeList) xPathInstance.compile(xPath).evaluate(doc, XPathConstants.NODESET);
+			NodeList nodeList = (NodeList) xPathInstance.compile(xPath).evaluate(document, XPathConstants.NODESET);
 			//xPath will be reading from tenant_deletion.xml file (datasources/carbon-datasource). There is only one
 			// element node as carbon-datasource. So nodeList size is one.
 			if (nodeList.getLength() == 1) {
@@ -67,16 +95,7 @@ public class ConfigReader {
 					Element eElement = (Element) nodeList.item(0);
 					datasourceName = eElement.getTextContent();
 				}
-			} else {
-				String errorMsg = "Xpath does not belong to any node. Check xPath again..";
-				log.error(errorMsg);
 			}
-		} catch (ParserConfigurationException e) {
-			log.error("Error while creating document builder", e);
-		} catch (SAXException e) {
-			log.error("Error while parsing XML file", e);
-		} catch (IOException e) {
-			log.error("File not found error " + e);
 		} catch (XPathExpressionException e) {
 			log.error("Xpath error occurred while compiling " + e);
 		}

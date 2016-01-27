@@ -46,15 +46,17 @@ public class DataConnectionManager {
 	}
 
 	/**
-	 * Initializes MySQL database connection
-	 * @param dataSourceName jndiConfig name
+	 * Initializes MySQL database connection and returns MySQL database connection
+	 * @return Database connection
 	 */
-	public void setDbConnection(String dataSourceName) {
+	public Connection getDbConnection() {
+		ConfigReader configReader = ConfigReader.getInstance();
+		String datasourceName = configReader.getDatasourceName("Configurations/datasources/carbon-datasource");
 		try {
 			Hashtable<String, String> environment = new Hashtable<String, String>();
 			environment.put("java.naming.factory.initial", "org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory");
 			Context initContext = new InitialContext(environment);
-			DataSource dataSource = (DataSource) initContext.lookup(dataSourceName);
+			DataSource dataSource = (DataSource) initContext.lookup(datasourceName);
 			if (dataSource != null) {
 				connection = dataSource.getConnection();
 			} else {
@@ -66,22 +68,13 @@ public class DataConnectionManager {
 		} catch (SQLException e) {
 			log.error("SQL Exception occurred while getting connection", e);
 		}
-	}
-
-	/**
-	 * Create database connection and returns MySQL database connection
-	 * @return Database connection
-	 */
-	public Connection getConnect() {
-		ConfigReader parserObject = new ConfigReader();
-		setDbConnection(parserObject.getdatasource("Configurations/datasources/carbon-datasource"));
 		return connection;
 	}
 
 	/**
 	 * Closing the connection
 	 */
-	public void closeConnection() {
+	public void closeDbConnection() {
 		if (connection != null) {
 			try {
 				connection.close();
