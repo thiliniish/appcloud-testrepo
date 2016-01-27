@@ -36,14 +36,14 @@ var errorPageUri = "/site/pages/error-pages/404.html";
         workflowReference = request.getParameter("field_passthrough2");
     }
 
-    var ratePlanObj = jagg.module("pricing").getRatePlanInfo(tenantDomain, workflowReference);
-
-    if (ratePlanObj == null || ratePlanObj.error) {
+    if (workflowReference == null || "".equals(workflowReference)) {
         response.sendRedirect(jagg.url(errorPageUri));
         return;
     }
 
-    if (workflowReference == null || "".equals(workflowReference)) {
+    var ratePlanObj = jagg.module("pricing").getRatePlanInfo(tenantDomain, workflowReference);
+
+    if (ratePlanObj == null || ratePlanObj.error) {
         response.sendRedirect(jagg.url(errorPageUri));
         return;
     }
