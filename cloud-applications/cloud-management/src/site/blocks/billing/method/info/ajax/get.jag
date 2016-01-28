@@ -11,8 +11,8 @@ var mod = jagg.module("billing");
 (function () {
 
     var loginStatus = jagg.isUserLoggedIn();
-    if(loginStatus.error){
-        response.status=401;
+    if (loginStatus.error) {
+        response.status = 401;
         print(loginStatus);
         return;
     }

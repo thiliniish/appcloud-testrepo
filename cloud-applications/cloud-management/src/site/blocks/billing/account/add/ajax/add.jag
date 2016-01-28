@@ -10,8 +10,8 @@ var ratePlans = session.get("RATE_PLANS");
 (function () {
 
 	var loginStatus = jagg.isUserLoggedIn();
-	if(loginStatus.error){
-		response.status=401;
+	if (loginStatus.error) {
+		response.status = 401;
 		print(loginStatus);
 		return;
 	}

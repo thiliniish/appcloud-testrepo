@@ -51,9 +51,9 @@ var jagg = jagg || (function () {
 
     var isUserLoggedIn = function (){
         var result = {};
-        if(session.get("LOGGED_IN_USER") != null){
+        if (session.get("LOGGED_IN_USER") != null) {
             result.error = false;
-        }else {
+        } else {
             result.error = true;
             result.status = 401;
             result.message = "Unauthorized. Login required.";
