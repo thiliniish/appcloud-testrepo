@@ -385,55 +385,65 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
         if (createChildResObj.success) {
             updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
                     createChildResObj.accountNumber);
+            var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+            var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+            var messageBody, subject;
+
             if (updateSubscriberResult) {
                 apiData.subscriptionNumber = createChildResObj.subscriptionNumber;
                 apiData.ratePlanId = ratePlanId;
-                var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
-                var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
                 addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildResObj
                         .accountNumber, stringify(apiData), formattedEffectiveDate);
                 if (!addSubscriptionResult) {
                     log.error("Error while updating subscription information. subscription information update failed. "
                             + "account name: " + data.name + " account number: " + createChildResObj.accountNumber + "for tenant:"
                             + tenantDomain);
-                    //Send error notification. Roll back won't happen since the subscriptions has been already paid
-                    return {
-                        error: true,
-                        statusCode: 500,
-                        message: "Subscription unsuccessful. Since the payment has already been processed, please contact" +
-                        "support."
-                    };
+                    //ToDo This email and manual recovering process is a temporary fix for the MVP
+                    messageBody = "Error while updating subscription information in the database. Please update " +
+                            "the subscriptions table. Tenant: " + tenantDomain + ", Username: " +
+                            username + ", Account number: " + createChildResObj.accountNumber + ", Effective date: "
+                            + formattedEffectiveDate + ", API data: " + stringify(apiData);
+                    subject = "[Monetization][API Cloud][ALERT] Subscription db update failure";
+                    billingService.sendEmailToCloud(subject, messageBody);
+                    log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
+                            + " Tenant: " + tenantDomain);
+                    addSubscriptionResult = true;
                 }
             } else {
+                //ToDo This email and manual recovering process is a temporary fix for the MVP
+                messageBody = "Error while updating subscriber information in the database. Please update " +
+                        "the subscriber table & subscriptions table. Tenant: " + tenantDomain + ", Username: " +
+                        username + ", Account number: " + createChildResObj.accountNumber + ", Effective date: "
+                        + formattedEffectiveDate + ", API data: " + stringify(apiData);
+                subject = "[Monetization][API Cloud][ALERT] Subscriber account db update failure";
+                billingService.sendEmailToCloud(subject, messageBody);
                 log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
-                        + " will get deleted. Please issue a refund for " + data.name + " in tenant: " + tenantDomain);
-                //Send notification the cloud and the publisher saying to issue a refund. account will not get deleted.
-
-                //var deleteResponse = JSON.parse(billingService.deleteAccount(data.name));
-                /*if (deleteResponse.successSpecified && deleteResponse.success) {
-                    //Send error notification to cloud to issue a refund
-                    return {
-                        error: true,
-                        statusCode: 500,
-                        message: "Subscription unsuccessful. You'll get a refund. if not please contact support."
-                    };
-                } else {
-                    return {
-                        error: true,
-                        statusCode: 500,
-                        message: "Subscription unsuccessful. your payment has already processed. Please contact support."
-                    };
-                }*/
+                        + " Tenant: " + tenantDomain);
+                updateSubscriberResult = true;
+                addSubscriptionResult = true;
             }
 
             if (addParentObj.success == null || !addParentObj.success) {
+                //ToDo This email and manual recovering process is a temporary fix for the MVP
+                messageBody = "Error while adding account parent for zuora. Please add parent account. " +
+                        "Tenant: " + tenantDomain + ", Username: " + username + ", Account number: " +
+                        createChildResObj.accountNumber;
+                subject = "[Monetization][API Cloud][ALERT] Adding account parent failure";
+                billingService.sendEmailToCloud(subject, messageBody);
                 log.error("Adding parent failed for child." + " Tenant: " + tenantDomain + " For monetizing. Reasons: "
                         + stringify(createChildResObj.reasons));
             }
         } else {
             errorMsg = "Billing account creation failed.";
-            log.error(errorMsg + " Tenant: " + tenantDomain + " For monetizing. Reasons: " + stringify
-                    (createChildResObj.reasons));
+            //ToDo This email and manual recovering process is a temporary fix for the MVP
+            messageBody = errorMsg + " Tenant: " + tenantDomain + " For monetizing. Response: "
+                    + stringify(createChildResObj.reasons) + "  User may have retried later. No action required" +
+                    "unless this is a recurring issue. Please see the response details";
+
+            subject = "[Monetization][API Cloud][WARN] Zuora account creation failure";
+            billingService.sendEmailToCloud(subject, messageBody);
+
+            log.error(messageBody);
             return {
                 error: true,
                 statusCode: 500,

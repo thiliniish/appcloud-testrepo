@@ -376,6 +376,8 @@ public class APICloudMonetizationService {
             String zuoraResponse = ZuoraRESTUtils.createSubscription(accountNumber, ratePlanId, planEffectiveDate);
             JsonObject zuoraResObj = new JsonParser().parse(zuoraResponse).getAsJsonObject();
             if (zuoraResObj != null && zuoraResObj.isJsonObject()) {
+                String mysqlFormatDate = new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT).format(planEffectiveDate);
+
                 if (zuoraResObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
                     JsonObject apiDataObj = new JsonObject();
                     apiDataObj.addProperty(MonetizationConstants.SOAP_APP_NAME, appName);
@@ -386,13 +388,35 @@ public class APICloudMonetizationService {
                     apiDataObj.addProperty(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, zuoraResObj.get
                             (BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString());
                     boolean addSubscriptionStatus = APICloudMonetizationUtils.addSubscriptionInformation(tenantDomain,
-                            accountNumber, apiDataObj, (new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT))
-                                    .format(planEffectiveDate));
+                            accountNumber, apiDataObj, mysqlFormatDate);
+
+                    //ToDo This email and manual recovering process is a temporary fix for the MVP
+                    if (!addSubscriptionStatus) {
+                        String msgBody = "Error while updating subscription information in the database. Please update " +
+                                "the subscriptions table. Tenant: " + tenantDomain + ", Account number: "
+                                + accountNumber + ", Effective date: " + mysqlFormatDate + ", API data: " +
+                                apiDataObj.toString();
+                        String msgSubject = "[Monetization][API Cloud][ALERT] Subscription db update failure";
+                        //sending as a notification for cloud
+                        CloudBillingServiceUtils.sendNotificationToCloud(msgBody, msgSubject);
+                        addSubscriptionStatus = true;
+                    }
+
+                    //ignore the warning this is only until the continuous delivery of messages is guaranteed
                     zuoraResObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, addSubscriptionStatus);
                     return zuoraResObj.toString();
 
                 } else {
-                    String errorMsg = "Zuora subscription creation failure. response: " + zuoraResObj.get("reasons");
+                    //ToDo This email and manual recovering process is a temporary fix for the MVP
+                    String errorMsg = "Zuora subscription creation failure. response: {" + zuoraResObj.get("reasons")
+                            + " } Tenant: " + tenantDomain + ", Account number: " + accountNumber + ". User may have " +
+                            "retried later. No action required unless this is a recurring issue. Please see the " +
+                            "response details";
+                    String msgSubject = "[Monetization][API Cloud][WARN] Subscription failure";
+
+                    //sending as a notification for cloud
+                    CloudBillingServiceUtils.sendNotificationToCloud(errorMsg, msgSubject);
+
                     LOGGER.error(errorMsg);
                     throw new CloudMonetizationException(errorMsg);
                 }

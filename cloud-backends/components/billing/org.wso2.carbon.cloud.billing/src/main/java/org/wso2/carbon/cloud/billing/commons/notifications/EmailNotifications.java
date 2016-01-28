@@ -93,7 +93,7 @@ public class EmailNotifications extends Observable {
      * @param subject     email subject
      * @param receiver    receivers
      */
-    public void addToMailQueue(String messageBody, String subject, String receiver) {
+    public void sendMail(String messageBody, String subject, String receiver) {
         try {
             InternetAddress emailAddr = new InternetAddress(receiver);
             emailAddr.validate();
@@ -203,7 +203,7 @@ public class EmailNotifications extends Observable {
             } else if (arg instanceof Boolean && (Boolean) arg) {
                 while (!failedEmailQueue.isEmpty()) {
                     Map email = failedEmailQueue.poll();
-                    EmailNotifications.getInstance().addToMailQueue(email.get(MESSAGE_BODY).toString(), email.get
+                    EmailNotifications.getInstance().sendMail(email.get(MESSAGE_BODY).toString(), email.get
                             (MESSAGE_SUBJECT).toString(), email.get(MESSAGE_RECEIVER).toString());
                 }
             } else {
