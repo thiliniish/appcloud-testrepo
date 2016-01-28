@@ -49,6 +49,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -262,7 +263,7 @@ public final class APICloudMonetizationUtils {
             Resource tiersXmlResource = CloudBillingUtils
                     .getRegistryResource(tenantDomain, MonetizationConstants.tiersXmlUrl);
             if (tiersXmlResource != null) {
-                String content = new String((byte[]) tiersXmlResource.getContent());
+                String content = new String((byte[]) tiersXmlResource.getContent(), Charset.forName(BillingConstants.ENCODING));
                 List<String> freeTiers = new ArrayList<>();
                 OMElement element = AXIOMUtil.stringToOM(content);
                 OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
