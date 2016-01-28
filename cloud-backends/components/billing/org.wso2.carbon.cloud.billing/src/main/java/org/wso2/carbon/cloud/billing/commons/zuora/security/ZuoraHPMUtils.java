@@ -28,6 +28,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HostedPageConfig;
 import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
@@ -70,7 +71,6 @@ public class ZuoraHPMUtils {
     private static final String RETAIN_VALUES = "retainValues";
     private static final String API_ACCESS_KEY_ID = "apiAccessKeyId";
     private static final String API_SECRET_ACCESS_KEY = "apiSecretAccessKey";
-    private static final String ENCODER = "UTF-8";
     private static final String BOUNCY_CASTLE_PROVIDER = "BC";
     private static final String RSA_ENCRYPT_DECRYPT_FUNCTION = "RSA/ECB/PKCS1Padding";
     private static final String TYPE_JSON = "application/json";
@@ -130,11 +130,11 @@ public class ZuoraHPMUtils {
     public static void validateSignature(String signature, String expirationTime) throws CloudBillingSecurityException {
         // Decrypt signature.
         long expiredAfter = Long.parseLong(expirationTime);
-        byte[] decoded = Base64.decodeBase64(signature.getBytes(Charset.forName(ENCODER)));
+        byte[] decoded = Base64.decodeBase64(signature.getBytes(Charset.forName(BillingConstants.ENCODING)));
         try {
             Cipher encryptor = Cipher.getInstance(RSA_ENCRYPT_DECRYPT_FUNCTION);
             encryptor.init(Cipher.DECRYPT_MODE, publicKeyObject);
-            String decryptedSignature = new String(encryptor.doFinal(decoded));
+            String decryptedSignature = new String(encryptor.doFinal(decoded), Charset.forName(BillingConstants.ENCODING));
 
             // Validate signature.
             if (StringUtils.isBlank(decryptedSignature)) {
@@ -179,10 +179,10 @@ public class ZuoraHPMUtils {
         try {
             Security.addProvider(new BouncyCastleProvider());
             MessageDigest mda = MessageDigest.getInstance(mdAlgorithm, BOUNCY_CASTLE_PROVIDER);
-            byte[] encodedData = Base64.encodeBase64(mda.digest(data.getBytes()));
+            byte[] encodedData = Base64.encodeBase64(mda.digest(data.getBytes(Charset.forName(BillingConstants.ENCODING))));
 
             if (encodedData != null) {
-                return new String(encodedData, Charset.forName(ENCODER));
+                return new String(encodedData, Charset.forName(BillingConstants.ENCODING));
             } else {
                 throw new CloudBillingSecurityException("Encoded data cannot be null");
             }
@@ -205,9 +205,9 @@ public class ZuoraHPMUtils {
         try {
             Security.addProvider(new BouncyCastleProvider());
             MessageDigest mda = MessageDigest.getInstance(mdAlgorithm, BOUNCY_CASTLE_PROVIDER);
-            byte[] digestData = mda.digest(data.getBytes());
+            byte[] digestData = mda.digest(data.getBytes(Charset.forName(BillingConstants.ENCODING)));
 
-            return MessageDigest.isEqual(digestData, Base64.decodeBase64(hash.getBytes(Charset.forName(ENCODER))));
+            return MessageDigest.isEqual(digestData, Base64.decodeBase64(hash.getBytes(Charset.forName(BillingConstants.ENCODING))));
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new CloudBillingSecurityException("Error while validating hash.", e);
         }
@@ -257,7 +257,8 @@ public class ZuoraHPMUtils {
         postRequest.addRequestHeader("Accept", TYPE_JSON);
 
         try {
-            RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), TYPE_JSON, ENCODER);
+            RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), TYPE_JSON,
+                    BillingConstants.ENCODING);
             postRequest.setRequestEntity(requestEntity);
 
             String response = ProcessorUtils.executeHTTPMethodWithRetry(httpClient, postRequest, RETRY_COUNT);

@@ -184,7 +184,7 @@ public class EmailNotifications extends Observable {
      * This is to keep the sending failed emails and try sending them again
      * once the error has been fixed
      */
-    protected class MailSenderErrorObserver implements Observer {
+    protected static class MailSenderErrorObserver implements Observer {
 
         private Queue<Map> failedEmailQueue;
 
