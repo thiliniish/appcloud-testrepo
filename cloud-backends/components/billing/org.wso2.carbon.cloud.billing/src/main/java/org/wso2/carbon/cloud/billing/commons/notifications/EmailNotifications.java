@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,7 +55,7 @@ public class EmailNotifications extends Observable {
 
     private static EmailNotifications instance = new EmailNotifications();
 
-    private ConcurrentLinkedQueue<Map> mailQueue;
+    private Queue<Map> mailQueue;
     private ExecutorService executorService;
 
     private String host;
@@ -74,7 +75,7 @@ public class EmailNotifications extends Observable {
         password = emailConfig.getPassword().trim();
         sender = emailConfig.getSender().trim();
         tls = emailConfig.getTls().trim();
-        session = setSession();
+        setSession();
 
         mailQueue = new ConcurrentLinkedQueue<>();
         executorService = Executors.newFixedThreadPool(3);
@@ -114,13 +115,12 @@ public class EmailNotifications extends Observable {
      *
      * @return Session obj
      */
-    private Session setSession() {
+    private void setSession() {
         Properties props = new Properties();
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", port);
 
-        Session session;
         if (Boolean.valueOf(tls)) {
             props.put("mail.smtp.auth", "true");
             session = Session.getInstance(props, new Authenticator() {
@@ -132,7 +132,6 @@ public class EmailNotifications extends Observable {
         } else {
             session = Session.getDefaultInstance(props);
         }
-        return session;
     }
 
     /**
@@ -145,8 +144,9 @@ public class EmailNotifications extends Observable {
             if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
                 executorService.shutdownNow(); // Cancel currently executing tasks
                 // Wait a while for tasks to respond to being cancelled
-                if (!executorService.awaitTermination(60, TimeUnit.SECONDS))
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
                     LOGGER.error("email sender executor pool did not terminate");
+                }
             }
         } catch (InterruptedException ie) {
             // (Re-)Cancel if current thread also interrupted
@@ -186,7 +186,7 @@ public class EmailNotifications extends Observable {
      */
     protected class MailSenderErrorObserver implements Observer {
 
-        private ConcurrentLinkedQueue<Map> failedEmailQueue;
+        private Queue<Map> failedEmailQueue;
 
         MailSenderErrorObserver() {
             failedEmailQueue = new ConcurrentLinkedQueue<>();
