@@ -469,6 +469,16 @@ public class CloudBillingService extends AbstractAdmin {
      * @param msgBody email body
      */
     public void sendEmailNotification(String receiver, String subject, String msgBody) {
-        EmailNotifications.getInstance().addToMailQueue(msgBody, subject, receiver);
+        EmailNotifications.getInstance().sendMail(msgBody, subject, receiver);
+    }
+
+    /**
+     * Send notification emails to cloud alerts
+     *
+     * @param subject subject of the mail
+     * @param msgBody mail body
+     */
+    public void sendEmailToCloud(String subject, String msgBody) {
+        CloudBillingServiceUtils.sendNotificationToCloud(msgBody, subject);
     }
 }

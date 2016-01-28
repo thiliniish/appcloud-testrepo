@@ -22,6 +22,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -35,13 +37,10 @@ import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
+import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.processor.DataServiceBillingRequestProcessor;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.util.AXIOMUtil;
-
-import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -52,8 +51,8 @@ import javax.xml.stream.XMLStreamException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -264,7 +263,7 @@ public final class APICloudMonetizationUtils {
                     .getRegistryResource(tenantDomain, MonetizationConstants.tiersXmlUrl);
             if (tiersXmlResource != null) {
                 String content = new String((byte[]) tiersXmlResource.getContent());
-                List<String> freeTiers = new ArrayList<String>();
+                List<String> freeTiers = new ArrayList<>();
                 OMElement element = AXIOMUtil.stringToOM(content);
                 OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
                 Iterator policies = assertion.getChildrenWithName(MonetizationConstants.POLICY_ELEMENT);
@@ -504,17 +503,39 @@ public final class APICloudMonetizationUtils {
                     zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, true);
                     return zuoraResponseObj.toString();
                 } else {
-                    LOGGER.warn("Cancelling subscription: monetization tables update failure. Account no: " +
-                            accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
-                            "version: " + apiVersion);
-                    zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
+                    //ToDo This email and manual recovering process is a temporary fix for the MVP
+                    String msgBody = "Error while removing subscriptions operation failed: Updating subscription " +
+                            "information in the database. Please delete the entry from " +
+                            "subscriptions table.  Account no: " + accountNumber + ", Application name: " + appName + ", " +
+                            "API name: " + apiName + ", API Version: " + apiVersion;
+                    String msgSubject = "[Monetization][API Cloud][ALERT] Subscription removal db update failure";
+                    //sending as a notification for cloud
+                    CloudBillingServiceUtils.sendNotificationToCloud(msgBody, msgSubject);
+
+                    LOGGER.error("Cancelling subscription: monetization tables update failure. Removing " +
+                            "subscription from subscriptions table. Account no: " + accountNumber + ", Application " +
+                            "name: " + appName + ", Api name: " + apiName + ", Api " + "version: " + apiVersion);
+                    //Set to success until above fix is done
+                    //zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
+                    zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, true);
                     return zuoraResponseObj.toString();
                 }
             } else {
-                LOGGER.warn("Cancelling subscription: monetization tables update failure. Account no: " +
-                        accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
-                        "version: " + apiVersion);
-                zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
+                //ToDo This email and manual recovering process is a temporary fix for the MVP
+                String msgBody = "Error while removing subscriptions operation failed: Updating subscription " +
+                        "information in the database. Please add the entry to history table and delete it from " +
+                        "subscriptions table.  Account no: " + accountNumber + ", Application name: " + appName + ", " +
+                        "API name: " + apiName + ", API Version: " + apiVersion;
+                String msgSubject = "[Monetization][API Cloud][ALERT] Subscription removal db update failure.";
+                //sending as a notification for cloud
+                CloudBillingServiceUtils.sendNotificationToCloud(msgBody, msgSubject);
+
+                LOGGER.error("Cancelling subscription: monetization tables update failure. adding to history " +
+                        "and removing from subscriptions. Account no: " + accountNumber + ", Application name: " +
+                        appName + ", Api name: " + apiName + ", Api " + "version: " + apiVersion);
+                //Set to success until above fix is done
+                //zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
+                zuoraResponseObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, true);
                 return zuoraResponseObj.toString();
             }
 

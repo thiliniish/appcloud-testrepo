@@ -32,6 +32,7 @@ import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.config.Subscription;
+import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.ZuoraAccountClient;
@@ -367,6 +368,20 @@ public final class CloudBillingServiceUtils {
     public static JsonObject deleteAccount(String accountName) throws CloudBillingZuoraException {
         ZuoraAccountClient client = new ZuoraAccountClient();
         return client.deleteAccount(accountName);
+    }
+
+
+    /**
+     * This is to send notification mails to cloud. Receiver mail
+     * address will be set as cloud
+     *
+     * @param messageBody    message body
+     * @param messageSubject message subject
+     */
+    public static void sendNotificationToCloud(String messageBody, String messageSubject) {
+        String receiver = BillingConfigUtils.getBillingConfiguration().getUtilsConfig()
+                .getNotifications().getEmailNotification().getSender();
+        EmailNotifications.getInstance().sendMail(messageBody, messageSubject, receiver);
     }
 
     private static JsonObject getTemplateAccount(String tenantDomain, ZuoraAccountClient client) throws CloudBillingZuoraException {
