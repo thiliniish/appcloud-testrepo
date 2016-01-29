@@ -43,7 +43,7 @@ public class HttpHandler {
             public boolean verify(String hostname, SSLSession session) {
                 String deploymentContext = CloudIntegrationTestUtils
                         .getPropertyValue(CloudIntegrationConstants.DEPLOYMENT_CONTEXT);
-                return deploymentContext.equals("local");
+                return "local".equals(deploymentContext);
             }
         });
     }
@@ -92,7 +92,7 @@ public class HttpHandler {
                 response.append(inputLine);
             }
             in.close();
-            if (authCookie == null || authCookie.equals("")) {
+            if (authCookie == null || "".equals(authCookie)) {
                 Map<String, List<String>> headers = con.getHeaderFields();
                 List<String> cookies = headers.get("Set-Cookie");
                 StringBuilder sb = new StringBuilder();
