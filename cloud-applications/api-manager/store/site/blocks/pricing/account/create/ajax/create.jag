@@ -3,10 +3,11 @@ include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
 
 var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
     var mod, result,
-            action = request.getParameter("action"),
+            action = encoder.getSafeText(request.getParameter("action")),
             site = require("/site/conf/site.json");
     var user = jagg.getUser();
     var ssoEnabled = site.ssoConfiguration.enabled;
@@ -33,27 +34,28 @@ var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
             statusCode: 403,
             message: "Feature not available for the store. Please contact store admin."
         });
+        return;
     }
 
-    if (action == "createAccount") {
+    if (action != null && action == "createAccount") {
         var accountData = {};
         var metaData = {};
 
-        accountData.organization = request.getParameter("organization");
-        accountData.firstName = request.getParameter("firstName");
-        accountData.lastName = request.getParameter("lastName");
-        accountData.address1 = request.getParameter("address1");
-        accountData.address2 = request.getParameter("address2");
-        accountData.city = request.getParameter("city");
-        accountData.state = request.getParameter("state");
-        accountData.zipCode = request.getParameter("zipCode");
-        accountData.country = request.getParameter("country");
-        accountData.workEmail = request.getParameter("email");
+        accountData.organization = encoder.getSafeText(request.getParameter("organization"));
+        accountData.firstName = encoder.getSafeText(request.getParameter("firstName"));
+        accountData.lastName = encoder.getSafeText(request.getParameter("lastName"));
+        accountData.address1 = encoder.getSafeText(request.getParameter("address1"));
+        accountData.address2 = encoder.getSafeText(request.getParameter("address2"));
+        accountData.city = encoder.getSafeText(request.getParameter("city"));
+        accountData.state = encoder.getSafeText(request.getParameter("state"));
+        accountData.zipCode = encoder.getSafeText(request.getParameter("zipCode"));
+        accountData.country = encoder.getSafeText(request.getParameter("country"));
+        accountData.workEmail = encoder.getSafeText(request.getParameter("email"));
 
-        metaData.refId = request.getParameter("refId");
-        metaData.signature = request.getParameter("signature");
-        metaData.field_passthrough1 = request.getParameter("field_passthrough1");
-        var workflowReference = request.getParameter("workflowReference");
+        metaData.refId = encoder.getSafeText(request.getParameter("refId"));
+        metaData.signature = encoder.getSafeText(request.getParameter("signature"));
+        metaData.field_passthrough1 = encoder.getSafeText(request.getParameter("field_passthrough1"));
+        var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
         try {
             result = mod.createAccount(user.username, accountData, metaData, workflowReference);
             if (result != null) {

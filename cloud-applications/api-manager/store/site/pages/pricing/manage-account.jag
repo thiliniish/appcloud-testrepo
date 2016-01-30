@@ -7,6 +7,7 @@ var localeResourcesBasePath = "/site/conf/locales/jaggery/";
 i18n.init(request, localeResourcesBasePath);
 var tenantDomain = jagg.getTenantDomain();
 var errorPageUri = "/site/pages/error-pages/404.html";
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
     var user = jagg.getUser(), isMonetizationEnabledObj, selectedApp, middleObj;
@@ -25,15 +26,15 @@ var errorPageUri = "/site/pages/error-pages/404.html";
         return;
     }
 
-    var action = request.getParameter("action");
-    if (action == null || "".equals(action) || !(/^[a-z0-9]+$/i).test(action)) {
+    var action = encoder.getSafeText(request.getParameter("action"));
+    if (action == null) {
         response.sendRedirect(jagg.url(errorPageUri));
         return;
     }
-    var workflowReference = request.getParameter("workflowReference");
+    var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
 
     if (workflowReference == null && "createAccount".equals(action)) {
-        workflowReference = request.getParameter("field_passthrough2");
+        workflowReference = encoder.getSafeText(request.getParameter("field_passthrough2"));
     }
 
     if (workflowReference == null || "".equals(workflowReference)) {
@@ -54,19 +55,17 @@ var errorPageUri = "/site/pages/error-pages/404.html";
         "tenant": tenantDomain
     };
 
-    if (action == null) {
-        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
-    } else if ("paymentMethod".equals(action)) {
+    if ("paymentMethod".equals(action)) {
 
         //When returned from a unsuccessful payment
-        var paymentSuccess = request.getParameter("success");
+        var paymentSuccess = encoder.getSafeText(request.getParameter("success"));
         var errorObj = {
             "error": false
         };
 
         if (paymentSuccess != null && !"".equals(paymentSuccess) && !paymentSuccess) {
             errorObj.error = true;
-            errorObj.errorMessage = request.getParameter("errorMessage");
+            errorObj.errorMessage = encoder.getSafeText(request.getParameter("errorMessage"));
         }
 
         inputsObj.errorObj = errorObj;
@@ -76,10 +75,10 @@ var errorPageUri = "/site/pages/error-pages/404.html";
             "inputs": inputsObj
         }];
     } else if ("createAccount".equals(action)) {
-        var signature = request.getParameter("signature");
-        var refId = request.getParameter("refId");
-        var field_passthrough1 = request.getParameter("field_passthrough1");
-        selectedApp = request.getParameter("field_passthrough4");
+        var signature = encoder.getSafeText(request.getParameter("signature"));
+        var refId = encoder.getSafeText(request.getParameter("refId"));
+        var field_passthrough1 = encoder.getSafeText(request.getParameter("field_passthrough1"));
+        selectedApp = encoder.getSafeText(request.getParameter("field_passthrough4"));
 
         inputsObj.refId = refId;
         inputsObj.signature = signature;
@@ -91,7 +90,7 @@ var errorPageUri = "/site/pages/error-pages/404.html";
             "inputs": inputsObj
         }];
     } else if ("subscribed".equals(action)) {
-        selectedApp = request.getParameter("selectedApp");
+        selectedApp = encoder.getSafeText(request.getParameter("selectedApp"));
 
         var uri = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?");
         if (selectedApp != null && !"".equals(selectedApp)) {

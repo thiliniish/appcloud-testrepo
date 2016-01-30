@@ -3,9 +3,11 @@ include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
 
 var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+
 (function () {
     var mod, result,
-            action = request.getParameter("action"),
+            action = encoder.getSafeText(request.getParameter("action")),
             site = require("/site/conf/site.json");
     var user = jagg.getUser();
     var ssoEnabled = site.ssoConfiguration.enabled;
@@ -37,10 +39,11 @@ var log = new Log("site/blocks/pricing/payment-method/add/ajax/add.jag");
             statusCode: 403,
             message: "Feature not available for the store. Please contact store admin."
         });
+        return;
     }
 
-    if (action == "generateParams") {
-        var workflowReference = request.getParameter("workflowReference");
+    if (action != null && action == "generateParams") {
+        var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
 
         try {
             result = mod.generateParams(tenantDomain, workflowReference);
