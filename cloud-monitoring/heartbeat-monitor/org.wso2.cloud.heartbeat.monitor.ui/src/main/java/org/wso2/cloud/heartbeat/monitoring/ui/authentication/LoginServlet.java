@@ -66,8 +66,8 @@ import java.util.List;
         try {
             configurationInstance.buildConfigurationNode(configPath);
             Node adminUserNode = configurationInstance.getAdminNode();
-            basicAuthUserID = adminUserNode.getProperty("user");
-            basicAuthPassword = adminUserNode.getProperty("password");
+            basicAuthUserID = adminUserNode.getProperty(Constants.USER);
+            basicAuthPassword = adminUserNode.getProperty(Constants.PASSWORD);
             serverUrl = "https://" + adminUserNode.getProperty("server_url");
             String authorisedRoleString = adminUserNode.getProperty("authorised_roles");
             String[] splitRoles = authorisedRoleString.split(",");
@@ -84,16 +84,16 @@ import java.util.List;
 
         try {
             // get request parameters for userID and password
-            if (request.getParameter("user") != null && !request.getParameter("user").isEmpty() &&
-                request.getParameter("pwd") != null && !request.getParameter("pwd").isEmpty()) {
-                String user = request.getParameter("user").replace("@", ".");
-                String pwd = request.getParameter("pwd");
+            if (request.getParameter(Constants.USER) != null && !request.getParameter(Constants.USER).isEmpty() &&
+                request.getParameter(Constants.PASSWORD) != null && !request.getParameter(Constants.PASSWORD).isEmpty()) {
+                String user = request.getParameter(Constants.USER).replace("@", ".");
+                String pwd = request.getParameter(Constants.PASSWORD);
                 if (authenticate(user, pwd)) {
                     HttpSession session = request.getSession();
-                    session.setAttribute("user", user);
+                    session.setAttribute(Constants.USER, user);
                     //setting session to expire in 30 mins
                     session.setMaxInactiveInterval(30 * 60);
-                    Cookie username = new Cookie("user", user);
+                    Cookie username = new Cookie(Constants.USER, user);
                     username.setSecure(true);
                     username.setMaxAge(30 * 60);
                     response.addCookie(username);

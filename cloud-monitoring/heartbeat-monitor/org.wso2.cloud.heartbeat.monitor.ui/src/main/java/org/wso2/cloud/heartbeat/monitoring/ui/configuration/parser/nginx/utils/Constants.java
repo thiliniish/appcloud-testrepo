@@ -39,6 +39,8 @@ public class Constants {
     public static final String HOUR = "h";
     public static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DECIMALFORMAT = "#.##";
+    public static final String USER = "user";
+    public static final String PASSWORD = "password";
 
     //heartbeat conf Strings
 
