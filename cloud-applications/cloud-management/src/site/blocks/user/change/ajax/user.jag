@@ -5,10 +5,10 @@ var log = new Log();
 (function () {
 
     var action = request.getParameter("action");
-    if(action != null && action != "updatePasswordWithUserInput"){
+    if (action != null && action != "updatePasswordWithUserInput") {
         var loginStatus = jagg.isUserLoggedIn();
-        if(loginStatus.error){
-            response.status=401;
+        if (loginStatus.error) {
+            response.status = 401;
             print(loginStatus);
             return;
         }
