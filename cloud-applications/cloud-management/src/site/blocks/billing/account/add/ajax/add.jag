@@ -8,6 +8,14 @@ var serviceId = session.get("SERVICE_ID");
 var ratePlans = session.get("RATE_PLANS");
 //var accountId = request.getParameter("accountId");
 (function () {
+
+	var loginStatus = jagg.isUserLoggedIn();
+	if (loginStatus.error) {
+		response.status = 401;
+		print(loginStatus);
+		return;
+	}
+
 	var mod,result,
 	action = request.getParameter("action"),
 	site = require("/site/conf/site.json");
