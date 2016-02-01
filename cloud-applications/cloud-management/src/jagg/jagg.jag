@@ -49,7 +49,7 @@ var jagg = jagg || (function () {
         session.put("logged.user", user);
     };
 
-    var isUserLoggedIn = function (){
+    var isUserLoggedIn = function () {
         var result = {};
         if (session.get("LOGGED_IN_USER") != null) {
             result.error = false;
