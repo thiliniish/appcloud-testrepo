@@ -49,17 +49,6 @@ var jagg = jagg || (function () {
         session.put("logged.user", user);
     };
 
-    var isUserLoggedIn = function () {
-        var result = {};
-        if (session.get("LOGGED_IN_USER") != null) {
-            result.error = false;
-        } else {
-            result.error = true;
-            result.status = 401;
-            result.message = "Unauthorized. Login required.";
-        }
-        return result;
-    };
 
 var getThemeFile = function (path) {
         var p, index, theme = getUserTheme();
@@ -553,8 +542,7 @@ return getThemePath() + path;
         addFooterCode:addFooterCode,
         includeJag:includeJag,
         getUserTheme:getUserTheme,
-        getThemeFile:getThemeFile,
-        isUserLoggedIn:isUserLoggedIn
+        getThemeFile:getThemeFile
     };
 
 }());
