@@ -80,7 +80,7 @@
                         <div class="login-box-top">
                             <div class="login-box-top-inside">
                                 <h2 class="login-sub-title">You are logged in as <p><%=loggedInUser%></p>
-                                    <%=request.getParameter("application")%> requests access to <%=scopeString%></h2>
+                                    <%=CharacterEncoder.getSafeText(request.getParameter("application"))%> requests access to <%=scopeString%></h2>
                                 <form id="oauth2_authz" name="oauth2_authz" method="post" action="../oauth2/authorize">
                                     <div class="login-button-wrapper">
                                         <input type="button" class="btn btn-primary btn-large" id="approve" name="approve"
