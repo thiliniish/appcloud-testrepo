@@ -111,33 +111,33 @@ logged into that tenant
             }
         }
         String queryString1 = "../authenticationendpoint/samlsso_login_redirect.jsp?SAMLRequest="
-                + request.getParameter("SAMLRequest")
+                + CharacterEncoder.getSafeText(request.getParameter("SAMLRequest"))
                 + "&relyingParty="
-                + request.getParameter("relyingParty")
+                + CharacterEncoder.getSafeText(request.getParameter("relyingParty"))
                 + "&sessionDataKey="
-                + request.getParameter("sessionDataKey")
+                + CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))
                 + "&commonAuthCallerPath="
-                + request.getParameter("commonAuthCallerPath")
+                + CharacterEncoder.getSafeText(request.getParameter("commonAuthCallerPath"))
                 + "&forceAuth="
-                + request.getParameter("forceAuth")
+                + CharacterEncoder.getSafeText(request.getParameter("forceAuth"))
                 + "&passiveAuth="
-                + request.getParameter("passiveAuth")
+                + CharacterEncoder.getSafeText(request.getParameter("passiveAuth"))
                 + "&RelayState="
-                + request.getParameter("RelayState")
+                + CharacterEncoder.getSafeText(request.getParameter("RelayState"))
                 + "&SSOAuthSessionID="
-                + request.getParameter("SSOAuthSessionID")
+                + CharacterEncoder.getSafeText(request.getParameter("SSOAuthSessionID"))
                 + "&commonAuthCallerPath="
-                + request.getParameter("commonAuthCallerPath")
+                + CharacterEncoder.getSafeText(request.getParameter("commonAuthCallerPath"))
                 + "&tenantDomain="
-                + request.getParameter("tenantDomain")
+                + CharacterEncoder.getSafeText(request.getParameter("tenantDomain"))
                 + "&type="
-                + request.getParameter("type")
+                + CharacterEncoder.getSafeText(request.getParameter("type"))
                 + "&sp="
-                + request.getParameter("sp")
+                + CharacterEncoder.getSafeText(request.getParameter("sp"))
                 + "&isSaaSApp="
-                + request.getParameter("isSaaSApp")
+                + CharacterEncoder.getSafeText(request.getParameter("isSaaSApp"))
                 + "&authenticators="
-                + request.getParameter("authenticators");
+                + CharacterEncoder.getSafeText(request.getParameter("authenticators"));
 	%>
 
 	<html xmlns="http://www.w3.org/1999/xhtml">
