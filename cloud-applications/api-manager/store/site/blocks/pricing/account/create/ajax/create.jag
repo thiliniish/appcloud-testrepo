@@ -29,6 +29,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
 
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.status = 403;
         print({
             error: true,
             statusCode: 403,
@@ -79,9 +80,10 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         }
     } else {
         log.error("No action specified..");
+        response.status = 400;
         print({
             error: true,
-            statusCode: 500,
+            statusCode: 400,
             message: "No action specified. Please retry..."
         });
     }
