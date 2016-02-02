@@ -64,6 +64,14 @@ var createAccount = function (serviceId){
 };
 
 (function () {
+
+    var loginStatus = jagg.isUserLoggedIn();
+    if (loginStatus.error) {
+        response.status = 401;
+        print(loginStatus);
+        return;
+    }
+
 	var result,
 	action = request.getParameter("action"),
 	site = require("/site/conf/site.json");

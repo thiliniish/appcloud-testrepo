@@ -3,8 +3,18 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 var log = new Log();
 (function () {
+
+    var action = request.getParameter("action");
+    if (action != null && action != "getProfile") {
+        var loginStatus = jagg.isUserLoggedIn();
+        if (loginStatus.error) {
+            response.status = 401;
+            print(loginStatus);
+            return;
+        }
+    }
+
     var mod, obj, result,
-            action = request.getParameter("action"),
             mod = jagg.module("user/profile"),
             site = require("/site/conf/site.json");
 
