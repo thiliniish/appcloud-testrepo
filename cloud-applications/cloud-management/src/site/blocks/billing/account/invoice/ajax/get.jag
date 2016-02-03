@@ -9,6 +9,14 @@ var server = carbon.server;
 var mod = jagg.module("billing");
 
 (function () {
+
+    var loginStatus = jagg.isUserLoggedIn();
+    if (loginStatus.error) {
+        response.status = 401;
+        print(loginStatus);
+        return;
+    }
+
 	if((session.get("TENANT_INFO")) != null ){
 		var mod = jagg.module("billing");
 		var invoiceId = request.getParameter("id");
