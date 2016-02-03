@@ -39,6 +39,8 @@ public class Constants {
     public static final String HOUR = "h";
     public static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DECIMALFORMAT = "#.##";
+    public static final String USER = "user";
+    public static final String PASSWORD = "password";
 
     //heartbeat conf Strings
 
@@ -59,7 +61,6 @@ public class Constants {
     //heartbeat error constants
 
     public static final String SQL_EXCEPTION = "Heartbeat - Monitor - SQLException thrown while data access: ";
-    public static final String PARSE_EXCEPTION = "Heartbeat - Monitor - ParseException thrown while data access: ";
     public static final String IO_EXCEPTION =
             "Heartbeat - Monitor - IOException thrown while reading the configuration file: ";
     public static final String NO_CLOUDS = "Heartbeat - Monitor - No clouds specified in configuration: ";
@@ -75,6 +76,7 @@ public class Constants {
     public static final String DEFAULT_SEVERITY = "2";
     public static final int TOTAL_UPTIME = 100;
     public static final String DEFAULT_TIME_INTERVAL_IN_DAYS = "1";
+    public static final String LOGIN_PAGE= "/login.html";
 
     //Data retrieval Query
     public static final String GET_UPTIME_INFO_QUERY =

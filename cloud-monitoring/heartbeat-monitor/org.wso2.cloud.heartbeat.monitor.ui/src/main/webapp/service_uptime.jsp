@@ -70,7 +70,6 @@
     $.fn.populateUptime = function (json, array) {
         $.each(json.UptimeInfo, function (index, value) {
             var t1 = new Date(index).getTime();
-            t1 = $.fn.addTimeZoneDiff(t1);
             array.push([t1, value]);
         });
 
@@ -80,14 +79,12 @@
             var serverName = splitted[0];
             var testNameU = splitted[1];
             var testSeverity = splitted[2];
-
             var indexn;
             for (indexn = 0; indexn < value.length; indexn++) {
-                var startTime = value[indexn]["left"];
-                var endTime = value[indexn]["right"];
-                var duration = Math.round((endTime - startTime) / 1000);
-
-                $("#uptime-info").append($("<tr id=" + startTime + "><td>" + new Date(startTime) + "</td><td>" + new Date(endTime) + "</td><td>" + duration + " s</td><td>" + serverName + "</td><td>" + testNameU + "</td><td>" + testSeverity + "</td><td><button class='changeStatus' value='" + startTime + "/" + endTime + "/" + serverName + "/" + testNameU + "'></button></td></tr>"));
+                var startTime = value[indexn]["leftTimestamp"];
+                var endTime = value[indexn]["rightTimestamp"];
+                var duration = Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / 1000);
+                $("#uptime-info").append($("<tr id=" + moment.tz(startTime, "America/Los_Angeles").valueOf() + "><td>" + startTime + "</td><td>" + endTime+ "</td><td>" + duration + " s</td><td>" + serverName + "</td><td>" + testNameU + "</td><td>" + testSeverity + "</td><td><button class='changeStatus' value='" + startTime + "/" + endTime + "/" + serverName + "/" + testNameU + "'></button></td></tr>"));
             }
         });
         $.fn.plotFunction(array, json.successRate, json.failureCount, json.downTime);
@@ -152,8 +149,6 @@
         endTime = dateSelectorTime.end;
         var startDate = moment(startTime, "YYYY-MM-DD'T'HH:mm:ss'Z'").add('hours', 0).format('YYYY-MM-DD HH:mm:ss');
         var endDate = moment(endTime, "YYYY-MM-DD'T'HH:mm:ss'Z'").add('hours', 24).format('YYYY-MM-DD HH:mm:ss');
-
-
         $('#load').css({'display': "block"});
         if (typeof serverName === 'undefined' || serverName == "All") {
             $.ajax({
@@ -219,7 +214,6 @@
                     $.fn.populateServers(json.Services);
                 }
             });
-
             $.fn.updateGraph(serverName, testName, startDate, endDate);
         }
     };
@@ -289,10 +283,7 @@
             },
             colors: ["#01DF3A"]
         };
-
-
         $.plot("#placeholder", [array.sort()], options);
-
         $("#successRate").text(successRate + "%");
         $("#failureCount").text("(" + failureCount + " outages)");
         var num = downTime;
@@ -311,7 +302,6 @@
         var endTime = parameterArray[1];
         var serverName = parameterArray[2];
         var testName = parameterArray[3];
-
         var startDate = new Date(parseInt(startTime));
         var endDate = new Date(parseInt(endTime));
 
@@ -348,15 +338,12 @@
         });
         $("#popupServerName").text(serverName);
         $("#popupTestName").text(testName);
-
         $("#light").css({'display': "block"});
         $("#fade").css({'display': "block"});
     });
 
     $('#cancelReason').live('click', function () {
         $("#falseAlarmReason").val("");
-
-
     });
 
     $('#cancelJira').live('click', function () {
@@ -448,13 +435,11 @@
             <select class="selectvrs" id="Cloud">
                 <%
                     ConfigReader configurationInstance = ConfigReader.getInstance();
-                    Map<String, CloudStructure> retrievedCloud =
-                            configurationInstance.getCloudStructure();
+                    Map<String, CloudStructure> retrievedCloud = configurationInstance.getCloudStructure();
                     Set<String> cloudList = retrievedCloud.keySet();
                     for (String cloudListIterate : cloudList) {
                 %>
-                <option value="<%=cloudListIterate%>"><%=StringConverter
-                        .splitCamelCase(cloudListIterate)%>
+                <option value="<%=cloudListIterate%>"><%=StringConverter.splitCamelCase(cloudListIterate)%>
                 </option>
 
                 <%}%>
@@ -464,8 +449,11 @@
             <script>
                 $(function () {
                     $("#datePicker").daterangepicker();
-                    var today = moment().subtract(0, 'days').startOf('day').toDate();
-                    var yesterday = moment().subtract(<%=configurationInstance.getTimeInterval()%>, 'days').startOf('day').toDate();
+                    moment.tz.add('America/Los_Angeles|PST PDT|80 70|01010101010|1Lzm0 1zb0 Op0 1zb0 Rd0 1zb0 Op0 1zb0 Op0 1zb0');
+                    moment.tz.link('America/Los_Angeles|US/Pacific');
+                    var today = moment().subtract(0, 'days').startOf('day').toDate();;
+                    console.log(today);
+                    var yesterday = moment().subtract(<%=configurationInstance.getTimeInterval()%>, 'days').endOf('day').toDate();
                     $("#datePicker").daterangepicker("setRange", {start: yesterday, end: today});
                     $("#datePicker").change(function () {
                         $.fn.serviceUptimeUpdateFunction();

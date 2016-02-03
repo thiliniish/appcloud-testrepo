@@ -59,5 +59,4 @@ public class Pair {
     public String toString() {
         return "[" + left + ", " + right + "]";
     }
-
 }
