@@ -18,6 +18,8 @@
 
 package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,8 +34,8 @@ public class FailureIntervals {
      * Creates the failure interval data structure to hold failure interval list pairs,
      * failure information and failure count for each clouds / server / test
      *
-     * @param listPair timestamp pairs for failed test records
-     * @param listLong  list of timestamps for success records
+     * @param listPair     timestamp pairs for failed test records
+     * @param listLong     list of timestamps for success records
      * @param failureCount total number of failure count
      */
     public FailureIntervals(List<Pair> listPair, List<Long> listLong, int failureCount) {
@@ -44,6 +46,7 @@ public class FailureIntervals {
 
     /**
      * Returns the list of failure timestamp pairs
+     *
      * @return list of pairs
      */
     public List<Pair> getListPair() {
@@ -52,6 +55,7 @@ public class FailureIntervals {
 
     /**
      * returns the list of positive timestamp pairs
+     *
      * @return List of long type
      */
     public List<Long> getListLong() {
@@ -60,9 +64,21 @@ public class FailureIntervals {
 
     /**
      * returns the failure count
+     *
      * @return integer failure count
      */
     public int getFailureCount() {
         return failureCount;
     }
+
+    public List<TimeStampPair> mapTimeStamp() {
+        List<TimeStampPair> listTimeStampPair = new ArrayList<TimeStampPair>();
+        for (Pair singlePair : listPair) {
+            TimeStampPair tmPair =
+                    new TimeStampPair(new Timestamp(singlePair.getLeft()), new Timestamp(singlePair.getRight()));
+            listTimeStampPair.add(tmPair);
+        }
+        return listTimeStampPair;
+    }
+
 }

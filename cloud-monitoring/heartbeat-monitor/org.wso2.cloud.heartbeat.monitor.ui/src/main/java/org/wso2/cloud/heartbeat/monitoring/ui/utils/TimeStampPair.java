@@ -18,16 +18,22 @@
 
 package org.wso2.cloud.heartbeat.monitoring.ui.utils;
 
-/**
- * Generic exception class to wrap Heartbeat related exceptions
- */
-public class HeartbeatException extends Exception {
+import java.sql.Timestamp;
 
-    public HeartbeatException(String message) {
-        super(message);
-    }
+public class TimeStampPair {
+	private Timestamp leftTimestamp;
+	private Timestamp rightTimestamp;
 
-    public HeartbeatException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public TimeStampPair(Timestamp left, Timestamp right){
+		this.leftTimestamp = left;
+		this.rightTimestamp = right;
+	}
+
+	public Timestamp getLeftTimestamp(){
+		return leftTimestamp;
+	}
+
+	public Timestamp getRightTimestamp(){
+		return rightTimestamp;
+	}
 }
