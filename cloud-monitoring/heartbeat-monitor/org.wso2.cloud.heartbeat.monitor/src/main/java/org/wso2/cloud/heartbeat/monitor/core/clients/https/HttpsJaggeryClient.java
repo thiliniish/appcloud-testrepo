@@ -123,13 +123,9 @@ public class HttpsJaggeryClient {
             }
             String protocol = url.getProtocol();
             if ("https".equals(protocol)) {
-                if (port == -1) {
                     port = 443;
-                }
             } else if ("http".equals(protocol)) {
-                if (port == -1) {
                     port = 80;
-                }
             }
             sr.register(new Scheme(protocol, ssf, port));
 
