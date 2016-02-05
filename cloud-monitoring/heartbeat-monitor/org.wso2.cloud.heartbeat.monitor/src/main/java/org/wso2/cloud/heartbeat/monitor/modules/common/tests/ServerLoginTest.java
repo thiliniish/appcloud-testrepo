@@ -22,37 +22,54 @@ import org.quartz.*;
 import org.wso2.cloud.heartbeat.monitor.modules.utils.LoginUtils;
 import org.wso2.cloud.heartbeat.monitor.modules.utils.LoginUtilsBean;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Tenant login test scenario for a Cloud setup, implemented in this class
+ * Server login test scenario for a Cloud setup, implemented in this class
  */
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-public class TenantLoginTest implements Job {
+public class ServerLoginTest implements Job {
 
+    private Map<String, String> hostNames = new HashMap<String, String>();
     private String tenantUser;
     private String tenantUserPwd;
-    private String hostName;
-    private String serviceName;
     private String loginTestSeverity = "2";
 
     /**
      * Overrides execute method
-     * @param jobExecutionContext "hostName" ,"tenantUser", "tenantUserPwd" "serviceName" params passed via JobDataMap.
+     * @param jobExecutionContext "hostNames" ,"tenantUser", "tenantUserPwd", "serverName" params passed via JobDataMap.
      * @throws org.quartz.JobExecutionException
      */
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         LoginUtils loginUtils = new LoginUtils();
-        LoginUtilsBean loginUtilsBean = new LoginUtilsBean();
 
-        loginUtilsBean.setLoginTestSeverity(loginTestSeverity);
-        loginUtilsBean.setTenantUser(tenantUser);
-        loginUtilsBean.setTenantUserPwd(tenantUserPwd);
-        loginUtilsBean.setHostName(hostName);
-        loginUtilsBean.setServerName(serviceName);
+        for (Map.Entry<String, String> entry : hostNames.entrySet()) {
+            LoginUtilsBean loginUtilsBean = new LoginUtilsBean();
 
-        loginUtils.initializeLoginTest(loginUtilsBean);
-        loginUtils.login();
+            loginUtilsBean.setServerName(entry.getKey());
+            loginUtilsBean.setHostName(entry.getValue());
+            loginUtilsBean.setTenantUser(tenantUser);
+            loginUtilsBean.setTenantUserPwd(tenantUserPwd);
+            loginUtilsBean.setLoginTestSeverity(loginTestSeverity);
+
+            loginUtils.initializeLoginTest(loginUtilsBean);
+            loginUtils.login();
+        }
+    }
+
+    /**
+     * Sets host names and relevant IP addresses.
+     * @param hostNames service host
+     */
+    public void setHostNames(String hostNames) {
+        String[] combinedHostNames = hostNames.split(",");
+        for (String hostName : combinedHostNames) {
+            String hostPair[] = hostName.split("-");
+            this.hostNames.put(hostPair[0], hostPair[1]);
+        }
     }
 
     /**
@@ -69,21 +86,5 @@ public class TenantLoginTest implements Job {
      */
     public void setTenantUserPwd(String tenantUserPwd) {
         this.tenantUserPwd = tenantUserPwd;
-    }
-
-    /**
-     * Sets service host
-     * @param hostName service host
-     */
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
-
-    /**
-     * Sets service name
-     * @param serviceName service name
-     */
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
     }
 }

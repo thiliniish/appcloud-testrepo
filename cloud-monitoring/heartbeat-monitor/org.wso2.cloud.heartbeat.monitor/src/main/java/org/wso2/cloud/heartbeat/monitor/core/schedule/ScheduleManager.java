@@ -37,6 +37,7 @@ import org.wso2.cloud.heartbeat.monitor.modules.bam.HiveScriptExecutionTest;
 import org.wso2.cloud.heartbeat.monitor.modules.cloudmgt.ChangePassswordTest;
 import org.wso2.cloud.heartbeat.monitor.modules.cloudmgt.ImportUserMembersToTenantTest;
 import org.wso2.cloud.heartbeat.monitor.modules.common.tests.EndpointInvokeTest;
+import org.wso2.cloud.heartbeat.monitor.modules.common.tests.ServerLoginTest;
 import org.wso2.cloud.heartbeat.monitor.modules.gitblit.GitCloneAndPushTest;
 import org.wso2.cloud.heartbeat.monitor.modules.gitblit.GitTenantLoginTest;
 import org.wso2.cloud.heartbeat.monitor.modules.jenkins.JenkinsTenantLoginTest;
@@ -339,6 +340,11 @@ public class ScheduleManager {
             List<Class> keyManagerClasses = new ArrayList<Class>();
             scheduleJobs(modules.findChildNodeByName(Constants.API_KEY_MANAGER),keyManagerClasses);
 
+        }
+        //SERVER_LOGIN_TEST
+        if(modules.findChildNodeByName(Constants.SERVER_LOGIN_TEST)!=null){
+            List<Class> newTestClasses= new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.SERVER_LOGIN_TEST), newTestClasses, ServerLoginTest.class);
         }
     }
 
