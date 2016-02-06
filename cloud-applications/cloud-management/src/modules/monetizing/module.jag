@@ -8,6 +8,21 @@ jagg.module("monetizing", {
     },
     makeTestSubscriberAccountRegular: function () {
         return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").makeTestSubscriberAccountRegular.apply(this, arguments);
+    },
+    getApimSubscriberIdsOfTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getApimSubscriberIdsOfTenant.apply(this, arguments);
+    },
+    getApiApplicationsOfUser: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getApiApplicationsOfUser.apply(this, arguments);
+    },
+    getSubscribedApisOfUser: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscribedApisOfUser.apply(this, arguments);
+    },
+    getSubscriberUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscriberUsage.apply(this, arguments);
+    },
+    isMonetizationEnabled: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").isMonetizationEnabled.apply(this, arguments);
     }
 });
 %>

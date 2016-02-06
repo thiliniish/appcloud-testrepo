@@ -1,0 +1,19 @@
+
+<% jagg.template("breadcrumb", function (inputs, outputs, jagg) {%>
+
+   <div class="navbar navbar-secondary">
+       <div class="container-fliud">
+           <div class="row">
+               <div class="side-pane-trigger">
+                   <i class="fa fa-reorder"></i>
+               </div>
+               <div class="breadcrumb-secondary">
+                   <span class="hidden-xs">
+                   Monetization / API Cloud / <%=inputs.pageName%>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+<% }); %>
+

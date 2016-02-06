@@ -3,13 +3,48 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 (function () {
+
+    var loginStatus = jagg.isUserLoggedIn();
+    if (loginStatus.error) {
+        response.status = 401;
+        print(loginStatus);
+        return;
+    }
+    var tenantDomain;
+    var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var user = jagg.getUser();
+    if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == null) {
+        response.status = 401;
+        print({
+            error: true,
+            status: 401,
+            message: "Unauthorized. Login required."
+        });
+    }
+    if (!jagg.module("util").isUserInAdminRole()) {
+        response.status = 401;
+        print({
+            error: true,
+            status: 401,
+            message: "User does not have permission to perform the requested operation"
+        });
+    }
+    var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.status = 403;
+        print({
+            error: true,
+            status: 403,
+            message: "Feature not available for the organization."
+        });
+    }
     var mod, result, returnObj,
-            action = request.getParameter("action"),
+            action = encoder.getSafeText(request.getParameter("action")),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
-    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     if (action == "makeSubscriberAccountTest") {
-        var subscriber = request.getParameter("subscriber");
+        var subscriber = encoder.getSafeText(request.getParameter("subscriber"));
         result = mod.makeSubscriberAccountTest(subscriber);
         if (result == null || result.error) {
             var message = result.message;
@@ -29,7 +64,7 @@ include("/jagg/config_reader.jag");
         }
         print(returnObj);
     } else if (action == "makeTestSubscriberAccountRegular") {
-        var subscriber = request.getParameter("subscriber");
+        var subscriber = encoder.getSafeText(request.getParameter("subscriber"));
         result = mod.makeTestSubscriberAccountRegular(subscriber);
         if (result == null || result.error) {
             var message = result.message;
@@ -51,10 +86,11 @@ include("/jagg/config_reader.jag");
     }
     else {
         var msg = "Invalid action: " + action;
+        response.status = 400;
         print({
             error: true,
             message: msg,
-            status: "400"
+            status: 400
         });
     }
 }());

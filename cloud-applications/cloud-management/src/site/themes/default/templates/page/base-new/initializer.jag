@@ -1,0 +1,16 @@
+<%
+jagg.initializer("page/base-new", {
+    preInitialize: function () {
+        //CSS files
+        jagg.addHeaderCSS("page/base-new", "bootstrap", 'new-assets/css/bootstrap-3.2.0/bootstrap.min.css');
+        jagg.addHeaderCSS("page/base-new", "fontWSO2", 'new-assets/css/fontwso2-1.2/css/font-wso2.css');
+        jagg.addHeaderCSS("page/base-new", "font-awesome", 'new-assets/css/font-awesome-4.2.0/font-awesome.min.css');
+        jagg.addHeaderCSS("page/base-new", "Roboto", 'new-assets/css/web-fonts/Roboto.css');
+        jagg.addHeaderCSS("page/base-new", "styles", 'new-assets/css/styles.css');
+        jagg.addHeaderCSS("page/base-new", "styles-header", 'css/styles-header.css');
+        //bootstrap Js
+        jagg.addFooterJS("page/base-new", "bootstrapJS", "new-assets/js/bootstrap-3.2.0/bootstrap.min.js");
+
+    }
+});
+%>
