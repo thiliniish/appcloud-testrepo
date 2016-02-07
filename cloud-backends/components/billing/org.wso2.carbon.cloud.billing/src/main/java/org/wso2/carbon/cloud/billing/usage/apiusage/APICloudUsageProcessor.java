@@ -38,15 +38,13 @@ import java.util.Iterator;
 
 public class APICloudUsageProcessor implements UsageProcessor {
 
-    private static String amendmentsUrl =
-            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
-                    + BillingConstants.DS_API_URI_AMENDMENTS;
+    private static String amendmentsUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+            .getCloudBillingServiceUri() + BillingConstants.DS_API_URI_AMENDMENTS;
     private BillingRequestProcessor billingRequestProcessor;
 
     public APICloudUsageProcessor() {
-        this.billingRequestProcessor = BillingRequestProcessorFactory
-                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-                        BillingConfigUtils.getBillingConfiguration().getDSConfig().getHttpClientConfig());
+        this.billingRequestProcessor = BillingRequestProcessorFactory.getInstance()
+                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
     }
 
     public AccountUsage[] process(UsageProcessorContext context) throws CloudBillingException {

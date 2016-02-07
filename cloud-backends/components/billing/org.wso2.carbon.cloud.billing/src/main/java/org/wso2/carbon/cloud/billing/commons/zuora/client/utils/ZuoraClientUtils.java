@@ -40,10 +40,14 @@ import com.zuora.api.wso2.stub.UnexpectedErrorFault;
 import com.zuora.api.wso2.stub.ZuoraServiceStub;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.databinding.ADBBean;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 
 import java.rmi.RemoteException;
@@ -71,6 +75,7 @@ public class ZuoraClientUtils {
         this.zuoraServiceStub = new ZuoraServiceStub();
         this.callOptions = new CallOptions();
         callOptions.setUseSingleTransaction(true);
+        zuoraSSLEnabledProtocols();
     }
 
     public ZuoraClientUtils(ClientSession clientSession) throws AxisFault {
@@ -78,6 +83,7 @@ public class ZuoraClientUtils {
         this.zuoraServiceStub = new ZuoraServiceStub();
         this.callOptions = new CallOptions();
         callOptions.setUseSingleTransaction(true);
+        zuoraSSLEnabledProtocols();
     }
 
     /**
@@ -351,6 +357,15 @@ public class ZuoraClientUtils {
         } else {
             throw unexpectedErrorFault;
         }
+    }
+
+    /**
+     * Set zuora specific ssl protocols for http client
+     */
+    private void zuoraSSLEnabledProtocols() {
+        String sslEnabledProtocols = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getEnabledProtocols();
+        Protocol customHttps = CloudBillingUtils.getCustomProtocol(BillingConstants.HTTPS_SCHEME, sslEnabledProtocols);
+        zuoraServiceStub._getServiceClient().getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, customHttps);
     }
 
     /**

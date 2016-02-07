@@ -59,13 +59,13 @@ public class ProcessorUtils {
         int retryCount = 0;
         String result = BillingConstants.EMPTY_STRING;
         String methodName = httpMethod.getName();
-        String uri = getURI(httpMethod);
+        String url = getURL(httpClient, httpMethod);
 
         do {
             try {
                 response = httpClient.executeMethod(httpMethod);
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("HTTP response code for the " + methodName + " request to URI: " + uri + " is " +
+                    LOGGER.debug("HTTP response code for the " + methodName + " request to URL: " + url + " is " +
                                  response);
                 }
                 switch (response) {
@@ -85,7 +85,7 @@ public class ProcessorUtils {
 
                     default:
                         retryCount++;
-                        handleDefaultCase(executionCount, response, retryCount, methodName, uri);
+                        handleDefaultCase(executionCount, response, retryCount, methodName, url);
                         break;
                 }
                 httpMethod.releaseConnection();
@@ -93,7 +93,7 @@ public class ProcessorUtils {
                 throw ex;
             } catch (Exception ex) {
                 retryCount++;
-                handleExceptionWithRetry(executionCount, retryCount, methodName, uri, ex);
+                handleExceptionWithRetry(executionCount, retryCount, methodName, url, ex);
             } finally {
                 httpMethod.releaseConnection();
             }
@@ -114,7 +114,7 @@ public class ProcessorUtils {
             throws CloudBillingException {
 
         int response;
-        String uri = getURI(httpMethod);
+        String uri = getURL(httpClient, httpMethod);
         String methodName = httpMethod.getName();
 
         try {
@@ -216,10 +216,10 @@ public class ProcessorUtils {
      * @return URI string
      * @throws CloudBillingException
      */
-    private static String getURI(HttpMethodBase httpMethod) throws CloudBillingException {
+    private static String getURL(HttpClient client, HttpMethodBase httpMethod) throws CloudBillingException {
         String uri;
         try {
-            uri = httpMethod.getURI().getURI();
+            uri = client.getHostConfiguration().getHostURL() + httpMethod.getURI().getURI();
         } catch (URIException e) {
             throw new CloudBillingException("URI exception while getting the URI", e);
         }

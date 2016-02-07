@@ -44,12 +44,8 @@ import java.util.List;
 public class ZuoraRESTUtils {
 
     private static final Log LOGGER = LogFactory.getLog(ZuoraRESTUtils.class);
-    private static BillingRequestProcessor zuoraApi =
-            BillingRequestProcessorFactory.getBillingRequestProcessor(
-                    BillingRequestProcessorFactory.ProcessorType.ZUORA,
-                    BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
-
-    private static String serviceUrl = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getServiceUrl();
+    private static BillingRequestProcessor zuoraApi = BillingRequestProcessorFactory.getInstance()
+            .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA);
 
     private static JsonObject subscriptionPlanInfoObj;
 
@@ -177,8 +173,8 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getAccountSummary(String accountId) throws CloudBillingException {
-        String accountsUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_ACCOUNT_SUMMARY;
-        return zuoraApi.doGet(accountsUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null, null);
+        return zuoraApi.doGet(BillingConstants.ZUORA_REST_API_URI_ACCOUNT_SUMMARY
+                .replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null, null);
 
     }
 
@@ -190,8 +186,8 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getInvoices(String accountId) throws CloudBillingException {
-        String invoicesUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_INVOICE_INFO;
-        return zuoraApi.doGet(invoicesUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null, null);
+        return zuoraApi.doGet(BillingConstants.ZUORA_REST_API_URI_INVOICE_INFO
+                .replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null, null);
     }
 
     /**
@@ -202,8 +198,8 @@ public class ZuoraRESTUtils {
      * @throws CloudBillingException
      */
     public static String getPayments(String accountId) throws CloudBillingException {
-        String paymentsUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_PAYMENT_INFO;
-        return zuoraApi.doGet(paymentsUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null, null);
+        return zuoraApi.doGet(BillingConstants.ZUORA_REST_API_URI_PAYMENT_INFO
+                .replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null, null);
     }
 
     /**
@@ -220,8 +216,8 @@ public class ZuoraRESTUtils {
         JSONArray currentRatePlanList = new JSONArray();
         JSONArray starterRatePlanList = new JSONArray();
 
-        String ratePlansUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_RATE_PLANS;
-        response = zuoraApi.doGet(ratePlansUrl.replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null, null);
+        response = zuoraApi.doGet(BillingConstants.ZUORA_REST_API_URI_RATE_PLANS
+                .replace(BillingConstants.ACCOUNT_KEY_PARAM, accountId), null, null);
         JSONArray subscriptions = getSubscriptions(accountId, response);
         for (Object subscription : subscriptions) {
             // get all rate plans
@@ -261,10 +257,9 @@ public class ZuoraRESTUtils {
      */
     public static JSONArray getProductRatePlans(String productName) throws CloudBillingException {
         String response = null;
-        String zuoraProductsUrl = serviceUrl + BillingConstants.ZUORA_REST_API_URI_PRODUCTS;
 
         try {
-            response = zuoraApi.doGet(zuoraProductsUrl, null, null);
+            response = zuoraApi.doGet(BillingConstants.ZUORA_REST_API_URI_PRODUCTS, null, null);
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
             // getting all subscriptions elements for accountId
@@ -312,8 +307,8 @@ public class ZuoraRESTUtils {
 
     public static String cancelSubscription(String subscriptionNumber, String subscriptionInfoJson) throws
             CloudBillingException {
-        String url = serviceUrl + BillingConstants.ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION;
-        return zuoraApi.doPut(url.replace(BillingConstants.SUBSCRIPTION_KEY_PARAM, subscriptionNumber.trim()), null, subscriptionInfoJson);
+        return zuoraApi.doPut(BillingConstants.ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION
+                .replace(BillingConstants.SUBSCRIPTION_KEY_PARAM, subscriptionNumber.trim()), null, subscriptionInfoJson);
     }
 
     public static String createSubscription(String accountNumber, String ratePlanId, Date planEffectiveDate) throws
@@ -328,8 +323,6 @@ public class ZuoraRESTUtils {
         ratePlans.add(ratePlan);
         subscriptionPlanInfoObj.add(BillingConstants.SUBSCRIBED_TO_RATE_PLANS, ratePlans);
 
-
-        String url = serviceUrl + BillingConstants.ZUORA_REST_API_URI_SUBSCRIPTIONS;
-        return zuoraApi.doPost(url, null, subscriptionPlanInfoObj.toString());
+        return zuoraApi.doPost(BillingConstants.ZUORA_REST_API_URI_SUBSCRIPTIONS, null, subscriptionPlanInfoObj.toString());
     }
 }

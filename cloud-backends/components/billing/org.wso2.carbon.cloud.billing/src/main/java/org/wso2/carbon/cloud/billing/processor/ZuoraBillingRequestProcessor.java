@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.cloud.billing.processor;
 
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
@@ -30,12 +31,14 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 
@@ -48,12 +51,26 @@ import java.io.UnsupportedEncodingException;
  */
 public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
-    private static String uploadURL = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getServiceUrl()
-            + BillingConstants.ZUORA_REST_API_URI_USAGE;
     private static ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
 
     public ZuoraBillingRequestProcessor(HttpClientConfig httpClientConfig) {
         super(httpClientConfig);
+    }
+
+    /**
+     * Overridden method for add zuora enabled ssl protocols
+     *
+     * @param httpClientConfig http client configuration
+     * @return http client
+     */
+    @Override
+    protected HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
+        HttpClient client = super.initHttpClient(httpClientConfig);
+        String sslEnabledProtocols = BillingConfigUtils.getBillingConfiguration()
+                .getZuoraConfig().getEnabledProtocols();
+        Protocol customHttps = CloudBillingUtils.getCustomProtocol(BillingConstants.HTTPS_SCHEME, sslEnabledProtocols);
+        client.getHostConfiguration().setHost(httpClientConfig.getHostname(), httpClientConfig.getPort(), customHttps);
+        return client;
     }
 
     /**
@@ -65,8 +82,7 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      */
     @Override
     public void doUpload(String url, String acceptType, File file) throws CloudBillingException {
-        String endPoint = StringUtils.isNotBlank(url) ? url : uploadURL;
-        PostMethod post = new PostMethod(endPoint);
+        PostMethod post = new PostMethod(url);
         // default accept response body in JSON
         String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);

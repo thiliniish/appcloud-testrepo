@@ -28,8 +28,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class HostedPageConfig {
 
     private String publicKey;
-    private String url;
-    private String endPoint;
+    private String uri;
+    private String endPointUri;
     private String pageId;
     private String paymentGateway;
     private String locale;
@@ -44,22 +44,22 @@ public class HostedPageConfig {
         this.publicKey = publicKey;
     }
 
-    @XmlElement(name = "URL", nillable = false, required = true)
-    public String getUrl() {
-        return url;
+    @XmlElement(name = "URI", nillable = false, required = true)
+    public String getUri() {
+        return uri;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
-    @XmlElement(name = "EndPoint", nillable = false, required = true)
-    public String getEndPoint() {
-        return endPoint;
+    @XmlElement(name = "EndPointURI", nillable = false, required = true)
+    public String getEndPointUri() {
+        return endPointUri;
     }
 
-    public void setEndPoint(String endPoint) {
-        this.endPoint = endPoint;
+    public void setEndPointUri(String endPointUri) {
+        this.endPointUri = endPointUri;
     }
 
     @XmlElement(name = "PageId", nillable = false, required = true)
