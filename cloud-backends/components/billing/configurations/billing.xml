@@ -24,9 +24,9 @@
     deployed in APIM or other server as a supporting component. This will disable mgt tasks-->
     <MgtModeEnabled>true</MgtModeEnabled>
     <DataServiceAPI>
-        <CloudBillingServiceURL>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURL>
-        <CloudMonetizationServiceURL>https://localhost:9453/services/WSO2CloudMonetizationDS.SecureHTTPEndpoint</CloudMonetizationServiceURL>
-        <APICloudMonetizationServiceURL>https://localhost:9453/services/WSO2APICloudMonetizationDS.SecureHTTPEndpoint</APICloudMonetizationServiceURL>
+        <CloudBillingServiceURI>/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURI>
+        <CloudMonetizationServiceURI>/services/WSO2CloudMonetizationDS.SecureHTTPEndpoint</CloudMonetizationServiceURI>
+        <APICloudMonetizationServiceURI>/services/WSO2APICloudMonetizationDS.SecureHTTPEndpoint</APICloudMonetizationServiceURI>
         <User>admin</User>
         <Password>admin</Password>
         <HttpClientConfig>
@@ -49,6 +49,7 @@
         <TermType>EVERGREEN</TermType>
         <!--value is in milliseconds-->
         <SignatureExpired>1800000</SignatureExpired>
+        <EnabledProtocols>TLSv1.1,TLSv1.2</EnabledProtocols>
         <HttpClientConfig>
             <Hostname>apisandbox.zuora.com</Hostname>
             <Port>443</Port>
@@ -57,13 +58,16 @@
         </HttpClientConfig>
         <HostedPage>
             <PublicKey>PUBLIC_KEY</PublicKey>
-            <URL>https://apisandbox.zuora.com/apps/PublicHostedPageLite.do</URL>
-            <EndPoint>https://apisandbox.zuora.com/apps/v1/rsa-signatures</EndPoint>
+            <!--public hosted page uri-->
+            <URI>/apps/PublicHostedPageLite.do</URI>
+            <!--rsa signature generating uri-->
+            <EndPointURI>/apps/v1/rsa-signatures</EndPointURI>
             <PageId>2c92c0f849f118b5014a09ca329b5df7</PageId>
             <PaymentGateway>test</PaymentGateway>
             <Locale>en</Locale>
         </HostedPage>
-        <ServiceURL>https://apisandbox-api.zuora.com/rest</ServiceURL>
+        <!--Uncomment and provide host name for the zuora rest api if the rest api url host is different from the hpm url host-->
+        <!--<ServiceURLHost>apisandbox-api.zuora.com</ServiceURLHost>-->
         <Subscriptions>
             <Subscription id="api_cloud" name="API Cloud" productId="2c92c0f949ac00800149b8333c0502b8">
                 <Plan>

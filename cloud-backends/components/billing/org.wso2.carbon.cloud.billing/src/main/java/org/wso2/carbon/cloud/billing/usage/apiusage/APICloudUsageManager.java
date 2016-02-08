@@ -25,7 +25,6 @@ import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.beans.usage.Usage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
-import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
@@ -48,26 +47,22 @@ import java.util.Date;
 public class APICloudUsageManager {
 
     private static final Log LOGGER = LogFactory.getLog(APICloudUsageManager.class);
-    private static String dailyUsageUrl =
-            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
-                    + BillingConstants.DS_API_URI_REQUEST_COUNT;
-    private static String usageForTenantUrl =
-            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
-                    + BillingConstants.DS_API_URI_USAGE;
+
+    private static String dailyUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+            .getCloudBillingServiceUri() + BillingConstants.DS_API_URI_REQUEST_COUNT;
+    private static String usageForTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
+            .getCloudBillingServiceUri() + BillingConstants.DS_API_URI_USAGE;
     private static String dailyMonetizationUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-            .getApiCloudMonetizationServiceUrl()
-            + MonetizationConstants.DS_API_URI_MON_APIC_DAILY_USAGE;
+            .getApiCloudMonetizationServiceUri() + MonetizationConstants.DS_API_URI_MON_APIC_DAILY_USAGE;
+
     private BillingRequestProcessor dsBRProcessor;
     private BillingRequestProcessor zuoraBRProcessor;
 
     public APICloudUsageManager() {
-        BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
-        dsBRProcessor = BillingRequestProcessorFactory
-                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-                        billingConfig.getDSConfig().getHttpClientConfig());
-        zuoraBRProcessor = BillingRequestProcessorFactory
-                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA,
-                        billingConfig.getZuoraConfig().getHttpClientConfig());
+        BillingRequestProcessorFactory processorFactory = BillingRequestProcessorFactory.getInstance();
+
+        dsBRProcessor = processorFactory.getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+        zuoraBRProcessor = processorFactory.getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA);
     }
 
     private String getDailyUsage(String usageUrl) throws CloudBillingException {
@@ -116,7 +111,7 @@ public class APICloudUsageManager {
             if (usages.length > 0) {
                 UsageCSVParser.writeCSVData(usages, csvFile);
                 File file = new File(csvFile);
-                zuoraBRProcessor.doUpload(null, null, file);
+                zuoraBRProcessor.doUpload(BillingConstants.ZUORA_REST_API_URI_USAGE, null, file);
             }
             // capture all exception that can occur while uploading the Over usage to zuora
         } catch (Exception e) {

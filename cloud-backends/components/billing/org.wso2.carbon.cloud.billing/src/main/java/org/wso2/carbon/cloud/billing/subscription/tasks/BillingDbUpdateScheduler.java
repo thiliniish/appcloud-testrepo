@@ -54,7 +54,7 @@ public class BillingDbUpdateScheduler {
 
             Map<String, String> properties = new HashMap<String, String>();
 
-            String serviceUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl();
+            String serviceUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri();
             String pendingDisableTenantsDSUrl = serviceUrl + BillingConstants.DS_API_URI_PENDING_DISABLE_TENANTS;
             properties.put(BillingConstants.PENDING_DISABLES_URL_KEY, pendingDisableTenantsDSUrl);
 

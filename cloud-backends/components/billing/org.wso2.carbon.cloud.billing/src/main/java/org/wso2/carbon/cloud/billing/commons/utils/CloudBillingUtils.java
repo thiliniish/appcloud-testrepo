@@ -20,6 +20,9 @@ package org.wso2.carbon.cloud.billing.commons.utils;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
@@ -116,5 +119,30 @@ public final class CloudBillingUtils {
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    /**
+     * Return custom protocol with added protocol versions for a scheme
+     *
+     * @param scheme              scheme
+     * @param enabledProtocolVersions protocol versions
+     * @return modified protocol
+     */
+    public static Protocol getCustomProtocol(String scheme, String enabledProtocolVersions) {
+
+        if (StringUtils.isBlank(scheme)) {
+            throw new IllegalArgumentException("Schema for protocol cannot be null or empty");
+        }
+        Protocol baseProtocol = Protocol.getProtocol(scheme);
+
+        if (StringUtils.isBlank(enabledProtocolVersions)) {
+            return baseProtocol;
+        }
+        int defaultPort = baseProtocol.getDefaultPort();
+        ProtocolSocketFactory baseFactory = baseProtocol.getSocketFactory();
+        ProtocolSocketFactory customFactory =
+                new CustomHTTPSSocketFactory(baseFactory, enabledProtocolVersions.trim().split("\\s*,\\s*"));
+
+        return new Protocol(scheme, customFactory, defaultPort);
     }
 }

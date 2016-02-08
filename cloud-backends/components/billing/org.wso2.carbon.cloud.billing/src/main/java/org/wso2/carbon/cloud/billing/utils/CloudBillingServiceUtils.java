@@ -59,17 +59,14 @@ public final class CloudBillingServiceUtils {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceUtils.class);
     private static volatile String configObj;
-    private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getBillingRequestProcessor
-            (BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-                    BillingConfigUtils.getBillingConfiguration()
-                            .getDSConfig()
-                            .getHttpClientConfig());
-    private static BillingRequestProcessor zuoraReqProcessor = BillingRequestProcessorFactory
-            .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA, BillingConfigUtils
-                    .getBillingConfiguration().getZuoraConfig().getHttpClientConfig());
-    private static String billingServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl();
-    private static String monetizationServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-            .getCloudMonetizationServiceUrl();
+
+    private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getInstance()
+            .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+    private static BillingRequestProcessor zuoraReqProcessor = BillingRequestProcessorFactory.getInstance()
+            .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA);
+
+    private static String billingServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri();
+    private static String monetizationServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudMonetizationServiceUri();
 
     private CloudBillingServiceUtils() {
     }
@@ -83,7 +80,7 @@ public final class CloudBillingServiceUtils {
      */
     public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
 
-        String dsAccountURL = billingServiceURI + BillingConstants.DS_API_URI_TENANT_ACCOUNT;
+        String dsAccountURL = billingServiceURI.concat(BillingConstants.DS_API_URI_TENANT_ACCOUNT);
 
         String response = dsBRProcessor.doGet(dsAccountURL.replace(BillingConstants.TENANT_DOMAIN_PARAM,
                 tenantDomain), null, null);
@@ -257,7 +254,8 @@ public final class CloudBillingServiceUtils {
     }
 
     public static boolean isMonetizationEnabled(String tenantDomain, String application) throws CloudBillingException {
-        String monetizationStatusUrl = monetizationServiceURI + MonetizationConstants.DS_API_URI_MONETIZATION_STATUS;
+        String monetizationStatusUrl = monetizationServiceURI
+                .concat(MonetizationConstants.DS_API_URI_MONETIZATION_STATUS);
         String response = null;
         try {
             String url = monetizationStatusUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
@@ -278,7 +276,7 @@ public final class CloudBillingServiceUtils {
 
     public static String getRatePlanId(String tenantDomain, String zuoraProductName, String ratePlanName) throws
             CloudBillingException {
-        String ratePlanUrl = monetizationServiceURI + MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN;
+        String ratePlanUrl = monetizationServiceURI.concat(MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN);
         String response = null;
         try {
             String url = ratePlanUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
@@ -324,8 +322,7 @@ public final class CloudBillingServiceUtils {
      */
     public static JsonObject createChildAccount(String tenantDomain, String accountInfoJson) throws CloudBillingException {
 
-        String zuoraAccountURI = BillingConfigUtils.getBillingConfiguration().getZuoraConfig()
-                .getServiceUrl() + BillingConstants.ZUORA_REST_API_URI_ACCOUNTS;
+        String zuoraAccountURI = BillingConstants.ZUORA_REST_API_URI_ACCOUNTS;
 
         String response;
         JsonParser parser = new JsonParser();
@@ -402,7 +399,7 @@ public final class CloudBillingServiceUtils {
     }
 
     private static String getSubscriptionMapping(String ratePlanId) throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUrl()
+        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri()
                 + BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
         NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
         return dsBRProcessor.doGet(url, null, nameValuePairs);

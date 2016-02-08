@@ -83,39 +83,25 @@ public final class APICloudMonetizationUtils {
     private static String apiSubscriptionRemovalUri;
 
     static {
-        dsBRProcessor = BillingRequestProcessorFactory
-                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE,
-                        BillingConfigUtils.getBillingConfiguration().getDSConfig().getHttpClientConfig());
-        subscribersUri =
-                BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                        + MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIBER;
-        apiSubscriptionUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_UPDATE_API_SUBSCRIPTION;
-        subscriptionUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIPTION;
-        appSubscriptionsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_APP_SUBSCRIPTIONS;
-        subscriptionHistoryUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_API_SUBSCRIPTION_HISTORY;
-        usageOfApiUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_API_USAGE;
-        usageOfSubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE;
-        usageOfApiBySubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_SUBSCRIBER_API_USAGE;
-        usageOfTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_TENANT_USAGE;
-        usageOfApiByApplicationBySubscriberUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants
-                .DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION;
-        userAPIsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                + MonetizationConstants.DS_API_URI_USER_APIS;
-        userAPIApplicationsUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS;
-        ratePlanInfoUri = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUrl()
-                + MonetizationConstants.DS_API_URI_APIC_RATE_PLANS;
-        apiSubscriptionRemovalUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-                .getApiCloudMonetizationServiceUrl() + MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION;
+        dsBRProcessor = BillingRequestProcessorFactory.getInstance()
+                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+        String apiCloudMonUri = BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUri();
+
+        subscribersUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIBER);
+        apiSubscriptionUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_UPDATE_API_SUBSCRIPTION);
+        subscriptionUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIPTION);
+        appSubscriptionsUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APP_SUBSCRIPTIONS);
+        subscriptionHistoryUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_API_SUBSCRIPTION_HISTORY);
+        usageOfApiUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_API_USAGE);
+        usageOfSubscriberUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE);
+        usageOfApiBySubscriberUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_API_USAGE);
+        usageOfTenantUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_TENANT_USAGE);
+        usageOfApiByApplicationBySubscriberUrl = apiCloudMonUri.concat(MonetizationConstants
+                .DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION);
+        userAPIsUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_USER_APIS);
+        userAPIApplicationsUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS);
+        ratePlanInfoUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APIC_RATE_PLANS);
+        apiSubscriptionRemovalUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION);
     }
 
     private APICloudMonetizationUtils() {

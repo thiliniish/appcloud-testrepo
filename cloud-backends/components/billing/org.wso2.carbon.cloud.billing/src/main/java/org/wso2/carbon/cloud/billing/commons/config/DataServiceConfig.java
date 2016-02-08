@@ -27,20 +27,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "DataServiceAPI")
 public class DataServiceConfig {
 
-    private String cloudBillingServiceUrl;
-    private String cloudMonetizationServiceUrl;
-    private String apiCloudMonetizationServiceUrl;
+    private String cloudBillingServiceUri;
+    private String cloudMonetizationServiceUri;
+    private String apiCloudMonetizationServiceUri;
     private String user;
     private String password;
     private HttpClientConfig httpClientConfig;
 
-    @XmlElement(name = "CloudBillingServiceURL", nillable = false, required = true)
-    public String getCloudBillingServiceUrl() {
-        return cloudBillingServiceUrl;
+    @XmlElement(name = "CloudBillingServiceURI", nillable = false, required = true)
+    public String getCloudBillingServiceUri() {
+        return cloudBillingServiceUri;
     }
 
-    public void setCloudBillingServiceUrl(String cloudBillingServiceUrl) {
-        this.cloudBillingServiceUrl = cloudBillingServiceUrl;
+    public void setCloudBillingServiceUri(String cloudBillingServiceUri) {
+        this.cloudBillingServiceUri = cloudBillingServiceUri;
     }
 
     @XmlElement(name = "User", nillable = false, required = true)
@@ -70,21 +70,21 @@ public class DataServiceConfig {
         this.httpClientConfig = httpClientConfig;
     }
 
-    @XmlElement(name = "APICloudMonetizationServiceURL", nillable = false, required = true)
-    public String getApiCloudMonetizationServiceUrl() {
-        return apiCloudMonetizationServiceUrl;
+    @XmlElement(name = "APICloudMonetizationServiceURI", nillable = false, required = true)
+    public String getApiCloudMonetizationServiceUri() {
+        return apiCloudMonetizationServiceUri;
     }
 
-    public void setApiCloudMonetizationServiceUrl(String apiCloudMonetizationServiceUrl) {
-        this.apiCloudMonetizationServiceUrl = apiCloudMonetizationServiceUrl;
+    public void setApiCloudMonetizationServiceUri(String apiCloudMonetizationServiceUri) {
+        this.apiCloudMonetizationServiceUri = apiCloudMonetizationServiceUri;
     }
 
-    @XmlElement(name = "CloudMonetizationServiceURL", nillable = false, required = true)
-    public String getCloudMonetizationServiceUrl() {
-        return cloudMonetizationServiceUrl;
+    @XmlElement(name = "CloudMonetizationServiceURI", nillable = false, required = true)
+    public String getCloudMonetizationServiceUri() {
+        return cloudMonetizationServiceUri;
     }
 
-    public void setCloudMonetizationServiceUrl(String cloudMonetizationServiceUrl) {
-        this.cloudMonetizationServiceUrl = cloudMonetizationServiceUrl;
+    public void setCloudMonetizationServiceUri(String cloudMonetizationServiceUri) {
+        this.cloudMonetizationServiceUri = cloudMonetizationServiceUri;
     }
 }
