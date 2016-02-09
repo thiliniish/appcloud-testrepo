@@ -227,7 +227,7 @@ public class LoginJobScheduler {
         if(moduleNode.getProperty("management_host_name") != null){
             jobDataMap.put("hostName", moduleNode.getProperty("management_host_name"));
         }else if (moduleNode.getProperty("host_names") != null) {
-            jobDataMap.put("hostNamesWithIPs", moduleNode.getProperty("host_names"));
+            jobDataMap.put("hostNames", moduleNode.getProperty("host_names"));
         } else {
             jobDataMap.put("hostName", moduleNode.getProperty("host_name"));
         }
