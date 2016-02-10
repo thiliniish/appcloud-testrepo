@@ -1,0 +1,55 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("site.blocks.pricing.usage.ajax.get.jag");
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("pricing");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+
+(function () {
+    var action = request.getParameter("action");
+    var user = jagg.getUser();
+    var mod = jagg.module("pricing");
+    var responseObj;
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var monetizationStatus = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (monetizationStatus == null || monetizationStatus.error || !monetizationStatus.monetizationEnabled) {
+        print({
+            error: true,
+            statusCode: 403,
+            message: "API monetization feature is not available for this tenant.  Please contact store admin."
+        });
+    }
+    if (action == "get-usage") {
+        var api = encoder.getSafeText(request.getParameter("api"));
+        var appName = encoder.getSafeText(request.getParameter("appName"));
+        var startDate = encoder.getSafeText(request.getParameter("startDate"));
+        var endDate = encoder.getSafeText(request.getParameter("endDate"));
+        print(mod.getUsage(api, appName, startDate, endDate));
+    } else if (action == "get-apis") {
+        print(mod.getAPIs());
+    } else if (action == "get-apps") {
+        var api = encoder.getSafeText(request.getParameter("api"));
+        print(mod.getApplications(api));
+    } else {
+        msg = "Invalid Action specified for action " + action;
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+        print(responseObj);
+    }
+}());
+%>
