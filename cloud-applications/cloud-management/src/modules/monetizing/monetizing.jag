@@ -9,6 +9,7 @@ var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var modDb = jagg.module("database");
 var modUtil = jagg.module("util");
 var modManager = jagg.module("manager");
+var modTenant = jagg.module("tenant");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
@@ -18,7 +19,6 @@ var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.serv
 var getSubscribersOfTenant = function () {
     var tenantDomain = modManager.getTenantDomain();
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
-        var modTenant = jagg.module("tenant");
         var subscribers = [];
         try {
             //get the tenant users that have the subscriber role
@@ -37,6 +37,7 @@ var getSubscribersOfTenant = function () {
                 if (results == null || results == "") {
                     tmpSubscriber.subscriptionType = ACC_FREE;
                     tmpSubscriber.complimentary = false;
+                    tmpSubscriber.accountId = null;
                 } else {
                     var isTest = results[0]["TEST_ACCOUNT"];
                     var accNo = results[0]["ACCOUNT_NUMBER"];
@@ -56,7 +57,7 @@ var getSubscribersOfTenant = function () {
             return {
                 error: false,
                 subObj: subscribers,
-                status: "200"
+                status: 200
             };
         } catch (e) {
             log.error("Error while getting subscribers of the tenant: " + tenantDomain + ".");
@@ -64,7 +65,7 @@ var getSubscribersOfTenant = function () {
             return {
                 error: true,
                 message: e.message,
-                status: "500"
+                status: 500
             };
         }
     } else {
@@ -73,7 +74,7 @@ var getSubscribersOfTenant = function () {
         return {
             error: true,
             message: msg,
-            status: "401"
+            status: 401
         };
     }
 };
@@ -140,7 +141,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                 log.info("Updating account to test for user: " + userName + " of tenant: " + tenantDomain + " is successful.");
                 return {
                     error: false,
-                    status: "200"
+                    status: 200
                 };
             } else {
                 throw "Account of subscriber: " + userName + " of tenant: " + tenantDomain + " received for modifying to a test account is already a test account.";
@@ -159,18 +160,16 @@ var makeSubscriberAccountTest = function (subscriberString) {
             return {
                 error: true,
                 message: msg,
-                status: "500"
+                status: 500
             };
         }
-
-
     } else {
         var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
         log.error(msg);
         return {
             error: true,
             message: msg,
-            status: "401"
+            status: 401
         };
     }
 };
@@ -202,7 +201,7 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
                     log.info("Removing test account status of user: " + userName + " of tenant: " + tenantDomain + " is successful.");
                     return {
                         error: false,
-                        status: "200"
+                        status: 200
                     };
                 } else {
                     throw "Remove paid subscriptions failed for user: " + userName + " of tenant: " + tenantDomain;
@@ -224,7 +223,7 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
             return {
                 error: true,
                 message: msg,
-                status: "500"
+                status: 500
             };
         }
     } else {
@@ -233,7 +232,283 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
         return {
             error: true,
             message: msg,
-            status: "401"
+            status: 401
+        };
+    }
+};
+
+
+//Get usage for a given time line
+
+var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate, toDate) {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Getting monetization usage data of apiVersion " + apiVersion + ", application: "
+                        + applicationName + " for user: " + userId + ", from " + fromDate + " to " + toDate + ".");
+            }
+            if (apiVersion == "*") {
+                var api = "*";
+                var version = "*";
+                var applicationName = "*";
+            } else {
+                var values = apiVersion.split(':v');
+                var api = values[0];
+                var version = values[1];
+            }
+            var response = monetizationService.getTenantMonetizationUsageDataForGivenDateRange(tenantDomain, userId, api, version, applicationName, fromDate, toDate);
+            //data service returns results in {"Entries":{"Entry":[{"xxx":"333"}, {"yyy":"333"}]}} format.
+            //If there is only one object it sends like {"Entries":{"Entry":{"yyy":"333"}}} Entry can 'Array' or an 'Object'.
+            var Entries = JSON.parse(response).Entries;
+            var entry = Entries.Entry;
+            if (entry == null || entry == "" || entry == undefined) {
+                return {
+                    error: false,
+                    apiObj: "",
+                    message: "no usage data available",
+                    status: 200
+                };
+            }
+            var usageData = [];
+            if (entry instanceof Array) {
+                usageData = entry;
+            }
+            //Object is returned when there is only one usage data object
+            else {
+                usageData.push(entry);
+            }
+            return {
+                error: false,
+                status: 200,
+                usageObj: usageData
+            };
+        } catch (e) {
+            var msg = "Error while retrieving usage for user: " + userId + " of tenant: " + tenantDomain + ".";
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: msg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+var getSubscribedApisOfUser = function (userId) {
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            var apiNames = [];
+            var api = {};
+            api.text = "ALL";
+            api.id = "*";
+            apiNames.push(api);
+            if (userId != "*") {
+                var resultObj = monetizationService.getUserAPIs(userId);
+                var apiEntries = JSON.parse(resultObj).Entries;
+                var entry = apiEntries.Entry;
+                if (entry == null || entry == "" || entry == undefined) {
+                    return {
+                        error: false,
+                        apiObj: "",
+                        message: "no subscribed apis for user: " + userId,
+                        status: 200
+                    };
+                }
+                //checks whether the object is an array or not
+                if (entry instanceof Array) {
+                    var len = entry.length;
+                    for (var i = 0; i < len; i++) {
+                        var api = {};
+                        var apiVersion = entry[i]["ApiVersion"];
+                        api.text = apiVersion.replace("v", "");
+                        api.id = apiVersion;
+                        apiNames.push(api);
+                    }
+                }
+                //Object is returned when there is only one api
+                else {
+                    var api = {};
+                    var apiVersion = entry.ApiVersion;
+                    api.text = apiVersion.replace("v", "");
+                    api.id = apiVersion;
+                    apiNames.push(api);
+                }
+            }
+            return {
+                error: false,
+                apiObj: apiNames,
+                status: 200
+            };
+        } catch (e) {
+            var msg = "error while retrieving apis of user: " + userId;
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: msg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+var getApiApplicationsOfUser = function (userId, api) {
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            var applicationArray = [];
+            var app = {};
+            app.text = "ALL";
+            app.id = "*";
+            applicationArray.push(app);
+            if (api != "*") {
+                var resultObj = monetizationService.getUserAPIApplications(userId, api);
+                var appEntries = JSON.parse(resultObj).Entries;
+                var entry = appEntries.Entry;
+                if (entry == null || entry == "" || entry == undefined) {
+                    return {
+                        error: false,
+                        appObj: "",
+                        message: "no apps for user: " + userId + " api: " + api,
+                        status: 200
+                    };
+                }
+                //checks whether the object is an array or not
+                if (entry instanceof Array) {
+                    var len = entry.length;
+                    for (var i = 0; i < len; i++) {
+                        var app = {};
+                        var appName = entry[i]["applicationName"];
+                        app.text = appName;
+                        app.id = appName;
+                        applicationArray.push(app);
+                    }
+                }
+                //Object is returned when there is only one api
+                else {
+                    var app = {};
+                    var appName = entry.applicationName;
+                    app.text = appName;
+                    app.id = appName;
+                    applicationArray.push(app);
+                }
+            }
+            return {
+                error: false,
+                appObj: applicationArray,
+                status: 200
+            };
+        } catch (e) {
+            var msg = "error while retrieving apps of user: " + userId;
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: msg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+var getApimSubscriberIdsOfTenant = function () {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        var subscribersArray = [];
+        try {
+            var subscribers = modTenant.getUserListOfRole(ROLE_SUBSCRIBER);
+            var tmpSubscriberAll = {};
+            tmpSubscriberAll.text = "ALL";
+            tmpSubscriberAll.id = "*";
+            subscribersArray.push(tmpSubscriberAll);
+            var len = subscribers.length;
+            for (var i = 0; i < len; i++) {
+                var tmpSubscriber = {};
+                var userName = subscribers[i];
+                var tmpUser = modTenant.getUserInfo(userName);
+                tmpSubscriber.id = userName + "@" + tenantDomain;
+                tmpSubscriber.text = tmpUser.email;
+                subscribersArray.push(tmpSubscriber);
+            }
+            return {
+                error: false,
+                subObj: subscribersArray,
+                status: 200
+            };
+        } catch (e) {
+            var msg = "error while retrieving subscribers of tenant: " + tenantDomain;
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: msg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+//Check API monetization enabled status
+
+var isMonetizationEnabled = function (tenantDomain) {
+
+    var monStatus = session.get("monetizationEnabled");
+    if (monStatus != null && monStatus) {
+        return {
+            error: false,
+            status: 200,
+            monetizationEnabled: monStatus
+        };
+    }
+    try {
+        var monetizationStatus = monetizationService.isMonetizationEnabled(tenantDomain);
+        session.put("monetizationEnabled", monetizationStatus);
+        return {
+            error: false,
+            status: 200,
+            monetizationEnabled: monetizationStatus
+        };
+    } catch (e) {
+        var msg = "Error while checking the monetization status for tenant: " + tenantDomain;
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            message: msg,
+            status: 500
         };
     }
 };

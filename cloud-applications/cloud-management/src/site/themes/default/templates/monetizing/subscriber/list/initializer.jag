@@ -1,5 +1,17 @@
 <%
 jagg.initializer("monetizing/subscriber/list", {
     preInitialize: function () {
+        //css
+        jagg.addHeaderCSS("subscriber/list", "jquery.dataTables.min", 'new-assets/css/datatables-1.10.7/jquery.dataTables.min.css');
+        jagg.addHeaderCSS("subscriber/list", "jquery.dataTable.override", 'new-assets/css/datatables-1.10.7/jquery.dataTables.override.css');
+        //js compiled plugins
+        jagg.addFooterJS("subscriber/list", "datatables.min", "new-assets/js/datatables-1.10.7/jquery.dataTables.min.js");
+        jagg.addFooterJS("subscriber/list", "jeditable", "new-assets/js/Jeditable-1.7.3/jquery.jeditable.js");
+        jagg.addFooterJS("subscriber/list", "inlineEdit", "new-assets/js/datatables-1.10.7/jquery.dataTables.inlineEdit.js");
+        jagg.addFooterJS("subscriber/list", "columnFilter", "new-assets/js/datatables-1.10.7/jquery.dataTables.columnFilter.js");
+        //custom js functions
+        jagg.addFooterJS("subscriber/list", "custom", "new-assets/js/custom/custom.js");
+        jagg.addFooterJS("subscriber/list", "subscriber-list", "templates/monetizing/subscriber/list/js/subscriber-list.js");
     }
 });
+%>

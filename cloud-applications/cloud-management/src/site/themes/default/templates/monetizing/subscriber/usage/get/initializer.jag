@@ -1,0 +1,25 @@
+<%
+jagg.initializer("monetizing/subscriber/usage/get", {
+    preInitialize: function () {
+        //css
+        jagg.addHeaderCSS("usage/get", "select2", 'new-assets/css/select2-4.0.0/select2.min.css');
+        jagg.addHeaderCSS("usage/get", "select2-override", 'new-assets/css/select2-4.0.0/select2.override.css');
+        jagg.addHeaderCSS("usage/get", "c3", 'new-assets/css/c3/c3.min.css');
+        jagg.addHeaderCSS("usage/get", "daterangepicker", 'new-assets/css/daterangepicker/daterangepicker.css');
+        jagg.addHeaderCSS("usage/get", "daterangepicker-override", 'new-assets/css/daterangepicker/daterangepicker.override.css');
+        //js compiled plugins
+        jagg.addFooterJS("usage/get", "datatables.min", "new-assets/js/datatables-1.10.7/jquery.dataTables.min.js");
+        jagg.addFooterJS("usage/get", "jeditable", "new-assets/js/Jeditable-1.7.3/jquery.jeditable.js");
+        jagg.addFooterJS("usage/get", "inLineEdit", "new-assets/js/datatables-1.10.7/jquery.dataTables.inlineEdit.js");
+        jagg.addFooterJS("usage/get", "columnFilter", "new-assets/js/datatables-1.10.7/jquery.dataTables.columnFilter.js");
+        jagg.addFooterJS("usage/get", "select2", "new-assets/js/select2-4.0.0/select2.min.js");
+        jagg.addFooterJS("usage/get", "d3", "new-assets/js/d3-3.5.3/d3.min.js");
+        jagg.addFooterJS("usage/get", "moment", "new-assets/js/daterangepicker-2.0.8/moment.js");
+        jagg.addFooterJS("usage/get", "datePicker", "new-assets/js/daterangepicker-2.0.8/daterangepicker.js");
+        jagg.addFooterJS("usage/get", "c3", "new-assets/js/c3/c3.min.js");
+        //custom js functions
+        jagg.addFooterJS("usage/get", "custom", "new-assets/js/custom/custom.js");
+        jagg.addFooterJS("usage/get", "usage", "templates/monetizing/subscriber/usage/get/js/subscriber-usage.js");
+    }
+});
+%>

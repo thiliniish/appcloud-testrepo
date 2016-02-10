@@ -110,7 +110,7 @@ public final class MonetizationConstants {
     public static final String ATTRIB_API_PROVIDER = "ApiProvider";
 
     /*tiers.xml related attributes*/
-    public static final String tiersXmlUrl = "/apimgt/applicationdata/tiers.xml";
+    public static final String TIERS_XML_URL = "/apimgt/applicationdata/tiers.xml";
     public static final String UNAUTHENTICATED = "Unauthenticated";
     public static final String THROTTLE_NAMESPACE = "http://www.wso2.org/products/wso2commons/throttle";
     public static final QName ASSERTION_ELEMENT = new QName(THROTTLE_NAMESPACE, "MediatorThrottleAssertion");

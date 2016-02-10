@@ -176,9 +176,9 @@ var MONTHLY_SUBSCRIPTION_CHARGE_NAME ="Monthly subscription fee";
 var BILLING_SUGGESTED_PLAN = "Getting Traction";
 
 //Monetization Account Types
-var ACC_FREE = "free";
-var ACC_TEST = "test/complimentary";
-var ACC_PAID = "paid";
+var ACC_FREE = "Free";
+var ACC_TEST = "Test/Complimentary";
+var ACC_PAID = "Paid";
 
 //password related
 var PASSWORD_VALIDATION_REGEX=/(?=.*\d)(?=.*[a-z])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])(?=.*[A-Z]).{8,}/;
