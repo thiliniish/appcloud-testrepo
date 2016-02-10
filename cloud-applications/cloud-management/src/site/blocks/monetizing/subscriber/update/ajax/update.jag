@@ -43,7 +43,7 @@ include("/jagg/config_reader.jag");
             action = encoder.getSafeText(request.getParameter("action")),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
-    if (action == "makeSubscriberAccountTest") {
+    if (action != null && action == "makeSubscriberAccountTest") {
         var subscriber = encoder.getSafeText(request.getParameter("subscriber"));
         result = mod.makeSubscriberAccountTest(subscriber);
         if (result == null || result.error) {
@@ -63,7 +63,7 @@ include("/jagg/config_reader.jag");
             }
         }
         print(returnObj);
-    } else if (action == "makeTestSubscriberAccountRegular") {
+    } else if (action != null && action == "makeTestSubscriberAccountRegular") {
         var subscriber = encoder.getSafeText(request.getParameter("subscriber"));
         result = mod.makeTestSubscriberAccountRegular(subscriber);
         if (result == null || result.error) {

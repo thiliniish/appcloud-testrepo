@@ -1,21 +1,21 @@
-var isYear;
-var userData;
-var selectedUser;
-var apiData;
-var selectedApi;
-var appData;
-var selectedApp;
-var endDate;
-var startDate;
-var selectedEndDate;
-var selectedStartDate;
+var isYear = false;
+var userData = null;
+var selectedUser = null;
+var apiData = null;
+var selectedApi = null;
+var appData = null;
+var selectedApp = null;
+var endDate = null;
+var startDate = null;
+var selectedEndDate = null;
+var selectedStartDate = null;
 
 $(document).ready(function () {
 
     Date.prototype.addDays = function (days) {
-        var dat = new Date(this.valueOf());
-        dat.setDate(dat.getDate() + days);
-        return dat;
+        var date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
     };
     isYear = false;
     userData = getUserData();
@@ -40,7 +40,7 @@ $(document).ready(function () {
     /**
      * Select Element for API Usage API list
      **/
-    var apiUsageAPIList = $('#api-usage-ds-api-list').select2({
+    var apiUsageAPIList = $("#api-usage-ds-api-list").select2({
         placeholder: "Search or Select API",
         data: apiData,
         maximumInputLength: 5,
@@ -50,7 +50,7 @@ $(document).ready(function () {
     /**
      * Select Element for API Usage Application list
      **/
-    var apiUsageApplicationList = $('#api-usage-ds-application').select2({
+    var apiUsageApplicationList = $("#api-usage-ds-application").select2({
         placeholder: "Search or Select Application",
         data: appData,
         maximumInputLength: 5,
@@ -65,44 +65,44 @@ $(document).ready(function () {
         selectedUser = $(this).val();
         var apiData = getAPIData(selectedUser);
         if (apiData == null || apiData == "") {
-            $('#api-usage-ds-api-list').empty();
-            $('#api-usage-ds-api-list').select2({data: [{"text": "No subscribed apis", "id": "0"}]});
-            $('#api-usage-ds-api-list').prop("disabled", true).trigger('change');
+            $("#api-usage-ds-api-list").empty();
+            $("#api-usage-ds-api-list").select2({data: [{"text": "No subscribed apis", "id": "0"}]});
+            $("#api-usage-ds-api-list").prop("disabled", true).trigger("change");
         }
         else {
-            if ($('#api-usage-ds-api-list').prop("disabled")) {
-                $('#api-usage-ds-api-list').prop("disabled", false);
+            if ($("#api-usage-ds-api-list").prop("disabled")) {
+                $("#api-usage-ds-api-list").prop("disabled", false);
             }
             apiUsageAPIList.empty();
-            apiUsageAPIList.select2({data: apiData}).trigger('change');
+            apiUsageAPIList.select2({data: apiData}).trigger("change");
         }
     });
 
     apiUsageAPIList.on("change", function () {
         selectedApi = $(this).val();
         if (selectedApi == null || selectedApi == "") {
-            $('#api-usage-ds-application').empty();
-            $('#api-usage-ds-application').prop("disabled", true);
-            $('#api-usage-ds-application').select2({data: [{"text": "No applications", "id": "0"}]}).trigger('change');
+            $("#api-usage-ds-application").empty();
+            $("#api-usage-ds-application").prop("disabled", true);
+            $("#api-usage-ds-application").select2({data: [{"text": "No applications", "id": "0"}]}).trigger("change");
         }
         else {
             selectedUser = $("#api-usage-ds-user-name").val();
             var applicationData = getAppData(selectedUser, selectedApi);
             if (applicationData == null || applicationData == "") {
-                $('#api-usage-ds-application').empty();
-                $('#api-usage-ds-application').prop("disabled", true);
-                $('#api-usage-ds-application').select2({
+                $("#api-usage-ds-application").empty();
+                $("#api-usage-ds-application").prop("disabled", true);
+                $("#api-usage-ds-application").select2({
                     data: [{
                         "text": "No applications",
                         "id": "0"
                     }]
-                }).trigger('change');
+                }).trigger("change");
             } else {
-                if ($('#api-usage-ds-application').prop("disabled")) {
-                    $('#api-usage-ds-application').prop("disabled", false);
+                if ($("#api-usage-ds-application").prop("disabled")) {
+                    $("#api-usage-ds-application").prop("disabled", false);
                 }
                 apiUsageApplicationList.empty();
-                apiUsageApplicationList.select2({data: applicationData}).trigger('change');
+                apiUsageApplicationList.select2({data: applicationData}).trigger("change");
             }
         }
     });
@@ -114,17 +114,17 @@ $(document).ready(function () {
 });
 
 
-$('.side-pane-trigger').click(function () {
-    var rightPane = $('.right-pane');
-    var leftPane = $('.left-pane');
-    if (rightPane.hasClass('visible')) {
-        rightPane.animate({"left": "0em"}, "slow").removeClass('visible');
+$(".side-pane-trigger").click(function () {
+    var rightPane = $(".right-pane");
+    var leftPane = $(".left-pane");
+    if (rightPane.hasClass("visible")) {
+        rightPane.animate({"left": "0em"}, "slow").removeClass("visible");
         leftPane.animate({"left": "-18em"}, "slow");
-        $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+        $(this).find("i").removeClass("fa-arrow-left").addClass("fa-reorder");
     } else {
-        rightPane.animate({"left": "18em"}, "slow").addClass('visible');
+        rightPane.animate({"left": "18em"}, "slow").addClass("visible");
         leftPane.animate({"left": "0em"}, "slow");
-        $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
+        $(this).find("i").removeClass("fa-reorder").addClass("fa-arrow-left");
     }
 });
 
@@ -133,13 +133,13 @@ function getDates(startDate, stopDate) {
     var currentDate = startDate;
     if (isYear) {
         while (currentDate <= stopDate) {
-            var formattedDate = moment(new Date(currentDate)).format('YYYY-MM');
+            var formattedDate = moment(new Date(currentDate)).format("YYYY-MM");
             dateArray.push(formattedDate);
-            currentDate = moment(currentDate).add('months', 1);
+            currentDate = moment(currentDate).add("months", 1);
         }
     } else {
         while (currentDate <= stopDate) {
-            var formattedDate = moment(new Date(currentDate)).format('YY-MM-DD');
+            var formattedDate = moment(new Date(currentDate)).format("YY-MM-DD");
             dateArray.push(formattedDate);
             currentDate = currentDate.addDays(1);
         }
@@ -151,11 +151,11 @@ function getDates(startDate, stopDate) {
  * Initialization of the API usage chart
  */
 var apiUsageChart = c3.generate({
-    bindto: '#api-usage',
+    bindto: "#api-usage",
     data: {
-        x: 'x',
+        x: "x",
         columns: [],
-        type: 'bar',
+        type: "bar",
         labels: true
     },
     tooltip: {
@@ -174,50 +174,50 @@ var apiUsageChart = c3.generate({
     },
     axis: {
         x: {
-            type: 'category',
+            type: "category",
             label: {
-                text: 'Date',
-                position: 'outer-middle'
+                text: "Date",
+                position: "outer-middle"
             }
         },
         y: {
-            type: 'category',
+            type: "category",
             label: {
-                text: 'Count',
-                position: 'outer-middle'
+                text: "Count",
+                position: "outer-middle"
             }
         }
     }
 });
 
-$('.api-usage .btn-week').click(function (e) {
+$(".api-usage .btn-week").click(function (e) {
     isYear = false;
     highlightSelected(this);
     endDate = new Date();
     startDate = endDate.addDays(-7);
     setSelectedDates(endDate, startDate);
-    addDatesToCurrentAndSet(7, 'days');
+    addDatesToCurrentAndSet(7, "days");
     loadDataToChartObjectForGivenTime(apiUsageChart);
 
 });
 
-$('.api-usage .btn-month').click(function (e) {
+$(".api-usage .btn-month").click(function (e) {
     isYear = false;
     highlightSelected(this);
     endDate = new Date();
     startDate = endDate.addDays(-29);
     setSelectedDates(endDate, startDate);
-    addDatesToCurrentAndSet(1, 'months');
+    addDatesToCurrentAndSet(1, "months");
     loadDataToChartObjectForGivenTime(apiUsageChart);
 });
 
-$('.api-usage .btn-year').click(function (e) {
+$(".api-usage .btn-year").click(function (e) {
     isYear = true;
     highlightSelected(this);
     endDate = new Date();
     startDate = endDate.addDays(-365);
     setSelectedDates(endDate, startDate);
-    addDatesToCurrentAndSet(1, 'years')
+    addDatesToCurrentAndSet(1, "years")
     loadDataToChartObjectForGivenTime(apiUsageChart);
 });
 
@@ -228,30 +228,30 @@ function highlightSelected(t) {
 }
 
 function addDatesToCurrentAndSet(amount, type) {
-    $('.btn-calender span').html(moment().subtract(amount, type).format('YYYY-MM-DD')
-        + ' - ' + moment().format('YYYY-MM-DD'));
-    $('.btn-calender').data('daterangepicker').setStartDate(moment().subtract(amount, type));
-    $('.btn-calender').data('daterangepicker').setEndDate(moment());
+    $(".btn-calender span").html(moment().subtract(amount, type).format("YYYY-MM-DD")
+        + " - " + moment().format("YYYY-MM-DD"));
+    $(".btn-calender").data("daterangepicker").setStartDate(moment().subtract(amount, type));
+    $(".btn-calender").data("daterangepicker").setEndDate(moment());
 }
 
 function cb(start, end) {
-    $('.btn-calender span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+    $(".btn-calender span").html(start.format("YYYY-MM-DD") + " - " + end.format("YYYY-MM-DD"));
 }
-cb(moment().subtract(29, 'days'), moment());
+cb(moment().subtract(29, "days"), moment());
 
-$('.btn-calender').daterangepicker({
+$(".btn-calender").daterangepicker({
     "singleDatePicker": false,
     "opens": "left",
-    "startDate": moment().subtract(29, 'days'),
+    "startDate": moment().subtract(29, "days"),
     "endDate": moment()
 }, cb);
 
-$('.datepicker-container .fw-calendar').click(function () {
-    $('.btn-calender').data('daterangepicker').toggle();
+$(".datepicker-container .fw-calendar").click(function () {
+    $(".btn-calender").data("daterangepicker").toggle();
 })
-$('.btn-calender').on('apply.daterangepicker', function (ev, picker) {
-    startDate = new Date(picker.startDate.format('YYYY-MM-DD')),
-        endDate = new Date(picker.endDate.format('YYYY-MM-DD'));
+$(".btn-calender").on("apply.daterangepicker", function (ev, picker) {
+    startDate = new Date(picker.startDate.format("YYYY-MM-DD")),
+        endDate = new Date(picker.endDate.format("YYYY-MM-DD"));
     setSelectedDates(endDate, startDate);
     loadDataToChartObjectForGivenTime(apiUsageChart);
     highlightSelected(this);
@@ -262,19 +262,19 @@ function loadDataToChartObjectForGivenTime(chartObj) {
     getJsonData(function (response) {
         response = jQuery.parseJSON(response);
         var usageObj = response.usageObj;
-        var dates = ['x'];
-        var value = ['API'];
+        var dates = ["x"];
+        var value = ["API"];
         if (usageObj === undefined || usageObj == "" || usageObj == null) {
             chartObj.unload();
-            $('#show-usage').hide();
-            if ($('#api-usage-ds-application').prop("disabled")) {
-                $('#usageLabelTxt').text("No subscribed apis available for the selected user");
+            $("#show-usage").hide();
+            if ($("#api-usage-ds-application").prop("disabled")) {
+                $("#usageLabelTxt").text("No subscribed apis available for the selected user");
             } else {
-                $('#usageLabelTxt').text("No usage data available for " + selectedStartDate + " - " + selectedEndDate);
+                $("#usageLabelTxt").text("No usage data available for " + selectedStartDate + " - " + selectedEndDate);
             }
         } else {
-            $('#usageLabelTxt').text("");
-            $('#show-usage').show();
+            $("#usageLabelTxt").text("");
+            $("#show-usage").show();
             var dateArr = getDates(new Date(selectedStartDate), new Date(selectedEndDate));
             var usageDateObj = {};
             //put zero usage for for all the dates
@@ -282,11 +282,11 @@ function loadDataToChartObjectForGivenTime(chartObj) {
                 usageDateObj[dateArr[i]] = 0;
             }
             for (var x = 0; x < usageObj.length; x++) {
-                var formattedMonth = (usageObj[x].Month).replace(/\b(\d{1})\b/g, '0$1');
+                var formattedMonth = (usageObj[x].Month).replace(/\b(\d{1})\b/g, "0$1");
                 if (isYear == true) {
                     var yearMonth = usageObj[x].Year + "-" + formattedMonth;
                 } else {
-                    var formattedDay = (usageObj[x].Day).replace(/\b(\d{1})\b/g, '0$1');
+                    var formattedDay = (usageObj[x].Day).replace(/\b(\d{1})\b/g, "0$1");
                     var formattedYear = (usageObj[x].Year).toString().substr(2, 2);
                     var yearMonth = formattedYear + "-" + formattedMonth + "-" + formattedDay;
                 }

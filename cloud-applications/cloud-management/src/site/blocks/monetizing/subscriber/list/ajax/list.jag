@@ -43,7 +43,7 @@ include("/jagg/config_reader.jag");
             action = encoder.getSafeText(request.getParameter("action")),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
-    if (action == "getSubscribersOfTenant") {
+    if (action != null && action == "getSubscribersOfTenant") {
         result = mod.getSubscribersOfTenant();
         if (result == null || result.error) {
             var message = result.message;

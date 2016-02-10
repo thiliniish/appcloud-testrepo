@@ -381,7 +381,6 @@ var getApiApplicationsOfUser = function (userId, api) {
             if (api != "*") {
                 var resultObj = monetizationService.getUserAPIApplications(userId, api);
                 var appEntries = JSON.parse(resultObj).Entries;
-                log.info("appEntries " + resultObj);
                 var entry = appEntries.Entry;
                 if (entry == null || entry == "" || entry == undefined) {
                     return {

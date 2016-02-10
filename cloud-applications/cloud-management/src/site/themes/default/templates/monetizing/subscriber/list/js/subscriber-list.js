@@ -6,7 +6,7 @@ $(document).ready(function () {
         },
         success: function (result) {
             var result = jQuery.parseJSON(result);
-            $('#subList').DataTable({
+            $("#subList").DataTable({
                 "data": result.subObj,
                 "columns": [
                     {"data": "displayName", "width": "25%"},
@@ -28,16 +28,16 @@ $(document).ready(function () {
     });
 });
 
-$('.side-pane-trigger').click(function () {
-    var rightPane = $('.right-pane');
-    var leftPane = $('.left-pane');
-    if (rightPane.hasClass('visible')) {
-        rightPane.animate({"left": "0em"}, "slow").removeClass('visible');
+$(".side-pane-trigger").click(function () {
+    var rightPane = $(".right-pane");
+    var leftPane = $(".left-pane");
+    if (rightPane.hasClass("visible")) {
+        rightPane.animate({"left": "0em"}, "slow").removeClass("visible");
         leftPane.animate({"left": "-18em"}, "slow");
-        $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+        $(this).find("i").removeClass("fa-arrow-left").addClass("fa-reorder");
     } else {
-        rightPane.animate({"left": "18em"}, "slow").addClass('visible');
+        rightPane.animate({"left": "18em"}, "slow").addClass("visible");
         leftPane.animate({"left": "0em"}, "slow");
-        $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
+        $(this).find("i").removeClass("fa-reorder").addClass("fa-arrow-left");
     }
 });

@@ -44,7 +44,7 @@ include("/jagg/config_reader.jag");
             action = encoder.getSafeText(request.getParameter("action")),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
-    if (action == "getSubscriberUsage") {
+    if (action != null && action == "getSubscriberUsage") {
         var userId = encoder.getSafeText(request.getParameter("userId"));
         var applicationName = encoder.getSafeText(request.getParameter("applicationName"));
         var api = encoder.getSafeText(request.getParameter("api"));
@@ -69,7 +69,7 @@ include("/jagg/config_reader.jag");
             }
         }
         print(returnObj);
-    } else if (action == "getApimSubscriberIdsOfTenant") {
+    } else if (action != null && action == "getApimSubscriberIdsOfTenant") {
         result = mod.getApimSubscriberIdsOfTenant();
         if (result == null || result.error) {
             var message = result.message;
@@ -89,7 +89,7 @@ include("/jagg/config_reader.jag");
             }
         }
         print(returnObj);
-    } else if (action == "getApiApplicationsOfUser") {
+    } else if (action != null && action == "getApiApplicationsOfUser") {
         var userId = encoder.getSafeText(request.getParameter("userId"));
         var api = encoder.getSafeText(request.getParameter("api"));
         result = mod.getApiApplicationsOfUser(userId, api);
@@ -111,7 +111,7 @@ include("/jagg/config_reader.jag");
             }
         }
         print(returnObj);
-    } else if (action == "getSubscribedApisOfUser") {
+    } else if (action != null && action == "getSubscribedApisOfUser") {
         var userId = encoder.getSafeText(request.getParameter("userId"));
         result = mod.getSubscribedApisOfUser(userId);
         if (result == null || result.error) {
