@@ -20,6 +20,8 @@ package org.wso2.carbon.cloud.billing.commons;
 
 public final class BillingConstants {
 
+    public static final String HTTPS_SCHEME = "https";
+
     public static final String CLOUD_CONFIG_FOLDER = "cloud";
     public static final String CONFIG_FILE_NAME = "billing.xml";
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/billing";
@@ -168,18 +170,18 @@ public final class BillingConstants {
     public static final String DS_API_URI_MAPPING_FOR_SUBSCRIPTION = "/mappingforsubscription";
 
     /*Zuora REST API v1 URIs*/
-    public static final String ZUORA_REST_API_URI_USAGE = "/v1/usage";
-    public static final String ZUORA_REST_API_URI_ACCOUNT_SUMMARY = "/v1/accounts/{account-key}/summary";
-    public static final String ZUORA_REST_API_URI_RATE_PLANS = "/v1/subscriptions/accounts/{account-key}";
-    public static final String ZUORA_REST_API_URI_ACCOUNTS = "/v1/accounts";
-    public static final String ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION = "/v1/subscriptions/{subscription-key}/cancel";
-    public static final String ZUORA_REST_API_URI_SUBSCRIPTIONS = "/v1/subscriptions";
-    public static final String ZUORA_REST_API_URI_PAYMENT_METHODS = "/v1/payment-methods/credit-cards";
-    public static final String ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD = "/v1/payment-methods";
-    public static final String ZUORA_REST_API_URI_INVOICE_INFO = "/v1/transactions/invoices/accounts/{account-key}";
-    public static final String ZUORA_REST_API_URI_PAYMENT_INFO = "/v1/transactions/payments/accounts/{account-key}";
-    public static final String ZUORA_REST_API_URI_PRODUCTS = "/v1/catalog/products";
-    public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS = "/v1/payment-methods/credit-cards/accounts";
+    public static final String ZUORA_REST_API_URI_USAGE = "/rest/v1/usage";
+    public static final String ZUORA_REST_API_URI_ACCOUNT_SUMMARY = "/rest/v1/accounts/{account-key}/summary";
+    public static final String ZUORA_REST_API_URI_RATE_PLANS = "/rest/v1/subscriptions/accounts/{account-key}";
+    public static final String ZUORA_REST_API_URI_ACCOUNTS = "/rest/v1/accounts";
+    public static final String ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION = "/rest/v1/subscriptions/{subscription-key}/cancel";
+    public static final String ZUORA_REST_API_URI_SUBSCRIPTIONS = "/rest/v1/subscriptions";
+    public static final String ZUORA_REST_API_URI_PAYMENT_METHODS = "/rest/v1/payment-methods/credit-cards";
+    public static final String ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD = "/rest/v1/payment-methods";
+    public static final String ZUORA_REST_API_URI_INVOICE_INFO = "/rest/v1/transactions/invoices/accounts/{account-key}";
+    public static final String ZUORA_REST_API_URI_PAYMENT_INFO = "/rest/v1/transactions/payments/accounts/{account-key}";
+    public static final String ZUORA_REST_API_URI_PRODUCTS = "/rest/v1/catalog/products";
+    public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS = "/rest/v1/payment-methods/credit-cards/accounts";
 
     /*data service param names*/
     public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";

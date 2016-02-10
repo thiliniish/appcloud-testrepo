@@ -20,9 +20,6 @@ package org.wso2.carbon.cloud.billing.commons.zuora.security;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
@@ -34,7 +31,9 @@ import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingSecurityException;
-import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
+import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
+import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.cloud.billing.processor.ZuoraBillingRequestProcessor;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -42,7 +41,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -69,22 +67,18 @@ public class ZuoraHPMUtils {
     private static final String SUBMIT_ENABLED = "submitEnabled";
     private static final String LOCALE = "locale";
     private static final String RETAIN_VALUES = "retainValues";
-    private static final String API_ACCESS_KEY_ID = "apiAccessKeyId";
-    private static final String API_SECRET_ACCESS_KEY = "apiSecretAccessKey";
     private static final String BOUNCY_CASTLE_PROVIDER = "BC";
     private static final String RSA_ENCRYPT_DECRYPT_FUNCTION = "RSA/ECB/PKCS1Padding";
-    private static final String TYPE_JSON = "application/json";
-    private static final int RETRY_COUNT = 5;
     private static String url;
     private static String endPoint;
-    private static String username;
-    private static String password;
     private static String publicKeyString;
     private static String pageId;
     private static String locale;
     private static String paymentGateway;
     private static Key publicKeyObject = null;
 
+    private static BillingRequestProcessor zuoraApi = BillingRequestProcessorFactory.getInstance()
+            .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA_RSA);
     private ZuoraHPMUtils() {
     }
 
@@ -231,15 +225,19 @@ public class ZuoraHPMUtils {
     private static void loadConfig() {
 
         ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
-        username = zuoraConfig.getUser();
-        password = zuoraConfig.getPassword();
         HostedPageConfig hostedPageConfig = zuoraConfig.getHostedPageConfig();
-        endPoint = hostedPageConfig.getEndPoint();
+        endPoint = hostedPageConfig.getEndPointUri();
         publicKeyString = hostedPageConfig.getPublicKey();
         paymentGateway = hostedPageConfig.getPaymentGateway();
         pageId = hostedPageConfig.getPageId();
         locale = hostedPageConfig.getLocale();
-        url = hostedPageConfig.getUrl();
+
+        if (zuoraApi instanceof ZuoraBillingRequestProcessor) {
+            HttpClient httpClient = ((ZuoraBillingRequestProcessor) zuoraApi).getHttpClient();
+            url = httpClient.getHostConfiguration().getHostURL() + hostedPageConfig.getUri();
+        } else {
+            throw new IllegalArgumentException("Unsupported instance of BillingRequestProcessor");
+        }
     }
 
     /**
@@ -250,28 +248,16 @@ public class ZuoraHPMUtils {
      * @throws CloudBillingException
      */
     private static JSONObject generateSignature(String pageId) throws CloudBillingException {
-        HttpClient httpClient = new HttpClient();
-        PostMethod postRequest = new PostMethod(endPoint);
-        postRequest.addRequestHeader(API_ACCESS_KEY_ID, username);
-        postRequest.addRequestHeader(API_SECRET_ACCESS_KEY, password);
-        postRequest.addRequestHeader("Accept", TYPE_JSON);
-
         try {
-            RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), TYPE_JSON,
-                    BillingConstants.ENCODING);
-            postRequest.setRequestEntity(requestEntity);
-
-            String response = ProcessorUtils.executeHTTPMethodWithRetry(httpClient, postRequest, RETRY_COUNT);
+            String response = zuoraApi.doPost(endPoint, BillingConstants.HTTP_TYPE_APPLICATION_JSON, buildJsonRequest(pageId));
             JSONObject result = new JSONObject(response);
-            if (!result.getBoolean("success")) {
-                throw new CloudBillingException("Fail to generate signature. The reason is " + result.getString
-                        ("reasons"));
+            if (!result.getBoolean(BillingConstants.ZUORA_RESPONSE_SUCCESS)) {
+                throw new CloudBillingException("Fail to generate signature. The reason is " + result.getString("reasons"));
             }
             return result;
-        } catch (JSONException | UnsupportedEncodingException e) {
+        } catch (JSONException e) {
             throw new CloudBillingException("Error while generating signature");
         }
-
     }
 
     /**

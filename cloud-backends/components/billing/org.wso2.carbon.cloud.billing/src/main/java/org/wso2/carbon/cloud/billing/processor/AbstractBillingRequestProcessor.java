@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 
@@ -35,13 +36,13 @@ public abstract class AbstractBillingRequestProcessor implements BillingRequestP
 
     public AbstractBillingRequestProcessor(HttpClientConfig httpClientConfig) {
         if (httpClientConfig != null) {
-            this.httpClient = this.initHttpClient(httpClientConfig);
+            this.httpClient = initHttpClient(httpClientConfig);
         } else {
             HttpClientConfig defaultHttpClientConfig = new HttpClientConfig();
             defaultHttpClientConfig.setHostname(BillingConstants.DEFAULT_HOST);
             defaultHttpClientConfig.setMaxConnectionsPerHost(BillingConstants.DEFAULT_MAX_CONNECTION_PER_HOST);
             defaultHttpClientConfig.setMaxTotalConnections(BillingConstants.DEFAULT_MAX_TOTAL_CONNECTION);
-            this.httpClient = this.initHttpClient(defaultHttpClientConfig);
+            this.httpClient = initHttpClient(defaultHttpClientConfig);
         }
     }
 
@@ -60,9 +61,11 @@ public abstract class AbstractBillingRequestProcessor implements BillingRequestP
      * @param httpClientConfig http client configuration
      * @return Http client
      */
-    private HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
+    protected HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
         HostConfiguration hostConfig = new HostConfiguration();
-        hostConfig.setHost(httpClientConfig.getHostname(), httpClientConfig.getPort());
+        hostConfig.setHost(httpClientConfig.getHostname(), httpClientConfig.getPort(),
+                Protocol.getProtocol(BillingConstants.HTTPS_SCHEME));
+
         HttpConnectionManagerParams connParams = new HttpConnectionManagerParams();
         connParams.setMaxConnectionsPerHost(hostConfig, httpClientConfig.getMaxConnectionsPerHost());
         connParams.setMaxTotalConnections(httpClientConfig.getMaxTotalConnections());
@@ -70,7 +73,10 @@ public abstract class AbstractBillingRequestProcessor implements BillingRequestP
         MultiThreadedHttpConnectionManager connManager = new MultiThreadedHttpConnectionManager();
         connManager.setParams(connParams);
 
-        return new HttpClient(connManager);
+        HttpClient client = new HttpClient();
+        client.setHostConfiguration(hostConfig);
+        client.setHttpConnectionManager(connManager);
+        return client;
     }
 
 }

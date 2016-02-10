@@ -34,8 +34,9 @@ public class ZuoraConfig {
     private long sessionExpired;
     private String termType;
     private String signatureExpired;
+    private String sslEnabledProtocols;
     private HttpClientConfig httpClientConfig;
-    private String serviceUrl;
+    private String serviceUrlHost;
     private HostedPageConfig hostedPageConfig;
     private Subscription[] subscriptions;
     private UsageConfig usageConfig;
@@ -95,6 +96,15 @@ public class ZuoraConfig {
         this.signatureExpired = signatureExpired;
     }
 
+    @XmlElement(name = "EnabledProtocols", nillable = false)
+    public String getEnabledProtocols() {
+        return sslEnabledProtocols;
+    }
+
+    public void setEnabledProtocols(String enabledProtocols) {
+        this.sslEnabledProtocols = enabledProtocols;
+    }
+
     @XmlElement(name = "HttpClientConfig", nillable = false)
     public HttpClientConfig getHttpClientConfig() {
         return httpClientConfig;
@@ -113,13 +123,13 @@ public class ZuoraConfig {
         this.hostedPageConfig = hostedPageConfig;
     }
 
-    @XmlElement(name = "ServiceURL", nillable = false, required = true)
-    public String getServiceUrl() {
-        return serviceUrl;
+    @XmlElement(name = "ServiceURLHost", nillable = false)
+    public String getServiceUrlHost() {
+        return serviceUrlHost;
     }
 
-    public void setServiceUrl(String serviceUrl) {
-        this.serviceUrl = serviceUrl;
+    public void setServiceUrlHost(String serviceUrlHost) {
+        this.serviceUrlHost = serviceUrlHost;
     }
 
     @XmlElementWrapper(name = "Subscriptions", nillable = false, required = true)

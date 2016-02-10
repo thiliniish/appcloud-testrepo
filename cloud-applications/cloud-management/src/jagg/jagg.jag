@@ -553,7 +553,8 @@ var jagg = jagg || (function () {
         addFooterCode:addFooterCode,
         includeJag:includeJag,
         getUserTheme:getUserTheme,
-        getThemeFile:getThemeFile
+        getThemeFile:getThemeFile,
+        isUserLoggedIn:isUserLoggedIn
     };
 
 }());
