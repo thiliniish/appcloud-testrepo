@@ -27,6 +27,7 @@ var mod = jagg.module("pricing");
     var monetizationStatus = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
 
     if (monetizationStatus == null || monetizationStatus.error || !monetizationStatus.monetizationEnabled) {
+        response.status = 403;
         print({
             error: true,
             statusCode: 403,

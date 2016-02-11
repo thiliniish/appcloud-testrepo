@@ -2,7 +2,6 @@ var invoiceData;
 var paymentData, jsonObj;
 var accountId;
 
-
 $(document).ready(function () {
     $.ajax({
         url: "../../blocks/pricing/account/info/ajax/get.jag",
@@ -111,7 +110,6 @@ $(document).ready(function () {
         }
     });
 });
-
 function viewPaymentMethods(obj) {
     var form = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
         '<input type="hidden" name="action" value="viewPaymentMethod"/>' +
@@ -119,7 +117,6 @@ function viewPaymentMethods(obj) {
     $('body').append(form);
     $(form).submit();
 };
-
 function addNewPaymentMethod(obj) {
     var form = $('<form action="manage-account.jag?secondaryPayment=true&tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
         '<input type="hidden" name="accountId" value="' + obj.getElementById("accountId").value + '"/>' +
@@ -128,7 +125,6 @@ function addNewPaymentMethod(obj) {
     $('body').append(form);
     $(form).submit();
 };
-
 function updateContactInfo(obj) {
     var formContactInfo = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
         '<input type="hidden" id ="firstName" name="firstName" value = "' + obj.getElementById("fname").innerHTML + '"/>' +
@@ -145,8 +141,6 @@ function updateContactInfo(obj) {
     $('body').append(formContactInfo);
     $(formContactInfo).submit();
 };
-
-
 function goToInvoicePage(id, tenantDomain) {
     var formInvoice = $('<form action="invoice.jag?tenant=' + tenantDomain + '"' + ' method="post">' +
         '<input type="hidden" name="invoiceId" value="' + id + '"/>' +
