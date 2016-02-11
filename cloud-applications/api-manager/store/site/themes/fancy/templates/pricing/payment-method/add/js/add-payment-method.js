@@ -1,4 +1,5 @@
 var params;
+var isSecondaryPaymentMethod = Boolean(getRequestParam("secondaryPayment"));
 
 var callback = function (response) {
     if (!response.success) {
@@ -11,6 +12,10 @@ var callback = function (response) {
     }
 };
 
+function getRequestParam(name){
+    if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+        return decodeURIComponent(name[1]);
+}
 function showPage() {
     var zuoraDiv = document.getElementById('zuora_payment');
     zuoraDiv.innerHTML = "";
@@ -25,6 +30,7 @@ function submitPage() {
 function generateParameters() {
     var workflowReference = $("#workflowReference").attr('value');
     var tenant = $("#tenant").attr('value');
+    var accountId = $("#accountId").attr('value');
     jagg.post("/site/blocks/pricing/payment-method/add/ajax/add.jag", {
         action: "generateParams",
         workflowReference: workflowReference,
@@ -32,6 +38,11 @@ function generateParameters() {
     }, function (result) {
         if (!result.error) {
             params = result.params;
+            if(accountId != null) {
+                params.field_accountId = accountId;
+                params.field_passthrough4 = "secondary-card";
+                params.field_passthrough3 = tenant;
+            }
             showPage();
         } else {
             jagg.message({content: result.message, type: "error"});
@@ -70,11 +81,12 @@ $('.myaffix').bind('elementClassChanged', function (e) {
 });
 
 $(document).ready(function ($) {
-    var error = decodeURIComponent(($("#errorObj").attr('value')));
-    var errorObj = JSON.parse(error);
-
-    if (errorObj.error) {
-        jagg.message({content: errorObj.errorMessage, type: "error"});
+    if (!isSecondaryPaymentMethod) {
+        var error = decodeURIComponent(($("#errorObj").attr('value')));
+        var errorObj = JSON.parse(error);
+        if (errorObj.error) {
+            jagg.message({content: errorObj.errorMessage, type: "error"});
+        }
     }
     generateParameters();
 });

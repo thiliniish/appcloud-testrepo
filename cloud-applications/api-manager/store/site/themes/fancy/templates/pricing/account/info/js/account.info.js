@@ -17,33 +17,32 @@ $(document).ready(function () {
                 invoiceData = accountObj.invoices;
                 paymentData = accountObj.payments;
                 accountId = accountObj.basicInfo.id;
-                $('#accountId').val(accountId);
-                $('#address1').val(accountObj.billToContact.address1);
-                $('#address2').val(accountObj.billToContact.address2);
+                $("#accountId").val(accountId);
+                $("#tenantDomain").val(tenantDomain);
+                $("#address1").val(accountObj.billToContact.address1);
+                $("#address2").val(accountObj.billToContact.address2);
                 // set account summary
-                $('#accName').text(accountObj.basicInfo.name);
-                $('#lastPayment').text(accountObj.basicInfo.lastPaymentAmount + " " + accountObj.basicInfo.currency);
-                $('#accBalance').text(accountObj.basicInfo.balance);
-                $('#lastPaymentDate').text(accountObj.basicInfo.lastPaymentDate);
-                $('#lastInvoice').text(accountObj.basicInfo.lastInvoiceDate);
-
+                $("#accName").text(accountObj.basicInfo.name);
+                $("#lastPayment").text(accountObj.basicInfo.lastPaymentAmount + " " + accountObj.basicInfo.currency);
+                $("#accBalance").text(accountObj.basicInfo.balance);
+                $("#lastPaymentDate").text(accountObj.basicInfo.lastPaymentDate);
+                $("#lastInvoice").text(accountObj.basicInfo.lastInvoiceDate);
                 // set contact info
-                $('#fname').text(accountObj.billToContact.firstName);
-                $('#state').text(accountObj.billToContact.state);
-                $('#lname').text(accountObj.billToContact.lastName);
-                $('#postalcode').text(accountObj.billToContact.zipCode);
-                $('#address').text(accountObj.billToContact.address1 + " " + accountObj.billToContact.address2);
-                $('#country').text(accountObj.billToContact.country);
-                $('#city').text(accountObj.billToContact.city);
-                $('#email').text(accountObj.billToContact.workEmail);
-
+                $("#fname").text(accountObj.billToContact.firstName);
+                $("#state").text(accountObj.billToContact.state);
+                $("#lname").text(accountObj.billToContact.lastName);
+                $("#postalcode").text(accountObj.billToContact.zipCode);
+                $("#address").text(accountObj.billToContact.address1 + " " + accountObj.billToContact.address2);
+                $("#country").text(accountObj.billToContact.country);
+                $("#city").text(accountObj.billToContact.city);
+                $("#email").text(accountObj.billToContact.workEmail);
                 // set credit card info
-                $('#paymentMethodType').text(String(accountObj.basicInfo.defaultPaymentMethod.paymentMethodType).replace(/([A-Z])/g, ' $1'));
-                $('#paymentType').text(accountObj.basicInfo.defaultPaymentMethod.creditCardType);
-                $('#ccNum').text(accountObj.basicInfo.defaultPaymentMethod.creditCardNumber);
-                $('#ccExpiary').text(accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationMonth + " / " +
+                $("#paymentMethodType").text(String(accountObj.basicInfo.defaultPaymentMethod.paymentMethodType).replace(/([A-Z])/g, ' $1'));
+                $("#paymentType").text(accountObj.basicInfo.defaultPaymentMethod.creditCardType);
+                $("#ccNum").text(accountObj.basicInfo.defaultPaymentMethod.creditCardNumber);
+                $("#ccExpiary").text(accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationMonth + " / " +
                     accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationYear);
-                $('#invoice-info').DataTable({
+                $("#invoice-info").DataTable({
                     responsive: true,
                     "data": invoiceData,
                     "columns": [
@@ -60,7 +59,7 @@ $(document).ready(function () {
                         {"data": "status", "width": "10%", "sClass": "dt-body-right"}
                     ]
                 });
-                $('#payments-info').DataTable({
+                $("#payments-info").DataTable({
                     responsive: true,
                     "data": paymentData,
                     "columns": [
@@ -85,24 +84,24 @@ $(document).ready(function () {
                  *
                  * @type {*|jQuery}
                  */
-                var allPanels = $('.accordion .box-content').show();
-                $('.accordion .box-header').click(function () {
+                var allPanels = $(".accordion .box-content").show();
+                $(".accordion .box-header").click(function () {
                     $this = $(this);
                     $target = $this.next();
-                    if (!$target.hasClass('active')) {
-                        $target.addClass('active').slideDown();
-                        $this.find('i').removeClass('fw-right').addClass('fw-down');
+                    if (!$target.hasClass("active")) {
+                        $target.addClass("active").slideDown();
+                        $this.find("i").removeClass("fw-right").addClass("fw-down");
                     } else {
-                        $target.removeClass('active').slideUp();
-                        $this.find('i').removeClass('fw-down').addClass('fw-right')
+                        $target.removeClass("active").slideUp();
+                        $this.find("i").removeClass("fw-down").addClass("fw-right")
                     }
                     return false;
                 });
             } else {
-                $('.message_box').empty();
+                $(".message_box").empty();
                 jagg.message({
                     content: "Unable to load the account details at the moment. Please contact WSO2 Cloud Team for help",
-                    type: 'error',
+                    type: "error",
                     cbk: function () {
                         window.location.href = result.cloudmgtURL + "/site/pages/contact-us.jag";
                     }
@@ -113,16 +112,16 @@ $(document).ready(function () {
     });
 });
 
-function viewPaymentMethods(tenantDomain) {
-    var form = $('<form action="manage-account.jag?tenant=' + tenantDomain + '"' + 'method="post">' +
+function viewPaymentMethods(obj) {
+    var form = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
         '<input type="hidden" name="action" value="viewPaymentMethod"/>' +
         '</form>');
     $('body').append(form);
     $(form).submit();
 };
 
-function addNewPaymentMethod(tenantDomain, obj) {
-    var form = $('<form action="manage-account.jag?secondaryPayment=true&tenant=' + tenantDomain + '"' + 'method="post">' +
+function addNewPaymentMethod(obj) {
+    var form = $('<form action="manage-account.jag?secondaryPayment=true&tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
         '<input type="hidden" name="accountId" value="' + obj.getElementById("accountId").value + '"/>' +
         '<input type="hidden" name="action" value="paymentMethod"/>' +
         '</form>');
@@ -130,9 +129,8 @@ function addNewPaymentMethod(tenantDomain, obj) {
     $(form).submit();
 };
 
-
-function updateContactInfo(tenantDomain, obj) {
-    var formContactInfo = $('<form action="manage-account.jag?tenant=' + tenantDomain + '"' + 'method="post">' +
+function updateContactInfo(obj) {
+    var formContactInfo = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
         '<input type="hidden" id ="firstName" name="firstName" value = "' + obj.getElementById("fname").innerHTML + '"/>' +
         '<input type="hidden" name="lastName" value = "' + obj.getElementById("lname").innerHTML + '"/>' +
         '<input type="hidden" name="city" value = "' + obj.getElementById("city").innerHTML + '"/>' +

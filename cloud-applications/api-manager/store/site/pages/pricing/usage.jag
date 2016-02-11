@@ -35,7 +35,6 @@ isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDo
                     "name": "layout/base",
                     "inputs": {
                         "top": [
-
                             {
                                 "name": "search/api-search",
                                 "inputs": null

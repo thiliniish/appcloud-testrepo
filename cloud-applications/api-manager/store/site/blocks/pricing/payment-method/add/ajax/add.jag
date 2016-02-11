@@ -45,7 +45,6 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
     if (action != null && action == "generateParams") {
         var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
-
         try {
             result = mod.generateParams(tenantDomain, workflowReference);
             if (result != null) {

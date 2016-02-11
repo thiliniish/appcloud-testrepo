@@ -22,8 +22,24 @@ var mod = jagg.module("pricing");
         }
         return;
     }
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var monetizationStatus = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (monetizationStatus == null || monetizationStatus.error || !monetizationStatus.monetizationEnabled) {
+        print({
+            error: true,
+            statusCode: 403,
+            message: "API monetization feature is not available for this tenant.  Please contact store admin."
+        });
+    }
     if (action == "get-billing-account") {
-        print(mod.getAccountDetails());
+        var result = mod.getAccountDetails();
+        result.tenantDomain = tenantDomain;
+        if (result.error) {
+            result.cloudmgtURL = mod.getCloudmgtURL();
+        }
+        print(result);
     } else {
         message = "Invalid Action specified for action " + action;
         responseObj = {

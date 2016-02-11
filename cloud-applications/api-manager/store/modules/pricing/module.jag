@@ -33,8 +33,20 @@ jagg.module("pricing", {
     getAccountDetails: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAccountDetails.apply(this, arguments);
     },
+    getUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getUsage.apply(this, arguments);
+    },
+    getAPIs: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAPIs.apply(this, arguments);
+    },
+    getApplications: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getApplications.apply(this, arguments);
+    },
     getCurrencyUsed: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getCurrencyUsed.apply(this, arguments);
+    },
+    getCloudmgtURL: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getCloudmgtURL.apply(this, arguments);
     },
     getRatePlanInfo:function () {
         return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getRatePlanInfo.apply(this, arguments);

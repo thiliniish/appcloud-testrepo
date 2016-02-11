@@ -25,6 +25,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     var monetizationStatus = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
 
     if (monetizationStatus == null || monetizationStatus.error || !monetizationStatus.monetizationEnabled) {
+        response.status = 403;
         print({
             error: true,
             statusCode: 403,

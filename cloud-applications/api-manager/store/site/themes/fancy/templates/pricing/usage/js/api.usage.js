@@ -22,7 +22,6 @@ var selectedEndDate;
 var selectedStartDate, isYear;
 setSelectedDates(endDate, startDate);
 
-
 $('.side-pane-trigger').click(function () {
     var rightPane = $('.right-pane');
     var leftPane = $('.left-pane');
@@ -36,7 +35,6 @@ $('.side-pane-trigger').click(function () {
         $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
     }
 });
-
 
 /**
  * Select Element for API Usage API list
@@ -63,15 +61,12 @@ var apiUsageApplicationList = $('#usage-ds-application').select2({
 /**
  * Change events for Select 2 elements
  **/
-
-
 apiUsageAPIList.on("change", function () {
     selectedAPI = $(this).val();
     if (selectedAPI == 'ALL') {
         $('#api-usage-ds-api-list').empty().trigger('change');
         $("#usage-ds-application").empty().append('<option value="ALL">ALL</option>').val('ALL').trigger('change');
         apiUsageApplicationList.select2({data: applicationData});
-
     } else {
         var applicationData = getAppData(selectedAPI);
         $("#usage-ds-application").empty().append('<option value="' + applicationData[0] + '">' + applicationData[0] + '</option>').val(applicationData[1]).trigger('change');
@@ -164,7 +159,6 @@ function cb(start, end) {
     $('.btn-calender span').html(start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY'));
 }
 
-cb(moment().subtract(29, 'days'), moment());
 $('.btn-calender').daterangepicker({
     "singleDatePicker": false,
     "opens": "left",
@@ -183,6 +177,7 @@ $('.btn-calender').on('apply.daterangepicker', function (ev, picker) {
     loadDataToChartObjectForGivenTime(usageChart);
     highlightSelected(this);
 });
+
 loadDataToChartObjectForGivenTime(usageChart);
 
 var monthNames = ["January", "February", "March", "April", "May", "June",
@@ -202,7 +197,6 @@ function getMonthList(from, to) {
 
     return arr;
 }
-
 
 function loadDataToChartObjectForGivenTime(chartObj) {
     getJsonData(function (response) {
@@ -245,6 +239,7 @@ function loadDataToChartObjectForGivenTime(chartObj) {
         }
     })
 }
+
 function getDates(startDate, stopDate) {
     var dateArray = new Array();
     var currentDate = startDate;
@@ -263,18 +258,7 @@ function getDates(startDate, stopDate) {
     }
     return dateArray;
 };
-/**
- *
- * Helper function to add Days to a given date
- *
- * @param days - number of days
- * @returns {Date} - changed date
- */
-Date.prototype.substractDays = function (days) {
-    var dat = new Date(this.valueOf());
-    dat.setDate(dat.getDate() - days);
-    return dat;
-}
+
 function isLastDayOfMonth(dt) {
     var test = new Date(dt.getTime());
     test.setDate(test.getDate() + 1);

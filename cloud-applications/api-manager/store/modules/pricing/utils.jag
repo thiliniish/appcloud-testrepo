@@ -3,11 +3,24 @@ var carbon = require('carbon');
 var server = carbon.server;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
-var user = jagg.getUser().username;
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-var tenantDomain = multiTenantUtils.getTenantDomain(user);
 
 var mdAlgorithm = "SHA-512";
+
+var getCloudmgtURL = function () {
+    var monetizationConfigFile;
+    try {
+        monetizationConfigFile = new File("/site/conf/cloud_conf.json");
+        monetizationConfigFile.open("r");
+        var configs = parse(monetizationConfigFile.readAll());
+        return configs.cloud.mgt_url;
+    } catch (e) {
+        log.error("Error while getting thecloud_conf.json.");
+        throw e;
+    } finally {
+        monetizationConfigFile.close();
+    }
+}
 
 var getConfigInJson = function () {
     try {
@@ -25,6 +38,8 @@ var getCurrencyUsed = function () {
 
 var getAccountId = function () {
     try {
+        var user = jagg.getUser().username;
+        var tenantDomain = multiTenantUtils.getTenantDomain(user);
         var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(user, tenantDomain));
         var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
         return accountNumber;

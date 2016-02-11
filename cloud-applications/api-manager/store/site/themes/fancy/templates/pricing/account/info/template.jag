@@ -70,7 +70,7 @@
                       <div class="box-content active">
                          <div class="text-right padding-all-xs">
                             <button type="button" class="cu-btn cu-btn-sm cu-btn-blue"
-                               id="view-payment-methods" onclick="viewPaymentMethods('<%=tenantDomain%>');">
+                               id="view-payment-methods" onclick="viewPaymentMethods(document);">
                         <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
                         <i class="fw fw-view fw-stack-1x"></i>
@@ -78,10 +78,11 @@
                         Payment Methods
                         </button>
                         <input type="hidden" name="accountId" id="accountId"/>
+                        <input type="hidden" name="tenantDomain" id="tenantDomain"/>
                         <input type="hidden" name="address1" id="address1"/>
                         <input type="hidden" name="address2" id="address2"/>
                         <button type="button" class="cu-btn cu-btn-sm cu-btn-blue"
-                           id="add-new-payment-method" onclick="addNewPaymentMethod('<%=tenantDomain%>', document);">
+                           id="add-new-payment-method" onclick="addNewPaymentMethod(document);">
                         <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
                         <i class="fw fw-add fw-stack-1x"></i>
@@ -139,7 +140,7 @@
                   <div class="box-content active">
                      <div class="text-right padding-all-xs">
                         <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="update-contact-info"
-                         onclick="updateContactInfo('<%=tenantDomain%>', document);" >
+                         onclick="updateContactInfo(document);" >
      <span class="fw-stack fw-lg btn-action-ico">
      <i class="fw fw-ring fw-stack-2x"></i>
      <i class="fw fw-edit fw-stack-1x"></i>

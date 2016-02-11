@@ -6,6 +6,8 @@ var server = carbon.server;
 var mod = jagg.module("pricing");
 var responseObj;
 var message;
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+
 (function () {
     var action = request.getParameter("action");
     var user = jagg.getUser();
@@ -20,9 +22,23 @@ var message;
         }
         return;
     }
-    if (action == "gotInvoice") {
-        var invoiceId = request.getParameter("id");
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+
+    var monetizationStatus = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+    if (monetizationStatus == null || monetizationStatus.error || !monetizationStatus.monetizationEnabled) {
+        print({
+            error: true,
+            statusCode: 403,
+            message: "API monetization feature is not available for this tenant.  Please contact store admin."
+        });
+    }
+    if (action == "getInvoice") {
+        var invoiceId = encoder.getSafeText(request.getParameter("id"));
         var result = mod.getBillingInvoiceData(invoiceId);
+        print(result);
+    } else if (action == "getCurrency") {
+        var result = mod.getCurrencyUsed();
         print(result);
     } else {
         msg = "Invalid Action specified for action " + action;
@@ -33,6 +49,5 @@ var message;
         };
         print(responseObj);
     }
-
 }());
 %>
