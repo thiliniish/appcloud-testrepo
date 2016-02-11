@@ -1,0 +1,62 @@
+<% jagg.template("monetizing/subscriber/usage/get", function (inputs, outputs, jagg) { %>
+
+    <div class="inner-wrapper">
+           <div class="right-pane">
+            <div class="action-bar">
+                <a href="009_cloud_app_details_initial.html" class="btn-action">
+                    <span class="fw-stack fw-lg btn-action-ico">
+                        <i class="fw fw-ring fw-stack-2x"></i>
+                        <i class="fw fw-left-arrow fw-stack-1x"></i>
+                    </span> Back to Cloud Dashboard
+                </a>
+            </div>
+        <div class="container-fluid cloud-container">
+                <div class="row">
+                    <div id="margin-top-xs"></div>
+                    <div class="col-md-12 padding-bottom-xlg">
+                        <div class="box api-usage">
+                            <div class="box-header">
+                                <div class="row">
+                                    <h4 class="margin-left-xs">Subscriber API Usage Summary</h4>
+                                    <div class="col-lg-2 col-md-2">
+                                        <select id="api-usage-ds-user-name" class="form-control">
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2 col-md-2">
+                                        <select id="api-usage-ds-api-list" class="form-control">
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2 col-md-2">
+                                        <select id="api-usage-ds-application" class="form-control">
+                                        </select>
+                                    </div>
+                                    <div class="pull-right chart-controller">
+                                        <div class="btn-toolbar" role="toolbar" aria-label="...">
+                                            <div class="btn-group" role="group" aria-label="...">
+                                                <button type="button" class="btn btn-week"><p>1 Week</p></button>
+                                                <button type="button" class="btn btn-month chart-controller-btn-selected"><p>1 Month</p></button>
+                                                <button type="button" class="btn btn-year"><p>1 Year</p></button>
+                                                <button type="button" class="btn btn-calender"><span></span><i class="fa fa-calendar fa-2x"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="span6">
+                                <div class="box-content box-content-padding">
+                                    <div class="usageLabel"><p id="usageLabelTxt" name="usageLabelTxt"></p></div>
+                                    <div id="show-usage">
+                                        <div class="chart-container" id="api-usage"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.container -->
+        <div class="clearfix"></div>
+        <div id="push"></div>
+    </div>
+<%
+});
+%>

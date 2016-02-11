@@ -1,0 +1,6 @@
+<%
+jagg.block("monetizing/subscriber/usage/get", {
+    initialize: function (data) {
+    }
+});
+%>

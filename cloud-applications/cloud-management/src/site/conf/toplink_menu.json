@@ -94,6 +94,12 @@
         "icon": "fa fa-3x  fa-users",
         "isDropDown": "false",
         "target": "_self"
+      },
+      "Monetization": {
+        "url": "monetization-url",
+        "icon": "fa fa-3x fa-money",
+        "isDropDown": "false",
+        "target": "_self"
       }
     }
   }

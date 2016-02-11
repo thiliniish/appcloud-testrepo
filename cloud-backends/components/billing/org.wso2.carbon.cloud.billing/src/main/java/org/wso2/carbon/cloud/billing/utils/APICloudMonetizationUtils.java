@@ -247,7 +247,7 @@ public final class APICloudMonetizationUtils {
     public static List<String> getFreeTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
         try {
             Resource tiersXmlResource = CloudBillingUtils
-                    .getRegistryResource(tenantDomain, MonetizationConstants.tiersXmlUrl);
+                    .getRegistryResource(tenantDomain, MonetizationConstants.TIERS_XML_URL);
             if (tiersXmlResource != null) {
                 String content = new String((byte[]) tiersXmlResource.getContent(), Charset.forName(BillingConstants.ENCODING));
                 List<String> freeTiers = new ArrayList<>();

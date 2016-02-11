@@ -320,6 +320,12 @@
       </result>
       <param name="USER_ID" sqlType="STRING"/>
    </query>
+   <query id="deletePaidApiSubscriptionsOfUserQ" useConfig="apim_db">
+      <sql>DELETE from AM_SUBSCRIPTION where SUBSCRIPTION_ID IN (SELECT SUBSCRIPTION_ID from (select SUBS.SUBSCRIPTION_ID from AM_SUBSCRIPTION SUBS, AM_SUBSCRIBER SUB, AM_APPLICATION APP where SUB.USER_ID = :USER_ID AND SUB.TENANT_ID = :TENANT_ID AND SUB.SUBSCRIBER_ID = APP.SUBSCRIBER_ID AND SUBS.APPLICATION_ID=APP.APPLICATION_ID AND SUBS.TIER_ID NOT IN (:FREE_TIERS)) as SUBIDS);</sql>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="TENANT_ID" sqlType="STRING"/>
+      <param name="FREE_TIERS" paramType="ARRAY" sqlType="STRING"/>
+   </query>
     <operation name="getSubscriber">
         <call-query href="getSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -556,4 +562,11 @@
          <with-param name="API_VERSION" query-param="apiName"/>
       </call-query>
    </resource>
+   <resource method="DELETE" path="v1/apim/{tenantId}/{subscriberId}/subscriptions" returnRequestStatus="true">
+      <call-query href="deletePaidApiSubscriptionsOfUserQ">
+         <with-param name="USER_ID" query-param="subscriberId"/>
+         <with-param name="TENANT_ID" query-param="tenantId"/>
+         <with-param name="FREE_TIERS" query-param="freeTier"/>
+      </call-query>
+    </resource>
 </data>
