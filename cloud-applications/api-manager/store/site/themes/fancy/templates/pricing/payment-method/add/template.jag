@@ -97,7 +97,7 @@
                         span12 pull-right">Proceed</button>
                      <br class="c-both" />
                   </div>
-                   <% } else { %>
+                  <% } else { %>
                    </div>
                    <br class="clearfix" />
                    <div class="form-group span11 offset1">
