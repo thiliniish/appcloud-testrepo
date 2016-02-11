@@ -36,7 +36,8 @@ $(document).ready(function () {
                 $("#city").text(accountObj.billToContact.city);
                 $("#email").text(accountObj.billToContact.workEmail);
                 // set credit card info
-                $("#paymentMethodType").text(String(accountObj.basicInfo.defaultPaymentMethod.paymentMethodType).replace(/([A-Z])/g, ' $1'));
+                $("#paymentMethodType").text(String(accountObj.basicInfo.defaultPaymentMethod.paymentMethodType)
+                    .replace(/([A-Z])/g, ' $1'));
                 $("#paymentType").text(accountObj.basicInfo.defaultPaymentMethod.creditCardType);
                 $("#ccNum").text(accountObj.basicInfo.defaultPaymentMethod.creditCardNumber);
                 $("#ccExpiary").text(accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationMonth + " / " +
@@ -49,7 +50,8 @@ $(document).ready(function () {
                         {
                             "data": "invoiceNumber", "width": "20%", "sClass": "dt-body-right",
                             "render": function (data, type, full, meta) {
-                                return "<a class='editroles' onclick='return goToInvoicePage(\"" + full['id'] + "\",\"" + tenantDomain + "\")'' >" + full['invoiceNumber'] + "</a> ";
+                                return "<a class='editroles' onclick='return goToInvoicePage(\"" + full['id'] + "\",\""
+                                    + tenantDomain + "\")'' >" + full['invoiceNumber'] + "</a> ";
                             }
                         },
                         {"data": "dueDate", "width": "20%", "sClass": "dt-body-right"},
@@ -118,7 +120,8 @@ function viewPaymentMethods(obj) {
     $(form).submit();
 };
 function addNewPaymentMethod(obj) {
-    var form = $('<form action="manage-account.jag?secondaryPayment=true&tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
+    var form = $('<form action="manage-account.jag?secondaryPayment=true&tenant=' + obj.getElementById("tenantDomain")
+        + '"' + 'method="post">' +
         '<input type="hidden" name="accountId" value="' + obj.getElementById("accountId").value + '"/>' +
         '<input type="hidden" name="action" value="paymentMethod"/>' +
         '</form>');
@@ -126,7 +129,8 @@ function addNewPaymentMethod(obj) {
     $(form).submit();
 };
 function updateContactInfo(obj) {
-    var formContactInfo = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
+    var formContactInfo = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain") + '"'
+        + 'method="post">' +
         '<input type="hidden" id ="firstName" name="firstName" value = "' + obj.getElementById("fname").innerHTML + '"/>' +
         '<input type="hidden" name="lastName" value = "' + obj.getElementById("lname").innerHTML + '"/>' +
         '<input type="hidden" name="city" value = "' + obj.getElementById("city").innerHTML + '"/>' +

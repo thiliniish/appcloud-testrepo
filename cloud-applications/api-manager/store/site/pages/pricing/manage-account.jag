@@ -79,23 +79,18 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
             return;
         }
         var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
-
         if (workflowReference == null && "createAccount".equals(action)) {
             workflowReference = encoder.getSafeText(request.getParameter("field_passthrough2"));
         }
-
         if (workflowReference == null || "".equals(workflowReference)) {
             response.sendRedirect(jagg.url(errorPageUri));
             return;
         }
-
         var ratePlanObj = jagg.module("pricing").getRatePlanInfo(tenantDomain, workflowReference);
-
         if (ratePlanObj == null || ratePlanObj.error) {
             response.sendRedirect(jagg.url(errorPageUri));
             return;
         }
-
         var inputsObj = {
             "workflowReference": workflowReference,
             "ratePlan": ratePlanObj.ratePlan,
@@ -103,20 +98,16 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         };
 
         if ("paymentMethod".equals(action)) {
-
             //When returned from a unsuccessful payment
             var paymentSuccess = encoder.getSafeText(request.getParameter("success"));
             var errorObj = {
                 "error": false
             };
-
             if (paymentSuccess != null && !"".equals(paymentSuccess) && !paymentSuccess) {
                 errorObj.error = true;
                 errorObj.errorMessage = encoder.getSafeText(request.getParameter("errorMessage"));
             }
-
             inputsObj.errorObj = errorObj;
-
             middleObj = [{
                 "name": "pricing/payment-method/add",
                 "inputs": inputsObj
