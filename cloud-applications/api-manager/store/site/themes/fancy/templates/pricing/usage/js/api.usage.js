@@ -43,8 +43,7 @@ var apiUsageAPIList = $('#usage-ds-api-list').select2({
     placeholder: "Search or Select API",
     data: apiData,
     maximumInputLength: 5,
-    selectOnBlur: true,
-    allowClear: true
+    selectOnBlur: true
 });
 
 /**

@@ -40,13 +40,13 @@ $(document).ready(function () {
                         {
                             "data": "id", "orderable": false, "width": "15%",
                             "render": function (data, type, full, meta) {
-                                return "<a class='editroles' onclick='return makeDefaultMethod(\"" + full['id'] + "\",\"" + result.tenantDomain + "\")'' ><i class='fw fw-star'></i> Set as Primary</a> ";
+                                return "<a class='editroles' onclick='return makeDefaultMethod(\"" + full['id'] + "\")'' ><i class='fw fw-star'></i> Set as Primary</a> ";
                             }
                         },
                         {
                             "data": "id", "orderable": false, "width": "5%", "sClass": "dt-body-center",
                             "render": function (data, type, full, meta) {
-                                return "<a class='editroles' onclick='return removePaymentMethod(\"" + full['id'] + "\",\"" + result.tenantDomain + "\")'' ><i class='fw fw-delete'></i></a> ";
+                                return "<a class='editroles' onclick='return removePaymentMethod(\"" + full['id'] + "\")'' ><i class='fw fw-delete'></i></a> ";
                             }
                         }
                     ]
@@ -65,7 +65,7 @@ $(document).ready(function () {
     });
 });
 
-function makeDefaultMethod(methodId, tenantDomain) {
+function makeDefaultMethod(methodId) {
     $.ajax({
         url: "../../blocks/pricing/payment-method/info/ajax/get.jag",
         data: {
@@ -102,7 +102,7 @@ function makeDefaultMethod(methodId, tenantDomain) {
 };
 
 
-function removePaymentMethod(methodId, tenantDomain) {
+function removePaymentMethod(methodId) {
     $.ajax({
         url: "../../blocks/pricing/payment-method/info/ajax/get.jag",
         data: {
