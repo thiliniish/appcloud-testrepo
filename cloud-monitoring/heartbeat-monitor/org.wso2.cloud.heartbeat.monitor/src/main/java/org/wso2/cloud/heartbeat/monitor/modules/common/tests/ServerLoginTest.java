@@ -44,19 +44,23 @@ public class ServerLoginTest implements Job {
      */
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        LoginUtils loginUtils = new LoginUtils();
 
-        for (Map.Entry<String, String> entry : hostNames.entrySet()) {
-            LoginUtilsBean loginUtilsBean = new LoginUtilsBean();
+        for (final Map.Entry<String, String> entry : hostNames.entrySet()) {
+            Thread loginThread = new Thread() {
+                public void run() {
+                    LoginUtilsBean loginUtilsBean = new LoginUtilsBean();
+                    loginUtilsBean.setServerName(entry.getKey());
+                    loginUtilsBean.setHostName(entry.getValue());
+                    loginUtilsBean.setTenantUser(tenantUser);
+                    loginUtilsBean.setTenantUserPwd(tenantUserPwd);
+                    loginUtilsBean.setLoginTestSeverity(loginTestSeverity);
 
-            loginUtilsBean.setServerName(entry.getKey());
-            loginUtilsBean.setHostName(entry.getValue());
-            loginUtilsBean.setTenantUser(tenantUser);
-            loginUtilsBean.setTenantUserPwd(tenantUserPwd);
-            loginUtilsBean.setLoginTestSeverity(loginTestSeverity);
-
-            loginUtils.initializeLoginTest(loginUtilsBean);
-            loginUtils.login();
+                    LoginUtils loginUtils = new LoginUtils();
+                    loginUtils.initializeLoginTest(loginUtilsBean);
+                    loginUtils.login();
+                }
+            };
+            loginThread.start();
         }
     }
 
