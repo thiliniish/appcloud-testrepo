@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2015-2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -305,10 +305,119 @@ public class ZuoraRESTUtils {
         return subscriptionIdList;
     }
 
+    /**
+     * Cancel account subscription
+     *
+     * @param subscriptionNumber   subscription id
+     * @param subscriptionInfoJson subscription details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
     public static String cancelSubscription(String subscriptionNumber, String subscriptionInfoJson) throws
             CloudBillingException {
         return zuoraApi.doPut(BillingConstants.ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION
                 .replace(BillingConstants.SUBSCRIPTION_KEY_PARAM, subscriptionNumber.trim()), null, subscriptionInfoJson);
+    }
+
+    /**
+     * Update account details
+     *
+     * @param accountId       account id
+     * @param accountInfoJson account details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public static String updateAccount(String accountId, String accountInfoJson)
+            throws CloudBillingException {
+        // Zuora api request URL
+        String requestUrl = BillingConstants.ZUORA_REST_API_URI_ACCOUNTS + "/" + accountId.trim();
+        return zuoraApi.doPut(requestUrl, null, accountInfoJson);
+    }
+
+    /**
+     * Create account
+     *
+     * @param accountInfoJson account details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public static String createAccount(String accountInfoJson)
+            throws CloudBillingException {
+        // Zuora api request URL
+        String requestUrl = BillingConstants.ZUORA_REST_API_URI_ACCOUNTS;
+        return zuoraApi.doPost(requestUrl, null, accountInfoJson);
+    }
+
+    /**
+     * Update subscription details
+     *
+     * @param subscriptionId       subscription id
+     * @param subscriptionInfoJson subscription details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public static String updateSubscription(String subscriptionId, String subscriptionInfoJson)
+            throws CloudBillingException {
+        // Zuora api request URL
+        String requestUrl =
+                BillingConstants.ZUORA_REST_API_URI_SUBSCRIPTIONS + "/" + subscriptionId;
+        return zuoraApi.doPut(requestUrl, null, subscriptionInfoJson);
+    }
+
+    /**
+     * Retrieve account details
+     *
+     * @param accountId account id
+     * @return json string of account
+     * @throws CloudBillingException
+     */
+    public static String getAccountDetails(String accountId) throws CloudBillingException {
+        // Zuora api request URL
+        String requestUrl = BillingConstants.ZUORA_REST_API_URI_ACCOUNTS + "/" + accountId;
+        return zuoraApi.doGet(requestUrl, null, null);
+    }
+
+    /**
+     * Remove payment method
+     *
+     * @param methodId payment method id
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public static String removePaymentMethod(String methodId) throws CloudBillingException {
+        // Zuora api request URL
+        String requestUrl =
+                BillingConstants.ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD + "/" + methodId;
+        return zuoraApi.doDelete(requestUrl, null, null);
+    }
+
+    /**
+     * Retrieve all the payment methods
+     *
+     * @param accountId account id
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public static String getAllPaymentMethods(String accountId) throws CloudBillingException {
+        // Zuora api request URL
+        String requestUrl =
+                BillingConstants.ZUORA_REST_API_URI_PAYMENT_METHODS + "/accounts/" + accountId;
+        return zuoraApi.doGet(requestUrl, null, null);
+    }
+
+    /**
+     * Update default payment method
+     *
+     * @param methodId              method id
+     * @param paymentMethodInfoJson payment method details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public static String updateDefaultPaymentMethod(String methodId, String paymentMethodInfoJson)
+            throws CloudBillingException {
+        // Zuora api request URL
+        String requestUrl = BillingConstants.ZUORA_REST_API_URI_PAYMENT_METHODS + "/" + methodId;
+        return zuoraApi.doPut(requestUrl, null, paymentMethodInfoJson);
     }
 
     public static String createSubscription(String accountNumber, String ratePlanId, Date planEffectiveDate) throws
