@@ -6,6 +6,7 @@ var log = new Log("site.blocks.pricing.method.info.ajax.get.jag");
 var carbon = require('carbon');
 var server = carbon.server;
 var mod = jagg.module("pricing");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
     var action = request.getParameter("action");
@@ -23,15 +24,41 @@ var mod = jagg.module("pricing");
         }
         return;
     }
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.status = 403;
+        print({
+            error: true,
+            statusCode: 403,
+            message: "Feature not available for the store. Please contact store admin."
+        });
+    }
     if (action == "get-payment-methods") {
-        print(mod.getAllPaymentMethods());
+        var result = mod.getAllPaymentMethods();
+        result.tenantDomain = tenantDomain;
+        if (result.error) {
+            result.cloudmgtURL = mod.getCloudmgtURL();
+        }
+        print(result);
     } else if (action == "setDefaultMethod") {
-        var methodId = request.getParameter("paymentMethodId");
-        print (mod.updateDefaultPaymentMethod(methodId));
+        var methodId = encoder.getSafeText(request.getParameter("paymentMethodId"));
+        var result = mod.updateDefaultPaymentMethod(methodId);
+        result.tenantDomain = tenantDomain;
+        if (result.error) {
+            result.cloudmgtURL = mod.getCloudmgtURL();
+        }
+        print(result);
     } else if (action == "removePaymentMethod") {
         try {
-            var methodId = request.getParameter("paymentMethodId");
+            var methodId = encoder.getSafeText(request.getParameter("paymentMethodId"));
             var result = mod.removePaymentMethod(methodId);
+            result.tenantDomain = tenantDomain;
+            if (result.error) {
+                result.cloudmgtURL = mod.getCloudmgtURL();
+            }
             print(result);
         } catch (e) {
             var message = "Error while removing the payment method";
@@ -43,7 +70,7 @@ var mod = jagg.module("pricing");
             print(responseObj);
         }
     } else {
-        msg = "Invalid Action specified for action "+action;
+        msg = "Invalid Action specified for action " + action;
         responseObj = {
             error: true,
             message: msg,

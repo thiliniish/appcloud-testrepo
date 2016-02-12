@@ -14,7 +14,6 @@ var errorObj = {
 
 //Generate zuora HPM page parameters
 var generateParams = function (tenantDomain, workflowReference) {
-
     try {
         var clientParams = JSON.parse(billingService.prepareParams());
         session.put(ZUORA_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
@@ -22,16 +21,19 @@ var generateParams = function (tenantDomain, workflowReference) {
         //those parameters by iteratively number them from 1
         //field_passthrough1 is client token
         clientParams.field_passthrough1 = clientParams.token;
-        //field_passthrough2 is workflowReference
-        clientParams.field_passthrough2 = workflowReference;
+
+        if (workflowReference != null) {
+            //field_passthrough2 is workflowReference
+            clientParams.field_passthrough2 = workflowReference;
+            var apiData = decryptAndGetApiData(workflowReference);
+            //field_passthrough4 is selectedApp
+            clientParams.field_passthrough4 = apiData.appName;
+        }
         //field_passthrough3 is tenantDomain
         clientParams.field_passthrough3 = tenantDomain;
+
         //can pre-load the new page with the previously entered information so that the user does not have to re-enter the information
         clientParams.retainValues = true;
-
-        var apiData = decryptAndGetApiData(workflowReference);
-        //field_passthrough4 is selectedApp
-        clientParams.field_passthrough4 = apiData.appName;
 
         if (log.isDebugEnabled()) {
             log.debug("Parameters generated for tenant: " + clientParams.tenantId);
@@ -47,6 +49,7 @@ var generateParams = function (tenantDomain, workflowReference) {
         return errorObj;
     }
 };
+
 
 var getAccountDetails = function () {
     try {
@@ -326,7 +329,6 @@ var isMonetizationEnabled = function (tenantDomain) {
 var createAccount = function (username, accountData, metaData, workflowRefData) {
 
     var ratePlanId, errorMsg;
-    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
     var tenantDomain = multiTenantUtils.getTenantDomain(username);
 
     if (!validatePassThroughHash(metaData.field_passthrough1)) {
@@ -505,6 +507,93 @@ var getRatePlanInfo = function (tenantDomain, workflowRefData) {
             //Retry to check new rate plan availability
             return getAndAddRatePlanToSession(tenantDomain, ratePlanName);
         }
+    }
+};
+
+var getUsage = function (api, appName, startDate, endDate) {
+    var username = jagg.getUser().username;
+    var tenantDomain = multiTenantUtils.getTenantDomain(username);
+    if (api != null) {
+        var values = api.split(":v");
+        var apiName = values[0];
+        var version = (apiName == DEAULT_API_NAME) ? "*" : values[1];
+        var apiName = (apiName == DEAULT_API_NAME) ? "*" : apiName;
+        var appName = (appName == DEAULT_APP_NAME) ? "*" : appName;
+        try {
+            var usageData = JSON.parse(apiMonService.getTenantMonetizationUsageDataForGivenDateRange(tenantDomain,
+                    username, apiName, version, appName, startDate, endDate));
+            return {
+                error: false,
+                message: usageData,
+                statusCode: 200
+            };
+        } catch (e) {
+            log.error("Error while getting usage for : " + tenantDomain);
+            log.error(e);
+            return errorObj;
+        }
+    } else {
+        var msg = "API name cannot be null when retrieving usage";
+        return {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+};
+
+var getAPIs = function () {
+    var username = jagg.getUser().username;
+    try {
+        var apiData = JSON.parse(apiMonService.getUserAPIs(username));
+        var apis = [];
+        apis.push(DEAULT_API_NAME);
+        // if there are multiple entries data services will return an array of entries
+        if (apiData.Entries.Entry instanceof Array) {
+            for (var x = 0; x < apis.Entries.Entry.length; x++) {
+                apis.push(apiData.Entries.Entry[x].ApiVersion);
+            }
+        } else {
+            //it will return an entry object without an array
+            apis.push(apiData.Entries.Entry.ApiVersion);
+        }
+
+        return {
+            error: false,
+            message: apis,
+            statusCode: 200
+        };
+    } catch (e) {
+        log.error("Error while getting apis for : " + username);
+        log.error(e);
+        return errorObj;
+    }
+};
+
+var getApplications = function (api) {
+    var username = jagg.getUser().username;
+    try {
+        var appData;
+        appData = JSON.parse(apiMonService.getUserAPIApplications(username, api));
+        var apps = [];
+        apps.push(DEAULT_APP_NAME);
+        // if there are multiple entries data services will return an array of entries
+        if (appData.Entries.Entry instanceof Array) {
+            for (var x = 0; x < appData.Entries.Entry.length; x++) {
+                apps.push(appData.Entries.Entry[x].applicationName);
+            }
+        } else {
+            apps.push(appData.Entries.Entry.applicationName);
+        }
+        return {
+            error: false,
+            message: apps,
+            statusCode: 200
+        };
+    } catch (e) {
+        log.error("Error while getting apis for : " + username);
+        log.error(e);
+        return errorObj;
     }
 };
 %>

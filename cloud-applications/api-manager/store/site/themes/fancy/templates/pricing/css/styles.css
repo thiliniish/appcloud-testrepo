@@ -132,9 +132,7 @@ button[disabled]{
     padding: 10px 22px;
     line-height: 1.3em;
 }
-.cu-btn-lg {
-    padding: 10px 18px;
-}
+.cu-btn-lg {}
 .cu-btn-sm {
     padding: 3px 11px;
 }
@@ -925,9 +923,6 @@ a.btn-action {
 }
 .left-pane ul li ul li a:hover {
     background-color: #1b1b1b;
-}
-.left-pane ul li.active a{
-    color: #0498d5;
 }
 .left-pane a{
     color: #fff;
@@ -2803,6 +2798,10 @@ table.dataTable .subtable th, table.dataTable .subtable td{
     background-color: #282828;
     margin: 0px 1px;
 }
+.chart-controller .chart-controller-btn-selected{
+    background:#444;
+    color:#e4e4e4;
+}
 .chart-controller .btn p{
     margin: 0px;
     padding: 4px;
@@ -2870,48 +2869,34 @@ table.dataTable .subtable th, table.dataTable .subtable td{
     background-color: #fff;
     margin: 20px 0px;
 }
-.purchase-summary-container h3{
-    margin-top: 0px;
+
+
+/* daterangepicker style overrides*/
+.daterangepicker_input input,.daterangepicker td.start-date,.daterangepicker td.end-date{
+    -webkit-border-radius: 0px!important;
+    -moz-border-radius: 0px!important;
+    border-radius: 0px!important;
 }
-.purchase-summary-container .selected-plan-header{
-    font-size: 24px;
+.daterangepicker.opensleft:after{
+    border-bottom:6px solid #fff!important;
 }
-.selected-plan{
-    font-weight: 500;
-    font-size: 19px;
-    margin-bottom: 0px;
+.daterangepicker .calendar-table{
+    border: none!important;
 }
-.selected-plan-features p{
-    margin: 0px;
+.daterangepicker .applyBtn{
+    background-color:#0498d5;
+    border:none;
+    background-image:none;
 }
-.subscription-details{
-    padding: 20px 0px;
-    margin-top: 20px;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+.daterangepicker .cancelBtn{
+    border:none;
 }
-.subscription-plan{
-    font-weight: 100;
+.daterangepicker td.active, .daterangepicker td.active:hover{
+
 }
-.subscription-details .remark{
-    color: #c9302c;
+.daterangepicker td.in-range{
+    background:#C6E1F9!important;
 }
-.total-payable{
-    padding: 20px 0px;
-    font-weight: 500;
-}
-.payment-email{
-    color: #ccc;
-    padding: 10px 0px;
-}
-.terms-wrapper{
-    padding: 10px 10px;
-    background-color: #333;
-    height: 200px;
-}
-.terms-wrapper .nano-content{
-    padding: 10px 10px;
-}
-.gateway-container{
-    border: 1px solid #6A6A6A;
+.daterangepicker td.available:hover, .daterangepicker th.available:hover{
+    background:#357ebd!important;
 }

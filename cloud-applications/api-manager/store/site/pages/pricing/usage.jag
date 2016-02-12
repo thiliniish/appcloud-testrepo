@@ -1,12 +1,13 @@
 <%
-
 include("/jagg/jagg.jag");
 include("../header.jag");
 var site = require("/site/conf/site.json");
 var i18n = require("i18n");
 var localeResourcesBasePath = "/site/conf/locales/jaggery/";
 i18n.init(request, localeResourcesBasePath);
-var tenantDomain = jagg.getTenantDomain();
+var tenantDomain = jagg.getTenantDomain(),isMonetizationEnabledObj;
+
+isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
 
 (function () {
     var user = jagg.getUser(), isCreatePermitted;
@@ -16,11 +17,16 @@ var tenantDomain = jagg.getTenantDomain();
         return;
     }
 
+    //if monetization is not available for tenant
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+        return;
+    }
 
     jagg.render({
         "name": "page/base",
         "inputs": {
-            "title": "API Store- Account Summary ",
+            "title": "API Store - API Usage Summary",
             "header": {
                 "name": "menu/primary"
             },
@@ -28,6 +34,12 @@ var tenantDomain = jagg.getTenantDomain();
                 {
                     "name": "layout/base",
                     "inputs": {
+                        "top": [
+                            {
+                                "name": "search/api-search",
+                                "inputs": null
+                            }
+                        ],
                         "left": [
                             {
                                 "name": "api/recently-added",
@@ -37,7 +49,7 @@ var tenantDomain = jagg.getTenantDomain();
                             }
                         ],
                         "middle": {
-                            "name": "pricing/payment-method/info"
+                            "name": "pricing/usage"
                         }
                     }
                 }

@@ -4,6 +4,7 @@ include("/jagg/cloud/constants.jag");
 
 var log = new Log("site.block.pricing.account.update.ajax.update.jag");
 var mod = jagg.module("pricing");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
     var result,
@@ -23,17 +24,28 @@ var mod = jagg.module("pricing");
         }
         return;
     }
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var monetizationStatus = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (monetizationStatus == null || monetizationStatus.error || !monetizationStatus.monetizationEnabled) {
+        print({
+            error: true,
+            statusCode: 403,
+            message: "API monetization feature is not available for this tenant.  Please contact store admin."
+        });
+    }
     if (action == "updateAccount") {
         var accountData = {};
-        accountData.firstName = request.getParameter("firstName");
-        accountData.lastName = request.getParameter("lastName");
-        accountData.address1 = request.getParameter("address1");
-        accountData.address2 = request.getParameter("address2");
-        accountData.city = request.getParameter("city");
-        accountData.state = request.getParameter("state");
-        accountData.zipCode = request.getParameter("zipCode");
-        accountData.country = request.getParameter("country");
-        accountData.workEmail = request.getParameter("email");
+        accountData.firstName = encoder.getSafeText(request.getParameter("firstName"));
+        accountData.lastName = encoder.getSafeText(request.getParameter("lastName"));
+        accountData.address1 = encoder.getSafeText(request.getParameter("address1"));
+        accountData.address2 = encoder.getSafeText(request.getParameter("address2"));
+        accountData.city = encoder.getSafeText(request.getParameter("city"));
+        accountData.state = encoder.getSafeText(request.getParameter("state"));
+        accountData.zipCode = encoder.getSafeText(request.getParameter("zipCode"));
+        accountData.country = encoder.getSafeText(request.getParameter("country"));
+        accountData.workEmail = encoder.getSafeText(request.getParameter("email"));
         responseFrom = request.getParameter("responseFrom");
         var result = mod.updateContactInfo(accountData);
         print(result);

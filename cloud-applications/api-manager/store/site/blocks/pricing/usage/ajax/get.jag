@@ -1,17 +1,15 @@
 <%
 include("/jagg/jagg.jag");
-var log = new Log("site.blocks.pricing.account.info.ajax.get.jag");
+var log = new Log("site.blocks.pricing.usage.ajax.get.jag");
 var carbon = require('carbon');
 var server = carbon.server;
 var mod = jagg.module("pricing");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
     var action = request.getParameter("action");
     var user = jagg.getUser();
     var mod = jagg.module("pricing");
-    var ssoEnabled = site.ssoConfiguration.enabled;
-    var msg = require("/site/conf/ui-messages.jag");
-    var message;
     var responseObj;
     if (!user) {
         if (!ssoEnabled) {
@@ -34,18 +32,22 @@ var mod = jagg.module("pricing");
             message: "API monetization feature is not available for this tenant.  Please contact store admin."
         });
     }
-    if (action == "get-billing-account") {
-        var result = mod.getAccountDetails();
-        result.tenantDomain = tenantDomain;
-        if (result.error) {
-            result.cloudmgtURL = mod.getCloudmgtURL();
-        }
-        print(result);
+    if (action == "get-usage") {
+        var api = encoder.getSafeText(request.getParameter("api"));
+        var appName = encoder.getSafeText(request.getParameter("appName"));
+        var startDate = encoder.getSafeText(request.getParameter("startDate"));
+        var endDate = encoder.getSafeText(request.getParameter("endDate"));
+        print(mod.getUsage(api, appName, startDate, endDate));
+    } else if (action == "get-apis") {
+        print(mod.getAPIs());
+    } else if (action == "get-apps") {
+        var api = encoder.getSafeText(request.getParameter("api"));
+        print(mod.getApplications(api));
     } else {
-        message = "Invalid Action specified for action " + action;
+        msg = "Invalid Action specified for action " + action;
         responseObj = {
             error: true,
-            message: message,
+            message: msg,
             statusCode: 500
         };
         print(responseObj);

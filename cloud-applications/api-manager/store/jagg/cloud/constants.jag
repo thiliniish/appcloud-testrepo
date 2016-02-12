@@ -25,5 +25,9 @@ var CHARGE_DATE = "chargeDate";
 var SERVIVICE_PERIOD = "servicePeriod";
 var DISCOUNT = "discount";
 
+var DEAULT_API_NAME = "ALL";
+var DEAULT_APP_NAME = "ALL";
+
+var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 %>
 

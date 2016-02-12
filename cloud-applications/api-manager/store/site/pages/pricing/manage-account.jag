@@ -27,85 +27,123 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     }
 
     var action = encoder.getSafeText(request.getParameter("action"));
-    if (action == null) {
-        response.sendRedirect(jagg.url(errorPageUri));
-        return;
-    }
-    var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
-
-    if (workflowReference == null && "createAccount".equals(action)) {
-        workflowReference = encoder.getSafeText(request.getParameter("field_passthrough2"));
-    }
-
-    if (workflowReference == null || "".equals(workflowReference)) {
-        response.sendRedirect(jagg.url(errorPageUri));
-        return;
-    }
-
-    var ratePlanObj = jagg.module("pricing").getRatePlanInfo(tenantDomain, workflowReference);
-
-    if (ratePlanObj == null || ratePlanObj.error) {
-        response.sendRedirect(jagg.url(errorPageUri));
-        return;
-    }
-
-    var inputsObj = {
-        "workflowReference": workflowReference,
-        "ratePlan": ratePlanObj.ratePlan,
-        "tenant": tenantDomain
-    };
-
-    if ("paymentMethod".equals(action)) {
-
-        //When returned from a unsuccessful payment
-        var paymentSuccess = encoder.getSafeText(request.getParameter("success"));
-        var errorObj = {
-            "error": false
+    var isSecondaryPaymentMethod = encoder.getSafeText(request.getParameter("secondaryPayment"));
+    if ("paymentMethod".equals(action) && isSecondaryPaymentMethod) {
+        var accountId = encoder.getSafeText(request.getParameter("accountId"));
+        var inputsObj = {
+            "isSecondaryPaymentMethod": isSecondaryPaymentMethod,
+            "accountId": accountId,
+            "tenant": tenantDomain
         };
-
-        if (paymentSuccess != null && !"".equals(paymentSuccess) && !paymentSuccess) {
-            errorObj.error = true;
-            errorObj.errorMessage = encoder.getSafeText(request.getParameter("errorMessage"));
-        }
-
-        inputsObj.errorObj = errorObj;
-
         middleObj = [{
             "name": "pricing/payment-method/add",
             "inputs": inputsObj
         }];
-    } else if ("createAccount".equals(action)) {
-        var signature = encoder.getSafeText(request.getParameter("signature"));
-        var refId = encoder.getSafeText(request.getParameter("refId"));
-        var field_passthrough1 = encoder.getSafeText(request.getParameter("field_passthrough1"));
-        selectedApp = encoder.getSafeText(request.getParameter("field_passthrough4"));
-
-        inputsObj.refId = refId;
-        inputsObj.signature = signature;
-        inputsObj.field_passthrough1 = field_passthrough1;
-        inputsObj.selectedApp = selectedApp;
-
+    } else if ("viewPaymentMethod".equals(action)) {
         middleObj = [{
-            "name": "pricing/account/create",
-            "inputs": inputsObj
+            "name": "pricing/payment-method/info"
         }];
-    } else if ("subscribed".equals(action)) {
-        selectedApp = encoder.getSafeText(request.getParameter("selectedApp"));
 
-        var uri = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?");
-        if (selectedApp != null && !"".equals(selectedApp)) {
-            uri = uri + "&selectedApp=" + selectedApp;
-        }
-        inputsObj.redirectUrl = uri;
+    } else if ("editUserInfo".equals(action)) {
+        var cloudmgtURL =  jagg.module("pricing").getCloudmgtURL();
+        var profileFirstName = encoder.getSafeText(request.getParameter("firstName"));
+        var userEmail = encoder.getSafeText(request.getParameter("email"));
+        var profileLastName = encoder.getSafeText(request.getParameter("lastName"));
+        var creditCardCity = encoder.getSafeText(request.getParameter("city"));
+        var creditCardCountry = encoder.getSafeText(request.getParameter("country"));
+        var creditCardAddress1 = encoder.getSafeText(request.getParameter("address1"));
+        var creditCardAddress2 = encoder.getSafeText(request.getParameter("address2"));
+        var creditCardState = encoder.getSafeText(request.getParameter("state"));
+        var creditCardPostalCode = encoder.getSafeText(request.getParameter("postalcode"));
+        var user = jagg.getUser().username;
+        var inputsObj = {};
+        inputsObj.cloudmgtURL = cloudmgtURL;
+        inputsObj.profileFirstName = (profileFirstName == null ? "" : profileFirstName);
+        inputsObj.userEmail = (userEmail == null ? "" : userEmail);
+        inputsObj.profileLastName = (profileLastName == null ? "" : profileLastName);
+        inputsObj.creditCardCity = (creditCardCity == null ? "" : creditCardCity);
+        inputsObj.creditCardCountry = (creditCardCountry == null ? "" : creditCardCountry);
+        inputsObj.creditCardAddress1 = (creditCardAddress1 == null ? "" : creditCardAddress1);
+        inputsObj.creditCardAddress2 = (creditCardAddress2 == null ? "" : creditCardAddress2);
+        inputsObj.creditCardState = (creditCardState == null ? "" : creditCardState);
+        inputsObj.creditCardPostalCode = (creditCardPostalCode == null ? "" : creditCardPostalCode);
+        inputsObj.user = user;
+        inputsObj.tenantDomain = tenantDomain;
         middleObj = [{
-            "name": "pricing/payment-confirm",
+            "name": "pricing/account/update",
             "inputs": inputsObj
         }];
     } else {
-        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
-        return;
-    }
+        if (action == null) {
+            response.sendRedirect(jagg.url(errorPageUri));
+            return;
+        }
+        var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
+        if (workflowReference == null && "createAccount".equals(action)) {
+            workflowReference = encoder.getSafeText(request.getParameter("field_passthrough2"));
+        }
+        if (workflowReference == null || "".equals(workflowReference)) {
+            response.sendRedirect(jagg.url(errorPageUri));
+            return;
+        }
+        var ratePlanObj = jagg.module("pricing").getRatePlanInfo(tenantDomain, workflowReference);
+        if (ratePlanObj == null || ratePlanObj.error) {
+            response.sendRedirect(jagg.url(errorPageUri));
+            return;
+        }
+        var inputsObj = {
+            "workflowReference": workflowReference,
+            "ratePlan": ratePlanObj.ratePlan,
+            "tenant": tenantDomain
+        };
 
+        if ("paymentMethod".equals(action)) {
+            //When returned from a unsuccessful payment
+            var paymentSuccess = encoder.getSafeText(request.getParameter("success"));
+            var errorObj = {
+                "error": false
+            };
+            if (paymentSuccess != null && !"".equals(paymentSuccess) && !paymentSuccess) {
+                errorObj.error = true;
+                errorObj.errorMessage = encoder.getSafeText(request.getParameter("errorMessage"));
+            }
+            inputsObj.errorObj = errorObj;
+            middleObj = [{
+                "name": "pricing/payment-method/add",
+                "inputs": inputsObj
+            }];
+        } else if ("createAccount".equals(action)) {
+            var signature = encoder.getSafeText(request.getParameter("signature"));
+            var refId = encoder.getSafeText(request.getParameter("refId"));
+            var field_passthrough1 = encoder.getSafeText(request.getParameter("field_passthrough1"));
+            selectedApp = encoder.getSafeText(request.getParameter("field_passthrough4"));
+
+            inputsObj.refId = refId;
+            inputsObj.signature = signature;
+            inputsObj.field_passthrough1 = field_passthrough1;
+            inputsObj.selectedApp = selectedApp;
+
+            middleObj = [{
+                "name": "pricing/account/create",
+                "inputs": inputsObj
+            }];
+        } else if ("subscribed".equals(action)) {
+            selectedApp = encoder.getSafeText(request.getParameter("selectedApp"));
+
+            var uri = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?");
+            if (selectedApp != null && !"".equals(selectedApp)) {
+                uri = uri + "&selectedApp=" + selectedApp;
+            }
+            inputsObj.redirectUrl = uri;
+            middleObj = [{
+                "name": "pricing/payment-confirm",
+                "inputs": inputsObj
+            }];
+        } else {
+            response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+            return;
+        }
+    }
     jagg.render({
         "name": "page/base",
         "inputs": {
