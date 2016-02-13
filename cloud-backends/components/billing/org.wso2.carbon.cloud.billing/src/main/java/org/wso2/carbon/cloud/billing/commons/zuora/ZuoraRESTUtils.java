@@ -327,8 +327,7 @@ public class ZuoraRESTUtils {
      * @return success Json string
      * @throws CloudBillingException
      */
-    public static String updateAccount(String accountId, String accountInfoJson)
-            throws CloudBillingException {
+    public static String updateAccount(String accountId, String accountInfoJson) throws CloudBillingException {
         // Zuora api request URL
         String requestUrl = BillingConstants.ZUORA_REST_API_URI_ACCOUNTS + "/" + accountId.trim();
         return zuoraApi.doPut(requestUrl, null, accountInfoJson);
@@ -359,8 +358,7 @@ public class ZuoraRESTUtils {
     public static String updateSubscription(String subscriptionId, String subscriptionInfoJson)
             throws CloudBillingException {
         // Zuora api request URL
-        String requestUrl =
-                BillingConstants.ZUORA_REST_API_URI_SUBSCRIPTIONS + "/" + subscriptionId;
+        String requestUrl = BillingConstants.ZUORA_REST_API_URI_SUBSCRIPTIONS + "/" + subscriptionId;
         return zuoraApi.doPut(requestUrl, null, subscriptionInfoJson);
     }
 
@@ -386,8 +384,7 @@ public class ZuoraRESTUtils {
      */
     public static String removePaymentMethod(String methodId) throws CloudBillingException {
         // Zuora api request URL
-        String requestUrl =
-                BillingConstants.ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD + "/" + methodId;
+        String requestUrl = BillingConstants.ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD + "/" + methodId;
         return zuoraApi.doDelete(requestUrl, null, null);
     }
 
@@ -400,8 +397,7 @@ public class ZuoraRESTUtils {
      */
     public static String getAllPaymentMethods(String accountId) throws CloudBillingException {
         // Zuora api request URL
-        String requestUrl =
-                BillingConstants.ZUORA_REST_API_URI_PAYMENT_METHODS + "/accounts/" + accountId;
+        String requestUrl = BillingConstants.ZUORA_REST_API_URI_PAYMENT_METHODS + "/accounts/" + accountId;
         return zuoraApi.doGet(requestUrl, null, null);
     }
 

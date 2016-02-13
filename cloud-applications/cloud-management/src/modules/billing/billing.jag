@@ -143,9 +143,9 @@ var cancelSubscription = function(serviceName) {
 		var data = {
 		};
 
-		data.cancellationPolicy = 'SpecificDate';
+        data.cancellationPolicy = 'SpecificDate';
         data.cancellationEffectiveDate = dateFormatter.format(effectiveDate);
-		data.invoiceCollect = true;
+        data.invoiceCollect = true;
         var response = JSON.parse(billingService.cancelSubscription(subscriptionId, JSON.stringify(data)));
 		if (response.success === true) {
 			if (serviceId != null) {
@@ -259,7 +259,7 @@ var updateContactInfo = function (accountData, organizationName) {
     var response = JSON.parse(billingService.updateAccount(accountId, JSON.stringify(data)));
     if (response.success === true) {
         return "Your contact information is successfully added"
-    }else {
+    } else {
         log.error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
         throw new Error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
     }
