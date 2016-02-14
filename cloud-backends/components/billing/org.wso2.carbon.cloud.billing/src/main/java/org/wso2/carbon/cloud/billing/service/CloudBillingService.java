@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
@@ -376,7 +377,9 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public JSONArray getProductRatePlans(String productName) throws CloudBillingException {
         try {
-            return ZuoraRESTUtils.getProductRatePlans(productName);
+            // Zuora api request URL
+            String requestUrl = BillingConstants.ZUORA_REST_API_URI_PRODUCTS;
+            return ZuoraRESTUtils.getProductRatePlans(productName, requestUrl);
         } catch (CloudBillingException ex) {
             LOGGER.error("Error occurred while retrieving product rate plans for product: " + productName, ex);
             throw ex;
