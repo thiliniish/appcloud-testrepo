@@ -48,6 +48,7 @@ public class ZuoraRESTUtils {
             .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA);
 
     private static JsonObject subscriptionPlanInfoObj;
+    private static JSONArray ratePlanList;
 
     static {
         subscriptionPlanInfoObj = new JsonObject();
@@ -250,31 +251,48 @@ public class ZuoraRESTUtils {
     /**
      * Get product rate plans for a product (ex: api_cloud)
      * This is the description we maintain in billing.xml
+     * This method is recursive. Zuora sends the response in multiple pages. Have to recursively get the product list of
+     * each page. Zuora api request contains a parameter named nextPage which contains the request URL for the next page.
      *
      * @param productName product name
+     * @param requestUrl  zuora request url
      * @return Json array of rate plans
      * @throws CloudBillingException
      */
-    public static JSONArray getProductRatePlans(String productName) throws CloudBillingException {
-        String response = null;
-
+    public static JSONArray getProductRatePlans(String productName, String requestUrl) throws CloudBillingException {
+        String productList = zuoraApi.doGet(requestUrl, null, null);
+        ratePlanList = null;
         try {
-            response = zuoraApi.doGet(BillingConstants.ZUORA_REST_API_URI_PRODUCTS, null, null);
             JSONParser jsonParser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
-            // getting all subscriptions elements for accountId
-            JSONArray products;
-            products = ((JSONArray) jsonObject.get(BillingConstants.PRODUCTS));
+            JSONObject productJsonObject = (JSONObject) jsonParser.parse(productList);
+            JSONArray products = ((JSONArray) productJsonObject.get(BillingConstants.PRODUCTS));
             for (Object product : products) {
                 if (((JSONObject) product).get(BillingConstants.NAME).equals(productName)) {
-                    return (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
+                    ratePlanList = (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
                 }
             }
-
+            if (ratePlanList == null) {
+                Boolean success;
+                String nextPage;
+                // Get the status of the request
+                success = (Boolean) productJsonObject.get(BillingConstants.PRODUCT_RATE_PLANS_SUCCESS_STATUS);
+                if (success) {
+                    // Get the next page value
+                    nextPage = (String) productJsonObject.get(BillingConstants.PRODUCT_RATE_PLANS_NEXTPAGE);
+                    if (nextPage != null) {
+                        // Removing the redundant service URL host value from the nextPage
+                        requestUrl = nextPage.replaceAll(BillingConstants.ZUORA_SERVICE_URL_HOST,
+                                                         BillingConstants.EMPTY_STRING).trim();
+                        getProductRatePlans(productName, requestUrl);
+                    } else {
+                        throw new CloudBillingException("Unable to find the specified product name: " + productName);
+                    }
+                }
+            }
         } catch (ParseException e) {
-            throw new CloudBillingException("Error passing the response " + response + " to json object", e);
+            throw new CloudBillingException("Error passing the productList " + productList + " to json object.", e);
         }
-        throw new CloudBillingException("Unable to find the specified product name: " + productName);
+        return ratePlanList;
     }
 
     /**
