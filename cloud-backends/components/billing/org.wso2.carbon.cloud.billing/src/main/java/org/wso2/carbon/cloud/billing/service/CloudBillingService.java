@@ -87,8 +87,9 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.updateAccount(accountId, accountInfoJson);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while updating the account for Account Id: " + accountId, ex);
-            throw ex;
+            String message = "Error occurred while updating the account for Account Id: " + accountId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
         }
     }
 
@@ -103,8 +104,9 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.createAccount(accountInfoJson);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while creating the account", ex);
-            throw ex;
+            String message = "Error occurred while creating the account";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
         }
     }
 
@@ -120,9 +122,10 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.updateSubscription(subscriptionId, subscriptionInfoJson);
         } catch (CloudBillingException ex) {
-            LOGGER.error(
-                    "Error occurred while updating the subscription details for Subscription Id: " + subscriptionId, ex);
-            throw ex;
+            String message =
+                    "Error occurred while updating the subscription details for Subscription Id: " + subscriptionId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
         }
     }
 
@@ -137,8 +140,9 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.getAccountDetails(accountId);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while retrieving the account details for Account Id: " + accountId, ex);
-            throw ex;
+            String message = "Error occurred while retrieving the account details for Account Id: " + accountId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
         }
     }
 
@@ -153,8 +157,9 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.removePaymentMethod(methodId);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while removing the payment method for Method Id: " + methodId, ex);
-            throw ex;
+            String message = "Error occurred while removing the payment method for Method Id: " + methodId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
         }
     }
 
@@ -169,8 +174,9 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.getAllPaymentMethods(accountId);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while retrieving all payment methods for Account Id: " + accountId, ex);
-            throw ex;
+            String message = "Error occurred while retrieving all payment methods for Account Id: " + accountId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
         }
     }
 
@@ -187,9 +193,9 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.updateDefaultPaymentMethod(methodId, paymentMethodInfoJson);
         } catch (CloudBillingException ex) {
-            LOGGER.error(
-                    "Error occurred while updating the default payment methods for Method Id: " + methodId, ex);
-            throw ex;
+            String message = "Error occurred while updating the default payment methods for Method Id: " + methodId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
         }
     }
 
