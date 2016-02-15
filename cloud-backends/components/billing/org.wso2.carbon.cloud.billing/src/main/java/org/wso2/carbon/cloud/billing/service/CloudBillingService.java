@@ -37,6 +37,11 @@ import org.wso2.carbon.core.AbstractAdmin;
  */
 
 public class CloudBillingService extends AbstractAdmin {
+    /**
+     * We have enforce logging and throwing exceptions in service methods as this service class is intended to be used
+     * as a web service and also invoked by jaggery code via osgi service. For jaggery code in the module layer to
+     * generate the error or success message, its important to catch the exception.
+     */
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingService.class);
 
