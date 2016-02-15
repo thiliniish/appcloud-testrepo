@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2015-2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -37,6 +37,11 @@ import org.wso2.carbon.core.AbstractAdmin;
  */
 
 public class CloudBillingService extends AbstractAdmin {
+    /**
+     * We have enforce logging and throwing exceptions in service methods as this service class is intended to be used
+     * as a web service and also invoked by jaggery code via osgi service. For jaggery code in the module layer to
+     * generate the error or success message, its important to catch the exception.
+     */
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingService.class);
 
@@ -72,6 +77,130 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException ex) {
             LOGGER.error("Error occurred while retrieving the account summary for Account Id: " + accountId, ex);
             throw ex;
+        }
+    }
+
+    /**
+     * Update Account Info
+     *
+     * @param accountId       Account Id
+     * @param accountInfoJson account details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public String updateAccount(String accountId, String accountInfoJson) throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.updateAccount(accountId, accountInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while updating the account for Account Id: " + accountId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
+        }
+    }
+
+    /**
+     * Create the Account
+     *
+     * @param accountInfoJson account details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public String createAccount(String accountInfoJson) throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.createAccount(accountInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while creating the account";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
+        }
+    }
+
+    /**
+     * Update subscription
+     *
+     * @param subscriptionId       subscription id
+     * @param subscriptionInfoJson subscription details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public String updateSubscription(String subscriptionId, String subscriptionInfoJson) throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.updateSubscription(subscriptionId, subscriptionInfoJson);
+        } catch (CloudBillingException ex) {
+            String message =
+                    "Error occurred while updating the subscription details for Subscription Id: " + subscriptionId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
+        }
+    }
+
+    /**
+     * Retrieve billing account details
+     *
+     * @param accountId Account Id
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public String getAccountDetails(String accountId) throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.getAccountDetails(accountId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving the account details for Account Id: " + accountId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
+        }
+    }
+
+    /**
+     * Remove payment method
+     *
+     * @param methodId payment method id
+     * @return Json string of account
+     * @throws CloudBillingException
+     */
+    public String removePaymentMethod(String methodId) throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.removePaymentMethod(methodId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while removing the payment method for Method Id: " + methodId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
+        }
+    }
+
+    /**
+     * Retrieve all payment methods
+     *
+     * @param accountId account id
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public String getAllPaymentMethods(String accountId) throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.getAllPaymentMethods(accountId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving all payment methods for Account Id: " + accountId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
+        }
+    }
+
+    /**
+     * Update default payment method
+     *
+     * @param methodId              method id
+     * @param paymentMethodInfoJson payment method details
+     * @return success Json string
+     * @throws CloudBillingException
+     */
+    public String updateDefaultPaymentMethod(String methodId, String paymentMethodInfoJson)
+            throws CloudBillingException {
+        try {
+            return ZuoraRESTUtils.updateDefaultPaymentMethod(methodId, paymentMethodInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while updating the default payment methods for Method Id: " + methodId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message + ex);
         }
     }
 
