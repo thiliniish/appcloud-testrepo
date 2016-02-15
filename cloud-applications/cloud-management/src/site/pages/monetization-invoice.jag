@@ -36,7 +36,7 @@ var invoiceId = encoder.getSafeText(request.getParameter('invoiceId'));
                         "middle": [
                             {
                                 "name": "monetizing/account/invoice",
-                                "inputs":{
+                                "inputs": {
                                     "accountId": accountId,
                                     "invoiceId": invoiceId
                                 }

@@ -12,10 +12,10 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURI = cloudConfig.ServerUrls.cloudmgt.toString();
 var contactUsURL = cloudmgtURI + CLOUD_CONTACT_US_URI;
 var errorObj = {
-	error: true,
-	statusCode: 500,
+    error: true,
+    statusCode: 500,
     redirectionURL: contactUsURL,
-	message: "Internal error. Please retry..."
+    message: "Internal error. Please retry..."
 };
 
 var loginStatus = jagg.isUserLoggedIn();
@@ -60,59 +60,61 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
         var result = mod.getBillingAccountSummary(subscribersAccountId);
         print(result);
 
-    } else if( action == "get-payment-info"){
+    } else if (action == "get-payment-info") {
         var subscribersAccountId = encoder.getSafeText(request.getParameter("accountId"));
         var result = mod.getBillingPaymentInfo(subscribersAccountId);
         print(result);
 
 
-    }else if (action == "get-subscription-info"){
+    } else if (action == "get-subscription-info") {
         var apiName = encoder.getSafeText(request.getParameter("apiName"));
         var apiVersion = encoder.getSafeText(request.getParameter("apiVersion"));
         var subscribersAccountId = encoder.getSafeText(request.getParameter("accountId"));
         var result = mod.getSubscriptions(subscribersAccountId, apiName, apiVersion);
         print(result);
 
-	} else if (action == "get-subscribers-of-tenant"){
-		var result = mod.getSubscribersOfTenant();
-		if(result.error != null || result.error == false ){
-			var subscriberList = [];
+    } else if (action == "get-subscribers-of-tenant") {
+        var result = mod.getSubscribersOfTenant();
+        if (result.error != null || result.error == false) {
+            var subscriberList = [];
             // Generating data for the dataTable, It is required to send an id and text input to the dataTable so
             // manipulating the results data
-			for(var x = 0; x < result.subObj.length; x++){
-				var data = {id : x, email : result.subObj[x].email, text : result.subObj[x].displayName,
-                    username : result.subObj[x].userName, complimentary : result.subObj[x].complimentary,
-                    subscriptionType :result.subObj[x].subscriptionType, accountId :  result.subObj[x].accountId};
+            for (var x = 0; x < result.subObj.length; x++) {
+                var data = {
+                    id: x, email: result.subObj[x].email, text: result.subObj[x].displayName,
+                    username: result.subObj[x].userName, complimentary: result.subObj[x].complimentary,
+                    subscriptionType: result.subObj[x].subscriptionType, accountId: result.subObj[x].accountId
+                };
                 subscriberList.push(data);
-			}
-			print(subscriberList);
-		}
-		else{
+            }
+            print(subscriberList);
+        }
+        else {
             errorObj.message = "Error occurred while getting the user list, Please contact WSO2 Cloud Team for help";
-			print(errorObj);
-		}
+            print(errorObj);
+        }
 
-	} else if (action == "get-api-list-from-username") {
+    } else if (action == "get-api-list-from-username") {
         var userName = encoder.getSafeText(request.getParameter("username"));
         var result = {};
         var accountNumberResult = mod.getAccountIdFromUserName(userName);
         result.accountNumber = accountNumberResult.data;
         if (!accountNumberResult.error) {
             //if the account number is null then should send back the null as account number not an error
-            if(accountNumberResult.data != null){
+            if (accountNumberResult.data != null) {
                 var apiList = mod.getApiListFromAccountId(accountNumberResult.data);
-                if (!apiList.error){
+                if (!apiList.error) {
                     result.apiList = apiList.data;
                 }
             }
             print(result);
-        } else{
+        } else {
             log.error("Error occurred while getting the  api list ");
             errorObj.message = "Error occurred while getting the api list, Please contact WSO2 Cloud Team for help";
             print(errorObj);
         }
 
-	} else {
+    } else {
         log.error("No Action Specified");
         errorObj.message = "Unexpected error occurred";
         print(errorObj);

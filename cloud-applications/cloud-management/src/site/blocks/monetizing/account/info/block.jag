@@ -1,6 +1,6 @@
 <%
 jagg.block("monetizing/account/info", {
-    getOutputs:function (inputs) {
+    getOutputs: function (inputs) {
         return inputs;
     }
 });
