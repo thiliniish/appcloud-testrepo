@@ -1,0 +1,247 @@
+<% jagg.template("monetizing/account/info", function(inputs, outputs, jagg) {%>
+
+<input type="hidden" id="emailAddy" name="emailAddy" value="<%=outputs.email%>" />
+<div class="inner-wrapper">
+    <div class="right-pane">
+        <div class="action-bar">
+            <a  href=<%=jagg.getAbsoluteUrl("/site/pages/subscribers-list.jag")%> class="btn-action"> <span
+                class="fw-stack fw-lg btn-action-ico"> <i class="fw fw-ring fw-stack-2x"></i> <i
+                    class="fw fw-left-arrow fw-stack-1x"></i>
+            </span> Back to Subscribers
+            </a>
+        </div>
+        <div class="container-fluid app-content-section">
+            <div class="row">
+                <div id="margin-top-xs"></div>
+                <div class="col-md-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <select id="ds-user-name" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-content">
+                            <div class="row">
+                                <div class="col-lg-12 forms">
+                                    <div class="paying-customer-container">
+                                        <span><i class="fw fw-check"></i> <label id="customer-status">Paying
+                                                Customer</label></span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="row">
+                                                <div class="col-md-5 col-md-offset-1">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <span>Subscriber name:</span>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p id="subscriber-name"></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <span>Email:</span>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p id="email"></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5 col-md-offset-1">
+                                                 <div class="row">
+                                                        <div class="col-md-6">
+                                                            <span>Complimentary account:</span>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p id="complimentary-account"></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="accordion">
+                        <div class="box">
+                            <div class="box-header">
+                                <h4 class="pull-left">Account Type</h4>
+                                <i class="fw fw-right pull-right"></i>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="box-content">
+                                <div class="row col-md-5 col-md-offset-1">
+
+                                     <div class="col-md-3 text-right">
+                                        <input id='chkbox-complimentary' type='checkbox'>
+                                    </div>
+
+                                     <div class="col-md-6">
+                                         <span> Complimentary account</span>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+
+                        <div class="box Monetization-Data">
+                            <div class="box-header">
+                                <h4 class="pull-left">Account Summary</h4>
+                                <i class="fw fw-right pull-right"></i>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="box-content">
+                                <div class="row">
+                                    <div class="col-md-5 col-md-offset-1">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <span>Account name:</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p id="account-name"></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <span>Account balance:</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p id="account-balance"></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <span>last invoiced:</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p id="last-invoice"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5 col-md-offset-1">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <span>Last payment:</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p id="last-Payment"></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <span>Last payment date:</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p id="last-payment-date"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                        <div class="box Monetization-Data">
+                            <div class="box-header">
+                                <h4 class="pull-left">Subscription Information</h4>
+                                <i class="fw fw-right pull-right"></i>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="box-content">
+
+                                <div class="datatable">
+                                    <div class="col-lg-3 col-md-3" style="padding-bottom: 15px;">
+                                    </div>
+                                    <table id="sub-info" class="display" cellspacing="0" width="100%" align="center">
+                                        <thead>
+                                            <tr>
+                                                <th>API Name</th>
+                                                <th>API Version</th>
+                                                <th>App Name</th>
+                                                <th>Rate Plan Name</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+
+                        <div class="box Monetization-Data">
+                            <div class="box-header">
+                                <h4 class="pull-left">Invoices</h4>
+                                <i class="fw fw-right pull-right"></i>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="box-content">
+                                <div class="datatable">
+                                    <table id="invoice-info" class="display" cellspacing="0" width="100%" align="center">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Invoice No</th>
+                                                <th>Target Date</th>
+                                                <th>Amount ($)</th>
+                                                <th>Balance ($)</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+
+                        <div class="box Monetization-Data">
+                            <div class="box-header">
+                                <h4 class="pull-left">Payments</h4>
+                                <i class="fw fw-right pull-right"></i>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="box-content">
+                                <div class="datatable">
+                                    <table id="payments-info" class="display" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Effective Date</th>
+                                                <th>Payment No</th>
+                                                <th>Paid Invoices</th>
+                                                <th>Paid Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.container -->
+    </div>
+    <div class="clearfix"></div>
+    <div id="push"></div>
+</div>
+<div id="footer">
+    <div class="container-fluid">
+        <div class="footer-text">
+            WSO2 Cloud V: 1.2 . &copy; 2015 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.
+        </div>
+    </div>
+</div>
+<% }); %>

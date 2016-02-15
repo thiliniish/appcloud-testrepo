@@ -1,0 +1,26 @@
+<%
+jagg.initializer("monetizing/account/info", {
+
+    preInitialize : function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("account/info", "jquery.dataTables", "new-assets/css/datatables-1.10.7/jquery.dataTables.min.css");
+        jagg.addHeaderCSS("account/info", "jquery.dataTables.override", "new-assets/css/datatables-1.10.7/jquery.dataTables.override.css");
+        jagg.addHeaderCSS("account/info", "select2", "new-assets/css/select2-4.0.0/select2.min.css");
+        jagg.addHeaderCSS("account/info", "select2.override", "new-assets/css/select2-4.0.0/select2.override.css");
+
+        // UI related JS files
+        jagg.addFooterJS("account/info", "custom", "js/custom/custom.js");
+        jagg.addFooterJS("account/info", "jquery.dataTables.min", "js/datatables-1.10.7/jquery.dataTables.min.js");
+        jagg.addFooterJS("account/info", "jeditable", "js/Jeditable-1.7.3/jquery.jeditable.js");
+        jagg.addFooterJS("account/info", "dataTables.inlineEdit", "js/datatables-1.10.7/jquery.dataTables.inlineEdit.js");
+        jagg.addFooterJS("account/info", "dataTables.columnFilter", "js/datatables-1.10.7/jquery.dataTables.columnFilter.js");
+        jagg.addFooterJS("account/info", "bootstrap.min", "js/bootstrap-3.2.0/bootstrap.min.js");
+        jagg.addFooterJS("account/info", "select2.min", "js/select2-4.0.0/select2.min.js");
+        jagg.addFooterJS("account/info", "noty", "js/noty-2.3.5/jquery.noty.packaged.min.js");
+        jagg.addFooterJS("account/info", "noty.theme", "js/noty-2.3.5/themes/noty.theme.wso2.js");
+
+        // Custom JS file
+        jagg.addFooterJS("account/info", "account-info", "templates/monetizing/account/info/js/account-info.js");
+    }
+});
+%>

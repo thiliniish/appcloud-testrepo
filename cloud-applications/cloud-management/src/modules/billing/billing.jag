@@ -762,7 +762,7 @@ var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlan
             }
             return ("The Contract effective date should not be " +
                                             "earlier than the customer acceptance date of the previous amendment.");
-        } 
+        }
         else if (response.reasons[0].message.indexOf("Rate plan \""+ BILLING_COUPON_HEADER + couponData+"\" is not effective on the contract effective date") >= 0){
         	if (log.isDebugEnabled()){
         		log.debug("Rate plan \""+ BILLING_COUPON_HEADER + couponData+"\"is not effective on the contract effective date. Response from zuora: " +
@@ -1099,13 +1099,14 @@ try {
 			invoiceData["invoiceNumber"] = invoices[index].invoiceNumber;
 			invoiceData["amount"] = invoices[index].amount;
 			invoiceData["invoiceItems"] = [];
-				
+
 			for(var i=0; i< invoiceItems.length; i++) {
 				var item ={};
 				var invoiceItem = invoiceItems[i];
 				if(invoiceItem.chargeName != DISCOUNT_CHARGE_NAME){
 					if(invoiceItem.chargeName == MONTHLY_SUBSCRIPTION_CHARGE_NAME){
 						item["chargeName"] = invoiceItem.chargeName;
+						item["subscriptionName"] = invoiceItem.subscriptionName;
 						item["amount"] = invoiceItem.chargeAmount;
 						item["servicePeriod"] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
 						item["chargeDate"] = invoices[index].invoiceDate;
@@ -1119,6 +1120,7 @@ try {
 					}
 					else{
 						item["chargeName"] = invoiceItem.chargeName;
+						item["subscriptionName"] = invoiceItem.subscriptionName;
 						item["amount"] = invoiceItem.chargeAmount;
 						item["servicePeriod"] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
 						item["chargeDate"] = invoices[index].invoiceDate;

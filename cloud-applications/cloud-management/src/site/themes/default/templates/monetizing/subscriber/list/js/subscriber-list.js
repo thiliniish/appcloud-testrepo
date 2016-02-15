@@ -9,7 +9,13 @@ $(document).ready(function () {
             $("#subList").DataTable({
                 "data": result.subObj,
                 "columns": [
-                    {"data": "displayName", "width": "25%"},
+                    {"data": "displayName", "width": "25%",
+                        "render": function (data, type, full, meta) {
+                            return "<a class='editroles' onclick='return goToAccountInfo(" +
+                                " \"" + full['email'] + "\")'' ><u>" + full['displayName']
+                                + "</u></a> ";
+                        }
+                    },
                     {"data": "email", "width": "35%"},
                     {"data": "subscriptionType", "width": "20%"},
                     {"data": function (data, type, full) {
@@ -27,6 +33,10 @@ $(document).ready(function () {
         }
     });
 });
+
+function goToAccountInfo(email){
+    window.location.href = "subscriber-account-summary.jag?email-addy=" + email;
+}
 
 $(".side-pane-trigger").click(function () {
     var rightPane = $(".right-pane");

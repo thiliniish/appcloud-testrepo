@@ -1,0 +1,51 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("monetizing");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+var loginStatus = jagg.isUserLoggedIn();
+if (loginStatus.error) {
+	response.status = 401;
+	print(loginStatus);
+}
+var tenantDomain;
+var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+var user = jagg.getUser();
+if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == null) {
+	response.status = 401;
+	print({
+		error: true,
+		status: 401,
+		message: "Unauthorized. Login required."
+	});
+}
+if (!jagg.module("util").isUserInAdminRole()) {
+	response.status = 401;
+	print({
+		error: true,
+		status: 401,
+		message: "User does not have permission to perform the requested operation"
+	});
+}
+var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+    response.status = 403;
+    print({
+        error: true,
+        status: 403,
+        message: "Feature not available for the organization."
+    });
+}
+(function () {
+	if((session.get("TENANT_INFO")) != null ){
+		var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
+		var accountId = encoder.getSafeText(request.getParameter("accountId"));
+		var result = mod.getOrdedInvoices(accountId,invoiceId);
+		print(result);
+	}
+}());
+%>

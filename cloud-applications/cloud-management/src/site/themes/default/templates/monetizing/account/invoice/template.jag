@@ -1,0 +1,117 @@
+<% jagg.template("monetizing/account/invoice", function (inputs, outputs, jagg) { %>
+<div class="right-pane">
+    <div class="action-bar">
+        <a href=<%=jagg.getAbsoluteUrl("/site/pages/subscriber-account-summary.jag")%> class="btn-action"> <span
+            class="fw-stack fw-lg btn-action-ico"> <i class="fw fw-ring fw-stack-2x"></i> <i
+                class="fw fw-left-arrow fw-stack-1x"></i>
+        </span> Back to Subscriptions
+        </a>
+    </div>
+    <div>
+        <input type="hidden" id="invoiceId" name="invoiceId" value="<%=outputs.invoiceId%>" /> <input type="hidden"
+            id="accountId" name="accountId" value="<%=outputs.accountId%>" />
+        <div class="container-fluid app-content-section">
+            <div class="row">
+                <div id="margin-top-xs"></div>
+                <div class="col-md-9">
+                    <div class="box">
+                        <div class="box-header">Basic Information</div>
+                        <div class="box-content">
+                            <div class="row">
+                                <div class="col-md-5 col-md-offset-1">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="control-label  title-label  label-style"> Account Name
+                                                : </label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblOrg" name="lblOrg" class="control-label  label-style"></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="control-label  title-label  label-style"> Invoice
+                                                Number : </label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblInvoiceNum" name="lblInvoiceNum"
+                                                class="control-label  label-style"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 col-md-offset-1">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="control-label  title-label  label-style"> Invoice Date
+                                                : </label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblInvoiceDate" name="lblInvoiceDate"
+                                                class="control-label  label-style"></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="control-label  title-label  label-style"> Invoice
+                                                Amount : </label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label id="lblInvoiceAmount" name="lblInvoiceAmount"
+                                                class="control-label  label-style"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="box-header">Invoice Details</div>
+                        <div class="box-content">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Charge Date</th>
+                                        <th>Charge Name</th>
+                                        <th>Service Period</th>
+                                        <th>Amount</th>
+                                        <th>Discount</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payments-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="panel-body inv-detail-highlight">
+                            <div class="row">
+                                <div class="col-sm-10 content-section-wrapper text-right">
+                                    <label class="control-label  title-label">Amount :</label>
+                                </div>
+                                <div class=" col-sm-2 content-section-wrapper">
+                                    <label id="fAmount" name="fAmount" class="control-label label-style totalData"></label>
+                                </div>
+
+                                <div class="col-sm-10 content-section-wrapper text-right">
+                                    <label class="control-label  title-label">Discount :</label>
+                                </div>
+                                <div class="col-sm-2 content-section-wrapper">
+                                    <label id="fDiscount" name="fDiscount" class="control-label totalData"></label>
+                                </div>
+
+                                <div class="col-sm-10 content-section-wrapper text-right">
+                                    <label class="control-label  title-label">Total :</label>
+                                </div>
+                                <div class="col-sm-2 content-section-wrapper">
+                                    <label id="fTotal" name="fTotal" class="control-label label-style totalData"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%});%>

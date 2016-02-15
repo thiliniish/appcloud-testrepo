@@ -175,6 +175,9 @@ var MONTHLY_SUBSCRIPTION_CHARGE_NAME ="Monthly subscription fee";
 //Billing Commons
 var BILLING_SUGGESTED_PLAN = "Getting Traction";
 
+//Cloudmgt Related
+var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
+
 //Monetization Account Types
 var ACC_FREE = "Free";
 var ACC_TEST = "Test/Complimentary";
