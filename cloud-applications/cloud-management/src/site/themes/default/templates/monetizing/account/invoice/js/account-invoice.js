@@ -17,8 +17,8 @@
  */
 
 $(document).ready(function () {
-    var invoiceId = $('#invoiceId').val();
-    var accountId = $('#accountId').val();
+    var invoiceId = $("#invoiceId").val();
+    var accountId = $("#accountId").val();
     $.ajax({
         url: "../blocks/monetizing/account/invoice/ajax/get.jag",
         data: {
@@ -51,7 +51,7 @@ $(document).ready(function () {
                         if (invoiceItem.discount == 0) {
                             displayDiscount == "";
                         }
-                        $("#payments-tbody").append($('<tr>'
+                        $("#payments-tbody").append($("<tr>"
                             + '<td>' + invoiceItem.chargeDate + '</td>'
                             + '<td>' + invoiceItem.chargeName + '</td>'
                             + '<td>' + invoiceItem.servicePeriod + '</td>'
@@ -74,20 +74,20 @@ $(document).ready(function () {
                     }
                 }
                 if (fullDiscount < 0) {
-                    document.getElementById('fDiscount').style.color = "red";
+                    document.getElementById("fDiscount").style.color = "red";
                 }
 
                 //setting the total pricing values
-                $('#fTotal').text(fullTotal.toFixed(2) + "USD");
-                $('#fDiscount').text(fullDiscount.toFixed(2) + ' ' + "USD");
-                $('#fAmount').text(fullAmount.toFixed(2) + ' ' + "USD");
+                $("#fTotal").text(fullTotal.toFixed(2) + "USD");
+                $("#fDiscount").text(fullDiscount.toFixed(2) + ' ' + "USD");
+                $("#fAmount").text(fullAmount.toFixed(2) + ' ' + "USD");
 
                 //setting the Basic Information
-                $('#lblOrg').text(invoiceObj.accountName);
-                $('#curr').text("USD");
-                $('#lblInvoiceNum').text(invoiceObj.invoiceNumber);
-                $('#lblInvoiceDate').text(invoiceObj.invoiceDate);
-                $('#lblInvoiceAmount').text(invoiceObj.amount + ' ' + "USD");
+                $("#lblOrg").text(invoiceObj.accountName);
+                $("#curr").text("USD");
+                $("#lblInvoiceNum").text(invoiceObj.invoiceNumber);
+                $("#lblInvoiceDate").text(invoiceObj.invoiceDate);
+                $("#lblInvoiceAmount").text(invoiceObj.amount + ' ' + "USD");
             }
             else{
                 showErrorMessage(result);
@@ -103,7 +103,7 @@ function showErrorMessage(result){
         type: 'error',
         closeWith: ['button','click'],
         text: result.message,
-        buttons: [{addClass: 'btn btn-default', text: 'Ok', onClick: function(){
+        buttons: [{addClass: 'btn btn-default', text: 'OK', onClick: function(){
             window.location.href = ( result.redirectionURL);}
         }],
         animation: {

@@ -3,8 +3,8 @@ include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
 var log = new Log();
 var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
-var accountId = encoder.getSafeText(request.getParameter('accountId'));
-var invoiceId = encoder.getSafeText(request.getParameter('invoiceId'));
+var accountId = encoder.getSafeText(request.getParameter("accountId"));
+var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
 (function () {
     var user = jagg.getUser();
     if (user == null) {

@@ -142,19 +142,19 @@ $(document).ready(function () {
     apiList = getApisListOfUser();
 
     // Initialization of the user name select2
-    var userNameSelect = $('#ds-user-name').select2({
+    var userNameSelect = $("#ds-user-name").select2({
         placeholder: "Search or Select Subscriber",
         data: usersList,
         maximumInputLength: 5,
         selectOnBlur: true
     });
     // If the user is selected from the subscribers page
-    var email = $('#emailAddy').val();
+    var email = $("#emailAddy").val();
     if (email != null) {
         for (var index in usersList) {
             if (usersList[index].email == email) {
                 selectedUserId = index;
-                $('#ds-user-name').val(selectedUserId).change()
+                $("#ds-user-name").val(selectedUserId).change()
             }
         }
     }
@@ -172,7 +172,7 @@ $(document).ready(function () {
     });
 });
 
-$('#chkbox-complimentary').click(function () {
+$("#chkbox-complimentary").click(function () {
     var dataObj = {};
     if (usersList[selectedUserId].complimentary != (document.getElementById("chkbox-complimentary").checked)) {
         if (document.getElementById("chkbox-complimentary").checked) {
@@ -217,14 +217,14 @@ function getApisListOfUser() {
                 if (selectedAccountNumber != null) {
                     if (result.apiList.length != 0) {
                         apiList = result.apiList;
-                        $('#customer-status').text("Paying Customer");
+                        $("#customer-status").text("Paying Customer");
                     } else {
                         apiList = null;
-                        $('#customer-status').text("Customer dose not have any subscribed APIs");
+                        $("#customer-status").text("Customer dose not have any subscribed APIs");
                     }
                 } else {
                     apiList = [{id: 0, text: "No Subscribed APIs"}];
-                    $('#customer-status').text("Customer dose not have any subscribed APIs");
+                    $("#customer-status").text("Customer dose not have any subscribed APIs");
                 }
             } else {
                 selectedAccountNumber = null;
@@ -287,9 +287,9 @@ function getSubscriptionInfo() {
 
 function updateBasicInfo() {
     //Basic Info updating from the userList data
-    $('#subscriber-name').text(usersList[selectedUserId].text);
-    $('#complimentary-account').text(usersList[selectedUserId].complimentary);
-    $('#email').text(usersList[selectedUserId].email);
+    $("#subscriber-name").text(usersList[selectedUserId].text);
+    $("#complimentary-account").text(usersList[selectedUserId].complimentary);
+    $("#email").text(usersList[selectedUserId].email);
     document.getElementById("chkbox-complimentary").checked = usersList[selectedUserId].complimentary;
 }
 
@@ -299,11 +299,11 @@ function updateSubscriberData(result) {
     if (result != null) {
         $(".Monetization-Data").show();
         //Account Summery
-        $('#account-name').text(result.basicInfo.name);
-        $('#account-balance').text(result.basicInfo.balance);
-        $('#last-invoice').text((result.basicInfo.lastInvoiceDate != null) ? result.basicInfo.lastInvoiceDate : "-");
-        $('#last-Payment').text((result.basicInfo.lastPaymentAmount != null) ? result.basicInfo.lastPaymentAmount : "-");
-        $('#last-payment-date').text((result.basicInfo.lastPaymentDate != null) ? result.basicInfo.lastPaymentDate : "-");
+        $("#account-name").text(result.basicInfo.name);
+        $("#account-balance").text(result.basicInfo.balance);
+        $("#last-invoice").text((result.basicInfo.lastInvoiceDate != null) ? result.basicInfo.lastInvoiceDate : "-");
+        $("#last-Payment").text((result.basicInfo.lastPaymentAmount != null) ? result.basicInfo.lastPaymentAmount : "-");
+        $("#last-payment-date").text((result.basicInfo.lastPaymentDate != null) ? result.basicInfo.lastPaymentDate : "-");
 
         //Invoice Data
         var invoiceList = [];
@@ -320,10 +320,10 @@ function updateSubscriberData(result) {
             };
             invoiceList.push(data);
         }
-        if ($.fn.DataTable.isDataTable('#invoice-info')) {
-            jQuery('#invoice-info').dataTable().fnDestroy();
+        if ($.fn.DataTable.isDataTable("#invoice-info")) {
+            jQuery("#invoice-info").dataTable().fnDestroy();
         }
-        $('#invoice-info').DataTable({
+        $("#invoice-info").DataTable({
             responsive: true,
             "data": invoiceList,
             "paging": false,
@@ -376,10 +376,10 @@ function updatePaymentData(result) {
         };
         paymentsList.push(data);
     }
-    if ($.fn.DataTable.isDataTable('#payments-info')) {
-        jQuery('#payments-info').dataTable().fnDestroy();
+    if ($.fn.DataTable.isDataTable("#payments-info")) {
+        jQuery("#payments-info").dataTable().fnDestroy();
     }
-    $('#payments-info').DataTable({
+    $("#payments-info").DataTable({
         responsive: true,
         "data": paymentsList,
         "columns": [
@@ -393,8 +393,8 @@ function updatePaymentData(result) {
     });
 }
 
-$('#cloud-menu-popover,#cloud-menu-popover-xs').on('hidden.bs.popover', function () {
-    $('.anim-container').children('.clearfix').nextAll().remove();
+$("#cloud-menu-popover,#cloud-menu-popover-xs").on("hidden.bs.popover", function () {
+    $(".anim-container").children(".clearfix").nextAll().remove();
 });
 
 function updateSubscriptionData(result) {
@@ -413,10 +413,10 @@ function updateSubscriptionData(result) {
             subscriptionList.push(data);
         }
         //destroy the dataTable if its exist and update it
-        if ($.fn.DataTable.isDataTable('#sub-info')) {
-            jQuery('#sub-info').dataTable().fnDestroy();
+        if ($.fn.DataTable.isDataTable("#sub-info")) {
+            jQuery("#sub-info").dataTable().fnDestroy();
         }
-        $('#sub-info').DataTable({
+        $("#sub-info").DataTable({
             responsive: true,
             "data": subscriptionList,
             "columns": [
@@ -469,7 +469,7 @@ function ShowComplimentaryMessage(dataObj) {
             }
             },
             {
-                addClass: 'btn btn-primary', text: 'Ok', onClick: function ($noty) {
+                addClass: 'btn btn-primary', text: 'OK', onClick: function ($noty) {
                 jagg.syncPost("../blocks/monetizing/subscriber/update/ajax/update.jag", {
                     action: dataObj.action,
                     subscriber: JSON.stringify(usersList[selectedUserId])
