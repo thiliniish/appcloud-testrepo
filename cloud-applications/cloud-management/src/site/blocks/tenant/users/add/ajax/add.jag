@@ -220,7 +220,7 @@ var log = new Log();
             }
         } catch (e) {
             log.error("Error while adding users " + e);
-            print("" + e.javaException);
+            throw "Error while adding users, " + e;
         }
 
     } else if (action == "changePassword") {
