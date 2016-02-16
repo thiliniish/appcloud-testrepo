@@ -20,7 +20,7 @@ var contactUsURL = cloudmgtURL + CLOUD_CONTACT_US_URI;
 var errorObj = {
     error: true,
     statusCode: 500,
-    redirectionURL : contactUsURL,
+    redirectionURL: contactUsURL,
     message: "Internal error. Please retry..."
 };
 var successObj = {
@@ -550,12 +550,12 @@ var sendRemoveTestAccountEmail = function (displayName, service, endDate, userEm
 
 var getSubscriptions = function (accountNumber) {
     try {
-        var parameters = [accountNumber,accountNumber];
+        var parameters = [accountNumber, accountNumber];
         var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS;
         successObj.data = modDb.executeQuery(queryString, parameters);
         return successObj;
-    } catch(e){
-        log.error("Error while getting the subscription information :");
+    } catch (e) {
+        log.error("Error while getting the subscription information for accountId - " + accountNumber + ":");
         log.error(e);
         errorObj.message = "Error occurred while getting the subscription information, Please contact WSO2 Cloud Team for help";
         return errorObj;
@@ -567,40 +567,48 @@ var getAccountIdFromUserName = function (username) {
         var tenantDomain = modManager.getTenantDomain();
         var parameters = [username, tenantDomain];
         var queryString = SQL_QUERY_STRINGS.SELECT_ACCOUNT_ID_FROM_USER;
-        var result = modDb.executeQuery(queryString,parameters);
+        var result = modDb.executeQuery(queryString, parameters);
         var accountNumber = null;
-        if(result.length > 0) {
+        if (result.length > 0) {
             accountNumber = result[0].ACCOUNT_NUMBER;
         }
         successObj.data = accountNumber;
         return successObj;
-    } catch(e){
-        log.error("Error while getting the Account Id from the Username :");
+    } catch (e) {
+        log.error("Error while getting the account id from the username - " + username + " :");
         log.error(e);
+        errorObj.message = "Error while getting the account id from the username - " + username +
+                ", Please contact WSO2 Cloud Team for help";
         return errorObj;
     }
 };
 
-var getApiListFromAccountId = function (accountId){
+var getApiListFromAccountId = function (accountId) {
     try {
         var parameters = [accountId];
         var queryString = SQL_QUERY_STRINGS.SELECT_API_LIST_FROM_ACCOUNT_NUMBER;
-        var result = modDb.executeQuery(queryString,parameters);
+        var result = modDb.executeQuery(queryString, parameters);
         var apiWithVersion = [];
-        for ( var index in result){
+        for (var index in result) {
             var api = result[index].AM_API_NAME + "-" + result[index].AM_API_VERSION;
-            var data = {id : index, text : api, apiVersion : result[index].AM_API_VERSION, apiName : result[index].AM_API_NAME};
+            var data = {
+                id: index,
+                text: api,
+                apiVersion: result[index].AM_API_VERSION,
+                apiName: result[index].AM_API_NAME
+            };
             apiWithVersion.push(data);
         }
         successObj.data = apiWithVersion;
         return successObj;
-    } catch(e){
-        log.error("Error while getting the API list for a user :");
+    } catch (e) {
+        log.error("Error while getting the API list from account id - " + accountId + ":");
         log.error(e);
+        errorObj.message = "Error while getting the API list, Please contact WSO2 Cloud Team for help";
         return errorObj;
     }
 };
-var getOrdedInvoices = function (accountId,invoiceId){
+var getOrdedInvoices = function (accountId, invoiceId) {
     try {
         var result = modBilling.getBillingInvoiceData(accountId, invoiceId);
         var orderedInvoiceList = {};
@@ -609,7 +617,7 @@ var getOrdedInvoices = function (accountId,invoiceId){
         for (var i = 0; i < result.invoiceItems.length; i++) {
             var invoiceItem = result.invoiceItems[i];
             //combine invoice details according to the subscription
-            if(invoiceItem.subscriptionName in orderedInvoiceList) {
+            if (invoiceItem.subscriptionName in orderedInvoiceList) {
                 orderedInvoiceList[invoiceItem.subscriptionName].push(invoiceItem);
             } else {
                 orderedInvoiceList[invoiceItem.subscriptionName] = [invoiceItem];
@@ -620,51 +628,51 @@ var getOrdedInvoices = function (accountId,invoiceId){
         result.subscriptionData = subscriptionDetails;
         successObj.data = result;
         return successObj;
-    } catch(e){
-        log.error("Error while getting the invoice data :");
+    } catch (e) {
+        log.error("Error while getting the invoice data for accountId - " + accountId + " :");
         log.error(e);
         errorObj.message = "Error occurred while getting the invoice information, Please contact WSO2 Cloud Team for help";
         return errorObj;
     }
 };
 
-var getBillingAccountSummary = function (subscribersAccountId){
+var getBillingAccountSummary = function (subscribersAccountId) {
     try {
         var summary = billingService.getAccountSummary(subscribersAccountId);
         successObj.data = summary;
         return successObj;
-    } catch(e){
-        log.error("Error while getting the Billing data :");
+    } catch (e) {
+        log.error("Error while getting the Billing data for accountId - " + subscribersAccountId + "  :");
         log.error(e);
         errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
         return errorObj;
     }
 };
 
-var getBillingPaymentInfo = function (subscribersAccountId){
+var getBillingPaymentInfo = function (subscribersAccountId) {
     try {
         var summary = billingService.getPayments(subscribersAccountId);
         successObj.data = summary;
         return successObj;
-    } catch(e){
-        log.error("Error while getting the Billing data :");
+    } catch (e) {
+        log.error("Error while getting the Billing data for accountId - " + subscribersAccountId + " :");
         log.error(e);
         errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
         return errorObj;
     }
 };
 
-var getSubscriptionDataFromName = function (subscriptionName){
-    var queryStringForSubscription  = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_DATA_FROM_SUBSCRIPTION_ID;
+var getSubscriptionDataFromName = function (subscriptionName) {
+    var queryStringForSubscription = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_DATA_FROM_SUBSCRIPTION_ID;
     var parameters = [subscriptionName];
     var result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
     // If subscription is not available in subscription table search in the history table.
-    if(result.length == 0){
+    if (result.length == 0) {
         var queryStringForSubscriptionHistory = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_HISTORY_DATA_FROM_SUBSCRIPTION_ID
         result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
     }
     var subscriptionData = new Array();
-    subscriptionData.push((result[0]["AM_API_NAME"]) + ":"+ (result[0]["AM_API_VERSION"]));
+    subscriptionData.push((result[0]["AM_API_NAME"]) + ":" + (result[0]["AM_API_VERSION"]));
     subscriptionData.push(result[0]["RATE_PLAN_NAME"]);
     return subscriptionData;
 };

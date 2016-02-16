@@ -11,12 +11,14 @@ var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
         response.sendRedirect("../pages/index.jag");
         return;
     }
+
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
     var tenantDomain = multiTenantUtils.getTenantDomain(user);
     if (tenantDomain != null && !jagg.module("util").isUserInAdminRole()) {
         response.sendRedirect("../pages/index.jag");
         return;
     }
+
     var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
         response.sendRedirect("../pages/index.jag");

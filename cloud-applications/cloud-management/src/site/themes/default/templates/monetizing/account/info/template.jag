@@ -1,6 +1,6 @@
 <% jagg.template("monetizing/account/info", function(inputs, outputs, jagg) {%>
 
-<input type="hidden" id="emailAddy" name="emailAddy" value="<%=outputs.email%>" />
+<input type="hidden" id="emailAddress" value="<%=outputs.email%>" />
 <div class="inner-wrapper">
     <div class="right-pane">
         <div class="action-bar">

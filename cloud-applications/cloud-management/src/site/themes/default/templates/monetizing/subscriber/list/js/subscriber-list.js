@@ -35,7 +35,7 @@ $(document).ready(function () {
 });
 
 function goToAccountInfo(email){
-    window.location.href = "subscriber-account-summary.jag?email-addy=" + email;
+    window.location.href = "subscriber-account-summary.jag?email-address=" + email;
 }
 
 $(".side-pane-trigger").click(function () {

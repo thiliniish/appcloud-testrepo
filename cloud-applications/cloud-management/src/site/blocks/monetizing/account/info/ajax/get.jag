@@ -3,7 +3,7 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
-var log = new Log("site.blocks.billing.account.info.ajax.get");
+var log = new Log("site.blocks.monetizing.account.info.ajax.get");
 var carbon = require('carbon');
 var server = carbon.server;
 var mod = jagg.module("monetizing");
@@ -24,7 +24,6 @@ if (loginStatus.error) {
     print(loginStatus);
 }
 var tenantDomain;
-var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 var user = jagg.getUser();
 if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == null) {
@@ -35,6 +34,7 @@ if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == n
         message: "Unauthorized. Login required."
     });
 }
+
 if (!jagg.module("util").isUserInAdminRole()) {
     response.status = 401;
     print({
@@ -43,34 +43,32 @@ if (!jagg.module("util").isUserInAdminRole()) {
         message: "User does not have permission to perform the requested operation"
     });
 }
+
 var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
 if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
     response.status = 403;
     print({
         error: true,
         status: 403,
-        message: "Feature not available for the organization."
+        message: "Monetization feature is not available for the organization."
     });
 }
 
 (function () {
     var action = encoder.getSafeText(request.getParameter("action"));
     if (action == "get-billing-account") {
-        var subscribersAccountId = encoder.getSafeText(request.getParameter("accountId"));
+        var subscribersAccountId = encoder.getSafeText(request.getParameter(ACCOUNT_ID));
         var result = mod.getBillingAccountSummary(subscribersAccountId);
         print(result);
 
     } else if (action == "get-payment-info") {
-        var subscribersAccountId = encoder.getSafeText(request.getParameter("accountId"));
+        var subscribersAccountId = encoder.getSafeText(request.getParameter(ACCOUNT_ID));
         var result = mod.getBillingPaymentInfo(subscribersAccountId);
         print(result);
 
-
     } else if (action == "get-subscription-info") {
-        var apiName = encoder.getSafeText(request.getParameter("apiName"));
-        var apiVersion = encoder.getSafeText(request.getParameter("apiVersion"));
-        var subscribersAccountId = encoder.getSafeText(request.getParameter("accountId"));
-        var result = mod.getSubscriptions(subscribersAccountId, apiName, apiVersion);
+        var subscribersAccountId = encoder.getSafeText(request.getParameter(ACCOUNT_ID));
+        var result = mod.getSubscriptions(subscribersAccountId);
         print(result);
 
     } else if (action == "get-subscribers-of-tenant") {
@@ -95,9 +93,9 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
         }
 
     } else if (action == "get-api-list-from-username") {
-        var userName = encoder.getSafeText(request.getParameter("username"));
+        var username = encoder.getSafeText(request.getParameter("username"));
         var result = {};
-        var accountNumberResult = mod.getAccountIdFromUserName(userName);
+        var accountNumberResult = mod.getAccountIdFromUserName(username);
         result.accountNumber = accountNumberResult.data;
         if (!accountNumberResult.error) {
             //if the account number is null then should send back the null as account number not an error
@@ -109,7 +107,7 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
             }
             print(result);
         } else {
-            log.error("Error occurred while getting the  api list ");
+            log.error("Error occurred while getting the  api list for user - " + username );
             errorObj.message = "Error occurred while getting the api list, Please contact WSO2 Cloud Team for help";
             print(errorObj);
         }

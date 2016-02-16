@@ -149,12 +149,14 @@ $(document).ready(function () {
         selectOnBlur: true
     });
     // If the user is selected from the subscribers page
-    var email = $("#emailAddy").val();
+    var email = $("#emailAddress").val();
     if (email != null) {
         for (var index in usersList) {
             if (usersList[index].email == email) {
                 selectedUserId = index;
-                $("#ds-user-name").val(selectedUserId).change()
+                selectedAccountNumber = usersList[index].accountId;
+                $("#ds-user-name").val(selectedUserId).change();
+                updateBasicInfo();
             }
         }
     }
@@ -273,12 +275,10 @@ function getPaymentInfo() {
 }
 
 function getSubscriptionInfo() {
-    if (selectedAccountNumber != null && apiList != null) {
+    if (selectedAccountNumber != null) {
         jagg.post("../blocks/monetizing/account/info/ajax/get.jag", {
             action: "get-subscription-info",
-            "accountId": selectedAccountNumber,
-            "apiName": apiList[selectedApiIndex].apiName,
-            "apiVersion": apiList[selectedApiIndex].apiVersion
+            "accountId": selectedAccountNumber
         }, function (result) {
             updateSubscriptionData(result);
         });

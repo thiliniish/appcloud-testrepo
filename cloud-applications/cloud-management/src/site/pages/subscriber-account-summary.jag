@@ -7,6 +7,7 @@ var site = require("/site/conf/site.json");
         response.sendRedirect("../pages/index.jag");
         return;
     }
+
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
     var tenantDomain = multiTenantUtils.getTenantDomain(user);
     if (tenantDomain != null && !jagg.module("util").isUserInAdminRole()) {
@@ -19,7 +20,7 @@ var site = require("/site/conf/site.json");
         return;
     }
     var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
-    var emailAddy = encoder.getSafeText(request.getParameter("email-addy"));
+    var emailAddress = encoder.getSafeText(request.getParameter("email-address"));
     jagg.render({
         "name": "page/base-new",
         "inputs": {
@@ -34,7 +35,7 @@ var site = require("/site/conf/site.json");
                             {
                                 "name": "monetizing/account/info",
                                 "inputs": {
-                                    "email": emailAddy
+                                    "email": emailAddress
                                 }
                             }
                         ],
