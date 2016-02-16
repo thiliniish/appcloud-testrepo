@@ -46,10 +46,23 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
 }
 (function () {
     if ((session.get("TENANT_INFO")) != null) {
-        var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
-        var accountId = encoder.getSafeText(request.getParameter("accountId"));
-        var result = mod.getOrdedInvoices(accountId, invoiceId);
-        print(result);
+        var action = encoder.getSafeText(request.getParameter("action"));
+        if (action == "get-invoice") {
+            var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
+            var accountId = encoder.getSafeText(request.getParameter("accountId"));
+            var result = mod.getOrdedInvoices(accountId, invoiceId);
+            print(result);
+
+        } else {
+            var msg = "Invalid action: " + action;
+            response.status = 400;
+            print({
+                error: true,
+                message: msg,
+                redirectionURL: contactUsURL,
+                status: 400
+            });
+        }
     }
 }());
 %>

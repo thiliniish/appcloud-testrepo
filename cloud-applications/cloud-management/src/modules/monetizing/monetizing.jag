@@ -100,15 +100,15 @@ var makeSubscriberAccountTest = function (subscriberString) {
     var zuoradateFormatter = modUtil.dateTimeFormatter(ZUORA_DATE_FORMAT);
     var effectiveDate = new Packages.java.util.Date();
     var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
-    var subscriber, userName, accountId;
+    var subscriber, username, accountId;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
         try {
             subscriber = JSON.parse(subscriberString);
             accountId = subscriber.accountId;
-            userName = subscriber.username;
+            username = subscriber.username;
             if (subscriber.complimentary == false) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Updating account to test for subscriber: " + userName + " of tenant: " + tenantDomain + ".");
+                    log.debug("Updating account to test for subscriber: " + username + " of tenant: " + tenantDomain + ".");
                 }
                 if (subscriber.subscriptionType == ACC_PAID) {
                     var subscriptionIds = JSON.parse(monetizationService.getActiveSubscriptionIdsForAccountId(accountId, productName));
@@ -124,7 +124,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                         var cancellationResponse = billingService.cancelSubscription(subscriptionId, stringify(jsonData));
                         if (JSON.parse(cancellationResponse).success === true) {
                             if (log.isDebugEnabled()) {
-                                log.debug("Zuora subscription: " + subscriptionId + " of subscriber: " + userName + " of tenant: " + tenantDomain + " cancellation successful.");
+                                log.debug("Zuora subscription: " + subscriptionId + " of subscriber: " + username + " of tenant: " + tenantDomain + " cancellation successful.");
                             }
                             //Insert in to monetization subscription history table
                             var insertSubHistoryQuery = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY;
@@ -135,38 +135,38 @@ var makeSubscriberAccountTest = function (subscriberString) {
                             parameters = [accountId, subscriptionId];
                             modDb.executeQuery(deleteSubscriptionQuery, parameters);
                         } else {
-                            throw "Subscription cancellation failed for user: " + userName + " of tenant: " + tenantDomain + ".";
+                            throw "Subscription cancellation failed for user: " + username + " of tenant: " + tenantDomain + ".";
                         }
                     }
                     //Update monetization subscriber table
-                    updateMonetizationSubscriberTable(true, userName, tenantDomain);
+                    updateMonetizationSubscriberTable(true, username, tenantDomain);
                     //send notification email
                     sendUpdatedToTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
                 }
                 else {
                     //Insert into monetization subscriber table
                     var insertQueryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIBERS;
-                    var parameters = [userName, tenantDomain, true, null, true];
+                    var parameters = [username, tenantDomain, true, null, true];
                     modDb.executeQuery(insertQueryString, parameters);
                     //Send notification email
                     sendUpdatedToTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
                 }
-                log.info("Updating account to test for user: " + userName + " of tenant: " + tenantDomain + " is successful.");
+                log.info("Updating account to test for user: " + username + " of tenant: " + tenantDomain + " is successful.");
                 return {
                     error: false,
                     status: 200
                 };
             } else {
-                throw "Account of subscriber: " + userName + " of tenant: " + tenantDomain + " received for modifying to a test account is already a test account.";
+                throw "Account of subscriber: " + username + " of tenant: " + tenantDomain + " received for modifying to a test account is already a test account.";
             }
         } catch (e) {
             var msg;
             //Invalid input parameter. Invalid JSON string or null user name.
-            if (userName == null) {
+            if (username == null) {
                 msg = "Request with an invalid subscriber JSON String was received to make a test subscriber account for tenant: " + tenantDomain + ".";
             }
             else {
-                msg = "Error while updating subscriber account to test for subscriber: " + userName + " of the tenant: " + tenantDomain + ".";
+                msg = "Error while updating subscriber account to test for subscriber: " + username + " of the tenant: " + tenantDomain + ".";
             }
             log.error(msg);
             log.error(e);
@@ -191,45 +191,45 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
     var tenantDomain = modManager.getTenantDomain();
     var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
     var effectiveDate = new Packages.java.util.Date();
-    var subscriber, userName;
+    var subscriber, username;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
         try {
             subscriber = JSON.parse(subscriberString);
-            userName = subscriber.username;
-            if (userName == null || userName == "" || userName == "null") {
+            username = subscriber.username;
+            if (username == null || username == "" || username == "null") {
                 throw "Remove paid subscriptions failed for tenant: " + tenantDomain + ", userName is invalid.";
             }
-            var apimSubscriberId = userName + "@" + tenantDomain;
+            var apimSubscriberId = username + "@" + tenantDomain;
             if (subscriber.complimentary == true) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Removing test account of user: " + userName + " of tenant: " + tenantDomain + ".");
+                    log.debug("Removing test account of user: " + username + " of tenant: " + tenantDomain + ".");
                 }
                 //Remove paid api subscriptions from apim
                 var response = monetizationService.removePaidApiSubscriptionsOfUser(apimSubscriberId, tenantDomain);
                 if (response === true) {
                     //Update monetization subscriber table
-                    updateMonetizationSubscriberTable(false, userName, tenantDomain);
+                    updateMonetizationSubscriberTable(false, username, tenantDomain);
                     //Send notification email
                     sendRemoveTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
-                    log.info("Removing test account status of user: " + userName + " of tenant: " + tenantDomain + " is successful.");
+                    log.info("Removing test account status of user: " + username + " of tenant: " + tenantDomain + " is successful.");
                     return {
                         error: false,
                         status: 200
                     };
                 } else {
-                    throw "Remove paid subscriptions failed for user: " + userName + " of tenant: " + tenantDomain;
+                    throw "Remove paid subscriptions failed for user: " + username + " of tenant: " + tenantDomain;
                 }
             } else {
-                throw "Account of subscriber: " + userName + " of tenant: " + tenantDomain + " received for change back to a regular account is already a regular account.";
+                throw "Account of subscriber: " + username + " of tenant: " + tenantDomain + " received for change back to a regular account is already a regular account.";
             }
         } catch (e) {
             var msg;
             //Invalid input parameter. Invalid JSON string or null user name.
-            if (userName == null) {
+            if (username == null) {
                 msg = "Request with an invalid subscriber JSON String was received to change a test subscriber account back to regular for tenant: " + tenantDomain + ".";
             }
             else {
-                msg = "Error while removing test account status of subscriber: " + userName + " of the tenant: " + tenantDomain + "."
+                msg = "Error while removing test account status of subscriber: " + username + " of the tenant: " + tenantDomain + "."
             }
             log.error(msg);
             log.error(e);

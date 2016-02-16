@@ -88,6 +88,7 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
             print(subscriberList);
         }
         else {
+
             errorObj.message = "Error occurred while getting the user list, Please contact WSO2 Cloud Team for help";
             print(errorObj);
         }
@@ -114,6 +115,7 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
 
     } else {
         log.error("No Action Specified");
+        response.status = 400;
         errorObj.message = "Unexpected error occurred";
         print(errorObj);
     }

@@ -22,13 +22,13 @@ $(document).ready(function () {
     $.ajax({
         url: "../blocks/monetizing/account/invoice/ajax/get.jag",
         data: {
-            action: "getInvoice",
+            action: "get-invoice",
             invoiceId: invoiceId,
             accountId: accountId
         },
         success: function (result) {
             result = JSON.parse(result);
-            if(!result.error) {
+            if (!result.error) {
                 var invoiceObj = result.data;
                 var orderedInvoiceList = invoiceObj.invoiceItems;
                 var fullTotal = 0;
