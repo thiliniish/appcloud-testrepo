@@ -1,93 +1,37 @@
 <% jagg.template("contact", function(inputs, outputs, jagg) { %>
 <%
- var userName =  session.get("LOGGED_IN_USER");
- var email =  session.get("LOGGED_IN_USER_EMAIL");
-var log = new Log();
-session.put("wso2carbon.admin.logged.in", userName);
+    var userName = session.get("LOGGED_IN_USER");
+    var email = session.get("LOGGED_IN_USER_EMAIL");
+    var log = new Log();
+    session.put("wso2carbon.admin.logged.in", userName);
 
-var isExtensionRequest = null;
-if (jagg.module("util").isUserInAdminRole()){
-    isExtensionRequest = request.getParameter("request-extension");
-}
+    var isExtensionRequest = null;
+    if (jagg.module("util").isUserInAdminRole()) {
+        isExtensionRequest = request.getParameter("request-extension");
+    }
 
-var isRegistrationHelp = request.getParameter("registration-help");
-var userEmail = request.getParameter('email');
+    var isRegistrationHelp = request.getParameter("registration-help");
+    var userEmail = request.getParameter('email');
 
-var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-var publisherUrl = (cloudConfig.subscriptions.type)[1].urls.cloudTypeUrl;
-var trialPeriod = (jagg.module("billing").getTrialPeriod()).toString();
-var to = cloudConfig.supportContact.to;
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+    var publisherUrl = (cloudConfig.subscriptions.type)[1].urls.cloudTypeUrl;
+    var trialPeriod = (jagg.module("billing").getTrialPeriod()).toString();
+    var to = cloudConfig.supportContact.to;
 %>
 
 <style>
-header{
-	display:none;
-}
-body#home{
-	background:none #292E38;
-}
-.sticky-wrapper{
-	position:relative;
-	height:auto !important;
-}
-
-.warning_message{
-	background-color:#ffffff;
-}
-.info_message .close_message {
-    position: absolute;
-    right: 13px;
-    top: 7px;
-}
-.info_message{
-	background-color:#ffffff;
-	width: 400px;
-}
-
-.txt-right{
-	text-align: right;
-}
-#tenantDomain{
-	width: 87%;
-	margin-left: 7px;
-}
-
-
-#captchaImgDiv img{
-	width:100%;
-	   height: 39px;
-}
-#aPaaS, #iPaaS{
-	width:20%;
-}
-#lblLoginID{
-	color:#888;
-	display:none;
-}
-
-#preAt{
-	margin-left: -3px;
-	margin-right: -3px;
-}
-
-section.start_content div.subs-cont{
-	margin-top:20px;
-	margin-bottom:30px;
-}
-
-
-#submitbtn {
-    background-color: #EB7067;
-    border: #EB7067;
-}
+    /*for jQuery error message*/
+    .error {
+        color: red;
+        font-size: 12px;
+    }
 
 </style>
- 
+
 <script type="text/javascript">
 
-
-   function doSubmit() {
+    function doSubmit() {
         var from = $("#from").attr('value');
         var subject  = $("#subject").attr('value');
         var body  = $("#body").attr('value');
@@ -97,164 +41,152 @@ section.start_content div.subs-cont{
         var isExtensionRequest = $("#isExtensionRequest").attr('value');
 
         if (isExtensionRequest == 'true'){
-        jagg.post("../blocks/contact/ajax/contact.jag", {
-                         action:"sendExtensionRequest",
-                         from:from,
-                         subject:subject,
-                         body:body
-                  },
-                   function (result) {
-                            if (result.trim() != "false"){
-                            jagg.message({content:'You have successfully extended your trial period to ' + <%=trialPeriod%> +' more days.',type:'success',cbk:function(){
-                                    window.location.href = publisherUrl;
-                                }
-                            });
-                            $('#userForm').hide();
-                            } else {
-                            jagg.message({content:'Trial extension request declined',type:'error',cbk:function() {
-                                    window.location.href = publisherUrl;
-                                }
-                            });
+            jagg.post("../blocks/contact/ajax/contact.jag", {
+                action:"sendExtensionRequest",
+                from:from,
+                subject:subject,
+                body:body
+            },
+            function (result) {
+                if (result.trim() != "false"){
+                    jagg.message({content:'You have successfully extended your trial period to '
+                            + <%=trialPeriod%> +' more days.',type:'success',cbk:function(){
+                                window.location.href = publisherUrl;
                             }
-                  },
-                  function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({type:'error',content:'Requesting trial extension failed.',cbk:function() {
-                                    window.location.href = publisherUrl;
-                                }
-                            });
-                 }); $('#userForm').hide();
+                    });
+                    $('#userForm').hide();
+                } else {
+                    jagg.message({content:'Trial extension request declined',type:'error',cbk:function() {
+                            window.location.href = publisherUrl;
+                        }
+                    });
+                }
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                jagg.message({type:'error',content:'Requesting trial extension failed.',cbk:function() {
+                        window.location.href = publisherUrl;
+                    }
+                });
+            });
+            $('#userForm').hide();
         } else {
-        jagg.post("../blocks/contact/ajax/contact.jag", {
-                         action:"sendSupportRequest",
-                         from:from,
-                         subject:subject,
-                         body:body
-                  },
-                   function (result) {
-                            jagg.message({content:'You have successfully sent the support request',type:'success',cbk:function(){
-                                    window.location.href = cloudmgtURL;
-                                }
-                            });
-                            $('#userForm').hide();
-                  },
-                  function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({type:'error',content:'<strong>Error!</strong> Sending the support request'});
-                 }); $('#userForm').hide();
+            jagg.post("../blocks/contact/ajax/contact.jag", {
+                action:"sendSupportRequest",
+                from:from,
+                subject:subject,
+                body:body
+            },
+            function (result) {
+                jagg.message({content:'You have successfully sent the support request',type:'success',cbk:function(){
+                        window.location.href = cloudmgtURL;
+                    }
+                });
+                $('#userForm').hide();
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                jagg.message({type:'error',content:'<strong>Error!</strong> Sending the support request'});
+            });
+            $('#userForm').hide();
         }
-    } 
+    }
 
     $(document).ready(function($){
         initializeUserActivity("Contact-Us Page");
         jQuery.validator.setDefaults({
-                errorElement:'span'
-            });
-	    $('#userForm').validate({
-	    rules : {
+            errorElement:'p'
+        });
+        $('#userForm').validate({
+            rules : {
                 subject: {
                     required: true
-                } ,
-                comment: {	
+                },
+                comment: {
                     required: true
-		}
+                }
             },
             messages: {
-	        comment: "Email Body cannot be empty."
+                subject: "Summary cannot be empty",
+                comment: "Description cannot be empty"
             },
-
-	    submitHandler: function(form) {
-				doSubmit();
-		    }
-		});
+            submitHandler: function(form) {
+                doSubmit();
+            }
+        });
     });
+
 </script>
 
 
 <div class="container content-starter">
     <div class="row">
         <div class="col-lg-12">
-    <%  if(isExtensionRequest == 'true') { %>
-         <h1>Extension Request</h1>
-      <% }else{ %>
-        <h1>Support</h1>
-       <% }%>
+            <%  if(isExtensionRequest == 'true') { %>
+                <h1>Extension Request</h1>
+            <% }else{ %>
+                <h1>Support</h1>
+            <% }%>
             <div class="helper_text" id="helper_text">
-                           <%  if(isExtensionRequest == 'true') { %>
-                                <p>
-			       Need a little more time? <br/>Not a problem! We are happy to extend your trial to 14 more days. Can you please let us know how we can help you make your trial more effective?
-				</p>
-                            <% }else{ %>
-       				 <p>
-			        We will respond by email within one business day
-				</p>
-                          <% }%>
-			   
-		    </div>
+                <%  if(isExtensionRequest == 'true') { %>
+                    <p>Need a little more time? <br/>Not a problem! We are happy to extend your trial to 14 more days.
+                    Can you please let us know how we can help you make your trial more effective?</p>
+                <% }else{ %>
+                    <p>We will respond by email within one business day</p>
+                <% }%>
+            </div>
         </div>
     </div>
 </div>
+
 <% jagg.includeBlock("page/messages", null); %>
+
 <div class="container content-section-wrapper">
-<div class="row">
-    <div class="col-lg-12 content-section">
-        <form method='post' name="inputData" class='form-horizontal' id='userForm' action="javascript:doSubmit()"  role="form">
-          <div class="form-group">
-            <label for="from" class="col-sm-2 control-label">From</label>
-            <div class="col-sm-8">
-            <%if (email == null && isRegistrationHelp == 'true'){ %>
-                <input type="text" id="from" name="from" readonly size="50" style="width:60%" value="<%=userEmail%>" />
-            <%} else {%>
-              <input type="text" id="from" name="from" readonly size="50" style="width:60%" value="<%=email%>" />
-              <%}%>
-            </div>
-          </div>
+    <div class="row">
+        <div class="col-lg-12 content-section">
+            <form method='post' name="inputData" class='form-horizontal' id='userForm' action="javascript:doSubmit()" role="form">
+                <%if (email == null && isRegistrationHelp == 'true'){ %>
+                    <input type="hidden" id="from" name="from"value="<%=userEmail%>" />
+                <%} else {%>
+                    <input type="hidden" id="from" name="from" value="<%=email%>" />
+                <%}%>
+                <input type="hidden" id="to" name="to" readonly value="<%=to%>" size="50"   style="width:60%"  />
+                <div class="form-group">
+                    <label for="subject1" class="col-sm-2 control-label">Summary</label>
+                    <div class="col-sm-8">
+                        <%  if(isExtensionRequest == 'true') { %>
+                            <input type="text" id="subject" name="subject" class="required" size="50" placeholder="Trial Extension Request" style="width:90%" />
+                        <% }else{ %>
+                            <input type="text" id="subject" name="subject" class="required" size="50" placeholder="Need help with WSO2 Cloud" style="width:90%" />
+                        <% }%>
+                    </div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="subject1" class="col-sm-2 control-label">Description</label>
+                    <div class="col-sm-8">
+                        <textarea rows="10" id="body"  class="licence_text" placeholder="Description" name="comment" style="width:90%"></textarea>
+                    </div>
+                </div>
 
-
-          <div class="form-group">
-            <label for="to" class="col-sm-2 control-label">To</label>
-            <div class="col-sm-8">
-              <input type="text" id="to" name="to" readonly value="<%=to%>" size="50"   style="width:60%"  />
-            </div>
-          </div>
-
-           <div class="form-group">
-            <label for="subject1" class="col-sm-2 control-label">Subject</label>
-            <div class="col-sm-8">
-            <%  if(isExtensionRequest == 'true') { %> 
-                 <input type="text" id="subject" name="subject" class="required" size="50" value="Trial Extension Request" style="width:90%" />  
-            <% }else{ %>
-              <input type="text" id="subject" name="subject" class="required" size="50" value="Need help with WSO2 Cloud" style="width:90%" />
-            <% }%>
-            </div>
-          </div>
-        
-          <div class="form-group">
-            <div class="col-sm-10">
-             <textarea rows="10" id="body"  class="license_txt" name="comment"
-                               style="width:98%"></textarea> 
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-              <%  if(isExtensionRequest == 'true') { %> 
-                <input id="submitbtn" type='submit' value='Request Extension' class='btn btn-primary'/>
-              <% }else{ %>
-                <input id="submitbtn" type='submit' value='Send Support Request' class='btn btn-primary'/>
-              <% }%>
-              <a id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/index.jag'">Cancel</a>
-            </div>
-          </div>
-
-           <input type="hidden" name="secretKey" id="secretKey" value=""/>
-            <input type="hidden" name="imagePath" id="imagePath" value=""/>
-           <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
-           <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=publisherUrl%>"/>
-           <input type="hidden" name="isExtensionRequest" id="isExtensionRequest" value="<%=isExtensionRequest%>"/>
-        </form>
+                <div class="form-group">
+                    <label for="buton" class="col-sm-2 control-label"></label>
+                    <div class="col-sm-8">
+                        <%  if(isExtensionRequest == 'true') { %>
+                            <input id="submitbtn" type='submit' value='Request Extension' class='btn btn-primary'/>
+                        <% }else{ %>
+                            <input id="submitbtn" type='submit' value='Send Support Request' class='btn btn-primary'/>
+                        <% }%>
+                        <a id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/index.jag'">Cancel</a>
+                    </div>
+                </div>
+                <input type="hidden" name="secretKey" id="secretKey" value=""/>
+                <input type="hidden" name="imagePath" id="imagePath" value=""/>
+                <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
+                <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=publisherUrl%>"/>
+                <input type="hidden" name="isExtensionRequest" id="isExtensionRequest" value="<%=isExtensionRequest%>"/>
+            </form>
+        </div>
     </div>
 </div>
-</div>
-
 
 <% }); %>
 
