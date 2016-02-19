@@ -27,6 +27,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
@@ -280,9 +282,10 @@ public class ZuoraRESTUtils {
                     // Get the next page value
                     nextPage = (String) productJsonObject.get(BillingConstants.PRODUCT_RATE_PLANS_NEXTPAGE);
                     if (nextPage != null) {
+                        BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
+                        ZuoraConfig zuoraConfig = billingConfig.getZuoraConfig();
                         // Removing the redundant service URL host value from the nextPage
-                        requestUrl = nextPage.replaceAll(BillingConstants.ZUORA_SERVICE_URL_HOST,
-                                                         BillingConstants.EMPTY_STRING).trim();
+                        requestUrl = nextPage.replaceAll(BillingConstants.HTTPS + zuoraConfig.getServiceUrlHost(), BillingConstants.EMPTY_STRING).trim();
                         getProductRatePlans(productName, requestUrl);
                     } else {
                         throw new CloudBillingException("Unable to find the specified product name: " + productName);
