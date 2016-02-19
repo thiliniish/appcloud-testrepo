@@ -285,7 +285,8 @@ public class ZuoraRESTUtils {
                         BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
                         ZuoraConfig zuoraConfig = billingConfig.getZuoraConfig();
                         // Removing the redundant service URL host value from the nextPage
-                        requestUrl = nextPage.replaceAll(BillingConstants.HTTPS + zuoraConfig.getServiceUrlHost(), BillingConstants.EMPTY_STRING).trim();
+                        requestUrl = nextPage.replaceAll(BillingConstants.HTTPS + zuoraConfig.getServiceUrlHost(),
+                                                         BillingConstants.EMPTY_STRING).trim();
                         getProductRatePlans(productName, requestUrl);
                     } else {
                         throw new CloudBillingException("Unable to find the specified product name: " + productName);
