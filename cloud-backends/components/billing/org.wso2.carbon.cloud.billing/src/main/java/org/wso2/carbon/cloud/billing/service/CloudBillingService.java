@@ -383,7 +383,7 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException ex) {
             String message = "Error occurred while retrieving product rate plans for product: " + productName;
             LOGGER.error(message, ex);
-            throw new CloudBillingException(message + ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 
