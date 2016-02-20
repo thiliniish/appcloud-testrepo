@@ -24,6 +24,8 @@ import org.wso2.cloud.heartbeat.monitor.modules.utils.LoginUtilsBean;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Server login test scenario for a Cloud setup, implemented in this class
@@ -44,9 +46,11 @@ public class ServerLoginTest implements Job {
      */
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        int numOfServers = hostNames.size();
+        ExecutorService executorService = Executors.newFixedThreadPool(numOfServers);
 
         for (final Map.Entry<String, String> entry : hostNames.entrySet()) {
-            Thread loginThread = new Thread() {
+            Runnable loginRunnable = new Runnable() {
                 public void run() {
                     LoginUtilsBean loginUtilsBean = new LoginUtilsBean();
                     loginUtilsBean.setServerName(entry.getKey());
@@ -60,8 +64,9 @@ public class ServerLoginTest implements Job {
                     loginUtils.login();
                 }
             };
-            loginThread.start();
+            executorService.execute(loginRunnable);
         }
+        executorService.shutdown();
     }
 
     /**
