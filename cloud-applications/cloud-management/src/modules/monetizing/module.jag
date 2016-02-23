@@ -23,6 +23,24 @@ jagg.module("monetizing", {
     },
     isMonetizationEnabled: function () {
         return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").isMonetizationEnabled.apply(this, arguments);
+    },
+    getSubscriptions:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscriptions.apply(this, arguments);
+    },
+    getAccountIdFromUserName:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getAccountIdFromUserName.apply(this, arguments);
+    },
+    getApiListFromAccountId:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getApiListFromAccountId.apply(this, arguments);
+    },
+    getOrdedInvoices:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getOrdedInvoices.apply(this, arguments);
+    },
+    getBillingAccountSummary:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getBillingAccountSummary.apply(this, arguments);
+    },
+    getBillingPaymentInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getBillingPaymentInfo.apply(this, arguments);
     }
 });
 %>

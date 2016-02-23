@@ -10,11 +10,24 @@ var modDb = jagg.module("database");
 var modUtil = jagg.module("util");
 var modManager = jagg.module("manager");
 var modTenant = jagg.module("tenant");
+var modBilling = jagg.module("billing");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var contactUsURL = cloudmgtURL + CLOUD_CONTACT_US_URI;
+var errorObj = {
+    error: true,
+    statusCode: 500,
+    redirectionURL: contactUsURL,
+    message: "Internal error. Please retry..."
+};
+var successObj = {
+    error: false,
+    statusCode: 200
+};
+
 
 var getSubscribersOfTenant = function () {
     var tenantDomain = modManager.getTenantDomain();
@@ -87,15 +100,15 @@ var makeSubscriberAccountTest = function (subscriberString) {
     var zuoradateFormatter = modUtil.dateTimeFormatter(ZUORA_DATE_FORMAT);
     var effectiveDate = new Packages.java.util.Date();
     var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
-    var subscriber, userName, accountId;
+    var subscriber, username, accountId;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
         try {
             subscriber = JSON.parse(subscriberString);
             accountId = subscriber.accountId;
-            userName = subscriber.userName;
+            username = subscriber.username;
             if (subscriber.complimentary == false) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Updating account to test for subscriber: " + userName + " of tenant: " + tenantDomain + ".");
+                    log.debug("Updating account to test for subscriber: " + username + " of tenant: " + tenantDomain + ".");
                 }
                 if (subscriber.subscriptionType == ACC_PAID) {
                     var subscriptionIds = JSON.parse(monetizationService.getActiveSubscriptionIdsForAccountId(accountId, productName));
@@ -111,7 +124,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                         var cancellationResponse = billingService.cancelSubscription(subscriptionId, stringify(jsonData));
                         if (JSON.parse(cancellationResponse).success === true) {
                             if (log.isDebugEnabled()) {
-                                log.debug("Zuora subscription: " + subscriptionId + " of subscriber: " + userName + " of tenant: " + tenantDomain + " cancellation successful.");
+                                log.debug("Zuora subscription: " + subscriptionId + " of subscriber: " + username + " of tenant: " + tenantDomain + " cancellation successful.");
                             }
                             //Insert in to monetization subscription history table
                             var insertSubHistoryQuery = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY;
@@ -122,38 +135,38 @@ var makeSubscriberAccountTest = function (subscriberString) {
                             parameters = [accountId, subscriptionId];
                             modDb.executeQuery(deleteSubscriptionQuery, parameters);
                         } else {
-                            throw "Subscription cancellation failed for user: " + userName + " of tenant: " + tenantDomain + ".";
+                            throw "Subscription cancellation failed for user: " + username + " of tenant: " + tenantDomain + ".";
                         }
                     }
                     //Update monetization subscriber table
-                    updateMonetizationSubscriberTable(true, userName, tenantDomain);
+                    updateMonetizationSubscriberTable(true, username, tenantDomain);
                     //send notification email
                     sendUpdatedToTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
                 }
                 else {
                     //Insert into monetization subscriber table
                     var insertQueryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIBERS;
-                    var parameters = [userName, tenantDomain, true, null, true];
+                    var parameters = [username, tenantDomain, true, null, true];
                     modDb.executeQuery(insertQueryString, parameters);
                     //Send notification email
                     sendUpdatedToTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
                 }
-                log.info("Updating account to test for user: " + userName + " of tenant: " + tenantDomain + " is successful.");
+                log.info("Updating account to test for user: " + username + " of tenant: " + tenantDomain + " is successful.");
                 return {
                     error: false,
                     status: 200
                 };
             } else {
-                throw "Account of subscriber: " + userName + " of tenant: " + tenantDomain + " received for modifying to a test account is already a test account.";
+                throw "Account of subscriber: " + username + " of tenant: " + tenantDomain + " received for modifying to a test account is already a test account.";
             }
         } catch (e) {
             var msg;
             //Invalid input parameter. Invalid JSON string or null user name.
-            if (userName == null) {
+            if (username == null) {
                 msg = "Request with an invalid subscriber JSON String was received to make a test subscriber account for tenant: " + tenantDomain + ".";
             }
             else {
-                msg = "Error while updating subscriber account to test for subscriber: " + userName + " of the tenant: " + tenantDomain + ".";
+                msg = "Error while updating subscriber account to test for subscriber: " + username + " of the tenant: " + tenantDomain + ".";
             }
             log.error(msg);
             log.error(e);
@@ -178,45 +191,45 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
     var tenantDomain = modManager.getTenantDomain();
     var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
     var effectiveDate = new Packages.java.util.Date();
-    var subscriber, userName;
+    var subscriber, username;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
         try {
             subscriber = JSON.parse(subscriberString);
-            userName = subscriber.userName;
-            if (userName == null || userName == "" || userName == "null") {
+            username = subscriber.username;
+            if (username == null || username == "" || username == "null") {
                 throw "Remove paid subscriptions failed for tenant: " + tenantDomain + ", userName is invalid.";
             }
-            var apimSubscriberId = userName + "@" + tenantDomain;
+            var apimSubscriberId = username + "@" + tenantDomain;
             if (subscriber.complimentary == true) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Removing test account of user: " + userName + " of tenant: " + tenantDomain + ".");
+                    log.debug("Removing test account of user: " + username + " of tenant: " + tenantDomain + ".");
                 }
                 //Remove paid api subscriptions from apim
                 var response = monetizationService.removePaidApiSubscriptionsOfUser(apimSubscriberId, tenantDomain);
                 if (response === true) {
                     //Update monetization subscriber table
-                    updateMonetizationSubscriberTable(false, userName, tenantDomain);
+                    updateMonetizationSubscriberTable(false, username, tenantDomain);
                     //Send notification email
                     sendRemoveTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
-                    log.info("Removing test account status of user: " + userName + " of tenant: " + tenantDomain + " is successful.");
+                    log.info("Removing test account status of user: " + username + " of tenant: " + tenantDomain + " is successful.");
                     return {
                         error: false,
                         status: 200
                     };
                 } else {
-                    throw "Remove paid subscriptions failed for user: " + userName + " of tenant: " + tenantDomain;
+                    throw "Remove paid subscriptions failed for user: " + username + " of tenant: " + tenantDomain;
                 }
             } else {
-                throw "Account of subscriber: " + userName + " of tenant: " + tenantDomain + " received for change back to a regular account is already a regular account.";
+                throw "Account of subscriber: " + username + " of tenant: " + tenantDomain + " received for change back to a regular account is already a regular account.";
             }
         } catch (e) {
             var msg;
             //Invalid input parameter. Invalid JSON string or null user name.
-            if (userName == null) {
+            if (username == null) {
                 msg = "Request with an invalid subscriber JSON String was received to change a test subscriber account back to regular for tenant: " + tenantDomain + ".";
             }
             else {
-                msg = "Error while removing test account status of subscriber: " + userName + " of the tenant: " + tenantDomain + "."
+                msg = "Error while removing test account status of subscriber: " + username + " of the tenant: " + tenantDomain + "."
             }
             log.error(msg);
             log.error(e);
@@ -533,6 +546,135 @@ var sendRemoveTestAccountEmail = function (displayName, service, endDate, userEm
     body = body.replace("$tenant", displayName).replace("$effective-date", mailEndDate).replace("$tenant", displayName);
     var subject = "WSO2 Cloud Services - WSO2 " + service + " complimentary subscriber account of " + displayName + " changed back to a regular account";
     modUtil.sendEmail(body, subject, userEmail);
+};
+
+var getSubscriptions = function (accountNumber) {
+    try {
+        var parameters = [accountNumber, accountNumber];
+        var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS;
+        successObj.data = modDb.executeQuery(queryString, parameters);
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the subscription information for accountId - " + accountNumber + ":");
+        log.error(e);
+        errorObj.message = "Error occurred while getting the subscription information, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getAccountIdFromUserName = function (username) {
+    try {
+        var tenantDomain = modManager.getTenantDomain();
+        var parameters = [username, tenantDomain];
+        var queryString = SQL_QUERY_STRINGS.SELECT_ACCOUNT_ID_FROM_USER;
+        var result = modDb.executeQuery(queryString, parameters);
+        var accountNumber = null;
+        if (result.length > 0) {
+            accountNumber = result[0].ACCOUNT_NUMBER;
+        }
+        successObj.data = accountNumber;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the account id from the username - " + username + " :");
+        log.error(e);
+        errorObj.message = "Error while getting the account id from the username - " + username +
+                ", Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getApiListFromAccountId = function (accountId) {
+    try {
+        var parameters = [accountId];
+        var queryString = SQL_QUERY_STRINGS.SELECT_API_LIST_FROM_ACCOUNT_NUMBER;
+        var result = modDb.executeQuery(queryString, parameters);
+        var apiWithVersion = [];
+        for (var index in result) {
+            var api = result[index].AM_API_NAME + "-" + result[index].AM_API_VERSION;
+            var data = {
+                id: index,
+                text: api,
+                apiVersion: result[index].AM_API_VERSION,
+                apiName: result[index].AM_API_NAME
+            };
+            apiWithVersion.push(data);
+        }
+        successObj.data = apiWithVersion;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the API list from account id - " + accountId + ":");
+        log.error(e);
+        errorObj.message = "Error while getting the API list, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+var getOrdedInvoices = function (accountId, invoiceId) {
+    try {
+        var result = modBilling.getBillingInvoiceData(accountId, invoiceId);
+        var orderedInvoiceList = {};
+        var subscriptionDetails = {};
+
+        for (var i = 0; i < result.invoiceItems.length; i++) {
+            var invoiceItem = result.invoiceItems[i];
+            //combine invoice details according to the subscription
+            if (invoiceItem.subscriptionName in orderedInvoiceList) {
+                orderedInvoiceList[invoiceItem.subscriptionName].push(invoiceItem);
+            } else {
+                orderedInvoiceList[invoiceItem.subscriptionName] = [invoiceItem];
+                subscriptionDetails[invoiceItem.subscriptionName] = getSubscriptionDataFromName(invoiceItem.subscriptionName);
+            }
+        }
+        result.invoiceItems = orderedInvoiceList;
+        result.subscriptionData = subscriptionDetails;
+        successObj.data = result;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the invoice data for accountId - " + accountId + " :");
+        log.error(e);
+        errorObj.message = "Error occurred while getting the invoice information, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getBillingAccountSummary = function (subscribersAccountId) {
+    try {
+        var summary = billingService.getAccountSummary(subscribersAccountId);
+        successObj.data = summary;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the Billing data for accountId - " + subscribersAccountId + "  :");
+        log.error(e);
+        errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getBillingPaymentInfo = function (subscribersAccountId) {
+    try {
+        var summary = billingService.getPayments(subscribersAccountId);
+        successObj.data = summary;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the Billing data for accountId - " + subscribersAccountId + " :");
+        log.error(e);
+        errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getSubscriptionDataFromName = function (subscriptionName) {
+    var queryStringForSubscription = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_DATA_FROM_SUBSCRIPTION_ID;
+    var parameters = [subscriptionName];
+    var result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
+    // If subscription is not available in subscription table search in the history table.
+    if (result.length == 0) {
+        var queryStringForSubscriptionHistory = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_HISTORY_DATA_FROM_SUBSCRIPTION_ID
+        result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
+    }
+    var subscriptionData = new Array();
+    subscriptionData.push((result[0]["AM_API_NAME"]) + ":" + (result[0]["AM_API_VERSION"]));
+    subscriptionData.push(result[0]["RATE_PLAN_NAME"]);
+    return subscriptionData;
 };
 
 %>

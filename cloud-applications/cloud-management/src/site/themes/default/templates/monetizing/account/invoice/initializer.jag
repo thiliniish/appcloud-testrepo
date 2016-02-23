@@ -1,0 +1,12 @@
+<%
+jagg.initializer("monetizing/account/invoice", {
+    preInitialize : function () {
+        // UI related JS files
+        jagg.addFooterJS("account/invoice", "noty", "js/noty-2.3.5/jquery.noty.packaged.min.js");
+        jagg.addFooterJS("account/invoice", "noty.theme", "js/noty-2.3.5/themes/noty.theme.wso2.js");
+
+        // Custom JS file
+        jagg.addFooterJS("account/invoice", "account-invoice", "templates/monetizing/account/invoice/js/account-invoice.js");
+    }
+});
+%>

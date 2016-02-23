@@ -8,12 +8,14 @@ include("/jagg/config_reader.jag");
     if (loginStatus.error) {
         response.status = 401;
         print(loginStatus);
-        return;
     }
     var tenantDomain;
     var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
     var user = jagg.getUser();
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudmgtURI = cloudConfig.ServerUrls.cloudmgt.toString();
+    var contactUsURL = cloudmgtURI + CLOUD_CONTACT_US_URI;
     if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == null) {
         response.status = 401;
         print({
@@ -53,6 +55,7 @@ include("/jagg/config_reader.jag");
             returnObj = {
                 error: true,
                 message: message,
+                redirectionURL: contactUsURL,
                 status: result.status
             };
         } else {
@@ -70,6 +73,7 @@ include("/jagg/config_reader.jag");
         print({
             error: true,
             message: msg,
+            redirectionURL: contactUsURL,
             status: 400
         });
     }
