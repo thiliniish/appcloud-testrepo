@@ -153,7 +153,7 @@
                     <label for="subject1" class="col-sm-2 control-label">Summary</label>
                     <div class="col-sm-8">
                         <%  if(isExtensionRequest == 'true') { %>
-                            <input type="text" id="subject" name="subject" class="required" size="50" placeholder="Trial Extension Request" style="width:90%" />
+                            <input type="text" id="subject" name="subject" class="required" size="50" value="Trial Extension Request" style="width:90%" />
                         <% }else{ %>
                             <input type="text" id="subject" name="subject" class="required" size="50" placeholder="Need help with WSO2 Cloud" style="width:90%" />
                         <% }%>
