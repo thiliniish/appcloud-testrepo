@@ -106,6 +106,9 @@ public final class BillingConstants {
 
     // Zuora subscription json elements
     public static final String CANCELLATION_POLICY_SPECIFIC_DATE = "SpecificDate";
+    public static final String PRODUCT_RATE_PLANS_SUCCESS_STATUS = "success";
+    public static final String PRODUCT_RATE_PLANS_NEXTPAGE = "nextPage";
+    public static final String HTTPS = "https://";
 
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE_FORMAT = "yyyy-MM-dd";

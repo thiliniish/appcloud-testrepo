@@ -389,8 +389,9 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             return ZuoraRESTUtils.getProductRatePlans(productName);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while retrieving product rate plans for product: " + productName, ex);
-            throw ex;
+            String message = "Error occurred while retrieving product rate plans for product: " + productName;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 

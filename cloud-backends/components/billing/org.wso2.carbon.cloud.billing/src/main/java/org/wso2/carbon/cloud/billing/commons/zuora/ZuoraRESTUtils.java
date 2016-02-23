@@ -27,6 +27,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
@@ -250,31 +252,85 @@ public class ZuoraRESTUtils {
     /**
      * Get product rate plans for a product (ex: api_cloud)
      * This is the description we maintain in billing.xml
+     * Zuora sends the response in multiple pages. Iteratively get the product list of each page. Zuora api request
+     * contains a parameter named nextPage which contains the request URL for the next page.
+     *
+     * Below is a Sample response message with a nextPage value from zuora
+     * { [
+     * ...
+     * "useTenantDefaultForPriceChange" : null,
+     * "taxable" : false,
+     * "taxCode" : "",
+     * "taxMode" : null,
+     * "triggerEvent" : "ContractEffective",
+     * "description" : ""
+     * } ]
+     * } ]
+     * },
+     * { "id" : "2c92c0f850dca6750150dccae664226f", "sku" : "SKU-00000009", "name" : "ch7777", "description" : "",
+     * "productRatePlans" : [ ] }
+     * ],
+     * "nextPage" : "https://apisandbox-api.zuora.com/rest/v1/catalog/products?page=2&pageSize=10",
+     * "success" : true
+     * }
      *
      * @param productName product name
      * @return Json array of rate plans
      * @throws CloudBillingException
      */
     public static JSONArray getProductRatePlans(String productName) throws CloudBillingException {
-        String response = null;
-
-        try {
-            response = zuoraApi.doGet(BillingConstants.ZUORA_REST_API_URI_PRODUCTS, null, null);
-            JSONParser jsonParser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
-            // getting all subscriptions elements for accountId
-            JSONArray products;
-            products = ((JSONArray) jsonObject.get(BillingConstants.PRODUCTS));
-            for (Object product : products) {
-                if (((JSONObject) product).get(BillingConstants.NAME).equals(productName)) {
-                    return (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
+        boolean isProductAvailable = false;
+        JSONArray ratePlanList = null;
+        String response;
+        // Zuora api request URL
+        String requestUrl = BillingConstants.ZUORA_REST_API_URI_PRODUCTS;
+        while (!isProductAvailable) {
+            response = zuoraApi.doGet(requestUrl, null, null);
+            try {
+                JSONParser jsonParser = new JSONParser();
+                JSONObject productJsonObject = (JSONObject) jsonParser.parse(response);
+                // Get the status of the request
+                boolean success =
+                        (Boolean) productJsonObject.get(BillingConstants.PRODUCT_RATE_PLANS_SUCCESS_STATUS);
+                if (success) {
+                    JSONArray products = ((JSONArray) productJsonObject.get(BillingConstants.PRODUCTS));
+                    for (Object product : products) {
+                        if (((JSONObject) product).get(BillingConstants.NAME).equals(productName)) {
+                            ratePlanList = (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
+                        }
+                    }
+                    if (ratePlanList == null) {
+                        String nextPage;
+                        // Get the next page value
+                        nextPage = (String) productJsonObject.get(BillingConstants.PRODUCT_RATE_PLANS_NEXTPAGE);
+                        if (nextPage != null) {
+                            BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
+                            ZuoraConfig zuoraConfig = billingConfig.getZuoraConfig();
+                            String serviceUrlHost = zuoraConfig.getServiceUrlHost();
+                            // Service url value is null if it is same as hostname in httpclientconfig. If this value is
+                            // null take value from zuora http configuration.
+                            if (null == serviceUrlHost) {
+                                serviceUrlHost = zuoraConfig.getHttpClientConfig().getHostname();
+                            }
+                            // Removing the redundant service URL host value from the nextPage
+                            requestUrl = nextPage.replaceAll(BillingConstants.HTTPS + serviceUrlHost,
+                                                             BillingConstants.EMPTY_STRING).trim();
+                        } else {
+                            throw new CloudBillingException(
+                                    "Unable to find the specified product name: " + productName);
+                        }
+                    } else {
+                        isProductAvailable = true;
+                    }
+                } else {
+                    throw new CloudBillingException(
+                            "Unable to retrieve product rate plans for product: " + productName);
                 }
+            } catch (ParseException e) {
+                throw new CloudBillingException("Error passing the response " + response + " to json object.", e);
             }
-
-        } catch (ParseException e) {
-            throw new CloudBillingException("Error passing the response " + response + " to json object", e);
         }
-        throw new CloudBillingException("Unable to find the specified product name: " + productName);
+        return ratePlanList;
     }
 
     /**
