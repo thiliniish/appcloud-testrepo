@@ -129,7 +129,7 @@ var emailBody = jagg.module("util").getObjFromFile("/site/conf/emails/support_re
              subject = "[Support Request] [New User] " + subject
          } else {
              emailBody = emailBody.replace("$username", userName);
-             subject = "[Support Request] [Tenant : "+ session.get("LOGGED_IN_USER_TENANT_DOMAIN") +"] " + subject
+             subject = "[Support Request] ["+ session.get("LOGGED_IN_USER_TENANT_DOMAIN") +"] " + subject
          }
          emailBody = emailBody.replace("$emailAddress", customerEmail);
          emailBody = emailBody.replace("$content", body);
