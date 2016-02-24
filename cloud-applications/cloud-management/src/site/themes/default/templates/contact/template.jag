@@ -118,18 +118,18 @@
 <div class="container content-starter">
     <div class="row">
         <div class="col-lg-12">
-            <%  if(isExtensionRequest == 'true') { %>
+            <%  if (isExtensionRequest == 'true') { %>
                 <h1>Extension Request</h1>
-            <% }else{ %>
+            <% } else { %>
                 <h1>Support</h1>
-            <% }%>
+            <% } %>
             <div class="helper_text" id="helper_text">
-                <%  if(isExtensionRequest == 'true') { %>
+                <%  if (isExtensionRequest == 'true') { %>
                     <p>Need a little more time? <br/>Not a problem! We are happy to extend your trial to 14 more days.
                     Can you please let us know how we can help you make your trial more effective?</p>
-                <% }else{ %>
+                <% } else { %>
                     <p>We will respond by email within one business day</p>
-                <% }%>
+                <% } %>
             </div>
         </div>
     </div>
@@ -143,18 +143,18 @@
             <form method='post' name="inputData" class='form-horizontal' id='userForm' action="javascript:doSubmit()" role="form">
                 <%if (email == null && isRegistrationHelp == 'true'){ %>
                     <input type="hidden" id="from" name="from"value="<%=userEmail%>" />
-                <%} else {%>
+                <%} else { %>
                     <input type="hidden" id="from" name="from" value="<%=email%>" />
-                <%}%>
+                <% } %>
                 <input type="hidden" id="to" name="to" readonly value="<%=to%>" size="50"   style="width:60%"  />
                 <div class="form-group">
                     <label for="subject1" class="col-sm-2 control-label">Summary</label>
                     <div class="col-sm-8">
-                        <%  if(isExtensionRequest == 'true') { %>
+                        <%  if (isExtensionRequest == 'true') { %>
                             <input type="text" id="subject" name="subject" class="required" size="50" value="Trial Extension Request" style="width:90%" />
-                        <% }else{ %>
+                        <% } else { %>
                             <input type="text" id="subject" name="subject" class="required" size="50" placeholder="Need help with WSO2 Cloud" style="width:90%" />
-                        <% }%>
+                        <% } %>
                     </div>
                 </div>
                 <br>
@@ -168,11 +168,11 @@
                 <div class="form-group">
                     <label for="buton" class="col-sm-2 control-label"></label>
                     <div class="col-sm-8">
-                        <%  if(isExtensionRequest == 'true') { %>
+                        <%  if (isExtensionRequest == 'true') { %>
                             <input id="submitbtn" type='submit' value='Request Extension' class='btn btn-primary'/>
-                        <% }else{ %>
+                        <% } else { %>
                             <input id="submitbtn" type='submit' value='Send Support Request' class='btn btn-primary'/>
-                        <% }%>
+                        <% } %>
                         <a id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/index.jag'">Cancel</a>
                     </div>
                 </div>
