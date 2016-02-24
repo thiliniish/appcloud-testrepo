@@ -208,7 +208,10 @@ ul
         var clickwithblur = false;
         var isKeyup = false;
         checkConfirmation();
-        getProfile();
+        var isUserAvail = '<%=isUserAvail%>';
+        if(isUserAvail == 'true'){
+            getProfile();
+        }
         jQuery.validator.setDefaults({
                 errorElement:'span'
         });
