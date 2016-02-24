@@ -2,8 +2,6 @@
 <%
     var userName = session.get("LOGGED_IN_USER");
     var email = session.get("LOGGED_IN_USER_EMAIL");
-    var log = new Log();
-    session.put("wso2carbon.admin.logged.in", userName);
 
     var isExtensionRequest = null;
     if (jagg.module("util").isUserInAdminRole()) {
