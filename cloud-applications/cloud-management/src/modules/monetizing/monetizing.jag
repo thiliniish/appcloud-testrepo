@@ -629,7 +629,7 @@ var getOrdedInvoices = function (accountId, invoiceId) {
         successObj.data = result;
         return successObj;
     } catch (e) {
-        log.error("Error while getting the invoice data for accountId - " + accountId + " :");
+        log.error("Error while getting the invoice data for accountId [" + accountId + "] :");
         log.error(e);
         errorObj.message = "Error occurred while getting the invoice information, Please contact WSO2 Cloud Team for help";
         return errorObj;
@@ -642,7 +642,7 @@ var getBillingAccountSummary = function (subscribersAccountId) {
         successObj.data = summary;
         return successObj;
     } catch (e) {
-        log.error("Error while getting the Billing data for accountId - " + subscribersAccountId + "  :");
+        log.error("Error while getting the Billing data for accountId [" + subscribersAccountId + "] :");
         log.error(e);
         errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
         return errorObj;
@@ -655,7 +655,7 @@ var getBillingPaymentInfo = function (subscribersAccountId) {
         successObj.data = summary;
         return successObj;
     } catch (e) {
-        log.error("Error while getting the Billing data for accountId - " + subscribersAccountId + " :");
+        log.error("Error while getting the Billing data for accountId [" + subscribersAccountId + "] :");
         log.error(e);
         errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
         return errorObj;
