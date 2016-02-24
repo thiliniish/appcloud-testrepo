@@ -51,7 +51,7 @@ public class DataConnectionManager {
 	 */
 	public Connection getDbConnection() {
 		ConfigReader configReader = ConfigReader.getInstance();
-		String datasourceName = configReader.getDatasourceName("Configurations/datasources/carbon-datasource");
+		String datasourceName = configReader.getConfiguration().getDatasources().getCarbonDatasource();
 		try {
 			Hashtable<String, String> environment = new Hashtable<String, String>();
 			environment.put("java.naming.factory.initial", "org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory");

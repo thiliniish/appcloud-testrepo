@@ -82,7 +82,9 @@
                             javax.xml.parsers,
                             javax.xml.namespace,
                             javax.sql,
-                            javax.naming
+                            javax.naming,
+                            javax.xml.bind,
+                            javax.xml.bind.annotation
                         </Import-Package>
                     </instructions>
                 </configuration>

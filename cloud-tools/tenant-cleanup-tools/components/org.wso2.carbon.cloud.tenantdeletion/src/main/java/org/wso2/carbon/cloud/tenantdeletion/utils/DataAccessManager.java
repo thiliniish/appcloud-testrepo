@@ -40,7 +40,7 @@ public class DataAccessManager {
 	public void updateUserLogin(int id, String domainName, String currentDate) {
 		PreparedStatement preparedStatement = null;
 		try {
-			String query = "INSERT INTO `USER_LOGIN` (TENANT_ID, TENANT_DOMAIN, LAST_LOGIN_DATE) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE LAST_LOGIN_DATE = ? ";
+			String query = "INSERT INTO USER_LOGIN (TENANT_ID, TENANT_DOMAIN, LAST_LOGIN_DATE) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE LAST_LOGIN_DATE = ? ";
 			preparedStatement = DataConnectionManager.getInstance().getDbConnection().prepareStatement(query);
 			preparedStatement.setInt(1, id);
 			preparedStatement.setString(2, domainName);
