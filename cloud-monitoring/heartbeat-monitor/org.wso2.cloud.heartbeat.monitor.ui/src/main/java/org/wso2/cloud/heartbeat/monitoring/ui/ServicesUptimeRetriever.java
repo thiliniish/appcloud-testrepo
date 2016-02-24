@@ -31,8 +31,8 @@ import java.util.*;
 import java.util.Date;
 
 /**
- * Data retrieval Class for all the uptime related information, acts as the broker between
- * UI and database to retrieve process and transfer data.
+ * Data retrieval Class for all the uptime related information,
+ * acts as the broker between UI and database to retrieve process and transfer data.
  */
 
 public class ServicesUptimeRetriever {
@@ -89,7 +89,8 @@ public class ServicesUptimeRetriever {
         List<Long> negativeList = new ArrayList<Long>();
         List<Long> valuesToRemove = new ArrayList<Long>();
         IntervalMerger mergeIntervals = new IntervalMerger();
-        Map<Map<String, Map>, List<Pair>> failureSummary = new HashMap<Map<String, Map>, List<Pair>>();
+        Map<Map<String, Map>, List<TimeStampPair>> failureSummary =
+                new HashMap<Map<String, Map>, List<TimeStampPair>>();
 
         log.info("Heartbeat - Monitor - Retrieving results for :" + serviceName + "Server and " + testName + "test");
 
@@ -133,7 +134,7 @@ public class ServicesUptimeRetriever {
                     if (failureIntervals.getFailureCount() > 0) {
                         testToSeverity.put(individualTest, severity);
                         failureKey.put(serviceName, testToSeverity);
-                        failureSummary.put(failureKey, failureIntervals.getListPair());
+                        failureSummary.put(failureKey, failureIntervals.mapTimeStamp());
                     }
                 }
             } catch (SQLException e) {
@@ -310,7 +311,7 @@ public class ServicesUptimeRetriever {
      * @throws HeartbeatException
      */
     public void setDateTime(String fromDateTime, String toDateTime) throws HeartbeatException {
-        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat formatter = new SimpleDateFormat(Constants.DATEFORMAT);
         Date toDate;
         Date fromDate;
         try {
@@ -332,13 +333,19 @@ public class ServicesUptimeRetriever {
      * @return Map with a timestamp to failure detail string
      * @throws HeartbeatException
      */
-    public Map<Timestamp, List<String>> getFailureDetail(String serverName, String testName, String toTime,
-                                                         String fromTime) throws HeartbeatException {
+    public Map<Timestamp, List<String>> getFailureDetail(String serverName, String testName, String toTimestamp,
+                                                         String fromTimestamp)
+            throws HeartbeatException, ParseException {
         Map<Timestamp, List<String>> failuredetail = new TreeMap<Timestamp, List<String>>();
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
         Connection con = null;
         List<String> queryParameters = new ArrayList<String>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATEFORMAT);
+        Date fromDate = dateFormat.parse(fromTimestamp);
+        Date toDate = dateFormat.parse(toTimestamp);
+        String fromTime = Long.toString(fromDate.getTime());
+        String toTime = Long.toString(toDate.getTime());
         queryParameters.addAll(Arrays.asList(serverName, testName, fromTime, toTime));
         try {
             con = dataAccessManager.getConnection();

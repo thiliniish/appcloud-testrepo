@@ -55,6 +55,8 @@ public class Constants {
 	public static final String TASK_SERVER = "task_server";
 	public static final String IDENTITY_SERVER = "identity";
 
+	public static final String SERVER_LOGIN_TEST = "server_login_test";
+
 	public static final String APPFACTORY = "appfactory";
 	public static final String CLOUD_MGT = "cloud_management";
 

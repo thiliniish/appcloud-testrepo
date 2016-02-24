@@ -25,16 +25,16 @@ import java.util.List;
  * sets up a data structure to keep cloud specific server name list
  */
 public class CloudStructure {
-	private String cloud;
-	private List servicesList;
+	private String cloudName;
+	private List<String> servicesList;
 
 	public CloudStructure(String cloudName) {
-		cloud = cloudName;
+		this.cloudName = cloudName;
 		servicesList = new ArrayList<String>();
 	}
 
 	public String getCloudName() {
-		return cloud;
+		return cloudName;
 	}
 
 	public void putService(String serviceName) {

@@ -226,6 +226,8 @@ public class LoginJobScheduler {
         //login test will run against manager node if worker and manager, 2 nodes exists.
         if(moduleNode.getProperty("management_host_name") != null){
             jobDataMap.put("hostName", moduleNode.getProperty("management_host_name"));
+        }else if (moduleNode.getProperty("host_names") != null) {
+            jobDataMap.put("hostNames", moduleNode.getProperty("host_names"));
         } else {
             jobDataMap.put("hostName", moduleNode.getProperty("host_name"));
         }

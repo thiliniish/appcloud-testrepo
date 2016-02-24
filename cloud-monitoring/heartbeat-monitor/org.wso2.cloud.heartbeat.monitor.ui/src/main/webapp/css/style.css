@@ -675,38 +675,38 @@ div#full-screen table.content td {
 }
 
 #uptime-info td:nth-child(1) {
-    width: 28%;
+    width: 20%;
     text-align: center;
 }
 
 #uptime-info td:nth-child(2) {
-    width: 28%;
+    width: 20%;
     text-align: center;
 }
 
 #uptime-info td:nth-child(3) {
-    width: 10%;
+    width: 15%;
     text-align: center;
 }
 
 #uptime-info td:nth-child(4) {
-    width: 10%;
+    width: 15%;
     text-align: center;
 }
 
 #uptime-info td:nth-child(5) {
-    width: 10%;
+    width: 28%;
     text-align: center;
 }
 
 #uptime-info td:nth-child(6) {
-    width: 8%;
+    width: 12%;
     text-align: center;
 
 }
 
 #uptime-info td:nth-child(7) {
-    width: 4%;
+    width: 5%;
     text-align: center;
 }
 

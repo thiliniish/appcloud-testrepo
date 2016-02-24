@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.cloud.integration.test.utils.external;
 
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpHeaders;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
@@ -43,7 +44,7 @@ public class HttpHandler {
             public boolean verify(String hostname, SSLSession session) {
                 String deploymentContext = CloudIntegrationTestUtils
                         .getPropertyValue(CloudIntegrationConstants.DEPLOYMENT_CONTEXT);
-                return deploymentContext.equals("local");
+                return "local".equals(deploymentContext);
             }
         });
     }
@@ -84,7 +85,7 @@ public class HttpHandler {
         wr.flush();
         wr.close();
         int responseCode = con.getResponseCode();
-        if (responseCode == 200) {
+        if (responseCode == HttpStatus.SC_OK) {
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuilder response = new StringBuilder();
@@ -92,7 +93,7 @@ public class HttpHandler {
                 response.append(inputLine);
             }
             in.close();
-            if (authCookie == null || authCookie.equals("")) {
+            if (authCookie == null || "".equals(authCookie)) {
                 Map<String, List<String>> headers = con.getHeaderFields();
                 List<String> cookies = headers.get("Set-Cookie");
                 StringBuilder sb = new StringBuilder();
