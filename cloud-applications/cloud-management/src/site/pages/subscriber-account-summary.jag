@@ -1,0 +1,61 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+(function () {
+    var user = jagg.getUser();
+    if (user == null) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user);
+    if (tenantDomain != null && !jagg.module("util").isUserInAdminRole()) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+    var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+    var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+    var emailAddress = encoder.getSafeText(request.getParameter("email-address"));
+    jagg.render({
+        "name": "page/base-new",
+        "inputs": {
+            "title": "WSO2 Cloud Mgt",
+            "pagePath": "/site/pages/subscriber-account-summary.jag",
+            "body": [
+                {
+                    "name": "layout/base",
+                    "inputs": {
+                        "title": "Subscriber Mgt",
+                        "middle": [
+                            {
+                                "name": "monetizing/account/info",
+                                "inputs": {
+                                    "email": emailAddress
+                                }
+                            }
+                        ],
+                        "breadcrumb": [
+                            {
+                                "name": "breadcrumb",
+                                "inputs": {
+                                    "pageName": "Subscriptions"
+                                }
+                            }
+                        ],
+                        "tablinks": [
+                            {
+                                "name": "tablinks"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

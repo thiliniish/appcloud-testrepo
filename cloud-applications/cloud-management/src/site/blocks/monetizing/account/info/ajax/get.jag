@@ -1,0 +1,124 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("site.blocks.monetizing.account.info.ajax.get");
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("monetizing");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var cloudmgtURI = cloudConfig.ServerUrls.cloudmgt.toString();
+var contactUsURL = cloudmgtURI + CLOUD_CONTACT_US_URI;
+var errorObj = {
+    error: true,
+    statusCode: 500,
+    redirectionURL: contactUsURL,
+    message: "Internal error. Please retry..."
+};
+
+var loginStatus = jagg.isUserLoggedIn();
+if (loginStatus.error) {
+    response.status = 401;
+    print(loginStatus);
+}
+var tenantDomain;
+var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+var user = jagg.getUser();
+if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == null) {
+    response.status = 401;
+    print({
+        error: true,
+        status: 401,
+        message: "Unauthorized. Login required."
+    });
+}
+
+if (!jagg.module("util").isUserInAdminRole()) {
+    response.status = 401;
+    print({
+        error: true,
+        status: 401,
+        message: "User does not have permission to perform the requested operation"
+    });
+}
+
+var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+    response.status = 403;
+    print({
+        error: true,
+        status: 403,
+        message: "Monetization feature is not available for the organization."
+    });
+}
+
+(function () {
+    var action = encoder.getSafeText(request.getParameter("action"));
+    if (action == "get-billing-account") {
+        var subscribersAccountId = encoder.getSafeText(request.getParameter(ACCOUNT_ID));
+        var result = mod.getBillingAccountSummary(subscribersAccountId);
+        print(result);
+
+    } else if (action == "get-payment-info") {
+        var subscribersAccountId = encoder.getSafeText(request.getParameter(ACCOUNT_ID));
+        var result = mod.getBillingPaymentInfo(subscribersAccountId);
+        print(result);
+
+    } else if (action == "get-subscription-info") {
+        var subscribersAccountId = encoder.getSafeText(request.getParameter(ACCOUNT_ID));
+        var result = mod.getSubscriptions(subscribersAccountId);
+        print(result);
+
+    } else if (action == "get-subscribers-of-tenant") {
+        var result = mod.getSubscribersOfTenant();
+        if (result.error != null || result.error == false) {
+            var subscriberList = [];
+            // Generating data for the dataTable, It is required to send an id and text input to the dataTable so
+            // manipulating the results data
+            for (var x = 0; x < result.subObj.length; x++) {
+                var data = {
+                    id: x, email: result.subObj[x].email, text: result.subObj[x].displayName,
+                    username: result.subObj[x].userName, complimentary: result.subObj[x].complimentary,
+                    subscriptionType: result.subObj[x].subscriptionType, accountId: result.subObj[x].accountId
+                };
+                subscriberList.push(data);
+            }
+            print(subscriberList);
+        }
+        else {
+
+            errorObj.message = "Error occurred while getting the user list, Please contact WSO2 Cloud Team for help";
+            print(errorObj);
+        }
+
+    } else if (action == "get-api-list-from-username") {
+        var username = encoder.getSafeText(request.getParameter("username"));
+        var result = {};
+        var accountNumberResult = mod.getAccountIdFromUserName(username);
+        result.accountNumber = accountNumberResult.data;
+        if (!accountNumberResult.error) {
+            //if the account number is null then should send back the null as account number not an error
+            if (accountNumberResult.data != null) {
+                var apiList = mod.getApiListFromAccountId(accountNumberResult.data);
+                if (!apiList.error) {
+                    result.apiList = apiList.data;
+                }
+            }
+            print(result);
+        } else {
+            log.error("Error occurred while getting the  api list for user - " + username );
+            errorObj.message = "Error occurred while getting the api list, Please contact WSO2 Cloud Team for help";
+            print(errorObj);
+        }
+
+    } else {
+        log.error("No Action Specified");
+        response.status = 400;
+        errorObj.message = "Unexpected error occurred";
+        print(errorObj);
+    }
+
+}());
+%>
