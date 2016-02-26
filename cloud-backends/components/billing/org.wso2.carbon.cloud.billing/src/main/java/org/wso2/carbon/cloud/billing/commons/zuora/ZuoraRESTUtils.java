@@ -385,7 +385,7 @@ public class ZuoraRESTUtils {
     public static String removePaymentMethod(String methodId) throws CloudBillingException {
         // Zuora api request URL
         String requestUrl = BillingConstants.ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD + "/" + methodId;
-        return zuoraApi.doDelete(requestUrl, null, null);
+        return zuoraApi.doDelete(requestUrl, null);
     }
 
     /**

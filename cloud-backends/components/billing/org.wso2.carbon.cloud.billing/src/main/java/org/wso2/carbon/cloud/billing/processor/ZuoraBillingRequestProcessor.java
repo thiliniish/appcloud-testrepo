@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
@@ -199,6 +200,25 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), put, DEFAULT_CONNECTION_RETRIES);
     }
 
+    /**
+     * Zuora delete request
+     *
+     * @param url         URL
+     * @param acceptType  Accept header
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doDelete(String url, String acceptType) throws CloudBillingException {
+
+        DeleteMethod delete = new DeleteMethod(url);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        delete.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+
+        addAccessKeyHeaders(delete);
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), delete, DEFAULT_CONNECTION_RETRIES);
+    }
     /**
      * DELETE with name value pairs not supported for zuora
      *

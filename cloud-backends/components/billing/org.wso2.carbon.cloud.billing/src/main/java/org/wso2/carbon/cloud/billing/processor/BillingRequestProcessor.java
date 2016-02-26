@@ -42,5 +42,7 @@ public interface BillingRequestProcessor {
 
     String doPut(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException;
 
+    String doDelete(String url, String acceptType) throws CloudBillingException;
+
     String doDelete(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException;
 }
