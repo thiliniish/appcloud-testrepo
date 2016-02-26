@@ -43,6 +43,7 @@
         var minLength = 8;
         var passwordStrength   = 0;
         var minimumCharacterLimitExceeded = 0;
+        var onlyEnglishCharacters = 0;
         var hasDigit = 0;
         var hasLowercaseLetter = 0;
         var hasUppercaseLetter = 0;
@@ -58,6 +59,13 @@
         }
         var item = $('.list1 li:first');
         changeImage(item, minimumCharacterLimitExceeded);
+
+        if(password.match(/^[a-zA-Z0-9<>@!#$%^&*()_+[\]{}?:;'\"|\\,./~`=-]*$/))
+        {
+            onlyEnglishCharacters = 1;
+        }
+        var item = $('.list1 li:nth-child(2)');
+        changeImage(item, onlyEnglishCharacters);
 
         if ((password.match(/[a-z]/)) && (password.match(/[A-Z]/)) ) {
             passwordStrength++;
@@ -152,7 +160,10 @@
         .text($.validator.passwordRating.messages[rating.messageKey]);
         // display process bar instead of error message
         var re = /((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])|(?=.*[a-z])(?=.*[A-Z])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])|(?=.*[a-z])(?=.*[0-9])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])|(?=.*[A-Z])(?=.*[0-9])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])).{8,}/;
-        return re.test(value);
+
+        // Regex to make sure that all the characters are English.
+        var regex = /(^[a-zA-Z0-9<>@!#$%^&*()_+[\]{}?:;'\"|\\,./~`=-]*$)/;
+        return (regex.test(value) && re.test(value));
     } else{
         return true;
     }
