@@ -1,5 +1,6 @@
 <% jagg.template("tenant/register/add", function(inputs, outputs, jagg) { %>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.password.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/validate.organization.js'))%>"></script>
 
 <%
 include("/jagg/constants.jag");
@@ -262,6 +263,10 @@ ul
             });
             return isValid;
         }, "Password is not correct.");
+        jQuery.validator.addMethod("validateCompanyName", function(value, element) {
+               var isValid = validateOrganizationNameAlphaNumeric(value);
+               return isValid;
+        }, "Please use only letters (a-z) ,numbers and whitespaces");
 
 		$('#registerForm').validate({
 		    onfocusout: false,
@@ -272,6 +277,7 @@ ul
                     confirmPassword:true
                 },
 		        companyName: {
+		            validateCompanyName: true,
                     domain: true
                 }
             },
