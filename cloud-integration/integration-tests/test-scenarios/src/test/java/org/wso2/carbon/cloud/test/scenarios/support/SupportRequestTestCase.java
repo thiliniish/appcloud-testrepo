@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -33,91 +33,111 @@ import org.wso2.carbon.cloud.integration.test.utils.external.HttpHandler;
 import org.wso2.carbon.cloud.integration.test.utils.restclients.JaggeryAppAuthenticatorClient;
 
 import java.io.IOException;
+import java.lang.String;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class runs the test cases to test if user's support requests are sent as required to the cloud team.
+ * Also it checks if the jira creation is enabled/disabled prior to running the test case in
+ * order to avoid the creation of dummy jiras.
+ */
 public class SupportRequestTestCase extends CloudIntegrationTest {
 
-	private static final Log log = LogFactory.getLog(SupportRequestTestCase.class);
-	private String userEmail;
-	private String emailSubject;
-	private String emailBody;
-	private String jiraCreationStatus;
-	private JaggeryAppAuthenticatorClient authenticatorClient;
-	private boolean loginStatus;
-	private final String supportUrl =
-			cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_CONTACT_SUPPORT_URL_SFX;
+    private static final Log log = LogFactory.getLog(SupportRequestTestCase.class);
+    private String supportRequestActionName;
+    private String userEmail;
+    private String emailSubject;
+    private String emailBody;
+    private String jiraCreationStatus;
+    private JaggeryAppAuthenticatorClient authenticatorClient;
+    private boolean loginStatus;
+    private final String supportUrl =
+            cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_CONTACT_SUPPORT_URL_SFX;
 
-	/**
-	 * This method will authenticate the tenant and initialize the input parameters.
-	 *
-	 * @throws Exception
-	 */
-	@BeforeClass(alwaysRun = true)
-	public void deplyService() throws Exception {
-		authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
-		userEmail = CloudIntegrationTestUtils
-				.getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_USER_EMAIL);
-		emailSubject = CloudIntegrationTestUtils
-				.getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_SUBJECT);
-		emailBody = CloudIntegrationTestUtils
-				.getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_BODY);
-		jiraCreationStatus = CloudIntegrationTestUtils
-				.getPropertyValue(
-						CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_JIRA_CREATION_STATUS);
-		loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
+    /**
+     * This method will authenticate the tenant and initialize the input parameters.
+     *
+     * @throws Exception
+     */
+    @BeforeClass(alwaysRun = true)
+    public void deployService() throws Exception {
+        authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
+        supportRequestActionName = CloudIntegrationTestUtils
+                .getPropertyValue(
+                        CloudIntegrationConstants.SUPPORT_REQUEST_ACTION_NAME);
+        userEmail = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_USER_EMAIL);
+        emailSubject = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_SUBJECT);
+        emailBody = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_BODY);
+        jiraCreationStatus = CloudIntegrationTestUtils
+                .getPropertyValue(
+                        CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_JIRA_CREATION_STATUS);
 
-	}
 
-	/**
-	 * This is the method that will send the support request email to the cloud team.
-	 *
-	 * @throws Exception
-	 */
-	@Test(description = "Send the support request to the cloud team", dependsOnMethods = {
-			"checkJiraCreationEnabled" }) public void sendSupportRequestToCloud() throws Exception {
-		log.info(
-				"Started running the test case to check the function of sending the support request to the cloud team");
-		Assert.assertTrue(loginStatus, "Tenant login failed.");
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("action", "sendSupportRequest");
-		params.put("from", userEmail);
-		params.put("subject", emailSubject);
-		params.put("body", emailBody);
-		Map resultMap = HttpHandler
-				.doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
-		JSONObject supportRequestResult =
-				new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-		String createJiraTicketResult = supportRequestResult.getString("createJiraTicketResult");
-		String sendSupportEmailResult = supportRequestResult.getString("sendSupportEmailResult");
-		Assert.assertTrue(createJiraTicketResult.equals("success") ||
-		                  createJiraTicketResult.equals("disabled"), "Error while creating jira");
-		Assert.assertEquals(sendSupportEmailResult, "true", "Error while sending support email");
+        loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
 
-	}
+    }
 
-	/**
-	 * This method will check if the Jira creation is enabled or disabled as required. In order to avoid the creation
-	 * of sample JIRAs.
-	 *
-	 * @throws Exception
-	 */
-	@Test(description = "Checks if the Jira creation is enabled/disabled as required")
-	public void checkJiraCreationEnabled() throws Exception {
+    /**
+     * This is the method that will send the support request email to the cloud team.
+     *
+     * @throws Exception
+     */
+    @Test(description = "Send the support request to the cloud team", dependsOnMethods = {
+            "checkJiraCreationEnabled" }) public void sendSupportRequestToCloud() throws Exception {
+        log.info("Started the test case to check the function of sending the support request to the cloud team");
+        Assert.assertTrue(loginStatus, "Tenant login failed.");
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("action", supportRequestActionName);
+        params.put("from", userEmail);
+        params.put("subject", emailSubject);
+        params.put("body", emailBody);
+        Map resultMap = HttpHandler
+                .doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
+        JSONObject supportRequestResult =
+                new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+        if (supportRequestResult.length() != 0) {
+            String createJiraTicketResult =
+                    supportRequestResult.getString("createJiraTicketResult");
+            String sendSupportEmailResult =
+                    supportRequestResult.getString("sendSupportEmailResult");
+            Assert.assertTrue("success".equals(createJiraTicketResult) ||
+                              "disabled".equals(createJiraTicketResult),
+                              "Error while creating jira");
+            Assert.assertEquals(sendSupportEmailResult, "true",
+                                "Error while sending support email");
+        } else {
+            Assert.fail(
+                    "The result returned from the execution of the " + supportRequestActionName +
+                    "method was empty");
+        }
+    }
+    /**
+     * This method will check if the Jira creation is enabled or disabled as required. In order to avoid the creation
+     * of sample JIRAs.
+     *
+     * @throws Exception
+     */
+    @Test(description = "Checks if the Jira creation is enabled/disabled as required")
+    public void checkJiraCreationEnabled() throws Exception {
+        if (log.isDebugEnabled()) {
+            log.debug("Making sure Jira creation is enabled/disabled as required.");
+        }
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("action", "isJiraCreationEnabled");
+        Map resultMap = HttpHandler
+                .doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
+        Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), jiraCreationStatus,
+                            "Please check if the Jira creation is enabled/disabled as required");
+    }
 
-		log.info("In the method to make sure Jira creation is enabled/disabled as required.");
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("action", "isJiraCreationEnabled");
-		Map resultMap = HttpHandler
-				.doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
-		Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), jiraCreationStatus,
-		                    "Please check if the Jira creation is enabled/disabled as required");
-	}
-
-	@AfterClass(alwaysRun = true) public void destroy()
-			throws IOException, LogoutAuthenticationExceptionException {
-		authenticatorClient.logout();
-		super.cleanup();
-	}
+    @AfterClass(alwaysRun = true) public void destroy()
+            throws IOException, LogoutAuthenticationExceptionException {
+        authenticatorClient.logout();
+        super.cleanup();
+    }
 
 }

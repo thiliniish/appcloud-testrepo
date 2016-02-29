@@ -120,6 +120,8 @@ public class CloudIntegrationConstants {
             "//cloudProperties/support/supportRequest/emailSubject";
     public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_EMAIL_BODY =
             "//cloudProperties/support/supportRequest/emailBody";
+    //This is the action name which calls the method to send the support request of cloud users.
+    public static final String SUPPORT_REQUEST_ACTION_NAME = "sendSupportRequest";
 
     //mysql parameters
     public static final String CLOUD_MGT_DATASOURCE = "mysql-cloudMgt";
