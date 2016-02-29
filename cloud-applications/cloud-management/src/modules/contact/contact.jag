@@ -113,40 +113,40 @@ var emailBody = jagg.module("util").getObjFromFile("/site/conf/emails/support_re
      }
  }
 
- /*
-  * send support request and crate a jira
-  * @param  customerEmail : user email
-  * @param  subject : jira ticket summary
-  * @param  body : jira ticket description
-  */
- var sendSupportRequestAndCreateJira = function(customerEmail,subject ,body){
-     try{
-         var supportRequestResult={};
-         var resultSupportRequest=false;
-         var subject;
-         if (userName == null || userName == 'null') {
-             emailBody = emailBody.replace("$username", "New User");
-             subject = "[Support Request] [New User] " + subject
-         } else {
-             emailBody = emailBody.replace("$username", userName);
-             subject = "[Support Request] ["+ session.get("LOGGED_IN_USER_TENANT_DOMAIN") +"] " + subject
-         }
-         emailBody = emailBody.replace("$emailAddress", customerEmail);
-         emailBody = emailBody.replace("$content", body);
-         log.info("Sending a support request for customer email : " + customerEmail);
-         resultSupportRequest = jagg.module("util").sendEmail(emailBody,subject);
-     } catch(e) {
-         log.error("Error while sending support email: " + e);
-     }
-     try {
-         var resultCreateJira = createJiraTicket(customerEmail,subject ,body);
-     } catch(e) {
-         log.error("Error while creating jira : " + e);
-     }
-     supportRequestResult.sendSupportEmailResult = resultSupportRequest;
-     supportRequestResult.createJiraTicketResult = resultCreateJira;
-     return supportRequestResult;
- };
+/*
+ * send support request and crate a jira
+ * @param  customerEmail : user email
+ * @param  subject : jira ticket summary
+ * @param  body : jira ticket description
+ */
+var sendSupportRequestAndCreateJira = function (customerEmail, subject, body) {
+    try {
+        var supportRequestResult = {};
+        var resultSupportRequest = false;
+        var subject;
+        if (userName == null || userName == 'null') {
+            emailBody = emailBody.replace("$username", "New User");
+            subject = "[Support Request] [New User] " + subject
+        } else {
+            emailBody = emailBody.replace("$username", userName);
+            subject = "[Support Request] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+        }
+        emailBody = emailBody.replace("$emailAddress", customerEmail);
+        emailBody = emailBody.replace("$content", body);
+        log.info("Sending a support request for customer email : " + customerEmail);
+        resultSupportRequest = jagg.module("util").sendEmail(emailBody, subject);
+    } catch (e) {
+        log.error("Error while sending support email: " + e);
+    }
+    try {
+        var resultCreateJira = createJiraTicket(customerEmail, subject, body);
+    } catch (e) {
+        log.error("Error while creating jira : " + e);
+    }
+    supportRequestResult.sendSupportEmailResult = resultSupportRequest;
+    supportRequestResult.createJiraTicketResult = resultCreateJira;
+    return supportRequestResult;
+};
 
 /*
  * Checks if the JIRA creation is enabled/disabled.
