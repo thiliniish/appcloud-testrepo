@@ -247,8 +247,7 @@
                 return true;
             }
             var email = '<%=email%>';
-            var userName = '<%=userName
-    %>';
+            var userName = '<%=userName%>';
                 var isValid = false;
                 $.ajax({ url: "../blocks/user/authenticate/ajax/login.jag",
                     type: "POST",
@@ -271,7 +270,7 @@
             jQuery.validator.addMethod("validateCompanyName", function(value, element) {
                    var isValid = validateOrganizationNameAlphaNumeric(value);
                    return isValid;
-            }, "Please use only letters (a-z) ,numbers and whitespaces");
+            }, "Please use only English letters, numbers and whitespaces");
 
             $('#registerForm').validate({
                 onfocusout: false,

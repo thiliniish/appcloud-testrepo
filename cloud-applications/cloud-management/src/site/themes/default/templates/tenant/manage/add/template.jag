@@ -113,7 +113,7 @@ function enable() {
         jQuery.validator.addMethod("validateCompanyName", function(value, element) {
                var isValid = validateOrganizationNameAlphaNumeric(value);
                return isValid;
-        }, "Please use only letters (a-z) ,numbers and whitespaces");
+        }, "Please use only English letters, numbers and whitespaces");
 
 		$('#registerForm').validate({
 		    onfocusout: false,

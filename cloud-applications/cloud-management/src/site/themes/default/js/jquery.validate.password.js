@@ -60,8 +60,7 @@
         var item = $('.list1 li:first');
         changeImage(item, minimumCharacterLimitExceeded);
 
-        if(password.match(/^[a-zA-Z0-9<>@!#$%^&*()_+[\]{}?:;'\"|\\,./~`=-]*$/))
-        {
+        if (password.match(/^[a-zA-Z0-9<>@!#$%^&*()_+[\]{}?:;'\"|\\,./~`=-]*$/)) {
             onlyEnglishCharacters = 1;
         }
         var item = $('.list1 li:nth-child(2)');
