@@ -49,6 +49,7 @@ public class SupportRequestTestCase extends CloudIntegrationTest {
     private String userEmail;
     private String emailSubject;
     private String emailBody;
+    private String JiraCreationActionName;
     private String jiraCreationStatus;
     private JaggeryAppAuthenticatorClient authenticatorClient;
     private boolean loginStatus;
@@ -63,15 +64,14 @@ public class SupportRequestTestCase extends CloudIntegrationTest {
     @BeforeClass(alwaysRun = true)
     public void deployService() throws Exception {
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
-        supportRequestActionName = CloudIntegrationTestUtils
-                .getPropertyValue(
-                        CloudIntegrationConstants.SUPPORT_REQUEST_ACTION_NAME);
+        supportRequestActionName = CloudIntegrationConstants.SUPPORT_REQUEST_ACTION_NAME;
         userEmail = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_USER_EMAIL);
         emailSubject = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_SUBJECT);
         emailBody = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_BODY);
+        JiraCreationActionName = CloudIntegrationConstants.JIRA_CREATION_ENABLED_ACTION_NAME;
         jiraCreationStatus = CloudIntegrationTestUtils
                 .getPropertyValue(
                         CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_JIRA_CREATION_STATUS);
@@ -127,7 +127,7 @@ public class SupportRequestTestCase extends CloudIntegrationTest {
             log.debug("Making sure Jira creation is enabled/disabled as required.");
         }
         Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "isJiraCreationEnabled");
+        params.put("action", JiraCreationActionName);
         Map resultMap = HttpHandler
                 .doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
         Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), jiraCreationStatus,

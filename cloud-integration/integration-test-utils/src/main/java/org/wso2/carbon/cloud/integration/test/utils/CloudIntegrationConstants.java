@@ -123,6 +123,9 @@ public class CloudIntegrationConstants {
     //This is the action name which calls the method to send the support request of cloud users.
     public static final String SUPPORT_REQUEST_ACTION_NAME = "sendSupportRequest";
 
+    //This is the action name which calls the method to checks if the Jira creation is enabled/disabled.
+    public static final String JIRA_CREATION_ENABLED_ACTION_NAME = "isJiraCreationEnabled";
+
     //mysql parameters
     public static final String CLOUD_MGT_DATASOURCE = "mysql-cloudMgt";
     public static final String APIM_STATS_DATASOURCE = "mysql-apiStats";
