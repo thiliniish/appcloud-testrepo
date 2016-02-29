@@ -203,8 +203,8 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
     /**
      * Zuora delete request
      *
-     * @param url         URL
-     * @param acceptType  Accept header
+     * @param url         Request URL to doDelete
+     * @param acceptType  Accept header which needs to be passed for request header
      * @return response
      * @throws CloudBillingException
      */
@@ -219,6 +219,7 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         addAccessKeyHeaders(delete);
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), delete, DEFAULT_CONNECTION_RETRIES);
     }
+
     /**
      * DELETE with name value pairs not supported for zuora
      *
