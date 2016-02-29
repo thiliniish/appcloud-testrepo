@@ -215,6 +215,23 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * Get tier details from tiers.xml
+     *
+     * @param tenantDomain
+     * @return json object array of tiers
+     * @throws CloudMonetizationException
+     */
+    public JsonArray getTiers(String tenantDomain) throws CloudMonetizationException {
+        try {
+            JsonArray tierList = APICloudMonetizationUtils.getTiersOfTenant(tenantDomain);
+            return tierList;
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error occurred while getting the tier details of tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
+    /**
      * @param tenantDomain  tenant domain
      * @param accountNumber account number
      * @param apiData       api data json object
