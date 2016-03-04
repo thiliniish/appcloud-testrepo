@@ -114,7 +114,7 @@
   "selfSignUpProperties": {
     "subscriberAccessEnabledEmail": {
       "subject": "Notification: Tenant enabled the self sign up feature for API Cloud",
-      "cloudEmail": "shenavi@wso2.com"
+      "cloudEmail": cloudEmail
     },
     "ServerUrls": {
       "gatewayCallback": "https://localhost:8443/services/WorkflowCallbackService",

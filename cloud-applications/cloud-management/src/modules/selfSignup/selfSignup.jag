@@ -126,10 +126,8 @@ var constructSignupConfigFile = function (userName, userPassword) {
         var response = registryModule.getResourceFromTenantSpace(signupConfigFilePath, tenantDomain, userName);
         if (response != "error" && response != "resourcePending") {
             response.contentType = "text/xml";
-
             var configContent = (response.content).toString();
             signupConfigFileContent = new XML(configContent);
-
             signupConfigFileContent.EnableSignup = true;
             signupConfigFileContent.AdminUserName = userName;
             signupConfigFileContent.AdminPassword = userPassword;
