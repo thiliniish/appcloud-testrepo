@@ -10,7 +10,7 @@
         var type = cloudConfig.subscriptions.type;
         var publisherUrl = type[1].urls.cloudTypeUrl;
         var storeUrl = type[1].urls.storeUrl + "/?tenant=" + tenantDomain;
-        var isSignupConfigured = (jagg.module("registry").checkSignupConfiguredInRegistry(userName)).trim();
+        var isSignupConfigured = (jagg.module("selfSignup").checkSignupConfiguredInRegistry(userName)).trim();
         jagg.includeBlock("page/messages", null);
         %>
 

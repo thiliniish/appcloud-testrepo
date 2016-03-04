@@ -23,7 +23,7 @@ include("/jagg/config_reader.jag");
 
     //Method to check if the self sign up feature has been configured for the user.
     if (action == "checkSignUpConfiguredForUser") {
-        var isSignUpConfigured = jagg.module("registry").checkSignupConfiguredInRegistry(userName);
+        var isSignUpConfigured = jagg.module("selfSignup").checkSignupConfiguredInRegistry(userName);
         var result = false;
 
         if (isSignUpConfigured == true || isSignUpConfigured.trim() == "true") {
@@ -51,7 +51,7 @@ include("/jagg/config_reader.jag");
                     var tenantDomain = jagg.module("manager").getTenantDomain();
 
                     //populating the registry files needed for the self sign-up workflow.
-                    statusMessage = jagg.module("registry").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
+                    statusMessage = jagg.module("selfSignup").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
                     var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
                     body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
                     var subject = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.subject;
