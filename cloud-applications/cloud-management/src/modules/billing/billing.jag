@@ -572,7 +572,7 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 		changePlanData = {
 			"termType": zuoraObj.termType,
 			"autoRenew": true,
-			"invoiceTargetDate": dateFormatter.format(effectiveDate),
+			"invoiceTargetDate": String(dateFormatter.format(effectiveDate)),
 			"preview": true,
 			"previewType": "InvoiceItem"
 		};
@@ -581,21 +581,21 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 			"termType": zuoraObj.termType,
 			"autoRenew": true,
 			"invoiceCollect": Boolean(isUpgrade),
-			"invoiceTargetDate": dateFormatter.format(effectiveDate)
+			"invoiceTargetDate": String(dateFormatter.format(effectiveDate))
 		};
 	}
 	// Old plan info
 	var oldPlanInfo = [];
 	var item = {};
 	item ["ratePlanId"] = planId;
-	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+	item ["contractEffectiveDate"] = String(dateFormatter.format(effectiveDate));
 	oldPlanInfo.push(item);
 
 	// Old plan info with coupon plan
 	if (couponPlanId != null) {
 		item = {};
 		item ["ratePlanId"] = couponPlanId;
-		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+		item ["contractEffectiveDate"] = String(dateFormatter.format(effectiveDate));
 		oldPlanInfo.push(item)
 	}
 
@@ -604,12 +604,12 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 	if (newCouponProductRatePlanId != null) {
 		item = {};
 		item ["productRatePlanId"] = newCouponProductRatePlanId;
-		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+		item ["contractEffectiveDate"] = String(dateFormatter.format(effectiveDate));
 		newPlanInfo.push(item);
 	}
 	item = {};
 	item ["productRatePlanId"] = newProductRatePlanId;
-	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+	item ["contractEffectiveDate"] = String(dateFormatter.format(effectiveDate));
 	newPlanInfo.push(item);
 
 	// Add 'remove' and 'add' plan options
@@ -949,13 +949,13 @@ var populateAccountInfo = function (organizationName, accountData, metaData, eff
 		"termType": zuoraObj.termType,
 		"autoRenew": true,
 		"subscribeToRatePlans": subscribeToRatePlans,
-		"contractEffectiveDate": dateFormatter.format(effectiveDate)
+		"contractEffectiveDate": String(dateFormatter.format(effectiveDate))
 	};
 
 	data.hpmCreditCardPaymentMethodId = metaData.refId;
 	data.billToContact = accountData;
-	data.invoiceCollect= true;
-	data.invoiceTargetDate = dateFormatter.format(effectiveDate);
+	data.invoiceCollect = true;
+	data.invoiceTargetDate = String(dateFormatter.format(effectiveDate));
 	return data;
 };
 

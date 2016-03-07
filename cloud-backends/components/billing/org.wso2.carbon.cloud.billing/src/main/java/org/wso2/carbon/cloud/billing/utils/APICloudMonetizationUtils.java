@@ -288,6 +288,59 @@ public final class APICloudMonetizationUtils {
         }
     }
 
+    /**
+     * Retrive the list of tiers of a given tenant
+     *
+     * @param tenantDomain
+     * @return json object array of tiers
+     * @throws CloudMonetizationException
+     */
+    public static JsonArray getTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
+        try {
+            Resource tiersXmlResource =
+                    CloudBillingUtils.getRegistryResource(tenantDomain, MonetizationConstants.TIERS_XML_URL);
+            if (tiersXmlResource != null) {
+                String content =
+                        new String((byte[]) tiersXmlResource.getContent(), Charset.forName(BillingConstants.ENCODING));
+                JsonArray tierArray = new JsonArray();
+                OMElement element = AXIOMUtil.stringToOM(content);
+                OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
+                Iterator policies = assertion.getChildrenWithName(MonetizationConstants.POLICY_ELEMENT);
+                while (policies.hasNext()) {
+                    OMElement policy = (OMElement) policies.next();
+                    OMElement id = policy.getFirstChildWithName(MonetizationConstants.THROTTLE_ID_ELEMENT);
+                    String tierName = id.getText();
+                    if (MonetizationConstants.UNAUTHENTICATED.equalsIgnoreCase(tierName)) {
+                        continue;
+                    }
+                    OMElement tier = policy.getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
+                                           .getFirstChildWithName(MonetizationConstants.THROTTLE_CONTROL_ELEMENT)
+                                           .getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT);
+                    if (tier != null) {
+                        OMElement maximumCount = tier.getFirstChildWithName(
+                                MonetizationConstants.THROTTLE_ATTRIBUTES_MAXIMUM_COUNT_ELEMENT);
+                        OMElement unitTime = tier.getFirstChildWithName(
+                                MonetizationConstants.THROTTLE_ATTRIBUTES_UNIT_TIME_ELEMENT);
+
+                        JsonObject tierObject = new JsonObject();
+                        tierObject.addProperty(MonetizationConstants.TIER_NAME, tierName);
+                        tierObject.addProperty(MonetizationConstants.MAXIMUM_COUNT, maximumCount.getText());
+                        tierObject.addProperty(MonetizationConstants.UNIT_TIME, unitTime.getText());
+                        tierArray.add(tierObject);
+                    }
+                }
+                return tierArray;
+            } else {
+                throw new CloudMonetizationException(
+                        "tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
+            }
+        } catch ( CloudBillingException | RegistryException | XMLStreamException e) {
+            throw new CloudMonetizationException(
+                    "Error occurred while getting tiers of tenant: " + tenantDomain + ".", e);
+        }
+    }
+
+
         /**
          * @param tenantDomain  tenant domain
          * @param accountNumber account number
