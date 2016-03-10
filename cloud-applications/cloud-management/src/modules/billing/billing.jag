@@ -466,30 +466,32 @@ var addTenantToBilling = function (tenantId, tenantDomain) {
         var startDate;
         var billingType;
         var endDate;
-        if (subscriptions[i].serviceType === service.COMMERCIAL) {
-            billingType = type.TRIAL;
-            billingAccountStatus = status.INACTIVE;
-            startDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
-            endDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
-        } else if (subscriptions[i].serviceType === service.FREE) {
-            startDate = new Packages.java.util.Date();
-            billingAccountStatus = status.ACTIVE;
-            billingType = type.FREE;
-            endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
-        } else {
-            log.error("No service type found for: " + subscription
-                      + "in cloud_mgt config. It should be either free or commercial");
-            parameters = [tenantDomain];
-            queryString = SQL_QUERY_STRINGS.DELETE_FROM_BILLING_ACCOUNT;
-            log.info("Tenant : " + tenantDomain +" (tenant id: " + tenantId
-                     + ") deleted from BILLING_ACCOUNT table. [As a rollback operation] ");
+        if (subscriptions[i].id != DEFAULT_SUBSCRIPTION) {
+            if (subscriptions[i].serviceType === service.COMMERCIAL) {
+                billingType = type.TRIAL;
+                billingAccountStatus = status.INACTIVE;
+                startDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
+                endDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
+            } else if (subscriptions[i].serviceType === service.FREE) {
+                startDate = new Packages.java.util.Date();
+                billingAccountStatus = status.ACTIVE;
+                billingType = type.FREE;
+                endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
+            } else {
+                log.error("No service type found for: " + subscription
+                        + "in cloud_mgt config. It should be either free or commercial");
+                parameters = [tenantDomain];
+                queryString = SQL_QUERY_STRINGS.DELETE_FROM_BILLING_ACCOUNT;
+                log.info("Tenant : " + tenantDomain + " (tenant id: " + tenantId
+                        + ") deleted from BILLING_ACCOUNT table. [As a rollback operation] ");
+                result = modDb.executeQuery(queryString, parameters);
+                throw new Error("Tenant billing account registration failure: Configuration failure ");
+            }
+            queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
+            parameters = [tenantDomain, subscription, billingType, billingAccountStatus,
+                sqlDateFormat.format(startDate), sqlDateFormat.format(endDate)];
             result = modDb.executeQuery(queryString, parameters);
-            throw new Error("Tenant billing account registration failure: Configuration failure ");
         }
-        queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
-        parameters = [tenantDomain, subscription, billingType, billingAccountStatus,
-                      sqlDateFormat.format(startDate), sqlDateFormat.format(endDate)];
-        result = modDb.executeQuery(queryString, parameters);
     }
     if(log.isDebugEnabled()){
         log.debug("Tenant : " + tenantDomain +" (tenant id: " + tenantId

@@ -4,6 +4,9 @@ var APPLICATIONS = "repository/applications/";
 var USER_APPLICATIONS_MAPPING = "userApplicationMapping/";
 var APPLICATION_STAGES = "stages/";
 
+//cloud subscription
+var DEFAULT_SUBSCRIPTION = "default";
+
 // property keys of registry 'application' resource
 var APPLICATION_KEY = "applicationKey";
 var APPAPPFACTORY_SERVER_URLLICATION_NAME = "applicationName";
