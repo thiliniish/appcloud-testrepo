@@ -64,8 +64,7 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/cloudmgt/",
-          "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/cloudmgt/"
         }
       }
     ]

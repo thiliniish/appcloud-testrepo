@@ -79,9 +79,9 @@ function subscription(type,domain) {
 	<div class="row">
 		<div class="">
 			<div class="col-lg-3"></div>
-            <% for(var i = 0; i < types.length; i++) {
-                if(types[i].id != DEFAULT_SUBSCRIPTION) {
-                    if(subscriptionInfo[types[i].id] == true) { %>
+            <% for (var i = 0; i < types.length; i++) {
+                if (types[i].id != DEFAULT_SUBSCRIPTION) {
+                    if (subscriptionInfo[types[i].id] == true) { %>
 			<div class="col-lg-3">
 				<%  if(types[i].id=="integration_cloud") {%>
 				<i class="<%=types[i].id%>_disabled"></i>
