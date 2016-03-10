@@ -34,9 +34,9 @@ if (userName != null) {
 			} else {
 				subscriptionInfo[columnName] = "true";//as a fail proof, it is assumed that tenant has subscribed to all the available clouds.
 				log.error("Subscription details were not found for " + columnName + " of tenant " + domainName);
-			}
-		}
-	}%>
+            }
+        }
+    }%>
 
 
 <script type="text/javascript">
