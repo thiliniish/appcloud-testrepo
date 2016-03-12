@@ -149,6 +149,33 @@ public final class BillingConstants {
 
     public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
 
+    /* zuora product related attributes */
+    public static final String PRODUCT_CATEGORY = "Base Products";
+    public static final String EFFECTIVE_END_DATE = "12/12/2100";
+    public static final String EFFECTIVE_DATE_FORMAT = "MM/DD/YYYY";
+
+    /* json object attribute labels */
+    public static final String JSON_OBJ_PRODUCT_NAME = "localName";
+    public static final String JSON_OBJ_PRODUCT_CATEGORY = "localCategory";
+    public static final String JSON_OBJ_PRODUCT_RATEPLAN_NAME = "localProductRatePlanName";
+    public static final String JSON_OBJ_PRODUCT_RATEPLAN_PRICE = "localProductRatePlanPrice";
+    public static final String JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION = "localDescription";
+    public static final String JSON_OBJ_PRODUCT_RATEPLAN_THROTTLING_LIMIT = "localThrottlingLimit";
+    public static final String JSON_OBJ_PRODUCT_RATEPLAN_MONTHLY_LIMIT = "localMonthlyLimit";
+    public static final String JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE = "localOverageCharge";
+
+    /* zuora product rate plan charge related attributes */
+    public static final int RATEPLAN_CHARGE_BILLCYCLEDAY = 1;
+    public static final String RATEPLAN_CHARGE_BILLING_PERIOD = "Month";
+    public static final String RATEPLAN_CHARGE_ALIGNMENT = "AlignToCharge";
+    public static final String RATEPLAN_CHARGE_MODEL = "FlatFee";
+    public static final String RATEPLAN_CHARGE_TYPE = "Recurring";
+    public static final String RATEPLAN_CHARGE_NAME_MONTHLY_SUBSCRIPTION = "Monthly subscription fee";
+    public static final String RATEPLAN_CHARGE_ACCOUNTING_CODE = "Accounts Receivable";
+    public static final String RATEPLAN_CHARGE_TRIGGER_EVENT = "ContractEffective";
+    public static final String RATEPLAN_CHARGETIER_CURRENCY = "USD";
+    public static final String RATEPLAN_CHARGETIER_PRICE_FORMAT = "Flat Fee";
+
     /* Zuora queries */
     private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid, " +
             "communicationprofileid, createddate, invoicetemplateid, parentid, status, defaultpaymentmethodid FROM account ";
@@ -160,6 +187,8 @@ public final class BillingConstants {
     public static final String DS_NAMESPACE_URI = "http://ws.wso2.org/dataservice";
     public static final String DS_REQUEST_STATUS = "REQUEST_STATUS";
     public static final String DS_REQUEST_STATUS_SUCCESS = "SUCCESSFUL";
+    public static final String QUERY_ZUORA_PRODUCT_BY_NAME = "SELECT id, Name, SKU FROM product WHERE Name = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME = "SELECT id FROM ProductRatePlan WHERE Name = '?'";
 
     /*Data service API v1 URIs*/
     public static final String DS_API_URI_REQUEST_COUNT = "/requestcount";
@@ -197,6 +226,7 @@ public final class BillingConstants {
 
     /*Zuora types*/
     public static final String ZUORA_ACCOUNT = "Account";
+    public static final String ZUORA_PRODUCT = "Product";
     public static final String ZUORA_SUBSCRIPTION_STATUS = "status";
     public static final String SUBSCRIPTION_STATUS_ACTIVE = "Active";
 

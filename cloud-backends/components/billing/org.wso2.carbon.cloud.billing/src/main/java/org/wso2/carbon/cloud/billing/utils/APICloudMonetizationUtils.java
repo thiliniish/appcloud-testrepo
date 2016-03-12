@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.JSONArray;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
@@ -285,6 +286,45 @@ public final class APICloudMonetizationUtils {
         } catch (CloudBillingException | RegistryException | XMLStreamException e) {
             throw new CloudMonetizationException(
                     "Error occurred while getting free tiers of tenant: " + tenantDomain + ".", e);
+        }
+    }
+
+    /**
+     * Retrieve the list of throttling tiers of a given tenant
+     *
+     * @param tenantDomain tenant domain
+     * @return list of throttling tier IDs
+     * @throws CloudMonetizationException
+     */
+    public static JSONArray getThrottlingTiersOfTenant(String tenantDomain)
+            throws CloudMonetizationException {
+        try {
+            Resource tiersXmlResource = CloudBillingUtils.getRegistryResource(tenantDomain,
+                                                                              MonetizationConstants.TIERS_XML_URL);
+            if (tiersXmlResource != null) {
+                // Get the content of the tiers.xml
+                String content = new String((byte[]) tiersXmlResource.getContent());
+                JSONArray throttlingTiersList = new JSONArray();
+                OMElement element = AXIOMUtil.stringToOM(content);
+                OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
+                Iterator policies = assertion.getChildrenWithName(MonetizationConstants.POLICY_ELEMENT);
+                while (policies.hasNext()) {
+                    OMElement policy = (OMElement) policies.next();
+                    OMElement id = policy.getFirstChildWithName(MonetizationConstants.THROTTLE_ID_ELEMENT);
+                    String tierName = id.getText();
+                    if (MonetizationConstants.UNAUTHENTICATED.equalsIgnoreCase(tierName)) {
+                        continue;
+                    }
+                    throttlingTiersList.add(tierName);
+                }
+                return throttlingTiersList;
+            } else {
+                throw new CloudMonetizationException(
+                        "Registry tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
+            }
+        } catch (CloudBillingException | RegistryException | XMLStreamException e) {
+            throw new CloudMonetizationException("Error occurred while getting tiers of tenant: " + tenantDomain + ".",
+                                                 e);
         }
     }
 

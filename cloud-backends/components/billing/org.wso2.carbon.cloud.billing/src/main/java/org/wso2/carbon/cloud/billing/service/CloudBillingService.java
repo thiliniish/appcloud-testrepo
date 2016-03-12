@@ -22,15 +22,37 @@ import com.google.gson.JsonObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
+import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
+import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
+import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 /**
  * Represents cloud billing related services.
@@ -610,5 +632,155 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public void sendEmailToCloud(String subject, String msgBody) {
         CloudBillingServiceUtils.sendNotificationToCloud(msgBody, subject);
+    }
+
+    /**
+     * Method to enable monetization
+     *
+     * @param tenantDomain      tenantDomain
+     * @param tenantPassword    tenant password
+     * @param tenantDisplayName tenant display name
+     * @return status of product creation
+     * @throws CloudBillingException
+     */
+    public boolean enableMonetization(String tenantDomain, String tenantPassword, String tenantDisplayName)
+            throws CloudBillingException {
+        // Create the zuoara Product
+        boolean createProductStatus = createProduct(tenantDomain);
+        if (createProductStatus) {
+            // Add subscriptionCreation element to workflowExtension.xml in registry
+            if (updateWorkFlow(tenantPassword, tenantDisplayName)) {
+                return true;
+            } else {
+                LOGGER.error("Error occurred while creating child account under tenant: " + tenantDomain);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Method to update the registry WorkflowExtension.xml to add SubscriptionCreation element
+     *
+     * @param tenantPassword tenant password
+     * @param tenantUsername tenant username
+     * @return status of the update
+     * @throws CloudBillingException
+     */
+    public boolean updateWorkFlow(String tenantPassword, String tenantUsername) throws CloudBillingException {
+        Registry registry = getGovernanceSystemRegistry();
+        try {
+            // Get the workflow resource url
+            String workflowUrl = MonetizationConstants.WORKFLOW_EXTENSION_URL;
+            Resource workflowResource = registry.get(workflowUrl);
+            // Get the resource content
+            String content = new String((byte[]) workflowResource.getContent());
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
+            InputSource is = new InputSource();
+            is.setCharacterStream(new StringReader(content));
+            Document doc = documentBuilder.parse(is);
+            Node workFlowExtension = doc.getElementsByTagName(MonetizationConstants.TAG_WORKFLOWEXTENSION).item(0);
+            // Loop the WorkFlowExtensions child node
+            NodeList extensionList = workFlowExtension.getChildNodes();
+            for (int i = 0; i < extensionList.getLength(); i++) {
+                Node node = extensionList.item(i);
+                // Remove the already existing SubscriptionCreation tag
+                if (MonetizationConstants.TAG_SUSCRIPTION_CREATION.equals(node.getNodeName())) {
+                    workFlowExtension.removeChild(node);
+                }
+            }
+            // Add the new SubscriptionCreation tag
+            Element subscriptionCreation = doc.createElement(MonetizationConstants.TAG_SUSCRIPTION_CREATION);
+            // Set the Attribute executor
+            subscriptionCreation.setAttribute(MonetizationConstants.ATTRIBUTE_EXECUTOR,
+                                              MonetizationConstants.SUBSCRIPTION_CREATION_EXECUTOR);
+            // Add ServiceUrl Property tag
+            Element propertyServiceUrl = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
+            propertyServiceUrl
+                    .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_SERVICEURL_NAME);
+            propertyServiceUrl.setTextContent(MonetizationConstants.PROPERTY_SERVICEURL_VALUE);
+            subscriptionCreation.appendChild(propertyServiceUrl);
+            // Add Username Property tag
+            Element propertyName = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
+            propertyName
+                    .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_USERNAME_NAME);
+            propertyName.setTextContent(tenantUsername);
+            subscriptionCreation.appendChild(propertyName);
+            // Add Password Property tag
+            Element propertyPassword = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
+            propertyPassword
+                    .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_PASSWORD_NAME);
+            propertyPassword.setTextContent(tenantPassword);
+            subscriptionCreation.appendChild(propertyPassword);
+            workFlowExtension.appendChild(subscriptionCreation);
+            // Writing xml file
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, MonetizationConstants.YES);
+            StreamResult result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(doc);
+            // Creating output stream
+            transformer.transform(source, result);
+            content = result.getWriter().toString();
+            // Update the workflow resource
+            workflowResource.setContent(content.getBytes());
+            registry.put(workflowUrl, workflowResource);
+            return registry.resourceExists(workflowUrl);
+        } catch (RegistryException | ParserConfigurationException | SAXException | IOException | TransformerException e) {
+            throw new CloudBillingException("Error occurred while updating the Registry workflowExtensionContent " + e);
+        }
+    }
+
+    /**
+     * Method to create Product
+     *
+     * @param tenantDomain tenant domain
+     * @return status of the product creation task
+     * @throws CloudBillingException
+     */
+    public boolean createProduct(String tenantDomain) throws CloudBillingException {
+        return CloudBillingServiceUtils.createProduct(tenantDomain);
+    }
+
+    /**
+     * Method to create Product rate plan for a Product
+     *
+     * @param tenantDomain tenantDomain
+     * @param ratePlanName ratePlanName
+     * @return status of product creation
+     * @throws CloudBillingException
+     */
+    public boolean createProductRatePlan(String tenantDomain, String ratePlanName, String price, String throttlingLimit,
+                                         String monthlyLimit, String overageCharge, String description)
+            throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils.createProductRatePlan(tenantDomain, ratePlanName, price,
+                                                                         throttlingLimit, monthlyLimit, overageCharge,
+                                                                         description);
+        } catch (CloudBillingException e) {
+            throw new CloudBillingException("Error occurred while getting the Registry throttling tiers " + e);
+        }
+    }
+
+    /**
+     * Method to get the throttling tiers of the tenant
+     *
+     * @param tenantDomain tenant domain
+     * @return JSONArray of throttling tiers
+     * @throws CloudMonetizationException
+     */
+    public JSONArray getThrottlingTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
+        return APICloudMonetizationUtils.getThrottlingTiersOfTenant(tenantDomain);
+    }
+
+    /**
+     * Get the Product Catalogue information
+     *
+     * @param productName  product name
+     * @param tenantDomain tenantDomain
+     * @return product
+     * @throws CloudBillingException
+     */
+    public JsonObject queryProduct(String tenantDomain, String productName) throws CloudBillingException {
+        return CloudBillingServiceUtils.queryProduct(tenantDomain, productName);
     }
 }

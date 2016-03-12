@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2015-2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -36,6 +36,7 @@ import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.ZuoraAccountClient;
+import org.wso2.carbon.cloud.billing.commons.zuora.client.ZuoraProductClient;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
@@ -403,5 +404,79 @@ public final class CloudBillingServiceUtils {
                 + BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
         NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
         return dsBRProcessor.doGet(url, null, nameValuePairs);
+    }
+
+    /**
+     * Create a new product for publisher
+     *
+     * @param tenantDomain tenant domain
+     * @return product creation status
+     * @throws CloudBillingException
+     */
+    public static boolean createProduct(String tenantDomain) throws CloudBillingException {
+        String productName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
+        try {
+            String productCategory = BillingConstants.PRODUCT_CATEGORY;
+            // Create Json product object
+            JsonObject productObj = new JsonObject();
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_NAME, productName);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_CATEGORY, productCategory);
+            ZuoraProductClient zuoraProductClient = new ZuoraProductClient();
+            JsonObject response = zuoraProductClient.createProduct(productObj);
+            return null != response;
+        } catch (CloudBillingException e) {
+            throw new CloudBillingException(
+                    "Error while creating the Product: " + productName + " for tenant: " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * Create product rate plan for the Product
+     *
+     * @param tenantDomain tenant domain
+     * @return product rate plan creation status
+     * @throws CloudBillingException
+     */
+    public static boolean createProductRatePlan(String tenantDomain, String ratePlanName, String price,
+                                                String throttlingLimit, String monthlyLimit,
+                                                String overageCharge, String description)
+            throws CloudBillingException {
+        String productName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
+        try {
+            ZuoraProductClient zuoraProductClient = new ZuoraProductClient();
+            // Create Json product rate plan object
+            JsonObject productObj = new JsonObject();
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_NAME, productName);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_NAME, ratePlanName);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_PRICE, price);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION, description);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_THROTTLING_LIMIT, throttlingLimit);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_MONTHLY_LIMIT, monthlyLimit);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE, overageCharge);
+            JsonObject response = zuoraProductClient.createProductRatePlan(productObj);
+            return null != response;
+        } catch (CloudBillingException e) {
+            throw new CloudBillingException(
+                    "Error while creating the product rate plan of Product: " + productName + " for tenant: " +
+                    tenantDomain, e);
+        }
+    }
+
+    /**
+     * Query the product by name
+     *
+     * @param tenantDomain tenant domain
+     * @param productName  product name
+     * @return product creation status
+     * @throws CloudBillingException
+     */
+    public static JsonObject queryProduct(String tenantDomain, String productName) throws CloudBillingException {
+        try {
+            ZuoraProductClient zuoraProductClient = new ZuoraProductClient();
+            return zuoraProductClient.queryProductByName(productName);
+        } catch (CloudBillingZuoraException e) {
+            throw new CloudBillingException(
+                    "Error while query the Product: " + productName + " for the : " + tenantDomain, e);
+        }
     }
 }

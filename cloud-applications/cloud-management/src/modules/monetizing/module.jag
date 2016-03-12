@@ -41,6 +41,9 @@ jagg.module("monetizing", {
     },
     getBillingPaymentInfo:function () {
         return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getBillingPaymentInfo.apply(this, arguments);
+    },
+    enableMonetization: function () {
+    return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").enableMonetization.apply(this, arguments);
     }
 });
 %>

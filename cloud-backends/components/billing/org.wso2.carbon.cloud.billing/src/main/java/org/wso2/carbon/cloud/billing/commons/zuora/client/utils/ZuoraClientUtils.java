@@ -38,6 +38,7 @@ import com.zuora.api.wso2.stub.LoginFault;
 import com.zuora.api.wso2.stub.MalformedQueryFault;
 import com.zuora.api.wso2.stub.UnexpectedErrorFault;
 import com.zuora.api.wso2.stub.ZuoraServiceStub;
+import com.zuora.api.Error;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.databinding.ADBBean;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -84,6 +85,12 @@ public class ZuoraClientUtils {
         this.callOptions = new CallOptions();
         callOptions.setUseSingleTransaction(true);
         zuoraSSLEnabledProtocols();
+    }
+
+    public ZuoraClientUtils(boolean useSingleTransaction) throws AxisFault {
+        this.zuoraServiceStub = new ZuoraServiceStub();
+        this.callOptions = new CallOptions();
+        callOptions.setUseSingleTransaction(useSingleTransaction);
     }
 
     /**
@@ -375,5 +382,24 @@ public class ZuoraClientUtils {
      */
     public ClientSession getClientSession() {
         return clientSession;
+    }
+
+    /**
+     * Creates the print format of the Zuora Error message.
+     *
+     * @param result the result
+     * @return error msg
+     */
+    public String getZuoraErrorMessage(SaveResult result) {
+        StringBuilder resultString = new StringBuilder("Zuora Error Message :\n");
+        Error[] errors = result.getErrors();
+        if (errors != null) {
+            for (Error error : errors) {
+                resultString.append("\tError Code: ").append(error.getCode().toString()).append("\n\tError Message: ")
+                            .append(
+                                    error.getMessage());
+            }
+        }
+        return resultString.toString();
     }
 }

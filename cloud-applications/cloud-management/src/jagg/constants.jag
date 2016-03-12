@@ -175,7 +175,11 @@ var MONTHLY_SUBSCRIPTION_CHARGE_NAME ="Monthly subscription fee";
 //Billing Commons
 var BILLING_SUGGESTED_PLAN = "Getting Traction";
 var ACCOUNT_ID = "accountId";
-
+var BILLING_STARTER_PLAN = "Starter";
+var MONETIZATION_STARTER_PLAN = "Getting Traction";
+var API_CLOUD = "api_cloud";
+var ENABLE_MONETIZATION_CLOUD_NOTIFICATION_FILE_PATH = "/site/conf/emails/cloud_notification_on_monetization_enable.txt";
+var ENABLE_MONETIZATION_USER_NOTIFICATION_FILE_PATH = "/site/conf/emails/user_notification_on_monetization_enable.txt";
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
 
