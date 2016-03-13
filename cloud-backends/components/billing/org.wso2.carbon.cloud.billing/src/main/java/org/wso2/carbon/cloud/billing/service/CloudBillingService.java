@@ -645,17 +645,19 @@ public class CloudBillingService extends AbstractAdmin {
      */
     public boolean enableMonetization(String tenantDomain, String tenantPassword, String tenantDisplayName)
             throws CloudBillingException {
+        boolean status = false;
         // Create the zuoara Product
         boolean createProductStatus = createProduct(tenantDomain);
         if (createProductStatus) {
             // Add subscriptionCreation element to workflowExtension.xml in registry
             if (updateWorkFlow(tenantPassword, tenantDisplayName)) {
-                return true;
+                status = true;
             } else {
-                LOGGER.error("Error occurred while creating child account under tenant: " + tenantDomain);
+                status = true;
+                LOGGER.error("Registry WorkflowExtension.xml update failed while enabling Monetization.");
             }
         }
-        return false;
+        return status;
     }
 
     /**
