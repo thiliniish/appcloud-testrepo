@@ -21,7 +21,8 @@ jagg.initializer("billing/plan/get", {
         } else {
             response.sendRedirect("../pages/error-pages/unavailable-error.html");
         }
-
+        // Custom JS file
+        jagg.addFooterJS("plan/get", "get-plan", "templates/billing/plan/get/js/get-plan.js");
     }
 });
 %>

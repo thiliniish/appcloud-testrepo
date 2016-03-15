@@ -254,6 +254,7 @@
                                     <input type="checkbox" id="checkbox"/>
                                     Select All
                                 </label>
+                                <p class="note">Admin role includes all permissions</p>
                             </div>
 
                             <div class="buttonrow">
