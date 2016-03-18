@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.cloud.billing.internal;
 
+import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -23,6 +24,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.billing.common.BillingConstants;
 import org.wso2.carbon.cloud.billing.common.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.common.utils.BillingUtils;
 import org.wso2.carbon.cloud.billing.service.CloudBillingService;
 import org.wso2.carbon.cloud.billing.subscription.tasks.BillingDbUpdateScheduler;
 import org.wso2.carbon.cloud.billing.usage.scheduler.UsageUploadScheduler;
@@ -55,6 +57,15 @@ public class CloudBillingServiceComponent {
     private ServiceRegistration billingServiceRef;
 
     protected void activate(ComponentContext context) {
+
+        //WARNING: This changes the https protocol of the whole JVM
+        //This is a temporary fix until monetization goes alive. correct fix is done for the monetization branch.
+        String sslEnabledProtocols = CloudBillingUtils.getBillingConfiguration()
+                .getZuoraConfig().getEnabledProtocols();
+        Protocol.registerProtocol("https", BillingUtils.getCustomProtocol("https", sslEnabledProtocols));
+
+        // -----------------------------------------------------------------
+
         BundleContext bundleContext = context.getBundleContext();
         BillingConfig configuration;
 
