@@ -48,6 +48,7 @@
         <!--Payment Type EVERGREEN-->
         <TermType>EVERGREEN</TermType>
         <SignatureExpired>1800000</SignatureExpired>
+        <EnabledProtocols>TLSv1.1,TLSv1.2</EnabledProtocols>
         <HttpClientConfig>
             <Hostname>apisandbox.zuora.com</Hostname>
             <Port>443</Port>

@@ -30,6 +30,7 @@ public class ZuoraConfig {
     private String currency;
     private String termType;
     private String signatureExpired;
+    private String sslEnabledProtocols;
     private HttpClientConfig httpClientConfig;
     private HostedPageConfig hostedPageConfig;
     private APIConfigs apiConfigs;
@@ -81,6 +82,15 @@ public class ZuoraConfig {
 
     public void setSignatureExpired(String signatureExpired) {
         this.signatureExpired = signatureExpired;
+    }
+
+    @XmlElement(name = "EnabledProtocols", nillable = false)
+    public String getEnabledProtocols() {
+        return sslEnabledProtocols;
+    }
+
+    public void setEnabledProtocols(String enabledProtocols) {
+        this.sslEnabledProtocols = enabledProtocols;
     }
 
     @XmlElement(name = "HttpClientConfig", nillable = false)
