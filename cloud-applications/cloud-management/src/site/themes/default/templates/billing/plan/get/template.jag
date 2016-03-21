@@ -1,6 +1,4 @@
-<% jagg.template("billing/plan/get", function(inputs, outputs, jagg) {
-
-	%>
+<% jagg.template("billing/plan/get", function(inputs, outputs, jagg) {%>
 
 <style>
 table, th, td {
@@ -108,9 +106,6 @@ input:checked+input.txtCoupon {
 #goToCloudType:active {
     background-color: #e6e6e6;
 }
-
-
-
 </style>
 
 <%
@@ -141,7 +136,10 @@ if (isBillingEnabled) {
 	var paymentPlans = ratePlansObj.entry;
 	var l = Packages.java.util.Locale.getDefault();
 	var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-
+	var marketing = request.getParameter("isFromOTPricingPage");
+	if (marketing && ratePlans == null) {
+		var selectedPlanId = request.getParameter("productRatePlanId");
+	}
 	session.put("RATE_PLANS", paymentPlans);
 	session.put("OLD_PLAN_ID", currRatePlanId);
 	var isFromChangePlan = request.getParameter("is-from-change-plan");
@@ -154,114 +152,8 @@ if (isBillingEnabled) {
 }
 %>
 
-
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
-<script type="text/javascript">
-
-
-
-       $(document).ready(function(){
-       // Check for billing enable/disable mode
-       var isBillingEnabled = $("#isBillingEnabled").attr('value');
-       if (isBillingEnabled) {
-       	$(".tiny").hover(function(e){
-       		$(".tiny").removeClass("selected");
-       		$(this).addClass("selected");
-       	});
-
-           $('[data-toggle="tooltip"]').tooltip();
-
-           $("[data-toggle=popover]").popover();
-
-           $(".ctrl-asset-type-switcher").popover({
-               html : true,
-               content: function() {
-                 return $('#content-asset-types').html();
-               }
-           });
-
-           $(".ctrl-filter-type-switcher").popover({
-               html : true,
-               content: function() {
-                 return $('#content-filter-types').html();
-               }
-           });
-
-       	$('#nav').affix({
-       	      offset: {
-       	        top: $('header').height()
-       	      }
-       	});
-       } else {
-            var cloudMgtURL = $("#cloudmgtURL").attr('value');
-            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
-            window.location.href = cloudMgtURL + unavailableErrorPage;
-        }
-        });
-
-        function disableButton(id) {
-	        //document.getElementById("spinner_"+id).style.display = '';
-	        document.getElementById("selectbtn_"+id).setAttribute("disabled", true);
-        }
-
-        function enableButton(id) {
-	        document.getElementById("spinner_"+id).style.display = 'none';
-	        document.getElementById("selectbtn_"+id).removeAttribute("disabled", "disabled");
-        }
-
-        function createAccount(id, currRatePlan, accounts, callsPerDay, callsAbovePlan, monthlyRental, isFromChangePlan){
-            disableButton(id);
-            var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-	     //   var couponData = null;
-	       // if(document.getElementById(id).checked){
-			//	couponData = document.getElementById("txt"+id).value;
-			//}
-
-		//
-            jagg.post("../blocks/billing/plan/get/ajax/get.jag", {
-                             action :"goToCreateAccount",
-                             productRatePlanId : id,
-                             currRatePlan:currRatePlan,
-                             accounts : accounts,
-                             callsPerDay : callsPerDay,
-                             callsAbovePlan : callsAbovePlan,
-                             monthlyRental : monthlyRental,
-                             isFromChangePlan : isFromChangePlan
-                },
-                function (result) {
-                  enableButton(id);
-                  if(result.indexOf("add-payment-method") >= 0 ){
-                 	  window.location.href =  result;
-	              }else if(result.indexOf("add-billing-account") >= 0){
-	                  goToPaymentConfirmationPageFromChangePlan();
-	              }else if (result.indexOf("null") < 0) {
-   	                  jagg.message({type:'error',content: result});
-    	          } else{
-	              	  jagg.message({type:'error',content: result});
-	                  window.location.href =  "";
-	              }
-
-                },
-                function (jqXHR, textStatus, errorThrown) {
-					enableButton(id);
-					$('.message_box').empty();
-					jagg.message({content:"Unable to change the Plan at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function(){
-						window.location.href = cloudmgtURL +"/site/pages/contact-us.jag";
-					}
-					});
-                })
-        }
-
-        function goToPaymentConfirmationPageFromChangePlan(){
-            var formContactInfo = $('<form action="add-billing-account.jag" method="post">' +
-                                  '<input type="hidden" name="responseFrom" value = "isFromChangePlan"/>' +
-                                  '</form>');
-        	$('body').append(formContactInfo);
-        	$(formContactInfo).submit();
-            }
-    </script>
-
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index.css'))%>" />
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>" />
 <div class="container col-lg-12 col-md-12 col-sm-12">
@@ -415,6 +307,11 @@ if (isBillingEnabled) {
             <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
             <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
             <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
+
+            <input type="hidden" name="marketing" id="marketing"  value="<%= marketing %>" />
+            <input type="hidden" name="ratePlansObj" id="ratePlansObj"  value= '<%= ratePlansObj %>'/>
+            <input type="hidden" name="selectedPlanId" id="selectedPlanId"  value='<%= selectedPlanId %>' />
+            <input type="hidden" name="ratePlans" id="ratePlans"  value='<%= ratePlans %>' />
 		</div>
 	</div>
 	<div class="row pad-bot-50">
@@ -426,12 +323,8 @@ if (isBillingEnabled) {
 		</div>
 		<br class="c-both " />
 	</div>
-
 </div>
 <!-- /content/body -->
-
 </div>
-
-
 <% }); %>
 

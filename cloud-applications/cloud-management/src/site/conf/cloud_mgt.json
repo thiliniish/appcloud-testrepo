@@ -52,6 +52,20 @@
           "storeUrl": "https://milestones.appfactory.wso2.com:9643/store",
           "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
         }
+      },
+      {
+        "id": "default",
+        "name": "Common",
+        "serviceType": "free",
+        "roleTypes": [
+          {
+            "roleName": "admin",
+            "displayRoles": "Admin"
+          }
+        ],
+        "urls": {
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/cloudmgt/"
+        }
       }
     ]
   },
