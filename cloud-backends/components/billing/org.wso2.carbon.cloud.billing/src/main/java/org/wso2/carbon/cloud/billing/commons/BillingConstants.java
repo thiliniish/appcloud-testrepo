@@ -82,6 +82,7 @@ public final class BillingConstants {
     public static final String HTTP_TYPE_APPLICATION_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String HTTP_TYPE_APPLICATION_XML = "application/xml";
     public static final String HTTP_TYPE_APPLICATION_JSON = "application/json";
+    public static final String HTML_CONTENT_TYPE = "text/html";
 
     // Account summary json elements
     public static final String PRODUCTS = "products";

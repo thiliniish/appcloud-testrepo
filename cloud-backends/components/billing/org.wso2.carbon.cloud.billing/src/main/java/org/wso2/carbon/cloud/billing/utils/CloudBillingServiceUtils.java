@@ -38,9 +38,17 @@ import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.ZuoraAccountClient;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
+import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
+import org.wso2.carbon.cloudmgt.users.service.UserManagementException;
+import org.wso2.carbon.cloudmgt.users.service.UserManagementService;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -381,6 +389,44 @@ public final class CloudBillingServiceUtils {
         EmailNotifications.getInstance().sendMail(messageBody, messageSubject, receiver);
     }
 
+    /**
+     * Retrieves the user email for the given username.
+     *
+     * @param userName
+     * @param tenantDomain
+     * @return user's email
+     * @throws UserStoreException
+     * @throws UserManagementException
+     * @throws CloudBillingException
+     */
+    public static String getEmailOfUser(String userName, String tenantDomain)
+            throws UserStoreException, UserManagementException, CloudBillingException {
+        String userEmail = "";
+        try {
+            TenantManager tenantManager =
+                    ServiceDataHolder.getInstance().getRealmService().getTenantManager();
+            int tenantId = tenantManager.getTenantId(tenantDomain);
+            if (tenantId != MultitenantConstants.SUPER_TENANT_ID && tenantId != -1) {
+
+                //Starting a new tenant flow
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
+                UserManagementService userManagementService = new UserManagementService();
+                userEmail = userManagementService.getUserEmail(userName);
+            } else {
+                throw new CloudBillingException(
+                        "Error while retrieving tenant id for tenant domain: " + tenantDomain);
+            }
+        } catch (UserStoreException e) {
+            throw new CloudBillingException(
+                    "Error occurred while retrieving the user email for user " + userName + ".", e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+        return userEmail;
+    }
+
     private static JsonObject getTemplateAccount(String tenantDomain, ZuoraAccountClient client) throws CloudBillingZuoraException {
 
         JsonObject templateAccount = client.queryAccountByName(tenantDomain + BillingConstants.ZUORA_TEMPLATE_ACCOUNT_SUFFIX);
@@ -404,4 +450,5 @@ public final class CloudBillingServiceUtils {
         NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
         return dsBRProcessor.doGet(url, null, nameValuePairs);
     }
+
 }
