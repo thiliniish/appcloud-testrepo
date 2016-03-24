@@ -197,30 +197,60 @@ public class ZuoraUtils {
 
     public static JSONArray getProductRatePlans(String productName) throws CloudBillingException {
         String url = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs().getProducts();
-        String response = null;
+        String response;
+        boolean isProductAvailable = false;
+        JSONArray ratePlanList = null;
 
-        try {
+        while (!isProductAvailable) {
             response = zuoraApi.doGet(url);
-            JSONParser jsonParser = new JSONParser();
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(response);
-            // getting all subscriptions elements for accountId
-            JSONArray products;
-            products = ((JSONArray) jsonObject.get(BillingConstants.PRODUCTS));
-            for (Object product : products) {
-                if (productName.equals(BillingConstants.API_CLOUD_SUBSCRIPTION_ID) &&
-                    ((JSONObject) product).get(BillingConstants.NAME).equals(BillingConstants.API_CLOUD)) {
-                    return (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCTRATEPLANS);
+            try {
+                JSONParser jsonParser = new JSONParser();
+                JSONObject productJsonObject = (JSONObject) jsonParser.parse(response);
+                boolean success = (Boolean) productJsonObject.get(BillingConstants.PRODUCT_RATE_PLANS_SUCCESS_STATUS);
+                if (success) {
+                    JSONArray products = ((JSONArray) productJsonObject.get(BillingConstants.PRODUCTS));
+                    for (Object product : products) {
+                        if (((JSONObject) product).get(BillingConstants.NAME).equals(productName)) {
+                            ratePlanList = (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
+                        }
+                    }
+                    if (ratePlanList == null) {
+                        String nextPage;
+                        // Get the next page value
+                        nextPage = (String) productJsonObject.get(BillingConstants.PRODUCT_RATE_PLANS_NEXTPAGE);
+                        if (nextPage != null) {
+                            url = nextPage;
+                        } else {
+                            throw new CloudBillingException(
+                                    "Unable to find the specified product name: " + productName);
+                        }
+                    } else {
+                        isProductAvailable = true;
+                    }
+                } else {
+                    throw new CloudBillingException(
+                            "Unable to retrieve product rate plans for product: " + productName);
+                }
+            } catch (ParseException e) {
+                throw new CloudBillingException("Error passing the response " + response + " to json object.", e);
+            }
+        }
+        return ratePlanList;
+    }
+
+    public static JSONObject getProductRatePlanObject(String productName, String ratePlanName) {
+        try {
+            JSONArray productPlans = getProductRatePlans(productName);
+            for (Object productPlan : productPlans) {
+                JSONObject jsonObject = (JSONObject) productPlan;
+                String planName = (String) jsonObject.get(BillingConstants.PRODUCT_RATE_PLAN_NAME);
+                if (planName.equals(ratePlanName)) {
+                    return jsonObject;
                 }
             }
-
         } catch (CloudBillingException e) {
-            String msg = "Error getting product rate plans";
+            String msg = "Error getting Product ratePlan object";
             log.error(msg, e);
-            throw new CloudBillingException(msg, e);
-        } catch (ParseException e) {
-            String msg = "Error passing the response " + response + " to json object";
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
         }
         return null;
     }

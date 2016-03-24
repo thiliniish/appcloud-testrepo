@@ -75,6 +75,7 @@ public final class BillingConstants {
 
     public static final String GET_ALL_REQUESTS = "DataServiceAPI.dataservice.Property.requestCount";
     public static final String GET_ACCOUNTID = "DataServiceAPI.dataservice.Property.tenantAccount";
+    public static final String PRODUCT_RATE_PLANS = "productRatePlans";
     // Zuora elements
     public static final String GET_ACCOUNT_SUMMARY = "ZouraAPI.zuora.Property.accountSummary";
     public static final String GET_RATE_PLAN_SUMMARY = "ZouraAPI.zuora.Property.ratePlans";
@@ -87,6 +88,10 @@ public final class BillingConstants {
 
     public static final String ACCOUNT_KEY_PARAM = "{account-key}";
     public static final String TENANT_DOMAIN_PARAM = "{tenantDomain}";
+
+    public static final String PRODUCT_RATE_PLANS_SUCCESS_STATUS = "success";
+    public static final String PRODUCT_RATE_PLANS_NEXTPAGE = "nextPage";
+    public static final String PRODUCT_RATE_PLAN_NAME = "name";
 
     //Zuora coupon details
     public static final String COUPON_HEADER = "coupon";
