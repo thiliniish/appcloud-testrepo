@@ -33,5 +33,6 @@
         <module>custom-url</module>
         <module>tenant-cleanup-tools/components/org.wso2.carbon.cloud.appfactory.appdeletion</module>
         <module>tenant-cleanup-tools/components/org.wso2.carbon.cloud.apimgt.apideletion</module>
+        <module>tenant-cleanup-tools/components/org.wso2.carbon.cloud.tenantdeletion</module>
     </modules>
 </project>
