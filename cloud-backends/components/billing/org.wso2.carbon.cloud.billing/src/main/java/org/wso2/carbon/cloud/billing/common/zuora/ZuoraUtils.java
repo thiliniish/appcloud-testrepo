@@ -203,6 +203,9 @@ public class ZuoraUtils {
 
         while (!isProductAvailable) {
             response = zuoraApi.doGet(url);
+            if(response==null){
+                throw new CloudBillingException("Response is null while getting product rate plans");
+            }
             try {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject productJsonObject = (JSONObject) jsonParser.parse(response);
@@ -238,7 +241,8 @@ public class ZuoraUtils {
         return ratePlanList;
     }
 
-    public static JSONObject getProductRatePlanObject(String productName, String ratePlanName) {
+    public static JSONObject getProductRatePlanObject(String productName, String ratePlanName)
+            throws CloudBillingException {
         try {
             JSONArray productPlans = getProductRatePlans(productName);
             for (Object productPlan : productPlans) {
@@ -251,6 +255,7 @@ public class ZuoraUtils {
         } catch (CloudBillingException e) {
             String msg = "Error getting Product ratePlan object";
             log.error(msg, e);
+            throw new CloudBillingException(msg, e);
         }
         return null;
     }
