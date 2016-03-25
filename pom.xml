@@ -223,7 +223,6 @@
         <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
 
         <wso2cloud.version>1.0.0</wso2cloud.version>
-        <wso2cloudusers.version>1.1.0</wso2cloudusers.version>
         <wso2carbon.version>4.2.0</wso2carbon.version>
         <wso2carbon.version.421>4.2.1</wso2carbon.version.421>
         <wso2carbon.version.422>4.2.2</wso2carbon.version.422>

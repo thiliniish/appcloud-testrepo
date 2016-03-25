@@ -29,11 +29,8 @@ import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
-import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
-import org.wso2.carbon.cloudmgt.users.service.UserManagementException;
 import org.wso2.carbon.core.AbstractAdmin;
-import org.wso2.carbon.user.api.UserStoreException;
 
 /**
  * Represents cloud billing related services.
@@ -592,21 +589,6 @@ public class CloudBillingService extends AbstractAdmin {
             LOGGER.error("Error while cancelling the subscription. subscription no: " + subscriptionNumber, ex);
             throw ex;
         }
-    }
-
-    /**
-     * Retrieves the user email for the given username.
-     *
-     * @param userName
-     * @param tenantDomain
-     * @return user's email
-     * @throws UserStoreException
-     * @throws UserManagementException
-     * @throws CloudBillingException
-     */
-    public String getUserEmail(String userName, String tenantDomain)
-            throws UserStoreException, UserManagementException, CloudBillingException {
-        return CloudBillingServiceUtils.getEmailOfUser(userName, tenantDomain);
     }
 
     /**

@@ -49,18 +49,8 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.user.api</artifactId>
-            <version>${wso2carbon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.ws.client</artifactId>
             <version>${wso2carbon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.cloud</groupId>
-            <artifactId>org.wso2.carbon.cloud.users</artifactId>
-            <version>${wso2cloudusers.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.wso2</groupId>
@@ -169,9 +159,7 @@
                             javax.mail.*,
                             org.codehaus.jackson.*; version="${imp.pkg.version.codehaus.jackson}",
                             javax.xml.bind.annotation.*; resolution:=optional,
-                            com.zuora.api.*; version="${zuora.stub.version}",
-                            org.wso2.carbon.cloudmgt.users.service.*; version="${wso2cloudusers.version}",
-                            org.wso2.carbon.user.api.*; version="${wso2carbon.version}",
+                            com.zuora.api.*; version="${zuora.stub.version}"
                         </Import-Package>
                     </instructions>
                 </configuration>
