@@ -200,7 +200,9 @@ public class ZuoraUtils {
         String response;
         boolean isProductAvailable = false;
         JSONArray ratePlanList = null;
-
+        if (productName == null) {
+            throw new CloudBillingException("Product name is null, while getting product plans");
+        }
         while (!isProductAvailable) {
             response = zuoraApi.doGet(url);
             if (response == null) {
@@ -215,7 +217,8 @@ public class ZuoraUtils {
                     JSONArray products = ((JSONArray) productJsonObject.get(BillingConstants.PRODUCTS));
                     for (Object product : products) {
                         String zuoraProductName = ((JSONObject) product).get(BillingConstants.NAME).toString();
-                        if (zuoraProductName != null && zuoraProductName.equals(productName)) {
+                        if (zuoraProductName != null && productName.equals(BillingConstants.API_CLOUD_SUBSCRIPTION_ID)
+                                && zuoraProductName.equals(BillingConstants.API_CLOUD)) {
                             ratePlanList = (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
                         }
                     }
