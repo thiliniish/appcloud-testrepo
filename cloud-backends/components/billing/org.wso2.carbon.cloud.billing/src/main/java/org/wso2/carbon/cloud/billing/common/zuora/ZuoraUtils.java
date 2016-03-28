@@ -203,8 +203,9 @@ public class ZuoraUtils {
 
         while (!isProductAvailable) {
             response = zuoraApi.doGet(url);
-            if(response==null){
-                throw new CloudBillingException("Response is null while getting product rate plans");
+            if (response == null) {
+                throw new CloudBillingException(
+                        "Zuora api response is null, while getting product rate plans for URL" + url);
             }
             try {
                 JSONParser jsonParser = new JSONParser();
@@ -213,7 +214,8 @@ public class ZuoraUtils {
                 if (success) {
                     JSONArray products = ((JSONArray) productJsonObject.get(BillingConstants.PRODUCTS));
                     for (Object product : products) {
-                        if (((JSONObject) product).get(BillingConstants.NAME).equals(productName)) {
+                        String zuoraProductName = ((JSONObject) product).get(BillingConstants.NAME).toString();
+                        if (zuoraProductName != null && zuoraProductName.equals(productName)) {
                             ratePlanList = (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
                         }
                     }
@@ -224,15 +226,13 @@ public class ZuoraUtils {
                         if (nextPage != null) {
                             url = nextPage;
                         } else {
-                            throw new CloudBillingException(
-                                    "Unable to find the specified product name: " + productName);
+                            return null;
                         }
                     } else {
                         isProductAvailable = true;
                     }
                 } else {
-                    throw new CloudBillingException(
-                            "Unable to retrieve product rate plans for product: " + productName);
+                    return null;
                 }
             } catch (ParseException e) {
                 throw new CloudBillingException("Error passing the response " + response + " to json object.", e);
@@ -248,12 +248,12 @@ public class ZuoraUtils {
             for (Object productPlan : productPlans) {
                 JSONObject jsonObject = (JSONObject) productPlan;
                 String planName = (String) jsonObject.get(BillingConstants.PRODUCT_RATE_PLAN_NAME);
-                if (planName.equals(ratePlanName)) {
+                if (planName != null && planName.equals(ratePlanName)) {
                     return jsonObject;
                 }
             }
         } catch (CloudBillingException e) {
-            String msg = "Error getting Product ratePlan object";
+            String msg = "Error getting Product ratePlan object for " + ratePlanName;
             log.error(msg, e);
             throw new CloudBillingException(msg, e);
         }
