@@ -18,7 +18,9 @@ package org.wso2.carbon.cloud.billing.service;
 
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.wso2.carbon.cloud.billing.beans.AccountUsage;
+import org.wso2.carbon.cloud.billing.common.BillingConstants;
 import org.wso2.carbon.cloud.billing.common.CloudBillingException;
 import org.wso2.carbon.cloud.billing.common.config.Plan;
 import org.wso2.carbon.cloud.billing.common.zuora.ZuoraUtils;
@@ -119,6 +121,10 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException e) {
             throw new CloudBillingException(e);
         }
+    }
+
+    public JSONObject getProductRatePlanObject(String productName, String ratePlanName) throws CloudBillingException {
+        return ZuoraUtils.getProductRatePlanObject(productName, ratePlanName);
     }
 
     public boolean validateRatePlanId(String serviceId, String productRatePlanId) {
