@@ -1,0 +1,143 @@
+<%
+var carbon = require('carbon');
+var server = carbon.server;
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+var APIUtil = Packages.org.wso2.carbon.apimgt.impl.utils.APIUtil;
+var log = new Log("/modules/pricing/notifications.jag");
+
+/**
+ * Sends the subscription notification for the subscription activity.
+ * @param apiName
+ * @param apiVersion
+ * @param applicationName
+ * @param tier
+ * @param provider
+ * @param subscriber
+ */
+var sendSubscriptionSuccessNotifications = function (apiName, apiVersion, applicationName, tier, provider, subscriber) {
+
+    var tenantDomain = multiTenantUtils.getTenantDomain(subscriber);
+    try {
+
+        //Since the @ sign is replaced with -AT- when apim returns the provider.
+        var provider = APIUtil.replaceEmailDomainBack(provider);
+        var subscriberEmail = getEmailOfUser(subscriber, tenantDomain);
+        var providerEmail = getEmailOfUser(provider, tenantDomain);
+        var api = apiName + "-" + apiVersion;
+        var subscriberNotificationResult = sendSubscriptionNotificationToSubscriber(api, applicationName, tier, providerEmail, subscriber, subscriberEmail, tenantDomain);
+        var publisherNotificationResult = sendSubscriptionNotificationToProvider(api, applicationName, tier, provider, providerEmail, subscriberEmail, tenantDomain);
+
+        if (!subscriberNotificationResult.error && !publisherNotificationResult.error) {
+            log.info("Successfully sent the subscription notification emails for subscription activity for the tenant " + tenantDomain);
+        } else {
+            log.error ("Error occurred while sending the subscription notifications for the tenant "+tenantDomain);
+        }
+    } catch (e) {
+        log.error("Error while sending the subscription notification for the tenant :  " + tenantDomain + ", " + e);
+    }
+};
+
+/**
+ * Sends the subscription notification to the subscriber.
+ * @param api
+ * @param applicationName
+ * @param tier
+ * @param providerEmail
+ * @param subscriber
+ * @param subscriberEmail
+ * @param tenantDomain
+ * @return result (Status of sending the subscription notification)
+ */
+var sendSubscriptionNotificationToSubscriber = function (api, applicationName, tier, providerEmail,
+                                                         subscriber, subscriberEmail,
+                                                         tenantDomain) {
+
+    var subscriberEmailPath = "/site/conf/pricing/emails/userSubscriptionNotificationEmail.txt";
+    var subscriberEmailSubject = "Subscription notification";
+    var message = "Error occurred while sending the email to the subscriber " + subscriber;
+    var result = {
+        error: true,
+        message: message,
+        statusCode: 500
+    }
+    try {
+        var messageBody = getObjFromFile(subscriberEmailPath);
+        if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
+            messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDomain).replace("$applicationName", applicationName).replace("$contact", providerEmail);
+
+            //Sending the email to the subscriber regarding the subscription activity.
+            billingService.sendEmailNotification(subscriberEmail, subscriberEmailSubject, messageBody);
+            message = "Successfully sent email to the subscriber " + subscriber;
+            result = {
+                error: false,
+                message: message,
+                statusCode: 200
+            }
+        } else {
+            message = "Required parameters not available to send the subscription notification to the subscriber " + subscriber;
+            log.error(message);
+            result = {
+                error: true,
+                message: message,
+                statusCode: 404
+            }
+        }
+    } catch (e) {
+        log.error("Error while sending the subscription notification to the subscriber :  " + subscriber + ", " + e);
+    }
+    return result;
+};
+
+/**
+ * Sends the subscription notification to the tenant owner on the subscription activity.
+ * @param api
+ * @param applicationName
+ * @param tier
+ * @param provider
+ * @param providerEmail
+ * @param subscriberEmail
+ * @param tenantDomain
+ * @return result (Status of sending the subscription notification)
+ */
+var sendSubscriptionNotificationToProvider = function (api, applicationName, tier, provider,
+                                                       providerEmail, subscriberEmail,
+                                                       tenantDomain) {
+
+    var providerEmailPath = "/site/conf/pricing/emails/tenantSubscriptionNotificationEmail.txt";
+    var providerEmailSubject = "Subscription notification for the " + tenantDomain + " organization";
+    var message = "Error occurred while sending the email to the provider " + provider;
+    var result = {
+        error: true,
+        message: message,
+        statusCode: 500
+    }
+    try {
+        var messageBody = getObjFromFile(providerEmailPath);
+
+        if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
+            messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDomain).replace("$subscriber", subscriberEmail).replace("$applicationName", applicationName);
+
+            //Sending the email to the provider regarding the subscription activity.
+            billingService.sendEmailNotification(providerEmail, providerEmailSubject, messageBody);
+            message = "Successfully sent email to the provider " + provider;
+            result = {
+                error: false,
+                message: message,
+                statusCode: 200
+            }
+        } else {
+            message = "Required parameters not available to send the subscription notification to the provider " + provider;
+            log.error(message);
+            result = {
+                error: true,
+                message: message,
+                statusCode: 404
+            }
+        }
+    } catch (e) {
+        log.error("Error while sending the subscription notification to the provider :  " + provider + ", " + e);
+    }
+    return result;
+};
+%>

@@ -128,7 +128,19 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
                 "inputs": inputsObj
             }];
         } else if ("subscribed".equals(action)) {
+            var apiData = decryptWorkflowData(workflowReference);
+            var apiName = apiData.apiName;
+            var apiVersion = apiData.apiVersion;
+            var provider = apiData.apiProvider;
+            var tier = apiData.ratePlanName;
             selectedApp = encoder.getSafeText(request.getParameter("selectedApp"));
+
+            //Send the notifications for the subscription activity
+            if (!"".equals(selectedApp) && selectedApp != null && !"".equals(apiName) && apiName != null && !"".equals(apiVersion) && apiVersion != null && !"".equals(provider) && provider != null && !"".equals(tier) && tier != null) {
+                jagg.module("pricing").sendSubscriptionSuccessNotifications(apiName, apiVersion, selectedApp, tier, provider, user.username)
+            } else {
+                log.error("Required parameters are not available to send subscription notifications for the tenant " + tenantDomain);
+            }
 
             var uri = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?");
             if (selectedApp != null && !"".equals(selectedApp)) {
