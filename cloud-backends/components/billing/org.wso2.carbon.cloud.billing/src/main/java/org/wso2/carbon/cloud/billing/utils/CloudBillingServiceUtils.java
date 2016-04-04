@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,10 +43,15 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 /**
@@ -428,6 +434,29 @@ public final class CloudBillingServiceUtils {
             throw new CloudBillingException(
                     "Error while creating the Product: " + productName + " for tenant: " + tenantDomain, e);
         }
+    }
+
+    /**
+     * Encrypt texts using the default Crypto utility. and base 64 encode
+     *
+     * @param text text need to be encrypt
+     * @return base64encoded encrypted string
+     * @throws org.wso2.carbon.core.util.CryptoException
+     */
+    public static String getEncryptionInfo(String text) throws CryptoException {
+        return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(text.getBytes(Charset.defaultCharset()));
+    }
+
+    /**
+     * Decrypt texts using the default Crypto utility. and base 64 decode
+     *
+     * @param base64CyperText base64 Cyper Text need to be decrypt
+     * @return base64decoded decrypted string
+     * @throws org.wso2.carbon.core.util.CryptoException
+     */
+    public static String getDecryptedInfo(String base64CyperText) throws CryptoException, IOException {
+        byte[] decriptedByteArray = CryptoUtil.getDefaultCryptoUtil().base64DecodeAndDecrypt(base64CyperText);
+        return new String(decriptedByteArray, BillingConstants.ENCODING);
     }
 
     /**

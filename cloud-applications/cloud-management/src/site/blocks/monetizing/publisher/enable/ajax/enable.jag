@@ -17,6 +17,7 @@ include("/jagg/config_reader.jag");
                 if (message == null) {
                     message = "An error occurred while enabling the monetization of the tenant: " + tenantDomain;
                 }
+                response.status = 401;
                 returnObj = {
                     error: true,
                     message: message,
@@ -33,6 +34,7 @@ include("/jagg/config_reader.jag");
             print(returnObj);
         } else {
             var msg = "User do not have permission to enable the monetization of tenant :" + tenantDomain;
+            response.status = 401;
             print({
                 error: true,
                 message: msg,
@@ -40,6 +42,7 @@ include("/jagg/config_reader.jag");
             });
         }
     } else {
+        response.status = 401;
         msg = "Invalid action: " + action;
         print({
             error: true,

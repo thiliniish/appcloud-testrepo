@@ -27,9 +27,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
+import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.commons.config.DataServiceConfig;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
@@ -38,6 +42,7 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -53,6 +58,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 
 /**
  * Represents cloud billing related services.
@@ -676,11 +682,11 @@ public class CloudBillingService extends AbstractAdmin {
             Resource workflowResource = registry.get(workflowUrl);
             // Get the resource content
             String content = new String((byte[]) workflowResource.getContent());
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
-            InputSource is = new InputSource();
-            is.setCharacterStream(new StringReader(content));
-            Document doc = documentBuilder.parse(is);
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            InputSource inputSource = new InputSource();
+            inputSource.setCharacterStream(new StringReader(content));
+            Document doc = documentBuilder.parse(inputSource);
             Node workFlowExtension = doc.getElementsByTagName(MonetizationConstants.TAG_WORKFLOWEXTENSION).item(0);
             // Loop the WorkFlowExtensions child node
             NodeList extensionList = workFlowExtension.getChildNodes();
@@ -700,7 +706,14 @@ public class CloudBillingService extends AbstractAdmin {
             Element propertyServiceUrl = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
             propertyServiceUrl
                     .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_SERVICEURL_NAME);
-            propertyServiceUrl.setTextContent(MonetizationConstants.PROPERTY_SERVICEURL_VALUE);
+            // Get ServiceUrl from config files
+            BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
+            DataServiceConfig dataServiceConfig = billingConfig.getDSConfig();
+            String serviceUrlHost = dataServiceConfig.getHttpClientConfig().getHostname();
+            int serviceUrlPort = dataServiceConfig.getHttpClientConfig().getPort();
+            String serviceURL = BillingConstants.HTTPS + serviceUrlHost + BillingConstants.COLON + serviceUrlPort +
+                                MonetizationConstants.PROPERTY_MONETIZATION_SERVICE_VALUE;
+            propertyServiceUrl.setTextContent(serviceURL);
             subscriptionCreation.appendChild(propertyServiceUrl);
             // Add Username Property tag
             Element propertyName = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
@@ -768,6 +781,9 @@ public class CloudBillingService extends AbstractAdmin {
      *
      * @param tenantDomain tenant domain
      * @return JSONArray of throttling tiers
+     * {
+     *     Gold, Silver, Bronze ......
+     * }
      * @throws CloudMonetizationException
      */
     public JSONArray getThrottlingTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
@@ -785,4 +801,35 @@ public class CloudBillingService extends AbstractAdmin {
     public JsonObject queryProduct(String tenantDomain, String productName) throws CloudBillingException {
         return CloudBillingServiceUtils.queryProduct(tenantDomain, productName);
     }
+
+    /**
+     * Encrypt texts using the default Crypto utility. and base 64 encode
+     *
+     * @param text text need to be encrypt
+     * @return base64encoded encrypted string
+     * @throws org.wso2.carbon.core.util.CryptoException
+     */
+    public String getEncryptionInfo(String text) throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils.getEncryptionInfo(text);
+        } catch (CryptoException e) {
+            throw new CloudBillingException("Error occurred while encrypting ", e);
+        }
+    }
+
+    /**
+     * Decrypt texts using the default Crypto utility. and base 64 decode
+     *
+     * @param base64CyperText base64 Cyper Text need to be decrypt
+     * @return base64decoded decrypted string
+     * @throws org.wso2.carbon.core.util.CryptoException
+     */
+    public String getDecryptedInfo(String base64CyperText) throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils.getDecryptedInfo(base64CyperText);
+        } catch (CryptoException | IOException e) {
+            throw new CloudBillingException("Error occurred while decrypting ", e);
+        }
+    }
+
 }

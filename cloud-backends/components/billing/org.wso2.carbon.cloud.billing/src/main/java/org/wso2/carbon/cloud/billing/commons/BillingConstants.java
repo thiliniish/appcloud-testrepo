@@ -26,6 +26,7 @@ public final class BillingConstants {
     public static final String CONFIG_FILE_NAME = "billing.xml";
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/billing";
     public static final String EMPTY_STRING = "";
+    public static final String COLON = ":";
 
     // ApiM Request Summary Conf
     public static final String ENTRY = "Entry";
@@ -175,6 +176,7 @@ public final class BillingConstants {
     public static final String RATEPLAN_CHARGE_TRIGGER_EVENT = "ContractEffective";
     public static final String RATEPLAN_CHARGETIER_CURRENCY = "USD";
     public static final String RATEPLAN_CHARGETIER_PRICE_FORMAT = "Flat Fee";
+    public static final int RATEPLAN_CHARGETIER_STARTING_UNIT = 1;
 
     /* Zuora queries */
     private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid, " +

@@ -182,6 +182,7 @@ var ENABLE_MONETIZATION_CLOUD_NOTIFICATION_FILE_PATH = "/site/conf/emails/cloud_
 var ENABLE_MONETIZATION_USER_NOTIFICATION_FILE_PATH = "/site/conf/emails/user_notification_on_monetization_enable.txt";
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
+var LOGGED_IN_USER_EMAIL = "LOGGED_IN_USER_EMAIL";
 
 //Monetization Account Types
 var ACC_FREE = "Free";

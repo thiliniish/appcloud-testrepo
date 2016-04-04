@@ -126,8 +126,8 @@ public final class MonetizationConstants {
     public static final String SUBSCRIPTION_CREATION_EXECUTOR =
             "org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionCreationWorkflowExecutor";
     public static final String PROPERTY_SERVICEURL_NAME = "apiMonetizationServiceUrl";
-    public static final String PROPERTY_SERVICEURL_VALUE =
-            "https://milestones.appfactory.wso2.com:9443/services/APICloudMonetizationService/";
+    public static final String PROPERTY_MONETIZATION_SERVICE_VALUE =
+            "/services/APICloudMonetizationService/";
     public static final String PROPERTY_USERNAME_NAME = "username";
     public static final String PROPERTY_PASSWORD_NAME = "password";
     public static final String TAG_WORKFLOWEXTENSION = "WorkFlowExtensions";
