@@ -73,8 +73,8 @@ var isSessionAuthenticated = function () {
     return isAuthenticated;
 };
 
-//method to check if the user is only a subscriber for a tenant
-var hasOnlySubscriberRole = function (userName) {
+//method to retrieve user roles
+var getUserRoles = function (userName) {
     var isSubscriber = false;
     var roleCount = 0;
     var roles;
@@ -106,10 +106,19 @@ var hasOnlySubscriberRole = function (userName) {
         for (var j = 0; j < userRoles.length; j++) {
             if (String(types[i]) == String(userRoles[j])) {
                 userRoles.splice(j, 1);
-                // roles[j]="";
             }
         }
     }
+    return userRoles;
+};
+
+//method to check if the user is only a subscriber for a tenant
+var hasOnlySubscriberRole = function (userName) {
+    var isSubscriber = false;
+    var roleCount = 0;
+    var result = false;
+    //Get user roles
+    var userRoles = getUserRoles(userName);
 
     //checking if the user has any other role than the subscriber role
     for (var c = 0; c < userRoles.length; c++) {
@@ -119,13 +128,27 @@ var hasOnlySubscriberRole = function (userName) {
             roleCount++;
         }
     }
-
     if (roleCount == 0 && isSubscriber == true) {
         result = true;
     } else {
         result = false;
     }
     return result;
+};
+
+//method to check whether user has an admin or publisher role
+var hasAdminOrPublisherRole = function (userName) {
+    var isAdminOrPublisher = false;
+    //Get user roles
+    var userRoles = getUserRoles(userName);
+
+    //checking if the user has admin role
+    for (var c = 0; c < userRoles.length; c++) {
+        if (userRoles[c] == "admin" || userRoles[c] == "publisher") {
+            isAdminOrPublisher = true;
+        }
+    }
+    return isAdminOrPublisher;
 };
 
 var sendBillingTrialExtendedNotification = function (tenantDomain, serviceId, endDate, customerRequest) {
