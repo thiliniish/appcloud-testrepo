@@ -169,6 +169,12 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
                 "Processor");
     }
 
+    @Override
+    public String doDelete(String url, String acceptType) throws CloudBillingException {
+        throw new UnsupportedOperationException("This method is not supported by Data Service Billing Request " +
+                "Processor");
+    }
+
     /**
      * Data service PUT request
      *
