@@ -113,14 +113,14 @@ $(document).ready(function () {
     });
 });
 function viewPaymentMethods(obj) {
-    var form = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain") + '"' + 'method="post">' +
+    var form = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain").value  + '"' + 'method="post">' +
         '<input type="hidden" name="action" value="viewPaymentMethod"/>' +
         '</form>');
     $('body').append(form);
     $(form).submit();
 };
 function addNewPaymentMethod(obj) {
-    var form = $('<form action="manage-account.jag?secondaryPayment=true&tenant=' + obj.getElementById("tenantDomain")
+    var form = $('<form action="manage-account.jag?secondaryPayment=true&tenant=' + obj.getElementById("tenantDomain").value
         + '"' + 'method="post">' +
         '<input type="hidden" name="accountId" value="' + obj.getElementById("accountId").value + '"/>' +
         '<input type="hidden" name="action" value="paymentMethod"/>' +
@@ -129,7 +129,7 @@ function addNewPaymentMethod(obj) {
     $(form).submit();
 };
 function updateContactInfo(obj) {
-    var formContactInfo = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain") + '"'
+    var formContactInfo = $('<form action="manage-account.jag?tenant=' + obj.getElementById("tenantDomain").value  + '"'
         + 'method="post">' +
         '<input type="hidden" id ="firstName" name="firstName" value = "' + obj.getElementById("fname").innerHTML + '"/>' +
         '<input type="hidden" name="lastName" value = "' + obj.getElementById("lname").innerHTML + '"/>' +

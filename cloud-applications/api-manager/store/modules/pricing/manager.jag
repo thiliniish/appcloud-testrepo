@@ -86,12 +86,9 @@ var getAccountDetails = function () {
 var updateContactInfo = function (accountData) {
     try {
         var accountId = getAccountId();
-        var url = zuoraObj.serviceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNTS + "/" + accountId;
         var data = {};
         data.billToContact = accountData;
-        var username = zuoraObj.user;
-        var password = zuoraObj.password;
-        var response = sendHTTPRequest(url, "PUT", null, data, username, password);
+        var response = JSON.parse(billingService.updateAccount(accountId, JSON.stringify(data)));
         if (response.success) {
             return {
                 error: false,
@@ -121,10 +118,7 @@ var updateContactInfo = function (accountData) {
 
 var removePaymentMethod = function (methodId) {
     try {
-        var url = zuoraObj.serviceUrl + billingConstants.ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD + "/" + methodId;
-        var username = zuoraObj.user;
-        var password = zuoraObj.password;
-        var result = sendHTTPRequest(url, "DELETE", null, null, username, password);
+        var result =  JSON.parse(billingService.removePaymentMethod(methodId));
         if (result.success) {
             return {
                 error: false,
@@ -155,11 +149,7 @@ var removePaymentMethod = function (methodId) {
 var getAllPaymentMethods = function () {
     try {
         var accountId = getAccountId();
-        var zuoraServiceUrl = zuoraObj.serviceUrl;
-        var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS + "/" + accountId;
-        var username = zuoraObj.user;
-        var password = zuoraObj.password;
-        var summary = sendHTTPRequest(url, "GET", null, null, username, password);
+        var summary = JSON.parse(billingService.getAllPaymentMethods(accountId));
         if (summary.success) {
             return {
                 error: false,
@@ -189,14 +179,10 @@ var getAllPaymentMethods = function () {
 
 var updateDefaultPaymentMethod = function (methodId) {
     try {
-        var zuoraServiceUrl = zuoraObj.serviceUrl;
-        var url = zuoraServiceUrl + billingConstants.ZUORA_REST_API_URI_PAYMENT_METHODS + "/" + methodId;
         var data = {
             "defaultPaymentMethod": true
         };
-        var username = zuoraObj.user;
-        var password = zuoraObj.password;
-        var response = sendHTTPRequest(url, "PUT", null, data, username, password);
+        var response = JSON.parse(billingService.updateDefaultPaymentMethod(methodId, JSON.stringify(data)));
         if (response.success) {
             return {
                 error: false,
