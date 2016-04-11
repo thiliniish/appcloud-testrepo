@@ -68,6 +68,15 @@ jagg.module("pricing", {
     },
     getEmailOfUser:function () {
         return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getEmailOfUser.apply(this, arguments);
+    },
+    getResourceFromTenantSpace: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").getResourceFromTenantSpace.apply(this, arguments);
+    },
+    resourceExistsInTenantSpace: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").resourceExistsInTenantSpace.apply(this, arguments);
+    },
+    configureRegistryParameters: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").configureRegistryParameters.apply(this, arguments);
     }
 
 });

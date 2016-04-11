@@ -1,4 +1,6 @@
 <%
+include("/modules/pricing/registry.jag");
+
 var carbon = require('carbon');
 var server = carbon.server;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
@@ -25,7 +27,7 @@ var sendSubscriptionSuccessNotifications = function (apiName, apiVersion, applic
         var subscriberEmail = getEmailOfUser(subscriber, tenantDomain);
         var providerEmail = getEmailOfUser(provider, tenantDomain);
         var api = apiName + "-" + apiVersion;
-        var subscriberNotificationResult = sendSubscriptionNotificationToSubscriber(api, applicationName, tier, providerEmail, subscriber, subscriberEmail, tenantDomain);
+        var subscriberNotificationResult = sendSubscriptionNotificationToSubscriber(api, applicationName, tier, provider, providerEmail, subscriber, subscriberEmail, tenantDomain);
         var publisherNotificationResult = sendSubscriptionNotificationToProvider(api, applicationName, tier, provider, providerEmail, subscriberEmail, tenantDomain);
 
         if (!subscriberNotificationResult.error && !publisherNotificationResult.error) {
@@ -43,18 +45,18 @@ var sendSubscriptionSuccessNotifications = function (apiName, apiVersion, applic
  * @param api
  * @param applicationName
  * @param tier
+ * @param provider
  * @param providerEmail
  * @param subscriber
  * @param subscriberEmail
  * @param tenantDomain
  * @return result (Status of sending the subscription notification)
  */
-var sendSubscriptionNotificationToSubscriber = function (api, applicationName, tier, providerEmail,
+var sendSubscriptionNotificationToSubscriber = function (api, applicationName, tier, provider, providerEmail,
                                                          subscriber, subscriberEmail,
                                                          tenantDomain) {
 
-    var subscriberEmailPath = "/site/conf/pricing/emails/userSubscriptionNotificationEmail.txt";
-    var subscriberEmailSubject = "Subscription notification";
+    var messageBody = "";
     var message = "Error occurred while sending the email to the subscriber " + subscriber;
     var result = {
         error: true,
@@ -62,12 +64,16 @@ var sendSubscriptionNotificationToSubscriber = function (api, applicationName, t
         statusCode: 500
     }
     try {
-        var messageBody = getObjFromFile(subscriberEmailPath);
+        var response = getResourceFromTenantSpace(SUBSCRIBER_EMAIL_REGISTRY_PATH, tenantDomain, provider);
+        if (!"error".equals(response) && !"resourcePending".equals(response)) {
+            response.contentType = CONTENT_TYPE_TEXT_PLAIN;
+            messageBody = (response.content).toString();
+        } else {
+            messageBody = getObjFromFile(SUBSCRIBER_EMAIL_DEFAULT_PATH);
+        }
         if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
             messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDomain).replace("$applicationName", applicationName).replace("$contact", providerEmail);
-
-            //Sending the email to the subscriber regarding the subscription activity.
-            billingService.sendEmailNotification(subscriberEmail, subscriberEmailSubject, messageBody);
+            billingService.sendEmailNotification(subscriberEmail, SUBSCRIBER_EMAIL_SUBJECT, messageBody, CONTENT_TYPE_HTML);
             message = "Successfully sent email to the subscriber " + subscriber;
             result = {
                 error: false,
@@ -113,13 +119,14 @@ var sendSubscriptionNotificationToProvider = function (api, applicationName, tie
         statusCode: 500
     }
     try {
+
         var messageBody = getObjFromFile(providerEmailPath);
 
         if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
             messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDomain).replace("$subscriber", subscriberEmail).replace("$applicationName", applicationName);
 
             //Sending the email to the provider regarding the subscription activity.
-            billingService.sendEmailNotification(providerEmail, providerEmailSubject, messageBody);
+            billingService.sendEmailNotification(providerEmail, providerEmailSubject, messageBody, CONTENT_TYPE_HTML);
             message = "Successfully sent email to the provider " + provider;
             result = {
                 error: false,

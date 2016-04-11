@@ -1,0 +1,62 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+include("/modules/pricing/utils.jag");
+
+var log = new Log('/modules/pricing/registry.jag');
+var registry = "";
+var response = "error";
+var cloudMgtServerUrl = getCloudmgtURL();
+var cloudMgtServiceUrl = cloudMgtServerUrl+"/services/";
+
+//Method to configure tenant specific parameters to pass to the registry.
+var configureRegistryParameters = function (tenantDomain, userName) {
+    var PrivilegedCarbonContext = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
+    var context = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+    try {
+        var realmService = context.getOSGiService((java.lang.Class).forName('org.wso2.carbon.user.core.service.RealmService'));
+        var tenantManager = realmService.getTenantManager();
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        var options = {system: true, domain: tenantDomain, tenantId: tenantId};
+    } catch (e) {
+        log.error("Error while configuring the registry properties for the tenant " + userName + ":" + e.message);
+        log.error(e);
+    }
+    return options;
+};
+
+//Method to retrieve the resource in the tenant's space in the registry.
+var getResourceFromTenantSpace = function (path, tenantDomain, userName) {
+    var response = "error";
+        try {
+            var resourcExists = resourceExistsInTenantSpace(path, tenantDomain, userName);
+            if (resourcExists) {
+                var options = configureRegistryParameters(tenantDomain, userName);
+                registry = new carbon.registry.Registry(cloudMgtServiceUrl, options);
+                response = registry.get(path);
+            } else {
+                log.error("The resource does not exist in the path : " + path + " for the tenant " + userName);
+                response = "resourcePending";
+            }
+        } catch (e) {
+            log.error("Error while retrieving tenant space registry resource file: " + path + " for the tenant " + userName + ":" + e.message);
+            log.error(e);
+        }
+    return response;
+};
+
+//Method to check if a given method exists in the tenant space in the registry.
+var resourceExistsInTenantSpace = function (path, tenantDomain, userName) {
+    var resourceExistsInTenantSpace = false;
+        try {
+            var options = configureRegistryParameters(tenantDomain, userName);
+            registry = new carbon.registry.Registry(cloudMgtServiceUrl, options);
+            resourceExistsInTenantSpace = registry.exists(path);
+        } catch (e) {
+            log.error("Error while accessing tenant space registry resource file: " + path + " for the tenant " + userName + ":" + e.message);
+            log.error(e);
+        }
+    return resourceExistsInTenantSpace;
+};
+
+%>
