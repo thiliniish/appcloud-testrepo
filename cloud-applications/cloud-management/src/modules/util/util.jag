@@ -9,7 +9,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
-var userName =  session.get("LOGGED_IN_USER");
+var username =  session.get("LOGGED_IN_USER");
 
 var getTenantDisplayName = function (tenantDomain) {
     var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
@@ -30,11 +30,11 @@ var isUserInAdminRole = function () {
         var tenantInfo = session.get("TENANT_INFO");
         var context=multitenancy.getPrivilegedCarbonContext();
 
-            if (tenantInfo != null && userName != null) {
+            if (tenantInfo != null && username != null) {
                 try {
                   context.startTenantFlow();
                   var tenantManager = multitenancy.getTenantManager();
-                  var tenantAwareUserName = modManager.getTenantAwareUsername(userName);
+                  var tenantAwareUserName = modManager.getTenantAwareUsername(username);
                   var tenantDomain=tenantInfo.tenantDomain;
                   var tenantId = tenantManager.getTenantId(tenantDomain);
                   context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
@@ -44,7 +44,7 @@ var isUserInAdminRole = function () {
                   session.put("IS_USER_ADMIN", String(isAdmin));
                   return isAdmin;
                 } catch (e) {
-                  log.error("Error while authenticating user for admin role. User: "+ userName +". Error:" +e);
+                  log.error("Error while authenticating user for admin role. User: "+ username +". Error:" +e);
                   return false;
                 } finally {
                   context.endTenantFlow();
@@ -74,7 +74,7 @@ var isSessionAuthenticated = function () {
 };
 
 //method to retrieve user roles
-var getUserRoles = function (userName) {
+var getUserRoles = function (username) {
     var roles;
     var userRoles = [];
     var context = multitenancy.getPrivilegedCarbonContext();
@@ -83,7 +83,7 @@ var getUserRoles = function (userName) {
     var types = cloudConfig.commonRoles;
     var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
     context.startTenantFlow();
-    var tenantAwareUserName = modManager.getTenantAwareUsername(userName);
+    var tenantAwareUserName = modManager.getTenantAwareUsername(username);
     var tenantManager = multitenancy.getTenantManager();
     var tenantId = tenantManager.getTenantId(tenantDomain);
     context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
@@ -107,33 +107,21 @@ var getUserRoles = function (userName) {
 };
 
 //method to check if the user is only a subscriber for a tenant
-var hasOnlySubscriberRole = function (userName) {
-    var isSubscriber = false;
-    var roleCount = 0;
+var hasOnlySubscriberRole = function (username) {
     var result = false;
     //Get user roles
-    var userRoles = getUserRoles(userName);
-    //checking if the user has any other role than the subscriber role
-    for (var c = 0; c < userRoles.length; c++) {
-        if (userRoles[c] == "subscriber") {
-            isSubscriber = true;
-        } else {
-            roleCount++;
-        }
-    }
-    if (roleCount == 0 && isSubscriber == true) {
+    var userRoles = getUserRoles(username);
+    if(hasUserRole(username,ROLE_SUBSCRIBER) && userRoles.length == 1){
         result = true;
-    } else {
-        result = false;
     }
     return result;
 };
 
 //method to check whether user has specified role
-var hasUserRole = function (userName,roleName) {
+var hasUserRole = function (username,roleName) {
     var hasRole = false;
     //Get user roles
-    var userRoles = getUserRoles(userName);
+    var userRoles = getUserRoles(username);
     //checking if the user has specified role
     for (var c = 0; c < userRoles.length; c++) {
         if (userRoles[c] == roleName) {
@@ -568,7 +556,7 @@ var getLoadBalanceDataPublisher = function(loadBalancePublisherObjReference){
                 var bamConfiguration = cloudMgtJsonObject.bamConfiguration;
                 var host = bamConfiguration.hostUrls;
                 var receiverUrls = "{" + host + "}";
-                var userName = bamConfiguration.username;
+                var username = bamConfiguration.username;
                 var password = bamConfiguration.password;
 
                 var LoadBalancingDataPublisher = org.wso2.carbon.databridge.agent.thrift.lb.LoadBalancingDataPublisher;
@@ -585,7 +573,7 @@ var getLoadBalanceDataPublisher = function(loadBalancePublisherObjReference){
                     var urls = receiverGroupUrls.get(z).split(",");
 
                     for(var receiverUrl in urls){
-                       dataPublisherHolderNode = new DataPublisherHolder(null, urls[receiverUrl], userName, password);
+                       dataPublisherHolderNode = new DataPublisherHolder(null, urls[receiverUrl], username, password);
                        dataPublisherHolders.add(dataPublisherHolderNode);
                     }
                     group = new ReceiverGroup(dataPublisherHolders,true);

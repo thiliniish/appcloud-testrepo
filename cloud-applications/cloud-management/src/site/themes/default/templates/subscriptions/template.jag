@@ -1,6 +1,7 @@
 <% jagg.template("subscriptions", function(inputs, outputs, jagg) { %>
 <%
 include("/modules/database/dataaccess.jag");
+include("/jagg/constants.jag");
 
 var log = new Log();
 var userName = session.get("LOGGED_IN_USER");
@@ -8,9 +9,9 @@ var userName = session.get("LOGGED_IN_USER");
 if (userName != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 	//Check if user has admin role
-	var hasAdminRole = jagg.module("util").hasUserRole(userName,"admin");
+	var hasAdminRole = jagg.module("util").hasUserRole(userName,ROLE_ADMIN);
 	//Check if user has publisher role
-	var hasPublisherRole = jagg.module("util").hasUserRole(userName,"publisher");
+	var hasPublisherRole = jagg.module("util").hasUserRole(userName,ROLE_PUBLISHER);
 	if (hasAdminRole || hasPublisherRole) {
 		log.info("The user has an admin or publisher role.");
 		var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
