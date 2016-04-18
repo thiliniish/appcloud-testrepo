@@ -33,7 +33,7 @@ var sendSubscriptionSuccessNotifications = function (apiName, apiVersion, applic
         if (!subscriberNotificationResult.error && !publisherNotificationResult.error) {
             log.info("Successfully sent the subscription notification emails for subscription activity for the tenant " + tenantDomain);
         } else {
-            log.error ("Error occurred while sending the subscription notifications for the tenant "+tenantDomain);
+            log.error ("Error occurred while sending the subscription notifications for the tenant " + tenantDomain);
         }
     } catch (e) {
         log.error("Error while sending the subscription notification for the tenant :  " + tenantDomain + ", " + e);

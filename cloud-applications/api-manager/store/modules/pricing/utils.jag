@@ -16,7 +16,7 @@ var getCloudmgtURL = function () {
         var configs = parse(monetizationConfigFile.readAll());
         return configs.cloud.mgt_url;
     } catch (e) {
-        log.error("Error while getting thecloud_conf.json.");
+        log.error("Error while getting the cloud_conf.json.");
         throw e;
     } finally {
         monetizationConfigFile.close();

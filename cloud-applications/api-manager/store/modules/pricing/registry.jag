@@ -29,7 +29,7 @@ var configureRegistryParameters = function (tenantDomain, userName) {
 var getResourceFromTenantSpace = function (path, tenantDomain, userName) {
     var response = "error";
         try {
-            var resourcExists = resourceExistsInTenantSpace(path, tenantDomain, userName);
+            var resourcExists = isResourceExistingInTenantSpace(path, tenantDomain, userName);
             if (resourcExists) {
                 var options = configureRegistryParameters(tenantDomain, userName);
                 registry = new carbon.registry.Registry(cloudMgtServiceUrl, options);
@@ -46,7 +46,7 @@ var getResourceFromTenantSpace = function (path, tenantDomain, userName) {
 };
 
 //Method to check if a given method exists in the tenant space in the registry.
-var resourceExistsInTenantSpace = function (path, tenantDomain, userName) {
+var isResourceExistingInTenantSpace = function (path, tenantDomain, userName) {
     var resourceExistsInTenantSpace = false;
         try {
             var options = configureRegistryParameters(tenantDomain, userName);

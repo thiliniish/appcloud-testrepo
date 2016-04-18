@@ -72,8 +72,8 @@ jagg.module("pricing", {
     getResourceFromTenantSpace: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").getResourceFromTenantSpace.apply(this, arguments);
     },
-    resourceExistsInTenantSpace: function () {
-        return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").resourceExistsInTenantSpace.apply(this, arguments);
+    isResourceExistingInTenantSpace: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").isResourceExistingInTenantSpace.apply(this, arguments);
     },
     configureRegistryParameters: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").configureRegistryParameters.apply(this, arguments);
