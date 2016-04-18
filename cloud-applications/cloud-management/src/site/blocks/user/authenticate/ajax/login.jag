@@ -76,7 +76,7 @@ var log = new Log();
     } else if (action == "getSectoken") {
         var email = request.getParameter("email");
         var password = request.getParameter("password");
-        var managerModule = require("manager");
+        var managerModule = jagg.module("manager");
         var username = managerModule.getUserNameFromEmail(email);
         if (session.get("TENANT_DOMAIN") != null || typeof session.get("TENANT_DOMAIN") != "undefined") {
             var sectoken = mod.getSectoken(username, password, session.get("TENANT_DOMAIN"));
