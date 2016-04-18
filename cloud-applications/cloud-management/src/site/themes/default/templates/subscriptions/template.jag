@@ -13,7 +13,7 @@ if (userName != null) {
 	//Check if user has publisher role
 	var hasPublisherRole = jagg.module("util").hasUserRole(userName,ROLE_PUBLISHER);
 	if (hasAdminRole || hasPublisherRole) {
-		log.info("The user has an admin or publisher role.");
+		log.debug("The user has an admin or publisher role.");
 		var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
 		if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
 			var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
