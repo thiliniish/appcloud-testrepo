@@ -512,7 +512,7 @@ public class ZuoraRESTUtils {
                 }
             }
         } catch (CloudBillingException e) {
-            String msg = "Error getting Product ratePlan object for " + ratePlanName;
+            String msg = "Error getting product rate plan object for " + ratePlanName;
             throw new CloudBillingException(msg, e);
         }
         return null;
