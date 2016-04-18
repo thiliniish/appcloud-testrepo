@@ -37,15 +37,15 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     }
     if (action == "updateAccount") {
         var accountData = {};
-        accountData.firstName = encoder.getSafeText(request.getParameter("firstName"));
-        accountData.lastName = encoder.getSafeText(request.getParameter("lastName"));
-        accountData.address1 = encoder.getSafeText(request.getParameter("address1"));
-        accountData.address2 = encoder.getSafeText(request.getParameter("address2"));
-        accountData.city = encoder.getSafeText(request.getParameter("city"));
-        accountData.state = encoder.getSafeText(request.getParameter("state"));
-        accountData.zipCode = encoder.getSafeText(request.getParameter("zipCode"));
-        accountData.country = encoder.getSafeText(request.getParameter("country"));
-        accountData.workEmail = encoder.getSafeText(request.getParameter("email"));
+        accountData.firstName = String(encoder.getSafeText(request.getParameter("firstName")));
+        accountData.lastName =  String(encoder.getSafeText(request.getParameter("lastName")));
+        accountData.address1 =  String(encoder.getSafeText(request.getParameter("address1")));
+        accountData.address2 =  String(encoder.getSafeText(request.getParameter("address2")));
+        accountData.city =  String(encoder.getSafeText(request.getParameter("city")));
+        accountData.state =  String(encoder.getSafeText(request.getParameter("state")));
+        accountData.zipCode =  String(encoder.getSafeText(request.getParameter("zipCode")));
+        accountData.country =  String(encoder.getSafeText(request.getParameter("country")));
+        accountData.workEmail =  String(encoder.getSafeText(request.getParameter("email")));
         responseFrom = request.getParameter("responseFrom");
         var result = mod.updateContactInfo(accountData);
         print(result);
