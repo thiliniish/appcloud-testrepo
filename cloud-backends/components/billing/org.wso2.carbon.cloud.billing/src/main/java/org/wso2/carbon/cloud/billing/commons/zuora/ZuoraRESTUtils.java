@@ -291,7 +291,7 @@ public class ZuoraRESTUtils {
             response = zuoraApi.doGet(requestUrl, null, null);
             if (response == null) {
                 throw new CloudBillingException(
-                        "Zuora api response is null, while getting product rate plans for URL" + requestUrl);
+                        "Zuora api response is null, while getting product rate plans for URL: " + requestUrl);
             }
             try {
                 JSONParser jsonParser = new JSONParser();
