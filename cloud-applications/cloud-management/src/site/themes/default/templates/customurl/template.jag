@@ -194,13 +194,13 @@
             <!--== modify section starts here ==-->
             <div class="box" id="storeUrlChangeArea" style="display:none;">
                 <div class="col-small inline-block top padding-top">
-                    <h3 class="margin-top">New URL:</h3>
+                    <h3 class="margin-top">Domain Name:</h3>
                 </div>
                 <div class="col-medium inline-block">
                     <input type="text" placeholder="Enter URL" name="url" id="storeDomain" autocomplete="off">
                     <button class="blue-button-sm" id="storeDomainVerifyBtn" onclick="verifyCustomDomain('store')">Verify</button>
                     <div id="storeVerifyUrlNotificationArea">
-                        <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the new URL here,
+                        <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the domain name here,
                         go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.pointingUrl%></strong>
                         <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>" target="_blank">Show me how >></a></span></h4>
                     </div>
@@ -274,13 +274,13 @@
             <!--== modify section starts here ==-->
             <div class="box" id="gatewayUrlChangeArea" style="display:none;">
                 <div class="col-small inline-block top padding-top">
-                    <h3 class="margin-top">New URL:</h3>
+                    <h3 class="margin-top">Domain Name:</h3>
                 </div>
                 <div class="col-medium inline-block">
                     <input type="text" placeholder="Enter URL" name="url" id="gatewayDomain" autocomplete="off" />
                     <button class="blue-button-sm" id="gatewayDomainVerifyBtn" onclick="verifyCustomDomain('gateway')">Verify</button>
                     <div id="gatewayVerifyUrlNotificationArea">
-                        <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the new URL here,
+                        <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the domain name here,
                         go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.pointingUrl%></strong>.
                         <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>" target="_blank">Show me how >></a></span></h4>
                     </div>
