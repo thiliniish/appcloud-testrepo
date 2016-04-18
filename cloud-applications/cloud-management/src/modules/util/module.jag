@@ -69,7 +69,7 @@ jagg.module("util", {
     sendEmail: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").sendEmail.apply(this, arguments);
     },
-    hasAdminOrPublisherRole: function() {
+    hasUserRole: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").hasAdminOrPublisherRole.apply(this, arguments);
     },
     hasOnlySubscriberRole: function() {

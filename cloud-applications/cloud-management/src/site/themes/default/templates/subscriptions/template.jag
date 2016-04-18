@@ -7,9 +7,12 @@ var userName = session.get("LOGGED_IN_USER");
 
 if (userName != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-	var hasAdminOrPublisherRole = jagg.module("util").hasAdminOrPublisherRole(userName);
-	log.info("The user hasAdminOrPublisherRole is "+ hasAdminOrPublisherRole);
-	if (hasAdminOrPublisherRole) {
+	//Check if user has admin role
+	var hasAdminRole = jagg.module("util").hasUserRole(userName,"admin");
+	//Check if user has publisher role
+	var hasPublisherRole = jagg.module("util").hasUserRole(userName,"publisher");
+	if (hasAdminRole || hasPublisherRole) {
+		log.info("The user has an admin or publisher role.");
 		var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
 		if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
 			var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
@@ -85,7 +88,7 @@ function subscription(type,domain) {
 				<i class="<%=types[i].id%>_disabled"></i>
 				<div class="helper_text">Coming Soon...</div>
 				<%} else {
-							if (hasAdminOrPublisherRole) {%>
+							if (hasAdminRole || hasPublisherRole) {%>
 
 				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" onclick="subscription('<%=types[i].id%>','<%=domainName%>');return true"></i></a>
 							<%} else {

@@ -75,14 +75,10 @@ var isSessionAuthenticated = function () {
 
 //method to retrieve user roles
 var getUserRoles = function (userName) {
-    var isSubscriber = false;
-    var roleCount = 0;
     var roles;
-    var result = false;
     var userRoles = [];
     var context = multitenancy.getPrivilegedCarbonContext();
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
     //the default roles assigned for all users
     var types = cloudConfig.commonRoles;
     var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
@@ -95,12 +91,10 @@ var getUserRoles = function (userName) {
     var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
     roles = realmService.getTenantUserRealm(tenantId).getUserStoreManager().doGetRoleListOfUser(tenantAwareUserName, "*");
     context.endTenantFlow();
-
     //to change the java array to a javascript array
     for (var x = 0; x < roles.length; x++) {
         userRoles[x] = roles[x];
     }
-
     //eliminating the default roles from the roleList
     for (var i = 0; i < types.length; i++) {
         for (var j = 0; j < userRoles.length; j++) {
@@ -119,7 +113,6 @@ var hasOnlySubscriberRole = function (userName) {
     var result = false;
     //Get user roles
     var userRoles = getUserRoles(userName);
-
     //checking if the user has any other role than the subscriber role
     for (var c = 0; c < userRoles.length; c++) {
         if (userRoles[c] == "subscriber") {
@@ -136,19 +129,18 @@ var hasOnlySubscriberRole = function (userName) {
     return result;
 };
 
-//method to check whether user has an admin or publisher role
-var hasAdminOrPublisherRole = function (userName) {
-    var isAdminOrPublisher = false;
+//method to check whether user has specified role
+var hasUserRole = function (userName,roleName) {
+    var hasRole = false;
     //Get user roles
     var userRoles = getUserRoles(userName);
-
-    //checking if the user has admin role
+    //checking if the user has specified role
     for (var c = 0; c < userRoles.length; c++) {
-        if (userRoles[c] == "admin" || userRoles[c] == "publisher") {
-            isAdminOrPublisher = true;
+        if (userRoles[c] == roleName) {
+            hasRole = true;
         }
     }
-    return isAdminOrPublisher;
+    return hasRole;
 };
 
 var sendBillingTrialExtendedNotification = function (tenantDomain, serviceId, endDate, customerRequest) {
