@@ -5,14 +5,16 @@ var log = new Log("site/blocks/contact/ajax/contact.jag");
 (function () {
 
     var loginStatus = jagg.isUserLoggedIn();
-    if (loginStatus.error) {
-        response.status = 401;
-        print(loginStatus);
-        return;
+    var action = request.getParameter("action");
+    if (action != null && action != "sendSupportRequest") {
+        if (loginStatus.error) {
+            response.status = 401;
+            print(loginStatus);
+            return;
+        }
     }
 
-var action = request.getParameter("action"),
-mod = jagg.module("contact"),
+var mod = jagg.module("contact"),
 site = require("/site/conf/site.json");
 
 var from = request.getParameter("from");

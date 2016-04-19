@@ -475,30 +475,32 @@ var addTenantToBilling = function (tenantId, tenantDomain) {
         var startDate;
         var billingType;
         var endDate;
-        if (subscriptions[i].serviceType === service.COMMERCIAL) {
-            billingType = type.TRIAL;
-            billingAccountStatus = status.INACTIVE;
-            startDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
-            endDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
-        } else if (subscriptions[i].serviceType === service.FREE) {
-            startDate = new Packages.java.util.Date();
-            billingAccountStatus = status.ACTIVE;
-            billingType = type.FREE;
-            endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
-        } else {
-            log.error("No service type found for: " + subscription
-                      + "in cloud_mgt config. It should be either free or commercial");
-            parameters = [tenantDomain];
-            queryString = SQL_QUERY_STRINGS.DELETE_FROM_BILLING_ACCOUNT;
-            log.info("Tenant : " + tenantDomain +" (tenant id: " + tenantId
-                     + ") deleted from BILLING_ACCOUNT table. [As a rollback operation] ");
+        if (subscriptions[i].id != DEFAULT_SUBSCRIPTION) {
+            if (subscriptions[i].serviceType === service.COMMERCIAL) {
+                billingType = type.TRIAL;
+                billingAccountStatus = status.INACTIVE;
+                startDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
+                endDate = sqlDateFormat.parse(MYSQL_MIN_DATETIME_STRING);
+            } else if (subscriptions[i].serviceType === service.FREE) {
+                startDate = new Packages.java.util.Date();
+                billingAccountStatus = status.ACTIVE;
+                billingType = type.FREE;
+                endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
+            } else {
+                log.error("No service type found for: " + subscription
+                        + "in cloud_mgt config. It should be either free or commercial");
+                parameters = [tenantDomain];
+                queryString = SQL_QUERY_STRINGS.DELETE_FROM_BILLING_ACCOUNT;
+                log.info("Tenant : " + tenantDomain + " (tenant id: " + tenantId
+                        + ") deleted from BILLING_ACCOUNT table. [As a rollback operation] ");
+                result = modDb.executeQuery(queryString, parameters);
+                throw new Error("Tenant billing account registration failure: Configuration failure ");
+            }
+            queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
+            parameters = [tenantDomain, subscription, billingType, billingAccountStatus,
+                sqlDateFormat.format(startDate), sqlDateFormat.format(endDate)];
             result = modDb.executeQuery(queryString, parameters);
-            throw new Error("Tenant billing account registration failure: Configuration failure ");
         }
-        queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
-        parameters = [tenantDomain, subscription, billingType, billingAccountStatus,
-                      sqlDateFormat.format(startDate), sqlDateFormat.format(endDate)];
-        result = modDb.executeQuery(queryString, parameters);
     }
     if(log.isDebugEnabled()){
         log.debug("Tenant : " + tenantDomain +" (tenant id: " + tenantId
@@ -572,7 +574,7 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 		changePlanData = {
 			"termType": zuoraObj.termType,
 			"autoRenew": true,
-			"invoiceTargetDate": dateFormatter.format(effectiveDate),
+			"invoiceTargetDate": String(dateFormatter.format(effectiveDate)),
 			"preview": true,
 			"previewType": "InvoiceItem"
 		};
@@ -581,21 +583,21 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 			"termType": zuoraObj.termType,
 			"autoRenew": true,
 			"invoiceCollect": Boolean(isUpgrade),
-			"invoiceTargetDate": dateFormatter.format(effectiveDate)
+			"invoiceTargetDate": String(dateFormatter.format(effectiveDate))
 		};
 	}
 	// Old plan info
 	var oldPlanInfo = [];
 	var item = {};
 	item ["ratePlanId"] = planId;
-	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+	item ["contractEffectiveDate"] = String(dateFormatter.format(effectiveDate));
 	oldPlanInfo.push(item);
 
 	// Old plan info with coupon plan
 	if (couponPlanId != null) {
 		item = {};
 		item ["ratePlanId"] = couponPlanId;
-		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+		item ["contractEffectiveDate"] = String(dateFormatter.format(effectiveDate));
 		oldPlanInfo.push(item)
 	}
 
@@ -604,12 +606,12 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 	if (newCouponProductRatePlanId != null) {
 		item = {};
 		item ["productRatePlanId"] = newCouponProductRatePlanId;
-		item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+		item ["contractEffectiveDate"] = String(dateFormatter.format(effectiveDate));
 		newPlanInfo.push(item);
 	}
 	item = {};
 	item ["productRatePlanId"] = newProductRatePlanId;
-	item ["contractEffectiveDate"] = dateFormatter.format(effectiveDate);
+	item ["contractEffectiveDate"] = String(dateFormatter.format(effectiveDate));
 	newPlanInfo.push(item);
 
 	// Add 'remove' and 'add' plan options
@@ -949,13 +951,13 @@ var populateAccountInfo = function (organizationName, accountData, metaData, eff
 		"termType": zuoraObj.termType,
 		"autoRenew": true,
 		"subscribeToRatePlans": subscribeToRatePlans,
-		"contractEffectiveDate": dateFormatter.format(effectiveDate)
+		"contractEffectiveDate": String(dateFormatter.format(effectiveDate))
 	};
 
 	data.hpmCreditCardPaymentMethodId = metaData.refId;
 	data.billToContact = accountData;
-	data.invoiceCollect= true;
-	data.invoiceTargetDate = dateFormatter.format(effectiveDate);
+	data.invoiceCollect = true;
+	data.invoiceTargetDate = String(dateFormatter.format(effectiveDate));
 	return data;
 };
 

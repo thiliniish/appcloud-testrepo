@@ -64,8 +64,11 @@
     <link rel="icon" sizes="16x16 32x32" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.ico'))%>" type="image/x-icon"/>
     <link rel="shortcut icon" sizes="16x16 32x32" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.ico'))%>" type="image/x-icon"/>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.min.js'))%>"></script>
-
-
+ <%
+    var data = jagg.data();
+    if(data.header) {
+        jagg.printData(data.header.css);
+    }%>
 </head>
 <body>
 <!--[if lt IE 7]>
@@ -106,5 +109,8 @@
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom-header.js'))%>"></script>
 
 </body>
+<% if(data.footer) {
+        jagg.printData(data.footer.js);
+    }%>
 </html>
 <% }); %>

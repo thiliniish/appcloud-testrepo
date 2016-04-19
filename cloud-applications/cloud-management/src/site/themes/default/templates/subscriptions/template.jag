@@ -23,21 +23,22 @@ if (userName != null) {
 	var subscriptionInfo = {
 	};
 	for (var i = 0; i < types.length; i++) {
-		var columnName = types[i].id;
-		var url = types[i].url;
-		var queryString =  SQL_QUERY_STRINGS.SELECT_FROM_SUBSCRIPTIONS;
-		var parameters =[columnName,domainName];
-		var isRegistered = jagg.module("database").executeQuery(queryString, parameters);
-		if(isRegistered.length>0){
-			subscriptionInfo[columnName] = isRegistered[0][columnName];
-		}else{
-			subscriptionInfo[columnName] = "true";//as a fail proof, it is assumed that tenant has subscribed to all the available clouds.
-			log.error("Subscription details were not found for "+ columnName + " of tenant "+ domainName );
+		if (types[i].id != DEFAULT_SUBSCRIPTION) {
+			var columnName = types[i].id;
+			var url = types[i].url;
+			var queryString = SQL_QUERY_STRINGS.SELECT_FROM_SUBSCRIPTIONS;
+			var parameters = [columnName, domainName];
+			var isRegistered = jagg.module("database").executeQuery(queryString, parameters);
+			if (isRegistered.length > 0) {
+				subscriptionInfo[columnName] = isRegistered[0][columnName];
+			} else {
+				subscriptionInfo[columnName] = "true";//as a fail proof, it is assumed that tenant has subscribed to all the available clouds.
+				log.error("Subscription details were not found for " + columnName + " of tenant " + domainName);
             }
-	}
-        %>
+        }
+    }%>
 
-        
+
 <script type="text/javascript">
 function subscription(type,domain) {
 	// I have not done this in a seperate thread as it is not supported by older versions of firefox and chrome.
@@ -47,7 +48,7 @@ function subscription(type,domain) {
 	        domain:domain
 	        },
 	        function (result) {
-		       
+
 	            },
 	       function (jqXHR, textStatus, errorThrown) {
 	       });
@@ -78,10 +79,9 @@ function subscription(type,domain) {
 	<div class="row">
 		<div class="">
 			<div class="col-lg-3"></div>
-			<%
-			for(var i=0;i<types.length;i++) {
-                        if(subscriptionInfo[types[i].id] == true) {
-                            %>
+            <% for (var i = 0; i < types.length; i++) {
+                if (types[i].id != DEFAULT_SUBSCRIPTION) {
+                    if (subscriptionInfo[types[i].id] == true) { %>
 			<div class="col-lg-3">
 				<%  if(types[i].id=="integration_cloud") {%>
 				<i class="<%=types[i].id%>_disabled"></i>
@@ -105,7 +105,8 @@ function subscription(type,domain) {
 			</div>
 
 			<% }
-           } %>
+           }
+        } %>
 			<input type="hidden" name="secretKey" id="secretKey" value="" /> <input
 				type="hidden" name="imagePath" id="imagePath" value="" />
 
@@ -114,6 +115,6 @@ function subscription(type,domain) {
 
 	</div>
 </div>
-<% } 
+<% }
 %>
 <% }); %>

@@ -120,6 +120,14 @@ public final class MonetizationConstants {
     public static final QName THROTTLE_ATTRIBUTES_ELEMENT = new QName(THROTTLE_NAMESPACE, "Attributes");
     public static final QName THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT = new QName(
             MonetizationConstants.THROTTLE_NAMESPACE, "BillingPlan");
+    public static final QName THROTTLE_ATTRIBUTES_MAXIMUM_COUNT_ELEMENT = new QName(
+            MonetizationConstants.THROTTLE_NAMESPACE, "MaximumCount");
+    public static final QName THROTTLE_ATTRIBUTES_UNIT_TIME_ELEMENT = new QName(
+            MonetizationConstants.THROTTLE_NAMESPACE, "UnitTime");
+    public static final String TIER_NAME = "tierName";
+    public static final String MAXIMUM_COUNT = "maximumCount";
+    public static final String UNIT_TIME = "unitTime";
+
 
     /*workflow-extensions.xml related attributes*/
     public static final String WORKFLOW_EXTENSION_URL = "/apimgt/applicationdata/workflow-extensions.xml";

@@ -1,4 +1,5 @@
 <% jagg.template("tenant/manage/add", function(inputs, outputs, jagg) { %>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/validate.organization.js'))%>"></script>
 <%
 include("/jagg/constants.jag");
 
@@ -109,6 +110,11 @@ function enable() {
         }, function(value, element) {
             return "Company name &lt;" + element.value + "&gt; is already taken. Please supply a different name for your organization."
         });
+        jQuery.validator.addMethod("validateCompanyName", function(value, element) {
+               var isValid = validateOrganizationNameAlphaNumeric(value);
+               return isValid;
+        }, "Please use only English letters, numbers and whitespaces");
+
 		$('#registerForm').validate({
 		    onfocusout: false,
 		    onkeyup : false,
@@ -119,6 +125,7 @@ function enable() {
                     minlength: 5
                 } ,
                 companyName:{
+                    validateCompanyName: true,
                     domain: true
                 }
             },
