@@ -1,0 +1,13 @@
+<%
+jagg.module("mainMenu", {
+    getBillingSubscriptionAnalysisData:function () {
+        return jagg.require(jagg.getModulesDir() + "mainMenu/mainMenu.jag").getBillingSubscriptionAnalysisData.apply(this, arguments);
+    },
+    getUserData:function () {
+        return jagg.require(jagg.getModulesDir() + "mainMenu/mainMenu.jag").getUserData.apply(this, arguments);
+    },
+    getTenantDeletionUserCount:function () {
+        return jagg.require(jagg.getModulesDir() + "mainMenu/mainMenu.jag").getTenantDeletionUserCount.apply(this, arguments);
+    }
+});
+%>

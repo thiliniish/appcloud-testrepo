@@ -1,0 +1,33 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log("site/blocks/billingStatistics/ajax/billingTable.jag");
+
+var draw = request.getParameter("draw");
+var searchValue = request.getParameter("search[value]");
+var length = request.getParameter("length");
+var start = request.getParameter("start");
+var orderColumnId = request.getParameter("order[0][column]");
+var orderColumnType = request.getParameter("order[0][dir]"); //asc or desc
+
+(function () {
+    var result, mod = jagg.module("billingStatistics");
+    try {
+        result = mod.getBillingStatusDetails(draw, searchValue,length, start, orderColumnId, orderColumnType);
+
+        if (result != null) {
+            print(result);
+        } else {
+            log.error("Could Not Update the Tenant");
+        }
+    } catch (e) {
+        log.error("Error while getting billing statistics data" + e);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while getting billing statistics data"
+        };
+    }
+}());
+%>

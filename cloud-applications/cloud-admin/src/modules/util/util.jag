@@ -1,0 +1,101 @@
+<%
+include("/jagg/jagg.jag");
+
+
+var log = new Log('/modules/util/util.jag');
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var userName =  session.get("LOGGED_IN_USER");
+
+var isUserInAdminRole = function () {
+
+    var isAdmin = session.get("IS_USER_ADMIN");
+    if (isAdmin != null){
+        return isAdmin === 'true';
+    } else {
+        var tenantInfo = session.get("TENANT_INFO");
+        var context=multitenancy.getPrivilegedCarbonContext();
+        try {
+            if (tenantInfo != null && userName != null) {
+                var tenantManager = multitenancy.getTenantManager();
+                var userNameWithoutTenant = userName.substring(0, userName.lastIndexOf('@'));
+                var tenantDomain=tenantInfo.tenantDomain;
+                var tenantId = tenantManager.getTenantId(tenantDomain);
+                context.startTenantFlow();
+                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+
+                var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+                isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(userNameWithoutTenant, "admin");
+                session.put("IS_USER_ADMIN", String(isAdmin));
+                return isAdmin;
+            } else {
+                return false;
+            }
+        } catch (e) {
+            log.error("Error while authenticating user for admin role. User: "+ userName +". Error:" +e);
+            return false;
+        } finally {
+            context.endTenantFlow();
+        }
+    }
+};
+
+var getJsonFromFile = function(pathTofile) {
+    var jsonObj = application.get(pathTofile);
+       if(jsonObj==null)  {
+        	if(log.isDebugEnabled()){
+           		log.debug("Reading Json file : " + pathTofile);
+           	}
+           try{
+               var file = new File(pathTofile);
+               file.open("r");
+               var data = file.readAll();
+               jsonObj = parse(data);
+               file.close();
+               application.put(pathTofile,jsonObj);
+           }catch (e) {
+               log.error("Error while reading file " + pathTofile + "\n" + e);
+               throw "Error while reading file " + pathTofile + "\n" + e;
+           }
+       }
+
+   	return  jsonObj;
+};
+
+var getObjFromFile = function(pathTofile) {
+    var dataObj;
+    if(log.isDebugEnabled()){
+        log.debug("Reading file : " + pathTofile);
+    }
+    try{
+        var file = new File(pathTofile);
+        file.open("r");
+        dataObj = file.readAll();
+        file.close();
+    }catch (e) {
+        log.error("Error while reading file " + pathTofile + "\n" + e);
+        throw "Error while reading file " + pathTofile + "\n" + e;
+    }
+
+   	return  dataObj;
+};
+
+var getXMLHttpRequest = function(URL,requestType,typeRequestHeaderName,typeRequestHeaderValue){
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open(requestType,URL);
+    xhr.setRequestHeader(typeRequestHeaderName,typeRequestHeaderValue);
+    xhr.send();
+    return xhr.responseText;
+
+
+};
+
+
+%>
+

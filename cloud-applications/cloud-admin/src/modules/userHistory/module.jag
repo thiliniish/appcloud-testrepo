@@ -1,0 +1,9 @@
+<%
+jagg.module("userHistory", {
+
+	checkTenantDetails:function () {
+		return jagg.require(jagg.getModulesDir() + "userHistory/userHistory.jag").checkTenantDetails.apply(this, arguments);
+	}
+
+});
+%>

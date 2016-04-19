@@ -1,0 +1,24 @@
+<%
+jagg.initializer("userActivity", {
+
+    preInitialize:function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("userActivity", "jquery-ui", "assets/css/jquery-ui.css");
+        jagg.addHeaderCSS("userActivity", "bootstrap", "assets/css/bootstrap.css");
+        jagg.addHeaderCSS("userActivity", "bootstrap", "assets/css/custom.css");
+
+        // UI related JS files
+        jagg.addFooterJS("userActivity", "jagg", "assets/js/jagg.js");
+        jagg.addFooterJS("userActivity", "jquery-ui.min", "assets/js/jquery-ui.min.js");
+        jagg.addFooterJS("userActivity", "excanvas.min", "assets/js/flot/excanvas.min.js");
+        jagg.addFooterJS("userActivity", "jquery.flot", "assets/js/flot/jquery.flot.js");
+        jagg.addFooterJS("userActivity", "jquery.flot.axislabels", "assets/js/flot/jquery.flot.axislabels.js");
+        jagg.addFooterJS("userActivity", "jquery.flot.navigate", "assets/js/flot/jquery.flot.navigate.js");
+        jagg.addFooterJS("userActivity", "bootstrap.min", "assets/js/bootstrap.min.js");
+
+        // Custom JS file
+        jagg.addFooterJS("userActivity", "user-history", "templates/userActivity/js/userActivityChart.js");
+        jagg.addFooterJS("userActivity", "user-history", "templates/userActivity/js/userActivity.js");
+    }
+});
+%>

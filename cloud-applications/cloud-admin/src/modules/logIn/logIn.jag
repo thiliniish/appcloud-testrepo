@@ -1,0 +1,42 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log("modules/logIn/logIn.jag");
+var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
+
+var logIn = function(userName,password) {
+
+	var URL=jsonObj.AdminService.CLOUD_ADMIN_SERVICE_URL;
+	var domain = 'carbon.super';
+	var carbon = require('carbon');
+	var result;
+	var server = new carbon.server.Server(URL);
+
+	try{
+		var userManager = new carbon.user.UserManager(server, domain);
+		var user = userManager.getUser(userName);
+		var authorizer = userManager.authorizer;
+		var author;
+
+		if (!server.authenticate(userName, password)) {
+			result=false;
+			return result;
+		} else {
+            author= authorizer.isUserAuthorized(userName,'/permission/admin/clouadmin','ui.execute');
+			if (author==false) {
+				result=false;
+				return result;
+			} else {
+				session.put("LOGGED_IN_USER",userName);
+				result=true;
+				return result;
+			}
+		}
+	} catch(e) {
+		log.error("Error while authenticating user : "+userName+" "+e);
+		throw new Error("Error while authenticating user : "+userName+" "+ e);
+	}
+};
+%>
+

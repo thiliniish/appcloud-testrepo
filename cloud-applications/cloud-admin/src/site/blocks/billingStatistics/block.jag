@@ -1,0 +1,6 @@
+<%
+jagg.block("billingStatistics", {
+    initialize:function (data) {
+    }
+});
+%>

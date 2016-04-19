@@ -1,0 +1,68 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log("site/blocks/billingStatistics/ajax/billingStatistics.jag");
+
+(function () {
+    var result, action = request.getParameter("action"), mod = jagg.module("billingStatistics");
+
+    if (action == "getBillingSubscriptionAnalysisData") {
+        try {
+            var dateNow = new Date();
+            var previousYearDateObj = new Date(dateNow.setMonth(dateNow.getMonth()-11));
+            var previousYearDateString = previousYearDateObj.getFullYear()+"-"+previousYearDateObj.getMonth()+"-"+previousYearDateObj.getDate();
+            result = mod.getBillingSubscriptionAnalysisData(previousYearDateString);
+
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Get Billing Statistics Details");
+            }
+        } catch (e) {
+            log.error("Error while getting Billing Statistics Details " + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while getting Billing Statistics Details"
+            };
+        }
+    }
+    if (action == "getRatePlanNames") {
+        try {
+            result = mod.getRatePlanNames(API_CLOUD);
+
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Get Rate Plan Names");
+            }
+        } catch (e) {
+            log.error("Error while getting Rate Plan Names from zuora" + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while getting rate plan names from zuora"
+            };
+        }
+    }
+    if (action == "getRatePlanList") {
+        try {
+            var selectedRatePlan = request.getParameter("selectedRatePlan");
+            result = mod.getRatePlanList(selectedRatePlan);
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Get Rate Plan List");
+            }
+        } catch (e) {
+            log.error("Error while getting Rate Plan List " + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while getting Rate Plan List from zuora"
+            };
+        }
+    }
+}());
+%>

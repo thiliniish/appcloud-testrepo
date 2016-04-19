@@ -1,0 +1,30 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("site/blocks/userHistory/ajax/userHistory.jag");
+(function () {
+	var mod, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("userHistory");
+
+	if (action == "checkTenantDetails") {
+		try {
+			var tenantDomain = request.getParameter("tenantDomain");
+
+			result = mod.checkTenantDetails(tenantDomain);
+			if(result != null ) {
+				print(result);
+			} else {
+				log.error("Could Not Get Tenant History");
+			}
+		} catch (e) {
+			log.error("HTTP request: response from User History was null.");
+			return {
+				error: true,
+				statusCode: 500,
+				message: "Error occurred while getting user history details from database"
+			};
+		}
+	}
+}());
+%>

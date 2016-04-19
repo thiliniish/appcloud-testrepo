@@ -1,0 +1,52 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site/blocks/userActivity/ajax/userActivity.jag");
+
+(function () {
+
+	var mod, action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	mod = jagg.module("userActivity");
+
+	if(action == "userActivityEmail") {
+		try {
+			var userActivityEmailValue = request.getParameter("userActivityEmailValue");
+			result = mod.userActiviytData(userActivityEmailValue);
+			if(result != null ) {
+				print(result);
+			} else {
+				log.error("Could Not get User Activity Data");
+			}
+		} catch (e) {
+			log.error("Error while getting UserActivity data, "+ e);
+			return {
+				error: true,
+				statusCode: 500,
+				message: "Error while getting UserActivity data"
+			};
+		}
+
+	}
+	if(action == "userActivityEmailCategories"){
+		try {
+			var category = request.getParameter("category");
+			var fromDate = request.getParameter("fromDate");
+			var toDate = request.getParameter("toDate");
+			var result = mod.userActivityEmailCategories(category,fromDate,toDate);
+			if(result != null ) {
+				print(result);
+			} else {
+				log.error("Could Not get User Activity Data");
+			}
+		} catch (e) {
+			log.error("Error while getting Category Activity data for "+ e);
+			return {
+				error: true,
+				statusCode: 500,
+				message: "Error while getting Category Activity data"
+			};
+		}
+	}
+}());
+%>

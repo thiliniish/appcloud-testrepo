@@ -1,0 +1,26 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("site/logIn/ajax/logIn.jag");
+
+(function () {
+	var result, action = request.getParameter("action"), mod = jagg.module("logIn");
+
+	if (action == "logIn") {
+		try {
+			var userName = request.getParameter("userName");
+			var password = request.getParameter("password");
+			result = mod.logIn(userName,password);
+				
+			if (result != null) {
+				print(result);
+			} else {
+				log.error("Coud Not Authenticating user.");
+			}
+		} catch (e) {
+			log.error("Error while Authenticating User!"+e);
+			throw new Error(e);
+		}
+	}
+}());
+%>
+

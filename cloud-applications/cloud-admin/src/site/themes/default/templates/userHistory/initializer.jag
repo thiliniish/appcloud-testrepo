@@ -1,0 +1,20 @@
+<%
+jagg.initializer("userHistory", {
+
+    preInitialize:function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("userHistory", "responsive.bootstrap", "assets/css/responsive.bootstrap.min.css");
+        jagg.addHeaderCSS("userHistory", "bootstrap", "assets/css/bootstrap.css");
+        jagg.addHeaderCSS("userHistory", "dataTables.bootstrap", "assets/css/dataTables.bootstrap.min.css");
+
+        // UI related JS files
+        jagg.addFooterJS("userHistory", "jquery.dataTables", "assets/js/dataTables/jquery.dataTables.min.js");
+        jagg.addFooterJS("userHistory", "dataTables.bootstrap", "assets/js/dataTables/dataTables.bootstrap.min.js");
+        jagg.addFooterJS("userHistory", "dataTables.responsive", "assets/js/dataTables/dataTables.responsive.min.js");
+        jagg.addFooterJS("userHistory", "responsive.bootstrap", "assets/js/responsive.bootstrap.min.js");
+
+        // Custom JS file
+        jagg.addFooterJS("userHistory", "user-history", "templates/userHistory/js/user-history.js");
+    }
+});
+%>

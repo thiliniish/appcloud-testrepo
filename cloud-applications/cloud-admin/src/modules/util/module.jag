@@ -1,0 +1,23 @@
+<%
+jagg.module("util", {
+
+    getJsonFromFile: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getJsonFromFile.apply(this, arguments);
+    },
+    getJSONHttpRequest: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getJSONHttpRequest.apply(this, arguments);
+    },
+    getXMLHttpRequest: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getXMLHttpRequest.apply(this, arguments);
+    },
+    getObjFromFile: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getObjFromFile.apply(this, arguments);
+    },
+    isUserInAdminRole: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").isUserInAdminRole.apply(this, arguments);
+    },
+    getDomainFromUsername: function(){
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getDomainFromUsername.apply(this, arguments);
+    }
+});
+%>

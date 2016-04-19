@@ -1,0 +1,94 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site/blocks/extendTrial/ajax/extendTrial.jag");
+
+(function () {
+    var result, action = request.getParameter("action"), mod = jagg.module("extendTrial");
+    var tenantDomain = null;
+    var subscription = null;
+
+    if (action == "updateTenant") {
+        try {
+            tenantDomain = request.getParameter("tenantDomain");
+            subscription = request.getParameter("subscription");
+            var selectedExtendType = request.getParameter("selection");
+            var selectedValue = request.getParameter("selectedValue");
+            var endDate= request.getParameter("endDate");
+
+            result = mod.updateTenant(tenantDomain, subscription, selectedExtendType, selectedValue, endDate);
+
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Update the Tenant");
+            }
+        } catch (e) {
+            log.error("Error while Updating Tenant " + tenantDomain + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while Updating Tenant " + tenantDomain
+            };
+        }
+    } else if (action == "checkTenant") {
+        try {
+            tenantDomain = request.getParameter("tenantDomain");
+            result = mod.checkTenant(tenantDomain);
+
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not verify the Tenant");
+            }
+        } catch (e) {
+            log.error("Error! Could Not verify Tenant " + tenantDomain + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error! Could Not verify the tenant : " + tenantDomain
+            };
+        }
+
+    } else if (action == "checkEmailExist") {
+        try {
+            var email = request.getParameter("email");
+            result = mod.checkEmailExist(email);
+
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could not get email Data");
+            }
+        } catch (e) {
+            log.error("Error while Checking Email " + email + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while Checking Email " + email
+            };
+        }
+
+    } else if (action == "getEndBillingSubscriptionDate") {
+        try {
+            tenantDomain = request.getParameter("tenantDomain");
+            subscription = request.getParameter("subscription");
+
+            result = mod.getEndBillingSubscriptionDate(tenantDomain, subscription);
+
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Get Billing subscription end date");
+            }
+        } catch (e) {
+            log.error("Error while Getting Billing subscription end date " + tenantDomain + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while Getting Billing subscription end date " + tenantDomain
+            };
+        }
+    }
+}());
+%>

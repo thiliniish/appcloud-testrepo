@@ -1,0 +1,22 @@
+<%
+jagg.initializer("billingStatistics", {
+
+    preInitialize:function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("billingStatistics", "responsive.bootstrap.min", "assets/css/responsive.bootstrap.min.css");
+        jagg.addHeaderCSS("billingStatistics", "bootstrap", "assets/css/bootstrap.css");
+        jagg.addHeaderCSS("billingStatistics", "bootstrap", "assets/css/dataTables.bootstrap.min.css");
+
+        // UI relatedJS files
+        jagg.addFooterJS("billingStatistics", "jquery-ui.min", "assets/js/jquery-ui.min.js");
+        jagg.addFooterJS("billingStatistics", "jquery.dataTables.min", "assets/js/dataTables/jquery.dataTables.min.js");
+        jagg.addFooterJS("billingStatistics", "dataTables.bootstrap", "assets/js/dataTables/dataTables.bootstrap.min.js");
+        jagg.addFooterJS("billingStatistics", "dataTables.responsive", "assets/js/dataTables/dataTables.responsive.min.js");
+        jagg.addFooterJS("billingStatistics", "responsive.bootstrap.min", "assets/js/responsive.bootstrap.min.js");
+
+
+        // Custom JS file
+        jagg.addFooterJS("billingStatistics", "billing-statistics", "templates/billingStatistics/js/billing-statistics.js");
+    }
+});
+%>

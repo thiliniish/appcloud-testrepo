@@ -1,0 +1,198 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log();
+
+var carbon = require('carbon');
+var server = carbon.server;
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+var getXMLHttpRequest = jagg.module("util").getXMLHttpRequest;
+var requestType = "GET";
+var typeRequestHeaderName = 'Accept';
+var typeRequestHeaderValue = 'application/json';
+
+var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
+var getBillingStatusData = "BillingStatistics.HTTPEndpoint/GetBillingStatusData?";
+var getBillingStatusSearchData = "BillingStatistics.HTTPEndpoint/GetBillingStatusSearch?";
+var getBillingStatusAnalysis = "BillingStatistics.HTTPEndpoint/getBillingSubscriptionAnalysisData?";
+var getRatePlanListURL = "BillingStatistics.HTTPEndpoint/getRatePlanList?";
+var getTenantCount = "BillingStatistics.HTTPEndpoint/getTenantCount?";
+var getSearchTenantCount = "BillingStatistics.HTTPEndpoint/getSearchTenantCount?";
+
+var getBillingStatusDetails = function (draw, searchValue,length, start, orderColumnId, orderColumnType) {
+
+    var dataArray = [];
+    var dataJSON;
+    var data;
+    var object;
+    var dataLength;
+    var columns = ["TENANT_DOMAIN", "SUBSCRIPTION", "TYPE","STATUS","START_DATE","END_DATE"];
+
+    var URL = jsonObj.ServerUrl.DataServices_Server + getTenantCount;
+    var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+    if (response != null) {
+        var responseJSON = JSON.parse(response);
+        var totalRecords = responseJSON.Data.data.COUNT;
+
+        if(searchValue=="") {
+            URL = jsonObj.ServerUrl.DataServices_Server + getBillingStatusData + "COLUMN=" + columns[orderColumnId] +
+                    "&DIR=" + orderColumnType + "&START=" + start + "&LENGTH=" + length;
+            response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+            if(response!=null){
+                dataJSON = JSON.parse(response);
+                dataLength = dataJSON.Data.data.length;
+                for(var i=0; i<dataLength; i++){
+                    data = dataJSON.Data.data[i];
+                    object = [data.TENANT_DOMAIN, data.SUBSCRIPTION, data.TYPE, data.STATUS, data.START_DATE,
+                        data.END_DATE];
+                    dataArray.push(object);
+                }
+                var obj = {
+                    "draw": draw,
+                    "recordsTotal": totalRecords,
+                    "recordsFiltered": totalRecords,
+                    "data": dataArray };
+                return obj;
+            } else {
+                log.error("Error while getting cloud billing status data from database");
+                return {
+                    error: true,
+                    statusCode: 500,
+                    message: "Error while getting cloud billing status data from database"
+                };
+            }
+        } else {
+            var searchValueWithoutSpaecialCharactors = searchValue.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+            searchValue = searchValueWithoutSpaecialCharactors + "%25";
+
+            URL = jsonObj.ServerUrl.DataServices_Server + getSearchTenantCount + "SEARCH_1=" +
+                    searchValue + "&SEARCH_2=" + searchValue + "&SEARCH_3=" + searchValue + "&SEARCH_4=" + searchValue +
+                    "&SEARCH_5=" + searchValue + "&SEARCH_6=" + searchValue;
+            response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+            var filteredDataJSON = JSON.parse(response);
+            var recordsFiltered = filteredDataJSON.Data.data.COUNT;
+
+            URL = jsonObj.ServerUrl.DataServices_Server + getBillingStatusSearchData + "SEARCH_1=" +
+                    searchValue + "&SEARCH_2=" + searchValue + "&SEARCH_3=" + searchValue + "&SEARCH_4=" + searchValue +
+                    "&SEARCH_5=" + searchValue + "&SEARCH_6=" + searchValue + "&START=" + start + "&LENGTH=" + length;
+            response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+            if (response != null) {
+                dataJSON = JSON.parse(response);
+                if(dataJSON.Data.data != undefined) {
+                    dataLength = dataJSON.Data.data.length;
+                    if (dataLength != undefined) {
+                        for (var i = 0; i < dataLength; i++) {
+                            data = dataJSON.Data.data[i];
+                            object = [data.TENANT_DOMAIN, data.SUBSCRIPTION, data.TYPE, data.STATUS, data.START_DATE,
+                                data.END_DATE];
+                            dataArray.push(object);
+                        }
+                    } else {
+                        data = dataJSON.Data.data;
+                        object = [data.TENANT_DOMAIN, data.SUBSCRIPTION, data.TYPE, data.STATUS, data.START_DATE,
+                            data.END_DATE];
+                        dataArray.push(object);
+                    }
+
+                    var obj = {
+                        "draw": draw,
+                        "recordsTotal": totalRecords,
+                        "recordsFiltered": recordsFiltered,
+                        "data": dataArray
+                    };
+                    return obj;
+                } else {
+                    return {
+                        "draw": draw,
+                        "recordsTotal": totalRecords,
+                        "recordsFiltered": recordsFiltered,
+                        "data": dataArray
+                    };
+                }
+            } else {
+                log.error("Error while getting cloud billing status data from database");
+                return {
+                    error: true,
+                    statusCode: 500,
+                    message: "Error while getting cloud billing status data from database"
+                };
+            }
+        }
+    }
+};
+
+
+var getBillingSubscriptionAnalysisData = function (startDate) {
+
+    var URL = jsonObj.ServerUrl.DataServices_Server + getBillingStatusAnalysis+ "START_DATE=" + startDate;
+    var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data : response
+        };
+    } else {
+        log.error("Error while getting billing analysis data");
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while getting billing analysis data."
+        };
+    }
+};
+
+var getRatePlanNames = function (APICloud) {
+
+    var ratePlanJSONArray =  JSON.parse(billingService.getProductRatePlans(APICloud));
+    var planNames= [];
+    for(var i = 0; i < ratePlanJSONArray.length; i++) {
+        var obj = ratePlanJSONArray[i];
+        var name =obj.name;
+        planNames.push(name);
+    }
+    if (planNames != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data : planNames
+        };
+    } else {
+        log.error("Error while getting rate plan names from zuora");
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while getting rate plan names from zuora"
+        };
+    }
+};
+
+var getRatePlanList = function (selectedRatePlan) {
+
+    var ratePlanJSONObj =  billingService.getProductRatePlanObject(API_CLOUD, selectedRatePlan);
+    var id = String(ratePlanJSONObj.get("id"));
+
+    var URL = jsonObj.ServerUrl.DataServices_Server + getRatePlanListURL + "PRODUCT_RATE_PLAN_ID=" + id;
+    var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data : response
+        };
+    } else {
+        log.error("Error while getting rate plan object from zuora for given rate plan name:" + selectedRatePlan);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while getting rate plan object from zuora for given rate plan name:" + selectedRatePlan
+        };
+    }
+};
+%>

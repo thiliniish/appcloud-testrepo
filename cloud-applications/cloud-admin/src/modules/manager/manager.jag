@@ -1,0 +1,25 @@
+<%
+include("/jagg/jagg.jag");
+include("/modules/database/dataaccess.jag");
+
+// used for logging
+var log = new Log("modules/manager/manager.jag");
+var carbon = require('carbon');
+var server = carbon.server;
+var clock = new Date();
+
+/**
+ * Resolve tenantId from tenantDomain by using carbon TenantManager.
+ * @param tenantDomain
+ * @return {*}
+ */
+var getTenantId = function (tenantDomain) {
+    var carbon = require('carbon');
+    var tenantManager = carbon.multitenancy.getTenantManager();
+    return tenantManager.getTenantId(tenantDomain);
+};
+
+
+
+
+%>

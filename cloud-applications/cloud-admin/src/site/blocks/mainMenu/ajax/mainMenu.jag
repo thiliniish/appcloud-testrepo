@@ -1,0 +1,64 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site/blocks/mainMenu/ajax/mainMenu.jag");
+(function () {
+    var result, action = request.getParameter("action"),
+            mod = jagg.module("mainMenu");
+    if (action == "getBillingSubscriptionAnalysisData") {
+        try {
+            var dateNow = new Date();
+            var previousYearDateObj = new Date(dateNow.setMonth(dateNow.getMonth()-11));
+            var previousYearDateString = previousYearDateObj.getFullYear()+"-"+previousYearDateObj.getMonth()+"-"+previousYearDateObj.getDate();
+            result = mod.getBillingSubscriptionAnalysisData(previousYearDateString);
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Get Billing subscription analysis Details");
+            }
+        } catch (e) {
+            log.error("Error while getting Billing Subscription Analysis Details " + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while getting Billing Subscription Analysis Details"
+            };
+        }
+    }
+    if (action == "getUserData") {
+        try {
+           result = mod.getUserData();
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Get User Data");
+            }
+        } catch (e) {
+            log.error("Error while getting User data " + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while getting User data From billing table"
+            };
+        }
+    }
+    if (action == "getTenantDeletionUserCount") {
+        try {
+           result = mod.getTenantDeletionUserCount();
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Get Tenant Deletion User Count");
+            }
+        } catch (e) {
+            log.error("Error while getting Tenant Deletion User Count " + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while getting Tenant Deletion User Count"
+            };
+        }
+    }
+
+}());
+%>
