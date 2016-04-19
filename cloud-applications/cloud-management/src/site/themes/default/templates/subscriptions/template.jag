@@ -8,10 +8,11 @@ var userName = session.get("LOGGED_IN_USER");
 
 if (userName != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+	var modUserManagement = jagg.module("user/management");
 	//Check if user has admin role
-	var hasAdminRole = jagg.module("util").hasUserRole(userName,ROLE_ADMIN);
+	var hasAdminRole = modUserManagement.hasUserRole(userName,ROLE_ADMIN);
 	//Check if user has publisher role
-	var hasPublisherRole = jagg.module("util").hasUserRole(userName,ROLE_PUBLISHER);
+	var hasPublisherRole = modUserManagement.hasUserRole(userName,ROLE_PUBLISHER);
 	if (hasAdminRole || hasPublisherRole) {
 		log.debug("The user has an admin or publisher role.");
 		var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");

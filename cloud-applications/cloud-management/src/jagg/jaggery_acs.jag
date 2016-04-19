@@ -73,7 +73,8 @@ include("/modules/database/sql.jag");
 
             var type = cloudConfig.subscriptions.type;
             var storeUrl = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
-            var isOnlySubscribedUser = jagg.module("util").hasOnlySubscriberRole(session.get("LOGGED_IN_USER"));
+            var modUserManagement = jagg.module("user/management");
+            var isOnlySubscribedUser = modUserManagement.hasOnlySubscriberRole(session.get("LOGGED_IN_USER"));
             if (isOnlySubscribedUser) {
                 response.sendRedirect(storeUrl);
             } else {

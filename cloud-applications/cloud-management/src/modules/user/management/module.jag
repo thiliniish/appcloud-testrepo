@@ -1,0 +1,10 @@
+<%
+jagg.module("user/management", {
+    hasUserRole: function() {
+        return jagg.require(jagg.getModulesDir() + "user/management/management.jag").hasUserRole.apply(this, arguments);
+    },
+    hasOnlySubscriberRole: function() {
+        return jagg.require(jagg.getModulesDir() + "user/management/management.jag").hasOnlySubscriberRole.apply(this, arguments);
+    }
+});
+%>
