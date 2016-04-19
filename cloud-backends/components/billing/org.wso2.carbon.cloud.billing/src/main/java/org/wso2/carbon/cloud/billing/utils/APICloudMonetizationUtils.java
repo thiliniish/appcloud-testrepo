@@ -329,24 +329,7 @@ public final class APICloudMonetizationUtils {
     }
 
     /**
-<<<<<<< HEAD
-     * Retrieve the list of throttling tiers of a given tenant
-     *
-     * @param tenantDomain tenant domain
-     * @return list of throttling tier IDs
-     * @throws CloudMonetizationException
-     */
-    public static JSONArray getThrottlingTiersOfTenant(String tenantDomain)
-            throws CloudMonetizationException {
-        try {
-            Resource tiersXmlResource = CloudBillingUtils.getRegistryResource(tenantDomain,
-                                                                              MonetizationConstants.TIERS_XML_URL);
-            if (tiersXmlResource != null) {
-                // Get the content of the tiers.xml
-                String content = new String((byte[]) tiersXmlResource.getContent());
-                JSONArray throttlingTiersList = new JSONArray();
-=======
-     * Retrive the list of tiers of a given tenant
+     * Retrieve the list of tiers of a given tenant
      *
      * @param tenantDomain
      * @return json object array of tiers
@@ -360,7 +343,6 @@ public final class APICloudMonetizationUtils {
                 String content =
                         new String((byte[]) tiersXmlResource.getContent(), Charset.forName(BillingConstants.ENCODING));
                 JsonArray tierArray = new JsonArray();
->>>>>>> 102e91938ed76c95508ba42017b44a210838df35
                 OMElement element = AXIOMUtil.stringToOM(content);
                 OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
                 Iterator policies = assertion.getChildrenWithName(MonetizationConstants.POLICY_ELEMENT);
@@ -371,21 +353,6 @@ public final class APICloudMonetizationUtils {
                     if (MonetizationConstants.UNAUTHENTICATED.equalsIgnoreCase(tierName)) {
                         continue;
                     }
-<<<<<<< HEAD
-                    throttlingTiersList.add(tierName);
-                }
-                return throttlingTiersList;
-            } else {
-                throw new CloudMonetizationException(
-                        "Registry tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
-            }
-        } catch (CloudBillingException | RegistryException | XMLStreamException e) {
-            throw new CloudMonetizationException("Error occurred while getting tiers of tenant: " + tenantDomain + ".",
-                                                 e);
-        }
-    }
-
-=======
                     OMElement tier = policy.getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
                                            .getFirstChildWithName(MonetizationConstants.THROTTLE_CONTROL_ELEMENT)
                                            .getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT);
@@ -413,8 +380,6 @@ public final class APICloudMonetizationUtils {
         }
     }
 
-
->>>>>>> 102e91938ed76c95508ba42017b44a210838df35
         /**
          * @param tenantDomain  tenant domain
          * @param accountNumber account number
