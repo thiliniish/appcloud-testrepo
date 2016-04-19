@@ -9,6 +9,7 @@
             <li>
                 <a ><i class="fa fa-cloud"></i> API cloud</a>
                 <ul>
+                     <% if (inputs.monetizationEnabledStatus) { %>
                     <li>
                         <a href="team_initial.html"><i class="fa fa-cogs"></i> Plans</a>
                     </li>
@@ -18,6 +19,11 @@
                     <li>
                         <a href="../pages/subscriber-usage.jag"><i class="fa fa-pie-chart"></i> Statistics</a>
                     </li>
+                    <% } else { %>
+                        <li>
+                        <a href="../pages/monetization-enable.jag"><i class="fa fa fa-plus"></i> Enable</a>
+                    </li>
+                    <% } %>
                 </ul>
             </li>
         </ul>

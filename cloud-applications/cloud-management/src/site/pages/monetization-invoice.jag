@@ -20,9 +20,12 @@ var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
     }
 
     var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    var monetizationEnabledStatus = false;
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
         response.sendRedirect("../pages/index.jag");
         return;
+    } else {
+        monetizationEnabledStatus = isMonetizationEnabledObj.monetizationEnabled;
     }
 
     jagg.render({
@@ -54,7 +57,10 @@ var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
                         ],
                         "tablinks": [
                             {
-                                "name": "tablinks"
+                                "name": "tablinks",
+                                "inputs": {
+                                    "monetizationEnabledStatus": monetizationEnabledStatus
+                                }
                             }
                         ]
                     }
