@@ -2,7 +2,5 @@
 jagg.block("extendTrial", {
     initialize:function (data) {
     }
-
-
 });
 %>

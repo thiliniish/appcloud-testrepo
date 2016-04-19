@@ -2,7 +2,5 @@
 jagg.block("mainMenu", {
     initialize:function (data) {
     }
-
-
 });
 %>

@@ -1,12 +1,7 @@
 <%
-
 var ROLE_ADMIN = "admin";
 var API_CLOUD = "API Cloud";
 var TENANT_DOMAIN = "tenantDomain";
 var WSO2 = "wso2";
 var LOG_IN_PAGE = "site/pages/logIn.jag";
-
-
-
-
 %>

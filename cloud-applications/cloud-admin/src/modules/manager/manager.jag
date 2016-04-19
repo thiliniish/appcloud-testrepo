@@ -18,8 +18,4 @@ var getTenantId = function (tenantDomain) {
     var tenantManager = carbon.multitenancy.getTenantManager();
     return tenantManager.getTenantId(tenantDomain);
 };
-
-
-
-
 %>

@@ -92,10 +92,5 @@ var getXMLHttpRequest = function(URL,requestType,typeRequestHeaderName,typeReque
     xhr.setRequestHeader(typeRequestHeaderName,typeRequestHeaderValue);
     xhr.send();
     return xhr.responseText;
-
-
 };
-
-
 %>
-

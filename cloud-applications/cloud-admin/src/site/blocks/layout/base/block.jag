@@ -1,7 +1,6 @@
 <%
 jagg.block("layout/base", {
     initialize:function (data) {
-
     },
     
     getInputs:function () {
@@ -32,9 +31,5 @@ jagg.block("layout/base", {
             "footer"
         ];
     }
-
-
-
-
 });
 %>

@@ -157,5 +157,3 @@ var getDateSQLDateFormat = function (dateObject) {
 };
 
 %>
-
-
