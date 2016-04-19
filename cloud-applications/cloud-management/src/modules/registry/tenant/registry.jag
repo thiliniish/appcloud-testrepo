@@ -36,7 +36,7 @@ var getResourceFromTenantSpace = function (path, tenantDomain, username) {
     }
     if (isAuthenticated) {
         try {
-            var resourcExistsResult = resourceExistsInTenantSpace(path, tenantDomain, username);
+            var resourcExistsResult = isResourceExistingInTenantSpace(path, tenantDomain, username);
             if (resourcExistsResult.resourceExistsInTenantSpace) {
                 var options = configureRegistryParameters(tenantDomain, username);
                 registry = new carbon.registry.Registry(serverUrl, options);
@@ -131,7 +131,7 @@ var updateRegistryFile = function (path, contentToAdd, mediaType, tenantDomain, 
 };
 
 //Method to check if a given resource exists in the tenant space in the registry.
-var resourceExistsInTenantSpace = function (path, tenantDomain, username) {
+var isResourceExistingInTenantSpace = function (path, tenantDomain, username) {
     var message = "Error while accessing tenant space registry resource file: " + path + " for the tenant " + username;
     var resourceExistsInTenantSpace = false;
     var result = {
