@@ -15,11 +15,9 @@
     var actionString;
     if (success != null && "true" == success) {
         if (cardType != null && cardType == "secondary-card") {
-            var form = $('<form action="manage-account.jag?tenant=' + tenantDomain + '"' + 'method="post">' +
-                    '<input type="hidden" name="action" value="viewPaymentMethod"/>' +
-                    '</form>');
-            $('body').append(form);
-            $(form).submit();
+            actionString = "&action=viewPaymentMethod&";
+            window.top.location.href = "../../../../site/pages/pricing/manage-account.jag?tenant=" +
+                    encodeURIComponent(tenant) + actionString + window.location.search.substring(1)
         } else {
             actionString = "&action=createAccount&";
             window.top.location.href = "../../../../site/pages/pricing/manage-account.jag?tenant=" +

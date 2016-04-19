@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
@@ -393,6 +394,18 @@ public class CloudBillingService extends AbstractAdmin {
             LOGGER.error(message, ex);
             throw new CloudBillingException(message, ex);
         }
+    }
+
+    /**
+     * Get product rate plan object from zuora for rate plan name
+     *
+     * @param productName product name
+     * @param ratePlanName rate plan name
+     * @return Json object of product rate plan for given product rate plan name
+     * @throws CloudBillingException
+     */
+    public JSONObject getProductRatePlanObject(String productName, String ratePlanName) throws CloudBillingException {
+        return ZuoraRESTUtils.getProductRatePlanObject(productName, ratePlanName);
     }
 
     /**
