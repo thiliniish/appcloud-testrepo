@@ -4,19 +4,19 @@
     var cloudMgtUrl = cloudConfig.ServerUrls.cloudmgt;
     var isSessionAuthenticated = jagg.module("util").isSessionAuthenticated();
     if (isSessionAuthenticated) {
-        var userName = session.get("LOGGED_IN_USER");
+        var username = session.get("LOGGED_IN_USER");
         var tenantDomain = jagg.module("manager").getTenantDomain();
         var documentationLink = cloudConfig.documentation.selfSignUpDocumentationLink;
         var type = cloudConfig.subscriptions.type;
         var publisherUrl = type[1].urls.cloudTypeUrl;
         var storeUrl = type[1].urls.storeUrl + "/?tenant=" + tenantDomain;
-        var isSignupConfigured = (jagg.module("selfSignup").checkSignupConfiguredInRegistry(userName)).trim();
+        var signupConfigResult = jagg.module("selfSignup").checkSignupConfiguredInRegistry(username);
         jagg.includeBlock("page/messages", null);
         %>
 
   <script type="text/javascript">
      function doSubmit() {
-            var userName = $("#userName").attr('value');
+            var username = $("#username").attr('value');
             var publisherUrl = $("#publisherUrl").attr('value');
             var cloudMgtUrl = $("#cloudMgtUrl").attr('value');
             var userPassword = $("#password").attr('value');
@@ -28,23 +28,24 @@
 
                   jagg.post("../blocks/selfSignup/ajax/configure.jag", {
                       action:"checkSignUpConfiguredForUser",
-                      userName:userName,
+                      username:username,
                       userPassword:userPassword,
                       fromAddress:fromAddress,
                       contactEmail:contactEmail,
                       signupType:signupType
                   },
                   function (result) {
+                  var configResult = JSON.parse(result).response;
                   document.getElementById("spinner").style.display = 'none';
 
                   //if the feature has already been configured.
-                  if (result.trim() == "configured") {
+                  if ("configured" == configResult) {
                       $('#btn_submit').attr('disabled',true);
                           jagg.message({content:'Self signup is already enabled.', type:'error', cbk:function() {
                            window.location.href = publisherUrl;
                            }
                           });
-                  } else if (result.trim() == "signUpConfigured") {
+                  } else if ("signUpConfigured" == configResult) {
                         var docLink = $("#docLink").attr('value');
                         var publisherUrl = $("#publisherUrl").attr('value');
                         var storeUrl = $("#storeUrl").attr('value');
@@ -63,7 +64,7 @@
                         $(".helper_text h5").css({'font-size':'17px', 'text-align':'left','color':'black'});
                         $("#helper_text").hide();
                         $("#success-message").show();
-                   } else if (result.trim() == "resourcePending") {
+                   } else if ("resourcePending" == configResult) {
                         jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.', type:'success', cbk:function() {
                           window.location.href = publisherUrl;
                           }
@@ -86,7 +87,7 @@
         //function to disable the form attributes
         function disableFormAttributes() {
             $('#btn_submit').attr('disabled',true);
-            $('#userName').attr('disabled',true);
+            $('#username').attr('disabled',true);
             $('#password').attr('disabled',true);
             $('#fromAddress').attr('disabled',true);
             $('#contactEmail').attr('disabled',true);
@@ -110,13 +111,13 @@
         $(document).ready(function($){
             var clickwithblur = false;
             jQuery.validator.addMethod("validatePassword", function(value) {
-                var userName = $("#userName").attr('value');
+                var username = $("#username").attr('value');
                 var isValid = false;
                 $.ajax({ url: "../blocks/user/authenticate/ajax/login.jag",
             	     type: "POST",
                      data: {
                         action:"validatePassword",
-                        userName:userName,
+                        userName:username,
                         password:value
                       },
                      async: false,
@@ -196,7 +197,7 @@
         <div class="row">
             <div class="col-lg-12">
     <%
-        if (isSignupConfigured == true || isSignupConfigured.trim() == "true") {%>
+        if (signupConfigResult.signUpConfigured == true || "true".equals(signupConfigResult.signUpConfigured.trim())) {%>
             <h1>Self-Signup Successfully Configured</h1>
              <div class="helper_text" id="success-message">
                  <p id="success_helper_content"></p>
@@ -233,7 +234,7 @@
         </div>
        </div>
      </div>
-          <% if (isSignupConfigured == "resourcePending") {%>
+          <% if ("resourcePending".equals(signupConfigResult.signUpConfigured)) {%>
     <div class="container content-section-wrapper">
         <form>
             <div class="row">
@@ -250,7 +251,7 @@
                       </form>
                 </div>
                     <%
-              } else { %>
+        } else { %>
    <div class="container content-section-wrapper">
     <form class='form-horizontal' id='selfSignupForm' role='form'>
       <div class="row">
@@ -299,8 +300,8 @@
                </div>
             </div>
             </br>
-            <input type="hidden" name="userName" id="userName" value="<%=
-            userName
+            <input type="hidden" name="username" id="username" value="<%=
+            username
             %>"/>
          <input type="hidden" name="docLink" id="docLink" value="<%=
             documentationLink
@@ -322,6 +323,5 @@
     } else {
         log.error("Session is not authenticated, Prompted to log in");
         response.sendRedirect(cloudMgtUrl);
-      }
+    }
 }); %>
-

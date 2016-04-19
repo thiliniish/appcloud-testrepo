@@ -1,7 +1,6 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
-include("/jagg/config_reader.jag");
 
 var log = new Log('modules/registry/tenant/registry.jag');
 var carbon = require('carbon');
@@ -10,93 +9,173 @@ var multitenancy = carbon.multitenancy;
 var sessionId = session.getId();
 var isAuthenticated = jagg.module("util").isSessionAuthenticated();
 var registry = "";
-var response = "error";
 var serverUrl = cloudConfig.ServerUrls.cloudmgtServices.toString();
-var signupConfigFilePath = "/_system/governance/apimgt/applicationdata/sign-up-config.xml";
-var workflowFileRegPath = "/_system/governance/apimgt/applicationdata/workflow-extensions.xml";
-
 
 //Method to configure tenant specific parameters to pass to the registry.
-var configureRegistryParameters = function (tenantDomain, userName) {
+var configureRegistryParameters = function (tenantDomain, username) {
     try {
         var tenantManager = multitenancy.getTenantManager();
         var tenantId = tenantManager.getTenantId(tenantDomain);
         var options = {system: true, domain: tenantDomain, tenantId: tenantId};
     } catch (e) {
-        log.error("Error while configuring the registry properties for the tenant " + userName + ":" + e.message);
+        log.error("Error while configuring the registry properties for the tenant " + username + ":" + e.message);
         log.error(e);
-        throw Error(e);
     }
     return options;
 };
 
 //Method to retrieve the resource in the tenant's space in the registry.
-var getResourceFromTenantSpace = function (path, tenantDomain, userName) {
+var getResourceFromTenantSpace = function (path, tenantDomain, username) {
+    var message = "Error while retrieving tenant space registry resource file: " + path + " for the user " + username;
     var response = "error";
+    var result = {
+        error: true,
+        message: message,
+        response: response,
+        statusCode: 500
+    }
     if (isAuthenticated) {
         try {
-            var resourcExists = resourceExistsInTenantSpace(path, tenantDomain, userName);
-            if (resourcExists) {
-                var options = configureRegistryParameters(tenantDomain, userName);
+            var resourcExistsResult = resourceExistsInTenantSpace(path, tenantDomain, username);
+            if (resourcExistsResult.resourceExistsInTenantSpace) {
+                var options = configureRegistryParameters(tenantDomain, username);
                 registry = new carbon.registry.Registry(serverUrl, options);
                 response = registry.get(path);
+                result = {
+                    error: false,
+                    message: resourcExistsResult.message,
+                    response: response,
+                    statusCode: 200
+                }
             } else {
-                log.error("The resource does not exist in the path : " + path + " for the tenant " + userName);
+                message = "The resource does not exist in the path : " + path + " for the tenant " + username
+                log.error(message);
                 response = "resourcePending";
+                result = {
+                    error: true,
+                    message: message,
+                    response: response,
+                    statusCode: 404
+                }
             }
         } catch (e) {
-            log.error("Error while retrieving tenant space registry resource file: " + path + " for the tenant " + userName + ":" + e.message);
+            message = message + ", error: " + e.message;
+            log.error(message);
             log.error(e);
-            throw Error(e);
+            result = {
+                error: true,
+                message: message,
+                response: response,
+                statusCode: 500
+            }
         }
     } else {
-        log.warn("Tenant " + userName + " is not authenticated ");
-        response = "error";
+        message = "User " + username + " is not authenticated ";
+        log.warn(message);
+        result = {
+            error: true,
+            message: message,
+            response: response,
+            statusCode: 401
+        }
+
     }
-    return response;
+    return result;
 };
 
 //method to add a file to the registry.
-var updateRegistryFile = function (path, contentToAdd, mediaType, tenantDomain, userName) {
-    var resourceAddedToRegistry = false;
+var updateRegistryFile = function (path, contentToAdd, mediaType, tenantDomain, username) {
+    var message = "Error while adding the resource file: " + path + " to the tenant space registry for the tenant " + username;
+    var result = {
+        error: true,
+        message: message,
+        statusCode: 500
+    }
     if (isAuthenticated) {
         try {
-            var options = configureRegistryParameters(tenantDomain, userName);
+            var options = configureRegistryParameters(tenantDomain, username);
             registry = new carbon.registry.Registry(serverUrl, options);
             var resource = {
                 content: contentToAdd,
                 mediaType: mediaType
             };
             registry.put(path, resource);
-            log.info("Successfully updated the registry file " + mediaType + " for the tenant " + userName);
-            resourceAddedToRegistry = true;
+            message = "Successfully updated the registry file " + mediaType + " for the user " + username;
+            log.info(message);
+            result = {
+                error: false,
+                message: message,
+                statusCode: 200
+            }
         } catch (e) {
-            log.error("Error while adding the resource file: " + path + " to the tenant space registry for the tenant " + userName + ":" + e.message);
+            message = message + ", error:" + e.message;
+            log.error(message);
             log.error(e);
-            throw Error(e);
+            result = {
+                error: true,
+                message: message,
+                statusCode: 500
+            }
         }
     } else {
-        log.warn("Tenant " + userName + " is not authenticated ");
+        message = "User " + username + " is not authenticated "
+        log.warn(message);
+        result = {
+            error: true,
+            message: message,
+            statusCode: 401
+        }
+
     }
-    return resourceAddedToRegistry;
+    return result;
 };
 
-//Method to check if a given method exists in the tenant space in the registry.
-var resourceExistsInTenantSpace = function (path, tenantDomain, userName) {
+//Method to check if a given resource exists in the tenant space in the registry.
+var resourceExistsInTenantSpace = function (path, tenantDomain, username) {
+    var message = "Error while accessing tenant space registry resource file: " + path + " for the tenant " + username;
     var resourceExistsInTenantSpace = false;
+    var result = {
+        error: true,
+        message: message,
+        resourceExistsInTenantSpace: resourceExistsInTenantSpace,
+        statusCode: 500
+    }
+
     if (isAuthenticated) {
         try {
-            var options = configureRegistryParameters(tenantDomain, userName);
+            var options = configureRegistryParameters(tenantDomain, username);
             registry = new carbon.registry.Registry(serverUrl, options);
+            message = "Resource exists in the tenant space for the user " + username;
             resourceExistsInTenantSpace = registry.exists(path);
+            result = {
+                error: false,
+                message: message,
+                resourceExistsInTenantSpace: resourceExistsInTenantSpace,
+                statusCode: 200
+            }
         } catch (e) {
-            log.error("Error while accessing tenant space registry resource file: " + path + " for the tenant " + userName + ":" + e.message);
+            message = message + + ", error:" + e.message
+            log.error(message);
             log.error(e);
-            throw Error(e);
+            result = {
+                error: true,
+                message: message,
+                resourceExistsInTenantSpace: resourceExistsInTenantSpace,
+                statusCode: 500
+            }
+
         }
     } else {
-        log.warn("Tenant " + userName + " is not authenticated ");
+        message = "User " + username + " is not authenticated ";
+        log.warn(message);
+        result = {
+            error: true,
+            message: message,
+            resourceExistsInTenantSpace: resourceExistsInTenantSpace,
+            statusCode: 401
+        }
     }
-    return resourceExistsInTenantSpace;
+    return result;
 };
+
 %>

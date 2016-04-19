@@ -12,42 +12,79 @@ var selfSignUpDefaultClass = cloudConfig.selfSignUpProperties.selfSignUpDefaultC
 var selfSignUpApprovalClass = cloudConfig.selfSignUpProperties.selfSignUpApprovalClass;
 
 //Method to check if the self sign up feature is enabled in the registry.
-var checkSignupConfiguredInRegistry = function (userName) {
+var checkSignupConfiguredInRegistry = function (username) {
     var carbon = require('carbon');
     var tenantDomain = jagg.module("manager").getTenantDomain();
-    var result = "error";
+    var message = "Error while checking if self sign up has been configured for the user" + username;
+    var response = "error";
+    var result = {
+        error: true,
+        message: message,
+        signUpConfigured: response,
+        statusCode: 500
+    }
     try {
-        var response = registryModule.getResourceFromTenantSpace(signupConfigFilePath, tenantDomain, userName);
-        if (response != "error" && response != "resourcePending") {
+        var registryResources = registryModule.getResourceFromTenantSpace(signupConfigFilePath, tenantDomain, username);
+        if (!registryResources.error) {
             response.contentType = "text/xml";
-            var configContent = (response.content).toString();
+            var configContent = ((registryResources.response).content).toString();
             var selfSignUp = new XML(configContent);
-            result = selfSignUp.EnableSignup.toString();
-        } else if (response == "resourcePending") {
-            result = "resourcePending";
-        } else {
-            result = "error";
+            var signUpConfigResult = selfSignUp.EnableSignup.toString();
+            message = "Successfully retrieved the registry resources for the user " + username;
+            result = {
+                error: false,
+                message: message,
+                signUpConfigured: signUpConfigResult,
+                statusCode: 200
+            }
+
+        } else if("resourcePending".equals(registryResources.response)) {
+            result = {
+                error: false,
+                message: registryResources.message,
+                signUpConfigured: registryResources.response,
+                statusCode: 404
+            }
+
         }
     } catch (e) {
-        log.error("Error while loading the registry file for the tenant " + userName + ":" + e.message);
+        message = message + ", error: " + e.message;
+        log.error(message);
         log.error(e);
-        throw Error(e);
+        result = {
+            error: true,
+            message: message,
+            signUpConfigured: response,
+            statusCode: 500
+        }
+
     }
     return result;
 };
 
 //Method to write the tenant specific information to the registry files.
-var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, userName,
+var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, username,
                                       tenantDomain, approvalStatus) {
+    var message = "Error while populating the registry files for the user " + username;
+    var registryUpdateResult = "error";
+    var result = {
+        error: true,
+        message: message,
+        registryUpdateResult: registryUpdateResult,
+        statusCode: 500
+    }
     try {
-        var registryUpdateResult = "error";
+
         var selfSignUpClass;
 
         //configuring details to populate the sign up config registry file.
         var signupConfigmediaType = cloudConfig.selfSignUpProperties.configFileMediaTypes.signupConfig;
-        var signupConfigBody = constructSignupConfigFile(userName, userPassword);
-        var singUpFileAddedToRegistry = registryModule.updateRegistryFile(signupConfigFilePath, signupConfigBody, signupConfigmediaType, tenantDomain, userName);
-
+        var signupConfigBodyResult = constructSignupConfigFile(username, userPassword);
+        if(!signupConfigBodyResult.error) {
+            var singUpFileAddedToRegistry = registryModule.updateRegistryFile(signupConfigFilePath, signupConfigBodyResult.fileContent, signupConfigmediaType, tenantDomain, username);
+        } else {
+            message = signupConfigBodyResult.message;
+        }
         //configuring details to populate the workflow extensions registry file.
         if (approvalStatus == "notApproved") {
             selfSignUpClass = selfSignUpDefaultClass;
@@ -55,32 +92,55 @@ var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, u
             selfSignUpClass = selfSignUpApprovalClass;
         }
 
-        var workflowFileBody = constructWorkflowExtensionFile(fromAddress, contactEmail, userPassword, userName, selfSignUpClass);
+        var workflowFileBodyResult = constructWorkflowExtensionFile(fromAddress, contactEmail, userPassword, username, selfSignUpClass);
         var workflowConfigMediaType = cloudConfig.selfSignUpProperties.configFileMediaTypes.workflowConfig;
-        var workflowFileAddedToRegistry = registryModule.updateRegistryFile(workflowFileRegPath, workflowFileBody, workflowConfigMediaType, tenantDomain, userName);
-
+        if(!workflowFileBodyResult.error) {
+            var workflowFileAddedToRegistry = registryModule.updateRegistryFile(workflowFileRegPath, workflowFileBodyResult.fileContent, workflowConfigMediaType, tenantDomain, username);
+        } else {
+            message = workflowFileBodyResult.message;
+        }
         //Checking if both the files were added to the registry for the completion of the configuration process.
-        if (singUpFileAddedToRegistry && workflowFileAddedToRegistry) {
+        if (!singUpFileAddedToRegistry.error && !workflowFileAddedToRegistry.error) {
+            message = "Successfully updated the registry files for the user " + username;
             registryUpdateResult = "signUpConfigured";
+            result = {
+                error: false,
+                message: message,
+                registryUpdateResult: registryUpdateResult,
+                statusCode: 200
+            }
         }
     } catch (e) {
-        log.error("Error while populating the registry files for the user " + userName + ":" + e.message);
+        message = message + ", error:" + e.message;
+        log.error(message);
         log.error(e);
-        throw Error(e);
+        result = {
+            error: true,
+            message: message,
+            registryUpdateResult: registryUpdateResult,
+            statusCode: 500
+        }
     }
-    return registryUpdateResult;
+    return result;
 };
 
 //Method that constructs the tenant specific workflow extension file for the self signup feature
-var constructWorkflowExtensionFile = function (fromAddress, contactEmail, userPassword, userName,
+var constructWorkflowExtensionFile = function (fromAddress, contactEmail, userPassword, username,
                                                selfSignUpClass) {
+    var message = "Error while constructing the workflow extension file for the tenant " + username;
     var workflowExtensionFileContent = "";
+    var result = {
+        error: true,
+        message: message,
+        fileContent: workflowExtensionFileContent,
+        statusCode: 500
+    }
     try {
         var tenantDomain = jagg.module("manager").getTenantDomain();
-        var response = registryModule.getResourceFromTenantSpace(workflowFileRegPath, tenantDomain, userName);
-        if (response != "error" && response != "resourcePending") {
-            response.contentType = "text/xml";
-            var configContent = (response.content).toString();
+        var registryResult = registryModule.getResourceFromTenantSpace(workflowFileRegPath, tenantDomain, username);
+        if (!"error".equals(registryResult.response) && !"resourcePending".equals(registryResult.response)) {
+            registryResult.response.contentType = "text/xml";
+            var configContent = (registryResult.response.content).toString();
             workflowExtensionFileContent = new XML(configContent);
             var bpsBackendURL = cloudConfig.selfSignUpProperties.ServerUrls.bpsServiceURL;
             var serviceEndpoint = bpsBackendURL + "t/" + tenantDomain + "/UserSignupProcess/";
@@ -88,7 +148,7 @@ var constructWorkflowExtensionFile = function (fromAddress, contactEmail, userPa
             var key, value, element;
             var signupProperties = {};
             signupProperties.serviceEndpoint = serviceEndpoint;
-            signupProperties.username = userName;
+            signupProperties.username = username;
             signupProperties.password = userPassword;
             signupProperties.fromAddress = fromAddress;
             signupProperties.contactEmail = contactEmail;
@@ -109,35 +169,69 @@ var constructWorkflowExtensionFile = function (fromAddress, contactEmail, userPa
                 element = new XML(element);
                 workflowExtensionFileContent.UserSignUp.appendChild(element);
             }
+            message = "Successfully completed populating the workflow-extension file for the user "+username;
+            var result = {
+                error: false,
+                message: message,
+                fileContent: workflowExtensionFileContent.toString(),
+                statusCode: 200
+            }
         }
     } catch (e) {
-        log.error("Error while loading the workflow extension file for the tenant " + userName + ":" + e.message);
+        message = message + ", error: "+ e.message;
+        log.error(message);
         log.error(e);
-        throw Error(e);
+        result = {
+            error: true,
+            message: message,
+            fileContent: workflowExtensionFileContent,
+            statusCode: 200
+        }
+
     }
-    return workflowExtensionFileContent.toString();
+    return result;
 };
 
 //Method that constructs the tenant specific signup config file for the self signup feature.
-var constructSignupConfigFile = function (userName, userPassword) {
+var constructSignupConfigFile = function (username, userPassword) {
     var signupConfigFileContent = "";
+    var message = "Error while constructing the signup config file for the user " + username;
+    var result = {
+        error: true,
+        message: message,
+        fileContent: signupConfigFileContent,
+        statusCode: 500
+    }
     try {
         var tenantDomain = jagg.module("manager").getTenantDomain();
-        var response = registryModule.getResourceFromTenantSpace(signupConfigFilePath, tenantDomain, userName);
-        if (response != "error" && response != "resourcePending") {
-            response.contentType = "text/xml";
-            var configContent = (response.content).toString();
+        var registryResult = registryModule.getResourceFromTenantSpace(signupConfigFilePath, tenantDomain, username);
+        if (!"error".equals(registryResult.response) && !"resourcePending".equals(registryResult.response)) {
+            registryResult.response.contentType = "text/xml";
+            var configContent = ((registryResult.response).content).toString();
             signupConfigFileContent = new XML(configContent);
             signupConfigFileContent.EnableSignup = true;
-            signupConfigFileContent.AdminUserName = userName;
+            signupConfigFileContent.AdminUserName = username;
             signupConfigFileContent.AdminPassword = userPassword;
+            message = "Successfully constructed the signup config file for the user " + username;
+            result = {
+                error: false,
+                message: message,
+                fileContent: signupConfigFileContent.toString(),
+                statusCode: 200
+            }
         }
     } catch (e) {
-        log.error("Error while loading the sign-up config file for the tenant " + userName + ":" + e.message);
+        message = message + ", error: "+ e.message;
+        log.error(message);
         log.error(e);
-        throw Error(e);
+        result = {
+            error: true,
+            message: message,
+            fileContent: signupConfigFileContent,
+            statusCode: 500
+        }
     }
-    return signupConfigFileContent.toString();
+    return result;
 };
 
 %>
