@@ -326,7 +326,6 @@
                   </div>
           <% }
         } else { %>
-            <h1>Self-Signup Successfully Configured</h1>
              <div class="helper_text" id="success-message">
                  <p id="success_helper_content"></p>
                  <p id="success_content"></p>
