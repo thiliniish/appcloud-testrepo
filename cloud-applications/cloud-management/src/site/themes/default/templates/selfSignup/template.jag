@@ -197,30 +197,32 @@
         <div class="row">
             <div class="col-lg-12">
     <%
-        if (signupConfigResult.signUpConfigured == true || "true".equals(signupConfigResult.signUpConfigured.trim())) {%>
-            <h1>Self-Signup Successfully Configured</h1>
-             <div class="helper_text" id="success-message">
-                 <p id="success_helper_content"></p>
-                 <p id="success_content"></p>
-              </div>
+        if (signupConfigResult.signUpConfigured == true || "true".equals(signupConfigResult.signUpConfigured.trim())) {
+            %>
+                        <h1>Self-Signup Successfully Configured</h1>
+                         <div class="helper_text" id="success-message">
+                             <p id="success_helper_content"></p>
+                             <p id="success_content"></p>
+                          </div>
 
-            </div>
-        </div>
-    </div>
-    <div class='container content-section-wrapper'>
-           <div class='row'>
-             <div class='col-lg-12 content-section'>
-                   <div class='content'>
-
-                        <div class="center-block">
-                             <div><h3>You have already configured the self signup feature for the tenant API Store. Read more about this feature in our  <a target='_blank' href='<%=documentationLink%>'>documentation </a></h3></div>
                         </div>
                     </div>
-                  </div>
-              </div>
-     </div>
-        <%
-        } else {%>
+                </div>
+                <div class='container content-section-wrapper'>
+                       <div class='row'>
+                         <div class='col-lg-12 content-section'>
+                               <div class='content'>
+
+                                    <div class="center-block">
+                                         <div><h3>You have already configured the self signup feature for the tenant API Store. Read more about this feature in our  <a target='_blank' href='<%=documentationLink
+            %>'>documentation </a></h3></div>
+                                    </div>
+                                </div>
+                              </div>
+                          </div>
+                 </div>
+                    <%
+        } else if (!"error".equals(signupConfigResult.signUpConfigured)) {%>
             <h1>Configure Self Sign-up for the API Store</h1>
             <div class="helper_text" id="success-message">
               <p id="success_helper_content"></p>
@@ -234,24 +236,27 @@
         </div>
        </div>
      </div>
-          <% if ("resourcePending".equals(signupConfigResult.signUpConfigured)) {%>
-    <div class="container content-section-wrapper">
-        <form>
-            <div class="row">
-                <div class="col-lg-12 content-section">
-                    <div class="content">
-                        <div class="center-block">
-                             <div><h3>Click the button below to open the API Publisher. Once the Publisher fully loads, come back to this page to continue.</h3></div>
-                        </div>
-                        </br>
-                         <input type="button" class='btn btn-primary' id="btn_apiCloud" name="btn_apiCloud" value="Go to API Publisher" onclick="location.href = '<%=publisherUrl%>';">
+          <%
+            if ("resourcePending".equals(signupConfigResult.signUpConfigured)) {
+                %>
+                    <div class="container content-section-wrapper">
+                        <form>
+                            <div class="row">
+                                <div class="col-lg-12 content-section">
+                                    <div class="content">
+                                        <div class="center-block">
+                                             <div><h3>Click the button below to open the API Publisher. Once the Publisher fully loads, come back to this page to continue.</h3></div>
+                                        </div>
+                                        </br>
+                                         <input type="button" class='btn btn-primary' id="btn_apiCloud" name="btn_apiCloud" value="Go to API Publisher" onclick="location.href = '<%=publisherUrl
+                %>';">
+                                                </div>
+                                              </div>
+                                          </div>
+                                      </form>
                                 </div>
-                              </div>
-                          </div>
-                      </form>
-                </div>
-                    <%
-        } else { %>
+                                    <%
+            } else { %>
    <div class="container content-section-wrapper">
     <form class='form-horizontal' id='selfSignupForm' role='form'>
       <div class="row">
@@ -301,25 +306,48 @@
             </div>
             </br>
             <input type="hidden" name="username" id="username" value="<%=
-            username
-            %>"/>
-         <input type="hidden" name="docLink" id="docLink" value="<%=
-            documentationLink
-            %>"/>
-         <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=
-            publisherUrl
-            %>"/>
-         <input type="hidden" name="storeUrl" id="storeUrl" value="<%=
-            storeUrl
-            %>"/>
-         <input type="hidden" name="cloudMgtUrl" id="cloudMgtUrl" value="<%=
-            cloudMgtUrl%>"/>
-         </div>
-      </div>
-    </form>
-  </div>
-        <% }
-        }
+                username
+                %>"/>
+             <input type="hidden" name="docLink" id="docLink" value="<%=
+                documentationLink
+                %>"/>
+             <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=
+                publisherUrl
+                %>"/>
+             <input type="hidden" name="storeUrl" id="storeUrl" value="<%=
+                storeUrl
+                %>"/>
+             <input type="hidden" name="cloudMgtUrl" id="cloudMgtUrl" value="<%=
+                cloudMgtUrl
+                %>"/>
+                         </div>
+                      </div>
+                    </form>
+                  </div>
+          <% }
+        } else { %>
+            <h1>Self-Signup Successfully Configured</h1>
+             <div class="helper_text" id="success-message">
+                 <p id="success_helper_content"></p>
+                 <p id="success_content"></p>
+              </div>
+
+            </div>
+        </div>
+    </div>
+    <div class='container content-section-wrapper'>
+           <div class='row'>
+             <div class='col-lg-12 content-section'>
+                   <div class='content'>
+
+                        <div class="center-block">
+                             <div><h3>An error occurred while loading the configurations for the self signup feature for your organization. Please contact the WSO2 Cloud team for help. </h3></div>
+                        </div>
+                    </div>
+                  </div>
+              </div>
+     </div>
+     <% }
     } else {
         log.error("Session is not authenticated, Prompted to log in");
         response.sendRedirect(cloudMgtUrl);

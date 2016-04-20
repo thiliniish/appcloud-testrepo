@@ -13,15 +13,37 @@ var serverUrl = cloudConfig.ServerUrls.cloudmgtServices.toString();
 
 //Method to configure tenant specific parameters to pass to the registry.
 var configureRegistryParameters = function (tenantDomain, username) {
+    var options = null;
+    var message = "An error occurred while configuring the tenant specific parameters for the user " + username;
+    var result = {
+        error: true,
+        message: message,
+        options: options,
+        statusCode: 500
+    }
     try {
         var tenantManager = multitenancy.getTenantManager();
         var tenantId = tenantManager.getTenantId(tenantDomain);
-        var options = {system: true, domain: tenantDomain, tenantId: tenantId};
+        options = {system: true, domain: tenantDomain, tenantId: tenantId};
+        message = "Successfully configured the tenant specific parameters for the user " + username;
+        result = {
+            error: false,
+            message: message,
+            options: options,
+            statusCode: 200
+        }
     } catch (e) {
-        log.error("Error while configuring the registry properties for the tenant " + username + ":" + e.message);
+        message = message + ", error:" + e.message;
+        log.error(message);
         log.error(e);
+        result = {
+            error: true,
+            message: message,
+            options: options,
+            statusCode: 500
+        }
     }
-    return options;
+    return result;
 };
 
 //Method to retrieve the resource in the tenant's space in the registry.
@@ -38,14 +60,16 @@ var getResourceFromTenantSpace = function (path, tenantDomain, username) {
         try {
             var resourcExistsResult = isResourceExistingInTenantSpace(path, tenantDomain, username);
             if (resourcExistsResult.resourceExistsInTenantSpace) {
-                var options = configureRegistryParameters(tenantDomain, username);
-                registry = new carbon.registry.Registry(serverUrl, options);
-                response = registry.get(path);
-                result = {
-                    error: false,
-                    message: resourcExistsResult.message,
-                    response: response,
-                    statusCode: 200
+                var optionsResult = configureRegistryParameters(tenantDomain, username);
+                if (!optionsResult.error) {
+                    registry = new carbon.registry.Registry(serverUrl, optionsResult.options);
+                    response = registry.get(path);
+                    result = {
+                        error: false,
+                        message: resourcExistsResult.message,
+                        response: response,
+                        statusCode: 200
+                    }
                 }
             } else {
                 message = "The resource does not exist in the path : " + path + " for the tenant " + username
@@ -93,19 +117,21 @@ var updateRegistryFile = function (path, contentToAdd, mediaType, tenantDomain, 
     }
     if (isAuthenticated) {
         try {
-            var options = configureRegistryParameters(tenantDomain, username);
-            registry = new carbon.registry.Registry(serverUrl, options);
-            var resource = {
-                content: contentToAdd,
-                mediaType: mediaType
-            };
-            registry.put(path, resource);
-            message = "Successfully updated the registry file " + mediaType + " for the user " + username;
-            log.info(message);
-            result = {
-                error: false,
-                message: message,
-                statusCode: 200
+            var optionsResult = configureRegistryParameters(tenantDomain, username);
+            if (!optionsResult.error) {
+                registry = new carbon.registry.Registry(serverUrl, optionsResult.options);
+                var resource = {
+                    content: contentToAdd,
+                    mediaType: mediaType
+                };
+                registry.put(path, resource);
+                message = "Successfully updated the registry file " + mediaType + " for the user " + username;
+                log.info(message);
+                result = {
+                    error: false,
+                    message: message,
+                    statusCode: 200
+                }
             }
         } catch (e) {
             message = message + ", error:" + e.message;
@@ -143,18 +169,20 @@ var isResourceExistingInTenantSpace = function (path, tenantDomain, username) {
 
     if (isAuthenticated) {
         try {
-            var options = configureRegistryParameters(tenantDomain, username);
-            registry = new carbon.registry.Registry(serverUrl, options);
-            message = "Resource exists in the tenant space for the user " + username;
-            resourceExistsInTenantSpace = registry.exists(path);
-            result = {
-                error: false,
-                message: message,
-                resourceExistsInTenantSpace: resourceExistsInTenantSpace,
-                statusCode: 200
+            var optionsResult = configureRegistryParameters(tenantDomain, username);
+            if (!optionsResult.error) {
+                registry = new carbon.registry.Registry(serverUrl, optionsResult.options);
+                message = "Resource exists in the tenant space for the user " + username;
+                resourceExistsInTenantSpace = registry.exists(path);
+                result = {
+                    error: false,
+                    message: message,
+                    resourceExistsInTenantSpace: resourceExistsInTenantSpace,
+                    statusCode: 200
+                }
             }
         } catch (e) {
-            message = message + + ", error:" + e.message
+            message = message + +", error:" + e.message
             log.error(message);
             log.error(e);
             result = {
