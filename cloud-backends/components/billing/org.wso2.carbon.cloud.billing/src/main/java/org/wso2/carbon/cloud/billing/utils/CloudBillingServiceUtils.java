@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2015-2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,15 +37,21 @@ import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.ZuoraAccountClient;
+import org.wso2.carbon.cloud.billing.commons.zuora.client.ZuoraProductClient;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 /**
@@ -405,4 +412,100 @@ public final class CloudBillingServiceUtils {
         return dsBRProcessor.doGet(url, null, nameValuePairs);
     }
 
+    /**
+     * Create a new product for publisher
+     *
+     * @param tenantDomain tenant domain
+     * @return product creation status
+     * @throws CloudBillingException
+     */
+    public static boolean createProduct(String tenantDomain) throws CloudBillingException {
+        String productName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
+        try {
+            String productCategory = BillingConstants.PRODUCT_CATEGORY;
+            // Create Json product object
+            JsonObject productObj = new JsonObject();
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_NAME, productName);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_CATEGORY, productCategory);
+            ZuoraProductClient zuoraProductClient = new ZuoraProductClient();
+            JsonObject response = zuoraProductClient.createProduct(productObj);
+            return null != response;
+        } catch (CloudBillingException e) {
+            throw new CloudBillingException(
+                    "Error while creating the Product: " + productName + " for tenant: " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * Encrypt texts using the default Crypto utility. and base 64 encode
+     *
+     * @param text text need to be encrypt
+     * @return base64encoded encrypted string
+     * @throws org.wso2.carbon.core.util.CryptoException
+     */
+    public static String getEncryptionInfo(String text) throws CryptoException {
+        return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(text.getBytes(Charset.defaultCharset()));
+    }
+
+    /**
+     * Decrypt texts using the default Crypto utility. and base 64 decode
+     *
+     * @param base64CyperText base64 Cyper Text need to be decrypt
+     * @return base64decoded decrypted string
+     * @throws org.wso2.carbon.core.util.CryptoException
+     */
+    public static String getDecryptedInfo(String base64CyperText) throws CryptoException, IOException {
+        byte[] decriptedByteArray = CryptoUtil.getDefaultCryptoUtil().base64DecodeAndDecrypt(base64CyperText);
+        return new String(decriptedByteArray, BillingConstants.ENCODING);
+    }
+
+    /**
+     * Create product rate plan for the Product
+     *
+     * @param tenantDomain tenant domain
+     * @return product rate plan creation status
+     * @throws CloudBillingException
+     */
+    public static boolean createProductRatePlan(String tenantDomain, String ratePlanName, String price,
+                                                String throttlingLimit, String monthlyLimit,
+                                                String overageCharge, String description)
+            throws CloudBillingException {
+        String productName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
+        try {
+            ZuoraProductClient zuoraProductClient = new ZuoraProductClient();
+            // Create Json product rate plan object
+            JsonObject productObj = new JsonObject();
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_NAME, productName);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_NAME, ratePlanName);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_PRICE, price);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION, description);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_THROTTLING_LIMIT, throttlingLimit);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_MONTHLY_LIMIT, monthlyLimit);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE, overageCharge);
+            JsonObject response = zuoraProductClient.createProductRatePlan(productObj);
+            return null != response;
+        } catch (CloudBillingException e) {
+            throw new CloudBillingException(
+                    "Error while creating the product rate plan of Product: " + productName + " for tenant: " +
+                    tenantDomain, e);
+        }
+    }
+
+    /**
+     * Query the product by name
+     *
+     * @param tenantDomain tenant domain
+     * @param productName  product name
+     * @return product creation status
+     * @throws CloudBillingException
+     */
+    public static JsonObject queryProduct(String tenantDomain, String productName) throws CloudBillingException {
+        try {
+            ZuoraProductClient zuoraProductClient = new ZuoraProductClient();
+            return zuoraProductClient.queryProductByName(productName);
+        } catch (CloudBillingZuoraException e) {
+            throw new CloudBillingException(
+                    "Error while query the Product: " + productName + " for the : " + tenantDomain, e);
+        }
+    }
 }

@@ -7,19 +7,12 @@ jagg.module("registry", {
     configureRegistryParameters: function () {
         return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").configureRegistryParameters.apply(this, arguments);
     },
-    resourceExistsInTenantSpace: function () {
-        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").resourceExistsInTenantSpace.apply(this, arguments);
-    },
-    checkSignupConfiguredInRegistry: function () {
-        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").checkSignupConfiguredInRegistry.apply(this, arguments);
-    },
-    populateRegistryFiles: function () {
-        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").populateRegistryFiles.apply(this, arguments);
+    isResourceExistingInTenantSpace: function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").isResourceExistingInTenantSpace.apply(this, arguments);
     },
     updateRegistryFile: function () {
         return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").updateRegistryFile.apply(this, arguments);
     }
-
 });
 %>
 

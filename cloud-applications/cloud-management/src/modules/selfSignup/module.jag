@@ -1,0 +1,17 @@
+<%
+jagg.module("selfSignup", {
+
+    checkSignupConfiguredInRegistry: function () {
+        return jagg.require(jagg.getModulesDir() + "selfSignup/selfSignup.jag").checkSignupConfiguredInRegistry.apply(this, arguments);
+    },
+    populateRegistryFiles: function () {
+        return jagg.require(jagg.getModulesDir() + "selfSignup/selfSignup.jag").populateRegistryFiles.apply(this, arguments);
+    },
+    constructWorkflowExtensionFile: function () {
+        return jagg.require(jagg.getModulesDir() + "selfSignup/selfSignup.jag").constructWorkflowExtensionFile.apply(this, arguments);
+    },
+    constructSignupConfigFile: function () {
+        return jagg.require(jagg.getModulesDir() + "selfSignup/selfSignup.jag").constructSignupConfigFile.apply(this, arguments);
+    }
+});
+%>
