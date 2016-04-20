@@ -4,7 +4,8 @@ var server = carbon.server;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-
+var EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
+var log = new Log("modules.pricing.utils.jag");
 var mdAlgorithm = "SHA-512";
 
 var getCloudmgtURL = function () {
@@ -15,7 +16,7 @@ var getCloudmgtURL = function () {
         var configs = parse(monetizationConfigFile.readAll());
         return configs.cloud.mgt_url;
     } catch (e) {
-        log.error("Error while getting thecloud_conf.json.");
+        log.error("Error while getting the cloud_conf.json.");
         throw e;
     } finally {
         monetizationConfigFile.close();
@@ -174,5 +175,71 @@ var sendHTTPRequest = function (url, type, headers, data, username, password) {
         log.error("HTTP request: response from zuora cannot be null");
         throw Error("Response from zuora cannot be null");
     }
+};
+
+/**
+ * Returns the text content of a given file.
+ * @param pathToFile
+ * @return the file text content.
+ */
+var getObjFromFile = function(pathToFile) {
+    var dataObj = "";
+    if (log.isDebugEnabled()) {
+        log.debug("Reading file : " + pathToFile);
+    }
+    try{
+        var file = new File(pathToFile);
+        file.open("r");
+        dataObj = file.readAll();
+        file.close();
+    } catch (e) {
+        log.error("Error while reading file " + pathToFile + "\n" + e);
+    }
+    return  dataObj;
+};
+
+/**
+ * Returns the tenant aware username from the given username (i.e. domain less user name)
+ * @param username
+ * @return tenant aware username
+ */
+var getTenantAwareUsername = function (username) {
+    if (username.indexOf("@") != -1) {
+        username = username.substring(0, username.lastIndexOf("@"));
+    } else if (username.indexOf("@") != username.lastIndexOf("@")) {
+        username = username.substring(0, username.lastIndexOf("@"));
+    }
+    return username;
+};
+
+/**
+ * Returns the email of the given user
+ * @param username
+ * @param tenantDomain
+ * @return userEmail
+ */
+var getEmailOfUser = function (username, tenantDomain) {
+    var tenantAwareUserName = getTenantAwareUsername(username);
+    var userEmail = "";
+    var PrivilegedCarbonContext = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
+    var context = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+    try {
+        var realmService = context.getOSGiService((java.lang.Class).forName('org.wso2.carbon.user.core.service.RealmService'));
+        var tenantManager = realmService.getTenantManager();
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantId);
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
+        var userEmail = userStoreManager.getUserClaimValue(tenantAwareUserName, EMAIL_CLAIM_URI, null);
+        if (log.isDebugEnabled()) {
+            log.debug("The user email for the user " + username + " is: " + userEmail);
+        }
+    } catch (e) {
+        log.error("Error while getting email of user :  " + username + "\n" + e);
+    } finally {
+        context.endTenantFlow();
+    }
+    return userEmail;
 };
 %>

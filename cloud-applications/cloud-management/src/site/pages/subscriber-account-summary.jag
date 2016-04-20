@@ -15,9 +15,12 @@ var site = require("/site/conf/site.json");
         return;
     }
     var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    var monetizationEnabledStatus = false;
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
         response.sendRedirect("../pages/index.jag");
         return;
+    } else {
+        monetizationEnabledStatus = isMonetizationEnabledObj.monetizationEnabled;
     }
     var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     var emailAddress = encoder.getSafeText(request.getParameter("email-address"));
@@ -49,7 +52,10 @@ var site = require("/site/conf/site.json");
                         ],
                         "tablinks": [
                             {
-                                "name": "tablinks"
+                                "name": "tablinks",
+                                "inputs": {
+                                    "monetizationEnabledStatus" : monetizationEnabledStatus
+                                }
                             }
                         ]
                     }

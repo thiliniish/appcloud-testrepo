@@ -29,5 +29,14 @@ var DEAULT_API_NAME = "ALL";
 var DEAULT_APP_NAME = "ALL";
 
 var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+//Subscription Notifications related constants
+var SUBSCRIBER_EMAIL_REGISTRY_PATH = "_system/governance/apimgt/pricing/resources/userSubscriptionNotificationEmail.txt";
+var SUBSCRIBER_EMAIL_DEFAULT_PATH = "/site/conf/pricing/emails/userSubscriptionNotificationEmail.txt";
+var PROVIDER_EMAIL_DEFAULT_PATH = "/site/conf/pricing/emails/tenantSubscriptionNotificationEmail.txt";
+var SUBSCRIBER_EMAIL_SUBJECT = "Subscription notification";
+var CONTENT_TYPE_TEXT_PLAIN = "text/plain";
+var CONTENT_TYPE_HTML = "text/html";
+
 %>
 

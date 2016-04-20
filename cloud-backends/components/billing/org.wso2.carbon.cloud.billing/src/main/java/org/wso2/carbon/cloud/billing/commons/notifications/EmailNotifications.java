@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.billing.commons.notifications;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.commons.config.EmailConfig;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
@@ -234,7 +235,7 @@ public class EmailNotifications extends Observable {
                 message.setFrom(new InternetAddress(sender));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.get(MESSAGE_RECEIVER).toString()));
                 message.setSubject(email.get(MESSAGE_SUBJECT).toString());
-                message.setText(email.get(MESSAGE_BODY).toString());
+                message.setContent(email.get(MESSAGE_BODY).toString(), BillingConstants.HTML_CONTENT_TYPE);
 
                 Transport.send(message);
                 setChanged();
