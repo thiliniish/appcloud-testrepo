@@ -87,7 +87,9 @@
     function importUsers(){
         disable();
         var users = document.getElementById("users").value;
-        var allUsersValid = validateUserNames(users);
+        users = users.replace(/ /g, '');   //Remove any whitespace
+        var allEmailsValid = validateEmailAddresses(users);
+        var allSymbolsValid = validateSymbols(users);
         var isUserAdded = getUsers(users) ;
         var selected = [];
         var roles = "";
@@ -98,10 +100,16 @@
             selected.push(selectedId);
             roles = selectedId+","+roles;
         }
-        if(allUsersValid == false) {
+        if(allEmailsValid == false) {
             jagg.message({
                 content: "Member list contains invalid user name/s. " +
-                 "User name should be a valid email of length 3-30 in alphanumeric characters except '+'",
+                 "User name should be a valid email of length 3-30 in alphanumeric characters",
+                type: 'error',
+                id:'reposBuild'
+            });
+        }else if(allSymbolsValid == false) {
+            jagg.message({
+                content: "The '+' sign is not currently supported within usernames by the system.",
                 type: 'error',
                 id:'reposBuild'
             });
@@ -161,20 +169,27 @@
         return false;
     }
 
-    function validateUserNames(nameString) {
+      function validateEmailAddresses(nameString) {
         var names = nameString.split(",");
-        var allUserNamesMatch = true;
-        //var pattern = /^(\d{1,2}\.){2}(\d{1,5})$/;    // validate version of format: '0.0.0', each can contain atmost 10 characters.
-        var pattern = /[a-zA-Z0-9._-|//]{3,30}$/;   // validate version of format: '0.0.0', each can contain atmost 10 characters.
+        var allEmailAddressesMatch = true;
+        var pattern = /[a-zA-Z0-9._-|//]{3,30}$/;
         for(var i = 0; i < names.length; i++) {
             var match = pattern.test(names[i]);
             if(match == false){
-                allUserNamesMatch = false;
-            } else if(names[i].indexOf("+") != -1 || names[i].indexOf("@") < 0 ){
-                allUserNamesMatch = false;
+                allEmailAddressesMatch = false;
+            } else if(names[i].indexOf("@") < 0 ){
+                allEmailAddressesMatch = false;
             }
         }
-        return allUserNamesMatch;
+        return allEmailAddressesMatch;
+    }
+    
+    function validateSymbols(nameString){
+        var allSymbolsValid = false;
+        if(nameString.indexOf("+") < 0 ){
+            allSymbolsValid = true;
+        }
+        return allSymbolsValid;
     }
 
     $(document).ready(function(){
