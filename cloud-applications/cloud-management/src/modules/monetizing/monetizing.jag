@@ -95,7 +95,7 @@ var getSubscribersOfTenant = function () {
 var makeSubscriberAccountTest = function (subscriberString) {
     var tenantDomain = modManager.getTenantDomain();
     var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
-    var productName = tenantDomain + "_api_cloud";
+    var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
     var sqlDateFormat = modUtil.dateTimeFormatter(MYSQL_DATETIME_FORMAT);
     var zuoradateFormatter = modUtil.dateTimeFormatter(ZUORA_DATE_FORMAT);
     var effectiveDate = new Packages.java.util.Date();
@@ -824,4 +824,21 @@ var getThrottlingTiersOfTenant = function (tenantDomain) {
     return billingService.getThrottlingTiersOfTenant(tenantDomain);
 };
 
+// Function to get the number of product plans available for the given tenant.
+var getNumberOfProductPlansForTenant = function (tenantDomain) {
+    var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
+    try {
+        var queryString = SQL_QUERY_STRINGS.SELECT_NUMBER_OF_MONETIZATION_PRODUCT_PLANS_FOR_TENANT;
+        var parameters = [tenantDomain, productName];
+        var result = modDb.executeQuery(queryString, parameters);
+        successObj.data = result[0]["PRODUCT_PLAN_COUNT"];
+        return successObj;
+    } catch (e) {
+        var message = "Error while getting the number of product plans for the tenant: " + tenantDomain;
+        log.error(message);
+        log.error(e);
+        errorObj.message = message;
+        return errorObj;
+    }
+};
 %>
