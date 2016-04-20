@@ -11,7 +11,6 @@ include("/jagg/config_reader.jag");
         return;
     }
 
-    //var statusMessage = "error";
     var action = request.getParameter("action");
     var username = request.getParameter("username");
     var fromAddress = request.getParameter("fromAddress");

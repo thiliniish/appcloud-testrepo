@@ -45,7 +45,6 @@ var checkSignupConfiguredInRegistry = function (username) {
                 signUpConfigured: registryResources.response,
                 statusCode: 404
             }
-
         }
     } catch (e) {
         message = message + ", error: " + e.message;
@@ -57,7 +56,6 @@ var checkSignupConfiguredInRegistry = function (username) {
             signUpConfigured: response,
             statusCode: 500
         }
-
     }
     return result;
 };
@@ -74,7 +72,6 @@ var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, u
         statusCode: 500
     }
     try {
-
         var selfSignUpClass;
 
         //configuring details to populate the sign up config registry file.
@@ -169,7 +166,7 @@ var constructWorkflowExtensionFile = function (fromAddress, contactEmail, userPa
                 element = new XML(element);
                 workflowExtensionFileContent.UserSignUp.appendChild(element);
             }
-            message = "Successfully completed populating the workflow-extension file for the user "+username;
+            message = "Successfully completed populating the workflow-extension file for the user " + username;
             var result = {
                 error: false,
                 message: message,
