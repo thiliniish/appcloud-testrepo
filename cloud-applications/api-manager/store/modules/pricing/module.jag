@@ -60,8 +60,8 @@ jagg.module("pricing", {
     sendSubscriptionNotificationToProvider:function () {
         return jagg.require(jagg.getModulesDir() + "pricing/notifications.jag").sendSubscriptionNotificationToProvider.apply(this, arguments);
     },
-    getObjFromFile:function () {
-        return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getObjFromFile.apply(this, arguments);
+    getObjFromEmailFile:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getObjFromEmailFile.apply(this, arguments);
     },
     getTenantAwareUsername:function () {
         return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getTenantAwareUsername.apply(this, arguments);

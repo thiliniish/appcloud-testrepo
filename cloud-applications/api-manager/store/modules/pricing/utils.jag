@@ -178,20 +178,28 @@ var sendHTTPRequest = function (url, type, headers, data, username, password) {
 };
 
 /**
- * Returns the text content of a given file.
- * @param pathToFile
+ * Returns the text content of a particular notification type.
+ * @param notificationType
  * @return the file text content.
  */
-var getObjFromFile = function(pathToFile) {
-    var dataObj = "";
-    if (log.isDebugEnabled()) {
-        log.debug("Reading file : " + pathToFile);
+var getObjFromEmailFile = function(notificationType) {
+    var pathToFile = null;
+
+    if ("providerNotification".equals(notificationType)) {
+        pathToFile = PROVIDER_EMAIL_DEFAULT_PATH;
+    } else if ("subscriberNotification".equals(notificationType)) {
+        pathToFile = SUBSCRIBER_EMAIL_DEFAULT_PATH;
     }
+    var dataObj = "";
     try{
-        var file = new File(pathToFile);
-        file.open("r");
-        dataObj = file.readAll();
-        file.close();
+        if (pathToFile != null) {
+            var file = new File(pathToFile);
+            file.open("r");
+            dataObj = file.readAll();
+            file.close();
+        } else {
+            log.error("Unable to find the path to the file for the notificationType " + notificationType);
+        }
     } catch (e) {
         log.error("Error while reading file " + pathToFile + "\n" + e);
     }

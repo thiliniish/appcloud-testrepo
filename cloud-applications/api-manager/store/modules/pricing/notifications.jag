@@ -64,12 +64,12 @@ var sendSubscriptionNotificationToSubscriber = function (api, applicationName, t
         statusCode: 500
     }
     try {
-        var responseObj = getResourceFromTenantSpace(SUBSCRIBER_EMAIL_REGISTRY_PATH, tenantDomain, provider);
+        var responseObj = getResourceFromTenantSpace(tenantDomain, provider);
         if (!responseObj.error) {
             responseObj.response.contentType = CONTENT_TYPE_TEXT_PLAIN;
             messageBody = (responseObj.response.content).toString();
         } else {
-            messageBody = getObjFromFile(SUBSCRIBER_EMAIL_DEFAULT_PATH);
+            messageBody = getObjFromEmailFile(SUBSCRIBER_NOTIFICATION_TYPE);
         }
         if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
             messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDomain).replace("$applicationName", applicationName).replace("$contact", providerEmail);
@@ -110,7 +110,6 @@ var sendSubscriptionNotificationToProvider = function (api, applicationName, tie
                                                        providerEmail, subscriberEmail,
                                                        tenantDomain) {
 
-    var providerEmailPath = "/site/conf/pricing/emails/tenantSubscriptionNotificationEmail.txt";
     var providerEmailSubject = "Subscription notification for the " + tenantDomain + " organization";
     var message = "Error occurred while sending the email to the provider " + provider;
     var result = {
@@ -120,7 +119,7 @@ var sendSubscriptionNotificationToProvider = function (api, applicationName, tie
     }
     try {
 
-        var messageBody = getObjFromFile(providerEmailPath);
+        var messageBody = getObjFromEmailFile(PROVIDER_NOTIFICATION_TYPE);
 
         if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
             messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDomain).replace("$subscriber", subscriberEmail).replace("$applicationName", applicationName);

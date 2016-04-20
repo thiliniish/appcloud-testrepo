@@ -8,6 +8,7 @@ var registry = "";
 var response = "error";
 var cloudMgtServerUrl = getCloudmgtURL();
 var cloudMgtServiceUrl = cloudMgtServerUrl + "/services/";
+var notificationEmailRegistryPath = SUBSCRIBER_EMAIL_REGISTRY_PATH;
 
 //Method to configure tenant specific parameters to pass to the registry.
 var configureRegistryParameters = function (tenantDomain, username) {
@@ -48,8 +49,8 @@ var configureRegistryParameters = function (tenantDomain, username) {
 };
 
 //Method to retrieve the resource in the tenant's space in the registry.
-var getResourceFromTenantSpace = function (path, tenantDomain, username) {
-    var message = "Error while retrieving tenant space registry resource file: " + path + " for the user " + username;
+var getResourceFromTenantSpace = function (tenantDomain, username) {
+    var message = "Error while retrieving tenant space registry resource file: " + notificationEmailRegistryPath + " for the user " + username;
     var response = "error";
     var result = {
         error: true,
@@ -58,12 +59,12 @@ var getResourceFromTenantSpace = function (path, tenantDomain, username) {
         statusCode: 500
     }
         try {
-            var resourcExistsResult = isResourceExistingInTenantSpace(path, tenantDomain, username);
+            var resourcExistsResult = isResourceExistingInTenantSpace(tenantDomain, username);
             if (resourcExistsResult.resourceExistsInTenantSpace) {
                 var optionsResult = configureRegistryParameters(tenantDomain, username);
                 if (!optionsResult.error) {
                     registry = new carbon.registry.Registry(cloudMgtServiceUrl, optionsResult.options);
-                    response = registry.get(path);
+                    response = registry.get(notificationEmailRegistryPath);
                     result = {
                         error: false,
                         message: resourcExistsResult.message,
@@ -72,7 +73,7 @@ var getResourceFromTenantSpace = function (path, tenantDomain, username) {
                     }
                 }
             } else {
-                message = "The resource does not exist in the path : " + path + " for the user " + username
+                message = "The resource does not exist in the path : " + notificationEmailRegistryPath + " for the user " + username
                 log.error(message);
                 response = "resourcePending";
                 result = {
@@ -97,8 +98,8 @@ var getResourceFromTenantSpace = function (path, tenantDomain, username) {
 };
 
 //Method to check if a given resource exists in the tenant space in the registry.
-var isResourceExistingInTenantSpace = function (path, tenantDomain, username) {
-    var message = "Error while accessing tenant space registry resource file: " + path + " for the tenant " + username;
+var isResourceExistingInTenantSpace = function (tenantDomain, username) {
+    var message = "Error while accessing tenant space registry resource file: " + notificationEmailRegistryPath + " for the tenant " + username;
     var resourceExistsInTenantSpace = false;
     var result = {
         error: true,
@@ -111,7 +112,7 @@ var isResourceExistingInTenantSpace = function (path, tenantDomain, username) {
             if (!optionsResult.error) {
                 registry = new carbon.registry.Registry(cloudMgtServiceUrl, optionsResult.options);
                 message = "Resource exists in the tenant space for the user " + username;
-                resourceExistsInTenantSpace = registry.exists(path);
+                resourceExistsInTenantSpace = registry.exists(notificationEmailRegistryPath);
                 result = {
                     error: false,
                     message: message,
