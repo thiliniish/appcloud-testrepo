@@ -11,9 +11,8 @@ include("/jagg/config_reader.jag");
         return;
     }
 
-    var statusMessage = "error";
     var action = request.getParameter("action");
-    var userName = request.getParameter("userName");
+    var username = request.getParameter("username");
     var fromAddress = request.getParameter("fromAddress");
     var userPassword = request.getParameter("userPassword");
     var contactEmail = request.getParameter("contactEmail");
@@ -23,15 +22,28 @@ include("/jagg/config_reader.jag");
 
     //Method to check if the self sign up feature has been configured for the user.
     if (action == "checkSignUpConfiguredForUser") {
-        var isSignUpConfigured = jagg.module("registry").checkSignupConfiguredInRegistry(userName);
-        var result = false;
-
-        if (isSignUpConfigured == true || isSignUpConfigured.trim() == "true") {
+        var isSignUpConfiguredResult = jagg.module("selfSignup").checkSignupConfiguredInRegistry(username);
+        var message = "Error while checking if self sign-up has been configured for the user "+username;
+        var statusMessage = "error";
+        var result = {
+            error: true,
+            message: message,
+            response: statusMessage,
+            statusCode: 500
+        }
+        if (isSignUpConfiguredResult.signUpConfigured == true || "true".equals(isSignUpConfiguredResult.signUpConfigured.trim())) {
+            message = "self sign-up has been successfully configured for the user "+username;
             statusMessage = "configured";
-        } else if (isSignUpConfigured == false || isSignUpConfigured.trim() == "false") {
+            result = {
+                error: false,
+                message: message,
+                response: statusMessage,
+                statusCode: 200
+            }
+        } else if (isSignUpConfiguredResult.signUpConfigured == false || "false".equals(isSignUpConfiguredResult.signUpConfigured.trim())) {
 
             if (log.isDebugEnabled()) {
-                log.debug("Since the sign up is not configured, adding the files to the BPS Server for the user " + userName);
+                log.debug("Since the sign up is not configured, adding the files to the BPS Server for the user " + username);
             }
             var tenantEmail;
             try {
@@ -43,7 +55,7 @@ include("/jagg/config_reader.jag");
                 var cookie = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
 
                 //calling the service to upload the files to the BPS server
-                result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader').bpsFileUploader(userName, cookie);
+                result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader').bpsFileUploader(username, cookie);
                 if (result) {
 
                     //Sending an email to the cloud team to inform the enabling of the self sign up feature of the tenant's API Store.
@@ -51,7 +63,7 @@ include("/jagg/config_reader.jag");
                     var tenantDomain = jagg.module("manager").getTenantDomain();
 
                     //populating the registry files needed for the self sign-up workflow.
-                    statusMessage = jagg.module("registry").populateRegistryFiles(fromAddress, contactEmail, userPassword, userName, tenantDomain, signupType);
+                    var statusResult = jagg.module("selfSignup").populateRegistryFiles(fromAddress, contactEmail, userPassword, username, tenantDomain, signupType);
                     var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
                     body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
                     var subject = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.subject;
@@ -59,26 +71,53 @@ include("/jagg/config_reader.jag");
                     utilModule.sendEmail(body, subject, recepient);
 
                     if (log.isDebugEnabled()) {
-                        log.debug("Notification sent to the cloud team regarding the tenant " + userName + " enabling the self sign up feature for the tenant store " + tenantDomain);
+                        log.debug("Notification sent to the cloud team regarding the user " + username + " enabling the self sign up feature for the tenant store " + tenantDomain);
                     }
-                    log.info("Completed the uploading process for the user " + userName);
+                    message = "Completed the uploading process for the user " + username;
+                    log.info(message);
+                    result = {
+                        error: false,
+                        message: message,
+                        response: statusResult.registryUpdateResult,
+                        statusCode: 200
+                    }
+
                 } else {
-                    log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail);
-                    statusMessage = "error";
+                    message = "Error while uploading the files to the BPS server for the self sign up feature for the user " + username;
+                    log.error(message);
+                    result = {
+                        error: true,
+                        message: message,
+                        response: statusMessage,
+                        statusCode: 500
+                    }
+
                 }
             } catch (e) {
-                log.error("Error while uploading the files to the BPS server for the self sign up feature of the tenant " + tenantEmail + "\n" + e.message);
+                message = "Error while uploading the files to the BPS server for the self sign up feature for the user " + username + "\n" + e.message;
+                log.error(message);
                 log.error(e);
-                throw Error(e);
+                result = {
+                    error: true,
+                    message: message,
+                    response: statusMessage,
+                    statusCode: 500
+                }
+
             }
-        } else if (isSignUpConfigured.trim() == "resourcePending") {
+        } else if ("resourcePending".equals(isSignUpConfigured.response.trim())) {
+            message = "The resource is not available for the user " + username;
             statusMessage = "resourcePending";
-        } else {
-            statusMessage = "error";
+            result = {
+                error: true,
+                message: message,
+                response: statusMessage,
+                statusCode: 404
+            }
         }
     } else {
         log.error("No action specified");
     }
-    print(statusMessage);
+    print(result);
 }());
 %>
