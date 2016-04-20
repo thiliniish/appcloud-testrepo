@@ -5,7 +5,7 @@ var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.C
 var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 var EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
-var log = new Log("/modules/pricing/utils.jag");
+var log = new Log("modules.pricing.utils.jag");
 var mdAlgorithm = "SHA-512";
 
 var getCloudmgtURL = function () {

@@ -6,7 +6,7 @@ var server = carbon.server;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 var APIUtil = Packages.org.wso2.carbon.apimgt.impl.utils.APIUtil;
-var log = new Log("/modules/pricing/notifications.jag");
+var log = new Log("modules.pricing.notifications.jag");
 
 /**
  * Sends the subscription notification for the subscription activity.
@@ -64,10 +64,10 @@ var sendSubscriptionNotificationToSubscriber = function (api, applicationName, t
         statusCode: 500
     }
     try {
-        var response = getResourceFromTenantSpace(SUBSCRIBER_EMAIL_REGISTRY_PATH, tenantDomain, provider);
-        if (!"error".equals(response) && !"resourcePending".equals(response)) {
-            response.contentType = CONTENT_TYPE_TEXT_PLAIN;
-            messageBody = (response.content).toString();
+        var responseObj = getResourceFromTenantSpace(SUBSCRIBER_EMAIL_REGISTRY_PATH, tenantDomain, provider);
+        if (!responseObj.error) {
+            responseObj.response.contentType = CONTENT_TYPE_TEXT_PLAIN;
+            messageBody = (responseObj.response.content).toString();
         } else {
             messageBody = getObjFromFile(SUBSCRIBER_EMAIL_DEFAULT_PATH);
         }
