@@ -129,6 +129,22 @@ public final class MonetizationConstants {
     public static final String UNIT_TIME = "unitTime";
 
 
+    /*workflow-extensions.xml related attributes*/
+    public static final String WORKFLOW_EXTENSION_URL = "/apimgt/applicationdata/workflow-extensions.xml";
+    public static final String SUBSCRIPTION_CREATION_EXECUTOR =
+            "org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionCreationWorkflowExecutor";
+    public static final String PROPERTY_SERVICEURL_NAME = "apiMonetizationServiceUrl";
+    public static final String PROPERTY_MONETIZATION_SERVICE_VALUE =
+            "/services/APICloudMonetizationService/";
+    public static final String PROPERTY_USERNAME_NAME = "username";
+    public static final String PROPERTY_PASSWORD_NAME = "password";
+    public static final String TAG_WORKFLOWEXTENSION = "WorkFlowExtensions";
+    public static final String TAG_SUSCRIPTION_CREATION = "SubscriptionCreation";
+    public static final String ATTRIBUTE_EXECUTOR = "executor";
+    public static final String ATTRIBUTE_PROPERTY = "Property";
+    public static final String ATTRIBUTE_NAME = "name";
+    public static final String YES = "yes";
+
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +
                                                            " overage data to zuora on {today}. Please verify.";

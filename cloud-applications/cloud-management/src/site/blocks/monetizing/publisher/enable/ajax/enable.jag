@@ -1,0 +1,54 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod, result, returnObj,
+            action = request.getParameter("action"),
+            tenantPassword = request.getParameter("tenantPassword"),
+            site = require("/site/conf/site.json");
+    mod = jagg.module("monetizing");
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    if (action == "enableMonetization") {
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+            result = mod.enableMonetization(tenantPassword);
+            if (result == null || result.error) {
+                var message = result.message;
+                if (message == null) {
+                    message = "An error occurred while enabling the monetization of the tenant: " + tenantDomain;
+                }
+                response.status = 401;
+                returnObj = {
+                    error: true,
+                    message: message,
+                    status: result.status,
+                    account: result.account
+                };
+            } else {
+                returnObj = {
+                    error: false,
+                    status: result.status,
+                    account: result.account
+                };
+            }
+            print(returnObj);
+        } else {
+            var msg = "User do not have permission to enable the monetization of tenant :" + tenantDomain;
+            response.status = 401;
+            print({
+                error: true,
+                message: msg,
+                status: "400"
+            });
+        }
+    } else {
+        response.status = 401;
+        msg = "Invalid action: " + action;
+        print({
+            error: true,
+            message: msg,
+            status: "400"
+        });
+    }
+}());
+%>

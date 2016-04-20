@@ -677,4 +677,151 @@ var getSubscriptionDataFromName = function (subscriptionName) {
     return subscriptionData;
 };
 
+// Function for enable monetization
+var enableMonetization = function (tenantPassword) {
+    var isPaidAccount = false;
+    var paymentPlanName = null;
+    try {
+        /* Check whether the account is eligible for monetizing. Account should be a paid account and at
+         least upgrade to getting traction payment plan. So it should not be a billing starting plan.
+         */
+        isPaidAccount = modBilling.isPaidAccount();
+        paymentPlanName = getCurrentPaymentPlan();
+        var tenantDomain = modManager.getTenantDomain();
+        var username = jagg.getUser();
+        if (isPaidAccount) {
+            if (paymentPlanName != null || BILLING_STARTER_PLAN != paymentPlanName) {
+                var productName = tenantDomain + "_" + API_CLOUD;
+                var effectiveStartDate = new Packages.java.util.Date();
+                var tenantDisplayName = jagg.getUser();
+                var cloudEmail = cloudConfig.registrationEmail.username.toString();
+                var userEmail = String(session.get(LOGGED_IN_USER_EMAIL));
+                var isProductCreated =
+                        billingService.enableMonetization(tenantDomain, tenantPassword, tenantDisplayName);
+                if (isProductCreated) {
+                    var cloudType = productIdFromServiceId.api_cloud;
+                    // Add status to MONETIZATION_STATUS table
+                    var addMonetizationStatus = addStatusToMonetizationStatusTable(tenantDomain, cloudType);
+                    if (addMonetizationStatus) {
+                        log.info("Successfully updated the monetization status table for tenant : " + tenantDomain);
+                        // Send email notification to cloud service
+                        var notificationToCloudStatus = sendProductEnableNotificationEmailToCloud(tenantDisplayName,
+                                effectiveStartDate, productName, cloudEmail);
+                        if (notificationToCloudStatus == false) {
+                            log.error("Monetization Enable notification sending failed for cloud service for tenant : "
+                            + tenantDomain + " , Product name : " + productName);
+                        }
+                        // Send email notification to tenant
+                        var notificationToUserStatus = sendProductEnableNotificationEmailToUser(tenantDisplayName,
+                                effectiveStartDate, productName, userEmail);
+                        if (notificationToUserStatus == false) {
+                            log.error("Monetization Enable notification sending failed for cloud service for tenant : "
+                            + tenantDomain + " , Product name : " + productName);
+                        }
+                        log.info("Successfully created the Product for the tenant : " + tenantDomain);
+                        return {
+                            error: false,
+                            status: "200",
+                            message: "You have successfully enabled monetizaton for API Cloud",
+                            account: "paid"
+                        };
+                    } else {
+                        throw "Add status to monetization_status table failed for user: " + username + " of tenant: " +
+                        tenantDomain + ".";
+                    }
+                } else {
+                    throw "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                }
+            } else {
+                throw "Validation failed. User " + username + " is having an " + BILLING_STARTER_PLAN + " account.";
+            }
+        } else {
+            throw "Validation failed. User " + username + " is having an free account.";
+        }
+    } catch (e) {
+        var msg, account = "";
+        if (!isPaidAccount) {
+            msg = "You are having an free account. In order to enable Monetization please upgrade your account to " +
+            "at-least 'Getting Traction' plan.";
+            account = "Free";
+        } else if (paymentPlanName != null && BILLING_STARTER_PLAN == paymentPlanName) {
+            msg = "You are subscribed to " + BILLING_STARTER_PLAN + " Plan. In order to enable Monetization please " +
+            "upgrade your account to at-least '" + MONETIZATION_STARTER_PLAN + "' plan.";
+            account = BILLING_STARTER_PLAN;
+        } else {
+            msg = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
+        }
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            message: msg,
+            status: "500",
+            account: account
+        };
+    }
+};
+
+// Function for query zuora product by name
+var getProductInfo = function (tenantDomain, productName) {
+    billingService.queryProduct(tenantDomain, productName);
+};
+
+// Function for get the current payment plan of the tenant
+var getCurrentPaymentPlan = function () {
+    var serviceId = API_CLOUD;
+    var currRatePlanId = null;
+    var ratePlans = modBilling.getCurrentRatePlan(serviceId);
+    var paymentPlanName = null;
+    if (ratePlans != null && ratePlans.length > 0) {
+        currRatePlanId = ratePlans[ratePlans.length - 1].productRatePlanId;
+        var ratePlansObj = modBilling.getRatePlans(serviceId);
+        var paymentPlans = ratePlansObj.entry;
+        for (var i = 0; i < paymentPlans.length; i++) {
+            if (currRatePlanId == paymentPlans[i].id) {
+                paymentPlanName = paymentPlans[i].name;
+            }
+        }
+    }
+    return paymentPlanName;
+};
+
+// Function for insert monetization enabled status
+var addStatusToMonetizationStatusTable = function (tenantDomain, cloudType) {
+    var queryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_STATUS;
+    var parameters = [tenantDomain, cloudType];
+    var result = modDb.executeQuery(queryString, parameters);
+    return (null != result);
+};
+
+// Function for send monetization enable notification to cloud
+var sendProductEnableNotificationEmailToCloud = function (displayName, effectiveStartDate, productName, cloudEmail) {
+    var body = modUtil.getObjFromFile(ENABLE_MONETIZATION_CLOUD_NOTIFICATION_FILE_PATH);
+    body = body.replace("$tenant", displayName).replace("$effective-date", effectiveStartDate).replace("$product_name",
+            productName);
+    var subject = "WSO2 Cloud Services - Successfully enabled monetization for user " + displayName;
+    return modUtil.sendEmail(body, subject, cloudEmail);
+};
+
+// Function for send monetization enable notification to user
+var sendProductEnableNotificationEmailToUser = function (displayName, effectiveStartDate, productName, userEmail) {
+    var body = modUtil.getObjFromFile(ENABLE_MONETIZATION_USER_NOTIFICATION_FILE_PATH);
+    body = body.replace("$tenant", displayName).replace("$effective-date", effectiveStartDate).replace("$product_name",
+            productName);
+    var subject = "WSO2 Cloud Services - Successfully enabled monetization.";
+    return modUtil.sendEmail(body, subject, userEmail);
+};
+
+// Function for create product rate plans
+var createProductRatePlan = function (ratePlanName, price, throttlingLimit, monthlyLimit, overageCharge, description) {
+    var tenantDomain = modManager.getTenantDomain();
+    return billingService.createProductRatePlan(tenantDomain, ratePlanName, price, throttlingLimit, monthlyLimit,
+            overageCharge, description);
+};
+
+// Function for get the names of thw throttling tiers
+var getThrottlingTiersOfTenant = function (tenantDomain) {
+    return billingService.getThrottlingTiersOfTenant(tenantDomain);
+};
+
 %>
