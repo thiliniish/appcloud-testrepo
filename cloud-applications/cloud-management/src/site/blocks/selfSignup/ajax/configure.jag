@@ -23,7 +23,7 @@ include("/jagg/config_reader.jag");
     //Method to check if the self sign up feature has been configured for the user.
     if (action == "checkSignUpConfiguredForUser") {
         var isSignUpConfiguredResult = jagg.module("selfSignup").checkSignupConfiguredInRegistry(username);
-        var message = "Error while checking if self sign-up has been configured for the user "+username;
+        var message = "Error while checking if self sign-up has been configured for the user " + username;
         var statusMessage = "error";
         var result = {
             error: true,
@@ -32,7 +32,7 @@ include("/jagg/config_reader.jag");
             statusCode: 500
         }
         if (isSignUpConfiguredResult.signUpConfigured == true || "true".equals(isSignUpConfiguredResult.signUpConfigured.trim())) {
-            message = "self sign-up has been successfully configured for the user "+username;
+            message = "self sign-up has been successfully configured for the user " + username;
             statusMessage = "configured";
             result = {
                 error: false,
