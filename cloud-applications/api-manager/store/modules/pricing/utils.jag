@@ -199,27 +199,27 @@ var getObjFromFile = function(pathToFile) {
 };
 
 /**
- * Returns the tenant aware username from the given userName (i.e. domain less user name)
- * @param userName
+ * Returns the tenant aware username from the given username (i.e. domain less user name)
+ * @param username
  * @return tenant aware username
  */
-var getTenantAwareUsername = function (userName) {
-    if (userName.indexOf("@") != -1) {
-        userName = userName.substring(0, userName.lastIndexOf("@"));
-    } else if (userName.indexOf("@") != userName.lastIndexOf("@")) {
-        userName = userName.substring(0, userName.lastIndexOf("@"));
+var getTenantAwareUsername = function (username) {
+    if (username.indexOf("@") != -1) {
+        username = username.substring(0, username.lastIndexOf("@"));
+    } else if (username.indexOf("@") != username.lastIndexOf("@")) {
+        username = username.substring(0, username.lastIndexOf("@"));
     }
-    return userName;
+    return username;
 };
 
 /**
  * Returns the email of the given user
- * @param userName
+ * @param username
  * @param tenantDomain
  * @return userEmail
  */
-var getEmailOfUser = function (userName, tenantDomain) {
-    var tenantAwareUserName = getTenantAwareUsername(userName);
+var getEmailOfUser = function (username, tenantDomain) {
+    var tenantAwareUserName = getTenantAwareUsername(username);
     var userEmail = "";
     var PrivilegedCarbonContext = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
     var context = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -233,10 +233,10 @@ var getEmailOfUser = function (userName, tenantDomain) {
         var userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
         var userEmail = userStoreManager.getUserClaimValue(tenantAwareUserName, EMAIL_CLAIM_URI, null);
         if (log.isDebugEnabled()) {
-            log.debug("The user email for the user " + userName + " is: " + userEmail);
+            log.debug("The user email for the user " + username + " is: " + userEmail);
         }
     } catch (e) {
-        log.error("Error while getting email of user :  " + userName + "\n" + e);
+        log.error("Error while getting email of user :  " + username + "\n" + e);
     } finally {
         context.endTenantFlow();
     }
