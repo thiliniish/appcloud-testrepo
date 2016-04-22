@@ -133,11 +133,12 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
             var apiVersion = apiData.apiVersion;
             var provider = apiData.apiProvider;
             var tier = apiData.ratePlanName;
+            var tenantDisplayName = getDisplayNameFromTenantDomain(tenantDomain);
             selectedApp = encoder.getSafeText(request.getParameter("selectedApp"));
 
             //Send the notifications for the subscription activity
-            if (!"".equals(selectedApp) && selectedApp != null && !"".equals(apiName) && apiName != null && !"".equals(apiVersion) && apiVersion != null && !"".equals(provider) && provider != null && !"".equals(tier) && tier != null) {
-                jagg.module("pricing").sendSubscriptionSuccessNotifications(apiName, apiVersion, selectedApp, tier, provider, user.username)
+            if (!"".equals(selectedApp) && selectedApp != null && !"".equals(apiName) && apiName != null && !"".equals(apiVersion) && apiVersion != null && !"".equals(provider) && provider != null && !"".equals(tier) && tier != null && !"".equals(tenantDisplayName)) {
+                jagg.module("pricing").sendSubscriptionSuccessNotifications(apiName, apiVersion, selectedApp, tier, provider, user.username, tenantDisplayName);
             } else {
                 log.error("Required parameters are not available to send subscription notifications for the tenant " + tenantDomain);
             }

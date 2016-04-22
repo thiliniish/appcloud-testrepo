@@ -16,8 +16,9 @@ var log = new Log("modules.pricing.notifications.jag");
  * @param tier
  * @param provider
  * @param subscriber
+ * @param tenantDisplayName
  */
-var sendSubscriptionSuccessNotifications = function (apiName, apiVersion, applicationName, tier, provider, subscriber) {
+var sendSubscriptionSuccessNotifications = function (apiName, apiVersion, applicationName, tier, provider, subscriber, tenantDisplayName) {
 
     var tenantDomain = multiTenantUtils.getTenantDomain(subscriber);
     try {
@@ -27,8 +28,8 @@ var sendSubscriptionSuccessNotifications = function (apiName, apiVersion, applic
         var subscriberEmail = getEmailOfUser(subscriber, tenantDomain);
         var providerEmail = getEmailOfUser(provider, tenantDomain);
         var api = apiName + "-" + apiVersion;
-        var subscriberNotificationResult = sendSubscriptionNotificationToSubscriber(api, applicationName, tier, provider, providerEmail, subscriber, subscriberEmail, tenantDomain);
-        var publisherNotificationResult = sendSubscriptionNotificationToProvider(api, applicationName, tier, provider, providerEmail, subscriberEmail, tenantDomain);
+        var subscriberNotificationResult = sendSubscriptionNotificationToSubscriber(api, applicationName, tier, provider, providerEmail, subscriber, subscriberEmail, tenantDisplayName);
+        var publisherNotificationResult = sendSubscriptionNotificationToProvider(api, applicationName, tier, provider, providerEmail, subscriberEmail, tenantDisplayName);
 
         if (!subscriberNotificationResult.error && !publisherNotificationResult.error) {
             log.info("Successfully sent the subscription notification emails for subscription activity for the tenant " + tenantDomain);
@@ -49,12 +50,12 @@ var sendSubscriptionSuccessNotifications = function (apiName, apiVersion, applic
  * @param providerEmail
  * @param subscriber
  * @param subscriberEmail
- * @param tenantDomain
+ * @param tenantDisplayName
  * @return result (Status of sending the subscription notification)
  */
 var sendSubscriptionNotificationToSubscriber = function (api, applicationName, tier, provider, providerEmail,
                                                          subscriber, subscriberEmail,
-                                                         tenantDomain) {
+                                                         tenantDisplayName) {
 
     var messageBody = "";
     var message = "Error occurred while sending the email to the subscriber " + subscriber;
@@ -64,15 +65,16 @@ var sendSubscriptionNotificationToSubscriber = function (api, applicationName, t
         statusCode: 500
     }
     try {
-        var responseObj = getResourceFromTenantSpace(SUBSCRIBER_EMAIL_REGISTRY_PATH, tenantDomain, provider);
+        var responseObj = getResourceFromTenantSpace(tenantDomain, provider);
         if (!responseObj.error) {
             responseObj.response.contentType = CONTENT_TYPE_TEXT_PLAIN;
             messageBody = (responseObj.response.content).toString();
+
         } else {
-            messageBody = getObjFromFile(SUBSCRIBER_EMAIL_DEFAULT_PATH);
+            messageBody = getObjFromEmailFile(SUBSCRIBER_NOTIFICATION_TYPE);
         }
         if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
-            messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDomain).replace("$applicationName", applicationName).replace("$contact", providerEmail);
+            messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDisplayName).replace("$applicationName", applicationName).replace("$contact", providerEmail);
             billingService.sendEmailNotification(subscriberEmail, SUBSCRIBER_EMAIL_SUBJECT, messageBody);
             message = "Successfully sent email to the subscriber " + subscriber;
             result = {
@@ -103,15 +105,14 @@ var sendSubscriptionNotificationToSubscriber = function (api, applicationName, t
  * @param provider
  * @param providerEmail
  * @param subscriberEmail
- * @param tenantDomain
+ * @param tenantDisplayName
  * @return result (Status of sending the subscription notification)
  */
 var sendSubscriptionNotificationToProvider = function (api, applicationName, tier, provider,
                                                        providerEmail, subscriberEmail,
-                                                       tenantDomain) {
+                                                       tenantDisplayName) {
 
-    var providerEmailPath = "/site/conf/pricing/emails/tenantSubscriptionNotificationEmail.txt";
-    var providerEmailSubject = "Subscription notification for the " + tenantDomain + " organization";
+    var providerEmailSubject = "Subscription notification for the " + tenantDisplayName + " organization";
     var message = "Error occurred while sending the email to the provider " + provider;
     var result = {
         error: true,
@@ -120,10 +121,9 @@ var sendSubscriptionNotificationToProvider = function (api, applicationName, tie
     }
     try {
 
-        var messageBody = getObjFromFile(providerEmailPath);
-
+        var messageBody = getObjFromEmailFile(PROVIDER_NOTIFICATION_TYPE);
         if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
-            messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDomain).replace("$subscriber", subscriberEmail).replace("$applicationName", applicationName);
+            messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDisplayName).replace("$subscriber", subscriberEmail).replace("$applicationName", applicationName);
 
             //Sending the email to the provider regarding the subscription activity.
             billingService.sendEmailNotification(providerEmail, providerEmailSubject, messageBody);

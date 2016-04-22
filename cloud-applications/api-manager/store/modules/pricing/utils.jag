@@ -3,6 +3,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var cloudUserService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 var EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
 var log = new Log("modules.pricing.utils.jag");
@@ -178,20 +179,28 @@ var sendHTTPRequest = function (url, type, headers, data, username, password) {
 };
 
 /**
- * Returns the text content of a given file.
- * @param pathToFile
+ * Returns the text content of a particular notification type.
+ * @param notificationType
  * @return the file text content.
  */
-var getObjFromFile = function(pathToFile) {
-    var dataObj = "";
-    if (log.isDebugEnabled()) {
-        log.debug("Reading file : " + pathToFile);
+var getObjFromEmailFile = function(notificationType) {
+    var pathToFile = null;
+
+    if ("providerNotification".equals(notificationType)) {
+        pathToFile = PROVIDER_EMAIL_DEFAULT_PATH;
+    } else if ("subscriberNotification".equals(notificationType)) {
+        pathToFile = SUBSCRIBER_EMAIL_DEFAULT_PATH;
     }
+    var dataObj = "";
     try{
-        var file = new File(pathToFile);
-        file.open("r");
-        dataObj = file.readAll();
-        file.close();
+        if (pathToFile != null) {
+            var file = new File(pathToFile);
+            file.open("r");
+            dataObj = file.readAll();
+            file.close();
+        } else {
+            log.error("Unable to find the path to the file for the notificationType " + notificationType);
+        }
     } catch (e) {
         log.error("Error while reading file " + pathToFile + "\n" + e);
     }
@@ -241,5 +250,16 @@ var getEmailOfUser = function (username, tenantDomain) {
         context.endTenantFlow();
     }
     return userEmail;
+};
+
+//Method to get the display name of the given tenant domain.
+var getDisplayNameFromTenantDomain = function (tenantDomain){
+    var tenantDisplayName = "";
+    try{
+        tenantDisplayName = cloudUserService.getTenantDisplayName(tenantDomain);
+    } catch (e) {
+        log.error("Error occured while getting the tenant display name for the tenant domain :  " + tenantDomain + ", \nerror:" + e);
+    }
+    return tenantDisplayName;
 };
 %>
