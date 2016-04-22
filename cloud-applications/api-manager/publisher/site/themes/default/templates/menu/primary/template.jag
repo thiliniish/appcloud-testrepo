@@ -337,11 +337,17 @@ $(document).ready(function($) {
 				var menuURL = mainMenu[attr].url;
 				var menuIcon = mainMenu[attr].icon;
 
-				if (mainMenu[attr].isDropDown == "false") {%>
+		    if (mainMenu[attr].isDropDown == "false") {
+			    if (attr == "Monetization") {
+				    if (isUserAdmin) { %>
+						 <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
+				          </span></a></li>
+				<% }
+			    } else { %>
 				     <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
 				     </span></a></li>
-				<%
-                } else {
+			   <% }
+		    } else {
                     if (!isBillingEnable && attr == "Account") {
 
                     } else if (isBillingEnable && attr == "Account") {

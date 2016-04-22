@@ -31,6 +31,12 @@
         }
       }
     },
+    "Monetization": {
+      "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/monetization-dashboard.jag",
+      "icon": "fa fa-money",
+      "isDropDown": "false",
+      "target" : "_blank"
+    },
     "Documentation": {
       "url": "#",
       "icon": "fa fa-book",
