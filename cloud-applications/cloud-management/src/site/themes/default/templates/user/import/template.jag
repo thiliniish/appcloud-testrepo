@@ -4,6 +4,7 @@
     include('/jagg/constants.jag');
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var type = cloudConfig.subscriptions.type;
+    var emailValidationPattern = cloudConfig.emailValidationPattern;
 %>
 
 <script type="text/javascript">
@@ -173,7 +174,7 @@
       function validateEmailAddresses(nameString) {
         var names = nameString.split(",");
         var allEmailAddressesMatch = true;
-        var pattern = new RegExp(<%= EMAIL_VALIDATION_PATTERN %>);
+        var pattern = new RegExp(<%= emailValidationPattern %>);
         for(var i = 0; i < names.length; i++) {
             var match = pattern.test(names[i]);
             if(match == false){
