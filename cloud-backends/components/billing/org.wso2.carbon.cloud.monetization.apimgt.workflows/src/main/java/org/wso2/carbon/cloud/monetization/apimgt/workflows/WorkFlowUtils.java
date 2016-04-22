@@ -123,11 +123,11 @@ public final class WorkFlowUtils {
         if (StringUtils.isNotBlank(response.getText())) {
             responseObj = new JsonParser().parse(response.getText().trim()).getAsJsonObject();
             if (responseObj == null || responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ) == null) {
-                throw new WorkflowException("Could not complete workflow. Subscriber information not available.");
+                throw new WorkflowException("Could not complete workflow. Subscriber information is not available.");
             }
             return responseObj;
         } else {
-            throw new WorkflowException("Could not complete workflow. Subscriber information not available.");
+            throw new WorkflowException("Could not complete workflow. Subscriber information is not available.");
         }
     }
 }

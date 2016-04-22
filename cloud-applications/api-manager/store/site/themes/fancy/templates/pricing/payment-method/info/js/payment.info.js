@@ -77,7 +77,7 @@ function makeDefaultMethod(methodId) {
             var tenantDomain = result.tenantDomain;
             if (!result.error) {
                 jagg.message({
-                    content: 'Successfully updated default payment method.',
+                    content: 'Successfully updated the default payment method.',
                     type: 'success',
                     cbk: function () {
                         var form = $('<form action="manage-account.jag?tenant=' + tenantDomain + '"' + 'method="post">' +

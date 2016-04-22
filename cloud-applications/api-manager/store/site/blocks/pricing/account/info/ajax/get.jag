@@ -31,7 +31,7 @@ var mod = jagg.module("pricing");
         print({
             error: true,
             statusCode: 403,
-            message: "API monetization feature is not available for this tenant.  Please contact store admin."
+            message: "API monetization feature is not available for this tenant.  Please contact the store admin."
         });
     }
     if (action == "get-billing-account") {

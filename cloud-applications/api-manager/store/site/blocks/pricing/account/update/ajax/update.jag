@@ -32,7 +32,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         print({
             error: true,
             statusCode: 403,
-            message: "API monetization feature is not available for this tenant.  Please contact store admin."
+            message: "API monetization feature is not available for this tenant.  Please contact the store admin."
         });
     }
     if (action == "updateAccount") {

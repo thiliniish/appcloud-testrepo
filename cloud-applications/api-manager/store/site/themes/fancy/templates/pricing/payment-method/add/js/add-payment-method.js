@@ -23,7 +23,7 @@ function showPage() {
 }
 
 function submitPage() {
-    jagg.message({content: 'Please Wait. Your request is being processed..', type: 'info'});
+    jagg.message({content: 'Please wait. Your request is being processed..', type: 'info'});
     Z.submit();
 }
 

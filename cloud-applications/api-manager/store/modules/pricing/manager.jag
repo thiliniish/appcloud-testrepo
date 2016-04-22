@@ -71,8 +71,8 @@ var getAccountDetails = function () {
             };
         }
     } catch (e) {
-        msg = "Error while getting account details.. Please retry ";
-        log.error("ERROR while getting account details for : " + user + " - " + e.message);
+        msg = "Error while getting the account details.. Please retry ";
+        log.error("ERROR while getting the account details for : " + user + " - " + e.message);
         log.error(e);
         return {
             error: true,
@@ -135,9 +135,9 @@ var removePaymentMethod = function (methodId) {
             };
         }
     } catch (e) {
-        log.error("ERROR while getting payment methods  for : " + user + " - " + e.message);
+        log.error("ERROR while getting the payment methods  for : " + user + " - " + e.message);
         log(e);
-        msg = "Error while getting payment methods";
+        msg = "Error while getting the payment methods";
         return {
             error: true,
             message: msg,
@@ -166,9 +166,9 @@ var getAllPaymentMethods = function () {
             };
         }
     } catch (e) {
-        log.error("ERROR while getting payment methods  for : " + user + " - " + e.message);
+        log.error("ERROR while getting the payment methods  for : " + user + " - " + e.message);
         log(e);
-        msg = "Error while getting payment methods";
+        msg = "Error while getting the payment methods";
         return {
             error: true,
             message: msg,
@@ -328,7 +328,7 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
     }
 
     if (workflowRefData == null || "".equals(workflowRefData)) {
-        errorMsg = "Workflow refId is invalid. it should be neither null nor empty";
+        errorMsg = "Workflow refId is invalid. It should not be null or empty";
         log.error(errorMsg);
         return {
             error: true,
@@ -351,7 +351,7 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
             };
         }
     } catch (e) {
-        log.error("Error while getting subscribed rate plan id.");
+        log.error("Error while getting the subscribed rate plan id.");
         log.error(e);
         return {
             error: true,
@@ -514,12 +514,12 @@ var getUsage = function (api, appName, startDate, endDate) {
                 statusCode: 200
             };
         } catch (e) {
-            log.error("Error while getting usage for : " + tenantDomain);
+            log.error("Error while getting the usage for : " + tenantDomain);
             log.error(e);
             return errorObj;
         }
     } else {
-        var msg = "API name cannot be null when retrieving usage";
+        var msg = "API name cannot be null when retrieving the usage";
         return {
             error: true,
             message: msg,
@@ -550,7 +550,7 @@ var getAPIs = function () {
             statusCode: 200
         };
     } catch (e) {
-        log.error("Error while getting apis for : " + username);
+        log.error("Error while getting the apis for : " + username);
         log.error(e);
         return errorObj;
     }
@@ -577,7 +577,7 @@ var getApplications = function (api) {
             statusCode: 200
         };
     } catch (e) {
-        log.error("Error while getting apis for : " + username);
+        log.error("Error while getting the apis for : " + username);
         log.error(e);
         return errorObj;
     }

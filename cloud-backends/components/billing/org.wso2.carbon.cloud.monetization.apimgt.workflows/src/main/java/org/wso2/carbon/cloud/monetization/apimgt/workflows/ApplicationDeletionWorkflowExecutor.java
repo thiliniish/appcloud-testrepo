@@ -286,16 +286,16 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
                         return finalizeAppDeletion(applicationWorkflowDTO);
                     }
                 } else {
-                    throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
+                    throw new WorkflowException(ERROR_MSG + " Subscriber information is not available.");
                 }
             } else if (responseElement.isJsonPrimitive() && responseElement.getAsString().isEmpty()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Subscriber information not available. Subscriber assumed to be only using free " +
+                    LOGGER.debug("Subscriber information is not available. Subscriber assumed to be only using free " +
                             "apis");
                 }
                 return finalizeAppDeletion(applicationWorkflowDTO);
             } else {
-                throw new WorkflowException(ERROR_MSG + " Subscriber information not available. Could be due to a " +
+                throw new WorkflowException(ERROR_MSG + " Subscriber information is not available. Could be due to a " +
                         "connection failure.");
             }
         } catch (AxisFault | XMLStreamException e) {

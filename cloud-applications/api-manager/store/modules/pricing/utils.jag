@@ -133,7 +133,7 @@ var getAndAddRatePlanToSession = function (tenantDomain, ratePlanName) {
         return {
             error: true,
             statusCode: 500,
-            message: "Rate plan information not available. Rate plan name may be invalid"
+            message: "Rate plan information is not available or plan name is invalid"
         };
     }
 };
@@ -245,7 +245,7 @@ var getEmailOfUser = function (username, tenantDomain) {
             log.debug("The user email for the user " + username + " is: " + userEmail);
         }
     } catch (e) {
-        log.error("Error while getting email of user :  " + username + "\n" + e);
+        log.error("Error while getting the email of user :  " + username + "\n" + e);
     } finally {
         context.endTenantFlow();
     }
@@ -258,7 +258,7 @@ var getDisplayNameFromTenantDomain = function (tenantDomain){
     try{
         tenantDisplayName = cloudUserService.getTenantDisplayName(tenantDomain);
     } catch (e) {
-        log.error("Error occured while getting the tenant display name for the tenant domain :  " + tenantDomain + ", \nerror:" + e);
+        log.error("Error occurred while getting the tenant display name for the tenant domain :  " + tenantDomain + ", \nerror:" + e);
     }
     return tenantDisplayName;
 };

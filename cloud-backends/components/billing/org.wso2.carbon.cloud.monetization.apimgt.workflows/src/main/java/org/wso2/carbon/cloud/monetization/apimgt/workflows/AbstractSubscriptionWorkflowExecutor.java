@@ -62,8 +62,9 @@ public abstract class AbstractSubscriptionWorkflowExecutor extends WorkflowExecu
                         throw new WorkflowException(ERROR_MSG + " Tier plan " + tierPlan + " not " + "available.");
                 }
             } else {
-                throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() + " not " +
-                        "available or tier plan not available.");
+                throw new WorkflowException(
+                        ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() +
+                        " or tier plan is not available");
             }
         } catch (APIManagementException e) {
             throw new WorkflowException(ERROR_MSG + " Error occurred while querying the tier information. ", e);

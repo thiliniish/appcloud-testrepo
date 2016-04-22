@@ -89,7 +89,7 @@ $(document).ready(function () {
         }, error: function (jqXHR, textStatus, errorThrown) {
             $('.message_box').empty();
             jagg.message({
-                content: "Unable to load the Invoice data at the moment. Please contact WSO2 Cloud Team for help",
+                content: "Unable to load the invoice data at the moment. Please contact WSO2 Cloud Team for help.",
                 type: 'error',
                 cbk: function () {
                     window.location.href = cloudMgtURL + "/site/pages/contact-us.jag";

@@ -38,7 +38,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         print({
             error: true,
             statusCode: 403,
-            message: "Feature not available for the store. Please contact store admin."
+            message: "Feature is not available for the store. Please contact the store admin."
         });
         return;
     }
