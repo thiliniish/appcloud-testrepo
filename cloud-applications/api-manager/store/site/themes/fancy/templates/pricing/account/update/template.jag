@@ -8,24 +8,18 @@
     <div class="box-content">
         <div class="forms margin-top-xs">
             <div class="form-group span6" style="display: none;">
-                <label for="firstname">First Name: </label>
-                <input type="text" class="form-control" id="first-name"
-                    value="<%=outputs.profileFirstName%>" placeholder="Eg: John">
             </div>
             <div class="form-group span6"  style="display: none;">
-                <label for="lastname">Last Name: </label>
-                <input type="text" class="form-control" id="last-name"
-                    value="<%=outputs.profileLastName%>" placeholder="Eg: Doe">
             </div>
             <div class="form-group span6">
                 <label for="firstname">First Name: </label>
                 <input type="text" class="form-control" id="firstname"
-                    value="<%=outputs.profileFirstName%>" placeholder="" >
+                    value="<%=outputs.profileFirstName%>" placeholder="Eg: John" >
             </div>
             <div class="form-group span6 marg-left0">
                 <label for="lastname">Last Name: </label>
                 <input type="text" class="form-control" id="lastname"
-                    value="<%=outputs.profileLastName%>" placeholder="">
+                    value="<%=outputs.profileLastName%>" placeholder="Eg: Doe">
             </div>
             <div class="form-group span6">
                 <label for="addressline1">Address Line 1: </label>
