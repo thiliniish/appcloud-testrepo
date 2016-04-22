@@ -68,7 +68,7 @@ import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.REJECTED;
 public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWorkflowExecutor {
 
     private static final Log LOGGER = LogFactory.getLog(SubscriptionCreationWorkflowExecutor.class);
-    private static final String ERROR_MSG = "Could not complete subscription creation workflow.";
+    private static final String ERROR_MSG = "Could not complete the subscription creation workflow.";
 
     /*Data separator for the encrypting data string*/
     private static final String DATA_SEPARATOR = ":";
@@ -142,14 +142,14 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                 }
             } else if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonPrimitive()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Subscriber information not available. adding subscriber");
+                    LOGGER.debug("Subscriber information is not available. adding subscriber");
                 }
                 addSubscriber(subscriptionWorkflowDTO);
                 httpworkflowResponse.setAdditionalParameters(ACTION_PARAM, ADD_PAYMENT_PARAM_VALUE);
                 httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
                 return httpworkflowResponse;
             } else {
-                throw new WorkflowException(ERROR_MSG + " Subscriber information not available.");
+                throw new WorkflowException(ERROR_MSG + " Subscriber information is not available.");
             }
         } catch (AxisFault | XMLStreamException | UnsupportedEncodingException | CryptoException e) {
             throw new WorkflowException(ERROR_MSG, e);
@@ -272,7 +272,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
         if (workflowDTO instanceof SubscriptionWorkflowDTO) {
             subscriptionWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
         } else {
-            throw new WorkflowException(ERROR_MSG + " WorkflowDTO doesn't match the required type");
+            throw new WorkflowException(ERROR_MSG + " WorkflowDTO doesn't match the required type.");
         }
         return handleTierPlan(subscriptionWorkflowDTO);
     }

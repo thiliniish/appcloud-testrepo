@@ -119,7 +119,7 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
         if (!isAnActiveSubscription(subscriptionWorkflowDTO)) {
             return handleFreePlan(subscriptionWorkflowDTO);
         } else {
-            throw new WorkflowException(ERROR_MSG + " Subscriber information not available. Tenant: "
+            throw new WorkflowException(ERROR_MSG + " Subscriber information is not available. Tenant: "
                     + subscriptionWorkflowDTO.getTenantDomain() + ", Subscriber: " + subscriptionWorkflowDTO
                     .getSubscriber() + ",  Application: " + subscriptionWorkflowDTO.getApplicationName() + ", Api: "
                     + subscriptionWorkflowDTO.getApiName() + ", API version: " + subscriptionWorkflowDTO.getApiVersion());

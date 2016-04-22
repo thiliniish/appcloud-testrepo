@@ -1,7 +1,7 @@
 function updateContactInfo(tenantDomain, docObj) {
     var cloudmgtURL = docObj.getElementById("cloudmgtURL").value;
     jagg.message({
-        content: 'Please Wait. Your request is being processed..', type: 'success'
+        content: 'Please wait. Your request is being processed..', type: 'success'
     });
     $.ajax({
         url: "../../blocks/pricing/account/update/ajax/update.jag",

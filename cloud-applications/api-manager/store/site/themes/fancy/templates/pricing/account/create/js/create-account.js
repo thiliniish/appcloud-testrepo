@@ -1,7 +1,7 @@
 function doSubmit() {
     var isValid = validateForm();
     if (isValid) {
-        jagg.message({content: 'Please Wait. Your request is being processed..', type: 'info'});
+        jagg.message({content: 'Please wait. Your request is being processed..', type: 'info'});
         jagg.post("/site/blocks/pricing/account/create/ajax/create.jag", {
             action: "createAccount",
             organization: $("#organization").val(),
