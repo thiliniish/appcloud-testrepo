@@ -77,7 +77,9 @@ jagg.module("pricing", {
     },
     configureRegistryParameters: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").configureRegistryParameters.apply(this, arguments);
+    },
+    getDisplayNameFromTenantDomain: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getDisplayNameFromTenantDomain.apply(this, arguments);
     }
-
 });
 %>

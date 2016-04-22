@@ -490,4 +490,27 @@ public class UserManagementService extends AbstractAdmin {
             }
         return false;
     }
+
+	/**
+	 * This method obtains the tenant display name for the given tenant domain.
+	 *
+	 * @param tenantDomain
+	 * @return the tenant's display name
+	 * @throws UserManagementException
+	 */
+	public String getTenantDisplayName(String tenantDomain) throws UserManagementException {
+		String tenantDisplayName = "";
+		try {
+			if (!"".equals(tenantDomain) && tenantDomain != null) {
+				tenantDisplayName = dbManager.getTenantDisplayName(tenantDomain);
+			}
+		} catch (SQLException e) {
+			String message =
+					"An error occurred while retrieving the tenant display name for the tenant domain " +
+					tenantDomain;
+			log.error(message);
+			throw new UserManagementException(e.getMessage(), e);
+		}
+		return tenantDisplayName;
+	}
 }
