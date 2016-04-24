@@ -19,13 +19,10 @@
         <form  id='addPaymentPlans' role='form'>
             <div class="row">
                 <div class="col-md-5 col-lg-5 forms">
-
-
                     <div class="form-group col-md-12">
                         <label for="display-name">Plan Name: </label>
                         <input type="text" class="form-control" id="planName" value="<%= outputs.planName%>" placeholder="Please enter a display name for the plan" disabled>
                     </div>
-
                     <div class="form-group col-md-12">
                         <label for="plan-pricing">Pricing <span>(USD)</span>: </label>
                         <input type="number"  step="0.01" class="form-control" name="pricing" id="pricing" placeholder="E.g. 100" value='<%= outputs.price %>' required>

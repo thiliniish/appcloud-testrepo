@@ -75,7 +75,7 @@ public class ZuoraClientUtils {
     public ZuoraClientUtils() throws AxisFault {
         this.zuoraServiceStub = new ZuoraServiceStub();
         this.callOptions = new CallOptions();
-        callOptions.setUseSingleTransaction(true);
+        callOptions.setUseSingleTransaction(false);
         zuoraSSLEnabledProtocols();
     }
 

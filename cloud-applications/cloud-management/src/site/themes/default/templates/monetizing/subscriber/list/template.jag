@@ -4,7 +4,7 @@
         <div class="right-pane">
 
             <div class="action-bar">
-                <a href="<%=jagg.getAbsoluteUrl("/site/pages/monetization_dashboard.jag")%>"  class="btn-action">
+                <a href="<%=jagg.getAbsoluteUrl("/site/pages/monetization-dashboard.jag")%>"  class="btn-action">
                     <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
                         <i class="fw fw-left-arrow fw-stack-1x"></i>

@@ -1,6 +1,18 @@
 <%
 jagg.initializer("monetizing/publisher/enable", {
     preInitialize: function () {
+        //css
+        jagg.addHeaderCSS("publisher/enable", "jquery.dataTables.min", 'new-assets/css/datatables-1.10.7/jquery.dataTables.min.css');
+        jagg.addHeaderCSS("publisher/enable", "jquery.dataTable.override", 'new-assets/css/datatables-1.10.7/jquery.dataTables.override.css');
+        //js compiled plugins
+        jagg.addFooterJS("publisher/enable", "datatables.min", "new-assets/js/datatables-1.10.7/jquery.dataTables.min.js");
+        jagg.addFooterJS("publisher/enable", "jeditable", "new-assets/js/Jeditable-1.7.3/jquery.jeditable.js");
+        jagg.addFooterJS("publisher/enable", "inlineEdit", "new-assets/js/datatables-1.10.7/jquery.dataTables.inlineEdit.js");
+        jagg.addFooterJS("publisher/enable", "columnFilter", "new-assets/js/datatables-1.10.7/jquery.dataTables.columnFilter.js");
+        jagg.addFooterJS("account/info", "noty", "js/noty-2.3.5/jquery.noty.packaged.min.js");
+        jagg.addFooterJS("account/info", "noty.theme", "js/noty-2.3.5/themes/noty.theme.wso2.js");
+        jagg.addFooterJS("publisher/enable", "custom", "new-assets/js/custom/custom.js");
+        jagg.addFooterJS("publisher/enable", "subscriber-list", "templates/monetizing/publisher/enable/js/publisher-enable.js");
     }
 });
 %>

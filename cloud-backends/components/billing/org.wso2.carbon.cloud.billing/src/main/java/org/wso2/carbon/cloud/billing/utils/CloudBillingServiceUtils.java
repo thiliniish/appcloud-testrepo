@@ -24,7 +24,6 @@ import com.google.gson.JsonParser;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +50,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 /**
@@ -466,9 +464,8 @@ public final class CloudBillingServiceUtils {
      * @return product rate plan creation status
      * @throws CloudBillingException
      */
-    public static boolean createProductRatePlan(String tenantDomain, String ratePlanName, String price,
-                                                String throttlingLimit, String monthlyLimit,
-                                                String overageCharge, String description)
+    public static JsonObject createProductRatePlan(String tenantDomain, String ratePlanName, String price,
+                                                   String overageCharge, String description)
             throws CloudBillingException {
         String productName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
         try {
@@ -479,11 +476,9 @@ public final class CloudBillingServiceUtils {
             productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_NAME, ratePlanName);
             productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_PRICE, price);
             productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION, description);
-            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_THROTTLING_LIMIT, throttlingLimit);
-            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_MONTHLY_LIMIT, monthlyLimit);
             productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE, overageCharge);
             JsonObject response = zuoraProductClient.createProductRatePlan(productObj);
-            return null != response;
+            return response;
         } catch (CloudBillingException e) {
             throw new CloudBillingException(
                     "Error while creating the product rate plan of Product: " + productName + " for tenant: " +

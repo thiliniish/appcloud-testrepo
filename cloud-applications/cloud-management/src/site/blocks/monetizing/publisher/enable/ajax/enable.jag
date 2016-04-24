@@ -8,6 +8,9 @@ include("/jagg/config_reader.jag");
             tenantPassword = request.getParameter("tenantPassword"),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudmgtURI = cloudConfig.ServerUrls.cloudmgt.toString();
+    var contactUsURL = cloudmgtURI + CLOUD_CONTACT_US_URI;
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     if (action == "enableMonetization") {
         if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
@@ -22,7 +25,8 @@ include("/jagg/config_reader.jag");
                     error: true,
                     message: message,
                     status: result.status,
-                    account: result.account
+                    account: result.account,
+                    redirectionURL: contactUsURL
                 };
             } else {
                 returnObj = {

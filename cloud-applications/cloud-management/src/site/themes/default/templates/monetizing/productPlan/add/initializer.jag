@@ -11,7 +11,6 @@ jagg.initializer("monetizing/productPlan/add", {
         jagg.addFooterJS("productPlan/add", "columnFilter", "new-assets/js/datatables-1.10.7/jquery.dataTables.columnFilter.js")
         jagg.addFooterJS("productPlan/add", "bootstrap.min", "js/bootstrap-3.2.0/bootstrap.min.js");
         //custom js functions
-
         jagg.addFooterJS("account/info", "noty", "js/noty-2.3.5/jquery.noty.packaged.min.js");
         jagg.addFooterJS("account/info", "noty.theme", "js/noty-2.3.5/themes/noty.theme.wso2.js");
         jagg.addFooterJS("productPlan/add", "custom", "new-assets/js/custom/custom.js");

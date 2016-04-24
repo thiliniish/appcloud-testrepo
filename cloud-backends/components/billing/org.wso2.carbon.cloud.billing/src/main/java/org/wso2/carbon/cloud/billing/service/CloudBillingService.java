@@ -35,6 +35,7 @@ import org.wso2.carbon.cloud.billing.commons.config.DataServiceConfig;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
 import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
@@ -44,7 +45,6 @@ import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.core.util.CryptoException;
-import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.xml.sax.InputSource;
@@ -59,7 +59,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 
 /**
  * Represents cloud billing related services.
@@ -668,11 +667,9 @@ public class CloudBillingService extends AbstractAdmin {
         // Create the zuoara Product
         boolean createProductStatus = createProduct(tenantDomain);
         if (createProductStatus) {
-            // Add subscriptionCreation element to workflowExtension.xml in registry
-            if (updateWorkFlow(tenantPassword, tenantDisplayName)) {
-                status = true;
-            } else {
-                status = true;
+            //   Add subscriptionCreation element to workflowExtension.xml in registry
+            status = true;
+            if (!updateWorkFlow(tenantPassword, tenantDisplayName,tenantDomain)) {
                 LOGGER.error("Registry WorkflowExtension.xml update failed while enabling Monetization.");
             }
         }
@@ -687,12 +684,13 @@ public class CloudBillingService extends AbstractAdmin {
      * @return status of the update
      * @throws CloudBillingException
      */
-    public boolean updateWorkFlow(String tenantPassword, String tenantUsername) throws CloudBillingException {
-        Registry registry = getGovernanceSystemRegistry();
+    public boolean updateWorkFlow(String tenantPassword, String tenantUsername, String tenantDomain) throws CloudBillingException {
         try {
             // Get the workflow resource url
             String workflowUrl = MonetizationConstants.WORKFLOW_EXTENSION_URL;
-            Resource workflowResource = registry.get(workflowUrl);
+            Resource workflowResource = CloudBillingUtils
+                    .getRegistryResource(tenantDomain, workflowUrl);
+
             // Get the resource content
             String content = new String((byte[]) workflowResource.getContent());
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -718,7 +716,7 @@ public class CloudBillingService extends AbstractAdmin {
             // Add ServiceUrl Property tag
             Element propertyServiceUrl = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
             propertyServiceUrl
-                    .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_SERVICEURL_NAME);
+                    .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_SERVICE_END_POINT);
             // Get ServiceUrl from config files
             BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
             DataServiceConfig dataServiceConfig = billingConfig.getDSConfig();
@@ -751,8 +749,7 @@ public class CloudBillingService extends AbstractAdmin {
             content = result.getWriter().toString();
             // Update the workflow resource
             workflowResource.setContent(content.getBytes());
-            registry.put(workflowUrl, workflowResource);
-            return registry.resourceExists(workflowUrl);
+            return CloudBillingUtils.putRegistryResource(tenantDomain, workflowUrl, workflowResource);
         } catch (RegistryException | ParserConfigurationException | SAXException | IOException | TransformerException e) {
             throw new CloudBillingException("Error occurred while updating the Registry workflowExtensionContent " + e);
         }
@@ -777,13 +774,12 @@ public class CloudBillingService extends AbstractAdmin {
      * @return status of product creation
      * @throws CloudBillingException
      */
-    public boolean createProductRatePlan(String tenantDomain, String ratePlanName, String price, String throttlingLimit,
-                                         String monthlyLimit, String overageCharge, String description)
+    public JsonObject createProductRatePlan(String tenantDomain, String ratePlanName, String price,
+                                            String overageCharge, String description)
             throws CloudBillingException {
         try {
-            return CloudBillingServiceUtils.createProductRatePlan(tenantDomain, ratePlanName, price,
-                                                                         throttlingLimit, monthlyLimit, overageCharge,
-                                                                         description);
+            return CloudBillingServiceUtils.createProductRatePlan(tenantDomain, ratePlanName, price, overageCharge,
+                                                                  description);
         } catch (CloudBillingException e) {
             throw new CloudBillingException("Error occurred while getting the Registry throttling tiers " + e);
         }

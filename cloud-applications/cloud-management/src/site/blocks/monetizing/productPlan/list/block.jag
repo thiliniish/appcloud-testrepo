@@ -1,0 +1,6 @@
+<%
+jagg.block("monetizing/productPlan/list", {
+    initialize: function (data) {
+    }
+});
+%>

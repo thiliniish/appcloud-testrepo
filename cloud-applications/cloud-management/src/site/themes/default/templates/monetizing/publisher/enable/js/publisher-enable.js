@@ -3,7 +3,6 @@ $(document).ready(function ($) {
     if (eligibleForMonetization == "false") {
         var requirementMessage = document.getElementById("requirement-Message").textContent;
         showRequirementMessage(requirementMessage);
-
     }
     var clickwithblur = false;
     jQuery.validator.addMethod("validatePassword", function (value) {
@@ -68,12 +67,9 @@ function doSubmit() {
                     document.getElementById("btn_enable-monetization").disabled = false;
                     var message = "Successfully enabled the monetization for API Cloud.";
                     showMessage(message, "success", message.redirectionURL);
-
-
                 } else {
                     showMessage(result.message, "error", result.redirectionURL);
                 }
-
             });
     }
 }

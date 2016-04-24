@@ -45,8 +45,14 @@ jagg.module("monetizing", {
     enableMonetization: function () {
     return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").enableMonetization.apply(this, arguments);
     },
-    getNumberOfProductPlansForTenant: function () {
-        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getNumberOfProductPlansForTenant.apply(this, arguments);
+    getCurrentPaymentPlan: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getCurrentPaymentPlan.apply(this, arguments);
+    },
+    getProductPlans: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getProductPlans.apply(this, arguments);
+    },
+    addProductPlans: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").addProductPlans.apply(this, arguments);
     }
 });
 %>

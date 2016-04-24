@@ -1,5 +1,5 @@
 <%
-jagg.block("monetizing/publisher/enable", {
+jagg.block("monetizing/productPlan/add", {
     getOutputs: function (inputs) {
         return inputs;
     }
