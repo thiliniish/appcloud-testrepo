@@ -1,0 +1,21 @@
+<%
+jagg.initializer("monetizing/productPlan/add", {
+    preInitialize : function () {
+        //css
+        jagg.addHeaderCSS("productPlan/add", "jquery.dataTables.min", 'new-assets/css/datatables-1.10.7/jquery.dataTables.min.css');
+        jagg.addHeaderCSS("productPlan/add", "jquery.dataTable.override", 'new-assets/css/datatables-1.10.7/jquery.dataTables.override.css');
+        //js compiled plugins
+        jagg.addFooterJS("productPlan/add", "datatables.min", "new-assets/js/datatables-1.10.7/jquery.dataTables.min.js");
+        jagg.addFooterJS("productPlan/add", "jeditable", "new-assets/js/Jeditable-1.7.3/jquery.jeditable.js");
+        jagg.addFooterJS("productPlan/add", "inlineEdit", "new-assets/js/datatables-1.10.7/jquery.dataTables.inlineEdit.js");
+        jagg.addFooterJS("productPlan/add", "columnFilter", "new-assets/js/datatables-1.10.7/jquery.dataTables.columnFilter.js")
+        jagg.addFooterJS("productPlan/add", "bootstrap.min", "js/bootstrap-3.2.0/bootstrap.min.js");
+        //custom js functions
+
+        jagg.addFooterJS("account/info", "noty", "js/noty-2.3.5/jquery.noty.packaged.min.js");
+        jagg.addFooterJS("account/info", "noty.theme", "js/noty-2.3.5/themes/noty.theme.wso2.js");
+        jagg.addFooterJS("productPlan/add", "custom", "new-assets/js/custom/custom.js");
+        jagg.addFooterJS("productPlan/add", "productPlan-add", "templates/monetizing/productPlan/add/js/productPlan-add.js");
+    }
+});
+%>

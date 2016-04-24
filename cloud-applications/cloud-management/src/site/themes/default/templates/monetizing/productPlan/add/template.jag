@@ -1,0 +1,74 @@
+<% jagg.template("monetizing/productPlan/add", function(inputs, outputs, jagg) {
+    if ("-".equals(outputs.price)){
+        outputs.price = "";
+        outputs.overage = "";
+        outputs.dailyLimit = "";
+    }
+    %>
+    <div class="right-pane">
+        <div class="action-bar">
+                <a href="009_cloud_app_details_initial.html" class="btn-action">
+                    <span class="fw-stack fw-lg btn-action-ico">
+                        <i class="fw fw-ring fw-stack-2x"></i>
+                        <i class="fw fw-left-arrow fw-stack-1x"></i>
+                    </span> Back to Product Plan
+                </a>
+        </div>
+
+        <div class="container-fluid cloud-container">
+        <form  id='addPaymentPlans' role='form'>
+            <div class="row">
+                <div class="col-md-5 col-lg-5 forms">
+
+
+                    <div class="form-group col-md-12">
+                        <label for="display-name">Plan Name: </label>
+                        <input type="text" class="form-control" id="planName" value="<%= outputs.planName%>" placeholder="Please enter a display name for the plan" disabled>
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        <label for="plan-pricing">Pricing <span>(USD)</span>: </label>
+                        <input type="number"  step="0.01" class="form-control" name="pricing" id="pricing" placeholder="E.g. 100" value='<%= outputs.price %>' required>
+                    </div>
+                     <div class="form-group col-md-12">
+                        <label for="plan-description" >Description: </label>
+                        <textarea class="form-control" rows="3" id="description" name="description" placeholder="Write a small description" required></textarea>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="max-usage">Max Daily Usage (API Calls) : </label>
+                        <input type="text" class="form-control" name="dailyUsage" id="dailyUsage" placeholder="E.g. 1000" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="overage-charge" >Overage Charge <span>(USD)</span>: </label>
+                        <input type="number" step="0.01" class="form-control" name="overageCharge" id="overageCharge" placeholder="E.g. 5" value='<%= outputs.overage%>'  required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="overageLimit" >Overage Unit Limit (API Calls): </label>
+                        <input class="form-control" type="number" id="overageLimit" name="overageLimit" placeholder="E.g. 1000"value='<%= outputs.dailyLimit %>'  required>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="form-group col-md-12">
+                        <button type="submit" class="cu-btn cu-btn-sm cu-btn-blue" id="btn_addPaymentPlan">
+                            <span class="fw-stack fw-lg btn-action-ico">
+                                <i class="fw fw-ring fw-stack-2x"></i>
+                                <i class="fw fw-save fw-stack-1x"></i>
+                            </span>
+                            Save
+                        </button>
+                        <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display: none; margin-left: 10px;"></i>
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div><!-- /.container -->
+        </div>
+
+
+<div id="footer">
+    <div class="container-fluid">
+        <div class="footer-text">
+            WSO2 Cloud V: 1.2 . &copy; 2016 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.
+        </div>
+    </div>
+</div>
+<% }); %>
