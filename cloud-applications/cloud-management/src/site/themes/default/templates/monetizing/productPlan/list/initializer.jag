@@ -9,7 +9,7 @@ jagg.initializer("monetizing/productPlan/list", {
         jagg.addFooterJS("productPlan/list", "jeditable", "new-assets/js/Jeditable-1.7.3/jquery.jeditable.js");
         jagg.addFooterJS("productPlan/list", "inlineEdit", "new-assets/js/datatables-1.10.7/jquery.dataTables.inlineEdit.js");
         jagg.addFooterJS("productPlan/list", "columnFilter", "new-assets/js/datatables-1.10.7/jquery.dataTables.columnFilter.js")
-        jagg.addFooterJS("productPlan/info", "bootstrap.min", "js/bootstrap-3.2.0/bootstrap.min.js");
+        jagg.addFooterJS("productPlan/list", "bootstrap.min", "js/bootstrap-3.2.0/bootstrap.min.js");
         //custom js functions
         jagg.addFooterJS("productPlan/list", "custom", "new-assets/js/custom/custom.js");
         jagg.addFooterJS("productPlan/list", "productPlan-add", "templates/monetizing/productPlan/list/js/productPlan-list.js");
