@@ -207,7 +207,7 @@ $(".api-usage .btn-month").click(function (e) {
     endDate = new Date();
     startDate = endDate.addDays(-29);
     setSelectedDates(endDate, startDate);
-    addDatesToCurrentAndSet(1, "months");
+    addDatesToCurrentAndSet(29, "days");
     loadDataToChartObjectForGivenTime(apiUsageChart);
 });
 
@@ -215,9 +215,9 @@ $(".api-usage .btn-year").click(function (e) {
     isYear = true;
     highlightSelected(this);
     endDate = new Date();
-    startDate = endDate.addDays(-365);
+    startDate = endDate.addDays(-366);
     setSelectedDates(endDate, startDate);
-    addDatesToCurrentAndSet(1, "years")
+    addDatesToCurrentAndSet(366, "days")
     loadDataToChartObjectForGivenTime(apiUsageChart);
 });
 
