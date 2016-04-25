@@ -694,7 +694,7 @@ var enableMonetization = function (tenantPassword) {
                 var productName = tenantDomain + "_" + API_CLOUD;
                 var effectiveStartDate = new Packages.java.util.Date();
                 var tenantDisplayName = jagg.getUser();
-                var cloudEmail = cloudConfig.registrationEmail.username.toString();
+                var cloudEmail = cloudConfig.supportContact.to;
                 var userEmail = String(session.get(LOGGED_IN_USER_EMAIL));
                 var isProductCreated =
                         billingService.enableMonetization(tenantDomain, tenantPassword, tenantDisplayName);

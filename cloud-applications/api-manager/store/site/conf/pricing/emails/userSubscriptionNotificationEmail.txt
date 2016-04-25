@@ -16,12 +16,12 @@
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 5px 0px 20px;">
                     Hi,
                 </p>
-                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 10px 0px;">
-                     You have subscribed to the testAPI API of the organization grumpy using the newtestApp application with the platinum tier.
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
+                     You have subscribed to the $api API of the organization $tenant using the $applicationName application with the $tier tier.
                 </p>
 
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 20px 0px;">
-                    If you have any questions or need help, please contact the store owner at shenavi21@gmail.com <!--a href="mailto:shenavi21@gmail.com" style="color: #214dad; text-decoration: none; font-weight: bold;">shenavi21@gmail.com</a>-->
+                    If you have any questions or need help, please contact the store owner at $contact
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 20px 0px 0px;">
                     Regards,
