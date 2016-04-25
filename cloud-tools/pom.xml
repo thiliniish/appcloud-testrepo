@@ -34,5 +34,7 @@
         <module>tenant-cleanup-tools/components/org.wso2.carbon.cloud.appfactory.appdeletion</module>
         <module>tenant-cleanup-tools/components/org.wso2.carbon.cloud.apimgt.apideletion</module>
         <module>tenant-cleanup-tools/components/org.wso2.carbon.cloud.tenantdeletion</module>
+        <module>role-mgt-tool/org.wso2.carbon.cloud.rolemgt.common</module>
+        <module>role-mgt-tool/org.wso2.carbon.cloud.rolemgt.tool</module>
     </modules>
 </project>
