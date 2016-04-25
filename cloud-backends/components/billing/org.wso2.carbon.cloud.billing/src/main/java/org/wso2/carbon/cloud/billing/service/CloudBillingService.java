@@ -19,6 +19,7 @@
 package org.wso2.carbon.cloud.billing.service;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
@@ -838,6 +839,32 @@ public class CloudBillingService extends AbstractAdmin {
             return CloudBillingServiceUtils.getDecryptedInfo(base64CyperText);
         } catch (CryptoException | IOException e) {
             throw new CloudBillingException("Error occurred while decrypting ", e);
+        }
+    }
+
+    /**
+     * Method to update the config registry, monetization status in tenant-conf.json
+     *
+     * @param tenantDomain tenant domain
+     * @return status of the update
+     */
+    public boolean updateMonetizationStatus(String tenantDomain) throws CloudBillingException {
+
+        // Get the tenant-conf resource url
+        String tenantConfUrl = MonetizationConstants.TENANT_CONF_URL;
+        Resource tenantConfResource =
+                CloudBillingUtils.getRegistryResource(tenantDomain, tenantConfUrl, BillingConstants.CONFIG_REGISTRY);
+
+        // Get the resource content
+        try {
+            String content = new String((byte[]) tenantConfResource.getContent());
+            JsonObject jsonRegistryObject  = (JsonObject) new JsonParser().parse(content);
+            jsonRegistryObject.addProperty("EnableMonetization", true);
+            tenantConfResource.setContent(jsonRegistryObject.toString().getBytes());
+            return CloudBillingUtils.putRegistryResource(tenantDomain,tenantConfUrl,tenantConfResource,BillingConstants.CONFIG_REGISTRY);
+
+        } catch (RegistryException e) {
+            throw new CloudBillingException("Error occurred while updating the monetization status in registry " + e);
         }
     }
 

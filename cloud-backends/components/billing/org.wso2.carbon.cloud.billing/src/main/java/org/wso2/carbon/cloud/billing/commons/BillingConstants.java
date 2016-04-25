@@ -177,14 +177,12 @@ public final class BillingConstants {
     public static final String RATEPLAN_CHARGE_MODEL = "FlatFee";
     public static final String RATEPLAN_CHARGE_TYPE = "Recurring";
     public static final String RATEPLAN_CHARGE_NAME_MONTHLY_SUBSCRIPTION = "Monthly subscription fee";
-    public static final String RATEPLAN_CHARGE_ACCOUNTING_CODE = "Accounts Receivable";
     public static final String RATEPLAN_CHARGE_TRIGGER_EVENT = "ContractEffective";
     public static final String RATEPLAN_CHARGETIER_CURRENCY = "USD";
     public static final String RATEPLAN_CHARGETIER_PRICE_FORMAT = "Flat Fee";
     public static final int RATEPLAN_CHARGETIER_STARTING_UNIT = 1;
-    public static final String RATEPLAN_CHARGETIER_PRICE_FORMAT_USAGE = "Per Unit Pricing";
+    public static final String RATEPLAN_CHARGE_TIER_PRICE_FORMAT = "Per Unit Pricing";
     public static final String RATEPLAN_CHARGE_TYPE_OVERUSAGE = "Usage";
-    public static final String RATEPLAN_CHARGE_TYPE_SET_UOM = "Each";
     public static final String RATEPLAN_CHARGE_NAME_OVERUSAGE = "Over usage fee";
 
     /* Zuora queries */

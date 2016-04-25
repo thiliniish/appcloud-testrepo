@@ -52,7 +52,7 @@
                         <input type="password" name="password" id="password"  class="form-control required" placeholder="Your password" />
                     </div>
                     <div class="clearfix"></div>
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
                         <button type="submit" class="cu-btn cu-btn-sm cu-btn-blue" id="btn_enable-monetization" name="btn_submit">
                             Enable Monetization</button>
                         <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display: none; margin-left: 10px;"></i>

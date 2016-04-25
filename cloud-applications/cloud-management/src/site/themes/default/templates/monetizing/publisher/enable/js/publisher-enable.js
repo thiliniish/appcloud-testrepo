@@ -56,21 +56,23 @@ function doSubmit() {
     document.getElementById("btn_enable-monetization").disabled = true;
     var tenantPassword = $("#password").attr('value');
     if (tenantPassword != "") {
-        jagg.post("../blocks/monetizing/publisher/enable/ajax/enable.jag", {
-                action: "enableMonetization",
-                tenantPassword: tenantPassword
+        $.ajax({
+            url: "../blocks/monetizing/publisher/enable/ajax/enable.jag",
+            data: {
+                "action": "enableMonetization",
+                "tenantPassword": tenantPassword
             },
-            function (result) {
-                result = JSON.parse(result);
-                if (!result.error) {
+            success: function (result) {
+                    result = JSON.parse(result);
                     document.getElementById("spinner").style.display = 'none';
                     document.getElementById("btn_enable-monetization").disabled = false;
-                    var message = "Successfully enabled the monetization for API Cloud.";
-                    showMessage(message, "success", message.redirectionURL);
-                } else {
-                    showMessage(result.message, "error", result.redirectionURL);
-                }
-            });
+                    showMessage(result.message, "success", result.redirectionURL);
+            },
+            error:  function (result) {
+                result = JSON.parse(result.responseText);
+                showMessage(result.message, "error", result.redirectionURL);
+            }
+        });
     }
 }
 

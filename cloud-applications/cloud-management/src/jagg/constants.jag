@@ -185,11 +185,12 @@ var ENABLE_MONETIZATION_CLOUD_NOTIFICATION_FILE_PATH = "/site/conf/emails/cloud_
 var ENABLE_MONETIZATION_USER_NOTIFICATION_FILE_PATH = "/site/conf/emails/user_notification_on_monetization_enable.txt";
 var MONETIZATION_PAYMENT_PLANS_URI = "/site/pages/monetization-payment-plans.jag";
 var FREE_TIER = "FREE";
+var BILLING_SERVICE = "CloudBillingService";
 
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
 var LOGGED_IN_USER_EMAIL = "LOGGED_IN_USER_EMAIL";
-var ADMIN_DASHBOARD = "admin-dashboard";
+var TIER_MANAGE_URL = "admin-dashboard/tier-manage";
 
 //Monetization Account Types
 var ACC_FREE = "Free";

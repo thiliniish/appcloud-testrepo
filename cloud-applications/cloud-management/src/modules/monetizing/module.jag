@@ -53,6 +53,9 @@ jagg.module("monetizing", {
     },
     addProductPlans: function () {
         return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").addProductPlans.apply(this, arguments);
+    },
+    updateApiCloudMonetizationStatus: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").updateApiCloudMonetizationStatus.apply(this, arguments);
     }
 });
 %>

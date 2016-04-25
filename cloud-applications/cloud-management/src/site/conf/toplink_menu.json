@@ -96,7 +96,7 @@
         "target": "_self"
       },
       "Monetization": {
-        "url": "monetization-url",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/monetization-enable.jag",
         "icon": "fa fa-3x fa-money",
         "isDropDown": "false",
         "target": "_self"

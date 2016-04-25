@@ -146,6 +146,8 @@ public final class MonetizationConstants {
     public static final String ATTRIBUTE_NAME = "name";
     public static final String YES = "yes";
 
+    // Registry related configurations
+    public static final String TENANT_CONF_URL = "apimgt/applicationdata/tenant-conf.json";
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +
                                                            " overage data to zuora on {today}. Please verify.";

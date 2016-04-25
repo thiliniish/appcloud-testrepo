@@ -7,6 +7,7 @@ var log = new Log("modules/monetizing/monetizing.jag");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var apiManagerURL = cloudConfig.ServerUrls.apiManager.toString();
+var apiCloudServiceURL = cloudConfig.ServerUrls.apiCloud.toString();
 var modDb = jagg.module("database");
 var modUtil = jagg.module("util");
 var modManager = jagg.module("manager");
@@ -705,6 +706,13 @@ var enableMonetization = function (tenantPassword) {
                     var addMonetizationStatus = addStatusToMonetizationStatusTable(tenantDomain, API_CLOUD);
                     if (addMonetizationStatus) {
                         log.info("Successfully updated the monetization status table for tenant : " + tenantDomain);
+
+                        //updating the monetization status For ApiCloud
+                        var updateApiCloudMonetizationStatusResult = updateApiCloudMonetizationStatus();
+                        if (updateApiCloudMonetizationStatusResult.error) {
+                            log.error(updateApiCloudMonetizationStatusResult.message);
+                        }
+
                         // Send email notification to cloud service
                         var notificationToCloudStatus = sendProductEnableNotificationEmailToCloud(tenantDisplayName,
                                 effectiveStartDate, productName, cloudEmail);
@@ -712,6 +720,7 @@ var enableMonetization = function (tenantPassword) {
                             log.error("Monetization Enable notification sending failed for cloud service for tenant : "
                             + tenantDomain + " , Product name : " + productName);
                         }
+
                         // Send email notification to tenant
                         var notificationToUserStatus = sendProductEnableNotificationEmailToUser(tenantDisplayName,
                                 effectiveStartDate, productName, userEmail);
@@ -723,8 +732,9 @@ var enableMonetization = function (tenantPassword) {
                         return {
                             error: false,
                             status: "200",
-                            message: "You have successfully enabled monetizaton for API Cloud",
-                            redirectionURL: apiManagerURL + ADMIN_DASHBOARD,
+                            message: "You have successfully enabled monetizaton for API Cloud. <br>" +
+                            "Next, select the commercial tier to complete the task.",
+                            redirectionURL: apiManagerURL + TIER_MANAGE_URL,
                             account: "paid"
                         };
                     } else {
@@ -758,7 +768,7 @@ var enableMonetization = function (tenantPassword) {
         return {
             error: true,
             message: msg,
-            status: "500",
+            status: 500,
             redirectionURL: contactUsURL,
             account: account
         };
@@ -794,7 +804,7 @@ var getCurrentPaymentPlan = function () {
         return {
             error: true,
             message: msg,
-            status: "500",
+            status: 500,
             redirectionURL: contactUsURL
         };
     }
@@ -907,7 +917,7 @@ var getProductPlans = function () {
         return {
             error: true,
             message: msg,
-            status: "500"
+            status: 500
         };
     }
 };
@@ -917,12 +927,21 @@ var addProductPlans = function (planName, planDescription, pricing, overageCharg
         var addProductPlansResult = JSON.parse(billingService.createProductRatePlan(tenantDomain, planName, pricing, overageCharge, planDescription));
         if (addProductPlansResult.id != null) {
             addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlansResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
+            return {
+                error: false,
+                status: 200,
+                redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
+            };
+        } else {
+            var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+            log.error("Error occured while adding the product plans for tenant: " + tenantDomain);
+            return {
+                error: true,
+                redirectionURL: contactUsURL,
+                message: msg,
+                status: 500
+            };
         }
-        return {
-            error: false,
-            status: 200,
-            redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
-        };
     } catch (e) {
         var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
         log.error(msg);
@@ -931,7 +950,7 @@ var addProductPlans = function (planName, planDescription, pricing, overageCharg
             error: true,
             redirectionURL: contactUsURL,
             message: msg,
-            status: "500"
+            status: 500
         };
     }
 };
@@ -953,7 +972,7 @@ var getTiersOfTenant = function () {
         return {
             error: true,
             message: msg,
-            status: "500"
+            status: 500
         };
     }
 };
@@ -971,9 +990,44 @@ var addProductPlanDetailsToMonetizationTables = function (tenantDomain, ratePlan
     } catch (e) {
         var msg = "Error occurred while inserting product plan information to the monetization tables for tenant: " + tenantDomain;
         log.error(msg);
-        log.error(e);
-        throw (msg);
+        throw (e);
     }
+};
 
+var updateApiCloudMonetizationStatus = function () {
+    var cookie = modManager.getAdminCookie(apiCloudServiceURL);
+    var tenantDomain = modManager.getTenantDomain();
+    if (!(cookie)) {
+        throw 'failed to get a valid authenticated cookie from backend server';
+    }
+    var ws = require('ws');
+    var request = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.timeout = 1000000;
+    options.action = "urn:updateMonetizationStatus";
+    options["HTTPHeaders"] = [
+        {name: "Cookie", value: cookie}
+    ];
+    var payload = '<updateMonetizationStatus xmlns="http://service.billing.cloud.carbon.wso2.org">' +
+            '<tenantDomain>' + tenantDomain + '</tenantDomain>' +
+            '</updateMonetizationStatus>';
+    var result = {};
+    var response;
+    try {
+        var endPoint = apiCloudServiceURL + BILLING_SERVICE;
+        request.open(options, endPoint, false);
+        request.send(payload);
+        response = request.responseE4X;
+        result.error = false;
+        result.message = response;
+
+    } catch (e) {
+        log.error(e.toString());
+        result.error = true;
+        result.message = " Error occured while updating the monetization status in API Cloud for tenant: " + tenantDomain;
+        result.status = 500;
+    }
+    return result;
 };
 %>

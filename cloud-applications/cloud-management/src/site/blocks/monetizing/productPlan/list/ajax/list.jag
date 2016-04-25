@@ -29,7 +29,7 @@ include("/jagg/config_reader.jag");
         print({
             error: true,
             status: 401,
-            message: "User does not have necessary  permission to perform the requested operation."
+            message: "User does not have necessary permission to perform the requested operation."
         });
     }
     var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);

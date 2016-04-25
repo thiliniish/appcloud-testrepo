@@ -195,7 +195,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			productOverUsageCharge.setBillCycleDay(BillingConstants.RATEPLAN_CHARGE_BILLCYCLEDAY);
 			productOverUsageCharge.setBillingPeriod(BillingConstants.RATEPLAN_CHARGE_BILLING_PERIOD);
 			productOverUsageCharge.setBillingPeriodAlignment(BillingConstants.RATEPLAN_CHARGE_ALIGNMENT);
-			productOverUsageCharge.setChargeModel(BillingConstants.RATEPLAN_CHARGETIER_PRICE_FORMAT_USAGE);
+			productOverUsageCharge.setChargeModel(BillingConstants.RATEPLAN_CHARGE_TIER_PRICE_FORMAT);
 			productOverUsageCharge.setChargeType(BillingConstants.RATEPLAN_CHARGE_TYPE_OVERUSAGE);
 			productOverUsageCharge.setName(BillingConstants.RATEPLAN_CHARGE_NAME_OVERUSAGE);
 			productOverUsageCharge.setTriggerEvent(BillingConstants.RATEPLAN_CHARGE_TRIGGER_EVENT);
