@@ -28,6 +28,10 @@ public final class BillingConstants {
     public static final String EMPTY_STRING = "";
     public static final String COLON = ":";
 
+    // Registry Related Conf
+    public static final String GOVERNANCE_REGISTRY = "/_system/governance";
+    public static final String CONFIG_REGISTRY = "/_system/config";
+
     // ApiM Request Summary Conf
     public static final String ENTRY = "Entry";
     public static final String YEAR = "year";
@@ -173,11 +177,13 @@ public final class BillingConstants {
     public static final String RATEPLAN_CHARGE_MODEL = "FlatFee";
     public static final String RATEPLAN_CHARGE_TYPE = "Recurring";
     public static final String RATEPLAN_CHARGE_NAME_MONTHLY_SUBSCRIPTION = "Monthly subscription fee";
-    public static final String RATEPLAN_CHARGE_ACCOUNTING_CODE = "Accounts Receivable";
     public static final String RATEPLAN_CHARGE_TRIGGER_EVENT = "ContractEffective";
     public static final String RATEPLAN_CHARGETIER_CURRENCY = "USD";
     public static final String RATEPLAN_CHARGETIER_PRICE_FORMAT = "Flat Fee";
     public static final int RATEPLAN_CHARGETIER_STARTING_UNIT = 1;
+    public static final String RATEPLAN_CHARGE_TIER_PRICE_FORMAT = "Per Unit Pricing";
+    public static final String RATEPLAN_CHARGE_TYPE_OVERUSAGE = "Usage";
+    public static final String RATEPLAN_CHARGE_NAME_OVERUSAGE = "Over usage fee";
 
     /* Zuora queries */
     private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid, " +
@@ -191,7 +197,7 @@ public final class BillingConstants {
     public static final String DS_REQUEST_STATUS = "REQUEST_STATUS";
     public static final String DS_REQUEST_STATUS_SUCCESS = "SUCCESSFUL";
     public static final String QUERY_ZUORA_PRODUCT_BY_NAME = "SELECT id, Name, SKU FROM product WHERE Name = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME = "SELECT id FROM ProductRatePlan WHERE Name = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME = "SELECT id, Name FROM ProductRatePlan WHERE id = '?'";
 
     /*Data service API v1 URIs*/
     public static final String DS_API_URI_REQUEST_COUNT = "/requestcount";

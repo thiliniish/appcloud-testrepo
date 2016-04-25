@@ -76,7 +76,8 @@
     "bps": "https://milestones.appfactory.wso2.com:9543/services/",
     "greg": "https://milestones.appfactory.wso2.com:9443/services/",
     "identity": "https://milestones.appfactory.wso2.com:9444/services/",
-    "apiCloud": "https://milestones.appfactory.wso2.com:9643/services/"
+    "apiCloud": "https://milestones.appfactory.wso2.com:9643/services/",
+    "apiManager": "https://milestones.appfactory.wso2.com:9643/"
   },
   "SSORelyingParty": {
     "name": "cloudmgt",

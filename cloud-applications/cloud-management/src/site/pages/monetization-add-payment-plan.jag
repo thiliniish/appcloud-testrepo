@@ -1,0 +1,80 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+(function () {
+    var user = jagg.getUser();
+    if (user == null) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user);
+    if (tenantDomain != null && !jagg.module("util").isUserInAdminRole()) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+    var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    var monetizationEnabledStatus = false;
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    } else {
+        monetizationEnabledStatus = isMonetizationEnabledObj.monetizationEnabled;
+    }
+
+    var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+    var planName = encoder.getSafeText(request.getParameter("planName"));
+    var dailyLimit = encoder.getSafeText(request.getParameter("dailyLimit"));
+    var price = encoder.getSafeText(request.getParameter("price"));
+    var overage = encoder.getSafeText(request.getParameter("overage"));
+    if (planName == null) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+
+    jagg.render({
+        "name": "page/base-new",
+        "inputs": {
+            "title": "WSO2 Cloud Mgt",
+            "pagePath": "/site/pages/monetization-add-payment-plan.jag",
+            "body": [
+                {
+                    "name": "layout/base",
+                    "inputs": {
+                        "title": "Payment Plans",
+                        "middle": [
+                            {
+                                "name": "monetizing/productPlan/add",
+                                "inputs": {
+                                    "planName": planName,
+                                    "dailyLimit": dailyLimit,
+                                    "price": price,
+                                    "overage": overage
+                                }
+
+                            }
+                        ],
+                        "breadcrumb": [
+                            {
+                                "name": "breadcrumb",
+                                "inputs": {
+                                    "pageName": "Plans / Add"
+                                }
+                            }
+                        ],
+                        "tablinks": [
+                            {
+                                "name": "tablinks",
+                                "inputs": {
+                                    "monetizationEnabledStatus": monetizationEnabledStatus
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>
