@@ -88,6 +88,7 @@ public final class BillingConstants {
     public static final String HTTP_TYPE_APPLICATION_XML = "application/xml";
     public static final String HTTP_TYPE_APPLICATION_JSON = "application/json";
     public static final String HTML_CONTENT_TYPE = "text/html";
+    public static final String TEXT_PLAIN_CONTENT_TYPE = "text/plain";
 
     // Account summary json elements
     public static final String PRODUCTS = "products";
@@ -252,6 +253,9 @@ public final class BillingConstants {
 
     /*database tables updated status*/
     public static final String MONETIZATION_DB_UPDATED = "monetizationDbUpdated";
+
+    // File reading related constats.
+    public static final String LINE_BREAK = "\r\n";
 
     private BillingConstants() {
     }

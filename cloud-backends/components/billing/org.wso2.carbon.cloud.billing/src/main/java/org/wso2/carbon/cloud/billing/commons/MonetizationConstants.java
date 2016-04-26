@@ -148,11 +148,18 @@ public final class MonetizationConstants {
 
     // Registry related configurations
     public static final String TENANT_CONF_URL = "apimgt/applicationdata/tenant-conf.json";
+    public static final String EMAIL_FILE_BASE_URL = "/apimgt/pricing/resources/";
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +
                                                            " overage data to zuora on {today}. Please verify.";
     public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data " ;
     public static final String REPLACE_TODAY = "{today}";
+    //Email notifications related parameters
+    public static final String SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME = "userSubscriptionNotificationEmail.txt";
+    public static final String TEST_ACCOUNT_CREATION_EMAIL_FILE_NAME = "monetization-create-test-account.txt";
+    public static final String TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME = "monetization-remove-test-account.txt";
+
+    public static final String EMAIl_RESOURCES_FOLDER = "repository/resources/cloud/emails";
 
     private MonetizationConstants() {
     }
