@@ -41,7 +41,7 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
 (function () {
     var action = encoder.getSafeText(request.getParameter("action"));
     if (action == "get-product-plan-count") {
-        var result = mod.getNumberOfProductPlans(tenantDomain);
+        var result = mod.getNumberOfProductPlansForTenant(tenantDomain);
         print(result);
     } else {
         log.error("No Action Specified");

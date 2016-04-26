@@ -17,7 +17,7 @@ var log = new Log();
     var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
     var monetizationEnabledStatus = false;
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
-        response.sendRedirect("../pages/index.jag");
+        response.sendRedirect("../pages/monetization-enable.jag");
         return;
     } else {
         monetizationEnabledStatus = isMonetizationEnabledObj.monetizationEnabled;
