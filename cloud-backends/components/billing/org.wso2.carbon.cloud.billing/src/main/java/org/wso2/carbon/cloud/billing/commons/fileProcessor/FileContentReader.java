@@ -79,7 +79,7 @@ public class FileContentReader {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    errorMessage = "Error occurred while reading the file " + fileName;
+                    errorMessage = "Error occurred while closing the file input stream for the file " + fileName;
                     LOGGER.error(errorMessage);
                     throw new CloudBillingException(errorMessage, e);
                 }

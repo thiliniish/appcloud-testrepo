@@ -155,7 +155,7 @@ public final class MonetizationConstants {
     public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data " ;
     public static final String REPLACE_TODAY = "{today}";
     //Email notifications related parameters
-    public static final String SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME = "userSubscriptionNotificationEmail.txt";
+    public static final String SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME = "user-subscription-notification-email.txt";
     public static final String TEST_ACCOUNT_CREATION_EMAIL_FILE_NAME = "monetization-create-test-account.txt";
     public static final String TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME = "monetization-remove-test-account.txt";
 
