@@ -11,7 +11,7 @@
                 <ul>
                      <% if (inputs.monetizationEnabledStatus) { %>
                     <li>
-                        <a href="team_initial.html"><i class="fa fa-cogs"></i> Plans</a>
+                        <a href="../pages/monetization-paymentPlans.jag"><i class="fa fa-cogs"></i> Plans</a>
                     </li>
                     <li>
                         <a href="../pages/subscribers-list.jag"><i class="fa fa-users"></i> Subscribers</a>
