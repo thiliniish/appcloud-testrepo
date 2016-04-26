@@ -198,7 +198,6 @@ var ACC_FREE = "Free";
 var ACC_TEST = "Test/Complimentary";
 var ACC_PAID = "Paid";
 
-
 //password related
 var PASSWORD_VALIDATION_REGEX=/(?=.*\d)(?=.*[a-z])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])(?=.*[A-Z]).{8,}/;
 
