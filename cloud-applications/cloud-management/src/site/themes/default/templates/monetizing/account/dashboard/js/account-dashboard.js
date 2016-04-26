@@ -196,7 +196,6 @@ function getDates(startDate, stopDate) {
     while (currentDate <= stopDate) {
         var formattedDate = moment(new Date(currentDate)).format("MM/DD");
         dateArray.push(formattedDate);
-
         currentDate = currentDate.addDays(1);
     }
     return dateArray;

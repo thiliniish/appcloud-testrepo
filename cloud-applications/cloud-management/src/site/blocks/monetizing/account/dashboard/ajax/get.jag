@@ -43,7 +43,6 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
     if (action == "get-product-plan-count") {
         var result = mod.getNumberOfProductPlans(tenantDomain);
         print(result);
-
     } else {
         log.error("No Action Specified");
         response.status = 400;
