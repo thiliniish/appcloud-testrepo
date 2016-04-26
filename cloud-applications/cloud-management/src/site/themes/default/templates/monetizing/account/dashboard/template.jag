@@ -1,0 +1,74 @@
+<% jagg.template("monetizing/account/dashboard", function (inputs, outputs, jagg) {%>
+<!-- left pane wrapper -->
+<div class="right-pane">
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href=<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%> class="btn-action"> <span
+            class="fw-stack fw-lg btn-action-ico"> <i class="fw fw-ring fw-stack-2x"></i> <i
+                class="fw fw-left-arrow fw-stack-1x"></i>
+        </span> Back to Cloud Selection
+        </a>
+    </div>
+    <!-- EOF App factory menu actionbar-->
+    <div class="container-fluid cloud-container">
+        <div class="row">
+            <div class="col-xs-12 col-md-6 col-lg-6">
+                <div class="block-color-1 block-database dashboard-block pull-left">
+                    <h3>
+                        <a class="block-anch">Plans</a>
+                    </h3>
+                    <div class="block-icon pull-left">
+                        <i class="fa fa-bars fa-5x"></i>
+                    </div>
+                    <div class="block-number pull-right" id="plan-count"></div>
+                    <div class="clearfix"></div>
+                    <a href=<%=jagg.getAbsoluteUrl("/site/pages/monetization-add-payment-plan.jag")%>>
+                        <div class="block-action-button">
+                            <span class="fw-stack fw-lg btn-action-ico"> <i class="fw fw-ring fw-stack-2x"></i> <i
+                                class="fw fw-add fw-stack-1x"></i>
+                            </span> Create
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6 col-lg-6">
+                <div class="block-color-2 block-database dashboard-block pull-left">
+                    <h3>
+                        <a class="block-anch">Subscribers</a>
+                    </h3>
+                    <div class="block-icon pull-left">
+                        <i class="fa fa-users fa-5x"></i>
+                    </div>
+                    <div class="block-number pull-right" id="subscriber-count"></div>
+                    <div class="clearfix"></div>
+                    <a href='<%=jagg.getAbsoluteUrl("/site/pages/subscribers-list.jag") %>'>
+                        <div class="block-action-button">
+                            <span class="fw-stack fw-lg btn-action-ico"> <i class="fw fw-ring fw-stack-2x"></i> <i
+                                class="fw fw-view fw-stack-1x"></i>
+                            </span> View
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 panel1">
+                <div class="block-general dashboard-table-container dashboard-block">
+                    <h3>
+                        <a class="block-anch">&nbsp;&nbsp;Subscriber API Usage</a>
+                    </h3>
+                    <div class="usageLabel" id="usageDiv" name="usageDiv">
+                        <p id="usageLabelTxt" name="usageLabelTxt"></p>
+                    </div>
+                    <div id="show-usage" />
+                    <div class="chart-container" id="api-usage"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div id="push"></div>
+<%
+}); %>
