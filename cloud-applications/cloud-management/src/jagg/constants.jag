@@ -186,6 +186,7 @@ var ENABLE_MONETIZATION_USER_NOTIFICATION_FILE_PATH = "/site/conf/emails/user_no
 var MONETIZATION_PAYMENT_PLANS_URI = "/site/pages/monetization-payment-plans.jag";
 var FREE_TIER = "FREE";
 var BILLING_SERVICE = "CloudBillingService";
+var API_CLOUD_PRODUCT_EXTENSION = "_api_cloud";
 
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
