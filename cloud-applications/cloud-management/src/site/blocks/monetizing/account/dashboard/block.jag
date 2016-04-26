@@ -1,0 +1,5 @@
+<%
+jagg.block("monetizing/account/dashboard", {
+
+});
+%>
