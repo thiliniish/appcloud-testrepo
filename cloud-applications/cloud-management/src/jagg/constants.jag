@@ -183,15 +183,14 @@ var MONETIZATION_STARTER_PLAN = "Getting Traction";
 var API_CLOUD = "api_cloud";
 var ENABLE_MONETIZATION_CLOUD_NOTIFICATION_FILE_PATH = "/site/conf/emails/cloud_notification_on_monetization_enable.txt";
 var ENABLE_MONETIZATION_USER_NOTIFICATION_FILE_PATH = "/site/conf/emails/user_notification_on_monetization_enable.txt";
-var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH = "/site/conf/emails/api_cloud_monetization-create-test-account.txt";
-var REMOVE_COMPLEMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH = "/site/conf/emails/api_cloud_monetization_remove_test_account.txt";
-var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "_system/governance/apimgt/pricing/resources/api_cloud_monetization-create-test-account.txt";
-var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "_system/governance/apimgt/pricing/resources/api_cloud_monetization_remove_test_account.txt";
-var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT = "Subscriber account of $displayName is now changed to a complimentary account";
-var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT = "Subscriber account of $displayName is now changed to a regular account";
+var MONETIZATION_PAYMENT_PLANS_URI = "/site/pages/monetization-payment-plans.jag";
+var FREE_TIER = "FREE";
+var BILLING_SERVICE = "CloudBillingService";
+
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
 var LOGGED_IN_USER_EMAIL = "LOGGED_IN_USER_EMAIL";
+var TIER_MANAGE_URL = "admin-dashboard/tier-manage";
 
 //Monetization Account Types
 var ACC_FREE = "Free";
@@ -200,6 +199,13 @@ var ACC_PAID = "Paid";
 //Monetization subscriber Notification mail types
 var COMPLEMENTARY_CREATED_MAIL_TYPE = "ComplementaryCreated";
 var COMPLEMENTARY_REMOVED_MAIL_TYPE = "ComplementaryRemoved";
+//Monetization subscriber notification types
+var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH = "/site/conf/emails/api_cloud_monetization-create-test-account.txt";
+var REMOVE_COMPLEMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH = "/site/conf/emails/api_cloud_monetization_remove_test_account.txt";
+var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "_system/governance/apimgt/pricing/resources/api_cloud_monetization-create-test-account.txt";
+var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "_system/governance/apimgt/pricing/resources/api_cloud_monetization_remove_test_account.txt";
+var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT = "Subscriber account of $displayName is now changed to a complimentary account";
+var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT = "Subscriber account of $displayName is now changed to a regular account";
 
 //password related
 var PASSWORD_VALIDATION_REGEX=/(?=.*\d)(?=.*[a-z])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])(?=.*[A-Z]).{8,}/;

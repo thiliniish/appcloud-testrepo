@@ -359,10 +359,19 @@ public final class APICloudMonetizationUtils {
                     if (tier != null) {
                         OMElement maximumCount = tier.getFirstChildWithName(
                                 MonetizationConstants.THROTTLE_ATTRIBUTES_MAXIMUM_COUNT_ELEMENT);
-                        OMElement unitTime = tier.getFirstChildWithName(
-                                MonetizationConstants.THROTTLE_ATTRIBUTES_UNIT_TIME_ELEMENT);
-
+                        OMElement unitTime = tier.getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_UNIT_TIME_ELEMENT);
+                        OMElement attributes =
+                                tier.getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
+                                    .getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_ELEMENT);
                         JsonObject tierObject = new JsonObject();
+                        if (attributes != null) {
+                            OMElement billingPlan = attributes
+                                    .getFirstChildWithName(
+                                            MonetizationConstants.THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT);
+                            if (billingPlan != null) {
+                                tierObject.addProperty(MonetizationConstants.BILLING_PLAN, billingPlan.getText());
+                            }
+                        }
                         tierObject.addProperty(MonetizationConstants.TIER_NAME, tierName);
                         tierObject.addProperty(MonetizationConstants.MAXIMUM_COUNT, maximumCount.getText());
                         tierObject.addProperty(MonetizationConstants.UNIT_TIME, unitTime.getText());

@@ -119,7 +119,7 @@ public final class MonetizationConstants {
     public static final QName THROTTLE_CONTROL_ELEMENT = new QName(THROTTLE_NAMESPACE, "Control");
     public static final QName THROTTLE_ATTRIBUTES_ELEMENT = new QName(THROTTLE_NAMESPACE, "Attributes");
     public static final QName THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT = new QName(
-            MonetizationConstants.THROTTLE_NAMESPACE, "BillingPlan");
+            MonetizationConstants.THROTTLE_NAMESPACE, "x-wso2-BillingPlan");
     public static final QName THROTTLE_ATTRIBUTES_MAXIMUM_COUNT_ELEMENT = new QName(
             MonetizationConstants.THROTTLE_NAMESPACE, "MaximumCount");
     public static final QName THROTTLE_ATTRIBUTES_UNIT_TIME_ELEMENT = new QName(
@@ -127,7 +127,7 @@ public final class MonetizationConstants {
     public static final String TIER_NAME = "tierName";
     public static final String MAXIMUM_COUNT = "maximumCount";
     public static final String UNIT_TIME = "unitTime";
-
+    public static final String BILLING_PLAN = "BillingPlan";
 
     /*workflow-extensions.xml related attributes*/
     public static final String WORKFLOW_EXTENSION_URL = "/apimgt/applicationdata/workflow-extensions.xml";
@@ -136,6 +136,7 @@ public final class MonetizationConstants {
     public static final String PROPERTY_SERVICEURL_NAME = "apiMonetizationServiceUrl";
     public static final String PROPERTY_MONETIZATION_SERVICE_VALUE =
             "/services/APICloudMonetizationService/";
+    public static final String PROPERTY_SERVICE_END_POINT = "/serviceEndpoint";
     public static final String PROPERTY_USERNAME_NAME = "username";
     public static final String PROPERTY_PASSWORD_NAME = "password";
     public static final String TAG_WORKFLOWEXTENSION = "WorkFlowExtensions";
@@ -145,11 +146,20 @@ public final class MonetizationConstants {
     public static final String ATTRIBUTE_NAME = "name";
     public static final String YES = "yes";
 
+    // Registry related configurations
+    public static final String TENANT_CONF_URL = "apimgt/applicationdata/tenant-conf.json";
+    public static final String EMAIL_FILE_BASE_URL = "/apimgt/pricing/resources/";
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading the" +
                                                            " overage data to zuora on {today}. Please verify.";
     public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data " ;
     public static final String REPLACE_TODAY = "{today}";
+    //Email notifications related parameters
+    public static final String SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME = "user-subscription-notification-email.txt";
+    public static final String TEST_ACCOUNT_CREATION_EMAIL_FILE_NAME = "monetization-create-test-account.txt";
+    public static final String TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME = "monetization-remove-test-account.txt";
+
+    public static final String EMAIl_RESOURCES_FOLDER = "repository/resources/cloud/emails";
 
     private MonetizationConstants() {
     }

@@ -27,6 +27,8 @@ import com.zuora.api.object.ProductRatePlan;
 import com.zuora.api.object.ProductRatePlanCharge;
 import com.zuora.api.object.ProductRatePlanChargeTier;
 import com.zuora.api.wso2.stub.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ZuoraClientUtils;
@@ -35,6 +37,8 @@ import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -98,15 +102,17 @@ public class ZuoraProductClient extends ZuoraClient {
 		String productName = productInfo.get(BillingConstants.JSON_OBJ_PRODUCT_NAME).toString().replaceAll("\"", "");
 		String productCategory =
 				productInfo.get(BillingConstants.JSON_OBJ_PRODUCT_CATEGORY).toString().replaceAll("\"", "");
-		Date effectiveStartDate = new Date();
-		Date effectiveEndDate = new Date(BillingConstants.EFFECTIVE_END_DATE);
 		try {
+			SimpleDateFormat sdf = new SimpleDateFormat(BillingConstants.EFFECTIVE_DATE_FORMAT);
+			Date date = sdf.parse(BillingConstants.EFFECTIVE_END_DATE);
+			Calendar calendarEndDate = Calendar.getInstance();
+			calendarEndDate.setTime(date);
 			// Create the Zuora Product zObject
 			Product product = new Product();
 			product.setName(productName);
 			product.setCategory(productCategory);
-			product.setEffectiveStartDate(effectiveStartDate);
-			product.setEffectiveEndDate(effectiveEndDate);
+			product.setEffectiveStartDate(Calendar.getInstance());
+			product.setEffectiveEndDate(calendarEndDate);
 			SaveResult result = zuoraClientUtils.create(product);
 			if (result != null && !result.getSuccess()) {
 				throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(result));
@@ -138,19 +144,27 @@ public class ZuoraProductClient extends ZuoraClient {
 	 * @throws org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException
 	 */
 	public JsonObject createProductRatePlan(JsonObject productRatePlanInfo) throws CloudBillingZuoraException {
-		Date effectiveStartDate = new Date();
-		Date effectiveEndDate = new Date(BillingConstants.EFFECTIVE_END_DATE);
 		String productName =
 				productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_NAME).toString().replaceAll("\"", "");
 		String productRatePlanName =
 				productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_NAME).toString()
 				                   .replaceAll("\"", "");
-		String productRatePlanChargeTierPrice =
-				productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_PRICE).toString()
-				                   .replaceAll("\"", "");
-		String description = productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION).toString()
+        String productRatePlanChargeTierPrice =
+                productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_PRICE).toString()
+                                   .replaceAll("\"", "");
+        String productRatePlanOverageChargePrice =
+                productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE).toString()
+                                   .replaceAll("\"", "");
+        String description = productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION).toString()
 		                                        .replaceAll("\"", "");
 		try {
+			SimpleDateFormat sdf = new SimpleDateFormat(BillingConstants.EFFECTIVE_DATE_FORMAT);
+			Date date = sdf.parse(BillingConstants.EFFECTIVE_END_DATE);
+			Calendar calendarEndDate = Calendar.getInstance();
+			calendarEndDate.setTime(date);
+			Calendar effectiveStartDate = Calendar.getInstance();
+			Calendar effectiveEndDate = calendarEndDate;
+
 			// Create ProductRatePlan
 			ProductRatePlan productRatePlan = new ProductRatePlan();
 			productRatePlan.setEffectiveStartDate(effectiveStartDate);
@@ -162,8 +176,8 @@ public class ZuoraProductClient extends ZuoraClient {
 			ID productId = product.getId();
 			productRatePlan.setProductId(productId);
 
-			zuoraClientUtils.create(productRatePlan);
-			ID productRatePlanId = productRatePlan.getId();
+			SaveResult saveResult= zuoraClientUtils.create(productRatePlan);
+			ID productRatePlanId = saveResult.getId();
 
 			// Create ProductRatePlanCharge - recurring charges
 			ProductRatePlanCharge productRatePlanCharge = new ProductRatePlanCharge();
@@ -173,25 +187,46 @@ public class ZuoraProductClient extends ZuoraClient {
 			productRatePlanCharge.setChargeModel(BillingConstants.RATEPLAN_CHARGE_MODEL);
 			productRatePlanCharge.setChargeType(BillingConstants.RATEPLAN_CHARGE_TYPE);
 			productRatePlanCharge.setName(BillingConstants.RATEPLAN_CHARGE_NAME_MONTHLY_SUBSCRIPTION);
-			productRatePlanCharge.setAccountingCode(BillingConstants.RATEPLAN_CHARGE_ACCOUNTING_CODE);
 			productRatePlanCharge.setTriggerEvent(BillingConstants.RATEPLAN_CHARGE_TRIGGER_EVENT);
 			productRatePlanCharge.setProductRatePlanId(productRatePlanId);
+
+			// Create ProductRatePlanCharge - over-usage charges
+			ProductRatePlanCharge productOverUsageCharge = new ProductRatePlanCharge();
+			productOverUsageCharge.setBillCycleDay(BillingConstants.RATEPLAN_CHARGE_BILLCYCLEDAY);
+			productOverUsageCharge.setBillingPeriod(BillingConstants.RATEPLAN_CHARGE_BILLING_PERIOD);
+			productOverUsageCharge.setBillingPeriodAlignment(BillingConstants.RATEPLAN_CHARGE_ALIGNMENT);
+			productOverUsageCharge.setChargeModel(BillingConstants.RATEPLAN_CHARGE_TIER_PRICE_FORMAT);
+			productOverUsageCharge.setChargeType(BillingConstants.RATEPLAN_CHARGE_TYPE_OVERUSAGE);
+			productOverUsageCharge.setName(BillingConstants.RATEPLAN_CHARGE_NAME_OVERUSAGE);
+			productOverUsageCharge.setTriggerEvent(BillingConstants.RATEPLAN_CHARGE_TRIGGER_EVENT);
+			productOverUsageCharge.setUOM(BillingConstants.UNIT_OF_MEASURE);
+			productOverUsageCharge.setProductRatePlanId(productRatePlanId);
 
 			// Create ProductRatePlanChargeTier
 			ProductRatePlanChargeTier chargeTier = new ProductRatePlanChargeTier();
 			chargeTier.setCurrency(BillingConstants.RATEPLAN_CHARGETIER_CURRENCY);
-			chargeTier.setPrice(BigDecimal.valueOf(Integer.parseInt(productRatePlanChargeTierPrice)));
+			chargeTier.setPrice(BigDecimal.valueOf(Double.parseDouble(productRatePlanChargeTierPrice)));
 			chargeTier.setPriceFormat(BillingConstants.RATEPLAN_CHARGETIER_PRICE_FORMAT);
-			chargeTier.setStartingUnit(BigDecimal.valueOf(BillingConstants.RATEPLAN_CHARGETIER_STARTING_UNIT));
+			chargeTier.setStartingUnit(BigDecimal.valueOf(1));
 
 			ProductRatePlanChargeTierData chargeTierData = new ProductRatePlanChargeTierData();
 			chargeTierData.setProductRatePlanChargeTier(new ProductRatePlanChargeTier[] { chargeTier });
 			productRatePlanCharge.setProductRatePlanChargeTierData(chargeTierData);
+
+			//Create the recurring charge rate Plan
 			SaveResult result = zuoraClientUtils.create(productRatePlanCharge);
 			if (result != null && !result.getSuccess()) {
 				throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(result));
+			}
+			//Create the usage charge rate Plan
+			chargeTier.setPrice(BigDecimal.valueOf(Double.parseDouble(productRatePlanOverageChargePrice)));
+			chargeTierData.setProductRatePlanChargeTier(new ProductRatePlanChargeTier[] { chargeTier });
+			productOverUsageCharge.setProductRatePlanChargeTierData(chargeTierData);
+			SaveResult saveResultOverUsage = zuoraClientUtils.create(productOverUsageCharge);
+			if (saveResultOverUsage != null && !saveResultOverUsage.getSuccess()) {
+				throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(result));
 			} else {
-				return objectToJson(result);
+				return objectToJson(productRatePlanId);
 			}
 		} catch (RemoteException e) {
 			throw new CloudBillingZuoraException("Remote exception " + PRODUCT_RATEPLAN_CREATION_ERROR + productName,

@@ -27,6 +27,7 @@ import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.internal.ServiceDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.registry.app.RemoteRegistry;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -79,14 +80,27 @@ public final class CloudBillingUtils {
     }
 
     /**
-     * Retrieves a registry resource in a given location of a given tenant
+     * Retrieves a governance registry resource in a given location of a given tenant
      *
      * @param tenantDomain tenant domain
      * @param resourceUrl resource url
      * @return registry resource
      * @throws CloudBillingException
      */
-    public static Resource getRegistryResource(String tenantDomain, String resourceUrl)
+    public static Resource getRegistryResource(String tenantDomain, String resourceUrl) throws CloudBillingException {
+        return getRegistryResource(tenantDomain, resourceUrl, BillingConstants.GOVERNANCE_REGISTRY);
+    }
+
+    /**
+     * Retrieves a registry resource in a given location of a given tenant
+     *
+     * @param tenantDomain tenant domain
+     * @param resourceUrl  resource url
+     * @param registryType registry type
+     * @return registry resource
+     * @throws CloudBillingException
+     */
+    public static Resource getRegistryResource(String tenantDomain, String resourceUrl, String registryType)
             throws CloudBillingException {
         Resource resource;
         try {
@@ -99,8 +113,8 @@ public final class CloudBillingUtils {
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
                 // load the registry
                 ServiceDataHolder.getInstance().gerTenantRegistryLoader().loadTenantRegistry(tenantId);
-                Registry registry = ServiceDataHolder.getInstance().getRegistryService()
-                        .getGovernanceSystemRegistry(tenantId);
+                Registry registry = getRegistryInstance(registryType, tenantId);
+
                 if (registry.resourceExists(resourceUrl.trim())) {
                     resource = registry.get(resourceUrl.trim());
                     return resource;
@@ -119,6 +133,29 @@ public final class CloudBillingUtils {
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    /**
+     * Return registry object according to the given registry type
+     *
+     * @param registryType
+     * @param tenantId
+     * @return registry object
+     * @throws RegistryException
+     */
+    private static Registry getRegistryInstance(String registryType, int tenantId) throws RegistryException {
+        Registry registry;
+        switch (registryType) {
+            case BillingConstants.GOVERNANCE_REGISTRY:
+                registry = ServiceDataHolder.getInstance().getRegistryService().getGovernanceSystemRegistry(tenantId);
+                break;
+            case BillingConstants.CONFIG_REGISTRY:
+                registry = ServiceDataHolder.getInstance().getRegistryService().getConfigSystemRegistry(tenantId);
+                break;
+            default:
+                registry = ServiceDataHolder.getInstance().getRegistryService().getGovernanceSystemRegistry(tenantId);
+        }
+        return registry;
     }
 
     /**
@@ -144,5 +181,116 @@ public final class CloudBillingUtils {
                 new CustomHTTPSSocketFactory(baseFactory, enabledProtocolVersions.trim().split("\\s*,\\s*"));
 
         return new Protocol(scheme, customFactory, defaultPort);
+    }
+
+    /**
+     * Adding a governance registry resource in a given location of a given tenant
+     *
+     * @param tenantDomain tenant domain
+     * @param resourceUrl  resource url
+     * @return boolean
+     * @throws CloudBillingException
+     */
+    public static Boolean putRegistryResource(String tenantDomain, String resourceUrl, Resource resource)
+            throws CloudBillingException {
+        return putRegistryResource(tenantDomain, resourceUrl, resource, BillingConstants.GOVERNANCE_REGISTRY);
+    }
+
+    /**
+     * Adding a registry resource in a given location of a given tenant
+     *
+     * @param tenantDomain tenant domain
+     * @param resourceUrl  resource url
+     * @param registryType registry type
+     * @return boolean
+     * @throws CloudBillingException
+     */
+    public static Boolean putRegistryResource(String tenantDomain, String resourceUrl, Resource resource,
+                                              String registryType) throws CloudBillingException {
+        if (resource == null) {
+            throw new CloudBillingException(
+                    "Unable to update the registry, resource provided is null" + " for tenant domain: " + tenantDomain);
+        }
+        try {
+            TenantManager tenantManager = ServiceDataHolder.getInstance().getRealmService().getTenantManager();
+            int tenantId = tenantManager.getTenantId(tenantDomain);
+            if (tenantId != MultitenantConstants.SUPER_TENANT_ID && tenantId != -1) {
+                //Start a new tenant flow
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
+                // load the registry
+                ServiceDataHolder.getInstance().gerTenantRegistryLoader().loadTenantRegistry(tenantId);
+                Registry registry = getRegistryInstance(registryType, tenantId);
+                if (registry.resourceExists(resourceUrl.trim())) {
+                    registry.put(resourceUrl, resource);
+                    return registry.resourceExists(resourceUrl.trim());
+                } else {
+                    throw new CloudBillingException(
+                            "Unable to find the registry resource in the given location: " + resourceUrl +
+                            " for tenant domain: " + tenantDomain);
+                }
+            } else {
+                throw new CloudBillingException("Error while retrieving tenant id for tenant domain: " + tenantDomain);
+            }
+        } catch (RegistryException | UserStoreException e) {
+            throw new CloudBillingException(
+                    "Error occurred while accessing registry resources for tenant " + tenantDomain + ".", e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
+     * This method creates and adds the registry resource to the tenant registry.
+     * @param tenantDomain
+     * @param resourceUrl
+     * @param resourceContent
+     * @param resourceMediaType
+     * @param registryType
+     * @return the result of the update
+     * @throws CloudBillingException
+     */
+    public static Boolean createRegistryResource(String tenantDomain, String resourceUrl, String resourceContent, String resourceMediaType, String registryType) throws CloudBillingException {
+        boolean result = false;
+        if (resourceContent == null){
+            throw new CloudBillingException(
+                    "Unable to create the registry resource, resource content provided is null" + " for tenant domain: " + tenantDomain);
+        }
+        try {
+            TenantManager tenantManager = ServiceDataHolder.getInstance().getRealmService().getTenantManager();
+            int tenantId = tenantManager.getTenantId(tenantDomain);
+            if (tenantId != MultitenantConstants.SUPER_TENANT_ID && tenantId != -1) {
+
+                //Starting a new tenant flow
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
+
+                // loading the tenant registry
+                ServiceDataHolder.getInstance().gerTenantRegistryLoader().loadTenantRegistry(tenantId);
+                Registry registry = getRegistryInstance(registryType,tenantId);
+                // Creating the registry resource
+                Resource resource = registry.newResource();
+                resource.setContent(resourceContent);
+                resource.setMediaType(resourceMediaType);
+                if (!registry.resourceExists(resourceUrl.trim())) {
+                    registry.put(resourceUrl, resource);
+                    result = registry.resourceExists(resourceUrl.trim());
+                } else {
+                    throw new CloudBillingException(
+                            "Unable to create and add the registry resource in the given location: " + resourceUrl +
+                            " for tenant domain: " + tenantDomain);
+                }
+            } else {
+                throw new CloudBillingException("Error while retrieving tenant id for tenant domain: " + tenantDomain);
+            }
+        } catch (RegistryException | UserStoreException e) {
+            throw new CloudBillingException(
+                    "Error occurred while creating registry resources for tenant " + tenantDomain + ".", e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+        return result;
     }
 }

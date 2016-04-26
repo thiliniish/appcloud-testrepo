@@ -8,9 +8,10 @@ jagg.initializer("page/base-new", {
         jagg.addHeaderCSS("page/base-new", "Roboto", 'css/web-fonts/Roboto.css');
         jagg.addHeaderCSS("page/base-new", "styles", 'new-assets/css/styles.css');
         jagg.addHeaderCSS("page/base-new", "styles-header", 'css/styles-header.css');
+        jagg.addHeaderCSS("page/base-new", "validate-password", 'new-assets/css/jquery.validate.password.css');
         //bootstrap Js
         jagg.addFooterJS("page/base-new", "bootstrapJS", "js/bootstrap-3.2.0/bootstrap.min.js");
-
+        jagg.addFooterJS("page/base-new", "validate", "js/jquery.validate.min.js");
     }
 });
 %>

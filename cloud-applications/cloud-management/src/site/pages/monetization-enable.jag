@@ -1,22 +1,70 @@
 <%
 include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
 var site = require("/site/conf/site.json");
 
 (function () {
+    var user = jagg.getUser();
+    if (user == null) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudmgtURI = cloudConfig.ServerUrls.cloudmgt.toString();
+    var userName = session.get("LOGGED_IN_USER");
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user);
+    if (tenantDomain != null && !jagg.module("util").isUserInAdminRole()) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+    var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    var eligibleForMonetization = false;
+    var paymentPlanName = jagg.module("monetizing").getCurrentPaymentPlan();
 
+    if (paymentPlanName != null && BILLING_STARTER_PLAN != paymentPlanName) {
+        eligibleForMonetization = true;
+    }
+    var monetizationEnabledStatus = isMonetizationEnabledObj.monetizationEnabled;
+    var isFromChangePlan = false;
+    if (paymentPlanName != null) {
+        isFromChangePlan = true;
+    }
     jagg.render({
-        "name":"page/base",
-        "inputs":{
-            "title":"WSO2 Cloud Mgt",
-            "pagePath":"/site/pages/monetization-enable.jag",
-            "body":[
+        "name": "page/base-new",
+        "inputs": {
+            "title": "WSO2 Cloud Mgt",
+            "pagePath": "/site/pages/monetization-enable.jag",
+            "body": [
                 {
-                    "name":"layout/base",
-                    "inputs":{
-                        "title":"Enable Monetization",
-                        "middle":[
+                    "name": "layout/base",
+                    "inputs": {
+                        "title": "Enable Monetization",
+                        "middle": [
                             {
-                            	"name":"monetizing/publisher/enable"
+                                "name": "monetizing/publisher/enable",
+                                "inputs": {
+                                    "isMonetizationEnabled": isMonetizationEnabledObj.monetizationEnabled,
+                                    "eligibleForMonetization": eligibleForMonetization,
+                                    "isFromChangePlan": isFromChangePlan,
+                                    "userName": userName,
+                                    "cloudmgtURI": cloudmgtURI
+                                }
+                            }
+                        ], "breadcrumb": [
+                            {
+                                "name": "breadcrumb",
+                                "inputs": {
+                                    "pageName": "Enable"
+                                }
+                            }
+                        ],
+                        "tablinks": [
+                            {
+                                "name": "tablinks",
+                                "inputs": {
+                                    "monetizationEnabledStatus": monetizationEnabledStatus
+                                }
                             }
                         ]
                     }

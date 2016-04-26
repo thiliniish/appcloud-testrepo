@@ -16,12 +16,12 @@
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 5px 0px 20px;">
                     Hi,
                 </p>
-                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
-                     You have subscribed to the $api API of the organization $tenant using the $applicationName application with the $tier tier.
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 10px 0px;">
+                     Please note that your subscriber account is complimentary, effective from $effective-date. You can subscribe to new APIs and use the existing commercial subscriptions for free.
                 </p>
 
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 20px 0px;">
-                    If you have any questions or need help, please contact the store owner at $contact
+                    If you have any questions, please contact us at <a href="mailto:$admin-email " style="color: #214dad; text-decoration: none; font-weight: bold;">$admin-email</a>
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 20px 0px 0px;">
                     Regards,
@@ -32,12 +32,12 @@
             </div>
             <div style="background-color: #3d3d3d; line-height: 0px; padding: 0px 0px 0px 0px;">
                 <div style="display: inline-block; line-height: 0px;">
-                    <a href="http://wso2.com/cloud/api-cloud" target="_blank">
                     <img src="http://cdn.wso2.com/wso2/newsletter/images/powered-by-api-wso2-cloud.png" alt="WSO2" style="margin: 0px 0px 0px 0px; width: 100%; max-width: 650px;" />
-                    </a>
                 </div>
             </div>
         </div>
     </div>
 </body>
 </html>
+
+
