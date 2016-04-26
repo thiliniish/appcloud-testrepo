@@ -4,7 +4,7 @@
     <div class="left-pane">
         <ul>
             <li>
-                <a href="009_cloud_app_details_initial.html" target="_blank"><i class="fa fa-laptop"></i> Dashboard</a>
+                <a href="../pages/monetization-dashboard.jag" target="_blank"><i class="fa fa-laptop"></i> Dashboard</a>
             </li>
             <li>
                 <a ><i class="fa fa-cloud"></i> API cloud</a>
