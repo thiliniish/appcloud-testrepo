@@ -21,7 +21,7 @@
                 </p>
 
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 20px 0px;">
-                    If you have any questions or need help, please contact the store owner at $contact
+                    If you have any questions or need help, please contact the store owner at $contact <!--a href="mailto:$contact " style="color: #214dad; text-decoration: none; font-weight: bold;"></a>-->
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 20px 0px 0px;">
                     Regards,
