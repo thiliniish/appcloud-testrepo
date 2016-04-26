@@ -28,19 +28,36 @@ import java.util.Map;
 public class RoleMgtConfiguration {
     private Map<String, List<String>> configuration;
 
+    /**
+     * Constructor for RoleMgtConfiguration
+     *
+     * @param config Map of List of Strings representing role-mgt.xml
+     */
     public RoleMgtConfiguration(Map<String, List<String>> config) {
         configuration = new HashMap<String, List<String>>();
         configuration.putAll(config);
     }
 
+    /**
+     * Method to get properties for a given key
+     *
+     * @param key
+     * @return values String[]
+     */
     public String[] getProperties(String key) {
         List<String> values = configuration.get(key);
         if (values == null) {
             return new String[0];
         }
-        return values.toArray(new String[values.size()]);
+        return values.toArray(new String[0]);
     }
 
+    /**
+     * Method to get properties for a given key
+     *
+     * @param key String
+     * @return value String
+     */
     public String getFirstProperty(String key) {
         List<String> value = configuration.get(key);
         if (value == null) {
@@ -49,6 +66,11 @@ public class RoleMgtConfiguration {
         return value.get(0);
     }
 
+    /**
+     * Method to get all properties of configuration
+     *
+     * @return Map of List of Strings representing role-mgt.xml
+     */
     public Map<String,List<String>> getAllProperties(){
         return configuration;
     }

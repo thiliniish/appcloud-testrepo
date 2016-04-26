@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -23,6 +23,9 @@ import org.wso2.carbon.user.core.Permission;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the data holder for Role Configuration details
+ */
 public class RoleBean {
     private String roleName;
     private List<String> users;
@@ -30,6 +33,11 @@ public class RoleBean {
     private List<Permission> deniedPermissions;
     private String action;
 
+    /**
+     * Constructor for RoleBean
+     *
+     * @param roleName String
+     */
     public RoleBean(String roleName) {
         this.roleName = roleName;
         users = new ArrayList<String>();
@@ -37,14 +45,20 @@ public class RoleBean {
         deniedPermissions = new ArrayList<Permission>();
     }
 
+    /**
+     * Method to get Role Name
+     *
+     * @return String
+     */
     public String getRoleName() {
         return roleName;
     }
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
+    /**
+     * Method to get users
+     *
+     * @return List of String
+     */
     public List<String> getUsers() {
         return users;
     }
@@ -57,12 +71,23 @@ public class RoleBean {
         }
     }
 
+    /**
+     * Method to add user
+     *
+     * @param user String
+     */
     public void addUser(String user) {
         if (user != null && !"".equals(user.trim())) {
             users.add(user);
         }
     }
 
+    /**
+     * Method to add permission
+     *
+     * @param permission Permission
+     * @param isAuthorizedPermissions boolean
+     */
     public void addPermission(Permission permission, boolean isAuthorizedPermissions) {
         if (permission != null) {
             if (isAuthorizedPermissions) {
@@ -73,10 +98,20 @@ public class RoleBean {
         }
     }
 
+    /**
+     * Method to get action
+     *
+     * @return String
+     */
     public String getAction() {
         return action;
     }
 
+    /**
+     * Method to set Action
+     *
+     * @param action String
+     */
     public void setAction(String action) {
         this.action = action;
     }

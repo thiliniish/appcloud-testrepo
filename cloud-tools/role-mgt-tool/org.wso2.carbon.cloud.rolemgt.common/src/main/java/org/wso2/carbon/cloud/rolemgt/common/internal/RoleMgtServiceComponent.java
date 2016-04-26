@@ -26,17 +26,12 @@ import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfiguration;
 import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfigurationBuilder;
 import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConstants;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
-import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 
 /**
  * @scr.component name="role.mgt.component" immediate=true
- * @scr.reference name="user.realmservice.default"
- * interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService"
- * unbind="unsetRealmService"
  * @scr.reference name="secret.callback.handler.service"
  * interface="org.wso2.carbon.securevault.SecretCallbackHandlerService"
  * cardinality="1..1" policy="dynamic"
@@ -46,7 +41,9 @@ public class RoleMgtServiceComponent {
     private static Log log = LogFactory.getLog(RoleMgtServiceComponent.class);
 
     /**
-     * @param ctxt
+     * Method to activate bundle.
+     *
+     * @param ctxt OSGi component context.
      */
     protected void activate(ComponentContext ctxt) {
         BundleContext bundleContext = ctxt.getBundleContext();
@@ -57,29 +54,30 @@ public class RoleMgtServiceComponent {
                     File.separator + RoleMgtConstants.CONFIG_FILE_NAME;
             configuration = new RoleMgtConfigurationBuilder(fileLocation).buildRoleMgtConfiguration();
             bundleContext.registerService(RoleMgtConfiguration.class.getName(), configuration, null);
-            log.info("Hello role mgt");
             if (log.isDebugEnabled()) {
-                log.debug("Role mgt bundle is activated");
+                log.debug("Role Management Common bundle is activated");
             }
         } catch (Throwable e) {
-            log.error("Error in creating role-mgt configuration", e);
+            log.error("Error while activating Role Management Common bundle", e);
         }
     }
 
+    /**
+     * Method to deactivate bundle.
+     *
+     * @param ctxt OSGi component context.
+     */
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.debug("Role Mgt bundle is deactivated ");
         }
     }
 
-    protected void setRealmService(RealmService rlmService) {
-        ServiceHolder.setRealmService(rlmService);
-    }
-
-    protected void unsetRealmService(RealmService realmService) {
-        ServiceHolder.setRealmService(null);
-    }
-
+    /**
+     * Method to set Secret Call back handler
+     *
+     * @param secretCallbackHandlerService SecretCallbackHandlerService
+     */
     protected void setSecretCallbackHandlerService(
             SecretCallbackHandlerService secretCallbackHandlerService) {
         if (log.isDebugEnabled()) {
@@ -88,6 +86,11 @@ public class RoleMgtServiceComponent {
         ServiceHolder.setSecretCallbackHandlerService(secretCallbackHandlerService);
     }
 
+    /**
+     * Method to unset Secret Call back handler
+     *
+     * @param secretCallbackHandlerService SecretCallbackHandlerService
+     */
     protected void unsetSecretCallbackHandlerService(
             SecretCallbackHandlerService secretCallbackHandlerService) {
         ServiceHolder.setSecretCallbackHandlerService(null);

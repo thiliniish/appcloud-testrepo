@@ -56,8 +56,7 @@ public class RoleMgtConfigurationBuilder {
         if (roleConfigFile.exists()) {
             this.configFile = roleConfigFile;
         } else {
-            String msg = "The provided file " + roleConfigFile.getAbsolutePath() + " does not " +
-                    "exist ";
+            String msg = "The provided file " + roleConfigFile.getAbsolutePath() + " does not exist ";
             log.error(msg);
             throw new RoleMgtException(msg);
         }
@@ -73,51 +72,39 @@ public class RoleMgtConfigurationBuilder {
         return loadRoleMgtConfiguration(this.configFile);
     }
 
+    /**
+     * Method to load RoleMgtConfiguration
+     *
+     * @param roleConfigFile File
+     * @return {@link RoleMgtConfiguration}
+     * @throws RoleMgtException
+     *
+     */
     private RoleMgtConfiguration loadRoleMgtConfiguration(File roleConfigFile) throws RoleMgtException {
         OMElement roleMgtElement = loadXML(roleConfigFile);
-
-        // Initialize secure vault
+        // Initialize secret manager
         SecretManagerInitializer secretManagerInitializer = new SecretManagerInitializer();
         secretManagerInitializer.init();
         secretResolver = SecretResolverFactory.create(roleMgtElement, true);
-
         if (!RoleMgtConstants.CONFIG_NAMESPACE.equals(roleMgtElement.getNamespace().getNamespaceURI())) {
-            String message =
-                    "Cloud namespace is invalid. Expected [" + RoleMgtConstants.CONFIG_NAMESPACE +
-                            "], received [" + roleMgtElement.getNamespace() + "]";
+            String message = "Cloud namespace is invalid. Expected [" + RoleMgtConstants.CONFIG_NAMESPACE +
+                    "], received [" + roleMgtElement.getNamespace() + "]";
             log.error(message);
             throw new RoleMgtException(message);
         }
-
         Stack<String> nameStack = new Stack<String>();
         readChildElements(roleMgtElement, nameStack, null);
-
         return new RoleMgtConfiguration(configurationMap);
     }
 
     /**
-     * if the provided file is a xml file it can return map of name values in the xml
+     * Method to load XML
      *
-     * @return Map of name values
-     * @throws RoleMgtException if there is a problem in reading the file
+     * @param configFile File
+     * @return OMElement
+     * @throws RoleMgtException
      */
-    public Map<String, String> loadConfigurationFile() throws RoleMgtException {
-        OMElement xmlElement = loadXML(configFile);
-
-        // Initialize secure vault
-        SecretManagerInitializer secretManagerInitializer = new SecretManagerInitializer();
-        secretManagerInitializer.init();
-        secretResolver = SecretResolverFactory.create(xmlElement, true);
-
-        Stack<String> nameStack = new Stack<String>();
-        Map<String, String> configuration = new HashMap<String, String>();
-        readChildElements(xmlElement, nameStack, configuration);
-
-        return configuration;
-    }
-
     private OMElement loadXML(File configFile) throws RoleMgtException {
-
         InputStream inputStream = null;
         OMElement configXMLFile = null;
         try {
@@ -129,7 +116,7 @@ public class RoleMgtConfigurationBuilder {
             log.error(msg, e);
             throw new RoleMgtException(msg, e);
         } catch (XMLStreamException e) {
-            String msg = "Error in parsing " + RoleMgtConstants.CONFIG_FILE_NAME;
+            String msg = "Error in parsing " + RoleMgtConstants.CONFIG_FILE_NAME + " at " + configFile.getAbsolutePath();
             log.error(msg, e);
             throw new RoleMgtException(msg, e);
         } finally {
@@ -138,43 +125,44 @@ public class RoleMgtConfigurationBuilder {
                     inputStream.close();
                 }
             } catch (IOException e) {
-                String msg = "Error in closing stream ";
+                String msg = "Error in closing input stream ";
                 log.error(msg, e);
             }
         }
         return configXMLFile;
     }
 
+    /**
+     * Method to read child elements
+     *
+     * @param serverConfig OMElement
+     * @param nameStack Stack of String
+     * @param configuration Map of String
+     */
     private void readChildElements(OMElement serverConfig, Stack<String> nameStack, Map<String,
             String> configuration) {
+
         for (Iterator childElements = serverConfig.getChildElements(); childElements.hasNext(); ) {
             OMElement element = (OMElement) childElements.next();
             nameStack.push(element.getLocalName());
-
             secureVaultResolve(element);
-
             String nameAttribute = element.getAttributeValue(new QName("name"));
             if (nameAttribute != null && nameAttribute.trim().length() != 0) {
-                // We have some name attribute
+                // some name attribute exists
                 String key = getKey(nameStack);
                 addToConfiguration(key, nameAttribute.trim(), configuration);
-
                 // all child element will be having this attribute as part of their name
                 nameStack.push(nameAttribute.trim());
             }
-
             String enabledAttribute = element.getAttributeValue(new QName("enabled"));
             if (enabledAttribute != null && enabledAttribute.trim().length() != 0) {
                 String key = getKey(nameStack) + ".Enabled";
                 addToConfiguration(key, enabledAttribute.trim(), configuration);
-
             }
-
             String text = element.getText();
             if (text != null && text.trim().length() != 0) {
                 String key = getKey(nameStack);
                 String value = replaceSystemProperty(text.trim());
-
                 // Check whether the value is secured using secure valut
                 if (isProtectedToken(key)) {
                     value = getProtectedValue(key);
@@ -182,7 +170,6 @@ public class RoleMgtConfigurationBuilder {
                 addToConfiguration(key, value, configuration);
             }
             readChildElements(element, nameStack, configuration);
-
             // If we had a named attribute, we have to pop that out
             if (nameAttribute != null && nameAttribute.trim().length() != 0) {
                 nameStack.pop();
@@ -191,6 +178,12 @@ public class RoleMgtConfigurationBuilder {
         }
     }
 
+    /**
+     * Method to get Key given the nameStack
+     *
+     * @param nameStack Stack of String
+     * @return
+     */
     private String getKey(Stack<String> nameStack) {
         StringBuilder key = new StringBuilder();
         for (int i = 0; i < nameStack.size(); i++) {
@@ -202,10 +195,15 @@ public class RoleMgtConfigurationBuilder {
         return key.toString();
     }
 
+    /**
+     * Method to replace System Property
+     *
+     * @param text String
+     * @return String
+     */
     private String replaceSystemProperty(String text) {
         int indexOfStartingChars = -1;
         int indexOfClosingBrace;
-
         // The following condition deals with properties.
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
@@ -214,34 +212,48 @@ public class RoleMgtConfigurationBuilder {
 
             // Get the system property name
             String sysProp = text.substring(indexOfStartingChars + 2, indexOfClosingBrace);
-
             // Resolve the system property name to a value
             String propValue = System.getProperty(sysProp);
-
             // If the system property is carbon home and is relative path,
             // we have to resolve it to absolute path
             if (sysProp.equals("carbon.home") && propValue != null && propValue.equals(".")) {
                 propValue = new File(".").getAbsolutePath() + File.separator;
             }
-
             // Replace the system property with valid value
             if (propValue != null) {
                 text = text.substring(0, indexOfStartingChars) + propValue + text.substring(indexOfClosingBrace + 1);
             }
-
         }
         return text;
     }
 
+    /**
+     * Method to check if a key is a protected token
+     *
+     * @param key String
+     * @return boolean
+     */
     private boolean isProtectedToken(String key) {
         return secretResolver != null && secretResolver.isInitialized() &&
                 secretResolver.isTokenProtected("Carbon." + key);
     }
 
+    /**
+     * Method to get protected value of a key
+     *
+     * @param key
+     * @return String
+     */
     private String getProtectedValue(String key) {
         return secretResolver.resolve("Carbon." + key);
     }
 
+    /**
+     * Method to add key-value pairs to configuration map
+     *
+     * @param key String
+     * @param value String
+     */
     private void addToConfiguration(String key, String value) {
         List<String> list = configurationMap.get(key);
         if (list == null) {
@@ -255,6 +267,13 @@ public class RoleMgtConfigurationBuilder {
         }
     }
 
+    /**
+     * Method to add key-value pairs to configuration
+     *
+     * @param key String
+     * @param value String
+     * @param configuration Map of String
+     */
     private void addToConfiguration(String key, String value, Map<String, String> configuration) {
         if (configuration == null) {
             addToConfiguration(key, value);
@@ -265,6 +284,11 @@ public class RoleMgtConfigurationBuilder {
         }
     }
 
+    /**
+     * Method to resolve secure vault
+     *
+     * @param element OMElement
+     */
     private void secureVaultResolve(OMElement element) {
         String secretAliasAttr =
                 element.getAttributeValue(new QName(RoleMgtConstants.SECURE_VAULT_NS,
@@ -274,6 +298,12 @@ public class RoleMgtConfigurationBuilder {
         }
     }
 
+    /**
+     * Method to load from Secure Vault
+     *
+     * @param alias String
+     * @return String
+     */
     public synchronized String loadFromSecureVault(String alias) {
         if (secretResolver == null) {
             secretResolver = SecretResolverFactory.create((OMElement) null, false);
@@ -282,5 +312,4 @@ public class RoleMgtConfigurationBuilder {
         }
         return secretResolver.resolve(alias);
     }
-
 }

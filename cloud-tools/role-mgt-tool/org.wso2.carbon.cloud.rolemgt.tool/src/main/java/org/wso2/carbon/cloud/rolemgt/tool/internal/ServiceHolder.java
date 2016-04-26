@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,30 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.carbon.cloud.rolemgt.tool.internal;
 
 import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfiguration;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 
-
 /**
- * Represents the data holder for the app deletion component
+ * Represents the data holder for the role manager component
  */
 public class ServiceHolder {
 
-    private ServiceHolder() {
-    }
+    private ServiceHolder() {}
 
     //Role configuration which is used to get role update info
     private static RoleMgtConfiguration roleConfiguration;
-    //Tenant Registry loader which is used to load registry of the tenant
+    //Tenant Registry loader which is used to load registry of a tenant
     private static TenantRegistryLoader tenantRegLoader;
     //Realm Service which is used to get tenant data.
     private static RealmService realmService;
-    //Tenant Registry loader which is used to load registry of the tenant
-    //ApplicationInfo service which is used to get application related information
 
+    /**
+     * Method to get Role Configuration
+     *
+     * @return RoleMgtConfiguration
+     */
     public static RoleMgtConfiguration getRoleConfiguration() {
         return roleConfiguration;
     }
@@ -48,7 +50,7 @@ public class ServiceHolder {
     }
 
     /**
-     * This method used to get RealmService.
+     * Method used to get RealmService.
      *
      * @return RealmService.
      */
@@ -66,7 +68,7 @@ public class ServiceHolder {
     }
 
     /**
-     * This method used to get TenantRegistryLoader
+     * Method used to get TenantRegistryLoader
      *
      * @return tenantRegLoader  Tenant registry loader for load tenant registry
      */
@@ -75,13 +77,12 @@ public class ServiceHolder {
     }
 
     /**
-     * This method used to set TenantRegistryLoader
+     * Method used to set TenantRegistryLoader
      *
      * @param service Tenant registry loader for load tenant registry
      */
     public static void setTenantRegLoader(TenantRegistryLoader service) {
         tenantRegLoader = service;
     }
-
 
 }

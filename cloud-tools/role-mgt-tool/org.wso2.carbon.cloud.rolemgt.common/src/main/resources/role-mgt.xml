@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  ~  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~  WSO2 Inc. licenses this file to you under the Apache License,
   ~  Version 2.0 (the "License"); you may not use this file except
@@ -19,16 +19,16 @@
 
 <RoleMgt xmlns="http://www.wso2.org/cloud/">
     <TenantRoles>
-        <Role name="internalSubscriber">
-            <DisplayName>Subscriber</DisplayName>
+        <Role name="customRole1">
+            <DisplayName>CustomRole_01</DisplayName>
             <Permission>
                 /permission/admin/login,
-                /permission/admin/manage/api/subscribe
+                /permission/admin/manage/repository/axis2/test
             </Permission>
             <Action>add</Action>
         </Role>
-        <Role name="internalPublisher">
-            <DisplayName>Publisher</DisplayName>
+        <Role name="customRole2">
+            <DisplayName>CustomRole_02</DisplayName>
             <Permission>
                 /permission/admin/login,
                 /permission/admin/manage/api/create,
@@ -39,7 +39,7 @@
             </Permission>
             <Action>update</Action>
         </Role>
-        <Role name="localAPIPublisher">
+        <Role name="customRole3">
             <Permission>
                 /_system/governance:REGISTRY_GET,
                 /_system/governance:REGISTRY_PUT,

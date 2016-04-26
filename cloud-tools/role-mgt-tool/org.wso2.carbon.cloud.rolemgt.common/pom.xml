@@ -56,7 +56,16 @@
                         <Import-Package>
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             org.apache.commons.logging.*,
-                            *;resolution:=optional
+                            javax.xml.namespace,
+                            javax.xml.stream,
+                            org.apache.commons.io,
+                            org.osgi.framework,
+                            org.osgi.service.component,
+                            org.wso2.carbon.securevault,
+                            org.wso2.carbon.user.core.service,
+                            org.wso2.carbon.utils,
+                            org.wso2.securevault,
+                            org.wso2.securevault.secret
                         </Import-Package>
                     </instructions>
                 </configuration>

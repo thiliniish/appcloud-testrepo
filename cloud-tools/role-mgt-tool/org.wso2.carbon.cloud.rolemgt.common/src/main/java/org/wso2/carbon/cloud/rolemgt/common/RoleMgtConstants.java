@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +19,12 @@
 package org.wso2.carbon.cloud.rolemgt.common;
 
 /**
- * Constants for Cloud components
+ * Constants for Role Mgt components
  */
 public class RoleMgtConstants {
+
+    private RoleMgtConstants(){}
+
     public static final String CONFIG_FOLDER = "rolemgt";
 
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/";
@@ -36,5 +39,4 @@ public class RoleMgtConstants {
     public static final String REGISTRY_DELETE = "REGISTRY_DELETE";
 
     public static final String TENANT_ROLES_ROLE = "TenantRoles.Role";
-
 }

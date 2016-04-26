@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -49,10 +49,16 @@ public class RoleManagerComponent {
      * @param context OSGi component context.
      */
     protected void activate(ComponentContext context) {
-        //Register the server start up handler which hold the execution of its invoke method until the server starts
-        context.getBundleContext()
-                .registerService(ServerStartupHandler.class.getName(), new RoleManagerServerStartListener(), null);
-        log.info("Role Manager bundle activated successfully.");
+        try{
+            //Register the server start up handler which hold the execution of its invoke method until the server starts
+            context.getBundleContext()
+                    .registerService(ServerStartupHandler.class.getName(), new RoleManagerServerStartListener(), null);
+            if (log.isDebugEnabled()) {
+                log.debug("Role Manager bundle activated successfully.");
+            }
+        } catch (Throwable e) {
+            log.error("Error while creating Role Manager bundle.", e);
+        }
     }
 
     /**
@@ -129,5 +135,4 @@ public class RoleManagerComponent {
     protected void unsetRoleMgtConfiguration(RoleMgtConfiguration roleMgtConfiguration) {
         ServiceHolder.setRoleMgtConfiguration(null);
     }
-
 }

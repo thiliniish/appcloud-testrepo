@@ -22,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.rolemgt.tool.RoleManager;
 import org.wso2.carbon.core.ServerStartupHandler;
 
-
 /**
  * Represents the listener that identify the server startup
  */
@@ -31,14 +30,14 @@ public class RoleManagerServerStartListener implements ServerStartupHandler {
     private static final Log log = LogFactory.getLog(RoleManagerServerStartListener.class);
 
     /**
-     * This method waits until the server starts for the execution
+     * This method waits until the server starts for execution
      */
     @Override
     public void invoke() {
-        log.info("Server start up handler is activated");
-        //A separate thread is created for app deletion.
+        if(log.isDebugEnabled()){
+            log.debug("Server start up handler is activated");
+        }
         Thread t1 = new Thread(new RoleManager());
         t1.start();
-
     }
 }

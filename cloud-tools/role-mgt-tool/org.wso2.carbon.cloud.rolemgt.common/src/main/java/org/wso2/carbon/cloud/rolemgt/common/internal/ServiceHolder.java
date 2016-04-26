@@ -19,24 +19,27 @@
 package org.wso2.carbon.cloud.rolemgt.common.internal;
 
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
-import org.wso2.carbon.user.core.service.RealmService;
 
 public class ServiceHolder {
-    private static RealmService realmService;
+
+    private ServiceHolder(){}
+
     private static SecretCallbackHandlerService secretCallbackHandlerService;
 
-    public static RealmService getRealmService() {
-        return realmService;
-    }
-
-    public static void setRealmService(RealmService realmService) {
-        ServiceHolder.realmService = realmService;
-    }
-
+    /**
+     * Method to get SecretCallbackHandlerService
+     *
+     * @return secretCallbackHandlerService SecretCallbackHandlerService
+     */
     public static SecretCallbackHandlerService getSecretCallbackHandlerService() {
         return secretCallbackHandlerService;
     }
 
+    /**
+     * Method to set SecretCallbackHandlerService
+     *
+     * @param secretCallbackHandlerService SecretCallbackHandlerService
+     */
     public static void setSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
         ServiceHolder.secretCallbackHandlerService = secretCallbackHandlerService;
     }

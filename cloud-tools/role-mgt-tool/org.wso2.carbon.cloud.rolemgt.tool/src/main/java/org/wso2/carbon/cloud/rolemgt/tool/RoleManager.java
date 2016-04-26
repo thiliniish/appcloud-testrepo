@@ -1,3 +1,21 @@
+/*
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package org.wso2.carbon.cloud.rolemgt.tool;
 
 import org.apache.commons.logging.Log;
@@ -19,32 +37,41 @@ import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Created by dilhasha on 4/25/16.
+ * Represents the thread which updates role configurations
  */
 public class RoleManager implements Runnable {
 
     private static final Log log = LogFactory.getLog(RoleManager.class);
 
+    /**
+     * Method to override run
+     */
     @Override public void run() {
-        RoleManager roleManager = new RoleManager();
-        log.info("Role Manager started.");
         try {
             manage();
+            if(log.isDebugEnabled()){
+                log.debug("Role Manager started Successfully.");
+            }
         } catch (StratosException e) {
-            log.error("Error occurred while updating roles.", e);
+            log.error("Error occurred while updating roles in Role Manager.", e);
         }
-
     }
 
+    /**
+     * Method to update manage tenant roles
+     *
+     * @throws StratosException
+     */
     public void manage() throws StratosException {
+        if(log.isDebugEnabled()){
+            log.debug("Starting the process to update tenant roles during server start up.");
+        }
         //Get role details to be updated
-        log.info("Updating tenant roles during server start up.");
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
         try {
             roleBeanList.addAll(getRoleConfigurations(RoleMgtConstants.TENANT_ROLES_ROLE));
@@ -59,6 +86,13 @@ public class RoleManager implements Runnable {
         updateRoles(roleBeanList);
     }
 
+    /**
+     * Method to get Role Configurations
+     *
+     * @param roleConfigPath String
+     * @return Set of RoleBean
+     * @throws RoleMgtException
+     */
     private static Set<RoleBean> getRoleConfigurations(String roleConfigPath)
             throws RoleMgtException {
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
@@ -95,9 +129,7 @@ public class RoleManager implements Runnable {
                         roleBean.addPermission(permission, !isDeniedPermission);
                     }
                 }
-                String roleActionString =
-                        configuration.getFirstProperty(roleConfigPath + "." + role +
-                                ".Action");
+                String roleActionString = configuration.getFirstProperty(roleConfigPath + "." + role + ".Action");
                 roleBean.setAction(roleActionString);
 
                 roleBeanList.add(roleBean);
@@ -107,7 +139,7 @@ public class RoleManager implements Runnable {
     }
 
     /**
-     * This is to replace registry action constants with short action names, to avoid urls as action
+     * Method to replace registry action constants with short action names, to avoid urls as action
      *
      * @param action - REGISTRY_GET,REGISTRY_PUT,REGISTRY_DELETE or any other action
      * @return - replaced permission action for REGISTRY_ACTION
@@ -124,6 +156,12 @@ public class RoleManager implements Runnable {
         }
     }
 
+    /**
+     * Method to update Roles
+     *
+     * @param roleBeanList Set of RoleBean
+     * @throws StratosException
+     */
     private static void updateRoles(Set<RoleBean> roleBeanList) throws StratosException{
         TenantManager tenantManager = ServiceHolder.getRealmService().getTenantManager();
         Tenant[] tenants = new Tenant[0];
@@ -133,18 +171,6 @@ public class RoleManager implements Runnable {
             String message = "Failed to get all tenants from tenant manager.";
             log.error(message);
             throw new StratosException(message, e);
-        }
-
-        //get Roles to be added and deleted
-        ArrayList<String> rolesToAdd = new ArrayList<String>();
-        ArrayList<String> rolesToDelete = new ArrayList<String>();
-        for (RoleBean role : roleBeanList) {
-            if(role.getAction() == RoleManagerConstants.ROLE_ADDITION){
-                rolesToAdd.add(role.getRoleName());
-            }
-            else if(role.getAction() == RoleManagerConstants.ROLE_DELETION){
-                rolesToDelete.add(role.getRoleName());
-            }
         }
         for(Tenant tenant : tenants){
             //Start a new tenant flow
@@ -156,7 +182,8 @@ public class RoleManager implements Runnable {
             try {
                 UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
                         getUserRealm().getUserStoreManager();
-                AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserRealm().getAuthorizationManager();
+                AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                        getUserRealm().getAuthorizationManager();
                 updateRolesPerTenant(userStoreManager,authorizationManager,roleBeanList);
             } catch (UserStoreException e) {
                 String message = "Failed to update roles of tenant : " + tenant.getDomain()
@@ -165,17 +192,27 @@ public class RoleManager implements Runnable {
                 throw new StratosException(message, e);
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
-                log.info("Role updation process is completed for tenant: " + tenant.getDomain() + "[" + tenant.getId() + "]");
+                if(log.isDebugEnabled()){
+                    log.debug("Role updation process is completed for tenant: " + tenant.getDomain() + "[" + tenant
+                            .getId() + "]");
+                }
             }
-
         }
-
+        log.info("Role management completed for all existing tenants.");
     }
 
-    private static void updateRolesPerTenant(UserStoreManager userStoreManager, AuthorizationManager authorizationManager,
-            Set<RoleBean> roleBeanList) throws UserStoreException {
-        Boolean isRoleAddition = false, isRoleUpdation = false, isRoleDeletion = false;
+    /**
+     * Method to update roles per tenant
+     *
+     * @param userStoreManager UserStoreManager
+     * @param authorizationManager AuthorizationManager
+     * @param roleBeanList Set of RoleBean
+     * @throws UserStoreException
+     */
+    private static void updateRolesPerTenant(UserStoreManager userStoreManager, AuthorizationManager
+            authorizationManager, Set<RoleBean> roleBeanList) throws UserStoreException {
 
+        Boolean isRoleAddition = false, isRoleUpdation = false, isRoleDeletion = false;
         for (RoleBean roleBean : roleBeanList) {
             if(RoleManagerConstants.ROLE_ADDITION.equals(roleBean.getAction())){
                 isRoleAddition = true;
@@ -189,10 +226,9 @@ public class RoleManager implements Runnable {
                 continue;
             } else if (isRoleAddition && !userStoreManager.isExistingRole(roleBean.getRoleName())) {
                 // add role and authorize given authorized permission list
-                userStoreManager.addRole(roleBean.getRoleName(),
-                        roleBean.getUsers().toArray(new String[roleBean.getUsers().size()]),
-                        roleBean.getPermissions(true)
-                                .toArray(new Permission[roleBean.getPermissions(true).size()]));
+                userStoreManager.addRole(roleBean.getRoleName(), roleBean.getUsers().toArray(new String[0]),
+                        roleBean.getPermissions(true).toArray(new Permission[0]));
+
                 if (log.isDebugEnabled()) {
                     StringBuilder permissionLog = new StringBuilder("Role:" + roleBean.getRoleName()
                             + " is added with below permissions;");
@@ -212,12 +248,12 @@ public class RoleManager implements Runnable {
                                 permission.getAction());
                         if (log.isDebugEnabled()) {
                             log.debug("Role:" + roleBean.getRoleName() + " is authorized with permission;\n" +
-                                    "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
+                                    "resource:" + permission.getResourceId() + " action:" + permission.getAction() +
+                                    "\n");
                         }
                     }
                 }
             }
-
             // deny given denied permission list
             for (Permission permission : roleBean.getPermissions(false)) {
                 authorizationManager.denyRole(roleBean.getRoleName(), permission.getResourceId(),
@@ -228,9 +264,6 @@ public class RoleManager implements Runnable {
                 }
             }
         }
-
     }
-
-
 }
 
