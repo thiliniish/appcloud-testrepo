@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>API Store</title>
+</head>
+<body style="color: #666666; background-color:#cdcdcd; padding: 0px; margin: 0px;">
+    <div style="background-color:#cdcdcd; font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; padding: 20px 0px; margin: 0px;">
+        <div style="width: 100%; max-width: 650px; background-color: #ffffff; margin: auto;">
+            <div style="background-color: #3d3d3d; line-height: 0px; padding: 0px 0px 0px 0px;">
+                <div style="display: inline-block; line-height: 0px;">
+                    <img src="http://b.content.wso2.com/newsletter/images/API-store-logo-with-top-header.png" alt="WSO2" style="margin: 0px 0px 0px 0px; width: 100%; max-width: 650px;" />
+                </div>
+            </div>
+            <div style="background-color: #ffffff; line-height: 170%; color: #666666; padding: 30px 45px;">
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 5px 0px 20px;">
+                    Hi,
+                </p>
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
+                     You have subscribed to the $api API of the organization $tenant using the $applicationName application with the $tier tier.
+                </p>
+
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 20px 0px;">
+                    If you have any questions or need help, please contact the store owner at $contact <!--a href="mailto:$contact " style="color: #214dad; text-decoration: none; font-weight: bold;"></a>-->
+                </p>
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 20px 0px 0px;">
+                    Regards,
+                </p>
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 150%; color: #666666; margin: 0px 0px;">
+                    Store Owner
+                </p>
+            </div>
+            <div style="background-color: #3d3d3d; line-height: 0px; padding: 0px 0px 0px 0px;">
+                <div style="display: inline-block; line-height: 0px;">
+                    <a href="http://wso2.com/cloud/api-cloud" target="_blank">
+                    <img src="http://cdn.wso2.com/wso2/newsletter/images/powered-by-api-wso2-cloud.png" alt="WSO2" style="margin: 0px 0px 0px 0px; width: 100%; max-width: 650px;" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

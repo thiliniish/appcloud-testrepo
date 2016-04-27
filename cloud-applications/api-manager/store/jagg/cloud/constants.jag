@@ -31,9 +31,9 @@ var DEAULT_APP_NAME = "ALL";
 var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
 //Subscription Notifications related constants
-var SUBSCRIBER_EMAIL_REGISTRY_PATH = "_system/governance/apimgt/pricing/resources/userSubscriptionNotificationEmail.txt";
-var SUBSCRIBER_EMAIL_DEFAULT_PATH = "/site/conf/pricing/emails/userSubscriptionNotificationEmail.txt";
-var PROVIDER_EMAIL_DEFAULT_PATH = "/site/conf/pricing/emails/tenantSubscriptionNotificationEmail.txt";
+var SUBSCRIBER_EMAIL_REGISTRY_PATH = "_system/governance/apimgt/pricing/resources/user-subscription-notification-email.txt";
+var SUBSCRIBER_EMAIL_DEFAULT_PATH = "/site/conf/pricing/emails/user-subscription-notification-email.txt";
+var PROVIDER_EMAIL_DEFAULT_PATH = "/site/conf/pricing/emails/tenant-subscription-notification-email.txt";
 var SUBSCRIBER_EMAIL_SUBJECT = "Subscription notification";
 var PROVIDER_NOTIFICATION_TYPE = "providerNotification";
 var SUBSCRIBER_NOTIFICATION_TYPE =  "subscriberNotification";

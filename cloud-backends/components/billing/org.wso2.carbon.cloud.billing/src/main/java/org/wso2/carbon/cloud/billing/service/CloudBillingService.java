@@ -34,6 +34,7 @@ import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.commons.config.DataServiceConfig;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
+import org.wso2.carbon.cloud.billing.commons.fileProcessor.FileContentReader;
 import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
@@ -48,6 +49,7 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -57,6 +59,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -662,16 +665,40 @@ public class CloudBillingService extends AbstractAdmin {
      * @return status of product creation
      * @throws CloudBillingException
      */
-    public boolean enableMonetization(String tenantDomain, String tenantPassword, String tenantDisplayName)
+    public boolean enableMonetization(String tenantDomain, String tenantPassword,
+                                      String tenantDisplayName)
             throws CloudBillingException {
         boolean status = false;
-        // Create the zuoara Product
+        String testAccountCreationEmailFileName =
+                MonetizationConstants.TEST_ACCOUNT_CREATION_EMAIL_FILE_NAME;
+        String testAccountDeletionEmailFileName =
+                MonetizationConstants.TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME;
+        String subscriptionNotificationEmailFileName =
+                MonetizationConstants.SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME;
+        String textContentType = BillingConstants.TEXT_PLAIN_CONTENT_TYPE;
+        // Create the zuora Product
         boolean createProductStatus = createProduct(tenantDomain);
         if (createProductStatus) {
             //   Add subscriptionCreation element to workflowExtension.xml in registry
             status = true;
-            if (!updateWorkFlow(tenantPassword, tenantDisplayName,tenantDomain)) {
-                LOGGER.error("Registry WorkflowExtension.xml update failed while enabling Monetization.");
+            if (!updateWorkFlow(tenantPassword, tenantDisplayName, tenantDomain)) {
+                LOGGER.error(
+                        "Registry WorkflowExtension.xml update failed while enabling Monetization.");
+            }
+            if (!createEmailFileInRegsitry(tenantDomain, subscriptionNotificationEmailFileName,
+                                           textContentType)) {
+                LOGGER.error("Creating the registry file " + subscriptionNotificationEmailFileName +
+                             " failed.");
+            }
+            if (!createEmailFileInRegsitry(tenantDomain, testAccountCreationEmailFileName,
+                                           textContentType)) {
+                LOGGER.error("Creating the registry file " + testAccountCreationEmailFileName +
+                             " failed.");
+            }
+            if (!createEmailFileInRegsitry(tenantDomain, testAccountDeletionEmailFileName,
+                                           textContentType)) {
+                LOGGER.error("Creating the registry file " + testAccountDeletionEmailFileName +
+                             " failed.");
             }
         }
         return status;
@@ -753,6 +780,40 @@ public class CloudBillingService extends AbstractAdmin {
             return CloudBillingUtils.putRegistryResource(tenantDomain, workflowUrl, workflowResource);
         } catch (RegistryException | ParserConfigurationException | SAXException | IOException | TransformerException e) {
             throw new CloudBillingException("Error occurred while updating the Registry workflowExtensionContent " + e);
+        }
+    }
+
+    /**
+     * This method will create the email notification files sent to subscribers in  the tenant space
+     * of the registry.
+     *
+     * @param tenantDomain
+     * @param emailFileName
+     * @param emailContentType
+     * @return the status of the file creation in the tenant space.
+     * @throws CloudBillingException
+     */
+    private boolean createEmailFileInRegsitry(String tenantDomain, String emailFileName,
+                                              String emailContentType)
+            throws CloudBillingException {
+        FileContentReader fileContentReader = new FileContentReader();
+        String fileBasePath = CarbonUtils.getCarbonHome() + File.separator +
+                              MonetizationConstants.EMAIl_RESOURCES_FOLDER + File.separator;
+        String emailFilePath = fileBasePath + emailFileName;
+        String registryPath = MonetizationConstants.EMAIL_FILE_BASE_URL + emailFileName;
+
+        try {
+            String emailContent =
+                    fileContentReader.fileReader(emailFilePath);
+            return CloudBillingUtils.createRegistryResource(tenantDomain,
+                                                            registryPath,
+                                                            emailContent,
+                                                            emailContentType,
+                                                            BillingConstants.GOVERNANCE_REGISTRY);
+        } catch (Exception e) {
+            throw new CloudBillingException(
+                    "Error occurred while creating the registry file " + emailFileName + " error:" +
+                    e);
         }
     }
 

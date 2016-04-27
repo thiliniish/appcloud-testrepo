@@ -1,0 +1,63 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+var log = new Log();
+(function () {
+    var user = jagg.getUser();
+    if (user == null) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user);
+    if (tenantDomain != null && !jagg.module("util").isUserInAdminRole()) {
+        response.sendRedirect("../pages/index.jag");
+        return;
+    }
+    var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    var monetizationEnabledStatus = false;
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.sendRedirect("../pages/monetization-enable.jag");
+        return;
+    } else {
+        monetizationEnabledStatus = isMonetizationEnabledObj.monetizationEnabled;
+    }
+
+    jagg.render({
+        "name": "page/base-new",
+        "inputs": {
+            "title": "WSO2 Cloud Mgt",
+            "pagePath": "/site/pages/monetization-dashboard.jag",
+            "body": [
+                {
+                    "name": "layout/base",
+                    "inputs": {
+                        "title": "invoice",
+                        "middle": [
+                            {
+                                "name": "monetizing/account/dashboard"
+                            }
+                        ],
+                        "breadcrumb": [
+                            {
+                                "name": "breadcrumb",
+                                "inputs": {
+                                    "pageName": "DashBoard"
+                                }
+                            }
+                        ],
+                        "tablinks": [
+                            {
+                                "name": "tablinks",
+                                "inputs": {
+                                    "monetizationEnabledStatus": monetizationEnabledStatus
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

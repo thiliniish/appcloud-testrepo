@@ -13,6 +13,7 @@ var modUtil = jagg.module("util");
 var modManager = jagg.module("manager");
 var modTenant = jagg.module("tenant");
 var modBilling = jagg.module("billing");
+var modRegistry = jagg.module("registry");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
@@ -143,7 +144,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                     //Update monetization subscriber table
                     updateMonetizationSubscriberTable(true, username, tenantDomain);
                     //send notification email
-                    sendUpdatedToTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
+                    sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
                 }
                 else {
                     //Insert into monetization subscriber table
@@ -151,7 +152,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                     var parameters = [username, tenantDomain, true, null, true];
                     modDb.executeQuery(insertQueryString, parameters);
                     //Send notification email
-                    sendUpdatedToTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
+                    sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
                 }
                 log.info("Updating account to test for user: " + username + " of tenant: " + tenantDomain + " is successful.");
                 return {
@@ -212,7 +213,7 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
                     //Update monetization subscriber table
                     updateMonetizationSubscriberTable(false, username, tenantDomain);
                     //Send notification email
-                    sendRemoveTestAccountEmail(tenantDisplayName, productIdFromServiceId.api_cloud, effectiveDate, subscriber.email);
+                    sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_REMOVED_MAIL_TYPE);
                     log.info("Removing test account status of user: " + username + " of tenant: " + tenantDomain + " is successful.");
                     return {
                         error: false,
@@ -534,20 +535,40 @@ var updateMonetizationSubscriberTable = function (isTest, userName, tenantDomain
     modDb.executeQuery(queryString, parameters);
 };
 
-var sendUpdatedToTestAccountEmail = function (displayName, service, endDate, userEmail) {
-    var body = modUtil.getObjFromFile("/site/conf/emails/monetization_api_subscription_create_test_account_email_body.txt");
-    var mailEndDate = modUtil.getEmailEffectiveDate(endDate);
-    body = body.replace("$tenant", displayName).replace("$tenant", displayName).replace("$effective-date", mailEndDate);
-    var subject = "WSO2 Cloud Services - WSO2 " + service + " subscriber account of " + displayName + " upgraded to a complimentary account";
-    modUtil.sendEmail(body, subject, userEmail);
-};
-
-var sendRemoveTestAccountEmail = function (displayName, service, endDate, userEmail) {
-    var body = modUtil.getObjFromFile("/site/conf/emails/monetization_api_subscription_remove_test_account_email_body.txt");
-    var mailEndDate = modUtil.getEmailEffectiveDate(endDate);
-    body = body.replace("$tenant", displayName).replace("$effective-date", mailEndDate).replace("$tenant", displayName);
-    var subject = "WSO2 Cloud Services - WSO2 " + service + " complimentary subscriber account of " + displayName + " changed back to a regular account";
-    modUtil.sendEmail(body, subject, userEmail);
+var sendSubsriberNotificationEmail = function (endDate, userEmail, tenantDomain, displayName, mailType) {
+    try {
+        var emailSubject = "";
+        var regPath = "";
+        var defaultPath = "";
+        var body = "";
+        var adminUsername = session.get("LOGGED_IN_USER");
+        var tenantAwareAdminName = modManager.getTenantAwareUsername(adminUsername);
+        if (mailType == COMPLEMENTARY_CREATED_MAIL_TYPE) {
+            emailSubject = CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT;
+            regPath = CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH;
+            defaultPath = CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH;
+        } else {
+            emailSubject = REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT;
+            regPath = REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH;
+            defaultPath = REMOVE_COMPLEMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH;
+        }
+        var responseObj = modRegistry.getResourceFromTenantSpace(regPath, tenantDomain, adminUsername);
+        if (!responseObj.error) {
+            body = (responseObj.response.content).toString();
+        } else {
+            body = modUtil.getObjFromFile(defaultPath);
+        }
+        var mailEndDate = modUtil.getEmailEffectiveDate(endDate);
+        var adminUserInfo = modTenant.getUserInfo(tenantAwareAdminName);
+        body = body.replace("$effective-date", mailEndDate).replace("$admin-email", adminUserInfo.email)
+                .replace("$admin-email", adminUserInfo.email).replace("$admin-user-name", adminUserInfo.displayName).replace("$tenant", displayName);
+        emailSubject = emailSubject.replace("$displayName", displayName);
+        modUtil.sendEmail(body, emailSubject, userEmail);
+    } catch (e) {
+        log.error("Error while sending complimentary account change notification email to the subscriber: " + userEmail + " of the tenant: " + displayName);
+        log.error(e);
+        throw e;
+    }
 };
 
 var getSubscriptions = function (accountNumber) {
