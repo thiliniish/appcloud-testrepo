@@ -45,6 +45,11 @@ public class ServiceHolder {
         return roleConfiguration;
     }
 
+    /**
+     * Method to set Role Configuration
+     *
+     * @param roleConfiguration
+     */
     public static void setRoleMgtConfiguration(RoleMgtConfiguration roleConfiguration) {
         ServiceHolder.roleConfiguration = roleConfiguration;
     }

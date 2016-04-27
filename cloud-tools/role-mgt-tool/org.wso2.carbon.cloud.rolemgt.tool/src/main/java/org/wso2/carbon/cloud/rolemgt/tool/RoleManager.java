@@ -81,7 +81,7 @@ public class RoleManager implements Runnable {
             throw new StratosException(message, e);
         }
         if(roleBeanList.isEmpty()){
-            log.error("Please update role-mgt.xml with role details to be updated");
+            log.error("Please update role-mgt.xml with role configurations to be updated");
         }
         updateRoles(roleBeanList);
     }
@@ -106,7 +106,9 @@ public class RoleManager implements Runnable {
                         configuration.getFirstProperty(roleConfigPath + "." + role +
                                 ".Permission");
                 String[] permissionIds = permissionIdString.split(",");
+                //Setting Role Name
                 RoleBean roleBean = new RoleBean(role.trim());
+                //Setting Permissions
                 for (String permissionId : permissionIds) {
                     permissionId = permissionId.trim();
                     boolean isDeniedPermission = permissionId.startsWith(RoleMgtConstants.DENY);
@@ -116,9 +118,7 @@ public class RoleManager implements Runnable {
 
                     String[] resourceAndActionParts = permissionId.split(":");
                     if (resourceAndActionParts.length == 2) {
-                        Permission permission =
-                                new Permission(
-                                        resourceAndActionParts[0],
+                        Permission permission = new Permission(resourceAndActionParts[0],
                                         replaceRegistryPermissionAction(resourceAndActionParts[1]));
                         roleBean.addPermission(permission, !isDeniedPermission);
 
@@ -129,9 +129,9 @@ public class RoleManager implements Runnable {
                         roleBean.addPermission(permission, !isDeniedPermission);
                     }
                 }
+                //Setting Role action
                 String roleActionString = configuration.getFirstProperty(roleConfigPath + "." + role + ".Action");
                 roleBean.setAction(roleActionString);
-
                 roleBeanList.add(roleBean);
             }
         }
@@ -164,7 +164,7 @@ public class RoleManager implements Runnable {
      */
     private static void updateRoles(Set<RoleBean> roleBeanList) throws StratosException{
         TenantManager tenantManager = ServiceHolder.getRealmService().getTenantManager();
-        Tenant[] tenants = new Tenant[0];
+        Tenant[] tenants;
         try {
             tenants = tenantManager.getAllTenants();
         } catch (UserStoreException e) {
@@ -185,9 +185,10 @@ public class RoleManager implements Runnable {
                 AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
                         getUserRealm().getAuthorizationManager();
                 updateRolesPerTenant(userStoreManager,authorizationManager,roleBeanList);
+
             } catch (UserStoreException e) {
                 String message = "Failed to update roles of tenant : " + tenant.getDomain()
-                        + "(" + tenant.getId() + ")";
+                        + "[" + tenant.getId() + "]";
                 log.error(message);
                 throw new StratosException(message, e);
             } finally {
@@ -210,7 +211,7 @@ public class RoleManager implements Runnable {
      * @throws UserStoreException
      */
     private static void updateRolesPerTenant(UserStoreManager userStoreManager, AuthorizationManager
-            authorizationManager, Set<RoleBean> roleBeanList) throws UserStoreException {
+            authorizationManager, Set<RoleBean> roleBeanList) throws UserStoreException, StratosException {
 
         Boolean isRoleAddition = false, isRoleUpdation = false, isRoleDeletion = false;
         for (RoleBean roleBean : roleBeanList) {
@@ -228,7 +229,6 @@ public class RoleManager implements Runnable {
                 // add role and authorize given authorized permission list
                 userStoreManager.addRole(roleBean.getRoleName(), roleBean.getUsers().toArray(new String[0]),
                         roleBean.getPermissions(true).toArray(new Permission[0]));
-
                 if (log.isDebugEnabled()) {
                     StringBuilder permissionLog = new StringBuilder("Role:" + roleBean.getRoleName()
                             + " is added with below permissions;");
@@ -239,7 +239,7 @@ public class RoleManager implements Runnable {
                     }
                     log.debug(permissionLog.toString());
                 }
-            } else if (isRoleUpdation){
+            } else if (isRoleAddition | isRoleUpdation){
                 // authorize given authorized permission list
                 for (Permission permission : roleBean.getPermissions(true)) {
                     if (!authorizationManager.isRoleAuthorized(roleBean.getRoleName(), permission.getResourceId(),
@@ -253,6 +253,10 @@ public class RoleManager implements Runnable {
                         }
                     }
                 }
+            } else{
+                String message = "The specified action '" + roleBean.getAction() + "' is not a valid action.";
+                log.error(message);
+                throw new StratosException(message);
             }
             // deny given denied permission list
             for (Permission permission : roleBean.getPermissions(false)) {
@@ -263,7 +267,7 @@ public class RoleManager implements Runnable {
                             "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
                 }
             }
-        }
+        }//Enf of for loop iterating roleBean List
     }
 }
 

@@ -63,6 +63,12 @@ public class RoleBean {
         return users;
     }
 
+    /**
+     * Method to get Permissions
+     *
+     * @param isAuthorizedPermissions
+     * @return
+     */
     public List<Permission> getPermissions(boolean isAuthorizedPermissions) {
         if (isAuthorizedPermissions) {
             return authorizedPermissions;

@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.cloud.rolemgt.tool.util;
 
+/**
+ * Constants for Role Manager
+ */
 public class RoleManagerConstants {
 
     private RoleManagerConstants() {}
