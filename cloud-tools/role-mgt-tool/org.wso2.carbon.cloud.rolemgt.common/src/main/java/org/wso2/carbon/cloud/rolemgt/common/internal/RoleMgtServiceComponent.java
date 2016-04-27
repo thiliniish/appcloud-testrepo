@@ -25,17 +25,12 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfiguration;
 import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfigurationBuilder;
 import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConstants;
-import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 
 /**
  * @scr.component name="role.mgt.component" immediate=true
- * @scr.reference name="secret.callback.handler.service"
- * interface="org.wso2.carbon.securevault.SecretCallbackHandlerService"
- * cardinality="1..1" policy="dynamic"
- * bind="setSecretCallbackHandlerService" unbind="unsetSecretCallbackHandlerService"
  */
 public class RoleMgtServiceComponent {
     private static Log log = LogFactory.getLog(RoleMgtServiceComponent.class);
@@ -71,28 +66,5 @@ public class RoleMgtServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("Role Mgt bundle is deactivated ");
         }
-    }
-
-    /**
-     * Method to set Secret Call back handler
-     *
-     * @param secretCallbackHandlerService SecretCallbackHandlerService
-     */
-    protected void setSecretCallbackHandlerService(
-            SecretCallbackHandlerService secretCallbackHandlerService) {
-        if (log.isDebugEnabled()) {
-            log.debug("SecretCallbackHandlerService acquired");
-        }
-        ServiceHolder.setSecretCallbackHandlerService(secretCallbackHandlerService);
-    }
-
-    /**
-     * Method to unset Secret Call back handler
-     *
-     * @param secretCallbackHandlerService SecretCallbackHandlerService
-     */
-    protected void unsetSecretCallbackHandlerService(
-            SecretCallbackHandlerService secretCallbackHandlerService) {
-        ServiceHolder.setSecretCallbackHandlerService(null);
     }
 }

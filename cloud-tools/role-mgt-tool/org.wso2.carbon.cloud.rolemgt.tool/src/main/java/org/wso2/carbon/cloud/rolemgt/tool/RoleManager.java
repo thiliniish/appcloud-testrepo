@@ -54,7 +54,7 @@ public class RoleManager implements Runnable {
     @Override public void run() {
         try {
             manage();
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Role Manager started Successfully.");
             }
         } catch (StratosException e) {
@@ -68,7 +68,7 @@ public class RoleManager implements Runnable {
      * @throws StratosException
      */
     public void manage() throws StratosException {
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Starting the process to update tenant roles during server start up.");
         }
         //Get role details to be updated
@@ -80,7 +80,7 @@ public class RoleManager implements Runnable {
             log.error(message);
             throw new StratosException(message, e);
         }
-        if(roleBeanList.isEmpty()){
+        if (roleBeanList.isEmpty()) {
             log.error("Please update role-mgt.xml with role configurations to be updated");
         }
         updateRoles(roleBeanList);
@@ -93,8 +93,7 @@ public class RoleManager implements Runnable {
      * @return Set of RoleBean
      * @throws RoleMgtException
      */
-    private static Set<RoleBean> getRoleConfigurations(String roleConfigPath)
-            throws RoleMgtException {
+    private static Set<RoleBean> getRoleConfigurations(String roleConfigPath) throws RoleMgtException {
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
         RoleMgtConfiguration configuration = ServiceHolder.getRoleConfiguration();
         String[] roles = configuration.getProperties(roleConfigPath);
@@ -102,9 +101,8 @@ public class RoleManager implements Runnable {
             log.warn("No roles are configured for " + roleConfigPath + " in role-mgt.xml");
         } else {
             for (String role : roles) {
-                String permissionIdString =
-                        configuration.getFirstProperty(roleConfigPath + "." + role +
-                                ".Permission");
+                String permissionIdString = configuration.getFirstProperty(roleConfigPath + "." + role +
+                        ".Permission");
                 String[] permissionIds = permissionIdString.split(",");
                 //Setting Role Name
                 RoleBean roleBean = new RoleBean(role.trim());
@@ -119,13 +117,12 @@ public class RoleManager implements Runnable {
                     String[] resourceAndActionParts = permissionId.split(":");
                     if (resourceAndActionParts.length == 2) {
                         Permission permission = new Permission(resourceAndActionParts[0],
-                                        replaceRegistryPermissionAction(resourceAndActionParts[1]));
+                                replaceRegistryPermissionAction(resourceAndActionParts[1]));
                         roleBean.addPermission(permission, !isDeniedPermission);
 
                     } else if (resourceAndActionParts.length == 1) {
-                        Permission permission =
-                                new Permission(resourceAndActionParts[0],
-                                        CarbonConstants.UI_PERMISSION_ACTION);
+                        Permission permission = new Permission(resourceAndActionParts[0],
+                                CarbonConstants.UI_PERMISSION_ACTION);
                         roleBean.addPermission(permission, !isDeniedPermission);
                     }
                 }
@@ -162,7 +159,7 @@ public class RoleManager implements Runnable {
      * @param roleBeanList Set of RoleBean
      * @throws StratosException
      */
-    private static void updateRoles(Set<RoleBean> roleBeanList) throws StratosException{
+    private static void updateRoles(Set<RoleBean> roleBeanList) throws StratosException {
         TenantManager tenantManager = ServiceHolder.getRealmService().getTenantManager();
         Tenant[] tenants;
         try {
@@ -173,7 +170,7 @@ public class RoleManager implements Runnable {
             throw new StratosException(message, e);
         }
         //<TODO>starting log
-        for(Tenant tenant : tenants){
+        for (Tenant tenant : tenants) {
             //Start a new tenant flow
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant.getDomain());
@@ -185,16 +182,16 @@ public class RoleManager implements Runnable {
                         getUserRealm().getUserStoreManager();
                 AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
                         getUserRealm().getAuthorizationManager();
-                updateRolesPerTenant(userStoreManager,authorizationManager,roleBeanList);
+                updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList);
 
             } catch (UserStoreException e) {
-                String message = "Failed to update roles of tenant : " + tenant.getDomain()
-                        + "[" + tenant.getId() + "]";
+                String message =
+                        "Failed to update roles of tenant : " + tenant.getDomain() + "[" + tenant.getId() + "]";
                 log.error(message);
                 throw new StratosException(message, e);
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Role updation process is completed for tenant: " + tenant.getDomain() + "[" + tenant
                             .getId() + "]");
                 }
@@ -206,13 +203,13 @@ public class RoleManager implements Runnable {
     /**
      * Method to update roles per tenant
      *
-     * @param userStoreManager UserStoreManager
+     * @param userStoreManager     UserStoreManager
      * @param authorizationManager AuthorizationManager
-     * @param roleBeanList Set of RoleBean
+     * @param roleBeanList         Set of RoleBean
      * @throws UserStoreException
      */
-    private static void updateRolesPerTenant(UserStoreManager userStoreManager, AuthorizationManager
-            authorizationManager, Set<RoleBean> roleBeanList) throws UserStoreException {
+    private static void updateRolesPerTenant(UserStoreManager userStoreManager,
+            AuthorizationManager authorizationManager, Set<RoleBean> roleBeanList) throws UserStoreException {
 
         Boolean isRoleAddition = false, isRoleUpdation = false, isRoleDeletion = false;
         for (RoleBean roleBean : roleBeanList) {

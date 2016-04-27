@@ -23,10 +23,6 @@ import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.rolemgt.common.internal.ServiceHolder;
-import org.wso2.carbon.securevault.SecretManagerInitializer;
-import org.wso2.securevault.SecretResolver;
-import org.wso2.securevault.SecretResolverFactory;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -41,7 +37,6 @@ import java.util.*;
  */
 public class RoleMgtConfigurationBuilder {
     private static final Log log = LogFactory.getLog(RoleMgtConfigurationBuilder.class);
-    private SecretResolver secretResolver;
     private Map<String, List<String>> configurationMap = new HashMap<String, List<String>>();
     private File configFile;
 
@@ -82,10 +77,6 @@ public class RoleMgtConfigurationBuilder {
      */
     private RoleMgtConfiguration loadRoleMgtConfiguration(File roleConfigFile) throws RoleMgtException {
         OMElement roleMgtElement = loadXML(roleConfigFile);
-        // Initialize secret manager
-        SecretManagerInitializer secretManagerInitializer = new SecretManagerInitializer();
-        secretManagerInitializer.init();
-        secretResolver = SecretResolverFactory.create(roleMgtElement, true);
         if (!RoleMgtConstants.CONFIG_NAMESPACE.equals(roleMgtElement.getNamespace().getNamespaceURI())) {
             String message = "Cloud namespace is invalid. Expected [" + RoleMgtConstants.CONFIG_NAMESPACE +
                     "], received [" + roleMgtElement.getNamespace() + "]";
@@ -145,7 +136,6 @@ public class RoleMgtConfigurationBuilder {
         for (Iterator childElements = serverConfig.getChildElements(); childElements.hasNext(); ) {
             OMElement element = (OMElement) childElements.next();
             nameStack.push(element.getLocalName());
-            secureVaultResolve(element);
             String nameAttribute = element.getAttributeValue(new QName("name"));
             if (nameAttribute != null && nameAttribute.trim().length() != 0) {
                 // some name attribute exists
@@ -163,10 +153,6 @@ public class RoleMgtConfigurationBuilder {
             if (text != null && text.trim().length() != 0) {
                 String key = getKey(nameStack);
                 String value = replaceSystemProperty(text.trim());
-                // Check whether the value is secured using secure valut
-                if (isProtectedToken(key)) {
-                    value = getProtectedValue(key);
-                }
                 addToConfiguration(key, value, configuration);
             }
             readChildElements(element, nameStack, configuration);
@@ -228,27 +214,6 @@ public class RoleMgtConfigurationBuilder {
     }
 
     /**
-     * Method to check if a key is a protected token
-     *
-     * @param key String
-     * @return boolean
-     */
-    private boolean isProtectedToken(String key) {
-        return secretResolver != null && secretResolver.isInitialized() &&
-                secretResolver.isTokenProtected("Carbon." + key);
-    }
-
-    /**
-     * Method to get protected value of a key
-     *
-     * @param key
-     * @return String
-     */
-    private String getProtectedValue(String key) {
-        return secretResolver.resolve("Carbon." + key);
-    }
-
-    /**
      * Method to add key-value pairs to configuration map
      *
      * @param key String
@@ -284,32 +249,4 @@ public class RoleMgtConfigurationBuilder {
         }
     }
 
-    /**
-     * Method to resolve secure vault
-     *
-     * @param element OMElement
-     */
-    private void secureVaultResolve(OMElement element) {
-        String secretAliasAttr =
-                element.getAttributeValue(new QName(RoleMgtConstants.SECURE_VAULT_NS,
-                        RoleMgtConstants.SECRET_ALIAS_ATTR_NAME));
-        if (secretAliasAttr != null) {
-            element.setText(loadFromSecureVault(secretAliasAttr));
-        }
-    }
-
-    /**
-     * Method to load from Secure Vault
-     *
-     * @param alias String
-     * @return String
-     */
-    public synchronized String loadFromSecureVault(String alias) {
-        if (secretResolver == null) {
-            secretResolver = SecretResolverFactory.create((OMElement) null, false);
-            secretResolver.init(ServiceHolder.getSecretCallbackHandlerService()
-                    .getSecretCallbackHandler());
-        }
-        return secretResolver.resolve(alias);
-    }
 }
