@@ -782,7 +782,9 @@ public class CloudBillingService extends AbstractAdmin {
             return CloudBillingServiceUtils.createProductRatePlan(tenantDomain, ratePlanName, price, overageCharge,
                                                                   description);
         } catch (CloudBillingException e) {
-            throw new CloudBillingException("Error occurred while getting the Registry throttling tiers " + e);
+            throw new CloudBillingException(
+                    "Error occurred while creating the ProductRatePlan : " + ratePlanName + " for the tenant : " +
+                    tenantDomain + e);
         }
     }
 
@@ -865,6 +867,25 @@ public class CloudBillingService extends AbstractAdmin {
 
         } catch (RegistryException e) {
             throw new CloudBillingException("Error occurred while updating the monetization status in registry " + e);
+        }
+    }
+
+    /**
+     * Method to update Product rate plan and charges of a Product
+     *
+     * @param tenantDomain tenantDomain
+     * @param ratePlanName ratePlanName
+     * @return status of product creation
+     * @throws CloudBillingException
+     */
+    public JsonObject updateProductRatePlan(String tenantDomain, String ratePlanName, String recurringCharge,
+                                            String overageCharge, String description)
+            throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils
+                    .updateProductRatePlan(tenantDomain, ratePlanName, recurringCharge, overageCharge, description);
+        } catch (CloudBillingException e) {
+            throw new CloudBillingException("Error occurred while updating the Product rate plan " + e);
         }
     }
 

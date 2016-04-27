@@ -164,7 +164,7 @@ public final class BillingConstants {
     public static final String JSON_OBJ_PRODUCT_NAME = "localName";
     public static final String JSON_OBJ_PRODUCT_CATEGORY = "localCategory";
     public static final String JSON_OBJ_PRODUCT_RATEPLAN_NAME = "localProductRatePlanName";
-    public static final String JSON_OBJ_PRODUCT_RATEPLAN_PRICE = "localProductRatePlanPrice";
+    public static final String JSON_OBJ_PRODUCT_RATEPLAN_RECURRING_CHARGE = "localProductRatePlanPrice";
     public static final String JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION = "localDescription";
     public static final String JSON_OBJ_PRODUCT_RATEPLAN_THROTTLING_LIMIT = "localThrottlingLimit";
     public static final String JSON_OBJ_PRODUCT_RATEPLAN_MONTHLY_LIMIT = "localMonthlyLimit";
@@ -197,7 +197,12 @@ public final class BillingConstants {
     public static final String DS_REQUEST_STATUS = "REQUEST_STATUS";
     public static final String DS_REQUEST_STATUS_SUCCESS = "SUCCESSFUL";
     public static final String QUERY_ZUORA_PRODUCT_BY_NAME = "SELECT id, Name, SKU FROM product WHERE Name = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME = "SELECT id, Name FROM ProductRatePlan WHERE id = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME =
+            "SELECT id, Name FROM ProductRatePlan WHERE Name = '?' and ProductId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_BY_NAME =
+            "SELECT id, Name FROM ProductRatePlanCharge WHERE Name = '?' and ProductRatePlanId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_TIER =
+            "select id from ProductRatePlanChargeTier where ProductRatePlanChargeId = '?'";
 
     /*Data service API v1 URIs*/
     public static final String DS_API_URI_REQUEST_COUNT = "/requestcount";

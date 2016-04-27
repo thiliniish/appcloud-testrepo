@@ -474,7 +474,7 @@ public final class CloudBillingServiceUtils {
             JsonObject productObj = new JsonObject();
             productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_NAME, productName);
             productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_NAME, ratePlanName);
-            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_PRICE, price);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_RECURRING_CHARGE, price);
             productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION, description);
             productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE, overageCharge);
             JsonObject response = zuoraProductClient.createProductRatePlan(productObj);
@@ -501,6 +501,35 @@ public final class CloudBillingServiceUtils {
         } catch (CloudBillingZuoraException e) {
             throw new CloudBillingException(
                     "Error while query the Product: " + productName + " for the : " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * Update product rate plan and the charges for the Product
+     *
+     * @param tenantDomain tenant domain
+     * @return product rate plan update status
+     * @throws CloudBillingException
+     */
+    public static JsonObject updateProductRatePlan(String tenantDomain, String ratePlanName, String price,
+                                                   String overageCharge, String description)
+            throws CloudBillingException {
+        String productName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
+        try {
+            ZuoraProductClient zuoraProductClient = new ZuoraProductClient();
+            // Create Json product rate plan object
+            JsonObject productObj = new JsonObject();
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_NAME, productName);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_NAME, ratePlanName);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_RECURRING_CHARGE, price);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION, description);
+            productObj.addProperty(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE, overageCharge);
+            JsonObject response = zuoraProductClient.updateProductRatePlan(productObj);
+            return response;
+        } catch (CloudBillingZuoraException e) {
+            throw new CloudBillingException(
+                    "Error while updating the ProductRatePlan of Product: " + productName + " for tenant: " +
+                    tenantDomain, e);
         }
     }
 }
