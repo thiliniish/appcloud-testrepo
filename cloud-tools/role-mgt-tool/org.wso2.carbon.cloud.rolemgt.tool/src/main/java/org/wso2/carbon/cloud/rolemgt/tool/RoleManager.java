@@ -199,7 +199,7 @@ public class RoleManager implements Runnable {
                 }
             }
         }
-        log.info("Role management completed for all existing tenants.");
+        log.info("Role updation process completed for all existing tenants.");
     }
 
     /**
@@ -211,7 +211,7 @@ public class RoleManager implements Runnable {
      * @throws UserStoreException
      */
     private static void updateRolesPerTenant(UserStoreManager userStoreManager, AuthorizationManager
-            authorizationManager, Set<RoleBean> roleBeanList) throws UserStoreException, StratosException {
+            authorizationManager, Set<RoleBean> roleBeanList) throws UserStoreException {
 
         Boolean isRoleAddition = false, isRoleUpdation = false, isRoleDeletion = false;
         for (RoleBean roleBean : roleBeanList) {
@@ -222,6 +222,7 @@ public class RoleManager implements Runnable {
             }else if(RoleManagerConstants.ROLE_DELETION.equals(roleBean.getAction())){
                 isRoleDeletion = true;
             }
+
             if(isRoleDeletion){
                 userStoreManager.deleteRole(roleBean.getRoleName());
                 continue;
@@ -256,9 +257,9 @@ public class RoleManager implements Runnable {
             } else{
                 String message = "The specified action '" + roleBean.getAction() + "' is not a valid action.";
                 log.error(message);
-                throw new StratosException(message);
+                continue;
             }
-            // deny given denied permission list
+            // deny given denied permission list for new additions and updations
             for (Permission permission : roleBean.getPermissions(false)) {
                 authorizationManager.denyRole(roleBean.getRoleName(), permission.getResourceId(),
                         permission.getAction());
@@ -267,7 +268,7 @@ public class RoleManager implements Runnable {
                             "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
                 }
             }
-        }//Enf of for loop iterating roleBean List
+        }//End of for loop iterating roleBean List
     }
 }
 
