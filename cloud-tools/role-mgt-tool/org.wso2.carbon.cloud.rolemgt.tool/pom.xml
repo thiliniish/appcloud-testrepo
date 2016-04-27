@@ -49,12 +49,13 @@
                             org.wso2.carbon.core; version="${imp.pkg.version.carbon.platform}",
                             org.wso2.carbon.context; version="${imp.pkg.version.carbon.platform}",
                             org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
+                            org.apache.axiom.*; version="${imp.pkg.version.axiom}",
+                            org.apache.commons.io,
                             org.wso2.carbon.user.api; version="${imp.pkg.version.carbon.user.api}",
                             org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
                             org.osgi.framework; version="${imp.pkg.version.osgi.framework}",
                             org.wso2.carbon.registry.*; version="${imp.pkg.version.carbon.kernel.registry}",
                             org.wso2.carbon.appfactory.*; version="${org.wso2.appfactory.version}",
-                            org.wso2.carbon.cloud.rolemgt.common,
                             org.wso2.carbon.stratos.common.exception,
                             org.apache.commons.lang; version="${imp.pkg.version.commons-lang}",
                             org.wso2.carbon.ntask.common,
@@ -65,7 +66,8 @@
                             javax.crypto,
                             javax.xml.namespace,
                             javax.xml.parsers,
-                            javax.xml.bind
+                            javax.xml.bind,
+                            javax.xml.stream
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -113,11 +115,6 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>${commons.logging.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.cloud</groupId>
-            <artifactId>org.wso2.carbon.cloud.rolemgt.common</artifactId>
-            <version>${wso2cloud.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>

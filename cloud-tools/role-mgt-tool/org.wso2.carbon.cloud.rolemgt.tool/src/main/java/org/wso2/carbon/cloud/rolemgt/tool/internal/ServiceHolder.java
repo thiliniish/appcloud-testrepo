@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.rolemgt.tool.internal;
 
-import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfiguration;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -27,32 +26,13 @@ import org.wso2.carbon.user.core.service.RealmService;
  */
 public class ServiceHolder {
 
-    private ServiceHolder() {}
+    private ServiceHolder() {
+    }
 
-    //Role configuration which is used to get role update info
-    private static RoleMgtConfiguration roleConfiguration;
     //Tenant Registry loader which is used to load registry of a tenant
     private static TenantRegistryLoader tenantRegLoader;
     //Realm Service which is used to get tenant data.
     private static RealmService realmService;
-
-    /**
-     * Method to get Role Configuration
-     *
-     * @return RoleMgtConfiguration
-     */
-    public static RoleMgtConfiguration getRoleConfiguration() {
-        return roleConfiguration;
-    }
-
-    /**
-     * Method to set Role Configuration
-     *
-     * @param roleConfiguration
-     */
-    public static void setRoleMgtConfiguration(RoleMgtConfiguration roleConfiguration) {
-        ServiceHolder.roleConfiguration = roleConfiguration;
-    }
 
     /**
      * Method used to get RealmService.

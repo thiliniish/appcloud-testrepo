@@ -21,11 +21,9 @@ package org.wso2.carbon.cloud.rolemgt.tool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfiguration;
-import org.wso2.carbon.cloud.rolemgt.common.RoleMgtException;
+import org.wso2.carbon.cloud.rolemgt.tool.internal.RoleMgtConfigurationBuilder;
 import org.wso2.carbon.cloud.rolemgt.tool.internal.ServiceHolder;
 import org.wso2.carbon.cloud.rolemgt.tool.util.RoleBean;
-import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConstants;
 import org.wso2.carbon.cloud.rolemgt.tool.util.RoleManagerConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.ActionConstants;
@@ -52,13 +50,9 @@ public class RoleManager implements Runnable {
      * Method to override run
      */
     @Override public void run() {
-        try {
-            manage();
-            if (log.isDebugEnabled()) {
-                log.debug("Role Manager started Successfully.");
-            }
-        } catch (StratosException e) {
-            log.error("Error occurred while updating roles in Role Manager.", e);
+        manage();
+        if (log.isDebugEnabled()) {
+            log.debug("Role Manager started Successfully.");
         }
     }
 
@@ -67,19 +61,14 @@ public class RoleManager implements Runnable {
      *
      * @throws StratosException
      */
-    public void manage() throws StratosException {
+    public void manage() {
         if (log.isDebugEnabled()) {
             log.debug("Starting the process to update tenant roles during server start up.");
         }
         //Get role details to be updated
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
-        try {
-            roleBeanList.addAll(getRoleConfigurations(RoleMgtConstants.TENANT_ROLES_ROLE));
-        } catch (RoleMgtException e) {
-            String message = "Failed to read role updates from role-mgt configuration.";
-            log.error(message);
-            throw new StratosException(message, e);
-        }
+
+        roleBeanList.addAll(getRoleConfigurations(RoleManagerConstants.TENANT_ROLES_ROLE));
         if (roleBeanList.isEmpty()) {
             log.error("Please update role-mgt.xml with role configurations to be updated");
         }
@@ -91,17 +80,18 @@ public class RoleManager implements Runnable {
      *
      * @param roleConfigPath String
      * @return Set of RoleBean
-     * @throws RoleMgtException
      */
-    private static Set<RoleBean> getRoleConfigurations(String roleConfigPath) throws RoleMgtException {
+    private static Set<RoleBean> getRoleConfigurations(String roleConfigPath) {
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
-        RoleMgtConfiguration configuration = ServiceHolder.getRoleConfiguration();
-        String[] roles = configuration.getProperties(roleConfigPath);
+        RoleMgtConfigurationBuilder configBuilder = new RoleMgtConfigurationBuilder();
+        //Reads role-mgt.xml file into a map of list of strings
+        configBuilder.buildRoleMgtConfiguration();
+        String[] roles = configBuilder.getProperties(roleConfigPath);
         if (roles == null || roles.length == 0) {
             log.warn("No roles are configured for " + roleConfigPath + " in role-mgt.xml");
         } else {
             for (String role : roles) {
-                String permissionIdString = configuration.getFirstProperty(roleConfigPath + "." + role +
+                String permissionIdString = configBuilder.getFirstProperty(roleConfigPath + "." + role +
                         ".Permission");
                 String[] permissionIds = permissionIdString.split(",");
                 //Setting Role Name
@@ -109,9 +99,10 @@ public class RoleManager implements Runnable {
                 //Setting Permissions
                 for (String permissionId : permissionIds) {
                     permissionId = permissionId.trim();
-                    boolean isDeniedPermission = permissionId.startsWith(RoleMgtConstants.DENY);
+                    boolean isDeniedPermission = permissionId.startsWith(RoleManagerConstants.DENY);
                     if (isDeniedPermission) {
-                        permissionId = permissionId.substring(RoleMgtConstants.DENY.length(), permissionId.length());
+                        permissionId = permissionId
+                                .substring(RoleManagerConstants.DENY.length(), permissionId.length());
                     }
 
                     String[] resourceAndActionParts = permissionId.split(":");
@@ -127,7 +118,7 @@ public class RoleManager implements Runnable {
                     }
                 }
                 //Setting Role action
-                String roleActionString = configuration.getFirstProperty(roleConfigPath + "." + role + ".Action");
+                String roleActionString = configBuilder.getFirstProperty(roleConfigPath + "." + role + ".Action");
                 roleBean.setAction(roleActionString);
                 roleBeanList.add(roleBean);
             }
@@ -142,11 +133,11 @@ public class RoleManager implements Runnable {
      * @return - replaced permission action for REGISTRY_ACTION
      */
     private static String replaceRegistryPermissionAction(String action) {
-        if (RoleMgtConstants.REGISTRY_GET.equals(action)) {
+        if (RoleManagerConstants.REGISTRY_GET.equals(action)) {
             return ActionConstants.GET;
-        } else if (RoleMgtConstants.REGISTRY_PUT.equals(action)) {
+        } else if (RoleManagerConstants.REGISTRY_PUT.equals(action)) {
             return ActionConstants.PUT;
-        } else if (RoleMgtConstants.REGISTRY_DELETE.equals(action)) {
+        } else if (RoleManagerConstants.REGISTRY_DELETE.equals(action)) {
             return ActionConstants.DELETE;
         } else {
             return action;
@@ -159,45 +150,47 @@ public class RoleManager implements Runnable {
      * @param roleBeanList Set of RoleBean
      * @throws StratosException
      */
-    private static void updateRoles(Set<RoleBean> roleBeanList) throws StratosException {
+    private static void updateRoles(Set<RoleBean> roleBeanList) {
         TenantManager tenantManager = ServiceHolder.getRealmService().getTenantManager();
-        Tenant[] tenants;
+        Tenant[] tenants = null;
         try {
             tenants = tenantManager.getAllTenants();
         } catch (UserStoreException e) {
             String message = "Failed to get all tenants from tenant manager.";
             log.error(message);
-            throw new StratosException(message, e);
         }
         //<TODO>starting log
-        for (Tenant tenant : tenants) {
-            //Start a new tenant flow
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant.getDomain());
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenant.getId());
-            //Services are loaded from the service holder
-            ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenant.getId());
-            try {
-                UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
-                        getUserRealm().getUserStoreManager();
-                AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
-                        getUserRealm().getAuthorizationManager();
-                updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList);
+        if (tenants == null) {
+            log.info("There are no tenants to be updated.");
+        } else {
+            for (Tenant tenant : tenants) {
+                //Start a new tenant flow
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant.getDomain());
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenant.getId());
+                //Services are loaded from the service holder
+                ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenant.getId());
+                try {
+                    UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                            getUserRealm().getUserStoreManager();
+                    AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                            getUserRealm().getAuthorizationManager();
+                    updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList);
 
-            } catch (UserStoreException e) {
-                String message =
-                        "Failed to update roles of tenant : " + tenant.getDomain() + "[" + tenant.getId() + "]";
-                log.error(message);
-                throw new StratosException(message, e);
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-                if (log.isDebugEnabled()) {
-                    log.debug("Role updation process is completed for tenant: " + tenant.getDomain() + "[" + tenant
-                            .getId() + "]");
+                } catch (UserStoreException e) {
+                    String message =
+                            "Failed to update roles of tenant : " + tenant.getDomain() + "[" + tenant.getId() + "]";
+                    log.error(message);
+                } finally {
+                    PrivilegedCarbonContext.endTenantFlow();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Role updation process is completed for tenant: " + tenant.getDomain() + "[" + tenant
+                                .getId() + "]");
+                    }
                 }
             }
+            log.info("Role updation process completed for all existing tenants.");
         }
-        log.info("Role updation process completed for all existing tenants.");
     }
 
     /**

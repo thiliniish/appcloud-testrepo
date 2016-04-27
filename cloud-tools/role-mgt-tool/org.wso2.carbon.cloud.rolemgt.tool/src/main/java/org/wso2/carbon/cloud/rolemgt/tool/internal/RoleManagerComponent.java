@@ -20,7 +20,6 @@ package org.wso2.carbon.cloud.rolemgt.tool.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfiguration;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -33,11 +32,6 @@ import org.wso2.carbon.user.core.service.RealmService;
  * @scr.reference name="tenant.registryloader"
  * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader" cardinality="1..1"
  * policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
- * @scr.reference name="rolemgt.configuration"
- * interface="org.wso2.carbon.cloud.rolemgt.common.RoleMgtConfiguration"
- * cardinality="1..1" policy="dynamic"
- * bind="setRoleMgtConfiguration"
- * unbind="unsetRoleMgtConfiguration"
  */
 
 public class RoleManagerComponent {
@@ -116,23 +110,5 @@ public class RoleManagerComponent {
             log.debug("Unset Tenant Registry Loader");
         }
         ServiceHolder.setTenantRegLoader(null);
-    }
-
-    /**
-     * Method to set role mgt configuration
-     *
-     * @param roleMgtConfiguration service to read role-mgt data
-     */
-    protected void setRoleMgtConfiguration(RoleMgtConfiguration roleMgtConfiguration) {
-        ServiceHolder.setRoleMgtConfiguration(roleMgtConfiguration);
-    }
-
-    /**
-     * Method to unset role mgt configuration
-     *
-     * @param roleMgtConfiguration service to read role-mgt data
-     */
-    protected void unsetRoleMgtConfiguration(RoleMgtConfiguration roleMgtConfiguration) {
-        ServiceHolder.setRoleMgtConfiguration(null);
     }
 }

@@ -16,13 +16,15 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.rolemgt.common;
+package org.wso2.carbon.cloud.rolemgt.tool.internal;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.rolemgt.tool.util.RoleManagerConstants;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -43,49 +45,45 @@ public class RoleMgtConfigurationBuilder {
     /**
      * Initialize the builder by providing the xml file location
      *
-     * @param roleMgtConfigFileLocation String value of the absolute path of the xml file
-     * @throws RoleMgtException if the file is not there
      */
-    public RoleMgtConfigurationBuilder(String roleMgtConfigFileLocation) throws RoleMgtException {
+    public RoleMgtConfigurationBuilder() {
+        String roleMgtConfigFileLocation = CarbonUtils.getCarbonConfigDirPath() +
+                File.separator + RoleManagerConstants.CONFIG_FOLDER +
+                File.separator + RoleManagerConstants.CONFIG_FILE_NAME;
         File roleConfigFile = new File(roleMgtConfigFileLocation);
         if (roleConfigFile.exists()) {
             this.configFile = roleConfigFile;
         } else {
-            String msg = "The provided file " + roleConfigFile.getAbsolutePath() + " does not exist ";
+            String msg = "Role Manager The provided file " + roleConfigFile.getAbsolutePath() + " does "
+                    + "not exist ";
             log.error(msg);
-            throw new RoleMgtException(msg);
+
         }
     }
 
     /**
      * If it's a role-mgt.xml it will give {@code RoleMgtConfiguration}
      *
-     * @return {@link RoleMgtConfiguration}
-     * @throws RoleMgtException
      */
-    public RoleMgtConfiguration buildRoleMgtConfiguration() throws RoleMgtException {
-        return loadRoleMgtConfiguration(this.configFile);
+    public void buildRoleMgtConfiguration() {
+        loadRoleMgtConfiguration(this.configFile);
     }
 
     /**
      * Method to load RoleMgtConfiguration
      *
      * @param roleConfigFile File
-     * @return {@link RoleMgtConfiguration}
-     * @throws RoleMgtException
      *
      */
-    private RoleMgtConfiguration loadRoleMgtConfiguration(File roleConfigFile) throws RoleMgtException {
+    private void loadRoleMgtConfiguration(File roleConfigFile)  {
         OMElement roleMgtElement = loadXML(roleConfigFile);
-        if (!RoleMgtConstants.CONFIG_NAMESPACE.equals(roleMgtElement.getNamespace().getNamespaceURI())) {
-            String message = "Cloud namespace is invalid. Expected [" + RoleMgtConstants.CONFIG_NAMESPACE +
+        if (!RoleManagerConstants.CONFIG_NAMESPACE.equals(roleMgtElement.getNamespace().getNamespaceURI())) {
+            String message = "Cloud namespace is invalid. Expected [" + RoleManagerConstants.CONFIG_NAMESPACE +
                     "], received [" + roleMgtElement.getNamespace() + "]";
             log.error(message);
-            throw new RoleMgtException(message);
         }
         Stack<String> nameStack = new Stack<String>();
         readChildElements(roleMgtElement, nameStack, null);
-        return new RoleMgtConfiguration(configurationMap);
     }
 
     /**
@@ -93,9 +91,8 @@ public class RoleMgtConfigurationBuilder {
      *
      * @param configFile File
      * @return OMElement
-     * @throws RoleMgtException
      */
-    private OMElement loadXML(File configFile) throws RoleMgtException {
+    private OMElement loadXML(File configFile) {
         InputStream inputStream = null;
         OMElement configXMLFile = null;
         try {
@@ -105,11 +102,10 @@ public class RoleMgtConfigurationBuilder {
         } catch (IOException e) {
             String msg = "Unable to read the file at " + configFile.getAbsolutePath();
             log.error(msg, e);
-            throw new RoleMgtException(msg, e);
         } catch (XMLStreamException e) {
-            String msg = "Error in parsing " + RoleMgtConstants.CONFIG_FILE_NAME + " at " + configFile.getAbsolutePath();
+            String msg = "Error in parsing " + RoleManagerConstants.CONFIG_FILE_NAME + " at " + configFile
+                    .getAbsolutePath();
             log.error(msg, e);
-            throw new RoleMgtException(msg, e);
         } finally {
             try {
                 if (inputStream != null) {
@@ -247,6 +243,34 @@ public class RoleMgtConfigurationBuilder {
                 configuration.put(key, value);
             }
         }
+    }
+
+    /**
+     * Method to get properties from the configuration map for a given key
+     *
+     * @param key
+     * @return values String[]
+     */
+    public String[] getProperties(String key) {
+        List<String> values = configurationMap.get(key);
+        if (values == null) {
+            return new String[0];
+        }
+        return values.toArray(new String[0]);
+    }
+
+    /**
+     * Method to get properties from the configuration map for a given key
+     *
+     * @param key String
+     * @return value String
+     */
+    public String getFirstProperty(String key) {
+        List<String> value = configurationMap.get(key);
+        if (value == null) {
+            return null;
+        }
+        return value.get(0);
     }
 
 }
