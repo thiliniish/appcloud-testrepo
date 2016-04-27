@@ -20,6 +20,9 @@ package org.wso2.carbon.cloud.rolemgt.common.internal;
 
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 
+/**
+ * Represents the data holder for the role mgt service component
+ */
 public class ServiceHolder {
 
     private ServiceHolder(){}

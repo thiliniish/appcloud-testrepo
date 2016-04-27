@@ -18,9 +18,10 @@
 
 package org.wso2.carbon.cloud.rolemgt.common;
 
+/**
+ * Extension of Exceptions specific for Role mgt common component
+ */
 public class RoleMgtException extends Exception{
-    public RoleMgtException() {
-    }
 
     public RoleMgtException(String s) {
         super(s);
@@ -30,7 +31,4 @@ public class RoleMgtException extends Exception{
         super(s, throwable);
     }
 
-    public RoleMgtException(Throwable throwable) {
-        super(throwable);
-    }
 }

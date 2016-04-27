@@ -172,6 +172,7 @@ public class RoleManager implements Runnable {
             log.error(message);
             throw new StratosException(message, e);
         }
+        //<TODO>starting log
         for(Tenant tenant : tenants){
             //Start a new tenant flow
             PrivilegedCarbonContext.startTenantFlow();
@@ -215,15 +216,15 @@ public class RoleManager implements Runnable {
 
         Boolean isRoleAddition = false, isRoleUpdation = false, isRoleDeletion = false;
         for (RoleBean roleBean : roleBeanList) {
-            if(RoleManagerConstants.ROLE_ADDITION.equals(roleBean.getAction())){
+            if (RoleManagerConstants.ROLE_ADDITION.equals(roleBean.getAction())) {
                 isRoleAddition = true;
-            }else if(RoleManagerConstants.ROLE_UPDATION.equals(roleBean.getAction() )){
+            } else if (RoleManagerConstants.ROLE_UPDATION.equals(roleBean.getAction())) {
                 isRoleUpdation = true;
-            }else if(RoleManagerConstants.ROLE_DELETION.equals(roleBean.getAction())){
+            } else if (RoleManagerConstants.ROLE_DELETION.equals(roleBean.getAction())) {
                 isRoleDeletion = true;
             }
 
-            if(isRoleDeletion){
+            if (isRoleDeletion) {
                 userStoreManager.deleteRole(roleBean.getRoleName());
                 continue;
             } else if (isRoleAddition && !userStoreManager.isExistingRole(roleBean.getRoleName())) {
@@ -231,8 +232,8 @@ public class RoleManager implements Runnable {
                 userStoreManager.addRole(roleBean.getRoleName(), roleBean.getUsers().toArray(new String[0]),
                         roleBean.getPermissions(true).toArray(new Permission[0]));
                 if (log.isDebugEnabled()) {
-                    StringBuilder permissionLog = new StringBuilder("Role:" + roleBean.getRoleName()
-                            + " is added with below permissions;");
+                    StringBuilder permissionLog = new StringBuilder(
+                            "Role:" + roleBean.getRoleName() + " is added with below permissions;");
                     List<Permission> permissions = roleBean.getPermissions(true);
                     for (Permission permission : permissions) {
                         permissionLog.append("resource:").append(permission.getResourceId()).append(" action:")
@@ -240,7 +241,7 @@ public class RoleManager implements Runnable {
                     }
                     log.debug(permissionLog.toString());
                 }
-            } else if (isRoleAddition | isRoleUpdation){
+            } else if (isRoleAddition || isRoleUpdation) {
                 // authorize given authorized permission list
                 for (Permission permission : roleBean.getPermissions(true)) {
                     if (!authorizationManager.isRoleAuthorized(roleBean.getRoleName(), permission.getResourceId(),
@@ -254,15 +255,15 @@ public class RoleManager implements Runnable {
                         }
                     }
                 }
-            } else{
+            } else {
                 String message = "The specified action '" + roleBean.getAction() + "' is not a valid action.";
                 log.error(message);
                 continue;
             }
             // deny given denied permission list for new additions and updations
             for (Permission permission : roleBean.getPermissions(false)) {
-                authorizationManager.denyRole(roleBean.getRoleName(), permission.getResourceId(),
-                        permission.getAction());
+                authorizationManager
+                        .denyRole(roleBean.getRoleName(), permission.getResourceId(), permission.getAction());
                 if (log.isDebugEnabled()) {
                     log.debug("Role:" + roleBean.getRoleName() + " is denied with permissions;\n" +
                             "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
