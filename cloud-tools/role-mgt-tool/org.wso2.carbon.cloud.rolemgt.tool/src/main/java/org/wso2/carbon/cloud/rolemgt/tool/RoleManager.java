@@ -29,14 +29,12 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.ActionConstants;
 import org.wso2.carbon.user.api.*;
 import org.wso2.carbon.user.core.Permission;
-import org.wso2.carbon.user.core.system.SystemJDBCConstants;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -64,7 +62,7 @@ public class RoleManager implements Runnable {
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
         roleBeanList.addAll(getRoleConfigurations(RoleManagerConstants.TENANT_ROLES_ROLE));
         if (roleBeanList.isEmpty()) {
-            log.error("Please update " + RoleManagerConstants.CONFIG_FILE_NAME + " with role configurations to be "
+            log.warn("Please update " + RoleManagerConstants.CONFIG_FILE_NAME + " with role configurations to be "
                     + "updated.");
             return;
         }
@@ -123,7 +121,7 @@ public class RoleManager implements Runnable {
                     } catch (UserStoreException e) {
                         String message =
                                 "Failed to update roles of tenant : " + tenant.getDomain() + "[" + tenant.getId() + "]";
-                        log.error(message);
+                        log.error(message, e);
                     } finally {
                         PrivilegedCarbonContext.endTenantFlow();
 
@@ -283,14 +281,14 @@ public class RoleManager implements Runnable {
                         }
                     }
                 } else if (isRoleAdd) {
+                    isAuthorizedPermissions = true;
                     // add role and authorize given authorized permission list
                     userStoreManager.addRole(roleBean.getRoleName(), roleBean.getUsers().toArray(new String[0]),
-                            roleBean.getPermissions(true).toArray(new Permission[0]));
+                            roleBean.getPermissions(isAuthorizedPermissions).toArray(new Permission[0]));
 
                     if (log.isDebugEnabled()) {
                         StringBuilder permissionLog = new StringBuilder(
                                 "Role:" + roleBean.getRoleName() + " is added with below permissions;");
-                        isAuthorizedPermissions = true;
                         List<Permission> permissions = roleBean.getPermissions(isAuthorizedPermissions);
                         for (Permission permission : permissions) {
                             permissionLog.append("resource:").append(permission.getResourceId()).append(" action:")
@@ -317,7 +315,7 @@ public class RoleManager implements Runnable {
                 }
             } catch (UserStoreException e) {
                 log.error("An error occurred while updating role '" + roleBean.getRoleName() + " in tenant '"
-                        + tenantDomain + "'");
+                        + tenantDomain + "'", e);
             }
         }//End of for loop iterating roleBean List
     }

@@ -55,15 +55,6 @@
                             org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
                             org.osgi.framework; version="${imp.pkg.version.osgi.framework}",
                             org.wso2.carbon.registry.*; version="${imp.pkg.version.carbon.kernel.registry}",
-                            org.wso2.carbon.appfactory.*; version="${org.wso2.appfactory.version}",
-                            org.wso2.carbon.stratos.common.exception,
-                            org.apache.commons.lang; version="${imp.pkg.version.commons-lang}",
-                            org.wso2.carbon.ntask.common,
-                            org.w3c.dom,
-                            org.json.simple.*,
-                            javax.net.ssl,
-                            javax.net,
-                            javax.crypto,
                             javax.xml.namespace,
                             javax.xml.parsers,
                             javax.xml.bind,
@@ -76,11 +67,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk16</artifactId>
-            <version>${bcprov-jdk16.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.services</artifactId>
@@ -107,19 +93,9 @@
             <version>${wso2carbon.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>${commons.codec.version}</version>
-        </dependency>
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>${commons.logging.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.stratos.common</artifactId>
-            <version>${af.stratos.version}</version>
         </dependency>
     </dependencies>
 </project>

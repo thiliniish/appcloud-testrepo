@@ -34,7 +34,7 @@ public class RoleManagerServerStartListener implements ServerStartupHandler {
      */
     @Override public void invoke() {
         if (log.isDebugEnabled()) {
-            log.debug("Server start up handler is activated");
+            log.debug("RoleManagerServerStartListener is activated");
         }
         Thread t1 = new Thread(new RoleManager());
         t1.start();
