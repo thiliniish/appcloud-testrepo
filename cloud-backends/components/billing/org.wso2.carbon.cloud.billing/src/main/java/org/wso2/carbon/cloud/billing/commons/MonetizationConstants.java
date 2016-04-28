@@ -136,7 +136,7 @@ public final class MonetizationConstants {
     public static final String PROPERTY_SERVICEURL_NAME = "apiMonetizationServiceUrl";
     public static final String PROPERTY_MONETIZATION_SERVICE_VALUE =
             "/services/APICloudMonetizationService/";
-    public static final String PROPERTY_SERVICE_END_POINT = "/serviceEndpoint";
+    public static final String PROPERTY_SERVICE_END_POINT = "serviceEndpoint";
     public static final String PROPERTY_USERNAME_NAME = "username";
     public static final String PROPERTY_PASSWORD_NAME = "password";
     public static final String TAG_WORKFLOWEXTENSION = "WorkFlowExtensions";
