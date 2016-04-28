@@ -916,6 +916,7 @@ var getProductPlans = function () {
                         tmpPlanList.dailyLimit = result[count].MAX_DAILY_USAGE;
                         tmpPlanList.price = result[count].MONTHLY_RENTAL;
                         tmpPlanList.overage = result[count].UOM_PRICE;
+                        tmpPlanList.overageLimit = result[count].UOM_UNIT;
                     }
                 }
             }
@@ -923,6 +924,7 @@ var getProductPlans = function () {
                 tmpPlanList.dailyLimit = "-";
                 tmpPlanList.price = "-";
                 tmpPlanList.overage = "-";
+                tmpPlanList.overageLimit = "-";
             }
             planList.push(tmpPlanList);
         }
@@ -1050,5 +1052,65 @@ var updateApiCloudMonetizationStatus = function () {
         result.status = 500;
     }
     return result;
+};
+
+var updateProductPlanDetailsToMonetizationTable = function (tenantDomain, ratePlanId, planName, pricing, overageCharge, overageLimit, dailyUsage) {
+    try {
+        var queryString = SQL_QUERY_STRINGS.UPDATE_PRODUCT_API_CLOUD_PLANS_INFORMATION;
+        var parameters = [dailyUsage, pricing, overageLimit, overageCharge, ratePlanId];
+        jagg.module("database").executeQuery(queryString, parameters);
+    } catch (e) {
+        var msg = "Error occurred while updating product plan " + planName + " information to the monetization tables for tenant: " + tenantDomain;
+        log.error(msg);
+        throw (e);
+    }
+};
+
+var isProductPlanExistsForTenant = function (ratePlanName) {
+    var tenantDomain = modManager.getTenantDomain();
+    try {
+        var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_PRODUCT_PLANS_OF_TENANT;
+        var parameters = [tenantDomain, ratePlanName];
+        var result = modDb.executeQuery(queryString, parameters);
+        return (result != null && result[0]["COUNT"] > 0);
+    } catch (e) {
+        var msg = "Error occurred while checking the existence of the product plan: " + ratePlanName + " of the tenant: " + tenantDomain;
+        log.error(msg);
+        throw (e);
+    }
+};
+
+var updateProductRatePlanInfo = function (ratePlanName, description, recurringCharge, overageCharge, overageLimit, dailyUsage) {
+    try {
+        var tenantDomain = modManager.getTenantDomain();
+        var updateProductResult = JSON.parse(billingService.updateProductRatePlan(tenantDomain, ratePlanName, recurringCharge, overageCharge, description));
+        if (updateProductResult.id != null) {
+            updateProductPlanDetailsToMonetizationTable(tenantDomain, updateProductResult.id, ratePlanName, recurringCharge, overageCharge, overageLimit, dailyUsage);
+            return {
+                error: false,
+                status: 200,
+                redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
+            };
+        } else {
+            var msg = "Unable to update the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+            log.error("Error occurred while updating the product plan: " + ratePlanName + " for tenant: " + tenantDomain);
+            return {
+                error: true,
+                redirectionURL: contactUsURL,
+                message: msg,
+                status: 500
+            };
+        }
+    } catch (e) {
+        var msg = "Unable to update the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            redirectionURL: contactUsURL,
+            message: msg,
+            status: 500
+        };
+    }
 };
 %>

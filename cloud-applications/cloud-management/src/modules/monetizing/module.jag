@@ -59,6 +59,12 @@ jagg.module("monetizing", {
     },
     getNumberOfProductPlansForTenant: function () {
         return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getNumberOfProductPlansForTenant.apply(this, arguments);
+    },
+    isProductPlanExistsForTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").isProductPlanExistsForTenant.apply(this, arguments);
+    },
+    updateProductRatePlanInfo: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").updateProductRatePlanInfo.apply(this, arguments);
     }
 });
 %>

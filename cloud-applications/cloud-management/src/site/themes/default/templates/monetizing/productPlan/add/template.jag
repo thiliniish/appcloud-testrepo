@@ -3,6 +3,7 @@
         outputs.price = "";
         outputs.overage = "";
         outputs.dailyLimit = "";
+        outputs.overageLimit = "";
     }
     %>
     <div class="right-pane">
@@ -27,13 +28,9 @@
                         <label for="plan-pricing">Pricing <span>(USD)</span>: </label>
                         <input type="number"  step="0.01" class="form-control" name="pricing" id="pricing" placeholder="E.g. 100" value='<%= outputs.price %>' required>
                     </div>
-                     <div class="form-group col-md-12">
-                        <label for="plan-description" >Description: </label>
-                        <textarea class="form-control" rows="3" id="description" name="description" placeholder="Write a small description" required></textarea>
-                    </div>
                     <div class="form-group col-md-12">
                         <label for="max-usage">Max Daily Usage (API Calls) : </label>
-                        <input type="text" class="form-control" name="dailyUsage" id="dailyUsage" placeholder="E.g. 1000" required>
+                        <input type="text" class="form-control" name="dailyUsage" id="dailyUsage" placeholder="E.g. 1000" value='<%= outputs.dailyLimit%>' required>
                     </div>
                     <div class="form-group col-md-6">
                         <label for="overage-charge" >Overage Charge <span>(USD)</span>: </label>
@@ -41,16 +38,12 @@
                     </div>
                     <div class="form-group col-md-6">
                         <label for="overageLimit" >Overage Unit Limit (API Calls): </label>
-                        <input class="form-control" type="number" id="overageLimit" name="overageLimit" placeholder="E.g. 1000"value='<%= outputs.dailyLimit %>'  required>
+                        <input class="form-control" type="number" id="overageLimit" name="overageLimit" placeholder="E.g. 1000"value='<%= outputs.overageLimit %>'  required>
                     </div>
                     <div class="clearfix"></div>
                     <div class="form-group col-md-12">
-                        <button type="submit" class="cu-btn cu-btn-sm cu-btn-blue" id="btn_addPaymentPlan">
-                            <span class="fw-stack fw-lg btn-action-ico">
-                                <i class="fw fw-ring fw-stack-2x"></i>
-                                <i class="fw fw-save fw-stack-1x"></i>
-                            </span>
-                            Save
+                        <button type="submit" class="fa fa-plus-circle cu-btn cu-btn-lg cu-btn-blue" id="btn_addPaymentPlan">
+
                         </button>
                         <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display: none; margin-left: 10px;"></i>
                     </div>
