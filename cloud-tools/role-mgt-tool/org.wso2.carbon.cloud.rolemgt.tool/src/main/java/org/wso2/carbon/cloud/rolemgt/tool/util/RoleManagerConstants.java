@@ -41,4 +41,5 @@ public class RoleManagerConstants {
     public static final String REGISTRY_DELETE = "REGISTRY_DELETE";
 
     public static final String TENANT_ROLES_ROLE = "TenantRoles.Role";
+    public static final String TENANT_RANGE = "range";
 }

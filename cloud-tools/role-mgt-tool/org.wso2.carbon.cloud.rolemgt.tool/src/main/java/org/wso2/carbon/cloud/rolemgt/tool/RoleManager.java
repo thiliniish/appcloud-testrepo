@@ -27,17 +27,16 @@ import org.wso2.carbon.cloud.rolemgt.tool.util.RoleBean;
 import org.wso2.carbon.cloud.rolemgt.tool.util.RoleManagerConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.ActionConstants;
-import org.wso2.carbon.user.api.AuthorizationManager;
-import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.api.*;
 import org.wso2.carbon.user.core.Permission;
-import org.wso2.carbon.user.api.Tenant;
+import org.wso2.carbon.user.core.system.SystemJDBCConstants;
 import org.wso2.carbon.user.core.tenant.TenantManager;
-import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -90,38 +89,60 @@ public class RoleManager implements Runnable {
         if (tenants == null || tenants.length == 0) {
             log.info("Exiting as no tenants are available to be updated.");
         } else {
-            log.info("Starting the process to update tenant roles during server start up. " + tenants.length +
+            //Get the user specified range of tenants to update
+            //Specify it as -Drange = lowerbound : upperBound
+            String range = System.getProperty(RoleManagerConstants.TENANT_RANGE);
+            int lowerBound = 1;
+            int upperBound = tenants.length;
+            if (range != null) {
+                String[] bounds = range.split(":");
+                lowerBound = Integer.parseInt(bounds[0]);
+                upperBound = Integer.parseInt(bounds[1]);
+            }
+            int noOfTenantsToUpdate = upperBound + 1 - lowerBound;
+            log.info("Starting the process to update tenant roles during server start up. " + noOfTenantsToUpdate +
                     " tenants will be updated.");
             int updatedTenantCount = 0;
             for (Tenant tenant : tenants) {
-                //Start a new tenant flow
-                PrivilegedCarbonContext.startTenantFlow();
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant.getDomain());
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenant.getId());
-                //Services are loaded from the service holder
-                ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenant.getId());
-                try {
-                    UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
-                            getUserRealm().getUserStoreManager();
-                    AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
-                            getUserRealm().getAuthorizationManager();
-                    updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList, tenant.getDomain());
+                //Check if tenant is within the specified range
+                if ((tenant.getId() >= lowerBound) && (tenant.getId() <= upperBound)) {
+                    //Start a new tenant flow
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant.getDomain());
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenant.getId());
+                    //Services are loaded from the service holder
+                    ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenant.getId());
+                    try {
+                        UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                                getUserRealm().getUserStoreManager();
+                        AuthorizationManager authorizationManager = PrivilegedCarbonContext
+                                .getThreadLocalCarbonContext().
+                                        getUserRealm().getAuthorizationManager();
+                        updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList, tenant.getDomain());
 
-                } catch (UserStoreException e) {
-                    String message =
-                            "Failed to update roles of tenant : " + tenant.getDomain() + "[" + tenant.getId() + "]";
-                    log.error(message);
-                } finally {
-                    PrivilegedCarbonContext.endTenantFlow();
+                    } catch (UserStoreException e) {
+                        String message =
+                                "Failed to update roles of tenant : " + tenant.getDomain() + "[" + tenant.getId() + "]";
+                        log.error(message);
+                    } finally {
+                        PrivilegedCarbonContext.endTenantFlow();
 
-                    log.info("Role updation process is completed for tenant: " + tenant.getDomain() + "[" + tenant
-                            .getId() + "]");
-                    //add to the count of successfully updated tenants
-                    ++updatedTenantCount;
+                        log.info("Role update process is completed for tenant: " + tenant.getDomain() + "[" + tenant
+                                .getId() + "]");
+                        //add to the count of successfully updated tenants
+                        ++updatedTenantCount;
 
+                    }
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                                "Skipping the role update for " + tenant.getDomain() + "[" + tenant.getId() + "] as it "
+                                        + "is not in specified range " + lowerBound + " : " + upperBound);
+                    }
                 }
             }
             log.info("Role update process completed for " + updatedTenantCount + " tenants.");
+
         }
     }
 
