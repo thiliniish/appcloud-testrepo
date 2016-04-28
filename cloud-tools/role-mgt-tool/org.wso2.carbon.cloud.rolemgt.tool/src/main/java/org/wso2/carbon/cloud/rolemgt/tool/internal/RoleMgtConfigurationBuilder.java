@@ -23,6 +23,7 @@ import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.rolemgt.tool.RoleManager;
 import org.wso2.carbon.cloud.rolemgt.tool.util.RoleManagerConstants;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -46,19 +47,8 @@ public class RoleMgtConfigurationBuilder {
      * Initialize the builder by providing the xml file location
      *
      */
-    public RoleMgtConfigurationBuilder() {
-        String roleMgtConfigFileLocation = CarbonUtils.getCarbonConfigDirPath() +
-                File.separator + RoleManagerConstants.CONFIG_FOLDER +
-                File.separator + RoleManagerConstants.CONFIG_FILE_NAME;
-        File roleConfigFile = new File(roleMgtConfigFileLocation);
-        if (roleConfigFile.exists()) {
+    public RoleMgtConfigurationBuilder(File roleConfigFile) {
             this.configFile = roleConfigFile;
-        } else {
-            String msg = "Role Manager The provided file " + roleConfigFile.getAbsolutePath() + " does "
-                    + "not exist ";
-            log.error(msg);
-
-        }
     }
 
     /**
@@ -66,7 +56,9 @@ public class RoleMgtConfigurationBuilder {
      *
      */
     public void buildRoleMgtConfiguration() {
-        loadRoleMgtConfiguration(this.configFile);
+        if (configFile.exists()) {
+            loadRoleMgtConfiguration(this.configFile);
+        }
     }
 
     /**
@@ -128,7 +120,6 @@ public class RoleMgtConfigurationBuilder {
      */
     private void readChildElements(OMElement serverConfig, Stack<String> nameStack, Map<String,
             String> configuration) {
-
         for (Iterator childElements = serverConfig.getChildElements(); childElements.hasNext(); ) {
             OMElement element = (OMElement) childElements.next();
             nameStack.push(element.getLocalName());

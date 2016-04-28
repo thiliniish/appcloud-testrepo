@@ -78,17 +78,6 @@ public class RoleBean {
     }
 
     /**
-     * Method to add user
-     *
-     * @param user String
-     */
-    public void addUser(String user) {
-        if (user != null && !"".equals(user.trim())) {
-            users.add(user);
-        }
-    }
-
-    /**
      * Method to add permission
      *
      * @param permission Permission

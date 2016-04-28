@@ -25,17 +25,14 @@ public class RoleManagerConstants {
 
     private RoleManagerConstants() {}
 
-    public static final String ROLE_DELETION = "delete";
-    public static final String ROLE_ADDITION = "add";
-    public static final String ROLE_UPDATION = "update";
+    public static final String ROLE_DELETE = "delete";
+    public static final String ROLE_ADD = "add";
+    public static final String ROLE_UPDATE = "update";
 
-    public static final String CONFIG_FOLDER = "rolemgt";
+    public static final String CONFIG_FOLDER = "cloud";
 
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/";
     public static final String CONFIG_FILE_NAME = "role-mgt.xml";
-
-    public static final String SECURE_VAULT_NS = "http://org.wso2.securevault/configuration";
-    public static final String SECRET_ALIAS_ATTR_NAME = "secretAlias";
 
     public static final String DENY = "deny:";
     public static final String REGISTRY_GET = "REGISTRY_GET";
