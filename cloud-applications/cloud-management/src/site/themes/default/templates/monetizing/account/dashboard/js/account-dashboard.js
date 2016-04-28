@@ -95,7 +95,8 @@ var apiUsageChart = c3.generate({
     data: {
         x: 'x',
         columns: [],
-        type: 'bar'
+        type: 'bar',
+        labels: true
     },
     tooltip: {
         show: false
