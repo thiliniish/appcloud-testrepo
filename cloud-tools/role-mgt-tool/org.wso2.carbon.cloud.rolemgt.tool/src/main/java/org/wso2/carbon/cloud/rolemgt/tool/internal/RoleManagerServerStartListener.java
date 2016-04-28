@@ -32,9 +32,8 @@ public class RoleManagerServerStartListener implements ServerStartupHandler {
     /**
      * This method waits until the server starts for execution
      */
-    @Override
-    public void invoke() {
-        if(log.isDebugEnabled()){
+    @Override public void invoke() {
+        if (log.isDebugEnabled()) {
             log.debug("Server start up handler is activated");
         }
         Thread t1 = new Thread(new RoleManager());

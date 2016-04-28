@@ -65,7 +65,7 @@ public class RoleManager implements Runnable {
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
         roleBeanList.addAll(getRoleConfigurations(RoleManagerConstants.TENANT_ROLES_ROLE));
         if (roleBeanList.isEmpty()) {
-            log.error("Please update "+RoleManagerConstants.CONFIG_FILE_NAME +" with role configurations to be "
+            log.error("Please update " + RoleManagerConstants.CONFIG_FILE_NAME + " with role configurations to be "
                     + "updated.");
             return;
         }
@@ -139,8 +139,8 @@ public class RoleManager implements Runnable {
                 File.separator + RoleManagerConstants.CONFIG_FOLDER +
                 File.separator + RoleManagerConstants.CONFIG_FILE_NAME;
         File roleConfigFile = new File(roleMgtConfigFileLocation);
-        if(!roleConfigFile.exists()){
-            log.error("Unable to load configuration file. Please check whether '"+ roleMgtConfigFileLocation +
+        if (!roleConfigFile.exists()) {
+            log.error("Unable to load configuration file. Please check whether '" + roleMgtConfigFileLocation +
                     "' exists!");
             return roleBeanList;
         }
@@ -239,14 +239,14 @@ public class RoleManager implements Runnable {
                 if (isRoleDelete) {
                     if (userStoreManager.isExistingRole(roleBean.getRoleName())) {
                         userStoreManager.deleteRole(roleBean.getRoleName());
-                    }else {
-                        if(log.isDebugEnabled()){
-                            log.debug("The role '"+ roleBean.getRoleName()+"' does not exist or has already been "
-                                    + "deleted for tenant '" + tenantDomain+"'");
+                    } else {
+                        if (log.isDebugEnabled()) {
+                            log.debug("The role '" + roleBean.getRoleName() + "' does not exist or has already been "
+                                    + "deleted for tenant '" + tenantDomain + "'");
                         }
                     }
                     continue;
-                }  else if ((isRoleAdd || isRoleUpdate) && userStoreManager.isExistingRole(roleBean.getRoleName())){
+                } else if ((isRoleAdd || isRoleUpdate) && userStoreManager.isExistingRole(roleBean.getRoleName())) {
                     isAuthorizedPermissions = true;
                     // authorize given authorized permission list
                     for (Permission permission : roleBean.getPermissions(isAuthorizedPermissions)) {
@@ -261,8 +261,7 @@ public class RoleManager implements Runnable {
                             }
                         }
                     }
-                }
-                else if (isRoleAdd) {
+                } else if (isRoleAdd) {
                     // add role and authorize given authorized permission list
                     userStoreManager.addRole(roleBean.getRoleName(), roleBean.getUsers().toArray(new String[0]),
                             roleBean.getPermissions(true).toArray(new Permission[0]));
@@ -281,8 +280,7 @@ public class RoleManager implements Runnable {
                 } else {
                     String message =
                             "The specified action '" + roleBean.getAction() + "' is not a valid action to " + "update"
-                                    + " the role '"
-                                    + roleBean.getRoleName() + "' in tenant '" + tenantDomain +"'";
+                                    + " the role '" + roleBean.getRoleName() + "' in tenant '" + tenantDomain + "'";
                     log.error(message);
                     continue;
                 }

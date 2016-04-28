@@ -23,9 +23,7 @@ import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.rolemgt.tool.RoleManager;
 import org.wso2.carbon.cloud.rolemgt.tool.util.RoleManagerConstants;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -45,15 +43,13 @@ public class RoleMgtConfigurationBuilder {
 
     /**
      * Initialize the builder by providing the xml file location
-     *
      */
     public RoleMgtConfigurationBuilder(File roleConfigFile) {
-            this.configFile = roleConfigFile;
+        this.configFile = roleConfigFile;
     }
 
     /**
      * If it's a role-mgt.xml it will give {@code RoleMgtConfiguration}
-     *
      */
     public void buildRoleMgtConfiguration() {
         if (configFile.exists()) {
@@ -65,9 +61,8 @@ public class RoleMgtConfigurationBuilder {
      * Method to load RoleMgtConfiguration
      *
      * @param roleConfigFile File
-     *
      */
-    private void loadRoleMgtConfiguration(File roleConfigFile)  {
+    private void loadRoleMgtConfiguration(File roleConfigFile) {
         OMElement roleMgtElement = loadXML(roleConfigFile);
         if (!RoleManagerConstants.CONFIG_NAMESPACE.equals(roleMgtElement.getNamespace().getNamespaceURI())) {
             String message = "Cloud namespace is invalid. Expected [" + RoleManagerConstants.CONFIG_NAMESPACE +
@@ -95,8 +90,8 @@ public class RoleMgtConfigurationBuilder {
             String msg = "Unable to read the file at " + configFile.getAbsolutePath();
             log.error(msg, e);
         } catch (XMLStreamException e) {
-            String msg = "Error in parsing " + RoleManagerConstants.CONFIG_FILE_NAME + " at " + configFile
-                    .getAbsolutePath();
+            String msg =
+                    "Error in parsing " + RoleManagerConstants.CONFIG_FILE_NAME + " at " + configFile.getAbsolutePath();
             log.error(msg, e);
         } finally {
             try {
@@ -114,12 +109,11 @@ public class RoleMgtConfigurationBuilder {
     /**
      * Method to read child elements
      *
-     * @param serverConfig OMElement
-     * @param nameStack Stack of String
+     * @param serverConfig  OMElement
+     * @param nameStack     Stack of String
      * @param configuration Map of String
      */
-    private void readChildElements(OMElement serverConfig, Stack<String> nameStack, Map<String,
-            String> configuration) {
+    private void readChildElements(OMElement serverConfig, Stack<String> nameStack, Map<String, String> configuration) {
         for (Iterator childElements = serverConfig.getChildElements(); childElements.hasNext(); ) {
             OMElement element = (OMElement) childElements.next();
             nameStack.push(element.getLocalName());
@@ -203,7 +197,7 @@ public class RoleMgtConfigurationBuilder {
     /**
      * Method to add key-value pairs to configuration map
      *
-     * @param key String
+     * @param key   String
      * @param value String
      */
     private void addToConfiguration(String key, String value) {
@@ -222,8 +216,8 @@ public class RoleMgtConfigurationBuilder {
     /**
      * Method to add key-value pairs to configuration
      *
-     * @param key String
-     * @param value String
+     * @param key           String
+     * @param value         String
      * @param configuration Map of String
      */
     private void addToConfiguration(String key, String value, Map<String, String> configuration) {

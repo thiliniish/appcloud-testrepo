@@ -23,7 +23,8 @@ package org.wso2.carbon.cloud.rolemgt.tool.util;
  */
 public class RoleManagerConstants {
 
-    private RoleManagerConstants() {}
+    private RoleManagerConstants() {
+    }
 
     public static final String ROLE_DELETE = "delete";
     public static final String ROLE_ADD = "add";

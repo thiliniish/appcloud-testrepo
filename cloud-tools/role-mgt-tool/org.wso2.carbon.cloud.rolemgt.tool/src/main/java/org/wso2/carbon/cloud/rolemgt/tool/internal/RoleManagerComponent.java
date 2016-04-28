@@ -43,7 +43,7 @@ public class RoleManagerComponent {
      * @param context OSGi component context.
      */
     protected void activate(ComponentContext context) {
-        try{
+        try {
             //Register the server start up handler which hold the execution of its invoke method until the server starts
             context.getBundleContext()
                     .registerService(ServerStartupHandler.class.getName(), new RoleManagerServerStartListener(), null);
