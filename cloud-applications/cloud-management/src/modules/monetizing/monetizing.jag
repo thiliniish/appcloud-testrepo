@@ -104,6 +104,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
     var effectiveDate = new Packages.java.util.Date();
     var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
     var subscriber, username, accountId;
+    var errorMsg = "Error while updating subscriber account to complementary";
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
         try {
             subscriber = JSON.parse(subscriberString);
@@ -175,7 +176,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
             log.error(e);
             return {
                 error: true,
-                message: msg,
+                message: errorMsg,
                 status: 500
             };
         }
@@ -194,6 +195,7 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
     var tenantDomain = modManager.getTenantDomain();
     var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
     var effectiveDate = new Packages.java.util.Date();
+    var errorMsg = "Error while updating subscriber account to regular";
     var subscriber, username;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
         try {
@@ -238,7 +240,7 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
             log.error(e);
             return {
                 error: true,
-                message: msg,
+                message: errorMsg,
                 status: 500
             };
         }

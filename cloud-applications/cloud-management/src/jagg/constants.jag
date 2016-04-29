@@ -202,8 +202,8 @@ var COMPLEMENTARY_CREATED_MAIL_TYPE = "ComplementaryCreated";
 var COMPLEMENTARY_REMOVED_MAIL_TYPE = "ComplementaryRemoved";
 var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH = "/site/conf/emails/api_cloud_monetization-create-test-account.txt";
 var REMOVE_COMPLEMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH = "/site/conf/emails/api_cloud_monetization_remove_test_account.txt";
-var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "_system/governance/apimgt/pricing/resources/api_cloud_monetization-create-test-account.txt";
-var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "_system/governance/apimgt/pricing/resources/api_cloud_monetization_remove_test_account.txt";
+var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "/_system/governance/apimgt/pricing/resources/monetization-create-test-account.txt";
+var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "/_system/governance/apimgt/pricing/resources/monetization-remove-test-account.txt";
 var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT = "Subscriber account of $displayName is now changed to a complimentary account";
 var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT = "Subscriber account of $displayName is now changed to a regular account";
 
