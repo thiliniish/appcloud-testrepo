@@ -112,7 +112,7 @@ function showMessage(message, type, url) {
         closeWith: ['button', 'click'],
         text: message,
         buttons: [{
-            addClass: 'btn btn-default', text: 'Ok', onClick: function () {
+            addClass: 'btn btn-default', text: 'OK', onClick: function () {
                 window.location.href = (url);
             }
         }],

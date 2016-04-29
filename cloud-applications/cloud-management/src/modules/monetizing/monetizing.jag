@@ -1027,7 +1027,6 @@ var updateApiCloudMonetizationStatus = function () {
     var request = new ws.WSRequest();
     var options = new Array();
     options.useSOAP = 1.1;
-    options.timeout = 1000000;
     options.action = "urn:updateMonetizationStatus";
     options["HTTPHeaders"] = [
         {name: "Cookie", value: cookie}
