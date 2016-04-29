@@ -160,6 +160,7 @@ public final class BillingConstants {
     public static final String PRODUCT_CATEGORY = "Base Products";
     public static final String EFFECTIVE_END_DATE = "12/12/2100";
     public static final String EFFECTIVE_DATE_FORMAT = "MM/DD/YYYY";
+    public static final int PRODUCT_COMMISSION_DEFAUlT_VALUE = 15;
 
     /* json object attribute labels */
     public static final String JSON_OBJ_PRODUCT_NAME = "localName";

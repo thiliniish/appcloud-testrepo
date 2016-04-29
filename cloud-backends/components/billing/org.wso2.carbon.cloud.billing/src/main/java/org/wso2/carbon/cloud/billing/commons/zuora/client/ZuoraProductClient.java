@@ -112,6 +112,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			product.setCategory(productCategory);
 			product.setEffectiveStartDate(Calendar.getInstance());
 			product.setEffectiveEndDate(calendarEndDate);
+			product.setCommission__c(Integer.toString(BillingConstants.PRODUCT_COMMISSION_DEFAUlT_VALUE));
 			SaveResult result = zuoraClientUtils.create(product);
 			if (result != null && !result.getSuccess()) {
 				throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(result));
