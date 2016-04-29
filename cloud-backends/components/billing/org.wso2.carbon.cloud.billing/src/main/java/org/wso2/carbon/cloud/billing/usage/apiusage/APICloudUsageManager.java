@@ -79,6 +79,18 @@ public class APICloudUsageManager {
         return dsBRProcessor.doGet(usageUrl, null, nameValuePairs);
     }
 
+    private String getDailyUsageForMonetization(String usageUrl) throws CloudBillingException {
+        Date currentDate = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+        NameValuePair[] nameValuePairs = new NameValuePair[]{
+                new NameValuePair("YEAR", String.valueOf(cal.get(Calendar.YEAR))),
+                new NameValuePair("MONTH", String.valueOf((cal.get(Calendar.MONTH) + 1))),
+                new NameValuePair("DAY", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)))};
+
+        return dsBRProcessor.doGet(usageUrl, null, nameValuePairs);
+    }
+
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
         NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("apiPublisher", "%@" + tenantDomain),
@@ -91,7 +103,7 @@ public class APICloudUsageManager {
         LOGGER.info("Uploading daily usage for  " + dateFormat.format(new Date(System.currentTimeMillis())));
         // get daily usage from data services and create a usage array
         String response = getDailyUsage(dailyUsageUrl);
-        String responseForMonetizationUsage = getDailyUsage(dailyMonetizationUsageUrl);
+        String responseForMonetizationUsage = getDailyUsageForMonetization(dailyMonetizationUsageUrl);
         Usage[] usageList = APIUsageProcessorUtil.getDailyUsageDataForApiM(response);
         Usage[] monetizationEnabledUsageList =
                 APIUsageProcessorUtil.getDailyUsageDataForPaidSubscribers(responseForMonetizationUsage);
