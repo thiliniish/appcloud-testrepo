@@ -1043,6 +1043,7 @@ var updateApiCloudMonetizationStatus = function () {
         response = request.responseE4X;
         result.error = false;
         result.message = response;
+        log.info("Successfully updated the monetization status in the registry for the tenant "+tenantDomain);
 
     } catch (e) {
         log.error(e.toString());
