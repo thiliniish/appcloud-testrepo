@@ -42,7 +42,7 @@ var log = new Log();
                             {
                                 "name": "breadcrumb",
                                 "inputs": {
-                                    "pageName": "DashBoard"
+                                    "pageName": "Dashboard"
                                 }
                             }
                         ],

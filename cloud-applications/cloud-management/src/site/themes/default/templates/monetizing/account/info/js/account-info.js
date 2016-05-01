@@ -441,7 +441,7 @@ function showErrorMessage(result) {
         closeWith: ['button', 'click'],
         text: result.message,
         buttons: [{
-            addClass: 'btn btn-default', text: 'Ok', onClick: function () {
+            addClass: 'btn btn-default', text: 'OK', onClick: function () {
                 window.location.href = ( result.redirectionURL);
             }
         }],
