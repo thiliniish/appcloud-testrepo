@@ -38,7 +38,7 @@ include("/jagg/config_reader.jag");
         print({
             error: true,
             status: 403,
-            message: "Feature not available for the organization."
+            message: "This feature is not enabled for your organization."
         });
     }
     var mod = jagg.module("monetizing");
@@ -49,10 +49,10 @@ include("/jagg/config_reader.jag");
     var overageCharge = encoder.getSafeText(request.getParameter("overageCharge"));
     var dailyUsage = encoder.getSafeText(request.getParameter("dailyUsage"));
     var overageLimit = encoder.getSafeText(request.getParameter("overageLimit"));
-    if (action == "update-payment-plans-of-tenant") {
+    if (action == "updatePaymentPlansOfTenant") {
         var result = mod.updateProductRatePlanInfo(planName, planDescription, pricing, overageCharge, overageLimit, dailyUsage);
         print(result);
-    } else if (action == "is-update-payment-plans-of-tenant") {
+    } else if (action == "isPaymentPlansUpdated") {
         var result = mod.isProductPlanExistsForTenant(planName);
         print(result);
     } else {

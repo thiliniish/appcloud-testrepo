@@ -197,6 +197,8 @@ var TIER_MANAGE_URL = "admin-dashboard/tier-manage";
 var ACC_FREE = "Free";
 var ACC_TEST = "Test/Complimentary";
 var ACC_PAID = "Paid";
+var MONETIZATION_PAYMENT_PLAN_ADD_PAGE = "Add";
+var MONETIZATION_PAYMENT_PLAN_UPDATE_PAGE = "Update";
 //Monetization subscriber account type change notification email related
 var COMPLEMENTARY_CREATED_MAIL_TYPE = "ComplementaryCreated";
 var COMPLEMENTARY_REMOVED_MAIL_TYPE = "ComplementaryRemoved";

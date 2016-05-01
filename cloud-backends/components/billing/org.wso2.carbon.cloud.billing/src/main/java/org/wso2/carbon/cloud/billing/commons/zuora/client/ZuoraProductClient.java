@@ -301,13 +301,13 @@ public class ZuoraProductClient extends ZuoraClient {
 				return objectToJson(result);
 			} else {
 				JsonObject errorResponse = new JsonObject();
-				errorResponse.addProperty("success", false);
-				errorResponse.addProperty("successSpecified", true);
-				errorResponse.addProperty("errorsSpecified", true);
+				errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_SUCCESS, false);
+				errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED, true);
+				errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED, true);
 				JsonObject[] errorObjs = new JsonObject[] {
 						new JsonParser().parse(ERROR_JSON_OBJ_INVALID_PRODUCT).getAsJsonObject()
 				};
-				errorResponse.add("errors", new Gson().toJsonTree(errorObjs));
+				errorResponse.add(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS, new Gson().toJsonTree(errorObjs));
 				return errorResponse;
 			}
 
@@ -409,9 +409,9 @@ public class ZuoraProductClient extends ZuoraClient {
 		JsonObject[] errorObjs;
 		// Create error response
 		JsonObject errorResponse = new JsonObject();
-		errorResponse.addProperty("success", false);
-		errorResponse.addProperty("successSpecified", true);
-		errorResponse.addProperty("errorsSpecified", true);
+		errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_SUCCESS, false);
+		errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED, true);
+		errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED, true);
 		try {
 			// Get the Zuora Product of the tenant
 			Product product = getProduct(productName);
@@ -479,7 +479,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			} else {
 				errorObjs =
 						new JsonObject[] { new JsonParser().parse(ERROR_JSON_OBJ_INVALID_PRODUCT).getAsJsonObject() };
-				errorResponse.add("errors", new Gson().toJsonTree(errorObjs));
+				errorResponse.add(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS, new Gson().toJsonTree(errorObjs));
 				return errorResponse;
 			}
 		} catch (InvalidTypeFault e) {
@@ -504,7 +504,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			errorObjs = new JsonObject[] {
 					new JsonParser().parse(ERROR_JSON_OBJ_PRODUCT_RATEPLAN_UPDATE_FAILURE)
 					                .getAsJsonObject() };
-			errorResponse.add("errors", new Gson().toJsonTree(errorObjs));
+			errorResponse.add(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS, new Gson().toJsonTree(errorObjs));
 			return errorResponse;
 		}
 	}

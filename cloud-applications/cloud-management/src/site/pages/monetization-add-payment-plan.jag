@@ -1,5 +1,6 @@
 <%
 include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
 var site = require("/site/conf/site.json");
 (function () {
     var user = jagg.getUser();
@@ -34,9 +35,9 @@ var site = require("/site/conf/site.json");
         return;
     }
     var isPlanExsist = jagg.module("monetizing").isProductPlanExistsForTenant(planName);
-    var pageName = "Add";
+    var pageName = MONETIZATION_PAYMENT_PLAN_ADD_PAGE;
     if (isPlanExsist) {
-        pageName = "Update";
+        pageName = MONETIZATION_PAYMENT_PLAN_UPDATE_PAGE;
     }
 
     jagg.render({

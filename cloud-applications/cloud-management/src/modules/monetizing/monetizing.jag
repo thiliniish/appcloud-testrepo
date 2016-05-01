@@ -1078,7 +1078,13 @@ var isProductPlanExistsForTenant = function (ratePlanName) {
     } catch (e) {
         var msg = "Error occurred while checking the existence of the product plan: " + ratePlanName + " of the tenant: " + tenantDomain;
         log.error(msg);
-        throw (e);
+        log.error(e);
+        return {
+            error: true,
+            redirectionURL: contactUsURL,
+            message: msg,
+            status: 500
+        };
     }
 };
 

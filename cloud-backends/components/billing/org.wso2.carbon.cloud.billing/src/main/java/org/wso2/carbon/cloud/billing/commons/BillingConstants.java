@@ -263,6 +263,12 @@ public final class BillingConstants {
     // File reading related constats.
     public static final String LINE_BREAK = "\r\n";
 
+    // error response related properties
+    public static final String EEROR_RESPONSE_PROPERTY_ERRORS = "errors";
+    public static final String EEROR_RESPONSE_PROPERTY_SUCCESS = "success";
+    public static final String EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED = "successSpecified";
+    public static final String EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED = "errorsSpecified";
+
     private BillingConstants() {
     }
 

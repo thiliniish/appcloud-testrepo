@@ -37,14 +37,14 @@ function doSubmit() {
     var dailyUsage = $("#dailyUsage").attr('value');
     var planDescription;
     jagg.syncPost("../blocks/monetizing/productPlan/update/ajax/update.jag", {
-            action: "is-update-payment-plans-of-tenant",
+            action: "isPaymentPlansUpdated",
             planName: planName
         },
         function (result) {
             if (result) {
                 planDescription = planName + " Plan.";
                 jagg.post("../blocks/monetizing/productPlan/update/ajax/update.jag", {
-                        action: "update-payment-plans-of-tenant",
+                        action: "updatePaymentPlansOfTenant",
                         planName: planName,
                         pricing: pricing,
                         planDescription: planDescription,
@@ -92,7 +92,7 @@ function doSubmit() {
 function isUpdate() {
     var planName = $("#planName").attr('value');
     jagg.syncPost("../blocks/monetizing/productPlan/update/ajax/update.jag", {
-            action: "is-update-payment-plans-of-tenant",
+            action: "isPaymentPlansUpdated",
             planName: planName
         },
         function (result) {
