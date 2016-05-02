@@ -88,6 +88,17 @@ jagg.block("menu/primary", {
             "tooltip":i18n.localize("forum"),
             "active":(path == "/site/pages/forum.jag")
         });
+        var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenant);
+        if (isMonetizationEnabledObj.monetizationEnabled) {
+            links.push({
+                "title": "$Pricing",
+                "url": jagg.getMappedUrl("/site/pages/pricing/pricing-menu.jag" + urlPrefix),
+                "classes": "link-ss",
+                "classIcon": "fa fa-tags",
+                "tooltip": "Pricing Menu",
+                "active": (path == "/site/pages/pricng/pricing-menu.jag")
+            });
+        }
 
         return {
             "links":links,

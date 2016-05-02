@@ -80,6 +80,9 @@ jagg.module("pricing", {
     },
     getDisplayNameFromTenantDomain: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getDisplayNameFromTenantDomain.apply(this, arguments);
+    },
+    getAllProductPlansForTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAllProductPlansForTenant.apply(this, arguments);
     }
 });
 %>
