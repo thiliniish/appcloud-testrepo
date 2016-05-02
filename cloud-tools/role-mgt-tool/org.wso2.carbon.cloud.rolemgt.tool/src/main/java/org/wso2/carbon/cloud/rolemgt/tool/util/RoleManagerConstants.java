@@ -42,4 +42,6 @@ public class RoleManagerConstants {
 
     public static final String TENANT_ROLES_ROLE = "TenantRoles.Role";
     public static final String TENANT_RANGE = "range";
+
+    public static final String RESOURCE = "resource:";
 }

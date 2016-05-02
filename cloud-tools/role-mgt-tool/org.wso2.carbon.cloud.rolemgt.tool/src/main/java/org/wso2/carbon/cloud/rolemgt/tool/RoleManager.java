@@ -275,7 +275,8 @@ public class RoleManager implements Runnable {
                                     permission.getAction());
                             if (log.isDebugEnabled()) {
                                 log.debug("Role:" + roleBean.getRoleName() + " is authorized with permission;\n" +
-                                        "resource:" + permission.getResourceId() + " action:" + permission.getAction() +
+                                        RoleManagerConstants.RESOURCE + permission.getResourceId() + " action:"
+                                        + permission.getAction() +
                                         "\n");
                             }
                         }
@@ -291,8 +292,8 @@ public class RoleManager implements Runnable {
                                 "Role:" + roleBean.getRoleName() + " is added with below permissions;");
                         List<Permission> permissions = roleBean.getPermissions(isAuthorizedPermissions);
                         for (Permission permission : permissions) {
-                            permissionLog.append("resource:").append(permission.getResourceId()).append(" action:")
-                                    .append(permission.getAction()).append("\n");
+                            permissionLog.append(RoleManagerConstants.RESOURCE).append(permission.getResourceId())
+                                    .append(" " + "action:").append(permission.getAction()).append("\n");
                         }
                         log.debug(permissionLog.toString());
                     }
@@ -310,7 +311,8 @@ public class RoleManager implements Runnable {
                             .denyRole(roleBean.getRoleName(), permission.getResourceId(), permission.getAction());
                     if (log.isDebugEnabled()) {
                         log.debug("Role:" + roleBean.getRoleName() + " is denied with permissions;\n" +
-                                "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
+                                RoleManagerConstants.RESOURCE + permission.getResourceId() + " action:" + permission
+                                .getAction() + "\n");
                     }
                 }
             } catch (UserStoreException e) {

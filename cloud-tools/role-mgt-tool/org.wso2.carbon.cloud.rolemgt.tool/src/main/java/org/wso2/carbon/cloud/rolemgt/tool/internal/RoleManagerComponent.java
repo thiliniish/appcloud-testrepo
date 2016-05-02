@@ -61,7 +61,9 @@ public class RoleManagerComponent {
      * @param context OSGi component context.
      */
     protected void deactivate(ComponentContext context) {
-        log.info("Role Manager bundle is deactivated.");
+        if (log.isDebugEnabled()) {
+            log.debug("Role Manager bundle is deactivated.");
+        }
     }
 
     /**
