@@ -2,9 +2,7 @@
 include("/jagg/jagg.jag");
 jagg.block("pricing/menu-info", {
     initializer:function (data) {
-
     },
-
     getInputs:function () {
         return {
             "result":null
