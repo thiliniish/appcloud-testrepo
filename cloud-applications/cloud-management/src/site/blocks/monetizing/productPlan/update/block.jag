@@ -1,0 +1,7 @@
+<%
+jagg.block("monetizing/productPlan/update", {
+    getOutputs: function (inputs) {
+        return inputs;
+    }
+});
+%>

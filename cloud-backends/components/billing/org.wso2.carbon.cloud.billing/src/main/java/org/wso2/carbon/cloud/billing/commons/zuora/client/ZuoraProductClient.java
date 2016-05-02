@@ -27,9 +27,6 @@ import com.zuora.api.object.ProductRatePlan;
 import com.zuora.api.object.ProductRatePlanCharge;
 import com.zuora.api.object.ProductRatePlanChargeTier;
 import com.zuora.api.wso2.stub.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ZuoraClientUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
@@ -48,12 +45,14 @@ public class ZuoraProductClient extends ZuoraClient {
 
 	private static final String PRODUCT_CREATION_ERROR = "occurred while creating customer product";
 	private static final String PRODUCT_RATEPLAN_CREATION_ERROR = "occurred while creating product rate plan";
-	private static final String PRODUCT_UPDATE_ERROR = "occurred while updating the customer product";
+	private static final String PRODUCT_RATEPLAN_UPDATE_ERROR = "occurred while updating the product rate plan";
 	private static final String PRODUCT_DELETION_ERROR = "occurred while deleting customer product";
 	private static final String PRODUCT_QUERY_BY_NAME_ERROR = "occurred while querying customer product by name";
 
 	private static final String ERROR_JSON_OBJ_INVALID_PRODUCT = "{\"code\": null,\"codeSpecified\": true,\"field\": " +
 	"null,\"fieldSpecified\": false,\"message\": \"Invalid product name. \",\"messageSpecified\": true}";
+	private static final String ERROR_JSON_OBJ_PRODUCT_RATEPLAN_UPDATE_FAILURE =
+			"{\"code\": null,\"codeSpecified\": true,\"field\": null,\"fieldSpecified\": false,\"message\": \"Product rate plan update failed. \",\"messageSpecified\": true}";
 
 	public ZuoraProductClient() throws CloudBillingZuoraException {
 		super();
@@ -113,6 +112,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			product.setCategory(productCategory);
 			product.setEffectiveStartDate(Calendar.getInstance());
 			product.setEffectiveEndDate(calendarEndDate);
+			product.setCommission__c(Integer.toString(BillingConstants.PRODUCT_COMMISSION_DEFAUlT_VALUE));
 			SaveResult result = zuoraClientUtils.create(product);
 			if (result != null && !result.getSuccess()) {
 				throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(result));
@@ -150,7 +150,7 @@ public class ZuoraProductClient extends ZuoraClient {
 				productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_NAME).toString()
 				                   .replaceAll("\"", "");
         String productRatePlanChargeTierPrice =
-                productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_PRICE).toString()
+                productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_RECURRING_CHARGE).toString()
                                    .replaceAll("\"", "");
         String productRatePlanOverageChargePrice =
                 productRatePlanInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE).toString()
@@ -176,7 +176,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			ID productId = product.getId();
 			productRatePlan.setProductId(productId);
 
-			SaveResult saveResult= zuoraClientUtils.create(productRatePlan);
+			SaveResult saveResult = zuoraClientUtils.create(productRatePlan);
 			ID productRatePlanId = saveResult.getId();
 
 			// Create ProductRatePlanCharge - recurring charges
@@ -301,13 +301,13 @@ public class ZuoraProductClient extends ZuoraClient {
 				return objectToJson(result);
 			} else {
 				JsonObject errorResponse = new JsonObject();
-				errorResponse.addProperty("success", false);
-				errorResponse.addProperty("successSpecified", true);
-				errorResponse.addProperty("errorsSpecified", true);
+				errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_SUCCESS, false);
+				errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED, true);
+				errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED, true);
 				JsonObject[] errorObjs = new JsonObject[] {
 						new JsonParser().parse(ERROR_JSON_OBJ_INVALID_PRODUCT).getAsJsonObject()
 				};
-				errorResponse.add("errors", new Gson().toJsonTree(errorObjs));
+				errorResponse.add(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS, new Gson().toJsonTree(errorObjs));
 				return errorResponse;
 			}
 
@@ -339,45 +339,6 @@ public class ZuoraProductClient extends ZuoraClient {
 	}
 
 	/**
-	 * Method for update Product
-	 *
-	 * @param productInfo json object
-	 * @return result JsonObject
-	 * @throws org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException
-	 */
-	public JsonObject updateProduct(JsonObject productInfo) throws CloudBillingZuoraException {
-		String productName = productInfo.get(BillingConstants.JSON_OBJ_PRODUCT_NAME).toString().replaceAll("\"", "");
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			Product productUpdated = mapper.readValue(productInfo.toString(), Product.class);
-			if (productUpdated.getId() == null) {
-				ID id = getProduct(productUpdated.getName()).getId();
-				productUpdated.setId(id);
-			}
-			SaveResult saveResult = zuoraClientUtils.update(productUpdated);
-			return objectToJson(saveResult);
-		} catch (InvalidTypeFault e) {
-			String errorCode = e.getFaultMessage().getInvalidTypeFault().getFaultCode().toString();
-			throw new CloudBillingZuoraException("Invalid type fault error " + PRODUCT_UPDATE_ERROR + productName,
-			                                     errorCode, e);
-		} catch (UnexpectedErrorFault e) {
-			String errorCode = e.getFaultMessage().getUnexpectedErrorFault().getFaultCode().toString();
-			throw new CloudBillingZuoraException("Unexpected Error Fault error " + PRODUCT_UPDATE_ERROR + productName,
-			                                     errorCode, e);
-		} catch (InvalidQueryLocatorFault e) {
-			String errorCode = e.getFaultMessage().getInvalidQueryLocatorFault().getFaultCode().toString();
-			throw new CloudBillingZuoraException("InvalidQueryLocatorFault " + PRODUCT_UPDATE_ERROR + productName,
-			                                     errorCode, e);
-		} catch (MalformedQueryFault e) {
-			String errorCode = e.getFaultMessage().getMalformedQueryFault().getFaultCode().toString();
-			throw new CloudBillingZuoraException("MalformedQueryFault " + PRODUCT_UPDATE_ERROR + productName, errorCode,
-			                                     e);
-		} catch (IOException e) {
-			throw new CloudBillingZuoraException("IOException " + PRODUCT_UPDATE_ERROR + productName, e);
-		}
-	}
-
-	/**
 	 * Method for query zuora product by name
 	 *
 	 * @param productName product name
@@ -402,9 +363,10 @@ public class ZuoraProductClient extends ZuoraClient {
 	}
 
 	/**
-	 * Query zuora product rate plan by name
+	 * Query zuora product rate plan by using product rate plan name and product id
 	 *
 	 * @param productRatePlanName product rate plan name
+	 * @param productId product id
 	 * @return Zoura product rate plan
 	 * @throws org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException
 	 * @throws java.rmi.RemoteException
@@ -412,11 +374,11 @@ public class ZuoraProductClient extends ZuoraClient {
 	 * @throws com.zuora.api.wso2.stub.MalformedQueryFault
 	 * @throws com.zuora.api.wso2.stub.UnexpectedErrorFault
 	 */
-	private ProductRatePlan getProductRatePlan(String productRatePlanName)
+	private ProductRatePlan getProductRatePlan(String productRatePlanName, String productId)
 			throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
 			       UnexpectedErrorFault {
 		String query = ZuoraClientUtils.prepareZQuery(BillingConstants.QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME,
-		                                              new String[] { productRatePlanName });
+		                                              new String[] { productRatePlanName, productId });
 		QueryResult result = zuoraClientUtils.query(query, null);
 		if ((result.getRecords())[0] != null) {
 			return (ProductRatePlan) result.getRecords()[0];
@@ -425,5 +387,175 @@ public class ZuoraProductClient extends ZuoraClient {
 		}
 	}
 
+	/**
+	 * Method for update Product rate plan and rate plan charges
+	 *
+	 * @param productInfo json object of product information
+	 * @return response JsonObject
+	 * @throws org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException
+	 */
+	public JsonObject updateProductRatePlan(JsonObject productInfo) throws CloudBillingZuoraException {
+		String productName = productInfo.get(BillingConstants.JSON_OBJ_PRODUCT_NAME).toString().replaceAll("\"", "");
+		String productRatePlanName =
+				productInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_NAME).toString().replaceAll("\"", "");
+		String productRatePlanRecurringCharge =
+				productInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_RECURRING_CHARGE).toString().replaceAll("\"", "");
+		String productRatePlanOverageUsageCharge =
+				productInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_OVERAGE_CHARGE).toString()
+				           .replaceAll("\"", "");
+		String description =
+				productInfo.get(BillingConstants.JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION).toString().replaceAll("\"", "");
+		// Create error object
+		JsonObject[] errorObjs;
+		// Create error response
+		JsonObject errorResponse = new JsonObject();
+		errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_SUCCESS, false);
+		errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED, true);
+		errorResponse.addProperty(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED, true);
+		try {
+			// Get the Zuora Product of the tenant
+			Product product = getProduct(productName);
+			SaveResult saveResult;
+			if (product != null) {
+				ID productId = product.getId();
+				// Get the ProductRatePlan using rate plan name and the product id
+				ProductRatePlan productRatePlan = getProductRatePlan(productRatePlanName, productId.toString());
+				// update the product rate plan description
+				if (!description.isEmpty()) {
+					productRatePlan.setDescription(description);
+					productRatePlan.setProductId(productId);
+					saveResult = zuoraClientUtils.update(productRatePlan);
+					if (saveResult != null && !saveResult.getSuccess()) {
+						throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(saveResult));
+					}
+				}
+				// Get the product rate plan id
+				ID productRatePlanId = productRatePlan.getId();
+				// Update recurring charge price
+				if (!productRatePlanRecurringCharge.isEmpty()) {
+					// Get ProductRatePlanCharge using rate plan charge name and product rate plan id - recurring charges
+					ProductRatePlanCharge productRatePlanCharge =
+							getProductRatePlanCharge(BillingConstants.RATEPLAN_CHARGE_NAME_MONTHLY_SUBSCRIPTION,
+							                         productRatePlanId.toString());
+					productRatePlanCharge.setProductRatePlanId(productRatePlanId);
+					// Get the product rate plan charge id for recurring charges
+					ID productRatePlanChargeId = productRatePlanCharge.getId();
+					ProductRatePlanChargeTier chargeTier =
+							getProductRatePlanChargeTier(productRatePlanChargeId.toString());
+					chargeTier.setPrice(BigDecimal.valueOf(Double.parseDouble(productRatePlanRecurringCharge)));
+
+					ProductRatePlanChargeTierData chargeTierData = new ProductRatePlanChargeTierData();
+					chargeTierData.setProductRatePlanChargeTier(new ProductRatePlanChargeTier[] { chargeTier });
+					productRatePlanCharge.setProductRatePlanChargeTierData(chargeTierData);
+					saveResult = zuoraClientUtils.update(productRatePlanCharge);
+					if (saveResult != null && !saveResult.getSuccess()) {
+						throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(saveResult));
+					}
+				}
+				// Update over usage charge price
+				if (!productRatePlanOverageUsageCharge.isEmpty()) {
+					// Get ProductRatePlanCharge using rate plan charge name and product rate plan id - over usage charges
+					ProductRatePlanCharge productOverUsageCharge =
+							getProductRatePlanCharge(BillingConstants.RATEPLAN_CHARGE_NAME_OVERUSAGE,
+							                         productRatePlanId.toString());
+					productOverUsageCharge.setProductRatePlanId(productRatePlanId);
+					// Get the product rate plan charge id for over usage charges
+					ID productOverUsageChargeId = productOverUsageCharge.getId();
+					ProductRatePlanChargeTier overUsageChargeTier =
+							getProductRatePlanChargeTier(productOverUsageChargeId.toString());
+					overUsageChargeTier
+							.setPrice(BigDecimal.valueOf(Double.parseDouble(productRatePlanOverageUsageCharge)));
+
+					ProductRatePlanChargeTierData chargeTierData = new ProductRatePlanChargeTierData();
+					chargeTierData
+							.setProductRatePlanChargeTier(new ProductRatePlanChargeTier[] { overUsageChargeTier });
+					productOverUsageCharge.setProductRatePlanChargeTierData(chargeTierData);
+					saveResult = zuoraClientUtils.update(productOverUsageCharge);
+					if (saveResult != null && !saveResult.getSuccess()) {
+						throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(saveResult));
+					}
+				}
+				return objectToJson(productRatePlanId);
+			} else {
+				errorObjs =
+						new JsonObject[] { new JsonParser().parse(ERROR_JSON_OBJ_INVALID_PRODUCT).getAsJsonObject() };
+				errorResponse.add(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS, new Gson().toJsonTree(errorObjs));
+				return errorResponse;
+			}
+		} catch (InvalidTypeFault e) {
+			String errorCode = e.getFaultMessage().getInvalidTypeFault().getFaultCode().toString();
+			throw new CloudBillingZuoraException(
+					"Invalid type fault error " + PRODUCT_RATEPLAN_UPDATE_ERROR + productName, errorCode, e);
+		} catch (UnexpectedErrorFault e) {
+			String errorCode = e.getFaultMessage().getUnexpectedErrorFault().getFaultCode().toString();
+			throw new CloudBillingZuoraException(
+					"Unexpected Error Fault error " + PRODUCT_RATEPLAN_UPDATE_ERROR + productName, errorCode, e);
+		} catch (InvalidQueryLocatorFault e) {
+			String errorCode = e.getFaultMessage().getInvalidQueryLocatorFault().getFaultCode().toString();
+			throw new CloudBillingZuoraException(
+					"InvalidQueryLocatorFault " + PRODUCT_RATEPLAN_UPDATE_ERROR + productName, errorCode, e);
+		} catch (MalformedQueryFault e) {
+			String errorCode = e.getFaultMessage().getMalformedQueryFault().getFaultCode().toString();
+			throw new CloudBillingZuoraException("MalformedQueryFault " + PRODUCT_RATEPLAN_UPDATE_ERROR + productName,
+			                                     errorCode, e);
+		} catch (IOException e) {
+			throw new CloudBillingZuoraException("IOException " + PRODUCT_RATEPLAN_UPDATE_ERROR + productName, e);
+		} catch (CloudBillingZuoraException e) {
+			errorObjs = new JsonObject[] {
+					new JsonParser().parse(ERROR_JSON_OBJ_PRODUCT_RATEPLAN_UPDATE_FAILURE)
+					                .getAsJsonObject() };
+			errorResponse.add(BillingConstants.EEROR_RESPONSE_PROPERTY_ERRORS, new Gson().toJsonTree(errorObjs));
+			return errorResponse;
+		}
+	}
+
+	/**
+	 * Query zuora product rate plan charge by using product rate plan charge name and rate plan id
+	 *
+	 * @param productRatePlanChargeName product rate plan charge name
+	 * @param productRatePlanId         product rate plan id
+	 * @return Zoura product rate plan charge
+	 * @throws org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException
+	 * @throws java.rmi.RemoteException
+	 * @throws com.zuora.api.wso2.stub.InvalidQueryLocatorFault
+	 * @throws com.zuora.api.wso2.stub.MalformedQueryFault
+	 * @throws com.zuora.api.wso2.stub.UnexpectedErrorFault
+	 */
+	private ProductRatePlanCharge getProductRatePlanCharge(String productRatePlanChargeName, String productRatePlanId)
+			throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
+			       UnexpectedErrorFault {
+		String query = ZuoraClientUtils.prepareZQuery(BillingConstants.QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_BY_NAME,
+		                                              new String[] { productRatePlanChargeName, productRatePlanId });
+		QueryResult result = zuoraClientUtils.query(query, null);
+		if ((result.getRecords())[0] != null) {
+			return (ProductRatePlanCharge) result.getRecords()[0];
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Query zuora product rate plan charge tier by using product rate plan charge id
+	 *
+	 * @param productRatePlanChargeId product rate plan charge id
+	 * @return Zoura product rate plan charge tier
+	 * @throws org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException
+	 * @throws java.rmi.RemoteException
+	 * @throws com.zuora.api.wso2.stub.InvalidQueryLocatorFault
+	 * @throws com.zuora.api.wso2.stub.MalformedQueryFault
+	 * @throws com.zuora.api.wso2.stub.UnexpectedErrorFault
+	 */
+	private ProductRatePlanChargeTier getProductRatePlanChargeTier(String productRatePlanChargeId)
+			throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
+			       UnexpectedErrorFault {
+		String query = ZuoraClientUtils.prepareZQuery(BillingConstants.QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_TIER,
+		                                              new String[] { productRatePlanChargeId });
+		QueryResult result = zuoraClientUtils.query(query, null);
+		if ((result.getRecords())[0] != null) {
+			return (ProductRatePlanChargeTier) result.getRecords()[0];
+		} else {
+			return null;
+		}
+	}
 }
 

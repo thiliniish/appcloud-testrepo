@@ -1,4 +1,5 @@
 $(document).ready(function ($) {
+    isUpdate();
     var clickwithblur;
     $('#addPaymentPlans').validate({
         onfocusout: false,
@@ -6,25 +7,23 @@ $(document).ready(function ($) {
         rules: {
             overageCharge: {
                 required: true,
-                number:true
+                number: true
             },
             overageLimit: {
                 required: true,
-                number:true
-            },
-            description: {
-                required: true
+                number: true
             },
             planDescription: {
                 required: true,
-                number:true
+                number: true
             },
             dailyUsage: {
-                required:true,
-                number:true
+                required: true,
+                number: true
             }
         },
-        submitHandler: function (form) {doSubmit();
+        submitHandler: function (form) {
+            doSubmit();
         }
     });
 });
@@ -33,29 +32,74 @@ function doSubmit() {
     document.getElementById("btn_addPaymentPlan").disabled = true;
     var planName = $("#planName").attr('value');
     var pricing = $("#pricing").attr('value');
-    var planDescription = $("#planDescription").attr('value');
     var overageCharge = $("#overageCharge").attr('value');
     var overageLimit = $("#overageLimit").attr('value');
     var dailyUsage = $("#dailyUsage").attr('value');
-
-    jagg.post("../blocks/monetizing/productPlan/add/ajax/add.jag", {
-            action: "add-payment-plans-of-tenant",
-            planName: planName,
-            pricing: pricing,
-            planDescription: planDescription,
-            overageCharge: overageCharge,
-            dailyUsage: dailyUsage,
-            overageLimit: overageLimit
+    var planDescription;
+    jagg.syncPost("../blocks/monetizing/productPlan/update/ajax/update.jag", {
+            action: "isPaymentPlansUpdated",
+            planName: planName
         },
         function (result) {
-            result = JSON.parse(result);
-            if (!result.error) {
-                document.getElementById("spinner").style.display = 'none';
-                document.getElementById("btn_addPaymentPlan").disabled = false;
-                var message = "Successfully added the payment plan";
-                showMessage(message, "success", result.redirectionURL);
+            if (result) {
+                planDescription = planName + " Plan.";
+                jagg.post("../blocks/monetizing/productPlan/update/ajax/update.jag", {
+                        action: "updatePaymentPlansOfTenant",
+                        planName: planName,
+                        pricing: pricing,
+                        planDescription: planDescription,
+                        overageCharge: overageCharge,
+                        dailyUsage: dailyUsage,
+                        overageLimit: overageLimit
+                    },
+                    function (result) {
+                        result = JSON.parse(result);
+                        if (!result.error) {
+                            document.getElementById("spinner").style.display = 'none';
+                            document.getElementById("btn_addPaymentPlan").disabled = false;
+                            var message = "Successfully updated the payment plan";
+                            showMessage(message, "success", result.redirectionURL);
+                        } else {
+                            showMessage(result.message, "error", result.redirectionURL);
+                        }
+                    });
             } else {
-                showMessage(result.message, "error", result.redirectionURL);
+                planDescription = planName + " Plan updated.";
+                jagg.post("../blocks/monetizing/productPlan/add/ajax/add.jag", {
+                        action: "add-payment-plans-of-tenant",
+                        planName: planName,
+                        pricing: pricing,
+                        planDescription: planDescription,
+                        overageCharge: overageCharge,
+                        dailyUsage: dailyUsage,
+                        overageLimit: overageLimit
+                    },
+                    function (result) {
+                        result = JSON.parse(result);
+                        if (!result.error) {
+                            document.getElementById("spinner").style.display = 'none';
+                            document.getElementById("btn_addPaymentPlan").disabled = false;
+                            var message = "Successfully added the payment plan";
+                            showMessage(message, "success", result.redirectionURL);
+                        } else {
+                            showMessage(result.message, "error", result.redirectionURL);
+                        }
+                    });
+            }
+        });
+}
+
+function isUpdate() {
+    var planName = $("#planName").attr('value');
+    jagg.syncPost("../blocks/monetizing/productPlan/update/ajax/update.jag", {
+            action: "isPaymentPlansUpdated",
+            planName: planName
+        },
+        function (result) {
+            if (result) {
+                $("#btn_addPaymentPlan").text(" Update");
+            } else {
+                $("#btn_addPaymentPlan").text(" Add");
             }
         });
 }

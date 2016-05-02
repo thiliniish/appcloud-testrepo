@@ -21,18 +21,19 @@ function updatePlanList(data) {
         responsive: true,
         "data": data,
         "columns": [
-            {"data": "planName", "width": "10%"},
-            {"data": "dailyLimit", "width": "20%", "sClass": "dt-body-right"},
-            {"data": "price", "width": "20%", "sClass": "dt-body-right"},
-            {"data": "overage", "orderable": false, "width": "20%", "sClass": "dt-body-right"},
-            {"data": "billingActive", "orderable": false, "width": "20%"},
+            {"data": "planName", "width": "15%", "sClass": "dt-body-center  dt-head-center"},
+            {"data": "price", "width": "15%", "sClass": "dt-body-center dt-head-center "},
+            {"data": "dailyLimit", "width": "10%", "sClass": "dt-body-center  dt-head-center"},
+            {"data": "overage", "orderable": false, "width": "15%", "sClass": "dt-body-center dt-head-center"},
+            {"data": "overageLimit", "width": "15%", "sClass": "dt-body-center  dt-head-center"},
+            {"data": "billingActive", "orderable": false, "width": "20%", "sClass": "dt-body-center  dt-head-center"},
             {
-                "data": null, "orderable": false, "width": "20%", "sClass": "dt-body-center",
+                "data": null, "orderable": false, "width": "10%", "sClass": "dt-body-center dt-head-center",
                 "render": function (data, type, full, meta) {
                     if (full['billingActive'] != 'FREE') {
                         return "<a class='editroles' onclick='return goToAccountInfo(" +
                             "\"" + full['planName'] + "\",\"" + full['dailyLimit'] + "\",\"" + full['price'] + "\",\""
-                            + full['overage'] + "\")' ><i class='fw fw-edit'></i></a>";
+                            + full['overage'] + "\",\"" + full['overageLimit'] + "\")' ><i class='fw fw-edit'></i></a>";
                     } else {
                         return "<i class='fw fw-edit' style='color: #999'></i>"
                     }
@@ -42,9 +43,9 @@ function updatePlanList(data) {
         "order": [[2, "desc"]]
     });
 }
-function goToAccountInfo(planName, dailyLimit, price, overage) {
+function goToAccountInfo(planName, dailyLimit, price, overage, overageLimit) {
     window.location.href = "monetization-add-payment-plan.jag?planName=" + planName + "&dailyLimit=" + dailyLimit
-        + "&price=" + price + "&overage=" + overage;
+    + "&price=" + price + "&overage=" + overage + "&overageLimit=" + overageLimit;
 }
 
 $(".side-pane-trigger").click(function () {

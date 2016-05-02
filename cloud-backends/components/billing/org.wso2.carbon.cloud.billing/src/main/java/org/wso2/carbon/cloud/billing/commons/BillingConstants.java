@@ -160,12 +160,13 @@ public final class BillingConstants {
     public static final String PRODUCT_CATEGORY = "Base Products";
     public static final String EFFECTIVE_END_DATE = "12/12/2100";
     public static final String EFFECTIVE_DATE_FORMAT = "MM/DD/YYYY";
+    public static final int PRODUCT_COMMISSION_DEFAUlT_VALUE = 15;
 
     /* json object attribute labels */
     public static final String JSON_OBJ_PRODUCT_NAME = "localName";
     public static final String JSON_OBJ_PRODUCT_CATEGORY = "localCategory";
     public static final String JSON_OBJ_PRODUCT_RATEPLAN_NAME = "localProductRatePlanName";
-    public static final String JSON_OBJ_PRODUCT_RATEPLAN_PRICE = "localProductRatePlanPrice";
+    public static final String JSON_OBJ_PRODUCT_RATEPLAN_RECURRING_CHARGE = "localProductRatePlanPrice";
     public static final String JSON_OBJ_PRODUCT_RATEPLAN_DESCRIPTION = "localDescription";
     public static final String JSON_OBJ_PRODUCT_RATEPLAN_THROTTLING_LIMIT = "localThrottlingLimit";
     public static final String JSON_OBJ_PRODUCT_RATEPLAN_MONTHLY_LIMIT = "localMonthlyLimit";
@@ -198,7 +199,12 @@ public final class BillingConstants {
     public static final String DS_REQUEST_STATUS = "REQUEST_STATUS";
     public static final String DS_REQUEST_STATUS_SUCCESS = "SUCCESSFUL";
     public static final String QUERY_ZUORA_PRODUCT_BY_NAME = "SELECT id, Name, SKU FROM product WHERE Name = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME = "SELECT id, Name FROM ProductRatePlan WHERE id = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME =
+            "SELECT id, Name FROM ProductRatePlan WHERE Name = '?' and ProductId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_BY_NAME =
+            "SELECT id, Name FROM ProductRatePlanCharge WHERE Name = '?' and ProductRatePlanId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_TIER =
+            "select id from ProductRatePlanChargeTier where ProductRatePlanChargeId = '?'";
 
     /*Data service API v1 URIs*/
     public static final String DS_API_URI_REQUEST_COUNT = "/requestcount";
@@ -256,6 +262,12 @@ public final class BillingConstants {
 
     // File reading related constats.
     public static final String LINE_BREAK = "\r\n";
+
+    // error response related properties
+    public static final String EEROR_RESPONSE_PROPERTY_ERRORS = "errors";
+    public static final String EEROR_RESPONSE_PROPERTY_SUCCESS = "success";
+    public static final String EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED = "successSpecified";
+    public static final String EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED = "errorsSpecified";
 
     private BillingConstants() {
     }

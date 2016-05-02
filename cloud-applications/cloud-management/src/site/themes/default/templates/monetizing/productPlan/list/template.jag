@@ -16,11 +16,12 @@
                         <thead>
                             <tr>
                                 <th>Plan Name</th>
-                                <th>Monthly Limit</th>
                                 <th>Price ($)</th>
+                                <th>Max Daily Usage</th>
                                 <th>Overage Charges ($)</th>
+                                <th>Overage Unit Limit (Api Calls)</th>
                                 <th>Type</th>
-                                <th>Edit</th>
+                                <th>Add / Edit</th>
                             </tr>
                         </thead>
                     </table>

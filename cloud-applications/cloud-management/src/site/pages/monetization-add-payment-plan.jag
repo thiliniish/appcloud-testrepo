@@ -1,5 +1,6 @@
 <%
 include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
 var site = require("/site/conf/site.json");
 (function () {
     var user = jagg.getUser();
@@ -28,9 +29,15 @@ var site = require("/site/conf/site.json");
     var dailyLimit = encoder.getSafeText(request.getParameter("dailyLimit"));
     var price = encoder.getSafeText(request.getParameter("price"));
     var overage = encoder.getSafeText(request.getParameter("overage"));
+    var overageLimit = encoder.getSafeText(request.getParameter("overageLimit"));
     if (planName == null) {
         response.sendRedirect("../pages/index.jag");
         return;
+    }
+    var isPlanExsist = jagg.module("monetizing").isProductPlanExistsForTenant(planName);
+    var pageName = MONETIZATION_PAYMENT_PLAN_ADD_PAGE;
+    if (isPlanExsist) {
+        pageName = MONETIZATION_PAYMENT_PLAN_UPDATE_PAGE;
     }
 
     jagg.render({
@@ -50,16 +57,16 @@ var site = require("/site/conf/site.json");
                                     "planName": planName,
                                     "dailyLimit": dailyLimit,
                                     "price": price,
-                                    "overage": overage
+                                    "overage": overage,
+                                    "overageLimit": overageLimit
                                 }
-
                             }
                         ],
                         "breadcrumb": [
                             {
                                 "name": "breadcrumb",
                                 "inputs": {
-                                    "pageName": "Plans / Add"
+                                    "pageName": "Plans / " + pageName
                                 }
                             }
                         ],

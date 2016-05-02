@@ -650,6 +650,7 @@
 					<extension base="ons:zObject">
 						<sequence>
 							<element minOccurs="0" name="Category" nillable="true" type="string" />
+							<element minOccurs="0" name="Commission__c" nillable="true" type="string" />
 			               	<element minOccurs="0" name="CreatedById" nillable="true" type="zns:ID"  />
 			               	<element minOccurs="0" name="CreatedDate" nillable="true" type="dateTime"  />
 							<element minOccurs="0" name="Description" nillable="true" type="string" />
