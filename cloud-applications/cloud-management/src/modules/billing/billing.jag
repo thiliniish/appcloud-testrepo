@@ -144,7 +144,7 @@ var cancelSubscription = function(serviceName) {
 		};
 
         data.cancellationPolicy = 'SpecificDate';
-        data.cancellationEffectiveDate = dateFormatter.format(effectiveDate);
+        data.cancellationEffectiveDate = dateFormatter.format(effectiveDate)+"";
         data.invoiceCollect = true;
         var response = JSON.parse(billingService.cancelSubscription(subscriptionId, JSON.stringify(data)));
 		if (response.success === true) {
