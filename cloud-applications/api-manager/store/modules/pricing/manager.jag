@@ -582,4 +582,40 @@ var getApplications = function (api) {
         return errorObj;
     }
 };
+
+var getAllProductPlansForTenant = function (tenantDomain) {
+    try {
+        var result = apiMonService.getTiers(tenantDomain);
+        var tierList = JSON.parse(result);
+
+        var result = apiMonService.getRatePlansInfo(tenantDomain);
+        if (log.isDebugEnabled()) {
+            log.debug("getAllProductPlansForTenant : " + stringify(result));
+        }
+        var ratePlanList = JSON.parse(result);
+        for (var index in ratePlanList){
+            for (var tiersIndex in tierList) {
+                if(tierList[tiersIndex].tierName == ratePlanList[index].RatePlanName) {
+                    ratePlanList[index].RequestCount = tierList[tiersIndex].maximumCount;
+                    var seconds = (parseInt(tierList[tiersIndex].unitTime)/ 1000).toFixed(0);
+                    ratePlanList[index].UnitTime =  seconds;
+                    break;
+                }
+            }
+            ratePlanList[index].MonthlyRental = parseFloat(ratePlanList[index].MonthlyRental).toFixed(2);
+            ratePlanList[index].OverUsageUnitsPrice = parseFloat(ratePlanList[index].OverUsageUnitsPrice).toFixed(2);
+        }
+        return {
+            error:false,
+            result:ratePlanList,
+            statusCode: 200
+        };
+    } catch (e) {
+        var errorMessage = "Error while getting rate plans for tenant:" + tenantDomain;
+        log.error(errorMessage);
+        log.error(e);
+        errorObj.message = errorMessage;
+        return errorObj;
+    }
+};
 %>
