@@ -22,9 +22,8 @@
 						</div>
 					</div>
 					<div class="pricing-table-features">
-						<p id="plan-api-calls-day">API Calls/day
-							<%=results[i].MaxDailyUsage%></p>
-						<p id="plan-calls-above-plan">Calls Above plan
+						<p id="plan-api-calls-day"><%=results[i].MaxDailyUsage%> API calls per day </p>
+						<p id="plan-calls-above-plan">Calls above plan
 							$<%=results[i].OverUsageUnitsPrice%>/<%=results[i].OverUsageUnits%></p>
 						<% if (results[i].UnitTime != null) { %>
 						<p id="plan-api-calls-day">Allows <%=results[i].RequestCount%>

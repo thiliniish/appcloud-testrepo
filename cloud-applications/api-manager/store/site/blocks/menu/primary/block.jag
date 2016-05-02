@@ -91,10 +91,10 @@ jagg.block("menu/primary", {
         var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenant);
         if (isMonetizationEnabledObj.monetizationEnabled) {
             links.push({
-                "title": "$Pricing",
+                "title": "Pricing",
                 "url": jagg.getMappedUrl("/site/pages/pricing/pricing-menu.jag" + urlPrefix),
                 "classes": "link-ss",
-                "classIcon": "fa fa-tags",
+                "classIcon": "fa fa-usd",
                 "tooltip": "Pricing Menu",
                 "active": (path == "/site/pages/pricng/pricing-menu.jag")
             });
