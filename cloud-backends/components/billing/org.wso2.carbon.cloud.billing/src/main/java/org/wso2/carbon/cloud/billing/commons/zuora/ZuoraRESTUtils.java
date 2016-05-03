@@ -240,7 +240,7 @@ public class ZuoraRESTUtils {
             }
             //if a coupon is added when creating the payment method (first time). should return both the coupon
             // and payment plan.
-            if (currentRatePlanList.isEmpty()) {
+            if (!currentRatePlanList.isEmpty()) {
                 return currentRatePlanList;
             } else {
                 return starterRatePlanList;
