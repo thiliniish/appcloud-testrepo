@@ -386,7 +386,7 @@
                <%
     if (!isInvitee) {%>
                 <p>
-                   To finalize your account, please create password and fill out the remaining profile information:
+                   To finalize your account, please create a password and fill out the remaining profile information:
                 </p>
             <%
     } else {%>
