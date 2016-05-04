@@ -25,6 +25,7 @@ import org.wso2.cloud.heartbeat.monitor.core.configuration.Node;
 import org.wso2.cloud.heartbeat.monitor.core.configuration.parser.nginx.NodeBuilder;
 import org.wso2.cloud.heartbeat.monitor.core.schedule.utils.UtilJobScheduler;
 import org.wso2.cloud.heartbeat.monitor.modules.apigateway.ApiInvokeTest;
+import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiIntegrationTest;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiLifeCycleTest;
 import org.wso2.cloud.heartbeat.monitor.core.status.LiveStatusConnector;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiStatisticTest;
@@ -310,6 +311,7 @@ public class ScheduleManager {
             List<Class> apiManagerClasses = new ArrayList<Class>();
             apiManagerClasses.add(ApiLifeCycleTest.class);
             apiManagerClasses.add(ApiStatisticTest.class);
+            apiManagerClasses.add(ApiIntegrationTest.class);
             scheduleJobs(modules.findChildNodeByName(Constants.API_MANAGER),apiManagerClasses);
         }
 
