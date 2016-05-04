@@ -3,6 +3,7 @@
 <%
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var type = cloudConfig.subscriptions.type;
+    var commonSubscription = cloudConfig.commonSubscription;
 %>
 
 <script type="text/javascript">
@@ -177,6 +178,15 @@
         return allUserNamesMatch;
     }
 
+    function checkIfCommonRole(subscriptionType){
+        var isCommonRole = false;
+        var commonSubscription = new String('<%= commonSubscription %>');
+        if(commonSubscription == subscriptionType){
+            isCommonRole = true;
+        }
+        return isCommonRole;
+    }
+
     $(document).ready(function(){
         initializeUserActivity("User Import Page");
         updateMultiSelectRoles();
@@ -208,7 +218,11 @@
             if($("#checkbox").is(':checked') ){
                 $('#multiSelect').select2("val", "");
                 for(var index in roleList){
-                    $('#multiSelect').select2('data', $('#multiSelect').select2('data').concat(roleList[index].children));
+                    //Skipping common roles like 'admin'
+                    var isCommonRole = checkIfCommonRole(roleList[index].text);
+                    if(!isCommonRole){
+                        $('#multiSelect').select2('data', $('#multiSelect').select2('data').concat(roleList[index].children));
+                    }
                 }
             }else{
                 $('#multiSelect').select2("val", "");
