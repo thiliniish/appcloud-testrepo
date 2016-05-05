@@ -28,6 +28,7 @@ import com.zuora.api.object.ProductRatePlanCharge;
 import com.zuora.api.object.ProductRatePlanChargeTier;
 import com.zuora.api.wso2.stub.*;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.zuora.client.utils.ZuoraClientUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 
@@ -199,7 +200,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			productOverUsageCharge.setChargeType(BillingConstants.RATEPLAN_CHARGE_TYPE_OVERUSAGE);
 			productOverUsageCharge.setName(BillingConstants.RATEPLAN_CHARGE_NAME_OVERUSAGE);
 			productOverUsageCharge.setTriggerEvent(BillingConstants.RATEPLAN_CHARGE_TRIGGER_EVENT);
-			productOverUsageCharge.setUOM(BillingConstants.UNIT_OF_MEASURE);
+			productOverUsageCharge.setUOM(MonetizationConstants.UNIT_OF_MEASURE);
 			productOverUsageCharge.setProductRatePlanId(productRatePlanId);
 
 			// Create ProductRatePlanChargeTier
