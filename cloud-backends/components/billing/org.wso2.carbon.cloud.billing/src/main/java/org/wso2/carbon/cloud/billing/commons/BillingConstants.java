@@ -142,7 +142,7 @@ public final class BillingConstants {
     public static final String CLOUD_TYPE_QUERY_PARAM = "CLOUD_TYPE";
 
 
-    public static final String UNIT_OF_MEASURE = "10K Overage Daily API Calls";
+    public static final String UNIT_OF_MEASURE = "Overage Daily API Calls";
 
     public static final int OVER_USAGE_THRESHOLD = 0;
 
