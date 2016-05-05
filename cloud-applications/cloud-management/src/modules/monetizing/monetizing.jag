@@ -803,19 +803,24 @@ var getProductInfo = function (tenantDomain, productName) {
     billingService.queryProduct(tenantDomain, productName);
 };
 
-// Function for get the current payment plan of the tenant
+// Method which retrieves the current payment plan of the tenant
 var getCurrentPaymentPlan = function () {
     var serviceId = API_CLOUD;
-    var currRatePlanId = null;
+    var currentRatePlanId = null;
     try {
         var ratePlans = modBilling.getCurrentRatePlan(serviceId);
-        var paymentPlanName = null;
-        if (ratePlans != null) {
-            currRatePlanId = ratePlans[ratePlans.length - 1].productRatePlanId;
+        if (ratePlans != null && ""!= ratePlans) {
+            for (var i = 0; i < ratePlans.length; i++) {
+                if ((ratePlans[i]["ratePlanName"].indexOf("coupon") < 0)) {
+                    currentRatePlanId = ratePlans[i].productRatePlanId;
+                }
+            }
+            var paymentPlanName = null;
+
             var ratePlansObj = modBilling.getRatePlans(serviceId);
             var paymentPlans = ratePlansObj.entry;
             for (var i = 0; i < paymentPlans.length; i++) {
-                if (currRatePlanId == paymentPlans[i].id) {
+                if (currentRatePlanId == paymentPlans[i].id) {
                     paymentPlanName = paymentPlans[i].name;
                 }
             }
