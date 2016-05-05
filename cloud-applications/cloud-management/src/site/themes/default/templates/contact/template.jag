@@ -9,7 +9,7 @@
     }
 
     var cloudType = null;
-    cloudType = request.getParameter("cloud-type");
+    cloudType = request.getParameter("cloudType");
     var isRegistrationHelp = request.getParameter("registration-help");
     var userEmail = request.getParameter('email');
 
