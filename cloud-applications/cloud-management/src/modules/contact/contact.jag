@@ -129,12 +129,13 @@ var sendSupportRequestAndCreateJira = function (customerEmail, subject, body, cl
         } else {
             emailBody = emailBody.replace("$username", userName);
             if (cloudType == SUBSCRIPTION_API_CLOUD){
-                subject = "[API Cloud Support] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+                subject = "[API Cloud Support]"
             } else if (cloudType == "app_cloud"){
-                subject = "[APP Cloud Support] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+                subject = "[APP Cloud Support]"
             } else {
-                subject = "[Support Request] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+                subject = "[Support Request]"
             }
+            subject = subject + " [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
         }
         emailBody = emailBody.replace("$emailAddress", customerEmail);
         emailBody = emailBody.replace("$content", body);

@@ -34,7 +34,7 @@ if (action == "sendExtensionRequest") {
 } else if (action == "sendSupportRequest") {
 //send support req while creating a jira
     try {
-        var result = mod.sendSupportRequestAndCreateJira(from,subject,body,cloudType);
+        var result = mod.sendSupportRequestAndCreateJira(from, subject, body, cloudType);
         if (result != null) {
             print(result);
         } else {

@@ -27,6 +27,7 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <%
         jagg.includeBlock("header", {});
         userName = jagg.getUser();
+        var subscription = "app_cloud";
         var applicationKey = request.getParameter('applicationKey');
         var applicationName = request.getParameter('applicationName');
         var userEmail = session.get("LOGGED_IN_USER_EMAIL");
@@ -162,6 +163,9 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
                                 var icon = mainMenu[attr].icon;
                                 var url = mainMenu[attr].url;
                                 var target = mainMenu[attr].target;
+                                if(attr == "Support"){
+                                    menuURL = menuURL + "?cloudType=" + subscription;
+                                }
                                 if(attr == "Domain"){
                                     attr = tenantDisplayName;
                                 }
