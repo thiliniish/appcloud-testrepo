@@ -209,6 +209,7 @@ var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH = "/_system/gove
 var CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT = "Subscriber account of $displayName is now changed to a complimentary account";
 var REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT = "Subscriber account of $displayName is now changed to a regular account";
 
+var ZERO_PAYMENT_VALUE = 0;
 //password related
 var PASSWORD_VALIDATION_REGEX=/(?=.*\d)(?=.*[a-z])(?=.*[-`:<=>;|_+,.?'\"\(\)\[\]\{\}\\\/~!@#$%^&*])(?=.*[A-Z]).{8,}/;
 

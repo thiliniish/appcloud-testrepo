@@ -76,6 +76,7 @@
         var paymentsObj = null;
         var accountId;
         var accountName;
+        var lastPayment;
         var contactInfo = null;
         var totalInvoicePages = 1;
         var totalPaymentPages = 1;
@@ -107,9 +108,13 @@
                     accountId = accountObj.basicInfo.id;
                     contactInfo = accountObj.billToContact;
                     accountName = accountObj.basicInfo.name;
+                    lastPayment = accountObj.basicInfo.lastPaymentAmount;
+                    if (lastPayment == null) {
+                        lastPayment = ZERO_PAYMENT_VALUE;
+                    }
                     // set account summary
                     $('#accName').text(accountObj.basicInfo.name);
-                    $('#lastPayment').text(accountObj.basicInfo.lastPaymentAmount + " " + accountObj.basicInfo.currency);
+                    $('#lastPayment').text(lastPayment + " " + accountObj.basicInfo.currency);
                     $('#accBalance').text(accountObj.basicInfo.balance);
                     $('#lastPaymentDate').text(accountObj.basicInfo.lastPaymentDate);
                     $('#lastInvoice').text(accountObj.basicInfo.lastInvoiceDate);
