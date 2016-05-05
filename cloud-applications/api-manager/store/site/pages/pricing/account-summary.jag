@@ -8,6 +8,8 @@ i18n.init(request, localeResourcesBasePath);
 var tenantDomain = jagg.getTenantDomain(), isMonetizationEnabledObj;
 
 isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+var accountId = jagg.module("pricing").getAccountId();
+
 
 (function () {
     var user = jagg.getUser(), isCreatePermitted;
@@ -22,6 +24,11 @@ isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDo
         response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
         return;
     }
+    if (accountId == null) {
+        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+        return;
+    }
+
 
     jagg.render({
         "name": "page/base",
