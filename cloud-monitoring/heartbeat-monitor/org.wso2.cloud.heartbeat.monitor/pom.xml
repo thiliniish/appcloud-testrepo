@@ -202,7 +202,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>org.wso2.am</groupId>
+            <artifactId>org.wso2.carbon.am.integration.backend.test</artifactId>
+            <classifier>tests</classifier>
+            <version>${apimserver.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>org.wso2.appfactory.tests.scenarios</artifactId>
@@ -325,6 +330,7 @@
         <maven.test.skip>false</maven.test.skip>
         <maven.test.failure.ignore>false</maven.test.failure.ignore>
         <skipTests>false</skipTests>
+        <apimserver.version>1.10.1-SNAPSHOT</apimserver.version>
     </properties>
 
 </project>
