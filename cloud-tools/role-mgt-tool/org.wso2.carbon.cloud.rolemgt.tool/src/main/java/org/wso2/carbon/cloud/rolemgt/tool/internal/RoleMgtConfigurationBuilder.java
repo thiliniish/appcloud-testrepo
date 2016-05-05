@@ -160,7 +160,6 @@ public class RoleMgtConfigurationBuilder {
             key.append(name).append(".");
         }
         key.deleteCharAt(key.lastIndexOf("."));
-
         return key.toString();
     }
 
@@ -178,7 +177,6 @@ public class RoleMgtConfigurationBuilder {
         // and are assumed to be System properties
         while (indexOfStartingChars < text.indexOf("${") && (indexOfStartingChars = text.indexOf("${")) != -1 &&
                 (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a property used?
-
             // Get the system property name
             String sysProp = text.substring(indexOfStartingChars + 2, indexOfClosingBrace);
             // Resolve the system property name to a value

@@ -106,40 +106,39 @@ public class RoleManager implements Runnable {
                     " tenants will be updated.");
             int updatedTenantCount = 0;
             for (Tenant tenant : tenants) {
+                int tenantId = tenant.getId();
+                String tenantDomain = tenant.getDomain();
                 //Check if tenant is within the specified range
-                if ((tenant.getId() >= lowerBound) && (tenant.getId() <= upperBound)) {
+                if ((tenantId >= lowerBound) && (tenantId <= upperBound)) {
                     //Start a new tenant flow
                     PrivilegedCarbonContext.startTenantFlow();
-                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant.getDomain());
-                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenant.getId());
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
                     //Services are loaded from the service holder
-                    ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenant.getId());
+                    ServiceHolder.getTenantRegLoader().loadTenantRegistry(tenantId);
                     try {
                         UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
                                 getUserRealm().getUserStoreManager();
                         AuthorizationManager authorizationManager = PrivilegedCarbonContext
                                 .getThreadLocalCarbonContext().
                                         getUserRealm().getAuthorizationManager();
-                        updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList, tenant.getDomain());
-
+                        updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList, tenantDomain);
+                        //add to the count of successfully updated tenants
+                        updatedTenantCount++;
                     } catch (UserStoreException e) {
                         String message =
-                                "Failed to update roles of tenant : " + tenant.getDomain() + "[" + tenant.getId() + "]";
+                                "Failed to update roles of tenant: " + tenantDomain + "[" + tenantId + "]";
                         log.error(message, e);
                     } finally {
                         PrivilegedCarbonContext.endTenantFlow();
-
-                        log.info("Role update process is completed for tenant: " + tenant.getDomain() + "[" + tenant
+                        log.info("Role update process is completed for tenant: " + tenantDomain + "[" + tenant
                                 .getId() + "]");
-                        //add to the count of successfully updated tenants
-                        updatedTenantCount++;
-
                     }
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug(
-                                "Skipping the role update for " + tenant.getDomain() + "[" + tenant.getId() + "] as it "
-                                        + "is not in specified range " + lowerBound + " : " + upperBound);
+                                "Skipping the role update for " + tenantDomain + "[" + tenantId + "] as it "
+                                        + "is not in specified range " + lowerBound + ":" + upperBound);
                     }
                 }
             }
@@ -156,7 +155,6 @@ public class RoleManager implements Runnable {
      */
     private static Set<RoleBean> getRoleConfigurations(String roleConfigPath) {
         Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
-
         //Get XML configuration file
         String roleMgtConfigFileLocation = CarbonUtils.getCarbonConfigDirPath() +
                 File.separator + RoleManagerConstants.CONFIG_FOLDER +
@@ -188,7 +186,6 @@ public class RoleManager implements Runnable {
                         permissionId = permissionId
                                 .substring(RoleManagerConstants.DENY.length(), permissionId.length());
                     }
-
                     String[] resourceAndActionParts = permissionId.split(":");
                     if (resourceAndActionParts.length == 2) {
                         Permission permission = new Permission(resourceAndActionParts[0],
@@ -238,18 +235,15 @@ public class RoleManager implements Runnable {
      */
     private static void updateRolesPerTenant(UserStoreManager userStoreManager,
             AuthorizationManager authorizationManager, Set<RoleBean> roleBeanList, String tenantDomain) {
-
         boolean isAuthorizedPermissions;
         boolean isRoleAdd;
         boolean isRoleUpdate;
         boolean isRoleDelete;
-
         for (RoleBean roleBean : roleBeanList) {
             //Initialize the variables for role
             isRoleAdd = false;
             isRoleUpdate = false;
             isRoleDelete = false;
-
             if (RoleManagerConstants.ROLE_ADD.equals(roleBean.getAction())) {
                 isRoleAdd = true;
             } else if (RoleManagerConstants.ROLE_UPDATE.equals(roleBean.getAction())) {
@@ -257,7 +251,6 @@ public class RoleManager implements Runnable {
             } else if (RoleManagerConstants.ROLE_DELETE.equals(roleBean.getAction())) {
                 isRoleDelete = true;
             }
-
             try {
                 if (isRoleDelete) {
                     if (userStoreManager.isExistingRole(roleBean.getRoleName())) {
@@ -265,7 +258,7 @@ public class RoleManager implements Runnable {
                     } else {
                         if (log.isDebugEnabled()) {
                             log.debug("The role '" + roleBean.getRoleName() + "' does not exist or has already been "
-                                    + "deleted for tenant '" + tenantDomain + "'");
+                                    + "deleted for tenant: " + tenantDomain);
                         }
                     }
                     continue;
@@ -304,7 +297,7 @@ public class RoleManager implements Runnable {
                 } else {
                     String message =
                             "The specified action '" + roleBean.getAction() + "' is not a valid action to " + "update"
-                                    + " the role '" + roleBean.getRoleName() + "' in tenant '" + tenantDomain + "'";
+                                    + " the role '" + roleBean.getRoleName() + "' in tenant: " + tenantDomain;
                     log.error(message);
                     continue;
                 }
@@ -320,8 +313,8 @@ public class RoleManager implements Runnable {
                     }
                 }
             } catch (UserStoreException e) {
-                log.error("An error occurred while updating role '" + roleBean.getRoleName() + " in tenant '"
-                        + tenantDomain + "'", e);
+                log.error("An error occurred while updating role '" + roleBean.getRoleName() + " in tenant: "
+                        + tenantDomain, e);
             }
         }//End of for loop iterating roleBean List
     }
