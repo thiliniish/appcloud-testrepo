@@ -23,6 +23,9 @@ package org.wso2.carbon.cloud.rolemgt.tool.util;
  */
 public class RoleManagerConstants {
 
+    /**
+     * Avoids instantiation of RoleManagerConstants
+     */
     private RoleManagerConstants() {
     }
 

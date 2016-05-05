@@ -85,7 +85,9 @@ public class RoleManager implements Runnable {
             return;
         }
         if (tenants == null || tenants.length == 0) {
-            log.info("Exiting as no tenants are available to be updated.");
+            if (log.isDebugEnabled()) {
+                log.debug("Exiting as no tenants are available to be updated.");
+            }
         } else {
             //Get the user specified range of tenants to update
             //Specify it as -Drange = lowerbound : upperBound
@@ -94,8 +96,10 @@ public class RoleManager implements Runnable {
             int upperBound = tenants.length;
             if (range != null) {
                 String[] bounds = range.split(":");
-                lowerBound = Integer.parseInt(bounds[0]);
-                upperBound = Integer.parseInt(bounds[1]);
+                if (bounds.length >= 2) {
+                    lowerBound = Integer.parseInt(bounds[0]);
+                    upperBound = Integer.parseInt(bounds[1]);
+                }
             }
             int noOfTenantsToUpdate = upperBound + 1 - lowerBound;
             log.info("Starting the process to update tenant roles during server start up. " + noOfTenantsToUpdate +
@@ -128,7 +132,7 @@ public class RoleManager implements Runnable {
                         log.info("Role update process is completed for tenant: " + tenant.getDomain() + "[" + tenant
                                 .getId() + "]");
                         //add to the count of successfully updated tenants
-                        ++updatedTenantCount;
+                        updatedTenantCount++;
 
                     }
                 } else {
@@ -210,7 +214,7 @@ public class RoleManager implements Runnable {
      * Method to replace registry action constants with short action names, to avoid urls as action
      *
      * @param action - REGISTRY_GET,REGISTRY_PUT,REGISTRY_DELETE or any other action
-     * @return - replaced permission action for REGISTRY_ACTION
+     * @return String replaced permission action for REGISTRY_ACTION
      */
     private static String replaceRegistryPermissionAction(String action) {
         if (RoleManagerConstants.REGISTRY_GET.equals(action)) {

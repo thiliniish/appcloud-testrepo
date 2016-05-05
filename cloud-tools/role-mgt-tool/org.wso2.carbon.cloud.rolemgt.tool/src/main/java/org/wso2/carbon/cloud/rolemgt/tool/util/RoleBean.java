@@ -67,7 +67,7 @@ public class RoleBean {
      * Method to get Permissions
      *
      * @param isAuthorizedPermissions
-     * @return
+     * @return List of Permissions
      */
     public List<Permission> getPermissions(boolean isAuthorizedPermissions) {
         if (isAuthorizedPermissions) {
@@ -80,7 +80,7 @@ public class RoleBean {
     /**
      * Method to add permission
      *
-     * @param permission Permission
+     * @param permission              Permission
      * @param isAuthorizedPermissions boolean
      */
     public void addPermission(Permission permission, boolean isAuthorizedPermissions) {

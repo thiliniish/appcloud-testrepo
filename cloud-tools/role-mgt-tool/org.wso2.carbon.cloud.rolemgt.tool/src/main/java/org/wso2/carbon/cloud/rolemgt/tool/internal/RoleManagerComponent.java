@@ -34,6 +34,9 @@ import org.wso2.carbon.user.core.service.RealmService;
  * policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
  */
 
+/**
+ * Represents the OSGI service component used to expose Role Management Service
+ */
 public class RoleManagerComponent {
     private static final Log log = LogFactory.getLog(RoleManagerComponent.class);
 

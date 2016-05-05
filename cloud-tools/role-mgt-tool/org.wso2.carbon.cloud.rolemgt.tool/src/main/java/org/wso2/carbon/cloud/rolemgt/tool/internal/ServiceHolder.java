@@ -26,6 +26,9 @@ import org.wso2.carbon.user.core.service.RealmService;
  */
 public class ServiceHolder {
 
+    /**
+     * Avoids instantiation of Service Holder
+     */
     private ServiceHolder() {
     }
 

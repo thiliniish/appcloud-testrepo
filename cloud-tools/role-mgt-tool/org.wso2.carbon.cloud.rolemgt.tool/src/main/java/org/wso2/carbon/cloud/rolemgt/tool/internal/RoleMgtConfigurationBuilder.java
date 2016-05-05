@@ -43,13 +43,15 @@ public class RoleMgtConfigurationBuilder {
 
     /**
      * Initialize the builder by providing the xml file location
+     *
+     * @param roleConfigFile
      */
     public RoleMgtConfigurationBuilder(File roleConfigFile) {
         this.configFile = roleConfigFile;
     }
 
     /**
-     * If it's a role-mgt.xml it will give {@code RoleMgtConfiguration}
+     * Builds the role management configuration if the config File exists.
      */
     public void buildRoleMgtConfiguration() {
         if (configFile.exists()) {
@@ -149,7 +151,7 @@ public class RoleMgtConfigurationBuilder {
      * Method to get Key given the nameStack
      *
      * @param nameStack Stack of String
-     * @return
+     * @return String
      */
     private String getKey(Stack<String> nameStack) {
         StringBuilder key = new StringBuilder();
@@ -234,7 +236,7 @@ public class RoleMgtConfigurationBuilder {
      * Method to get properties from the configuration map for a given key
      *
      * @param key
-     * @return values String[]
+     * @return String[]
      */
     public String[] getProperties(String key) {
         List<String> values = configurationMap.get(key);
@@ -248,7 +250,7 @@ public class RoleMgtConfigurationBuilder {
      * Method to get properties from the configuration map for a given key
      *
      * @param key String
-     * @return value String
+     * @return String
      */
     public String getFirstProperty(String key) {
         List<String> value = configurationMap.get(key);
