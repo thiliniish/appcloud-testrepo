@@ -1,0 +1,64 @@
+<!--
+  ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="ApiManager-features-test-suite">
+    <parameter name="useDefaultListeners" value="false"/>
+    <test name="apim-integration-tests-api-lifecycle" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.am.integration.tests.rest.MalformedRequestTest"/>
+        </classes>
+    </test>
+    <test name="apim-integration-tests-samples" preserve-order="true" parallel="false">
+        <classes>
+           <class name="org.wso2.am.integration.tests.resources.APIResourceModificationTestCase"/>
+            <class name="org.wso2.am.integration.tests.other.DAOTestCase"/>
+            <class name="org.wso2.am.integration.tests.version.DefaultVersionAPITestCase"/>
+            <class name="org.wso2.am.integration.tests.json.ESBJAVA3380TestCase"/>
+            <class name="org.wso2.am.integration.tests.token.RefreshTokenTestCase"/>
+            <class name="org.wso2.am.integration.tests.other.TagsRatingCommentTestCase"/>
+            <class name="org.wso2.am.integration.tests.throttling.ThrottlingTestCase"/>
+            <class name="org.wso2.am.integration.tests.token.TokenAPITestCase"/>
+            <class name="org.wso2.am.integration.tests.token.OpenIDTokenAPITestCase"/>
+            <class name="org.wso2.am.integration.tests.samples.YouTubeAPITestCase"/>
+            <class name="org.wso2.am.integration.tests.rest.URLMappingRESTTestCase"/>
+            <class name="org.wso2.am.integration.tests.other.APIMANAGER2611EndpointValidationTestCase"/>
+            <class name="org.wso2.am.integration.tests.other.APIScopeTestCase"/>
+            <class name="org.wso2.am.integration.tests.hostobject.HostObjectTestCase"/>
+        </classes>
+    </test>
+    <test name="apim-publisher-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.am.integration.tests.publisher.APIM16LoginToTheAPIPublisherThroughThePublisherRestAPITestCase"/>
+            <class name="org.wso2.am.integration.tests.publisher.APIM514CreateAnAPIWithoutProvidingMandatoryFieldsTestCase"/>
+            <class name="org.wso2.am.integration.tests.publisher.APIM520UpdateAnAPIThroughThePublisherRestAPITestCase"/>
+            <class name="org.wso2.am.integration.tests.publisher.APIM614AddDocumentationToAnAPIWithDocTypeSampleAndSDKThroughPublisherRestAPITestCase"/>
+        </classes>
+    </test>
+    <test name="apim-store-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.am.integration.tests.other.CopyNewVersionTestCase"/>
+            <class name="org.wso2.am.integration.tests.other.NewCopyWithDefaultVersion"/>
+            <class name="org.wso2.am.integration.tests.other.SameVersionAPITestCase"/>
+            <class name="org.wso2.am.integration.tests.other.APIM678ApplicationCreationTestCase"/>
+            <class name="org.wso2.am.integration.tests.other.APIM641StoreApiTestCase"/>
+            <class name="org.wso2.am.integration.tests.other.APIM714GetAllDocumentationTestCase"/>
+        </classes>
+    </test>
+</suite>
