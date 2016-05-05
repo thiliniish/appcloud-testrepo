@@ -119,7 +119,7 @@ var emailBody = jagg.module("util").getObjFromFile("/site/conf/emails/support_re
  * @param  subject : jira ticket summary
  * @param  body : jira ticket description
  */
-var sendSupportRequestAndCreateJira = function (customerEmail, subject, body) {
+var sendSupportRequestAndCreateJira = function (customerEmail, subject, body, cloudType) {
     try {
         var supportRequestResult = {};
         var resultSupportRequest = false;
@@ -129,7 +129,13 @@ var sendSupportRequestAndCreateJira = function (customerEmail, subject, body) {
             subject = "[Support Request] [New User] " + subject
         } else {
             emailBody = emailBody.replace("$username", userName);
-            subject = "[Support Request] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+            if (cloudType == "api_cloud"){
+                subject = "[API Cloud Support Request] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+            } else if (cloudType == "app_cloud"){
+                subject = "[APP Cloud Support Request] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+            } else {
+                subject = "[Support Request] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+            }
         }
         emailBody = emailBody.replace("$emailAddress", customerEmail);
         emailBody = emailBody.replace("$content", body);

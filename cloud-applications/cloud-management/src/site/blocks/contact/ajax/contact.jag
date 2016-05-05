@@ -19,8 +19,8 @@ site = require("/site/conf/site.json");
 
 var from = request.getParameter("from");
 var subject = request.getParameter("subject");
+var cloudType = request.getParameter("cloudType");
 var body = request.getParameter("body");
-
 
 if (action == "sendExtensionRequest") {
     if (jagg.module("util").isUserInAdminRole()) {
@@ -34,7 +34,7 @@ if (action == "sendExtensionRequest") {
 } else if (action == "sendSupportRequest") {
 //send support req while creating a jira
     try {
-        var result = mod.sendSupportRequestAndCreateJira(from,subject ,body);
+        var result = mod.sendSupportRequestAndCreateJira(from,subject ,body, cloudType);
         if (result != null) {
             print(result);
         } else {
