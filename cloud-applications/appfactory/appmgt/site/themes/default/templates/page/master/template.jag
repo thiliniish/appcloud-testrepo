@@ -30,8 +30,8 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
         var subscription = "app_cloud";
         var applicationKey = request.getParameter('applicationKey');
         var applicationName = request.getParameter('applicationName');
-	    var userEmail = session.get("LOGGED_IN_USER_EMAIL");
-	    var tenantDisplayName = session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME");
+        var userEmail = session.get("LOGGED_IN_USER_EMAIL");
+        var tenantDisplayName = session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME");
         var file = new File("/site/conf/toplink_menu.json");
         file.open("r");
         var data = file.readAll();
