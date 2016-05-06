@@ -122,7 +122,7 @@ var sendSupportRequestAndCreateJira = function (customerEmail, subject, body, cl
     try {
         var supportRequestResult = {};
         var resultSupportRequest = false;
-        var content = subject;
+        var subjectContent = subject;
         var subject ="";
         if (userName == null || userName == 'null') {
             emailBody = emailBody.replace("$username", "New User");
@@ -136,7 +136,7 @@ var sendSupportRequestAndCreateJira = function (customerEmail, subject, body, cl
             } else {
                 subject = "[Support Request]";
             }
-            subject = subject + " [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + content;
+            subject = subject + " [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subjectContent;
         }
         emailBody = emailBody.replace("$emailAddress", customerEmail);
         emailBody = emailBody.replace("$content", body);
