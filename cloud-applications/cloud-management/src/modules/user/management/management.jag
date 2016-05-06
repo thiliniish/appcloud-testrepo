@@ -12,20 +12,28 @@ var multitenancy = carbon.multitenancy;
 var getUserRoles = function (username) {
     var roles;
     var userRoles = [];
-    var context = multitenancy.getPrivilegedCarbonContext();
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     //the default roles assigned for all users
     var types = cloudConfig.commonRoles;
     var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
-    context.startTenantFlow();
-    var tenantAwareUserName = modManager.getTenantAwareUsername(username);
-    var tenantManager = multitenancy.getTenantManager();
-    var tenantId = tenantManager.getTenantId(tenantDomain);
-    context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-    var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
-    roles = realmService.getTenantUserRealm(tenantId).getUserStoreManager().doGetRoleListOfUser(tenantAwareUserName, "*");
-    context.endTenantFlow();
+
+    var context = multitenancy.getPrivilegedCarbonContext();
+    try {
+        context.startTenantFlow();
+        var tenantAwareUserName = modManager.getTenantAwareUsername(username);
+        var tenantManager = multitenancy.getTenantManager();
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        roles = realmService.getTenantUserRealm(tenantId).getUserStoreManager().doGetRoleListOfUser(tenantAwareUserName, "*");
+    } catch (e) {
+        log.error("Error while accessing context details for the user " + userName + e.message);
+        throw "Error while accessing context details for the user " + userName + e.message;
+    } finally {
+        context.endTenantFlow();
+    }
+
     //to change the java array to a javascript array
     for (var x = 0; x < roles.length; x++) {
         userRoles[x] = roles[x];
