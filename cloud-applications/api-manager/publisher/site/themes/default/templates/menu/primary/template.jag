@@ -337,7 +337,7 @@ $(document).ready(function($) {
 				var menuIcon = mainMenu[attr].icon;
 				if(attr == "Support"){
 				    menuURL = menuURL + "?cloudType=" + subscription;
-                }
+				}
 				if (mainMenu[attr].isDropDown == "false") {%>
 				     <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
 				     </span></a></li>
