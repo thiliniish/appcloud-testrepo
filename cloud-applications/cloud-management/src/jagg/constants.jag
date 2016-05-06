@@ -26,7 +26,11 @@ var SSO_KEYSTORE_NAME = "SSORelyingParty.KeyStoreName";
 
 var ADMIN_USERNAME = "AdminUserName";
 var ADMIN_PASSWORD = "AdminPassword";
-
+var SEND_EMAIL = "EmailSend";
+var SCM_ADMIN_USER_NAME="RepositoryMGTConfig.SCMServerAdminUserName";
+var SCM_ADMIN_PASSWORD="RepositoryMGTConfig.SCMServerAdminPassword";
+var SCM_SERVER_URL="RepositoryMGTConfig.SCMServerURL";
+var BASE_URL="ContinuousIntegrationProvider.jenkins.Property.BaseURL";
 var CLOUD_MGT_CONFIG_FILE = "/site/conf/cloud_mgt.json";
 
 var WEB_CONTEXT_ROOT = "WebContextRoot";
@@ -42,6 +46,10 @@ var PROD_SERVER_URL = "ApplicationDeployment.DeploymentStage.Production.Deployme
 var ROLE_ADMIN = "admin";
 var ROLE_PUBLISHER = "publisher";
 var ROLE_SUBSCRIBER = "subscriber";
+var ROLE_APP_OWNER = "appOwner";
+var ROLE_QA = "qa";
+var ROLE_DEVOPS = "devOps";
+var ROLE_DEV = "dev";
 
 var API_MANAGER_PROD = "prod";
 var API_MANAGER_SANDBOX = "sandbox";
