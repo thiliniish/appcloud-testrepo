@@ -46,15 +46,13 @@
             $("#storeSSLFileUploadLocation").css("display", "block");
             $("#storeDomainVerifyBtn").prop("disabled", true);
             $("#storeDomain").prop("disabled", true);
-            $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span><br/><br/>" +
-             "<span class='label label-success'>Please note that it will take about 10 minutes to update servers once custom url is <b>submitted</b>.</span>");
+            $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span>");
             $("#storeProcessBtn").prop("disabled", false);
         } else {
             $("#gatewaySSLFileUploadLocation").css("display", "block");
             $("#gatewayDomainVerifyBtn").prop("disabled", true);
             $("#gatewayDomain").prop("disabled", true);
-            $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span><br/><br/>" +
-             "<span class='label label-success'>Please note that it will take about 10 minutes to update servers once custom url is <b>submitted</b>.</span>");
+            $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>CNAME verified successfully</span>");
             $("#gatewayProcessBtn").prop("disabled", false);
         }
     }
@@ -112,16 +110,26 @@
                 var result = JSON.parse(response);
                 if (result.error != true) {
                     if (node == "store") {
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added</span>");
+                        $("#storeSSLFileUploadLocation").css("display","none");
+                        $("#storeButtonBlock").css("display","none");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping " +
+                         "is successfully added.</span>" + "<br></br>" + "<span class='label label-warning'>Please note " +
+                          "that it will take upto 10 minutes to update changes.</span>");
                     } else {
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping is successfully added</span>");
+                        $("#gatewaySSLFileUploadLocation").css("display","none");
+                        $("#gatewayButtonBlock").css("display","none");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL " +
+                         "mapping is successfully added.</span>" + "<br></br>" + "<span class='label label-warning'>Please" +
+                          " note that it will take upto 10 minutes to update changes.</span>");
                     }
                     getCurrentUserMaping();
                     setTimeout(function(){ defaultUIView() }, 10000);
                 } else {
                     if (node == "store") {
+                        $("#storeSSLFileUploadLocation").css("display","none");
                         $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ result.message +"</span>");
                     } else {
+                        $("#gatewaySSLFileUploadLocation").css("display","none");
                         $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ result.message +"</span>");
                     }
                 }
@@ -253,7 +261,7 @@
                     </div>
                 </div>
 
-                <div class="right">
+                <div class="right" id="storeButtonBlock">
                     <button class="grey-button margin-right" onclick="defaultUIView()">Cancel</button>
                     <button class="blue-button margin-right" id="storeProcessBtn" onclick="publishCustomUrl('store');">Proceed</button>
                 </div>
@@ -330,7 +338,7 @@
                 </div>
 
                 </div>
-                <div class="right">
+                <div class="right" id="gatewayButtonBlock">
                     <button class="grey-button margin-right" onclick="defaultUIView()">Cancel</button>
                     <button class="blue-button margin-right " id="gatewayProcessBtn" onclick="publishCustomUrl('gateway')">Proceed</button>
                 </div>
