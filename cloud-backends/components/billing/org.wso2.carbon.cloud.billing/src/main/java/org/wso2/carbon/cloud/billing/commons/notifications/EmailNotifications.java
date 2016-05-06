@@ -21,23 +21,16 @@ package org.wso2.carbon.cloud.billing.commons.notifications;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
-import org.wso2.carbon.cloud.billing.commons.config.EmailConfig;
-import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.internal.CloudBillingServiceComponent;
+import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterConfiguration;
+import org.wso2.carbon.event.output.adapter.core.exception.OutputEventAdapterException;
 
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Properties;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -45,38 +38,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Mail notifications implemented in this class
+ * This class uses the email output event adapter to send email notifications.
  */
 public class EmailNotifications extends Observable {
 
     private static final Log LOGGER = LogFactory.getLog(EmailNotifications.class);
-    private static final String MESSAGE_BODY = "messageBody";
-    private static final String MESSAGE_SUBJECT = "subject";
-    private static final String MESSAGE_RECEIVER = "receiver";
-
-    private static EmailNotifications instance = new EmailNotifications();
+    private static final String MESSAGE_BODY = BillingConstants.MESSAGE_BODY;
+    private static final String MESSAGE_SUBJECT = BillingConstants.MESSAGE_SUBJECT;
+    private static final String MESSAGE_RECEIVER = BillingConstants.MESSAGE_RECEIVER;
+    private static final String MESSAGE_TYPE = BillingConstants.MESSAGE_TYPE;
 
     private Queue<Map> mailQueue;
     private ExecutorService executorService;
+    private static boolean emailAdapterCreated = false;
+    private static final String emailAdapterName = BillingConstants.EMAIL_ADAPTER_NAME;
+    private static OutputEventAdapterConfiguration outputEventAdapterConfiguration = null;
+    private static boolean emailAdapterCreatedResult = false;
 
-    private String host;
-    private String port;
-    private String username;
-    private String password;
-    private String sender;
-    private String tls;
-    private Session session;
+    private static EmailNotifications instance = new EmailNotifications();
 
     private EmailNotifications() {
-        BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
-        EmailConfig emailConfig = billingConfig.getUtilsConfig().getNotifications().getEmailNotification();
-        host = emailConfig.getHost().trim();
-        port = emailConfig.getPort().trim();
-        username = emailConfig.getUsername().trim();
-        password = emailConfig.getPassword().trim();
-        sender = emailConfig.getSender().trim();
-        tls = emailConfig.getTls().trim();
-        setSession();
 
         mailQueue = new ConcurrentLinkedQueue<>();
         executorService = Executors.newFixedThreadPool(3);
@@ -86,53 +67,6 @@ public class EmailNotifications extends Observable {
 
     public static EmailNotifications getInstance() {
         return instance;
-    }
-
-    /**
-     * Add email to the mail queue
-     *
-     * @param messageBody email body
-     * @param subject     email subject
-     * @param receiver    receivers
-     */
-    public void sendMail(String messageBody, String subject, String receiver) {
-        try {
-            InternetAddress emailAddr = new InternetAddress(receiver);
-            emailAddr.validate();
-            Map<String, String> mail = new HashMap<>();
-            mail.put(MESSAGE_BODY, messageBody);
-            mail.put(MESSAGE_SUBJECT, subject);
-            mail.put(MESSAGE_RECEIVER, receiver);
-            mailQueue.add(mail);
-            setChanged();
-            notifyObservers();
-        } catch (AddressException e) {
-            LOGGER.error("Email sending failed. Invalid receiver address specified: " + receiver);
-        }
-    }
-
-    /**
-     * Set email session
-     *
-     * @return Session obj
-     */
-    private void setSession() {
-        Properties props = new Properties();
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", host);
-        props.put("mail.smtp.port", port);
-
-        if (Boolean.valueOf(tls)) {
-            props.put("mail.smtp.auth", "true");
-            session = Session.getInstance(props, new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password);
-                }
-            });
-        } else {
-            session = Session.getDefaultInstance(props);
-        }
     }
 
     /**
@@ -155,6 +89,94 @@ public class EmailNotifications extends Observable {
             // Preserve interrupt status
             Thread.currentThread().interrupt();
         }
+    }
+
+    /**
+     * Add email to the mail queue
+     *
+     * @param messageBody email body
+     * @param subject     email subject
+     * @param receiver    receivers
+     * @param contentType    content type of the email
+     */
+    public void sendMail(String messageBody, String subject, String receiver, String contentType) {
+        try {
+            InternetAddress emailAddr = new InternetAddress(receiver);
+            emailAddr.validate();
+            Map<String, String> mail = new HashMap<>();
+            mail.put(MESSAGE_BODY, messageBody);
+            mail.put(MESSAGE_SUBJECT, subject);
+            mail.put(MESSAGE_RECEIVER, receiver);
+            mail.put(MESSAGE_TYPE, contentType);
+            mailQueue.add(mail);
+            setChanged();
+            notifyObservers();
+
+        } catch (AddressException e) {
+            LOGGER.error("Email sending failed. Invalid receiver address specified: " + receiver);
+        }
+    }
+
+    /**
+     * Create Output Event Adapter Configuration for given configuration.
+     *
+     * @param name      Output Event Adapter name
+     * @param type      Output Event Adapter type
+     * @param msgFormat Output Event Adapter message format
+     * @return OutputEventAdapterConfiguration instance for given configuration
+     */
+    private static OutputEventAdapterConfiguration createOutputEventAdapterConfiguration(
+            String name, String type, String msgFormat) {
+        if (outputEventAdapterConfiguration == null) {
+            outputEventAdapterConfiguration =
+                    new OutputEventAdapterConfiguration();
+            outputEventAdapterConfiguration.setName(name);
+            outputEventAdapterConfiguration.setType(type);
+            outputEventAdapterConfiguration.setMessageFormat(msgFormat);
+        }
+        return outputEventAdapterConfiguration;
+    }
+
+    /**
+     * This method creates the output email adapter. For the successful creation of the adapter,
+     * the file output-event-adapters.xml needs to be added to the repository/conf folder of the product.
+     */
+    protected static void createEmailAdapter() {
+        outputEventAdapterConfiguration =
+                createOutputEventAdapterConfiguration(emailAdapterName,
+                                                      BillingConstants.RENDERING_TYPE_EMAIL,
+                                                      BillingConstants.EMAIL_MESSAGE_FORMAT);
+        while (!isEmailAdapterCreated()) {
+            try {
+                CloudBillingServiceComponent.getOutputEventAdapterService().create(
+                        outputEventAdapterConfiguration);
+                LOGGER.info("The email adapter " + emailAdapterName + " created Successfully");
+                emailAdapterCreatedResult = true;
+            } catch (OutputEventAdapterException e) {
+                LOGGER.error("Unable to create the Output Event Adapter : " + emailAdapterName +
+                             ". Error received :", e);
+            } catch (Exception e) {
+                LOGGER.error("Unable to create Output Event Adapter : " + emailAdapterName +
+                             "Error received :", e);
+            }
+            setEmailAdapterCreated(emailAdapterCreatedResult);
+        }
+    }
+
+    /**
+     * Method which returns the status of the email adapter creation.
+     * @return
+     */
+    protected static boolean isEmailAdapterCreated() {
+        return emailAdapterCreated;
+    }
+
+    /**
+     * Method which sets the status of the email adapter creation.
+     * @param emailAdapterCreated is the status of the email adapter creation.
+     */
+    protected static void setEmailAdapterCreated(boolean emailAdapterCreated) {
+        EmailNotifications.emailAdapterCreated = emailAdapterCreated;
     }
 
     /**
@@ -204,8 +226,7 @@ public class EmailNotifications extends Observable {
             } else if (arg instanceof Boolean && (Boolean) arg) {
                 while (!failedEmailQueue.isEmpty()) {
                     Map email = failedEmailQueue.poll();
-                    EmailNotifications.getInstance().sendMail(email.get(MESSAGE_BODY).toString(), email.get
-                            (MESSAGE_SUBJECT).toString(), email.get(MESSAGE_RECEIVER).toString());
+                    EmailNotifications.getInstance().sendMail(email.get(MESSAGE_BODY).toString(), email.get(MESSAGE_SUBJECT).toString(), email.get(MESSAGE_RECEIVER).toString(),  email.get(MESSAGE_TYPE).toString());
                 }
             } else {
                 LOGGER.error("No argument specified. ");
@@ -230,23 +251,48 @@ public class EmailNotifications extends Observable {
          */
         @Override
         public void run() {
-            try {
-                Message message = new MimeMessage(session);
-                message.setFrom(new InternetAddress(sender));
-                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.get(MESSAGE_RECEIVER).toString()));
-                message.setSubject(email.get(MESSAGE_SUBJECT).toString());
-                message.setContent(email.get(MESSAGE_BODY).toString(), BillingConstants.HTML_CONTENT_TYPE);
+            Map<String, String> dynamicPropertiesForEmail = new HashMap<String, String>();
+            dynamicPropertiesForEmail
+                    .put(MESSAGE_RECEIVER, email.get(MESSAGE_RECEIVER).toString());
+            dynamicPropertiesForEmail
+                    .put(MESSAGE_SUBJECT, email.get(MESSAGE_SUBJECT).toString());
+            dynamicPropertiesForEmail.put(MESSAGE_TYPE, email.get(MESSAGE_TYPE).toString());
 
-                Transport.send(message);
-                setChanged();
-                notifyObservers(true);
+            //Making sure that the email adapter has been created before sending the emails.
+            try {
+                if (!isEmailAdapterCreated()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.info("Creating the email adapter " + emailAdapterName + "since not created before");
+                    }
+
+                    createEmailAdapter();
+                }
+
+                if (isEmailAdapterCreated()) {
+                    CloudBillingServiceComponent.getOutputEventAdapterService()
+                                                .publish(emailAdapterName,
+                                                         dynamicPropertiesForEmail,
+                                                         email.get(MESSAGE_BODY).toString());
+                    setChanged();
+                    notifyObservers(true);
+                } else {
+                    setChanged();
+                    notifyObservers(email);
+                    LOGGER.error("Error while sending the email notification to: " +
+                                 email.get(MESSAGE_RECEIVER).toString() +
+                                 " under subject: " + email.get(MESSAGE_SUBJECT).toString() +
+                                 ". Email is added " +
+                                 "back to the queue since email adapter has not been created");
+                }
             } catch (Exception e) {
                 //Catching the generic exception here to avoid throwing exceptions while executing this sub task
                 setChanged();
                 notifyObservers(email);
-                LOGGER.error("Error while sending the email notification to: " + email.get(MESSAGE_RECEIVER).toString
-                        () + " under subject: " + email.get(MESSAGE_SUBJECT).toString() + ". Email is added " +
-                        "back to the queue. once the error is fixed it will try again ", e);
+                LOGGER.error("Error while sending the email notification to: " +
+                             email.get(MESSAGE_RECEIVER).toString
+                                     () + " under subject: " +
+                             email.get(MESSAGE_SUBJECT).toString() + ". Email is added " +
+                             "back to the queue. once the error is fixed it will try again ", e);
             }
         }
     }
