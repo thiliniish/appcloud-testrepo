@@ -281,8 +281,9 @@ public class CloudBillingService extends AbstractAdmin {
     public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName, String startDate,
                                                               String endDate) throws CloudBillingException {
         try {
-            return CloudBillingServiceUtils.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate,
-                                                                                endDate);
+            return CloudBillingServiceUtils
+                    .getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate,
+                                                         endDate);
         } catch (CloudBillingException ex) {
             LOGGER.error("Error occurred while retrieving usage data of tenant: " + tenantDomain + "for product: " +
                     productName, ex);
@@ -648,7 +649,7 @@ public class CloudBillingService extends AbstractAdmin {
     }
 
     /**
-     * Send notification emails to cloud alert
+     * Send notification emails to cloud alerts
      *
      * @param subject subject of the mail
      * @param msgBody mail body
