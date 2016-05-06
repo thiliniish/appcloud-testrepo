@@ -140,9 +140,6 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                                 var icon = mainMenu[attr].icon;
                                 var url = mainMenu[attr].url;
                                 var target = mainMenu[attr].target;
-                                if(attr == "Support"){
-                                    menuURL = menuURL + "?cloudType=" + subscription;
-                                }
                                 if(attr == "Domain"){
                                     attr = tenantDisplayName;
                                 }
