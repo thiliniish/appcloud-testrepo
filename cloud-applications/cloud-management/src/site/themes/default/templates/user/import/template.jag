@@ -107,13 +107,13 @@
                 content: "Member list contains invalid user name/s. " +
                  "User name should be a valid email of length 3-30 in alphanumeric characters",
                 type: 'error',
-                id:'reposBuild'
+                id:'emailValidation'
             });
         }else if(allSymbolsValid == false) {
             jagg.message({
                 content: "The '+' sign is not currently supported within usernames by the system.",
                 type: 'error',
-                id:'reposBuild'
+                id:'emailValidation'
             });
         }else if(isUserAdded == true) {
             jagg.message({
@@ -171,7 +171,7 @@
         return false;
     }
 
-      function validateEmailAddresses(nameString) {
+    function validateEmailAddresses(nameString) {
         var names = nameString.split(",");
         var allEmailAddressesMatch = true;
         var pattern = new RegExp(<%= emailValidationPattern %>);
