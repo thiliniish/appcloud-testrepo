@@ -54,7 +54,7 @@ var hasOnlySubscriberRole = function (username) {
     var result = false;
     //Get user roles
     var userRoles = getUserRoles(username);
-    if(hasUserRole(username,ROLE_SUBSCRIBER) && userRoles.length == 1){
+    if (hasUserRole(username,ROLE_SUBSCRIBER) && userRoles.length == 1) {
         result = true;
     }
     return result;

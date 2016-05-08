@@ -44,7 +44,7 @@ var isUserInAdminRole = function () {
                   session.put("IS_USER_ADMIN", String(isAdmin));
                   return isAdmin;
                 } catch (e) {
-                  log.error("Error while authenticating user for admin role. User: "+ username +". Error:" +e);
+                  log.error("Error while authenticating user for admin role. User: " + username + ". Error:" + e);
                   return false;
                 } finally {
                   context.endTenantFlow();
