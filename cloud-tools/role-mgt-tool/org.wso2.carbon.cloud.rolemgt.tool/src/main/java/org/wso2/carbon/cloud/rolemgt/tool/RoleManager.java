@@ -319,4 +319,3 @@ public class RoleManager implements Runnable {
         }//End of for loop iterating roleBean List
     }
 }
-
