@@ -23,17 +23,17 @@
         var blockSubscriptions = getBlockedSubscriptions();
         for(var index in type){
             if(blockSubscriptions.indexOf(type[index].id) <0 || blockSubscriptions==null){
-            var tempRoleArray= type[index].roleTypes;
-            var tempChildRole=[];
-            for(var indexInTemp in tempRoleArray){
-                tempChildRole.push({
-                    "id": tempRoleArray[indexInTemp].roleName,
-                    "text": tempRoleArray[indexInTemp].displayRoles});
-            }
-            jsonData.push({
-                "id": "",
-                "text": type[index].name,
-                "children":tempChildRole });
+                var tempRoleArray= type[index].roleTypes;
+                var tempChildRole=[];
+                for(var indexInTemp in tempRoleArray){
+                    tempChildRole.push({
+                        "id": tempRoleArray[indexInTemp].roleName,
+                        "text": tempRoleArray[indexInTemp].displayRoles});
+                }
+                jsonData.push({
+                    "id": "",
+                    "text": type[index].name,
+                    "children":tempChildRole });
             }
         }
         roleList= jsonData;
@@ -102,32 +102,32 @@
             selected.push(selectedId);
             roles = selectedId+","+roles;
         }
-        if(allEmailsValid == false) {
+        if (allEmailsValid == false) {
             jagg.message({
                 content: "Member list contains invalid user name/s. " +
                  "User name should be a valid email of length 3-30 in alphanumeric characters",
                 type: 'error',
                 id:'emailValidation'
             });
-        }else if(allSymbolsValid == false) {
+        } else if(allSymbolsValid == false) {
             jagg.message({
                 content: "The '+' sign is not currently supported within usernames by the system.",
                 type: 'error',
                 id:'emailValidation'
             });
-        }else if(isUserAdded == true) {
+        } else if(isUserAdded == true) {
             jagg.message({
                 content: "Invited member is already in the system.",
                 type: 'error',
                 id:'reposBuild'
             });
-        }else if(roles == "") {
+        } else if(roles == "") {
             jagg.message({
                 content: "Atleast one role must be selected from member roles",
                 type: 'error',
                 id:'reposBuild'
             });
-        }else {
+        } else {
             roles = roles.substring(0,(roles.length-1));
             jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
                 action: "sendUserInvite",
