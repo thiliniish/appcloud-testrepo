@@ -23,8 +23,8 @@
         var blockSubscriptions = getBlockedSubscriptions();
         for(var index in type){
             if(blockSubscriptions.indexOf(type[index].id) <0 || blockSubscriptions==null){
-                var tempRoleArray= type[index].roleTypes;
-                var tempChildRole=[];
+                var tempRoleArray = type[index].roleTypes;
+                var tempChildRole = [];
                 for(var indexInTemp in tempRoleArray){
                     tempChildRole.push({
                         "id": tempRoleArray[indexInTemp].roleName,
@@ -179,10 +179,10 @@
         return allUserNamesMatch;
     }
 
-    function checkIfCommonRole(subscriptionType){
+    function checkIfCommonRole(subscriptionType) {
         var isCommonRole = false;
         var commonSubscription = '<%= defaultSubscriptionName %>';
-        if(commonSubscription == subscriptionType){
+        if (commonSubscription == subscriptionType) {
             isCommonRole = true;
         }
         return isCommonRole;
@@ -218,10 +218,10 @@
         $("#checkbox").click(function(){
             if($("#checkbox").is(':checked') ){
                 $('#multiSelect').select2("val", "");
-                for(var index in roleList){
+                for (var index in roleList) {
                     //Skipping common roles like 'admin'
                     var isCommonRole = checkIfCommonRole(roleList[index].text);
-                    if(!isCommonRole){
+                    if (!isCommonRole) {
                         $('#multiSelect').select2('data', $('#multiSelect').select2('data').concat(roleList[index].children));
                     }
                 }
