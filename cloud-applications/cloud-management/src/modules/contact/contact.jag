@@ -123,7 +123,7 @@ var sendSupportRequestAndCreateJira = function (customerEmail, subject, body, cl
         var supportRequestResult = {};
         var resultSupportRequest = false;
         var subjectContent = subject;
-        var subject ="";
+        var subject = "";
         if (userName == null || userName == 'null') {
             emailBody = emailBody.replace("$username", "New User");
             subject = "[Support Request] [New User] " + subject

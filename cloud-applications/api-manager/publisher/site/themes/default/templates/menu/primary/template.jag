@@ -335,7 +335,7 @@ $(document).ready(function($) {
 				var mainMenuData = mainMenu[attr];
 				var menuURL = mainMenu[attr].url;
 				var menuIcon = mainMenu[attr].icon;
-				if(attr == "Support"){
+				if (attr == "Support") {
 				    menuURL = menuURL + "?cloudType=" + subscription;
 				}
 				if (mainMenu[attr].isDropDown == "false") {%>
