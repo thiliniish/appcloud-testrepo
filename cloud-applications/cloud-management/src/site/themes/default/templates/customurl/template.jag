@@ -126,10 +126,10 @@
                     setTimeout(function(){ defaultUIView() }, 10000);
                 } else {
                     if (node == "store") {
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>"+ result.message
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>" + result.message
                          + "</span><br>");
                     } else {
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>"+ result
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>" + result
                         .message + "</span><br>");
                     }
                 }
