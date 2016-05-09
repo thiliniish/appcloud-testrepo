@@ -229,16 +229,18 @@ public class CloudBillingServiceComponent {
      *
      * @param outputEventAdapterService Output EventAdapter Service reference
      */
-    protected void setOutputEventAdapterService(OutputEventAdapterService outputEventAdapterService){
+    protected void setOutputEventAdapterService(
+            OutputEventAdapterService outputEventAdapterService) {
         ServiceDataHolder.getInstance().setOutputEventAdapterService(outputEventAdapterService);
     }
 
     /**
-     *  De-reference the Output EventAdapter Service dependency.
+     * De-reference the Output EventAdapter Service dependency.
      *
      * @param outputEventAdapterService
      */
-    protected void unsetOutputEventAdapterService(OutputEventAdapterService outputEventAdapterService){
+    protected void unsetOutputEventAdapterService(
+            OutputEventAdapterService outputEventAdapterService) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Unset the Output Email Adapter service.");
         }
@@ -247,9 +249,10 @@ public class CloudBillingServiceComponent {
 
     /**
      * Gets the Output EventAdapter Service
+     *
      * @return
      */
-    public static OutputEventAdapterService getOutputEventAdapterService(){
+    public static OutputEventAdapterService getOutputEventAdapterService() {
         return ServiceDataHolder.getInstance().getOutputEventAdapterService();
     }
 

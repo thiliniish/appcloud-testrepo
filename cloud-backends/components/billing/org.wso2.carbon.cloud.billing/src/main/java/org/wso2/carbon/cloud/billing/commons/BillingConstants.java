@@ -91,6 +91,8 @@ public final class BillingConstants {
     public static final String EMAIL_MESSAGE_FORMAT = "email";
     public static final String RENDERING_TYPE_EMAIL = "email";
     public static final String EMAIL_ADAPTER_NAME = "cloudEmailAdapter";
+    public static final int DEFAULT_TIMEOUT_VALUE = 60;
+
 
     /*Media types*/
     public static final String HTTP_TYPE_APPLICATION_URL_ENCODED = "application/x-www-form-urlencoded";

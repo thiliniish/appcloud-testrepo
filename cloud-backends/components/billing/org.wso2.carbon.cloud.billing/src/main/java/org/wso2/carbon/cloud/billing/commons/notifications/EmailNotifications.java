@@ -76,10 +76,10 @@ public class EmailNotifications extends Observable {
         executorService.shutdown();
         try {
             // Wait a while for existing tasks to terminate
-            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(BillingConstants.DEFAULT_TIMEOUT_VALUE, TimeUnit.SECONDS)) {
                 executorService.shutdownNow(); // Cancel currently executing tasks
                 // Wait a while for tasks to respond to being cancelled
-                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                if (!executorService.awaitTermination(BillingConstants.DEFAULT_TIMEOUT_VALUE, TimeUnit.SECONDS)) {
                     LOGGER.error("email sender executor pool did not terminate");
                 }
             }
@@ -97,7 +97,7 @@ public class EmailNotifications extends Observable {
      * @param messageBody email body
      * @param subject     email subject
      * @param receiver    receivers
-     * @param contentType    content type of the email
+     * @param contentType content type of the email
      */
     public void sendMail(String messageBody, String subject, String receiver, String contentType) {
         try {
@@ -165,6 +165,7 @@ public class EmailNotifications extends Observable {
 
     /**
      * Method which returns the status of the email adapter creation.
+     *
      * @return
      */
     protected static boolean isEmailAdapterCreated() {
@@ -173,6 +174,7 @@ public class EmailNotifications extends Observable {
 
     /**
      * Method which sets the status of the email adapter creation.
+     *
      * @param emailAdapterCreated is the status of the email adapter creation.
      */
     protected static void setEmailAdapterCreated(boolean emailAdapterCreated) {
@@ -226,7 +228,10 @@ public class EmailNotifications extends Observable {
             } else if (arg instanceof Boolean && (Boolean) arg) {
                 while (!failedEmailQueue.isEmpty()) {
                     Map email = failedEmailQueue.poll();
-                    EmailNotifications.getInstance().sendMail(email.get(MESSAGE_BODY).toString(), email.get(MESSAGE_SUBJECT).toString(), email.get(MESSAGE_RECEIVER).toString(),  email.get(MESSAGE_TYPE).toString());
+                    EmailNotifications.getInstance().sendMail(email.get(MESSAGE_BODY).toString(),
+                                                              email.get(MESSAGE_SUBJECT).toString(),
+                                                              email.get(MESSAGE_RECEIVER).toString(),
+                                                              email.get(MESSAGE_TYPE).toString());
                 }
             } else {
                 LOGGER.error("No argument specified. ");
@@ -264,7 +269,6 @@ public class EmailNotifications extends Observable {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.info("Creating the email adapter " + emailAdapterName + "since not created before");
                     }
-
                     createEmailAdapter();
                 }
 
