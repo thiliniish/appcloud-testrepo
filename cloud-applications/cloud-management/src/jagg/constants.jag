@@ -44,6 +44,8 @@ var TEST_SERVER_URL = "ApplicationDeployment.DeploymentStage.Testing.DeploymentS
 var PROD_SERVER_URL = "ApplicationDeployment.DeploymentStage.Production.DeploymentServerURL";
 
 var ROLE_ADMIN = "admin";
+var ROLE_PUBLISHER = "publisher";
+var ROLE_SUBSCRIBER = "subscriber";
 var ROLE_APP_OWNER = "appOwner";
 var ROLE_QA = "qa";
 var ROLE_DEVOPS = "devOps";

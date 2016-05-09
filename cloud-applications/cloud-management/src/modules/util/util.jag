@@ -9,7 +9,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
-var userName =  session.get("LOGGED_IN_USER");
+var username =  session.get("LOGGED_IN_USER");
 
 var getTenantDisplayName = function (tenantDomain) {
     var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
@@ -30,11 +30,11 @@ var isUserInAdminRole = function () {
         var tenantInfo = session.get("TENANT_INFO");
         var context=multitenancy.getPrivilegedCarbonContext();
 
-            if (tenantInfo != null && userName != null) {
+            if (tenantInfo != null && username != null) {
                 try {
                   context.startTenantFlow();
                   var tenantManager = multitenancy.getTenantManager();
-                  var tenantAwareUserName = modManager.getTenantAwareUsername(userName);
+                  var tenantAwareUserName = modManager.getTenantAwareUsername(username);
                   var tenantDomain=tenantInfo.tenantDomain;
                   var tenantId = tenantManager.getTenantId(tenantDomain);
                   context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
@@ -44,7 +44,7 @@ var isUserInAdminRole = function () {
                   session.put("IS_USER_ADMIN", String(isAdmin));
                   return isAdmin;
                 } catch (e) {
-                  log.error("Error while authenticating user for admin role. User: "+ userName +". Error:" +e);
+                  log.error("Error while authenticating user for admin role. User: " + username + ". Error:" + e);
                   return false;
                 } finally {
                   context.endTenantFlow();
@@ -71,61 +71,6 @@ var isSessionAuthenticated = function () {
         throw Error(e);
     }
     return isAuthenticated;
-};
-
-//method to check if the user is only a subscriber for a tenant
-var hasOnlySubscriberRole = function (userName) {
-    var isSubscriber = false;
-    var roleCount = 0;
-    var roles;
-    var result = false;
-    var userRoles = [];
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
-    //the default roles assigned for all users
-    var types = cloudConfig.commonRoles;
-    var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
-    context.startTenantFlow();
-    var tenantAwareUserName = modManager.getTenantAwareUsername(userName);
-    var tenantManager = multitenancy.getTenantManager();
-    var tenantId = tenantManager.getTenantId(tenantDomain);
-    context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-    var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
-    roles = realmService.getTenantUserRealm(tenantId).getUserStoreManager().doGetRoleListOfUser(tenantAwareUserName, "*");
-    context.endTenantFlow();
-
-    //to change the java array to a javascript array
-    for (var x = 0; x < roles.length; x++) {
-        userRoles[x] = roles[x];
-    }
-
-    //eliminating the default roles from the roleList
-    for (var i = 0; i < types.length; i++) {
-        for (var j = 0; j < userRoles.length; j++) {
-            if (String(types[i]) == String(userRoles[j])) {
-                userRoles.splice(j, 1);
-                // roles[j]="";
-            }
-        }
-    }
-
-    //checking if the user has any other role than the subscriber role
-    for (var c = 0; c < userRoles.length; c++) {
-        if (userRoles[c] == "subscriber") {
-            isSubscriber = true;
-        } else {
-            roleCount++;
-        }
-    }
-
-    if (roleCount == 0 && isSubscriber == true) {
-        result = true;
-    } else {
-        result = false;
-    }
-    return result;
 };
 
 var sendBillingTrialExtendedNotification = function (tenantDomain, serviceId, endDate, customerRequest) {
@@ -553,7 +498,7 @@ var getLoadBalanceDataPublisher = function(loadBalancePublisherObjReference){
                 var bamConfiguration = cloudMgtJsonObject.bamConfiguration;
                 var host = bamConfiguration.hostUrls;
                 var receiverUrls = "{" + host + "}";
-                var userName = bamConfiguration.username;
+                var username = bamConfiguration.username;
                 var password = bamConfiguration.password;
 
                 var LoadBalancingDataPublisher = org.wso2.carbon.databridge.agent.thrift.lb.LoadBalancingDataPublisher;
@@ -570,7 +515,7 @@ var getLoadBalanceDataPublisher = function(loadBalancePublisherObjReference){
                     var urls = receiverGroupUrls.get(z).split(",");
 
                     for(var receiverUrl in urls){
-                       dataPublisherHolderNode = new DataPublisherHolder(null, urls[receiverUrl], userName, password);
+                       dataPublisherHolderNode = new DataPublisherHolder(null, urls[receiverUrl], username, password);
                        dataPublisherHolders.add(dataPublisherHolderNode);
                     }
                     group = new ReceiverGroup(dataPublisherHolders,true);
