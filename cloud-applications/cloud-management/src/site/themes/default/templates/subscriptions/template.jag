@@ -1,23 +1,26 @@
 <% jagg.template("subscriptions", function(inputs, outputs, jagg) { %>
 <%
 include("/modules/database/dataaccess.jag");
+include("/jagg/constants.jag");
 
 var log = new Log();
 var userName = session.get("LOGGED_IN_USER");
-var isOnlySubscribedUser=false;
-
 
 if (userName != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-	isOnlySubscribedUser=jagg.module("util").hasOnlySubscriberRole(userName);
-	if (isOnlySubscribedUser) {
+	var modUserManagement = jagg.module("user/management");
+	//Check if user has admin role
+	var hasAdminRole = modUserManagement.hasUserRole(userName, ROLE_ADMIN);
+	//Check if user has publisher role
+	var hasPublisherRole = modUserManagement.hasUserRole(userName, ROLE_PUBLISHER);
+	if (hasAdminRole || hasPublisherRole) {
+		log.debug("The user has an admin or publisher role.");
 		var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
 		if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
 			var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
 			var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
 		}
 	}
-
 	var types = cloudConfig.subscriptions.type;
 	var domainName = jagg.module("manager").getTenantDomain(userName);
 	var subscriptionInfo = {
@@ -87,7 +90,7 @@ function subscription(type,domain) {
 				<i class="<%=types[i].id%>_disabled"></i>
 				<div class="helper_text">Coming Soon...</div>
 				<%} else {
-							if (!isOnlySubscribedUser) {%>
+							if (hasAdminRole || hasPublisherRole) {%>
 
 				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" onclick="subscription('<%=types[i].id%>','<%=domainName%>');return true"></i></a>
 							<%} else {
