@@ -113,32 +113,34 @@
                         $("#storeSSLFileUploadLocation").css("display","none");
                         $("#storeButtonBlock").css("display","none");
                         $("#storeVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping " +
-                         "is successfully added.</span>" + "<br></br>" + "<span class='label label-warning'>Please note " +
+                         "is successfully added.</span>" + "<br><br>" + "<span class='label label-warning'>Please note " +
                           "that it will take upto 10 minutes to update changes.</span>");
                     } else {
                         $("#gatewaySSLFileUploadLocation").css("display","none");
                         $("#gatewayButtonBlock").css("display","none");
                         $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL " +
-                         "mapping is successfully added.</span>" + "<br></br>" + "<span class='label label-warning'>Please" +
+                         "mapping is successfully added.</span>" + "<br><br>" + "<span class='label label-warning'>Please" +
                           " note that it will take upto 10 minutes to update changes.</span>");
                     }
                     getCurrentUserMaping();
                     setTimeout(function(){ defaultUIView() }, 10000);
                 } else {
                     if (node == "store") {
-                        $("#storeSSLFileUploadLocation").css("display","none");
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ result.message +"</span>");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>"+ result.message
+                         + "</span><br>");
                     } else {
-                        $("#gatewaySSLFileUploadLocation").css("display","none");
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Error occurred while adding custom url. Error occurred because "+ result.message +"</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>"+ result
+                        .message + "</span><br>");
                     }
                 }
             },
             error: function(jqXHR, textStatus, errorMessage) {
                 if (node == "store") {
-                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-error'>Internal Server error occurred</span>");
+                        $("#storeVerifyUrlNotificationArea").html("<span class='label label-danger'>Internal Server " +
+                         "error occurred</span>");
                     } else {
-                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-error'>Internal Server error occurred</span>");
+                        $("#gatewayVerifyUrlNotificationArea").html("<span class='label label-danger'>Internal Server" +
+                         " error occurred</span>");
                     }
             }         
         });
