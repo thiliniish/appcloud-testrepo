@@ -110,20 +110,20 @@ var sendBillingAccountCreationNotification = function (tenantDomain, service, pl
     return true;
 };
 
-var sendBillingPlanChangedNotification = function (tenantDomain, serviceId, effectiveDate, toPlan, fromPlan) {
+var sendBillingPlanChangedNotification = function (tenantDomain, serviceId, effectiveDate, toPlan, fromPlan, isUpgrade) {
 
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var body = getObjFromFile("/site/conf/emails/cloud_notification_on_change_plan.txt");
-
+    if (isUpgrade) {
+        var body = getObjFromFile("/site/conf/emails/cloud_notification_on_plan_upgrade.txt");
+    } else {
+        var body = getObjFromFile("/site/conf/emails/cloud_notification_on_plan_downgrade.txt");
+    }
     var mailEndDate = getEmailEffectiveDate(effectiveDate);
     var service = productIdFromServiceId[serviceId];
     var userEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-
-
     body = body.replace("$tenant", tenantDomain).replace("$service", service).replace("$to_plan", toPlan)
             .replace("$from_plan", fromPlan).replace("$effective-date", mailEndDate).replace("$user", userEmail);
     var subject = "WSO2 Cloud Notification [Billing] - Subscription Plan Changed";
-
     var notificationMailAdd =  cloudConfig.supportContact.to;
     sendEmail(body, subject, notificationMailAdd);
     return true;
@@ -163,9 +163,13 @@ var sendBillingAccountCreationEmail = function (displayName, service, planName, 
     return true;
 };
 
-var sendBillingPlanChangedEmail = function (displayName, serviceId, planName, effectiveDate) {
-    var body = jagg.module("util").getObjFromFile("/site/conf/emails/change_subscription_email_body.txt");
+var sendBillingPlanChangedEmail = function (displayName, serviceId, planName, effectiveDate, isUpgrade) {
 
+    if (isUpgrade) {
+        var body = jagg.module("util").getObjFromFile("/site/conf/emails/upgrade_subscription_email_body.txt");
+    } else {
+        var body = jagg.module("util").getObjFromFile("/site/conf/emails/downgrade_subscription_email_body.txt");
+    }
     var service = productIdFromServiceId[serviceId];
     var mailEndDate = getEmailEffectiveDate(effectiveDate);
     body = body.replace("$tenant", displayName).replace("$plan", planName).replace("$service", service)
