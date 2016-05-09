@@ -11,7 +11,6 @@ var userName =  session.get("LOGGED_IN_USER");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var emailBody = jagg.module("util").getObjFromFile("/site/conf/emails/support_request.txt");
 
-
 /*
  * create a jira ticket by using jira soap api
  * @param  customerEmail : customerEmail id
@@ -119,17 +118,25 @@ var emailBody = jagg.module("util").getObjFromFile("/site/conf/emails/support_re
  * @param  subject : jira ticket summary
  * @param  body : jira ticket description
  */
-var sendSupportRequestAndCreateJira = function (customerEmail, subject, body) {
+var sendSupportRequestAndCreateJira = function (customerEmail, subject, body, cloudType) {
     try {
         var supportRequestResult = {};
         var resultSupportRequest = false;
-        var subject;
+        var subjectContent = subject;
+        var subject = "";
         if (userName == null || userName == 'null') {
             emailBody = emailBody.replace("$username", "New User");
             subject = "[Support Request] [New User] " + subject
         } else {
             emailBody = emailBody.replace("$username", userName);
-            subject = "[Support Request] [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subject
+            if (cloudType == SUBSCRIPTION_API_CLOUD){
+                subject = "[API Cloud Support]";
+            } else if (cloudType == "app_cloud"){
+                subject = "[APP Cloud Support]";
+            } else {
+                subject = "[Support Request]";
+            }
+            subject = subject + " [" + session.get("LOGGED_IN_USER_TENANT_DOMAIN") + "] " + subjectContent;
         }
         emailBody = emailBody.replace("$emailAddress", customerEmail);
         emailBody = emailBody.replace("$content", body);

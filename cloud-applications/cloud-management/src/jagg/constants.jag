@@ -6,6 +6,7 @@ var APPLICATION_STAGES = "stages/";
 
 //cloud subscription
 var DEFAULT_SUBSCRIPTION = "default";
+var SUBSCRIPTION_API_CLOUD = "api_cloud";
 
 // property keys of registry 'application' resource
 var APPLICATION_KEY = "applicationKey";
