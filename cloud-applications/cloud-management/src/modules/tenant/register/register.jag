@@ -383,9 +383,19 @@ var storeTempRegistration = function (email, uuid, isInvitee) {
     } catch (e) {
         log.error("Error while storeTempRegistration for email: " + email);
         log.error(e);
+        try {
+            var subject = "Storing in TEMP_REGISTRATION failed for user : " + email;
+            var body = "Initial tenant creation failed for newly signed-up user : ";
+            body = body.concat(email).concat(" Exception occurred while Storing in TEMP_REGISTRATION. UUID: ").concat(uuid).
+            concat(e.stack);
+            var isEmailSent = jagg.module("util").sendEmail(body, subject, null);
+        } catch (ex) {
+            log.error("Error sending email notification at, store temp registration failure for customer email : " + email);
+            log.error(ex);
+        }
         throw (e);
     }
-    log.info("Sucessfully added to the temp registration user: " + email);
+    log.info("Successfully added to the temp registration user: " + email);
 };
 
 var sendInvite = function (email, token) {
@@ -477,6 +487,15 @@ var sendEmail = function (to, link) {
     } catch (e) {
         log.error("Error while sending email to : " + to);
         log.error(e);
+        try {
+            var subject = "Sending email failed for newly signed-up user : " + email;
+            var body = "Initial registration failed for newly signed-up user : ";
+            body = body.concat(email).concat(" Exception occurred while sending email with one time link.   ").concat(e.stack);
+            var isEmailSent = jagg.module("util").sendEmail(body, subject, null);
+        } catch (ex) {
+            log.error("Error sending email notification at, Sending one time link failure for customer email : " + email);
+            log.error(ex);
+        }
         throw (e);
     }
 };
