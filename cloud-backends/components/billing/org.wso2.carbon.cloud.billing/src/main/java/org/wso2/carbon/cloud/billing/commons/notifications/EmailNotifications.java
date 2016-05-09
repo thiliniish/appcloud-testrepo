@@ -84,6 +84,8 @@ public class EmailNotifications extends Observable {
                 }
             }
         } catch (InterruptedException ie) {
+            LOGGER.error("An error occurred when shutting down and awaiting the termination of the existing tasks. " +
+                         "Error received :", ie);
             // (Re-)Cancel if current thread also interrupted
             executorService.shutdownNow();
             // Preserve interrupt status
@@ -111,7 +113,6 @@ public class EmailNotifications extends Observable {
             mailQueue.add(mail);
             setChanged();
             notifyObservers();
-
         } catch (AddressException e) {
             LOGGER.error("Email sending failed. Invalid receiver address specified: " + receiver);
         }
