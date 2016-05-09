@@ -6,6 +6,8 @@ var ZUORA_DATE_FORMAT = "yyyy-MM-dd";
 
 var CLOUD_DEFAULT_ROLE = "default";
 
+var ZERO_PAYMENT_VALUE = 0;
+
 //Error messages
 var COMMON_ERROR_MESSAGE = "An error occurred while processing the request. Please contact WSO2 Cloud Team for help.";
 var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";

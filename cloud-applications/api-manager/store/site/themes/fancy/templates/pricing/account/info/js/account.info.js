@@ -1,6 +1,7 @@
 var invoiceData;
 var paymentData, jsonObj;
 var accountId;
+var lastPayment;
 
 $(document).ready(function () {
     $.ajax({
@@ -16,13 +17,17 @@ $(document).ready(function () {
                 invoiceData = accountObj.invoices;
                 paymentData = accountObj.payments;
                 accountId = accountObj.basicInfo.id;
+                lastPayment = accountObj.basicInfo.lastPaymentAmount;
+                if (lastPayment == null) {
+                    lastPayment = ZERO_PAYMENT_VALUE;
+                }
                 $("#accountId").val(accountId);
                 $("#tenantDomain").val(tenantDomain);
                 $("#address1").val(accountObj.billToContact.address1);
                 $("#address2").val(accountObj.billToContact.address2);
                 // set account summary
                 $("#accName").text(accountObj.basicInfo.name);
-                $("#lastPayment").text(accountObj.basicInfo.lastPaymentAmount + " " + accountObj.basicInfo.currency);
+                $("#lastPayment").text(lastPayment + " " + accountObj.basicInfo.currency);
                 $("#accBalance").text(accountObj.basicInfo.balance);
                 $("#lastPaymentDate").text(accountObj.basicInfo.lastPaymentDate);
                 $("#lastInvoice").text(accountObj.basicInfo.lastInvoiceDate);
