@@ -1,4 +1,7 @@
 function doSubmit() {
+console.info($("#state option:selected").text());
+console.info($("#state").val());
+console.info($("#country option:selected").text());
     var isValid = validateForm();
     if (isValid) {
         jagg.message({content: 'Please wait. Your request is being processed..', type: 'info'});
@@ -12,7 +15,7 @@ function doSubmit() {
             city: $("#city").val(),
             state: $("#state").val(),
             zipCode: $("#postalCode").val(),
-            country: $("#country").val(),
+            country: $("#country option:selected").text(),
             refId: $("#refId").val(),
             signature: $("#signature").val(),
             field_passthrough1: $("#field_passthrough1").val(),
@@ -38,7 +41,6 @@ function validateForm() {
     validateRequiredInput('organization', validInputObj);
     validateRequiredInput('firstName', validInputObj);
     validateRequiredInput('lastName', validInputObj);
-    validateRequiredInput('country', validInputObj);
     validateRequiredInput('email', validInputObj);
     validateInput('addressLine1', validInputObj);
     validateInput('addressLine2', validInputObj);
