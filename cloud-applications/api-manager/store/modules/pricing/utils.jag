@@ -43,13 +43,18 @@ var getAccountId = function () {
         var user = jagg.getUser().username;
         var tenantDomain = multiTenantUtils.getTenantDomain(user);
         var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(user, tenantDomain));
-        var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
-        return accountNumber;
+        if (subscriberData.Subscribers.Subscriber != null) {
+            var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
+            return accountNumber;
+        } else {
+            return null;
+        }
     } catch (e) {
         log.error("ERROR while getting the account number for : " + user + " - " + e.message);
         throw e;
     }
 };
+
 
 var dateTimeFormatter = function (dateTimeFormat) {
     return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
