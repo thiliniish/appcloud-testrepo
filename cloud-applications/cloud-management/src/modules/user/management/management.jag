@@ -1,0 +1,77 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/modules/database/dataaccess.jag");
+
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+//method to retrieve user roles
+var getUserRoles = function (username) {
+    var roles;
+    var userRoles = [];
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    //the default roles assigned for all users
+    var types = cloudConfig.commonRoles;
+    var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
+
+    var context = multitenancy.getPrivilegedCarbonContext();
+    try {
+        context.startTenantFlow();
+        var tenantAwareUserName = modManager.getTenantAwareUsername(username);
+        var tenantManager = multitenancy.getTenantManager();
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        roles = realmService.getTenantUserRealm(tenantId).getUserStoreManager().doGetRoleListOfUser(tenantAwareUserName, "*");
+    } catch (e) {
+        log.error("Error while accessing context details for the user " + userName + e.message);
+        throw "Error while accessing context details for the user " + userName + e.message;
+    } finally {
+        context.endTenantFlow();
+    }
+
+    //to change the java array to a javascript array
+    for (var x = 0; x < roles.length; x++) {
+        userRoles[x] = roles[x];
+    }
+    //eliminating the default roles from the roleList
+    for (var i = 0; i < types.length; i++) {
+        for (var j = 0; j < userRoles.length; j++) {
+            if (String(types[i]) == String(userRoles[j])) {
+                userRoles.splice(j, 1);
+            }
+        }
+    }
+    return userRoles;
+};
+
+//method to check if the user is only a subscriber for a tenant
+var hasOnlySubscriberRole = function (username) {
+    var result = false;
+    //Get user roles
+    var userRoles = getUserRoles(username);
+    if (hasUserRole(username,ROLE_SUBSCRIBER) && userRoles.length == 1) {
+        result = true;
+    }
+    return result;
+};
+
+//method to check whether user has specified role
+var hasUserRole = function (username,roleName) {
+    var hasRole = false;
+    //Get user roles
+    var userRoles = getUserRoles(username);
+    //checking if the user has specified role
+    for (var c = 0; c < userRoles.length; c++) {
+        if (userRoles[c] == roleName) {
+            hasRole = true;
+        }
+    }
+    return hasRole;
+};
+%>
+

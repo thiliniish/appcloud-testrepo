@@ -8,6 +8,8 @@
         isExtensionRequest = request.getParameter("request-extension");
     }
 
+    var cloudType = null;
+    cloudType = request.getParameter("cloudType");
     var isRegistrationHelp = request.getParameter("registration-help");
     var userEmail = request.getParameter('email');
 
@@ -32,6 +34,7 @@
     function doSubmit() {
         var from = $("#from").attr('value');
         var subject  = $("#subject").attr('value');
+        var cloudType = '<%= cloudType %>';
         var body  = $("#body").attr('value');
         var cloudmgtURL =  $("#cloudmgtURL").attr('value');
         var publisherUrl = $("#publisherUrl").attr('value');
@@ -70,6 +73,7 @@
         } else {
             jagg.post("../blocks/contact/ajax/contact.jag", {
                 action:"sendSupportRequest",
+                cloudType:cloudType,
                 from:from,
                 subject:subject,
                 body:body

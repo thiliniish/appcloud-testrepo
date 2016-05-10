@@ -2,7 +2,7 @@
 <%var reqUrl = request.getRequestURI();var storeUrl;
  var inlineUrl=jagg.getAbsoluteUrl("/site/pages/inline-editor.jag");
     var log = new Log("site/themes/default/templates/menu/primary/template.jag");
-
+    var subscription = "api_cloud";
     var isBillingEnable = session.get("IS_BILLING_ENABLE");
     var checkIsBillingEnable = function () {
         var isBillingEnable;
@@ -79,7 +79,6 @@ if (isBillingEnable) {
         PENDING_DISABLE: "PENDING_DISABLE",
         DISABLED: "DISABLED"
     };
-    var subscription = "api_cloud";
 
     var isExpired = true;
     var trialPeriod = 14;
@@ -307,11 +306,11 @@ $(document).ready(function($) {
                 if (<%=isUserAdmin%>) {
                     jagg.messageDisplay({content:"Was it a successful trial? Your trial unfortunately expired, however it is really easy to upgrade to a paid plan and keep using WSO2 API Cloud.",title:"Trial Expired" ,buttons:[
                         {name:"Upgrade Now",cssClass:"btn btn-primary",cbk:function() {
-                            window.location.href = cloudMgtPath + "/site/pages/payment-plans.jag?cloud-type=" + subscription;
+                            window.location.href = cloudMgtPath + "/site/pages/payment-plans.jag?cloudType=" + subscription;
 
                         }},
                         {name:"Request Extension",cssClass:"btn",cbk:function() {
-                            window.location.href = cloudMgtPath + "/site/pages/contact-us.jag?cloud-type="+ subscription + "&request-extension=true";
+                            window.location.href = cloudMgtPath + "/site/pages/contact-us.jag?cloudType="+ subscription + "&request-extension=true";
                         }}
                         ]
                     });
@@ -336,7 +335,6 @@ $(document).ready(function($) {
 				var mainMenuData = mainMenu[attr];
 				var menuURL = mainMenu[attr].url;
 				var menuIcon = mainMenu[attr].icon;
-
 		    if (mainMenu[attr].isDropDown == "false") {
 			    if (attr == "Monetization") {
 				    if (isUserAdmin) { %>
@@ -344,6 +342,10 @@ $(document).ready(function($) {
 				          </span></a></li>
 				<% }
 			    } else { %>
+				if (attr == "Support") {
+				    menuURL = menuURL + "?cloudType=" + subscription;
+				}
+				if (mainMenu[attr].isDropDown == "false") {%>
 				     <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
 				     </span></a></li>
 			   <% }

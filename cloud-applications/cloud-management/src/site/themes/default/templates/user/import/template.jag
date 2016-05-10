@@ -1,8 +1,10 @@
 <% jagg.template("user/import", function(inputs, outputs, jagg) { %>
 
 <%
+    include("/jagg/constants.jag");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var type = cloudConfig.subscriptions.type;
+    var defaultSubscriptionName = DEFAULT_SUBSCRIPTION_NAME;
 %>
 
 <script type="text/javascript">
@@ -21,17 +23,17 @@
         var blockSubscriptions = getBlockedSubscriptions();
         for(var index in type){
             if(blockSubscriptions.indexOf(type[index].id) <0 || blockSubscriptions==null){
-            var tempRoleArray= type[index].roleTypes;
-            var tempChildRole=[];
-            for(var indexInTemp in tempRoleArray){
-                tempChildRole.push({
-                    "id": tempRoleArray[indexInTemp].roleName,
-                    "text": tempRoleArray[indexInTemp].displayRoles});
-            }
-            jsonData.push({
-                "id": "",
-                "text": type[index].name,
-                "children":tempChildRole });
+                var tempRoleArray = type[index].roleTypes;
+                var tempChildRole = [];
+                for(var indexInTemp in tempRoleArray){
+                    tempChildRole.push({
+                        "id": tempRoleArray[indexInTemp].roleName,
+                        "text": tempRoleArray[indexInTemp].displayRoles});
+                }
+                jsonData.push({
+                    "id": "",
+                    "text": type[index].name,
+                    "children":tempChildRole });
             }
         }
         roleList= jsonData;
@@ -177,6 +179,15 @@
         return allUserNamesMatch;
     }
 
+    function checkIfCommonRole(subscriptionType) {
+        var isCommonRole = false;
+        var commonSubscription = '<%= defaultSubscriptionName %>';
+        if (commonSubscription == subscriptionType) {
+            isCommonRole = true;
+        }
+        return isCommonRole;
+    }
+
     $(document).ready(function(){
         initializeUserActivity("User Import Page");
         updateMultiSelectRoles();
@@ -207,8 +218,12 @@
         $("#checkbox").click(function(){
             if($("#checkbox").is(':checked') ){
                 $('#multiSelect').select2("val", "");
-                for(var index in roleList){
-                    $('#multiSelect').select2('data', $('#multiSelect').select2('data').concat(roleList[index].children));
+                for (var index in roleList) {
+                    //Skipping common roles like 'admin'
+                    var isCommonRole = checkIfCommonRole(roleList[index].text);
+                    if (!isCommonRole) {
+                        $('#multiSelect').select2('data', $('#multiSelect').select2('data').concat(roleList[index].children));
+                    }
                 }
             }else{
                 $('#multiSelect').select2("val", "");
