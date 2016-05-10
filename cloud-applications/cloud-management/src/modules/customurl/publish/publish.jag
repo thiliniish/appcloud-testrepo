@@ -388,7 +388,7 @@
 			var message = "Error occurred during file encryption.";
 			log.error(message + e);
 			status.error = true;
-			status.message = message + " Please contact wso2 cloud team for support.";
+			status.message = message + " Please contact WSO2 Cloud Team for help.";
 			return status;
 		}
 	
