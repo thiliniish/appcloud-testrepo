@@ -1,0 +1,1129 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/modules/database/dataaccess.jag");
+
+var log = new Log("modules/monetizing/monetizing.jag");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+var apiManagerURL = cloudConfig.ServerUrls.apiManager.toString();
+var apiCloudServiceURL = cloudConfig.ServerUrls.apiCloud.toString();
+var modDb = jagg.module("database");
+var modUtil = jagg.module("util");
+var modManager = jagg.module("manager");
+var modTenant = jagg.module("tenant");
+var modBilling = jagg.module("billing");
+var modRegistry = jagg.module("registry");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var contactUsURL = cloudmgtURL + CLOUD_CONTACT_US_URI;
+var errorObj = {
+    error: true,
+    statusCode: 500,
+    redirectionURL: contactUsURL,
+    message: "Internal error. Please retry..."
+};
+var successObj = {
+    error: false,
+    statusCode: 200
+};
+
+
+var getSubscribersOfTenant = function () {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        var subscribers = [];
+        try {
+            //get the tenant users that have the subscriber role
+            var subscriberList = modTenant.getUserListOfRole(ROLE_SUBSCRIBER);
+            var len = subscriberList.length;
+            for (var i = 0; i < len; i++) {
+                var tmpSubscriber = {};
+                var userName = subscriberList[i];
+                var tmpUser = modTenant.getUserInfo(userName);
+                tmpSubscriber.userName = userName;
+                tmpSubscriber.displayName = tmpUser.displayName;
+                tmpSubscriber.email = tmpUser.email;
+                var queryString = SQL_QUERY_STRINGS.SELECT_SUBSCRIBER_FROM_MONETIZATION_API_CLOUD_SUBSCRIBERS;
+                var parameters = [userName, tenantDomain];
+                var results = modDb.executeQuery(queryString, parameters);
+                if (results == null || results == "") {
+                    tmpSubscriber.subscriptionType = ACC_FREE;
+                    tmpSubscriber.complimentary = false;
+                    tmpSubscriber.accountId = null;
+                } else {
+                    var isTest = results[0]["TEST_ACCOUNT"];
+                    var accNo = results[0]["ACCOUNT_NUMBER"];
+                    tmpSubscriber.accountId = accNo;
+                    tmpSubscriber.complimentary = isTest;
+                    if (isTest) {
+                        tmpSubscriber.subscriptionType = ACC_TEST;
+                    }
+                    else if (accNo != null && accNo != "null" && accNo != "") {
+                        tmpSubscriber.subscriptionType = ACC_PAID;
+                    } else {
+                        tmpSubscriber.subscriptionType = ACC_FREE;
+                    }
+                }
+                subscribers.push(tmpSubscriber);
+            }
+            return {
+                error: false,
+                subObj: subscribers,
+                status: 200
+            };
+        } catch (e) {
+            log.error("Error while getting subscribers of the tenant: " + tenantDomain + ".");
+            log.error(e);
+            return {
+                error: true,
+                message: e.message,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+var makeSubscriberAccountTest = function (subscriberString) {
+    var tenantDomain = modManager.getTenantDomain();
+    var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
+    var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
+    var sqlDateFormat = modUtil.dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+    var zuoradateFormatter = modUtil.dateTimeFormatter(ZUORA_DATE_FORMAT);
+    var effectiveDate = new Packages.java.util.Date();
+    var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+    var subscriber, username, accountId;
+    var errorMsg = "Error while updating subscriber account to complementary";
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            subscriber = JSON.parse(subscriberString);
+            accountId = subscriber.accountId;
+            username = subscriber.username;
+            if (subscriber.complimentary == false) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Updating account to test for subscriber: " + username + " of tenant: " + tenantDomain + ".");
+                }
+                if (subscriber.subscriptionType == ACC_PAID) {
+                    var subscriptionIds = JSON.parse(monetizationService.getActiveSubscriptionIdsForAccountId(accountId, productName));
+                    var subsLen = subscriptionIds.length;
+                    var jsonData = {};
+                    jsonData.cancellationPolicy = 'SpecificDate';
+                    jsonData.cancellationEffectiveDate = zuoradateFormatter.format(effectiveDate);
+                    jsonData.invoiceCollect = true;
+                    for (var j = 0; j < subsLen; j++) {
+                        //Cancel subscriptions
+                        var subscriptionId = subscriptionIds[j];
+                        //Cancel paid subscriptions form Zuora
+                        var cancellationResponse = billingService.cancelSubscription(subscriptionId, stringify(jsonData));
+                        if (JSON.parse(cancellationResponse).success === true) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Zuora subscription: " + subscriptionId + " of subscriber: " + username + " of tenant: " + tenantDomain + " cancellation successful.");
+                            }
+                            //Insert in to monetization subscription history table
+                            var insertSubHistoryQuery = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY;
+                            var parameters = [formattedEffectiveDate, accountId, subscriptionId];
+                            modDb.executeQuery(insertSubHistoryQuery, parameters);
+                            //Delete subscription from monetization subscription table
+                            var deleteSubscriptionQuery = SQL_QUERY_STRINGS.DELETE_FROM_MONETIZATION_API_CLOUD_SUBSCRIPTIONS;
+                            parameters = [accountId, subscriptionId];
+                            modDb.executeQuery(deleteSubscriptionQuery, parameters);
+                        } else {
+                            throw "Subscription cancellation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                        }
+                    }
+                    //Update monetization subscriber table
+                    updateMonetizationSubscriberTable(true, username, tenantDomain);
+                    //send notification email
+                    sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
+                }
+                else {
+                    //Insert into monetization subscriber table
+                    var insertQueryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIBERS;
+                    var parameters = [username, tenantDomain, true, null, true];
+                    modDb.executeQuery(insertQueryString, parameters);
+                    //Send notification email
+                    sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
+                }
+                log.info("Updating account to test for user: " + username + " of tenant: " + tenantDomain + " is successful.");
+                return {
+                    error: false,
+                    status: 200
+                };
+            } else {
+                throw "Account of subscriber: " + username + " of tenant: " + tenantDomain + " received for modifying to a test account is already a test account.";
+            }
+        } catch (e) {
+            var msg;
+            //Invalid input parameter. Invalid JSON string or null user name.
+            if (username == null) {
+                msg = "Request with an invalid subscriber JSON String was received to make a test subscriber account for tenant: " + tenantDomain + ".";
+            }
+            else {
+                msg = "Error while updating subscriber account to test for subscriber: " + username + " of the tenant: " + tenantDomain + ".";
+            }
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: errorMsg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+var makeTestSubscriberAccountRegular = function (subscriberString) {
+    var tenantDomain = modManager.getTenantDomain();
+    var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
+    var effectiveDate = new Packages.java.util.Date();
+    var errorMsg = "Error while updating subscriber account to regular";
+    var subscriber, username;
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            subscriber = JSON.parse(subscriberString);
+            username = subscriber.username;
+            if (username == null || username == "" || username == "null") {
+                throw "Remove paid subscriptions failed for tenant: " + tenantDomain + ", userName is invalid.";
+            }
+            var apimSubscriberId = username + "@" + tenantDomain;
+            if (subscriber.complimentary == true) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Removing test account of user: " + username + " of tenant: " + tenantDomain + ".");
+                }
+                //Remove paid api subscriptions from apim
+                var response = monetizationService.removePaidApiSubscriptionsOfUser(apimSubscriberId, tenantDomain);
+                if (response === true) {
+                    //Update monetization subscriber table
+                    updateMonetizationSubscriberTable(false, username, tenantDomain);
+                    //Send notification email
+                    sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_REMOVED_MAIL_TYPE);
+                    log.info("Removing test account status of user: " + username + " of tenant: " + tenantDomain + " is successful.");
+                    return {
+                        error: false,
+                        status: 200
+                    };
+                } else {
+                    throw "Remove paid subscriptions failed for user: " + username + " of tenant: " + tenantDomain;
+                }
+            } else {
+                throw "Account of subscriber: " + username + " of tenant: " + tenantDomain + " received for change back to a regular account is already a regular account.";
+            }
+        } catch (e) {
+            var msg;
+            //Invalid input parameter. Invalid JSON string or null user name.
+            if (username == null) {
+                msg = "Request with an invalid subscriber JSON String was received to change a test subscriber account back to regular for tenant: " + tenantDomain + ".";
+            }
+            else {
+                msg = "Error while removing test account status of subscriber: " + username + " of the tenant: " + tenantDomain + "."
+            }
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: errorMsg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+
+//Get usage for a given time line
+
+var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate, toDate) {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Getting monetization usage data of apiVersion " + apiVersion + ", application: "
+                        + applicationName + " for user: " + userId + ", from " + fromDate + " to " + toDate + ".");
+            }
+            if (apiVersion == "*") {
+                var api = "*";
+                var version = "*";
+                var applicationName = "*";
+            } else {
+                var values = apiVersion.split(':v');
+                var api = values[0];
+                var version = values[1];
+            }
+            var response = monetizationService.getTenantMonetizationUsageDataForGivenDateRange(tenantDomain, userId, api, version, applicationName, fromDate, toDate);
+            //data service returns results in {"Entries":{"Entry":[{"xxx":"333"}, {"yyy":"333"}]}} format.
+            //If there is only one object it sends like {"Entries":{"Entry":{"yyy":"333"}}} Entry can 'Array' or an 'Object'.
+            var Entries = JSON.parse(response).Entries;
+            var entry = Entries.Entry;
+            if (entry == null || entry == "" || entry == undefined) {
+                return {
+                    error: false,
+                    apiObj: "",
+                    message: "no usage data available",
+                    status: 200
+                };
+            }
+            var usageData = [];
+            if (entry instanceof Array) {
+                usageData = entry;
+            }
+            //Object is returned when there is only one usage data object
+            else {
+                usageData.push(entry);
+            }
+            return {
+                error: false,
+                status: 200,
+                usageObj: usageData
+            };
+        } catch (e) {
+            var msg = "Error while retrieving usage for user: " + userId + " of tenant: " + tenantDomain + ".";
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: msg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+var getSubscribedApisOfUser = function (userId) {
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            var apiNames = [];
+            var api = {};
+            api.text = "ALL";
+            api.id = "*";
+            apiNames.push(api);
+            if (userId != "*") {
+                var resultObj = monetizationService.getUserAPIs(userId);
+                var apiEntries = JSON.parse(resultObj).Entries;
+                var entry = apiEntries.Entry;
+                if (entry == null || entry == "" || entry == undefined) {
+                    return {
+                        error: false,
+                        apiObj: "",
+                        message: "no subscribed apis for user: " + userId,
+                        status: 200
+                    };
+                }
+                //checks whether the object is an array or not
+                if (entry instanceof Array) {
+                    var len = entry.length;
+                    for (var i = 0; i < len; i++) {
+                        var api = {};
+                        var apiVersion = entry[i]["ApiVersion"];
+                        api.text = apiVersion.replace("v", "");
+                        api.id = apiVersion;
+                        apiNames.push(api);
+                    }
+                }
+                //Object is returned when there is only one api
+                else {
+                    var api = {};
+                    var apiVersion = entry.ApiVersion;
+                    api.text = apiVersion.replace("v", "");
+                    api.id = apiVersion;
+                    apiNames.push(api);
+                }
+            }
+            return {
+                error: false,
+                apiObj: apiNames,
+                status: 200
+            };
+        } catch (e) {
+            var msg = "error while retrieving apis of user: " + userId;
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: msg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+var getApiApplicationsOfUser = function (userId, api) {
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        try {
+            var applicationArray = [];
+            var app = {};
+            app.text = "ALL";
+            app.id = "*";
+            applicationArray.push(app);
+            if (api != "*") {
+                var resultObj = monetizationService.getUserAPIApplications(userId, api);
+                var appEntries = JSON.parse(resultObj).Entries;
+                var entry = appEntries.Entry;
+                if (entry == null || entry == "" || entry == undefined) {
+                    return {
+                        error: false,
+                        appObj: "",
+                        message: "no apps for user: " + userId + " api: " + api,
+                        status: 200
+                    };
+                }
+                //checks whether the object is an array or not
+                if (entry instanceof Array) {
+                    var len = entry.length;
+                    for (var i = 0; i < len; i++) {
+                        var app = {};
+                        var appName = entry[i]["applicationName"];
+                        app.text = appName;
+                        app.id = appName;
+                        applicationArray.push(app);
+                    }
+                }
+                //Object is returned when there is only one api
+                else {
+                    var app = {};
+                    var appName = entry.applicationName;
+                    app.text = appName;
+                    app.id = appName;
+                    applicationArray.push(app);
+                }
+            }
+            return {
+                error: false,
+                appObj: applicationArray,
+                status: 200
+            };
+        } catch (e) {
+            var msg = "error while retrieving apps of user: " + userId;
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: msg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+var getApimSubscriberIdsOfTenant = function () {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
+        var subscribersArray = [];
+        try {
+            var subscribers = modTenant.getUserListOfRole(ROLE_SUBSCRIBER);
+            var tmpSubscriberAll = {};
+            tmpSubscriberAll.text = "ALL";
+            tmpSubscriberAll.id = "*";
+            subscribersArray.push(tmpSubscriberAll);
+            var len = subscribers.length;
+            for (var i = 0; i < len; i++) {
+                var tmpSubscriber = {};
+                var userName = subscribers[i];
+                var tmpUser = modTenant.getUserInfo(userName);
+                tmpSubscriber.id = userName + "@" + tenantDomain;
+                tmpSubscriber.text = tmpUser.email;
+                subscribersArray.push(tmpSubscriber);
+            }
+            return {
+                error: false,
+                subObj: subscribersArray,
+                status: 200
+            };
+        } catch (e) {
+            var msg = "error while retrieving subscribers of tenant: " + tenantDomain;
+            log.error(msg);
+            log.error(e);
+            return {
+                error: true,
+                message: msg,
+                status: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action.";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            status: 401
+        };
+    }
+};
+
+//Check API monetization enabled status
+
+var isMonetizationEnabled = function (tenantDomain) {
+
+    var monStatus = session.get("monetizationEnabled");
+    if (monStatus != null && monStatus) {
+        return {
+            error: false,
+            status: 200,
+            monetizationEnabled: monStatus
+        };
+    }
+    try {
+        var monetizationStatus = monetizationService.isMonetizationEnabled(tenantDomain);
+        session.put("monetizationEnabled", monetizationStatus);
+        return {
+            error: false,
+            status: 200,
+            monetizationEnabled: monetizationStatus
+        };
+    } catch (e) {
+        var msg = "Error while checking the monetization status for tenant: " + tenantDomain;
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            message: msg,
+            status: 500
+        };
+    }
+};
+
+var updateMonetizationSubscriberTable = function (isTest, userName, tenantDomain) {
+    var queryString = SQL_QUERY_STRINGS.UPDATE_MONETIZATION_API_CLOUD_SUBSCRIBERS;
+    var parameters = [isTest, userName, tenantDomain];
+    modDb.executeQuery(queryString, parameters);
+};
+
+var sendSubsriberNotificationEmail = function (endDate, userEmail, tenantDomain, displayName, mailType) {
+    try {
+        var emailSubject = "";
+        var regPath = "";
+        var defaultPath = "";
+        var body = "";
+        var adminUsername = session.get("LOGGED_IN_USER");
+        var tenantAwareAdminName = modManager.getTenantAwareUsername(adminUsername);
+        if (mailType == COMPLEMENTARY_CREATED_MAIL_TYPE) {
+            emailSubject = CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT;
+            regPath = CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH;
+            defaultPath = CREATE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH;
+        } else {
+            emailSubject = REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_SUBJECT;
+            regPath = REMOVE_COMPLIMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_REG_PATH;
+            defaultPath = REMOVE_COMPLEMENTARY_SUBSCRIBER_NOTIFICATION_EMAIL_DEFAULT_PATH;
+        }
+        var responseObj = modRegistry.getResourceFromTenantSpace(regPath, tenantDomain, adminUsername);
+        if (!responseObj.error) {
+            body = (responseObj.response.content).toString();
+        } else {
+            body = modUtil.getObjFromFile(defaultPath);
+        }
+        var mailEndDate = modUtil.getEmailEffectiveDate(endDate);
+        var adminUserInfo = modTenant.getUserInfo(tenantAwareAdminName);
+        body = body.replace("$effective-date", mailEndDate).replace("$admin-email", adminUserInfo.email)
+                .replace("$admin-email", adminUserInfo.email).replace("$admin-user-name", adminUserInfo.displayName).replace("$tenant", displayName);
+        emailSubject = emailSubject.replace("$displayName", displayName);
+        modUtil.sendEmail(body, emailSubject, userEmail);
+    } catch (e) {
+        log.error("Error while sending complimentary account change notification email to the subscriber: " + userEmail + " of the tenant: " + displayName);
+        log.error(e);
+        throw e;
+    }
+};
+
+var getSubscriptions = function (accountNumber) {
+    try {
+        var parameters = [accountNumber, accountNumber];
+        var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS;
+        successObj.data = modDb.executeQuery(queryString, parameters);
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the subscription information for accountId - " + accountNumber + ":");
+        log.error(e);
+        errorObj.message = "Error occurred while getting the subscription information, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getAccountIdFromUserName = function (username) {
+    try {
+        var tenantDomain = modManager.getTenantDomain();
+        var parameters = [username, tenantDomain];
+        var queryString = SQL_QUERY_STRINGS.SELECT_ACCOUNT_ID_FROM_USER;
+        var result = modDb.executeQuery(queryString, parameters);
+        var accountNumber = null;
+        if (result.length > 0) {
+            accountNumber = result[0].ACCOUNT_NUMBER;
+        }
+        successObj.data = accountNumber;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the account id from the username - " + username + " :");
+        log.error(e);
+        errorObj.message = "Error while getting the account id from the username - " + username +
+                ", Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getApiListFromAccountId = function (accountId) {
+    try {
+        var parameters = [accountId];
+        var queryString = SQL_QUERY_STRINGS.SELECT_API_LIST_FROM_ACCOUNT_NUMBER;
+        var result = modDb.executeQuery(queryString, parameters);
+        var apiWithVersion = [];
+        for (var index in result) {
+            var api = result[index].AM_API_NAME + "-" + result[index].AM_API_VERSION;
+            var data = {
+                id: index,
+                text: api,
+                apiVersion: result[index].AM_API_VERSION,
+                apiName: result[index].AM_API_NAME
+            };
+            apiWithVersion.push(data);
+        }
+        successObj.data = apiWithVersion;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the API list from account id - " + accountId + ":");
+        log.error(e);
+        errorObj.message = "Error while getting the API list, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+var getOrdedInvoices = function (accountId, invoiceId) {
+    try {
+        var result = modBilling.getBillingInvoiceData(accountId, invoiceId);
+        var orderedInvoiceList = {};
+        var subscriptionDetails = {};
+
+        for (var i = 0; i < result.invoiceItems.length; i++) {
+            var invoiceItem = result.invoiceItems[i];
+            //combine invoice details according to the subscription
+            if (invoiceItem.subscriptionName in orderedInvoiceList) {
+                orderedInvoiceList[invoiceItem.subscriptionName].push(invoiceItem);
+            } else {
+                orderedInvoiceList[invoiceItem.subscriptionName] = [invoiceItem];
+                subscriptionDetails[invoiceItem.subscriptionName] = getSubscriptionDataFromName(invoiceItem.subscriptionName);
+            }
+        }
+        result.invoiceItems = orderedInvoiceList;
+        result.subscriptionData = subscriptionDetails;
+        successObj.data = result;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the invoice data for accountId [" + accountId + "] :");
+        log.error(e);
+        errorObj.message = "Error occurred while getting the invoice information, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getBillingAccountSummary = function (subscribersAccountId) {
+    try {
+        var summary = billingService.getAccountSummary(subscribersAccountId);
+        successObj.data = summary;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the Billing data for accountId [" + subscribersAccountId + "] :");
+        log.error(e);
+        errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getBillingPaymentInfo = function (subscribersAccountId) {
+    try {
+        var summary = billingService.getPayments(subscribersAccountId);
+        successObj.data = summary;
+        return successObj;
+    } catch (e) {
+        log.error("Error while getting the Billing data for accountId [" + subscribersAccountId + "] :");
+        log.error(e);
+        errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return errorObj;
+    }
+};
+
+var getSubscriptionDataFromName = function (subscriptionName) {
+    var queryStringForSubscription = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_DATA_FROM_SUBSCRIPTION_ID;
+    var parameters = [subscriptionName];
+    var result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
+    // If subscription is not available in subscription table search in the history table.
+    if (result.length == 0) {
+        var queryStringForSubscriptionHistory = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_HISTORY_DATA_FROM_SUBSCRIPTION_ID
+        result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
+    }
+    var subscriptionData = new Array();
+    subscriptionData.push((result[0]["AM_API_NAME"]) + ":" + (result[0]["AM_API_VERSION"]));
+    subscriptionData.push(result[0]["RATE_PLAN_NAME"]);
+    return subscriptionData;
+};
+
+// Function for enable monetization
+var enableMonetization = function (tenantPassword) {
+    var isPaidAccount = false;
+    var paymentPlanName = null;
+    try {
+        /* Check whether the account is eligible for monetizing. Account should be a paid account and at
+         least upgrade to getting traction payment plan. So it should not be a billing starting plan.
+         */
+        isPaidAccount = modBilling.isPaidAccount();
+        paymentPlanName = getCurrentPaymentPlan();
+        var tenantDomain = modManager.getTenantDomain();
+        var username = jagg.getUser();
+        if (isPaidAccount) {
+            if (paymentPlanName != null && BILLING_STARTER_PLAN != paymentPlanName) {
+                var productName = tenantDomain + "_" + API_CLOUD;
+                var effectiveStartDate = new Packages.java.util.Date();
+                var tenantDisplayName = jagg.getUser();
+                var cloudEmail = cloudConfig.supportContact.to;
+                var userEmail = String(session.get(LOGGED_IN_USER_EMAIL));
+                var isProductCreated =
+                        billingService.enableMonetization(tenantDomain, tenantPassword, tenantDisplayName);
+                if (isProductCreated) {
+                    var cloudType = productIdFromServiceId.api_cloud;
+                    // Add status to MONETIZATION_STATUS table
+                    var addMonetizationStatus = addStatusToMonetizationStatusTable(tenantDomain, API_CLOUD);
+                    if (addMonetizationStatus) {
+                        log.info("Successfully updated the monetization status table for tenant : " + tenantDomain);
+
+                        //updating the monetization status For ApiCloud
+                        var updateApiCloudMonetizationStatusResult = updateApiCloudMonetizationStatus();
+                        if (updateApiCloudMonetizationStatusResult.error) {
+                            log.error(updateApiCloudMonetizationStatusResult.message);
+                        }
+
+                        // Send email notification to cloud service
+                        var notificationToCloudStatus = sendProductEnableNotificationEmailToCloud(tenantDisplayName,
+                                effectiveStartDate, productName, cloudEmail);
+                        if (notificationToCloudStatus == false) {
+                            log.error("Monetization Enable notification sending failed for cloud service for tenant : "
+                            + tenantDomain + " , Product name : " + productName);
+                        }
+
+                        // Send email notification to tenant
+                        var notificationToUserStatus = sendProductEnableNotificationEmailToUser(tenantDisplayName,
+                                effectiveStartDate, productName, userEmail);
+                        if (notificationToUserStatus == false) {
+                            log.error("Monetization Enable notification sending failed for cloud service for tenant : "
+                            + tenantDomain + " , Product name : " + productName);
+                        }
+                        log.info("Successfully created the Product for the tenant : " + tenantDomain);
+                        return {
+                            error: false,
+                            status: "200",
+                            message: "You have successfully enabled monetizaton for API Cloud. <br>" +
+                            "Next, select the commercial tier to complete the task.",
+                            redirectionURL: apiManagerURL + TIER_MANAGE_URL,
+                            account: "paid"
+                        };
+                    } else {
+                        throw "Add status to monetization_status table failed for user: " + username + " of tenant: " +
+                        tenantDomain + ".";
+                    }
+                } else {
+                    throw "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                }
+            } else {
+                throw "Validation failed. User " + username + " is having an " + BILLING_STARTER_PLAN + " account.";
+            }
+        } else {
+            throw "Validation failed. User " + username + " is having an free account.";
+        }
+    } catch (e) {
+        var msg, account = "";
+        if (!isPaidAccount) {
+            msg = "You are having an free account. In order to enable Monetization please upgrade your account to " +
+            "at-least 'Getting Traction' plan.";
+            account = "Free";
+        } else if (paymentPlanName != null && BILLING_STARTER_PLAN == paymentPlanName) {
+            msg = "You are subscribed to " + BILLING_STARTER_PLAN + " Plan. In order to enable Monetization please " +
+            "upgrade your account to at-least '" + MONETIZATION_STARTER_PLAN + "' plan.";
+            account = BILLING_STARTER_PLAN;
+        } else {
+            msg = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
+        }
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            message: msg,
+            status: 500,
+            redirectionURL: contactUsURL,
+            account: account
+        };
+    }
+};
+
+// Function for query zuora product by name
+var getProductInfo = function (tenantDomain, productName) {
+    billingService.queryProduct(tenantDomain, productName);
+};
+
+// Method which retrieves the current payment plan of the tenant
+var getCurrentPaymentPlan = function () {
+    var serviceId = API_CLOUD;
+    var currentRatePlanId = null;
+    try {
+        var ratePlans = modBilling.getCurrentRatePlan(serviceId);
+        if (ratePlans != null && ""!= ratePlans) {
+            for (var i = 0; i < ratePlans.length; i++) {
+                if ((ratePlans[i]["ratePlanName"].indexOf("coupon") < 0)) {
+                    currentRatePlanId = ratePlans[i].productRatePlanId;
+                }
+            }
+            var paymentPlanName = null;
+
+            var ratePlansObj = modBilling.getRatePlans(serviceId);
+            var paymentPlans = ratePlansObj.entry;
+            for (var i = 0; i < paymentPlans.length; i++) {
+                if (currentRatePlanId == paymentPlans[i].id) {
+                    paymentPlanName = paymentPlans[i].name;
+                }
+            }
+        }
+    } catch (e) {
+        log.error("Error while getting the current payment plan:");
+        log.error(e);
+        var msg = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            message: msg,
+            status: 500,
+            redirectionURL: contactUsURL
+        };
+    }
+    return paymentPlanName;
+};
+
+// Function for insert monetization enabled status
+var addStatusToMonetizationStatusTable = function (tenantDomain, cloudType) {
+    var queryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_STATUS;
+    var parameters = [tenantDomain, cloudType];
+    var result = modDb.executeQuery(queryString, parameters);
+    return (null != result);
+};
+
+// Function for send monetization enable notification to cloud
+var sendProductEnableNotificationEmailToCloud = function (displayName, effectiveStartDate, productName, cloudEmail) {
+    var body = modUtil.getObjFromFile(ENABLE_MONETIZATION_CLOUD_NOTIFICATION_FILE_PATH);
+    body = body.replace("$tenant", displayName).replace("$effective-date", effectiveStartDate).replace("$product_name",
+            productName);
+    var subject = "WSO2 Cloud Services - Successfully enabled monetization for user " + displayName;
+    return modUtil.sendEmail(body, subject, cloudEmail);
+};
+
+// Function for send monetization enable notification to user
+var sendProductEnableNotificationEmailToUser = function (displayName, effectiveStartDate, productName, userEmail) {
+    var body = modUtil.getObjFromFile(ENABLE_MONETIZATION_USER_NOTIFICATION_FILE_PATH);
+    body = body.replace("$tenant", displayName).replace("$effective-date", effectiveStartDate).replace("$product_name",
+            productName);
+    var subject = "WSO2 Cloud Services - Successfully enabled monetization.";
+    return modUtil.sendEmail(body, subject, userEmail);
+};
+
+// Function for create product rate plans
+var createProductRatePlan = function (ratePlanName, price, throttlingLimit, monthlyLimit, overageCharge, description) {
+    var tenantDomain = modManager.getTenantDomain();
+    return billingService.createProductRatePlan(tenantDomain, ratePlanName, price, throttlingLimit, monthlyLimit,
+            overageCharge, description);
+};
+
+// Function for get the names of thw throttling tiers
+var getThrottlingTiersOfTenant = function (tenantDomain) {
+    return billingService.getThrottlingTiersOfTenant(tenantDomain);
+};
+
+// Function to get the number of product plans available for the given tenant.
+var getNumberOfProductPlansForTenant = function (tenantDomain) {
+    var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
+    try {
+        var queryString = SQL_QUERY_STRINGS.SELECT_NUMBER_OF_MONETIZATION_PRODUCT_PLANS_FOR_TENANT;
+        var parameters = [tenantDomain, productName];
+        var result = modDb.executeQuery(queryString, parameters);
+        successObj.data = result[0]["PRODUCT_PLAN_COUNT"];
+        return successObj;
+    } catch (e) {
+        var message = "Error while getting the number of product plans for the tenant: " + tenantDomain;
+        log.error(message);
+        log.error(e);
+        errorObj.message = message;
+        return errorObj;
+    }
+};
+
+var getProductPlans = function () {
+    var getTiersResponse = getTiersOfTenant();
+    if (getTiersResponse.error) {
+        return getTiersResponse;
+    }
+    try {
+        var tenantDomain = modManager.getTenantDomain();
+        var tiersList = getTiersResponse.data;
+        var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_PRODUCT_PLANS;
+        var parameters = [tenantDomain];
+        var result = jagg.module("database").executeQuery(queryString, parameters);
+
+        var planList = [];
+        for (var index in tiersList) {
+            var tmpPlanList = {};
+            if (tiersList[index].BillingPlan == null) {
+                tiersList[index].BillingPlan = FREE_TIER;
+            }
+            tmpPlanList.planName = tiersList[index].tierName;
+            tmpPlanList.billingActive = tiersList[index].BillingPlan;
+            var isAvailable = false;
+            if (result != null) {
+                for (var count in result) {
+                    if (result[count].RATE_PLAN_NAME == tiersList[index].tierName) {
+                        isAvailable = true;
+                        tmpPlanList.dailyLimit = result[count].MAX_DAILY_USAGE;
+                        tmpPlanList.price = result[count].MONTHLY_RENTAL;
+                        tmpPlanList.overage = result[count].UOM_PRICE;
+                        tmpPlanList.overageLimit = result[count].UOM_UNIT;
+                    }
+                }
+            }
+            if (!isAvailable) {
+                tmpPlanList.dailyLimit = "-";
+                tmpPlanList.price = "-";
+                tmpPlanList.overage = "-";
+                tmpPlanList.overageLimit = "-";
+            }
+            planList.push(tmpPlanList);
+        }
+        return {
+            error: false,
+            status: 200,
+            data: planList
+        };
+    } catch (e) {
+        var msg = "Unable to get the product plan list at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            message: msg,
+            status: 500
+        };
+    }
+};
+var addProductPlans = function (planName, planDescription, pricing, overageCharge, overageLimit, dailyUsage) {
+    try {
+        var tenantDomain = modManager.getTenantDomain();
+        var addProductPlansResult = JSON.parse(billingService.createProductRatePlan(tenantDomain, planName, pricing, overageCharge, planDescription));
+        if (addProductPlansResult.id != null) {
+            addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlansResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
+            return {
+                error: false,
+                status: 200,
+                redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
+            };
+        } else {
+            var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+            log.error("Error occured while adding the product plans for tenant: " + tenantDomain);
+            return {
+                error: true,
+                redirectionURL: contactUsURL,
+                message: msg,
+                status: 500
+            };
+        }
+    } catch (e) {
+        var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            redirectionURL: contactUsURL,
+            message: msg,
+            status: 500
+        };
+    }
+};
+
+// getting the tier details of the tenant
+var getTiersOfTenant = function () {
+    try {
+        var tenantDomain = modManager.getTenantDomain();
+        var tiersList = JSON.parse(monetizationService.getTiers(tenantDomain));
+        return {
+            error: false,
+            status: 200,
+            data: tiersList
+        };
+    } catch (e) {
+        var msg = "Unable to get the product plan list at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            message: msg,
+            status: 500
+        };
+    }
+};
+
+var addProductPlanDetailsToMonetizationTables = function (tenantDomain, ratePlanId, planName, pricing, overageCharge, overageLimit, dailyUsage) {
+    try {
+        var queryString = SQL_QUERY_STRINGS.INSERT_PRODUCT_PLAN_INFORMATION;
+        var parameters = [tenantDomain, tenantDomain + "_" + API_CLOUD, planName, ratePlanId];
+        jagg.module("database").executeQuery(queryString, parameters);
+
+        queryString = SQL_QUERY_STRINGS.INSERT_PRODUCT_API_CLOUD_PLANS_INFORMATION;
+        parameters = [ratePlanId, dailyUsage, pricing, overageLimit, overageCharge];
+        jagg.module("database").executeQuery(queryString, parameters);
+
+    } catch (e) {
+        var msg = "Error occurred while inserting product plan information to the monetization tables for tenant: " + tenantDomain;
+        log.error(msg);
+        throw (e);
+    }
+};
+
+var updateApiCloudMonetizationStatus = function () {
+    var cookie = modManager.getAdminCookie(apiCloudServiceURL);
+    var tenantDomain = modManager.getTenantDomain();
+    if (!(cookie)) {
+        throw 'failed to get a valid authenticated cookie from backend server';
+    }
+    var ws = require('ws');
+    var request = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:updateMonetizationStatus";
+    options["HTTPHeaders"] = [
+        {name: "Cookie", value: cookie}
+    ];
+    var payload = '<updateMonetizationStatus xmlns="http://service.billing.cloud.carbon.wso2.org">' +
+            '<tenantDomain>' + tenantDomain + '</tenantDomain>' +
+            '</updateMonetizationStatus>';
+    var result = {};
+    var response;
+    try {
+        var endPoint = apiCloudServiceURL + BILLING_SERVICE;
+        request.open(options, endPoint, false);
+        request.send(payload);
+        response = request.responseE4X;
+        result.error = false;
+        result.message = response;
+        log.info("Successfully updated the monetization status in the registry for the tenant "+tenantDomain);
+
+    } catch (e) {
+        log.error(e.toString());
+        result.error = true;
+        result.message = " Error occured while updating the monetization status in API Cloud for tenant: " + tenantDomain;
+        result.status = 500;
+    }
+    return result;
+};
+
+var updateProductPlanDetailsToMonetizationTable = function (tenantDomain, ratePlanId, planName, pricing, overageCharge, overageLimit, dailyUsage) {
+    try {
+        var queryString = SQL_QUERY_STRINGS.UPDATE_PRODUCT_API_CLOUD_PLANS_INFORMATION;
+        var parameters = [dailyUsage, pricing, overageLimit, overageCharge, ratePlanId];
+        jagg.module("database").executeQuery(queryString, parameters);
+    } catch (e) {
+        var msg = "Error occurred while updating product plan " + planName + " information to the monetization tables for tenant: " + tenantDomain;
+        log.error(msg);
+        throw (e);
+    }
+};
+
+var isProductPlanExistsForTenant = function (ratePlanName) {
+    var tenantDomain = modManager.getTenantDomain();
+    try {
+        var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_PRODUCT_PLANS_OF_TENANT;
+        var parameters = [tenantDomain, ratePlanName];
+        var result = modDb.executeQuery(queryString, parameters);
+        return (result != null && result[0]["COUNT"] > 0);
+    } catch (e) {
+        var msg = "Error occurred while checking the existence of the product plan: " + ratePlanName + " of the tenant: " + tenantDomain;
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            redirectionURL: contactUsURL,
+            message: msg,
+            status: 500
+        };
+    }
+};
+
+var updateProductRatePlanInfo = function (ratePlanName, description, recurringCharge, overageCharge, overageLimit, dailyUsage) {
+    try {
+        var tenantDomain = modManager.getTenantDomain();
+        var updateProductResult = JSON.parse(billingService.updateProductRatePlan(tenantDomain, ratePlanName, recurringCharge, overageCharge, description));
+        if (updateProductResult.id != null) {
+            updateProductPlanDetailsToMonetizationTable(tenantDomain, updateProductResult.id, ratePlanName, recurringCharge, overageCharge, overageLimit, dailyUsage);
+            return {
+                error: false,
+                status: 200,
+                redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
+            };
+        } else {
+            var msg = "Unable to update the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+            log.error("Error occurred while updating the product plan: " + ratePlanName + " for tenant: " + tenantDomain);
+            return {
+                error: true,
+                redirectionURL: contactUsURL,
+                message: msg,
+                status: 500
+            };
+        }
+    } catch (e) {
+        var msg = "Unable to update the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            redirectionURL: contactUsURL,
+            message: msg,
+            status: 500
+        };
+    }
+};
+%>

@@ -1,0 +1,74 @@
+<%
+include("/jagg/jagg.jag");
+include("../header.jag");
+var site = require("/site/conf/site.json");
+var i18n = require("i18n");
+var localeResourcesBasePath = "/site/conf/locales/jaggery/";
+i18n.init(request, localeResourcesBasePath);
+var tenantDomain = jagg.getTenantDomain(), isMonetizationEnabledObj;
+
+isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+var accountId = jagg.module("pricing").getAccountId();
+
+
+(function () {
+    var user = jagg.getUser(), isCreatePermitted;
+    isTenantAllowed();
+    if (!user) {
+        response.sendRedirect(getRedirectPathForNonAuthenticatedUser());
+        return;
+    }
+
+    //if monetization is not available for tenant
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+        return;
+    }
+    if (accountId == null) {
+        response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
+        return;
+    }
+
+
+    jagg.render({
+        "name": "page/base",
+        "inputs": {
+            "title": "API Store- Account Summary ",
+            "header": {
+                "name": "menu/primary"
+            },
+            "body": [
+                {
+                    "name": "layout/base",
+                    "inputs": {
+                        "top": [
+
+                            {
+                                "name": "search/api-search",
+                                "inputs": null
+                            }
+                        ],
+                        "left": [
+                            {
+                                "name": "api/recently-added",
+                                "inputs": {
+                                    "tenant": tenantDomain
+                                }
+                            }
+                        ],
+                        "middle": {
+                            "name": "pricing/account/info"
+                        }
+                    }
+                }
+            ], "footer": [
+                {
+                    "name": "footer"
+                }
+            ]
+        }
+    });
+}());
+
+
+%>

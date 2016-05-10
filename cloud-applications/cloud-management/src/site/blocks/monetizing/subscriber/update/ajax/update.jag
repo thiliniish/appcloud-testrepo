@@ -1,0 +1,97 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+
+    var loginStatus = jagg.isUserLoggedIn();
+    if (loginStatus.error) {
+        response.status = 401;
+        print(loginStatus);
+        return;
+    }
+    var tenantDomain;
+    var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var user = jagg.getUser();
+    if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == null) {
+        response.status = 401;
+        print({
+            error: true,
+            status: 401,
+            message: "Unauthorized. Login required."
+        });
+    }
+    if (!jagg.module("util").isUserInAdminRole()) {
+        response.status = 401;
+        print({
+            error: true,
+            status: 401,
+            message: "User does not have permission to perform the requested operation"
+        });
+    }
+    var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.status = 403;
+        print({
+            error: true,
+            status: 403,
+            message: "Feature not available for the organization."
+        });
+    }
+    var mod, result, returnObj,
+            action = encoder.getSafeText(request.getParameter("action")),
+            site = require("/site/conf/site.json");
+    mod = jagg.module("monetizing");
+    if (action != null && action == "makeSubscriberAccountTest") {
+        var subscriber = request.getParameter("subscriber");
+        result = mod.makeSubscriberAccountTest(subscriber);
+        if (result == null || result.error) {
+            var message = result.message;
+            if (message == null) {
+                message = "Error while updating an account to test for tenant: " + tenantDomain;
+            }
+            returnObj = {
+                error: true,
+                message: message,
+                status: result.status
+            };
+        } else {
+            returnObj = {
+                error: false,
+                status: result.status
+            }
+        }
+        print(returnObj);
+    } else if (action != null && action == "makeTestSubscriberAccountRegular") {
+        var subscriber = request.getParameter("subscriber");
+        result = mod.makeTestSubscriberAccountRegular(subscriber);
+        if (result == null || result.error) {
+            var message = result.message;
+            if (message == null) {
+                message = "Error while changing a test account back to a regular account for tenant: " + tenantDomain;
+            }
+            returnObj = {
+                error: true,
+                message: message,
+                status: result.status
+            };
+        } else {
+            returnObj = {
+                error: false,
+                status: result.status
+            }
+        }
+        print(returnObj);
+    }
+    else {
+        var msg = "Invalid action: " + action;
+        response.status = 400;
+        print({
+            error: true,
+            message: msg,
+            status: 400
+        });
+    }
+}());
+%>

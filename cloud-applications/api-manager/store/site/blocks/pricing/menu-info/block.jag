@@ -1,0 +1,23 @@
+<%
+include("/jagg/jagg.jag");
+jagg.block("pricing/menu-info", {
+    initializer:function (data) {
+    },
+    getInputs:function () {
+        return {
+            "result":null
+        };
+    },
+    getOutputs:function (inputs) {
+        var tenantDomain, error;
+        tenantDomain = jagg.getTenantDomain();
+        mod =  jagg.module("pricing");
+        var response = mod.getAllProductPlansForTenant(tenantDomain);
+        error = response.error;
+        return {
+            "result":response.result,
+            "error":error
+        };
+    }
+});
+%>

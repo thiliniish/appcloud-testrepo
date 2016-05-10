@@ -1,0 +1,7 @@
+<%
+jagg.block("monetizing/account/invoice", {
+    getOutputs: function (inputs) {
+        return inputs;
+    }
+});
+%>

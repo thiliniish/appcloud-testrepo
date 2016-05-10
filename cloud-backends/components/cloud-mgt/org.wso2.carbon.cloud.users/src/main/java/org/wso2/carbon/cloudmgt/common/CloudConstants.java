@@ -48,7 +48,10 @@ public class CloudConstants {
     public static final String APIMGT_REGISTRY_LOCATION = "/apimgt";
     public static final String API_APPLICATION_DATA_LOCATION = APIMGT_REGISTRY_LOCATION + "/applicationdata";
 
-    public static final class Permissions {
+	//SQL Queries
+	public static final String SELECT_TENANT_DISPLAY_NAME_FOR_TENANT_DOMAIN_QUERY = "SELECT displayName FROM ORGANIZATIONS WHERE tenantDomain = ?;";
+
+	public static final class Permissions {
         public static final String API_CREATE = "/permission/admin/manage/api/create";
         public static final String API_PUBLISH = "/permission/admin/manage/api/publish";
     }

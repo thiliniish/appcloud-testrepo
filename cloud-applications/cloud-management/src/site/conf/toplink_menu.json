@@ -94,6 +94,12 @@
         "icon": "fa fa-3x  fa-users",
         "isDropDown": "false",
         "target": "_self"
+      },
+      "Monetization": {
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/monetization-dashboard.jag",
+        "icon": "fa fa-3x fa-money",
+        "isDropDown": "false",
+        "target": "_self"
       }
     }
   }

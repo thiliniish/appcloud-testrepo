@@ -105,7 +105,7 @@ if (request.getParameter("cloud-type") != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 	var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 	var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-	var isBillingEnabled = jagg.module("billing").isBillingEnable();
+	var isBillingEnabled = jagg.module("billing").isBillingEnabled();
 	if (isBillingEnabled) {
 		var isBillingAccount = jagg.module("billing").isPaidAccount();
 		var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();
@@ -164,7 +164,7 @@ if (request.getParameter("cloud-type") != null) {
                   if(result == true || result == 'true') {
                   	jagg.message({content:'You have successfully  canceled your subscription',type:'success'});
                    } else {
-                   	jagg.message({type:'error',content:'<strong>Error!</strong> Unable to cancel subscription.'});
+                   	jagg.message({type:'error',content:"Unable to cancel the subscription at the moment. Please contact WSO2 Cloud Team for help"});
                    }
                 }, function (jqXHR, textStatus, errorThrown) {
                 	var cloudMgtURL =  $("#cloudmgtURL").attr('value');
@@ -257,7 +257,8 @@ if (request.getParameter("cloud-type") != null) {
                          $('.pagefooter').hide();
                       }
                   },function (jqXHR, textStatus, errorThrown) {
-                        jagg.message({type:'error',content:'<strong>Error!</strong> Unable to get usage.'});
+                        jagg.message({type:'error',content: "Unable to retrieve usage information at the moment. " +
+                         "Please contact WSO2 Cloud Team for help"});
                   }
        );
    }

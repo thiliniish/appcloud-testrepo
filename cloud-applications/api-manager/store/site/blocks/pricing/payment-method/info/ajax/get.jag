@@ -1,0 +1,81 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+var log = new Log("site.blocks.pricing.method.info.ajax.get.jag");
+
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("pricing");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+
+(function () {
+    var action = request.getParameter("action");
+    var responseObj;
+    var user = jagg.getUser();
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
+    var message;
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.status = 403;
+        print({
+            error: true,
+            statusCode: 403,
+            message: "Feature is not available for the store. Please contact store admin."
+        });
+    }
+    if (action == "get-payment-methods") {
+        var result = mod.getAllPaymentMethods();
+        result.tenantDomain = tenantDomain;
+        if (result.error) {
+            result.cloudmgtURL = mod.getCloudmgtURL();
+        }
+        print(result);
+    } else if (action == "setDefaultMethod") {
+        var methodId = encoder.getSafeText(request.getParameter("paymentMethodId"));
+        var result = mod.updateDefaultPaymentMethod(methodId);
+        result.tenantDomain = tenantDomain;
+        if (result.error) {
+            result.cloudmgtURL = mod.getCloudmgtURL();
+        }
+        print(result);
+    } else if (action == "removePaymentMethod") {
+        try {
+            var methodId = encoder.getSafeText(request.getParameter("paymentMethodId"));
+            var result = mod.removePaymentMethod(methodId);
+            result.tenantDomain = tenantDomain;
+            if (result.error) {
+                result.cloudmgtURL = mod.getCloudmgtURL();
+            }
+            print(result);
+        } catch (e) {
+            var message = "Error while removing the payment method";
+            responseObj = {
+                error: true,
+                message: message,
+                statusCode: 500
+            };
+            print(responseObj);
+        }
+    } else {
+        msg = "Invalid Action specified for action " + action;
+        responseObj = {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+}());
+%>

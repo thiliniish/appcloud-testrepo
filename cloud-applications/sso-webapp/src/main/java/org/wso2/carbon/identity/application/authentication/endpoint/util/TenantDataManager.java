@@ -26,7 +26,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
-import org.wso2.securevault.SecurityConstants;
 import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPath;
@@ -37,12 +36,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.Enumeration;
 
 public class TenantDataManager {
 
@@ -200,7 +199,7 @@ public class TenantDataManager {
 
             String xmlString = getServiceResponse(url);
 
-            if (xmlString != null && !"".equals(xmlString)) {
+            if (xmlString != null && !xmlString.isEmpty()) {
 
                 XPathFactory xpf = XPathFactory.newInstance();
                 XPath xpath = xpf.newXPath();

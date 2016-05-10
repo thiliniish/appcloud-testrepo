@@ -1,0 +1,91 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+
+var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+
+(function () {
+    var mod, result,
+            action = encoder.getSafeText(request.getParameter("action")),
+            site = require("/site/conf/site.json");
+    var user = jagg.getUser();
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
+    mod = jagg.module("pricing");
+
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.status = 403;
+        print({
+            error: true,
+            statusCode: 403,
+            message: "Feature is not available for the store. Please contact the store admin."
+        });
+        return;
+    }
+
+    if (action != null && action == "createAccount") {
+        var accountData = {};
+        var metaData = {};
+
+        accountData.organization = encoder.getSafeText(request.getParameter("organization"));
+        accountData.firstName = encoder.getSafeText(request.getParameter("firstName"));
+        accountData.lastName = encoder.getSafeText(request.getParameter("lastName"));
+        accountData.address1 = encoder.getSafeText(request.getParameter("address1"));
+        accountData.address2 = encoder.getSafeText(request.getParameter("address2"));
+        accountData.city = encoder.getSafeText(request.getParameter("city"));
+        accountData.state = encoder.getSafeText(request.getParameter("state"));
+        accountData.zipCode = encoder.getSafeText(request.getParameter("zipCode"));
+        accountData.country = encoder.getSafeText(request.getParameter("country"));
+        accountData.workEmail = encoder.getSafeText(request.getParameter("email"));
+
+        metaData.refId = encoder.getSafeText(request.getParameter("refId"));
+        metaData.signature = encoder.getSafeText(request.getParameter("signature"));
+        metaData.field_passthrough1 = encoder.getSafeText(request.getParameter("field_passthrough1"));
+        var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
+        try {
+            result = mod.createAccount(user.username, accountData, metaData, workflowReference);
+            if (result != null) {
+                print(result);
+            } else {
+                print({
+                    error: true,
+                    statusCode: 500,
+                    message: "Account creation failure. Please retry...."
+                });
+            }
+        } catch (e) {
+            var errorMsg = "Account creation failure. ";
+            log.error(errorMsg);
+            log.error(e);
+            print({
+                error: true,
+                statusCode: 500,
+                message: errorMsg + " Please retry...."
+            });
+        }
+    } else {
+        log.error("No action specified..");
+        response.status = 400;
+        print({
+            error: true,
+            statusCode: 400,
+            message: "No action specified. Please retry..."
+        });
+    }
+}());
+%>

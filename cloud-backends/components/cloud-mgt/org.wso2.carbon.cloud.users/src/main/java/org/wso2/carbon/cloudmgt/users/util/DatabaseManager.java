@@ -26,6 +26,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Hashtable;
 
@@ -78,4 +79,38 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * This method retrieves the tenant display name for the tenant domain from the database.
+     *
+     * @param tenantDomain
+     * @return the tenant display name
+     * @throws SQLException
+     */
+    public String getTenantDisplayName(String tenantDomain) throws SQLException {
+
+        Connection conn = null;
+        PreparedStatement preparedStatement = null;
+        String tenantDisplayName = "";
+        try {
+            conn = dataSource.getConnection();
+            preparedStatement = conn.prepareStatement(
+                    CloudConstants.SELECT_TENANT_DISPLAY_NAME_FOR_TENANT_DOMAIN_QUERY);
+            preparedStatement.setString(1, tenantDomain);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                tenantDisplayName = rs.getString("displayName");
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            throw e;
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+        return tenantDisplayName;
+    }
 }

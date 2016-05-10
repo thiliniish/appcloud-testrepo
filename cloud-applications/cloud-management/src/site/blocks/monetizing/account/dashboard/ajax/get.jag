@@ -1,0 +1,55 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log("site.blocks.monetizing.account.info.ajax.get");
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("monetizing");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+var user = jagg.getUser();
+var tenantDomain = multiTenantUtils.getTenantDomain(user)
+if (user == null || tenantDomain == null) {
+    response.status = 401;
+    print({
+        error: true,
+        status: 401,
+        message: "Unauthorized. Login required."
+    });
+}
+
+if (!jagg.module("util").isUserInAdminRole()) {
+    response.status = 401;
+    print({
+        error: true,
+        status: 401,
+        message: "User does not have permission to perform the requested operation"
+    });
+}
+
+var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+    response.status = 403;
+    print({
+        error: true,
+        status: 403,
+        message: "Monetization feature is not available for the organization."
+    });
+}
+
+(function () {
+    var action = encoder.getSafeText(request.getParameter("action"));
+    if (action == "get-product-plan-count") {
+        var result = mod.getNumberOfProductPlansForTenant(tenantDomain);
+        print(result);
+    } else {
+        log.error("No Action Specified");
+        response.status = 400;
+        errorObj.message = "Unexpected error occurred";
+        print(errorObj);
+    }
+
+}());
+
+%>

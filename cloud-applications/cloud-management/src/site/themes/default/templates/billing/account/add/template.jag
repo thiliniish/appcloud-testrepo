@@ -7,7 +7,7 @@
 
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var isBillingEnabled = jagg.module("billing").isBillingEnable();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled();
     var userName =  session.get("LOGGED_IN_USER");
     var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
     var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3;

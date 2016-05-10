@@ -1,0 +1,10 @@
+<%
+jagg.initializer("pricing/menu-info", {
+    preInitialize: function () {
+        jagg.addHeaderCSS("pricing/menu-info", "fontwso2", "templates/pricing/css/fontwso2-1.2/css/font-wso2.css");
+        jagg.addHeaderCSS("pricing/menu-info", "font-awesome", "templates/pricing/css/font-awesome-4.2.0/font-awesome.min.css");
+        jagg.addHeaderCSS("pricing/menu-info", "styles", "templates/pricing/manage-account/css/style.css");
+        jagg.addHeaderCSS("pricing/menu-info", "match-store-styles", "templates/pricing/css/match-store-styles.css");
+    }
+});
+%>

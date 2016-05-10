@@ -1,0 +1,88 @@
+<%
+jagg.module("pricing", {
+    generateParams: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").generateParams.apply(this, arguments);
+    },
+    isMonetizationEnabled: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").isMonetizationEnabled.apply(this, arguments);
+    },
+    createAccount: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").createAccount.apply(this, arguments);
+    },
+    getTenantUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getTenantUsage.apply(this, arguments);
+    },
+    getAccountId: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAccountId.apply(this, arguments);
+    },
+    getAllPaymentMethods: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAllPaymentMethods.apply(this, arguments);
+    },
+    updateDefaultPaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").updateDefaultPaymentMethod.apply(this, arguments);
+    },
+    removePaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").removePaymentMethod.apply(this, arguments);
+    },
+    getBillingInvoiceData: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getBillingInvoiceData.apply(this, arguments);
+    },
+    updateContactInfo: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").updateContactInfo.apply(this, arguments);
+    },
+    getAccountDetails: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAccountDetails.apply(this, arguments);
+    },
+    getUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getUsage.apply(this, arguments);
+    },
+    getAPIs: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAPIs.apply(this, arguments);
+    },
+    getApplications: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getApplications.apply(this, arguments);
+    },
+    getCurrencyUsed: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getCurrencyUsed.apply(this, arguments);
+    },
+    getCloudmgtURL: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getCloudmgtURL.apply(this, arguments);
+    },
+    getRatePlanInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getRatePlanInfo.apply(this, arguments);
+    },
+    sendSubscriptionSuccessNotifications:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/notifications.jag").sendSubscriptionSuccessNotifications.apply(this, arguments);
+    },
+    sendSubscriptionNotificationToSubscriber:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/notifications.jag").sendSubscriptionNotificationToSubscriber.apply(this, arguments);
+    },
+    sendSubscriptionNotificationToProvider:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/notifications.jag").sendSubscriptionNotificationToProvider.apply(this, arguments);
+    },
+    getObjFromEmailFile:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getObjFromEmailFile.apply(this, arguments);
+    },
+    getTenantAwareUsername:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getTenantAwareUsername.apply(this, arguments);
+    },
+    getEmailOfUser:function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getEmailOfUser.apply(this, arguments);
+    },
+    getResourceFromTenantSpace: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").getResourceFromTenantSpace.apply(this, arguments);
+    },
+    isResourceExistingInTenantSpace: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").isResourceExistingInTenantSpace.apply(this, arguments);
+    },
+    configureRegistryParameters: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/registry.jag").configureRegistryParameters.apply(this, arguments);
+    },
+    getDisplayNameFromTenantDomain: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/utils.jag").getDisplayNameFromTenantDomain.apply(this, arguments);
+    },
+    getAllProductPlansForTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").getAllProductPlansForTenant.apply(this, arguments);
+    }
+});
+%>

@@ -1,0 +1,270 @@
+<%
+var carbon = require('carbon');
+var server = carbon.server;
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var cloudUserService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+var EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
+var log = new Log("modules.pricing.utils.jag");
+var mdAlgorithm = "SHA-512";
+
+var getCloudmgtURL = function () {
+    var monetizationConfigFile;
+    try {
+        monetizationConfigFile = new File("/site/conf/cloud_conf.json");
+        monetizationConfigFile.open("r");
+        var configs = parse(monetizationConfigFile.readAll());
+        return configs.cloud.mgt_url;
+    } catch (e) {
+        log.error("Error while getting the cloud_conf.json.");
+        throw e;
+    } finally {
+        monetizationConfigFile.close();
+    }
+}
+
+var getConfigInJson = function () {
+    try {
+        return JSON.parse(billingService.getConfigInJson());
+    } catch (e) {
+        log.error("Error while getting the billing configurations as JSON");
+        throw e;
+    }
+};
+
+var zuoraObj = (getConfigInJson()).zuoraConfig;
+var getCurrencyUsed = function () {
+    return zuoraObj.currency;
+};
+
+var getAccountId = function () {
+    try {
+        var user = jagg.getUser().username;
+        var tenantDomain = multiTenantUtils.getTenantDomain(user);
+        var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(user, tenantDomain));
+        if (subscriberData.Subscribers.Subscriber != null) {
+            var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
+            return accountNumber;
+        } else {
+            return null;
+        }
+    } catch (e) {
+        log.error("ERROR while getting the account number for : " + user + " - " + e.message);
+        throw e;
+    }
+};
+
+
+var dateTimeFormatter = function (dateTimeFormat) {
+    return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
+};
+
+//validate passthrough token
+var validatePassThroughHash = function (token) {
+    var tokenHash = session.get(ZUORA_SIGNATURE_HASH);
+    return billingService.validateHash(token, tokenHash, mdAlgorithm);
+};
+
+//Base64 decode and decrypt the workflow data
+var decryptWorkflowData = function (workflowData) {
+    var cryptoUtil = Packages.org.wso2.carbon.core.util.CryptoUtil.getDefaultCryptoUtil();
+    var charset = Packages.java.nio.charset.Charset.defaultCharset();
+    var decryptedDataString = new Packages.java.lang.String(cryptoUtil.base64DecodeAndDecrypt(workflowData), charset);
+    var decryptedData = {};
+    if (decryptedDataString != null && !"".equals(decryptedDataString)) {
+        var dataArray = decryptedDataString.trim().split(":");
+        decryptedData.workflowRefId = String(dataArray[0]);
+        decryptedData.ratePlanName = String(dataArray[1]);
+        decryptedData.appName = String(dataArray[2]);
+        decryptedData.apiName = String(dataArray[3]);
+        decryptedData.apiVersion = String(dataArray[4]);
+        decryptedData.apiProvider = String(dataArray[5]);
+    }
+    return decryptedData;
+};
+
+//populate account information object
+var populateAccountInfo = function (accountData, metaData, effectiveDate, ratePlanId) {
+    var subscribeToRatePlans = [];
+    var data = {};
+    var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+
+    data.name = accountData.organization;
+    delete accountData.organization;
+    data.autoPay = true;
+    data.currency = "USD";
+    data.billToContact = {};
+    var item = {};
+    item["productRatePlanId"] = ratePlanId;
+    subscribeToRatePlans.push(item);
+    data.subscription = {
+        "termType": "EVERGREEN",
+        "autoRenew": true,
+        "subscribeToRatePlans": subscribeToRatePlans,
+        "contractEffectiveDate": dateFormatter.format(effectiveDate)
+    };
+
+    data.hpmCreditCardPaymentMethodId = metaData.refId;
+    data.billToContact = accountData;
+    data.invoiceCollect = true;
+    data.invoiceTargetDate = dateFormatter.format(effectiveDate);
+    return data;
+};
+
+var getRatePlan = function (ratePlanName, ratePlans) {
+    for (var i = 0; i < ratePlans.length; i++) {
+        var planObj = ratePlans[i];
+        if (ratePlanName.equals(planObj['RatePlanName'])) {
+            return planObj;
+        }
+    }
+    return null;
+};
+
+var getAndAddRatePlanToSession = function (tenantDomain, ratePlanName) {
+    var ratePlansJsonArray = apiMonService.getRatePlansInfo(tenantDomain);
+    var ratePlansObj = JSON.parse(ratePlansJsonArray);
+    session.put(TENANT_RATE_PLANS, ratePlansObj);
+    var ratePlanObj = getRatePlan(ratePlanName, ratePlansObj);
+
+    if (ratePlanObj != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            ratePlan: ratePlanObj
+        };
+    } else {
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Rate plan information is not available or plan name is invalid"
+        };
+    }
+};
+
+var decryptAndGetApiData = function (workflowRefData) {
+    var workflowHash = String(billingService.generateHash(workflowRefData, mdAlgorithm));
+    var apiData;
+
+    apiData = session.get(workflowHash);
+
+    if (apiData == null) {
+        //base64 decode and decrypt the workflow data
+        apiData = decryptWorkflowData(workflowRefData);
+        session.put(workflowHash, apiData);
+    }
+
+    return apiData;
+};
+
+var sendHTTPRequest = function (url, type, headers, data, username, password) {
+
+    var xhr = new XMLHttpRequest();
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('apiAccessKeyId', username);
+    xhr.setRequestHeader('apiSecretAccessKey', password);
+
+    if (headers != null) {
+        for (var i = 0; i < headers.length; i++) {
+            xhr.setRequestHeader(headers[i].name, headers[i].value);
+        }
+    }
+
+    xhr.open(type, url);
+    xhr.send(data);
+
+    var response = xhr.responseText;
+    if (response != null) {
+        return JSON.parse(response);
+    } else {
+        log.error("HTTP request: response from zuora cannot be null");
+        throw Error("Response from zuora cannot be null");
+    }
+};
+
+/**
+ * Returns the text content of a particular notification type.
+ * @param notificationType
+ * @return the file text content.
+ */
+var getObjFromEmailFile = function(notificationType) {
+    var pathToFile = null;
+
+    if ("providerNotification".equals(notificationType)) {
+        pathToFile = PROVIDER_EMAIL_DEFAULT_PATH;
+    } else if ("subscriberNotification".equals(notificationType)) {
+        pathToFile = SUBSCRIBER_EMAIL_DEFAULT_PATH;
+    }
+    var dataObj = "";
+    try{
+        if (pathToFile != null) {
+            var file = new File(pathToFile);
+            file.open("r");
+            dataObj = file.readAll();
+            file.close();
+        } else {
+            log.error("Unable to find the path to the file for the notificationType " + notificationType);
+        }
+    } catch (e) {
+        log.error("Error while reading file " + pathToFile + "\n" + e);
+    }
+    return  dataObj;
+};
+
+/**
+ * Returns the tenant aware username from the given username (i.e. domain less user name)
+ * @param username
+ * @return tenant aware username
+ */
+var getTenantAwareUsername = function (username) {
+    if (username.indexOf("@") != -1) {
+        username = username.substring(0, username.lastIndexOf("@"));
+    } else if (username.indexOf("@") != username.lastIndexOf("@")) {
+        username = username.substring(0, username.lastIndexOf("@"));
+    }
+    return username;
+};
+
+/**
+ * Returns the email of the given user
+ * @param username
+ * @param tenantDomain
+ * @return userEmail
+ */
+var getEmailOfUser = function (username, tenantDomain) {
+    var tenantAwareUserName = getTenantAwareUsername(username);
+    var userEmail = "";
+    var PrivilegedCarbonContext = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
+    var context = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+    try {
+        var realmService = context.getOSGiService((java.lang.Class).forName('org.wso2.carbon.user.core.service.RealmService'));
+        var tenantManager = realmService.getTenantManager();
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantId);
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
+        var userEmail = userStoreManager.getUserClaimValue(tenantAwareUserName, EMAIL_CLAIM_URI, null);
+        if (log.isDebugEnabled()) {
+            log.debug("The user email for the user " + username + " is: " + userEmail);
+        }
+    } catch (e) {
+        log.error("Error while getting the email of user :  " + username + "\n" + e);
+    } finally {
+        context.endTenantFlow();
+    }
+    return userEmail;
+};
+
+//Method to get the display name of the given tenant domain.
+var getDisplayNameFromTenantDomain = function (tenantDomain){
+    var tenantDisplayName = "";
+    try{
+        tenantDisplayName = cloudUserService.getTenantDisplayName(tenantDomain);
+    } catch (e) {
+        log.error("Error occurred while getting the tenant display name for the tenant domain :  " + tenantDomain + ", \nerror:" + e);
+    }
+    return tenantDisplayName;
+};
+%>

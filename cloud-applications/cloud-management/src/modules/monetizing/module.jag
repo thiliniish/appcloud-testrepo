@@ -1,0 +1,70 @@
+<%
+jagg.module("monetizing", {
+    getSubscribersOfTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscribersOfTenant.apply(this, arguments);
+    },
+    makeSubscriberAccountTest: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").makeSubscriberAccountTest.apply(this, arguments);
+    },
+    makeTestSubscriberAccountRegular: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").makeTestSubscriberAccountRegular.apply(this, arguments);
+    },
+    getApimSubscriberIdsOfTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getApimSubscriberIdsOfTenant.apply(this, arguments);
+    },
+    getApiApplicationsOfUser: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getApiApplicationsOfUser.apply(this, arguments);
+    },
+    getSubscribedApisOfUser: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscribedApisOfUser.apply(this, arguments);
+    },
+    getSubscriberUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscriberUsage.apply(this, arguments);
+    },
+    isMonetizationEnabled: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").isMonetizationEnabled.apply(this, arguments);
+    },
+    getSubscriptions:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getSubscriptions.apply(this, arguments);
+    },
+    getAccountIdFromUserName:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getAccountIdFromUserName.apply(this, arguments);
+    },
+    getApiListFromAccountId:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getApiListFromAccountId.apply(this, arguments);
+    },
+    getOrdedInvoices:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getOrdedInvoices.apply(this, arguments);
+    },
+    getBillingAccountSummary:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getBillingAccountSummary.apply(this, arguments);
+    },
+    getBillingPaymentInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getBillingPaymentInfo.apply(this, arguments);
+    },
+    enableMonetization: function () {
+    return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").enableMonetization.apply(this, arguments);
+    },
+    getCurrentPaymentPlan: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getCurrentPaymentPlan.apply(this, arguments);
+    },
+    getProductPlans: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getProductPlans.apply(this, arguments);
+    },
+    addProductPlans: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").addProductPlans.apply(this, arguments);
+    },
+    updateApiCloudMonetizationStatus: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").updateApiCloudMonetizationStatus.apply(this, arguments);
+    },
+    getNumberOfProductPlansForTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").getNumberOfProductPlansForTenant.apply(this, arguments);
+    },
+    isProductPlanExistsForTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").isProductPlanExistsForTenant.apply(this, arguments);
+    },
+    updateProductRatePlanInfo: function () {
+        return jagg.require(jagg.getModulesDir() + "monetizing/monetizing.jag").updateProductRatePlanInfo.apply(this, arguments);
+    }
+});
+%>

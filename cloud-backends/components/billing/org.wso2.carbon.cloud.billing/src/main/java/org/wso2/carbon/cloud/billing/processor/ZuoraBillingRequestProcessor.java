@@ -1,40 +1,50 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
+
 package org.wso2.carbon.cloud.billing.processor;
 
-import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.billing.common.BillingConstants;
-import org.wso2.carbon.cloud.billing.common.CloudBillingException;
-import org.wso2.carbon.cloud.billing.common.config.HttpClientConfig;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
+import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
+import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -42,199 +52,214 @@ import java.io.UnsupportedEncodingException;
  */
 public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
-    private static final Log log = LogFactory.getLog(ZuoraBillingRequestProcessor.class);
-    private static String uploadURL = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getApiConfigs()
-            .getUsage();
+    private static ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
 
     public ZuoraBillingRequestProcessor(HttpClientConfig httpClientConfig) {
         super(httpClientConfig);
     }
 
-    public void doUpload() throws CloudBillingException {
-        PostMethod post = new PostMethod(uploadURL);
-        // indicate accept response body in JSON
-        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+    /**
+     * Overridden method for add zuora enabled ssl protocols
+     *
+     * @param httpClientConfig http client configuration
+     * @return http client
+     */
+    @Override
+    protected HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
+        HttpClient client = super.initHttpClient(httpClientConfig);
+        String sslEnabledProtocols = BillingConfigUtils.getBillingConfiguration()
+                .getZuoraConfig().getEnabledProtocols();
+        Protocol customHttps = CloudBillingUtils.getCustomProtocol(BillingConstants.HTTPS_SCHEME, sslEnabledProtocols);
+        client.getHostConfiguration().setHost(httpClientConfig.getHostname(), httpClientConfig.getPort(), customHttps);
+        return client;
+    }
 
-        String apiAccessKeyId = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUser();
-        String apiSecretAccessKey = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getPassword();
-        post.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
-        post.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
-
-        /**
-         * Initializing the multipart contents used by the usage file uploader functionality.
-         */
-        File file =
-                new File(CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
-                                 .getUsageUploadFileLocation());
+    /**
+     * Zuora upload request
+     *
+     * @param url        URL
+     * @param acceptType Accept header
+     * @throws CloudBillingException
+     */
+    @Override
+    public void doUpload(String url, String acceptType, File file) throws CloudBillingException {
+        PostMethod post = new PostMethod(url);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+        addAccessKeyHeaders(post);
+        //Initializing the multipart contents used by the usage file uploader functionality.
         Part part;
         try {
             part = new FilePart(BillingConstants.FILE_PART_NAME, file);
         } catch (FileNotFoundException e) {
-            String msg = "Error occurred while reading usage data";
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error occurred while reading usage data", e);
         }
         RequestEntity uploadReqEntity = new MultipartRequestEntity(new Part[]{part}, new HttpClientParams());
         post.setRequestEntity(uploadReqEntity);
-        try {
-            this.getHttpClient().executeMethod(post);
-        } catch (Exception e) {
-            String msg = "Error while uploading usage to " + uploadURL;
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
-        } finally {
-            post.releaseConnection();
-        }
+        ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
+        //removing the file after successful upload
+        file.delete();
     }
 
-    public String doGet(String url) throws CloudBillingException {
-        GetMethod get = new GetMethod(url);
-        try {
-            String apiAccessKeyId = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUser();
-            String apiSecretAccessKey = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getPassword();
-            get.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
-            get.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
-
-            // indicate accept response body in JSON
-            get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
-            // for a GET call, chase redirects
-            get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
-
-            int response = 0;
-            String result = null;
-            int maxIndex = 5;
-
-            for (int index = 0; index <= maxIndex; index++) {
-                try {
-                    if (log.isDebugEnabled() && index > 0) {
-                        log.debug("Retrying : " + index + " to get data from " + url);
-                    }
-                    response = this.getHttpClient().executeMethod(get);
-
-                    if (response == 404) {
-                        log.error("Failed with HTTP error code : " + response +
-                                  ". ZUORA Signature API End Point is" + " incorrect.");
-                        throw new CloudBillingException("Failed with HTTP error code : " + response +
-                                                        ". ZUORA Signature API End Point is" + " incorrect.");
-                    } else if (response == 401) {
-                        log.error("Failed with HTTP error code : " + response +
-                                  ". ZUORA Login's Username or " + "Password is incorrect.");
-                        throw new CloudBillingException("Failed with HTTP error code : " + response +
-                                                        ". ZUORA Signature API End Point is" + " incorrect.");
-                    } else if (response != 200) {
-                        log.error("Failed with HTTP error code : " + response);
-                    } else {
-                        if (get.getResponseBody().length > 0) {
-                            result = get.getResponseBodyAsString();
-                        }
-                        break;
-                    }
-                } catch (HttpException e) {
-                    String msg = "Error while getting data from " + url;
-                    log.error(msg, e);
-                    if (index == maxIndex) {
-                        throw new CloudBillingException(msg, e);
-                    }
-                } catch (IOException e) {
-                    String msg = "Error while getting data from " + url;
-                    log.error(msg, e);
-                    if (index == maxIndex) {
-                        throw new CloudBillingException(msg, e);
-                    }
-                } catch (Exception e) {
-                    String msg = "Error while getting data from " + url;
-                    log.error(msg, e);
-                    if (index == maxIndex || response == 401 || response == 404) {
-                        throw new CloudBillingException(msg, e);
-                    }
-                }
-                get.releaseConnection();
-            }
-            return result;
-        } catch (Exception e) {
-            String msg = "Error while getting data from " + url;
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
-        } finally {
-            get.releaseConnection();
-        }
-    }
-
+    /**
+     * Zuora GET request
+     *
+     * @param url            URL
+     * @param acceptType     Accept header
+     * @param nameValuePairs query params
+     * @return response
+     * @throws CloudBillingException
+     */
     @Override
-    public String doPost(String url, String jsonPayload) throws CloudBillingException {
+    public String doGet(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
+        GetMethod get = new GetMethod(url);
+
+        addAccessKeyHeaders(get);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+
+        // for a GET call, chase redirects
+        get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
+        if (ArrayUtils.isNotEmpty(nameValuePairs)) {
+            get.setQueryString(nameValuePairs);
+        }
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * Zuora post request
+     *
+     * @param url         URL
+     * @param acceptType  Accept header
+     * @param jsonPayload json payload
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doPost(String url, String acceptType, String jsonPayload) throws CloudBillingException {
 
         PostMethod post = new PostMethod(url);
-        // indicate accept response body in JSON
-        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, BillingConstants.HTTP_RESPONSE_TYPE_JSON);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
 
-        String apiAccessKeyId = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUser();
-        String apiSecretAccessKey = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getPassword();
-        post.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
-        post.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
-
-        RequestEntity requestEntity;
-        try {
-            requestEntity = new StringRequestEntity(jsonPayload, BillingConstants.HTTP_RESPONSE_TYPE_JSON,
-                                                    BillingConstants.ENCODING);
-            post.setRequestEntity(requestEntity);
-        } catch (UnsupportedEncodingException e) {
-            String msg = "Error occured while encoding json payload" + jsonPayload;
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
-        }
-        String result = null;
-        int response;
-        for (int index = 0; index <= 10; index++) {
-            try {
-                if (log.isDebugEnabled() && index > 0) {
-                    log.debug("Retrying : " + index + " to get data from " + url);
-                }
-                response = this.getHttpClient().executeMethod(post);
-
-                if (response == 404) {
-                    log.error("Failed with HTTP error code : " + response + ". ZUORA Signature API End Point is" +
-                              " incorrect.");
-                    throw new CloudBillingException("Failed with HTTP error code : " + response +
-                                                    ". ZUORA Signature API End Point is" + " incorrect.");
-                } else if (response == 401) {
-                    log.error("Failed with HTTP error code : " + response + ". ZUORA Login's Username or " +
-                              "Password is incorrect.");
-                    throw new CloudBillingException("Failed with HTTP error code : " + response +
-                                                    ". ZUORA Signature API End Point is" + " incorrect.");
-                } else if (response != 200) {
-                    log.error("Failed with HTTP error code : " + response);
-                } else {
-                    if (post.getResponseBody().length > 0) {
-                        result = post.getResponseBodyAsString();
-                    }
-                    break;
-                }
-            } catch (HttpException e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            } catch (IOException e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            } catch (Exception e) {
-                String msg = "Error while getting data from " + url;
-                log.error(msg, e);
-                if (index == 10) {
-                    throw new CloudBillingException(msg, e);
-                }
-            }
-            index = index + 1;
-        }
-        return result;
+        addAccessKeyHeaders(post);
+        setJsonPayload(post, jsonPayload);
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
     }
 
+    /**
+     * POST with name value pairs not supported for zuora
+     *
+     * @param url          URL
+     * @param acceptType   Accept header
+     * @param keyValuePair name value pair
+     * @return response
+     * @throws CloudBillingException
+     */
     @Override
-    public String doPost(String url, NameValuePair[] keyValuePair) throws CloudBillingException {
+    public String doPost(String url, String acceptType, NameValuePair[] keyValuePair) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by Zuora Billing Request Processor");
+    }
+
+    /**
+     * PUT with name value pairs not supported for zuora
+     *
+     * @param url            URL
+     * @param acceptType     Accept header
+     * @param nameValuePairs name value pair
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doPut(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
+        throw new UnsupportedOperationException(
+                "PUT method with name value pairs is not supported by Zuora Billing Request Processor");
+    }
+
+    /**
+     * Zuora post request
+     *
+     * @param url         URL
+     * @param acceptType  Accept header
+     * @param jsonPayload json payload
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doPut(String url, String acceptType, String jsonPayload) throws CloudBillingException {
+
+        PutMethod put = new PutMethod(url);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+        addAccessKeyHeaders(put);
+        setJsonPayload(put, jsonPayload);
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), put, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * Zuora delete request
+     *
+     * @param url         Request URL to doDelete
+     * @param acceptType  Accept header which needs to be passed for request header
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doDelete(String url, String acceptType) throws CloudBillingException {
+
+        DeleteMethod delete = new DeleteMethod(url);
+        // default accept response body in JSON
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        delete.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
+
+        addAccessKeyHeaders(delete);
+        return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), delete, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * DELETE with name value pairs not supported for zuora
+     *
+     * @param url            URL
+     * @param acceptType     Accept header
+     * @param nameValuePairs name value pair
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override
+    public String doDelete(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
+        throw new UnsupportedOperationException(
+                "DELETE method with name value pairs is not supported by Zuora Billing Request Processor");
+    }
+
+
+    /**
+     * Setting the json payload of EntityEnclosingMethods
+     *
+     * @param method      method POST/PUT
+     * @param jsonPayload json payload
+     * @throws CloudBillingException
+     */
+    private void setJsonPayload(EntityEnclosingMethod method, String jsonPayload) throws CloudBillingException {
+        RequestEntity requestEntity;
+        try {
+            if (StringUtils.isNotBlank(jsonPayload)) {
+                requestEntity = new StringRequestEntity(jsonPayload, BillingConstants.HTTP_TYPE_APPLICATION_JSON,
+                        BillingConstants.ENCODING);
+                method.setRequestEntity(requestEntity);
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error occurred while encoding json payload" + jsonPayload, e);
+        }
+    }
+
+    private void addAccessKeyHeaders(HttpMethodBase method) {
+        String apiAccessKeyId = zuoraConfig.getUser();
+        String apiSecretAccessKey = zuoraConfig.getPassword();
+        method.addRequestHeader(BillingConstants.API_ACCESS_KEY_ID, apiAccessKeyId);
+        method.addRequestHeader(BillingConstants.API_SECRET_ACCESS_KEY, apiSecretAccessKey);
     }
 }

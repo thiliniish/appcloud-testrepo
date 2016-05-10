@@ -1,0 +1,42 @@
+<% jagg.template("monetizing/subscriber/list", function(inputs, outputs, jagg) { %>
+
+    <div class="inner-wrapper">
+        <div class="right-pane">
+
+            <div class="action-bar">
+                <a href="<%=jagg.getAbsoluteUrl("/site/pages/monetization-dashboard.jag")%>"  class="btn-action">
+                    <span class="fw-stack fw-lg btn-action-ico">
+                        <i class="fw fw-ring fw-stack-2x"></i>
+                        <i class="fw fw-left-arrow fw-stack-1x"></i>
+                    </span> Back to Dashboard
+                </a>
+            </div>
+
+            <div class="container-fluid app-content-section">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="margin-top-xs"></div>
+                        <div class="datatable">
+                            <table id="subList" class="display" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>Subscriber Name</th>
+                                        <th>Email</th>
+                                        <th>Subscription Type</th>
+                                        <th>Subscriber Account</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.container -->
+        </div>
+        <div class="clearfix"></div>
+        <div id="push"></div>
+    </div>
+
+
+<%
+});
+%>

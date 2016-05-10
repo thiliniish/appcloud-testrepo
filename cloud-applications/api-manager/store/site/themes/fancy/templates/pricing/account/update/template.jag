@@ -1,0 +1,76 @@
+<% jagg.template("pricing/account/update", function (inputs, outputs, jagg) { %>
+<div class="app-content-section">
+<div id="margin-top-xs"></div>
+<div class="box">
+    <div class="box-header">
+        <h4>Contact Information</h4>
+    </div>
+    <div class="box-content">
+        <div class="forms margin-top-xs">
+            <div class="form-group span6" style="display: none;">
+            </div>
+            <div class="form-group span6"  style="display: none;">
+            </div>
+            <div class="form-group span6">
+                <label for="firstname">First Name: </label>
+                <input type="text" class="form-control" id="firstname"
+                    value="<%=outputs.profileFirstName%>" placeholder="Eg: John" >
+            </div>
+            <div class="form-group span6 marg-left0">
+                <label for="lastname">Last Name: </label>
+                <input type="text" class="form-control" id="lastname"
+                    value="<%=outputs.profileLastName%>" placeholder="Eg: Doe">
+            </div>
+            <div class="form-group span6">
+                <label for="addressline1">Address Line 1: </label>
+                <input type="text" class="form-control" id="addressline1"
+                    value="<%=outputs.creditCardAddress1%>" placeholder="" >
+            </div>
+            <div class="form-group span6 marg-left0">
+                <label for="addressline2">Address Line 2: </label>
+                <input type="text" class="form-control" id="addressline2"
+                    value="<%=outputs.creditCardAddress2%>" placeholder="">
+            </div>
+            <div class="form-group span6">
+                <label for="city">City: </label>
+                <input type="text" class="form-control" id="city"
+                    value="<%=outputs.creditCardCity%>" placeholder="" >
+            </div>
+            <div class="form-group span6 marg-left0">
+                <label for="state-province-region">State/Province/Region: </label>
+                <input type="text" class="form-control" id="state-province-region"
+                    value="<%=outputs.creditCardState%>" placeholder="" >
+            </div>
+            <div class="form-group span6">
+                <label for="country">Country: </label>
+                <input type="text" class="form-control" id="country"
+                    value="<%=outputs.creditCardCountry%>" placeholder="" >
+            </div>
+            <div class="form-group span6 marg-left0">
+                <label for="postal-zip">Postal Code/ZIP: </label>
+                <input type="text" class="form-control" id="postal-zip"
+                    value="<%=outputs.creditCardPostalCode%>" placeholder="" >
+            </div>
+            <div class="form-group span12">
+                <label for="email">E-mail: </label>
+                <input type="text" class="form-control" id="email" value="<%=outputs.userEmail%>"
+                    placeholder="">
+            </div>
+            <input type="hidden"
+                name="cloudmgtURL" id="cloudmgtURL" value="<%=outputs.cloudmgtURL%>" />
+            <div class="clearfix"></div>
+            <div class="form-group span12">
+                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="updateContactInfo('<%=outputs.tenantDomain%>', document);">
+                <span class="fw-stack fw-lg btn-action-ico">
+                <i class="fw fw-ring fw-stack-2x"></i>
+                <i class="fw fw-edit fw-stack-1x"></i>
+                </span>
+                Update
+                </button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<%}); %>
+

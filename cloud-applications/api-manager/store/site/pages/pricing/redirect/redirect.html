@@ -1,0 +1,31 @@
+<script type="text/javascript">
+    function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam) {
+                return sParameterName[1];
+            }
+        }
+    }
+    var success = getUrlParameter('success');
+    var tenant = getUrlParameter('field_passthrough3');
+    var cardType = getUrlParameter('field_passthrough4');
+    var actionString;
+    if (success != null && "true" == success) {
+        if (cardType != null && cardType == "secondary-card") {
+            actionString = "&action=viewPaymentMethod&";
+            window.top.location.href = "../../../../site/pages/pricing/manage-account.jag?tenant=" +
+                    encodeURIComponent(tenant) + actionString + window.location.search.substring(1)
+        } else {
+            actionString = "&action=createAccount&";
+            window.top.location.href = "../../../../site/pages/pricing/manage-account.jag?tenant=" +
+                    encodeURIComponent(tenant) + actionString + window.location.search.substring(1)
+        }
+    } else {
+        actionString = "&action=paymentMethod&";
+        window.top.location.href = "../../../../site/pages/pricing/manage-account.jag?tenant=" +
+                encodeURIComponent(tenant) + actionString + window.location.search.substring(1)
+    }
+</script>

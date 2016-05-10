@@ -1,0 +1,22 @@
+<%
+jagg.initializer("pricing/account/info", {
+    preInitialize: function () {
+        jagg.addHeaderJS("info", "fontawsome", "templates/pricing/js/fontwso2-1.2/js/jquery-1.11.1/jquery.min.js");
+        jagg.addHeaderJS("info", "dataTable", "templates/pricing/js/datatables-1.10.7/jquery.dataTables.min.js");
+        jagg.addHeaderJS("info", "jEditor", "templates/pricing/js/Jeditable-1.7.3/jquery.jeditable.js");
+        jagg.addHeaderJS("info", "inlineEdit", "templates/pricing/js/datatables-1.10.7/jquery.dataTables.inlineEdit.js");
+        jagg.addHeaderJS("info", "columnFilter", "templates/pricing/js/datatables-1.10.7/jquery.dataTables.columnFilter.js");
+        jagg.addHeaderJS("info", "custom", "templates/pricing/js/custom/custom.js");
+        jagg.addHeaderJS("info", "account.info", "templates/pricing/account/info/js/account.info.js");
+
+        jagg.addHeaderCSS("info", "font-awesome", "templates/pricing/css/fontwso2-1.2/css/font-wso2.css");
+        jagg.addHeaderCSS("info", "font-awesome.min", "templates/pricing/css/font-awesome-4.2.0/font-awesome.min.css");
+        jagg.addHeaderCSS("info", "Roboto", "templates/pricing/css/web-fonts/Roboto.css");
+        jagg.addHeaderCSS("info", "jquery.dataTables.min", "templates/pricing/css/datatables-1.10.7/jquery.dataTables.min.css");
+        jagg.addHeaderCSS("info", "dataTables.storeoverride", "templates/pricing/css/datatables-1.10.7/jquery.dataTables.storeoverride.css");
+        jagg.addHeaderCSS("info", "styles", "templates/pricing/css/styles.css");
+        jagg.addHeaderCSS("info", "match-store-styles", "templates/pricing/css/match-store-styles.css");
+
+    }
+});
+%>

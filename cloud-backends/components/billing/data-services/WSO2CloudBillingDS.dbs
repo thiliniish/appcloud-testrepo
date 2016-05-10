@@ -97,11 +97,11 @@
       <param name="TENANT_ID" sqlType="INTEGER"/>
    </query>
    <query id="getMappingForSubscriptionQ" useConfig="cloud_mgt">
-      <sql>select PRODUCT_RATE_PLAN_ID from BILLING_SUBSCRIPTION_MAPPING where CUSTOM_SUBSCRIPTION_ID=:newSubscriptionId</sql>
+      <sql>select PRODUCT_RATE_PLAN_ID from BILLING_SUBSCRIPTION_MAPPING where CUSTOM_SUBSCRIPTION_ID=:NEW_SUBSCRIPTION_ID</sql>
       <result element="RatePlanId" rowName="">
          <element column="PRODUCT_RATE_PLAN_ID" name="productRatePlanId" xsdType="string"/>
       </result>
-      <param name="newSubscriptionId" sqlType="STRING"/>
+      <param name="NEW_SUBSCRIPTION_ID" sqlType="STRING"/>
    </query>
    <operation name="getTotalRequestCountPerDay">
       <call-query href="getTotalRequestCountPerDayQ">
@@ -159,7 +159,7 @@
    </operation>
    <operation name="getMappingForSubscription">
       <call-query href="getMappingForSubscriptionQ">
-         <with-param name="newSubscriptionId" query-param="newSubscriptionId"/>
+         <with-param name="NEW_SUBSCRIPTION_ID" query-param="NEW_SUBSCRIPTION_ID"/>
       </call-query>
    </operation>
    <resource method="GET" path="requestcount">
@@ -218,7 +218,7 @@
    </resource>
    <resource method="GET" path="mappingforsubscription">
       <call-query href="getMappingForSubscriptionQ">
-         <with-param name="newSubscriptionId" query-param="newSubscriptionId"/>
+         <with-param name="NEW_SUBSCRIPTION_ID" query-param="NEW_SUBSCRIPTION_ID"/>
       </call-query>
    </resource>
 </data>

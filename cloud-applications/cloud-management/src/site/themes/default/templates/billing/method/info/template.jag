@@ -3,7 +3,7 @@
     var secondaryCCStatus = request.getParameter("secondary-card");
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var isBillingEnabled = jagg.module("billing").isBillingEnable();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled();
 %>
 
     <style type="text/css">
