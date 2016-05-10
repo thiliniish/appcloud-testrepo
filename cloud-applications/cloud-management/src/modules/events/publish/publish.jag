@@ -1,12 +1,15 @@
 <%
 
 var log = new Log("modules/events/publish/publish.jag");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 var publishUserActivity = function (events, userID, tenantDomain) {
-    var loadBalancingDataPublisher = jagg.module("util").getLoadBalanceDataPublisher("loadBalancingDataPublisher");
-    if (loadBalancingDataPublisher) {
-        for (var i = 0; i < events.length; i++) {
-            publishEvents(loadBalancingDataPublisher, events[i], userID, tenantDomain);
+    if (cloudConfig.userActivityMonitor.enable == "true") {
+        var loadBalancingDataPublisher = jagg.module("util").getLoadBalanceDataPublisher("loadBalancingDataPublisher");
+        if (loadBalancingDataPublisher) {
+            for (var i = 0; i < events.length; i++) {
+                publishEvents(loadBalancingDataPublisher, events[i], userID, tenantDomain);
+            }
         }
     }
 };
