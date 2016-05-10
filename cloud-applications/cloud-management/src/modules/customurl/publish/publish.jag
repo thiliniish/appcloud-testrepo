@@ -385,9 +385,10 @@
 
 			return status;
 		} catch(e) {
-			log.error("Error occurred while file encrypting." +e);
+			var message = "Error occurred during file encryption.";
+			log.error(message + e);
 			status.error = true;
-			status.message = "HTTP 500 : Internal Server error occurred. Please contact wso2 cloud team.";
+			status.message = message + " Please contact WSO2 Cloud Team for help.";
 			return status;
 		}
 	

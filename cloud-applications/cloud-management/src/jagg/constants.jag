@@ -7,6 +7,10 @@ var APPLICATION_STAGES = "stages/";
 //cloud subscription
 var DEFAULT_SUBSCRIPTION = "default";
 
+var DEFAULT_SUBSCRIPTION_NAME = "Common";
+
+var SUBSCRIPTION_API_CLOUD = "api_cloud";
+
 // property keys of registry 'application' resource
 var APPLICATION_KEY = "applicationKey";
 var APPAPPFACTORY_SERVER_URLLICATION_NAME = "applicationName";
@@ -44,6 +48,8 @@ var TEST_SERVER_URL = "ApplicationDeployment.DeploymentStage.Testing.DeploymentS
 var PROD_SERVER_URL = "ApplicationDeployment.DeploymentStage.Production.DeploymentServerURL";
 
 var ROLE_ADMIN = "admin";
+var ROLE_PUBLISHER = "publisher";
+var ROLE_SUBSCRIBER = "subscriber";
 var ROLE_APP_OWNER = "appOwner";
 var ROLE_QA = "qa";
 var ROLE_DEVOPS = "devOps";

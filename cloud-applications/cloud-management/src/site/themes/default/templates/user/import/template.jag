@@ -5,6 +5,10 @@
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var type = cloudConfig.subscriptions.type;
     var emailValidationPattern = cloudConfig.emailValidationPattern;
+    include("/jagg/constants.jag");
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var type = cloudConfig.subscriptions.type;
+    var defaultSubscriptionName = DEFAULT_SUBSCRIPTION_NAME;
 %>
 
 <script type="text/javascript">
@@ -30,12 +34,17 @@
                         "id": tempRoleArray[indexInTemp].roleName,
                         "text": tempRoleArray[indexInTemp].displayRoles
                     });
+                for(var indexInTemp in tempRoleArray){
+                    tempChildRole.push({
+                        "id": tempRoleArray[indexInTemp].roleName,
+                        "text": tempRoleArray[indexInTemp].displayRoles});
                 }
                 jsonData.push({
                     "id": "",
                     "text": type[index].name,
                     "children": tempChildRole
                 });
+                    "children":tempChildRole });
             }
         }
         roleList = jsonData;
@@ -140,7 +149,7 @@
                 var error =  json.error.toString();
                 error = error.replace(/[\r\n]/g, "");
                 if(error== "false"){
-                    tenantUsers= <%=session.get("tenantUsers")%>;
+                    tenantUsers = <%=session.get("tenantUsers")%>;
                     jagg.message({
                         content: "Members invited successfully",
                         type: 'success', id:'importUsersPage'
@@ -154,7 +163,7 @@
                     });
                 }
             }, function (jqXHR, textStatus, errorThrown) {
-                tenantUsers= <%=session.get("tenantUsers")%>;
+                tenantUsers = <%=session.get("tenantUsers")%>;
             });
         }
     }
@@ -193,6 +202,15 @@
         return allSymbolsValid;
     }
 
+    function checkIfCommonRole(subscriptionType) {
+        var isCommonRole = false;
+        var commonSubscription = '<%= defaultSubscriptionName %>';
+        if (commonSubscription == subscriptionType) {
+            isCommonRole = true;
+        }
+        return isCommonRole;
+    }
+
     $(document).ready(function(){
         initializeUserActivity("User Import Page");
         updateMultiSelectRoles();
@@ -223,8 +241,12 @@
         $("#checkbox").click(function(){
             if($("#checkbox").is(':checked') ){
                 $('#multiSelect').select2("val", "");
-                for(var index in roleList){
-                    $('#multiSelect').select2('data', $('#multiSelect').select2('data').concat(roleList[index].children));
+                for (var index in roleList) {
+                    //Skipping common roles like 'admin'
+                    var isCommonRole = checkIfCommonRole(roleList[index].text);
+                    if (!isCommonRole) {
+                        $('#multiSelect').select2('data', $('#multiSelect').select2('data').concat(roleList[index].children));
+                    }
                 }
             }else{
                 $('#multiSelect').select2("val", "");

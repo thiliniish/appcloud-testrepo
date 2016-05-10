@@ -726,14 +726,14 @@ var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlan
         }
 
         var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
-
+        var isUpgrade = isPlanUpgrade(ratePlans, currentRatePlanId, newProductRatePlanId);
         var newPlanName = getPaymentPlanFromId(serviceId, newProductRatePlanId);
         var previousPlan = getPaymentPlanFromId(serviceId, currentRatePlanId);
         if (tenantDisplayName!=null) {
             setTimeout( function () {
                 try {
-                    jagg.module("util").sendBillingPlanChangedEmail(tenantDisplayName, serviceId, newPlanName, effectiveDate);
-                    jagg.module("util").sendBillingPlanChangedNotification(tenantDisplayName, serviceId, effectiveDate, newPlanName, previousPlan);
+                    jagg.module("util").sendBillingPlanChangedEmail(tenantDisplayName, serviceId, newPlanName, effectiveDate, isUpgrade);
+                    jagg.module("util").sendBillingPlanChangedNotification(tenantDisplayName, serviceId, effectiveDate, newPlanName, previousPlan, isUpgrade);
                     return true;
                 } catch (e){
                     log.error("Error while sending notifications for subscription plan change: " + e);

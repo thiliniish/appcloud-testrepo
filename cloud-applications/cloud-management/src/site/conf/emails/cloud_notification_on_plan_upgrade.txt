@@ -17,9 +17,7 @@
                     Hi,
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
-                Your organization's (<span style="color: #141414;">$tenant</span>) request to sign-up to <span style="color: #141414;">$service</span>'s <span style="color: #141414;">$plan</span> subscription plan has been processed and went into effect</p></p>
-                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
-                   If you have any questions or need help, please contact us at <a href="mailto:cloud@wso2.com" style="color: #008dce; text-decoration: none;">cloud@wso2.com</a> or simply reply to this message.
+                  Tenant <span style="color: #141414;">$tenant</span>'s request to upgrade the <span style="color: #141414;">$service</span> subscription plan to <span style="color: #141414;">$to_plan</span> from <span style="color: #141414;">$from_plan</span> has been processed and went into effect. Request triggered by user <span style="color: #141414;">$user</span>.
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 20px 0px 5px;">
                     Regards,
