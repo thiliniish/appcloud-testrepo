@@ -1,5 +1,6 @@
 {
   "isEmailUserNameEnabled" : false,
+  "commonSubscription" : "Common",
   "subscriptions": {
     "type": [
       {
