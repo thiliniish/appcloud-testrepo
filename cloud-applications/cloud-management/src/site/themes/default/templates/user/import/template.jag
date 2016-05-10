@@ -1,6 +1,10 @@
 <% jagg.template("user/import", function(inputs, outputs, jagg) { %>
 
 <%
+    include('/jagg/constants.jag');
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var type = cloudConfig.subscriptions.type;
+    var emailValidationPattern = cloudConfig.emailValidationPattern;
     include("/jagg/constants.jag");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var type = cloudConfig.subscriptions.type;
@@ -25,6 +29,11 @@
             if(blockSubscriptions.indexOf(type[index].id) <0 || blockSubscriptions==null){
                 var tempRoleArray = type[index].roleTypes;
                 var tempChildRole = [];
+                for (var indexInTemp in tempRoleArray) {
+                    tempChildRole.push({
+                        "id": tempRoleArray[indexInTemp].roleName,
+                        "text": tempRoleArray[indexInTemp].displayRoles
+                    });
                 for(var indexInTemp in tempRoleArray){
                     tempChildRole.push({
                         "id": tempRoleArray[indexInTemp].roleName,
@@ -33,10 +42,12 @@
                 jsonData.push({
                     "id": "",
                     "text": type[index].name,
+                    "children": tempChildRole
+                });
                     "children":tempChildRole });
             }
         }
-        roleList= jsonData;
+        roleList = jsonData;
 
         $('#multiSelect').select2({
             multiple: true,
@@ -89,7 +100,9 @@
     function importUsers(){
         disable();
         var users = document.getElementById("users").value;
-        var allUsersValid = validateUserNames(users);
+        users = users.replace(/ /g, '');   //Remove any whitespace
+        var allEmailsValid = validateEmailAddresses(users);
+        var allSymbolsValid = validateSymbols(users);
         var isUserAdded = getUsers(users) ;
         var selected = [];
         var roles = "";
@@ -100,26 +113,32 @@
             selected.push(selectedId);
             roles = selectedId+","+roles;
         }
-        if(allUsersValid == false) {
+        if (allEmailsValid == false) {
             jagg.message({
                 content: "Member list contains invalid user name/s. " +
-                 "User name should be a valid email of length 3-30 in alphanumeric characters except '+'",
+                 "User name should be a valid email of length 3-30 in alphanumeric characters",
                 type: 'error',
-                id:'reposBuild'
+                id:'emailValidation'
             });
-        }else if(isUserAdded == true) {
+        } else if (allSymbolsValid == false) {
+            jagg.message({
+                content: "The '+' sign is not currently supported within usernames by the system.",
+                type: 'error',
+                id:'emailValidation'
+            });
+        } else if (isUserAdded == true) {
             jagg.message({
                 content: "Invited member is already in the system.",
                 type: 'error',
                 id:'reposBuild'
             });
-        }else if(roles == "") {
+        } else if (roles == "") {
             jagg.message({
                 content: "Atleast one role must be selected from member roles",
                 type: 'error',
                 id:'reposBuild'
             });
-        }else {
+        } else {
             roles = roles.substring(0,(roles.length-1));
             jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
                 action: "sendUserInvite",
@@ -130,7 +149,7 @@
                 var error =  json.error.toString();
                 error = error.replace(/[\r\n]/g, "");
                 if(error== "false"){
-                    tenantUsers= <%=session.get("tenantUsers")%>;
+                    tenantUsers = <%=session.get("tenantUsers")%>;
                     jagg.message({
                         content: "Members invited successfully",
                         type: 'success', id:'importUsersPage'
@@ -144,7 +163,7 @@
                     });
                 }
             }, function (jqXHR, textStatus, errorThrown) {
-                tenantUsers= <%=session.get("tenantUsers")%>;
+                tenantUsers = <%=session.get("tenantUsers")%>;
             });
         }
     }
@@ -163,20 +182,24 @@
         return false;
     }
 
-    function validateUserNames(nameString) {
+    function validateEmailAddresses(nameString) {
         var names = nameString.split(",");
-        var allUserNamesMatch = true;
-        //var pattern = /^(\d{1,2}\.){2}(\d{1,5})$/;    // validate version of format: '0.0.0', each can contain atmost 10 characters.
-        var pattern = /[a-zA-Z0-9._-|//]{3,30}$/;   // validate version of format: '0.0.0', each can contain atmost 10 characters.
+        var allEmailAddressesMatch = true;
+        var pattern = new RegExp(<%= emailValidationPattern %>);
         for(var i = 0; i < names.length; i++) {
             var match = pattern.test(names[i]);
             if(match == false){
-                allUserNamesMatch = false;
-            } else if(names[i].indexOf("+") != -1 || names[i].indexOf("@") < 0 ){
-                allUserNamesMatch = false;
-            }
+                allEmailAddressesMatch = false;
         }
-        return allUserNamesMatch;
+        return allEmailAddressesMatch;
+    }
+    
+    function validateSymbols(nameString) {
+        var allSymbolsValid = false;
+        if (nameString.indexOf("+") < 0) {
+            allSymbolsValid = true;
+        }
+        return allSymbolsValid;
     }
 
     function checkIfCommonRole(subscriptionType) {
