@@ -1,5 +1,11 @@
 function updateContactInfo(tenantDomain, docObj) {
     var cloudmgtURL = docObj.getElementById("cloudmgtURL").value;
+    var countryElement = docObj.getElementById("country");
+    var stateElement = docObj.getElementById("state");
+    console.info(stateElement.options[stateElement.selectedIndex].text);
+    console.info(stateElement.value);
+    console.info(countryElement.options[countryElement.selectedIndex].text);
+
     jagg.message({
         content: 'Please wait. Your request is being processed..', type: 'success'
     });
@@ -12,9 +18,9 @@ function updateContactInfo(tenantDomain, docObj) {
             address1: docObj.getElementById("addressline1").value,
             address2: docObj.getElementById("addressline2").value,
             city: docObj.getElementById("city").value,
-            state: docObj.getElementById("state-province-region").value,
+            state: stateElement.value,
             zipCode: docObj.getElementById("postal-zip").value,
-            country: docObj.getElementById("country").value,
+            country: countryElement.options[countryElement.selectedIndex].text,
             email: docObj.getElementById("email").value
         },
         success: function (data) {
