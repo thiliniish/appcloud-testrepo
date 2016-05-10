@@ -68,6 +68,10 @@ public class CloudIntegrationConstants {
     public static final String ALL_CLOUD_USER_ROLES = "//cloudProperties/allTenantRoles";
     public static final String NEW_CLOUD_USER_EMAILS = "//cloudProperties/tenantNewUserEmails";
 
+    //Cloud Support
+    public static final String CLOUD_CONTACT_SUPPORT_URL_SFX =
+            "/cloudmgt/site/blocks/contact/ajax/contact.jag";
+
     //Super admin credentials
     public static final String SUPER_ADMIN_USER_NAME = "//userManagement/superTenant/tenant/admin/user/userName";
     public static final String SUPER_ADMIN_PASSWORD = "//userManagement/superTenant/tenant/admin/user/password";
@@ -102,6 +106,25 @@ public class CloudIntegrationConstants {
             "//cloudProperties/billing/payments/serviceId";
     public static final String BILLING_PAYMENT_PRODUCT_RATE_PLAN_ID =
             "//cloudProperties/billing/payments/productRatePlanId";
+
+    //cloud support related parameters
+    public static final String CLOUD_SUPPORT_REQUEST_JIRA_CREATION_STATUS =
+            "//cloudProperties/support/jiraCreationEnabled";
+    public static final String CLOUD_SUPPORT_REQUEST_EMAIL_BODY =
+            "//cloudProperties/support/supportRequest/emailBody";
+    public static final String CLOUD_SUPPORT_REQUEST_EMAIL_SUBJECT =
+            "//cloudProperties/support/supportRequest/emailSubject";
+    public static final String CLOUD_SUPPORT_REQUEST_USER_EMAIL =
+            "//cloudProperties/support/userEmail";
+    public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_EMAIL_SUBJECT =
+            "//cloudProperties/support/supportRequest/emailSubject";
+    public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_EMAIL_BODY =
+            "//cloudProperties/support/supportRequest/emailBody";
+    //This is the action name which calls the method to send the support request of cloud users.
+    public static final String SUPPORT_REQUEST_ACTION_NAME = "sendSupportRequest";
+
+    //This is the action name which calls the method to checks if the Jira creation is enabled/disabled.
+    public static final String JIRA_CREATION_ENABLED_ACTION_NAME = "isJiraCreationEnabled";
 
     //mysql parameters
     public static final String CLOUD_MGT_DATASOURCE = "mysql-cloudMgt";
