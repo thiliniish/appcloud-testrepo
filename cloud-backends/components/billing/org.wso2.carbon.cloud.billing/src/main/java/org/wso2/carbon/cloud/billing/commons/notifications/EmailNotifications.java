@@ -156,9 +156,6 @@ public class EmailNotifications extends Observable {
             } catch (OutputEventAdapterException e) {
                 LOGGER.error("Unable to create the Output Event Adapter : " + emailAdapterName +
                              ". Error received :", e);
-            } catch (Exception e) {
-                LOGGER.error("Unable to create Output Event Adapter : " + emailAdapterName +
-                             "Error received :", e);
             }
             setEmailAdapterCreated(emailAdapterCreatedResult);
         }
