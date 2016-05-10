@@ -1,0 +1,60 @@
+<% 
+jagg.template("header", function(inputs, outputs, jagg) {
+
+	%>
+
+<%
+var log = new Log();
+
+
+var requestURI = request.getRequestURI();
+var checkSSO = true;
+if(requestURI.indexOf("register.jag") != -1 || requestURI.indexOf("initiate.jag") != -1 || requestURI.indexOf("reset.jag") != -1|| requestURI.indexOf("password-verifier") != -1) {
+	checkSSO = false;
+}else if(requestURI.indexOf("confirmemail.jag") != -1 || requestURI.indexOf("confirm-verification.jag") != -1 || requestURI.indexOf("add-tenant.jag") != -1 ||  requestURI.indexOf("signup.jag") != -1) {
+	checkSSO = false;
+}
+
+var isLoggedIn = session.get("LOGGED_IN_USER")!=null;
+if (checkSSO && !(session.get("LOGGED_IN_USER")!=null)) {
+	    log.info("User is not authenticated, redirecting to identity server for authentication.");
+
+	    %>
+<body bgcolor="#272C38">
+
+</body>
+<script type="text/javascript">
+	          
+	    </script>
+<%  }  %>
+
+
+<meta charset="utf-8" />
+<meta
+	http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>WSO2 Cloud</title>
+<meta
+	name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<script
+	type="text/javascript"
+	src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery-1.7.1.min.js'))%>"></script>
+<script
+	type="text/javascript"
+	src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/zuora-min.js'))%>"></script>
+<script
+	type="text/javascript"
+	src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/jagg.js'))%>"></script>
+<script
+	type="text/javascript"
+	src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/json2.js'))%>"></script>
+<script
+	type="text/javascript"
+	src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/jquery.form.js'))%>"></script>
+<script
+	type="text/javascript"
+	src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.js'))%>"></script>
+
+<% }); %>

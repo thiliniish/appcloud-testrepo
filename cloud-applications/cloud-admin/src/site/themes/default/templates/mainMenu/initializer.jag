@@ -1,0 +1,24 @@
+<%
+jagg.initializer("mainMenu", {
+
+
+    preInitialize:function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("mainMenu", "cloudAdmin", "assets/css/cloudAdmin.css");
+        jagg.addHeaderCSS("mainMenu", "bootstrap", "assets/css/bootstrap.css");
+        jagg.addHeaderCSS("mainMenu", "jquery-ui", "assets/css/jquery-ui.css");
+        jagg.addHeaderCSS("mainMenu", "font-awesome.min", "assets/font-awesome/css/font-awesome.min.css");
+
+        // UI related JS files
+        jagg.addFooterJS("mainMenu", "jquery.validate.min", "assets/js/jquery.validate.min.js");
+        jagg.addFooterJS("mainMenu", "jquery-ui.min", "assets/js/jquery-ui.min.js");
+        jagg.addFooterJS("mainMenu", "query.flot", "assets/js/flot/jquery.flot.js");
+        jagg.addFooterJS("mainMenu", "jquery.flot.axislabels", "assets/js/flot/jquery.flot.axislabels.js");
+        jagg.addFooterJS("mainMenu", "jquery.flot.orderBars", "assets/js/flot/jquery.flot.orderBars.js");
+
+        // Custom JS file
+        jagg.addFooterJS("mainMenu", "billing-statistics", "templates/mainMenu/js/billingStatisticsGraph.js");
+        jagg.addFooterJS("mainMenu", "main-menu", "templates/mainMenu/js/main-menu.js");
+    }
+});
+%>

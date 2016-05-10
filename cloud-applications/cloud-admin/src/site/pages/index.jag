@@ -1,0 +1,37 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var site = require("/site/conf/site.json");
+var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
+var URL = jsonObj.ServerUrl.CloudAdmin + LOG_IN_PAGE;
+
+(function () {
+    var userName = session.get("LOGGED_IN_USER");
+    if (userName == null) {
+        response.sendRedirect(URL);
+        return;
+    }
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 Cloud Mgt",
+            "pagePath":"/site/pages/index.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"Cloud Mgt",
+                        "middle":[
+                            {
+                            	"name":"mainMenu"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

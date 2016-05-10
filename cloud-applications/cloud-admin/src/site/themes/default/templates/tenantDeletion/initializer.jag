@@ -1,0 +1,21 @@
+<%
+jagg.initializer("tenantDeletion", {
+
+    preInitialize:function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("tenantDeletion", "responsive.bootstrap.min", "assets/css/responsive.bootstrap.min.css");
+        jagg.addHeaderCSS("tenantDeletion", "bootstrap", "assets/css/bootstrap.css");
+        jagg.addHeaderCSS("tenantDeletion", "bootstrap", "assets/css/dataTables.bootstrap.min.css");
+
+        // UI related JS files
+        jagg.addFooterJS("tenantDeletion", "jquery.dataTables.min", "assets/js/dataTables/jquery.dataTables.min.js");
+        jagg.addFooterJS("tenantDeletion", "jquery-ui.min", "assets/js/jquery-ui.min.js");
+        jagg.addFooterJS("tenantDeletion", "dataTables.bootstrap.min", "assets/js/dataTables/dataTables.bootstrap.min.js");
+        jagg.addFooterJS("tenantDeletion", "dataTables.responsive.min", "assets/js/dataTables/dataTables.responsive.min.js");
+        jagg.addFooterJS("tenantDeletion", "responsive.bootstrap.min", "assets/js/responsive.bootstrap.min.js");
+
+        // Custom JS file
+        jagg.addFooterJS("tenantDeletion", "tenant-deletion", "templates/tenantDeletion/js/tenant-deletion.js");
+    }
+});
+%>

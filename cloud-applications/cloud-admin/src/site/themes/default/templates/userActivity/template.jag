@@ -1,0 +1,80 @@
+<% jagg.template("userActivity", function (inputs, outputs, jagg) { jagg.includeBlock("page/messages", null);%>
+
+<div class="container content-section-wrapper" id="form_div">
+    </br></br>
+    <div class="row">
+        <div class="col-lg-12 content-section">
+            <ul id="tabs" class="nav nav-tabs responsive" data-tabs="tabs">
+                <li id="individual"class="active"><a href="#Individual" data-toggle="tab">Individual Activity</a></li>
+                <li id="category"><a href="#Categories" data-toggle="tab">Category Activities</a></li>
+            </ul>
+            <div id="my-tab-content" class="tab-content responsive">
+                <div class="tab-pane active" id="Individual">
+                    </br>
+                    <form method='post' name="inputData" class='form-horizontal'
+                        id='userForm2' action="javascript:doSubmitUserActivity()" role="form2"  style="text-align: center">
+                        <div class="row">
+                            <div class="form-group">
+                                <label style="font-size: 11pt"><b>User Email</b></label>
+                                <div>
+                                    <input type="text" id="userActivityEmailValue" name="userActivityEmailValue"
+                                        class="required" />
+                                    <input id="submitbtn" type='submit' value='Submit' class='btn btn-primary' />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <br/>
+                <div id="graph" style="min-height: 220px; width: 100%;position: relative"></div>
+                <div class="tab-pane" id="Categories">
+                    <form method='post' name="inputData" class='form-horizontal'
+                        id='userForm3' action="javascript:doSubmitCategaryUserHistory()" role="form3">
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <label for="tenantDomain" class="col-sm-3 control-label" style="padding-top: 0px;">
+                                        <font size="3" color="black">Select Category :</font></h2> </b> </label>
+                                    <select id="categorySelect">
+                                        <option selected disabled hidden value=''>Please Select</option>
+                                        <option value="wso2">WSO2</option>
+                                        <option value="public">Public</option>
+                                    </select>
+                                </div>
+                                </br>
+                                <div class="form-group">
+                                    <label for="fromDate" class="col-sm-3 control-label" style="padding-top: 0px;">
+                                        <font size="3" color="black">From :</font></h2> </b> </label>
+                                    <input type="text" id="fromDate" name="fromDate" class="required" />
+                                </div>
+                                </br>
+                                <div class="form-group">
+                                    <label for="toDate" class="col-sm-3 control-label" style="padding-top: 0px;">
+                                        <font size="3" color="black">To :</font></h2> </b> </label>
+                                    <input type="text" id="toDate" name="toDate" class="required" />
+                                </div>
+                                </br>
+                                <div class="form-group">
+                                    <label for="inputEmail3" class="col-sm-1 control-label"></label>
+                                    <input id="submitbtn" type='submit' value='Submit' class='btn btn-primary' />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+		            <div class="usageTable">
+		                <br/>
+			            <div id="displayDateCatogariesTable"></div>
+			                <ul class="list_table highlight" id="usageListContainer1"></ul>
+			                <ul class="list_table highlight" id="tenantContainer1"></ul>
+		                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+   <%
+}); %>

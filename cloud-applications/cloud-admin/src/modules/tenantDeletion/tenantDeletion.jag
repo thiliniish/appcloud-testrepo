@@ -1,0 +1,135 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log();
+var requestType = "GET";
+var typeRequestHeaderName = 'Accept';
+var typeRequestHeaderValue = 'application/json';
+var getXMLHttpRequest = jagg.module("util").getXMLHttpRequest;
+
+
+var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
+
+var getDeletionTableDetails = function (draw, searchValue, length, start, orderColumnId, orderColumnType) {
+
+    var tenantDeletionCount = "NewDataServiceCloudBilling.HTTPEndpoint/getTenantDeletionUserCount";
+    var tenantDeletionData = "NewDataServiceCloudBilling.HTTPEndpoint/GetTenantDeletionData?";
+    var getSearchTenantCount = "NewDataServiceCloudBilling.HTTPEndpoint/getSearchTenantCount?";
+    var getDeletionSearchData = "NewDataServiceCloudBilling.HTTPEndpoint/getDeletionSearchData?";
+    var dataArray = [];
+    var dataJSON;
+    var data;
+    var object;
+    var dataLength;
+    var obj;
+    var columns = ["TENANT_ID", "TENANT_DOMAIN", "userName"];
+
+    var URL = jsonObj.ServerUrl.DataServices_Server + tenantDeletionCount;
+    var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+    if (response != null) {
+        var responseJSON = JSON.parse(response);
+        var totalRecords = responseJSON.Entries.Entry.COUNT;
+
+        if(searchValue=="") {
+            URL = jsonObj.ServerUrl.DataServices_Server + tenantDeletionData + "COLUMN="
+                    + columns[orderColumnId] + "&DIR=" + orderColumnType + "&START=" + start + "&LENGTH=" + length;
+            response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+            if(response!=null){
+                dataJSON = JSON.parse(response);
+                var dataObj = dataJSON.Data.data;
+                if(dataObj == undefined || dataObj == null){
+                    obj = {
+                        "draw": draw,
+                        "recordsTotal": totalRecords,
+                        "recordsFiltered": totalRecords,
+                        "data": dataArray
+                    };
+                    return obj;
+                } else {
+                    dataLength = dataJSON.Data.data.length;
+                    if(dataLength!= undefined) {
+                        for (var i = 0; i < dataLength; i++) {
+                            data = dataJSON.Data.data[i];
+                            object = [data.TENANT_ID, data.TENANT_DOMAIN, data.userName];
+                            dataArray.push(object);
+                        }
+                    } else {
+                        data = dataJSON.Data.data;
+                        object = [data.TENANT_ID, data.TENANT_DOMAIN, data.userName];
+                        dataArray.push(object);
+                    }
+                    obj = {
+                        "draw": draw,
+                        "recordsTotal": totalRecords,
+                        "recordsFiltered": totalRecords,
+                        "data": dataArray
+                    };
+                    return obj;
+                }
+            } else {
+                log.error("HTTP request: response from Billing Statistics was null.");
+                throw new Error("Response from Billing Statistics was null.");
+            }
+        } else {
+            var searchValueWithoutSpaecialCharactors = searchValue.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '');
+            searchValue = searchValueWithoutSpaecialCharactors + "%25";
+            URL = jsonObj.ServerUrl.DataServices_Server + getSearchTenantCount + "SEARCH_1=" + searchValue +
+                    "&SEARCH_2=" + searchValue + "&SEARCH_3=" + searchValue;
+            response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+            var filteredDataJSON = JSON.parse(response);
+
+            var recordsFiltered = filteredDataJSON.Data.data.COUNT;
+
+            URL = jsonObj.ServerUrl.DataServices_Server + getDeletionSearchData + "SEARCH_1=" +
+                    searchValue + "&SEARCH_2=" + searchValue + "&SEARCH_3=" + searchValue  + "&START=" + start +
+                    "&LENGTH=" + length;
+            response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+            if (response != null) {
+                dataJSON = JSON.parse(response);
+                var dataObj = dataJSON.Data.data;
+                if(dataObj != undefined || dataObj!= null ) {
+                    dataLength = dataJSON.Data.data.length;
+                    if (dataLength != undefined) {
+                        for (var i = 0; i < dataLength; i++) {
+                            data = dataJSON.Data.data[i];
+                            object = [data.TENANT_DOMAIN, data.SUBSCRIPTION, data.TYPE, data.STATUS, data.START_DATE,
+                                data.END_DATE];
+                            dataArray.push(object);
+                        }
+                    } else {
+                        data = dataJSON.Data.data;
+                        object = [data.TENANT_DOMAIN, data.SUBSCRIPTION, data.TYPE, data.STATUS, data.START_DATE,
+                            data.END_DATE];
+                        dataArray.push(object);
+                    }
+
+                    var obj = {
+                        "draw": draw,
+                        "recordsTotal": totalRecords,
+                        "recordsFiltered": recordsFiltered,
+                        "data": dataArray
+                    };
+                    return obj;
+                } else {
+                    return {
+                        "draw": draw,
+                        "recordsTotal": totalRecords,
+                        "recordsFiltered": recordsFiltered,
+                        "data": dataArray
+                    };
+                }
+            } else {
+                log.error("Error while getting data from tenant deletion table.");
+                return {
+                    error: true,
+                    statusCode: 500,
+                    message: "Error while getting data from tenant deletion table."
+                };
+            }
+        }
+    }
+};
+%>

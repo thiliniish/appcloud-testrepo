@@ -1,0 +1,10 @@
+<% jagg.template("logout", function(inputs, outputs, jagg) {
+
+
+var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
+var URL = jsonObj.ServerUrl.CloudAdmin + "site/pages/logIn.jag";
+
+session.put("LOGGED_IN_USER",null);
+response.sendRedirect(URL);
+
+ }); %>

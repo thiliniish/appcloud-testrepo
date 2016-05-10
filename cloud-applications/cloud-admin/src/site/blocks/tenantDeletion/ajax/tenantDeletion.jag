@@ -1,0 +1,32 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site/blocks/tenantDeletion/ajax/tenantDeletion.jag");
+
+var draw = request.getParameter("draw");
+var searchValue = request.getParameter("search[value]");
+var length = request.getParameter("length");
+var start = request.getParameter("start");
+var orderColumnId = request.getParameter("order[0][column]");
+var orderColumnType = request.getParameter("order[0][dir]"); //asc or desc
+
+(function () {
+    var result, mod = jagg.module("tenantDeletion");
+    try {
+        result = mod.getDeletionTableDetails(draw, searchValue, length, start, orderColumnId, orderColumnType);
+
+        if (result != null) {
+            print(result);
+        } else {
+            log.error("Could Not get tenant deletion data");
+        }
+    } catch (e) {
+        log.error("Error while getting tenant deletion Details " + e);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while getting tenant deletion Details "
+        };
+    }
+}());
+%>

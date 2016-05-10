@@ -1,0 +1,65 @@
+<% jagg.template("mainMenu", function(inputs, outputs, jagg) {jagg.includeBlock("page/messages", null);%>
+
+<div class="container">
+    <div class="col-lg-12">
+        </br></br>
+        <div class="content-section">
+            <div class="row">
+                <div style="text-align: center">
+                    <h1>Welcome to Admin Management Console</h1></br>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget widget-cool widget-item-icon">
+                        <div class="widget-item-left">
+                            <span class="fa fa-user" style="color:#803300"></span>
+                        </div>
+        	            <div class="widget-data">
+                            <div class="widget-int num-count" id="paidCount"></div>
+                            <div class="widget-title">Paid users</div>
+        	            </div>
+    	            </div>
+	            </div>
+                <div class="col-md-3">
+                    <div class="widget widget-cool widget-item-icon">
+                        <div class="widget-item-left">
+                            <span class="fa fa-user" style="color:#000099"></span>
+                        </div>
+        	            <div class="widget-data">
+                            <div class="widget-int num-count" id="trialCount"></div>
+                            <div class="widget-title">Trial users</div>
+        	            </div>
+    	            </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="widget widget-cool widget-item-icon">
+                        <div class="widget-item-left">
+                            <span class="fa fa-user" style="color:#006600"></span>
+                        </div>
+                        <div class="widget-data">
+                            <div class="widget-int num-count" id="freeCount"></div>
+                            <div class="widget-title">Free users</div>
+                        </div>
+                    </div>
+                </div>
+	            <div class="col-md-3">
+                    <div class="widget widget-danger widget-item-icon">
+                        <div class="widget-item-left">
+                            <span class="fa fa-user" style="color:#C00000"></span>
+                        </div>
+        	            <div class="widget-data">
+                            <div class="widget-int num-count" id="deleteCount"></div>
+                            <div class="widget-title">Tenants to be Deleted</div>
+        	            </div>
+    	            </div>
+	            </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+	                <div id="billingGraph" style="min-height: 220px; position: relative"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<% }); %>
+

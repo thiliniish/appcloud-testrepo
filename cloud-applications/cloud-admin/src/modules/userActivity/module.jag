@@ -1,0 +1,12 @@
+<%
+jagg.module("userActivity", {
+
+	userActivityEmailCategories:function () {
+		return jagg.require(jagg.getModulesDir() + "userActivity/userActivity.jag").userActivityEmailCategories.apply(this, arguments);
+	},
+
+	userActiviytData:function () {
+		return jagg.require(jagg.getModulesDir() + "userActivity/userActivity.jag").userActiviytData.apply(this, arguments);
+	}
+});
+%>

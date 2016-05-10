@@ -1,0 +1,6 @@
+<%
+jagg.block("logIn", {
+    initialize:function (data) {
+    }
+});
+%>

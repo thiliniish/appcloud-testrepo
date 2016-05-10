@@ -1,0 +1,18 @@
+<%
+jagg.initializer("logIn", {
+
+    preInitialize:function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("logIn", "jquery-ui", "assets/css/jquery-ui.css");
+        jagg.addHeaderCSS("logIn", "bootstrap", "assets/css/bootstrap.css");
+        jagg.addHeaderCSS("logIn", "cloud-style", "assets/css/cloud-style.css");
+
+        // UI related JS files
+        jagg.addFooterJS("logIn", "jquery.validate.min", "assets/js/jquery.validate.min.js");
+        jagg.addFooterJS("logIn", "jquery-ui.min", "assets/js/jquery-ui.min.js");
+
+        // Custom JS file
+        jagg.addFooterJS("logIn", "log-In", "templates/logIn/js/logIn.js");
+    }
+});
+%>

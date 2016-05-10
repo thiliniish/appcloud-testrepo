@@ -1,0 +1,6 @@
+<%
+jagg.block("userActivity", {
+    initialize:function (data) {
+    }
+});
+%>
