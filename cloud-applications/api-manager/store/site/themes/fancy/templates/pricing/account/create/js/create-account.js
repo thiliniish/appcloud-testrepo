@@ -1,7 +1,4 @@
 function doSubmit() {
-console.info($("#state option:selected").text());
-console.info($("#state").val());
-console.info($("#country option:selected").text());
     var isValid = validateForm();
     if (isValid) {
         jagg.message({content: 'Please wait. Your request is being processed..', type: 'info'});
