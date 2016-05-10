@@ -372,7 +372,6 @@ public final class CloudBillingServiceUtils {
         return client.deleteAccount(accountName);
     }
 
-
     /**
      * This is to send notification mails to cloud. Receiver mail
      * address will be set as cloud
@@ -382,8 +381,9 @@ public final class CloudBillingServiceUtils {
      */
     public static void sendNotificationToCloud(String messageBody, String messageSubject) {
         String receiver = BillingConfigUtils.getBillingConfiguration().getUtilsConfig()
-                .getNotifications().getEmailNotification().getSender();
-        EmailNotifications.getInstance().sendMail(messageBody, messageSubject, receiver);
+                                            .getNotifications().getEmailNotification().getSender();
+        EmailNotifications.getInstance().sendMail(messageBody, messageSubject, receiver,
+                                                  BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
     }
 
     private static JsonObject getTemplateAccount(String tenantDomain, ZuoraAccountClient client) throws CloudBillingZuoraException {

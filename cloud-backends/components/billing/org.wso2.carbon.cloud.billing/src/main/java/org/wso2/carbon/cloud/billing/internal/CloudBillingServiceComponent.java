@@ -38,6 +38,7 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 
 /**
  * @scr.component name="org.wso2.carbon.cloud.billing"
@@ -60,6 +61,10 @@ import org.wso2.carbon.user.core.service.RealmService;
  * @scr.reference name="tenant.registryloader"
  * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader" cardinality="1..1"
  * policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
+ * @scr.reference name="event.output.adapter.service"
+ * interface="org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService"
+ * cardinality="1..1" policy="dynamic"  bind="setOutputEventAdapterService"
+ * unbind="unsetOutputEventAdapterService"
  */
 public class CloudBillingServiceComponent {
 
@@ -137,7 +142,8 @@ public class CloudBillingServiceComponent {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SecretCallbackHandlerService is acquired");
         }
-        ServiceDataHolder.getInstance().setSecretCallbackHandlerService(secretCallbackHandlerService);
+        ServiceDataHolder.getInstance().setSecretCallbackHandlerService(
+                secretCallbackHandlerService);
     }
 
     /**
@@ -216,6 +222,38 @@ public class CloudBillingServiceComponent {
             LOGGER.debug("Unset Tenant Registry Loader.");
         }
         ServiceDataHolder.getInstance().setTenantRegistryLoader(null);
+    }
+
+    /**
+     * Initialize the Output EventAdapter Service dependency
+     *
+     * @param outputEventAdapterService Output EventAdapter Service reference
+     */
+    protected void setOutputEventAdapterService(
+            OutputEventAdapterService outputEventAdapterService) {
+        ServiceDataHolder.getInstance().setOutputEventAdapterService(outputEventAdapterService);
+    }
+
+    /**
+     * De-reference the Output EventAdapter Service dependency.
+     *
+     * @param outputEventAdapterService
+     */
+    protected void unsetOutputEventAdapterService(
+            OutputEventAdapterService outputEventAdapterService) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Unset the Output Email Adapter service.");
+        }
+        ServiceDataHolder.getInstance().setOutputEventAdapterService(null);
+    }
+
+    /**
+     * Gets the Output EventAdapter Service
+     *
+     * @return
+     */
+    public static OutputEventAdapterService getOutputEventAdapterService() {
+        return ServiceDataHolder.getInstance().getOutputEventAdapterService();
     }
 
     /**

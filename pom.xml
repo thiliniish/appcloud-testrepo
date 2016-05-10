@@ -226,6 +226,7 @@
         <wso2carbon.version>4.2.0</wso2carbon.version>
         <wso2carbon.version.421>4.2.1</wso2carbon.version.421>
         <wso2carbon.version.422>4.2.2</wso2carbon.version.422>
+        <carbon.analytics.common.version>5.0.6</carbon.analytics.common.version>
         <orbit.version.json>2.0.0.wso2v1</orbit.version.json>
         <orbit.version.json-simple>1.1.wso2v1</orbit.version.json-simple>      
         <maven.compiler.target>1.6</maven.compiler.target>

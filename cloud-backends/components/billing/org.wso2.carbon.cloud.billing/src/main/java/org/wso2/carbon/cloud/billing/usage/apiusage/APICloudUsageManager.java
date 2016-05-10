@@ -134,7 +134,7 @@ public class APICloudUsageManager {
             //Sending the Email to Cloud Team for verify on the error occurred
             EmailNotifications.getInstance().sendMail(messageBody, subject,
                     BillingConfigUtils.getBillingConfiguration().getUtilsConfig().getNotifications()
-                            .getEmailNotification().getSender());
+                            .getEmailNotification().getSender(),BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
             throw new CloudBillingException("Error occurred while uploading daily usage", e);
         }
     }

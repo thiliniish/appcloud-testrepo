@@ -75,7 +75,7 @@ var sendSubscriptionNotificationToSubscriber = function (api, applicationName, t
         }
         if (!"".equals(messageBody) && messageBody != null && !"".equals(subscriberEmail) && subscriberEmail != null && !"".equals(providerEmail) && providerEmail != null) {
             messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDisplayName).replace("$applicationName", applicationName).replace("$contact", providerEmail);
-            billingService.sendEmailNotification(subscriberEmail, SUBSCRIBER_EMAIL_SUBJECT, messageBody);
+            billingService.sendEmailNotification(subscriberEmail, SUBSCRIBER_EMAIL_SUBJECT, messageBody, CONTENT_TYPE_HTML);
             message = "Successfully sent email to the subscriber " + subscriber;
             result = {
                 error: false,
@@ -126,7 +126,7 @@ var sendSubscriptionNotificationToProvider = function (api, applicationName, tie
             messageBody = messageBody.replace("$api", api).replace("$tier", tier).replace("$tenant", tenantDisplayName).replace("$subscriber", subscriberEmail).replace("$applicationName", applicationName);
 
             //Sending the email to the provider regarding the subscription activity.
-            billingService.sendEmailNotification(providerEmail, providerEmailSubject, messageBody);
+            billingService.sendEmailNotification(providerEmail, providerEmailSubject, messageBody, CONTENT_TYPE_HTML);
             message = "Successfully sent email to the provider " + provider;
             result = {
                 error: false,

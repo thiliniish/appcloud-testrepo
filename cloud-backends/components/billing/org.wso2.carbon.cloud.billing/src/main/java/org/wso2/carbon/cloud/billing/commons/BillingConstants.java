@@ -83,6 +83,17 @@ public final class BillingConstants {
     public static final String HTTP_FOLLOW_REDIRECT = "follow_redirect";
     public static final String HTTP_CONTENT_TYPE = "Content-Type";
 
+    //Email Event Adapter configuration elements.
+    public static final String MESSAGE_BODY = "email.body";
+    public static final String MESSAGE_SUBJECT = "email.subject";
+    public static final String MESSAGE_RECEIVER = "email.address";
+    public static final String MESSAGE_TYPE = "email.type";
+    public static final String EMAIL_MESSAGE_FORMAT = "email";
+    public static final String RENDERING_TYPE_EMAIL = "email";
+    public static final String EMAIL_ADAPTER_NAME = "cloudEmailAdapter";
+    public static final int DEFAULT_TIMEOUT_VALUE = 60;
+
+
     /*Media types*/
     public static final String HTTP_TYPE_APPLICATION_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String HTTP_TYPE_APPLICATION_XML = "application/xml";
