@@ -1,7 +1,6 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
-include("/jagg/config_reader.jag");
 include("/modules/database/dataaccess.jag");
 
 var log = new Log("modules/tenant/register/register.jag");
