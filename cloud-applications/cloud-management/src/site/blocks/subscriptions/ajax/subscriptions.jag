@@ -39,7 +39,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
             var item = type;
             var events = [];
             if (result[0] != null && result[0] != "undefined") {
-                var cloudSubscription =  result[0]["API_CLOUD"];
+                var cloudSubscription =  result[0][type];
                 if (cloudSubscription == 1) {
                     //already added to right wave ignore
                 } else {
