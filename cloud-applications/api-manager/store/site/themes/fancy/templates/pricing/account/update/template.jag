@@ -47,7 +47,7 @@
             </div>
             <div class="form-group span6">
                 <label for="state">State/Province/Region: </label>
-                <select id="state" name="state" value="<%=outputs.creditCardState%>"></select>
+                <select id="state" name="state"></select>
                 <script type="text/javascript">
                     postState = "<%=outputs.creditCardState%>";
                     populateState();
