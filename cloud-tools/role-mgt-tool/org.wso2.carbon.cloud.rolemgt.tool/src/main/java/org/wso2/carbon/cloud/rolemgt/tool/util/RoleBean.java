@@ -64,6 +64,7 @@ public class RoleBean {
     }
 
     /**
+     * Method to add a user to role
      *
      * @param user
      */
@@ -72,6 +73,7 @@ public class RoleBean {
             users.add(user);
         }
     }
+
     /**
      * Method to get Permissions
      *

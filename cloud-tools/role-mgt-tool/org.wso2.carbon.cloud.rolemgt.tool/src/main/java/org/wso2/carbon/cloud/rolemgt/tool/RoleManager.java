@@ -92,16 +92,21 @@ public class RoleManager implements Runnable {
             //Get the user specified range of tenants to update
             //Specify it as -Drange=lowerbound:upperBound
             String range = System.getProperty(RoleManagerConstants.TENANT_RANGE);
-            int lowerBound = 1;
-            int upperBound = tenants.length;
+            boolean isRangeSpecified = false;
+            int noOfTenantsToUpdate = 0;
+            int lowerBound = 0;
+            int upperBound = 0;
             if (range != null) {
                 String[] bounds = range.split(":");
                 if (bounds.length >= 2) {
                     lowerBound = Integer.parseInt(bounds[0]);
                     upperBound = Integer.parseInt(bounds[1]);
+                    isRangeSpecified = true;
+                    noOfTenantsToUpdate = upperBound + 1 - lowerBound;
                 }
+            } else {
+                noOfTenantsToUpdate = tenants.length;
             }
-            int noOfTenantsToUpdate = upperBound + 1 - lowerBound;
             log.info("Starting the process to update tenant roles during server start up. " + noOfTenantsToUpdate +
                     " tenants will be updated.");
             int updatedTenantCount = 0;
@@ -109,9 +114,8 @@ public class RoleManager implements Runnable {
             for (Tenant tenant : tenants) {
                 int tenantId = tenant.getId();
                 String tenantDomain = tenant.getDomain();
-
-                //Check if tenant is within the specified range
-                if ((tenantId >= lowerBound) && (tenantId <= upperBound)) {
+                //Check if tenant is within the specified range or ignore if a range is not specified
+                if (((tenantId >= lowerBound) && (tenantId <= upperBound)) || !isRangeSpecified) {
                     //Start a new tenant flow
                     PrivilegedCarbonContext.startTenantFlow();
                     PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
@@ -150,7 +154,6 @@ public class RoleManager implements Runnable {
                 }
             }
             log.info("Role update process completed for " + updatedTenantCount + " tenants.");
-
         }
     }
 
