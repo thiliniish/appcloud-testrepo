@@ -64,6 +64,15 @@ public class RoleBean {
     }
 
     /**
+     *
+     * @param user
+     */
+    public void addUser(String user) {
+        if (user != null && !user.trim().isEmpty()) {
+            users.add(user);
+        }
+    }
+    /**
      * Method to get Permissions
      *
      * @param isAuthorizedPermissions

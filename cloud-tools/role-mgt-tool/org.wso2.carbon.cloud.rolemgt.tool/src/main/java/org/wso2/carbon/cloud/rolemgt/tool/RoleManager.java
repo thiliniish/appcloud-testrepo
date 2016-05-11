@@ -90,7 +90,7 @@ public class RoleManager implements Runnable {
             }
         } else {
             //Get the user specified range of tenants to update
-            //Specify it as -Drange = lowerbound : upperBound
+            //Specify it as -Drange=lowerbound:upperBound
             String range = System.getProperty(RoleManagerConstants.TENANT_RANGE);
             int lowerBound = 1;
             int upperBound = tenants.length;
@@ -105,9 +105,11 @@ public class RoleManager implements Runnable {
             log.info("Starting the process to update tenant roles during server start up. " + noOfTenantsToUpdate +
                     " tenants will be updated.");
             int updatedTenantCount = 0;
+            boolean isSuccessful = false;
             for (Tenant tenant : tenants) {
                 int tenantId = tenant.getId();
                 String tenantDomain = tenant.getDomain();
+
                 //Check if tenant is within the specified range
                 if ((tenantId >= lowerBound) && (tenantId <= upperBound)) {
                     //Start a new tenant flow
@@ -119,20 +121,25 @@ public class RoleManager implements Runnable {
                     try {
                         UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
                                 getUserRealm().getUserStoreManager();
+                        String tenantAdmin = PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                                getUserRealm().getRealmConfiguration().getAdminUserName();
                         AuthorizationManager authorizationManager = PrivilegedCarbonContext
                                 .getThreadLocalCarbonContext().
                                         getUserRealm().getAuthorizationManager();
-                        updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList, tenantDomain);
-                        //add to the count of successfully updated tenants
-                        updatedTenantCount++;
+                        isSuccessful = updateRolesPerTenant(userStoreManager, authorizationManager, roleBeanList,
+                                tenantDomain, tenantAdmin);
+                        if (isSuccessful){
+                            //add to the count of successfully updated tenants
+                            updatedTenantCount++;
+                            log.info("Role update process is completed for tenant: " + tenantDomain + "[" + tenant
+                                    .getId() + "]");
+                        }
                     } catch (UserStoreException e) {
                         String message =
                                 "Failed to update roles of tenant: " + tenantDomain + "[" + tenantId + "]";
                         log.error(message, e);
                     } finally {
                         PrivilegedCarbonContext.endTenantFlow();
-                        log.info("Role update process is completed for tenant: " + tenantDomain + "[" + tenant
-                                .getId() + "]");
                     }
                 } else {
                     if (log.isDebugEnabled()) {
@@ -233,8 +240,10 @@ public class RoleManager implements Runnable {
      * @param roleBeanList         Set of RoleBean
      * @throws UserStoreException
      */
-    private static void updateRolesPerTenant(UserStoreManager userStoreManager,
-            AuthorizationManager authorizationManager, Set<RoleBean> roleBeanList, String tenantDomain) {
+    private static boolean updateRolesPerTenant(UserStoreManager userStoreManager,
+            AuthorizationManager authorizationManager, Set<RoleBean> roleBeanList, String tenantDomain, String
+            tenantAdmin) {
+        boolean isSuccessful = false;
         boolean isAuthorizedPermissions;
         boolean isRoleAdd;
         boolean isRoleUpdate;
@@ -246,6 +255,8 @@ public class RoleManager implements Runnable {
             isRoleDelete = false;
             if (RoleManagerConstants.ROLE_ADD.equals(roleBean.getAction())) {
                 isRoleAdd = true;
+                //Set tenant admin as default user
+                roleBean.addUser(tenantAdmin);
             } else if (RoleManagerConstants.ROLE_UPDATE.equals(roleBean.getAction())) {
                 isRoleUpdate = true;
             } else if (RoleManagerConstants.ROLE_DELETE.equals(roleBean.getAction())) {
@@ -312,10 +323,12 @@ public class RoleManager implements Runnable {
                                 .getAction() + "\n");
                     }
                 }
+                isSuccessful = true;
             } catch (UserStoreException e) {
                 log.error("An error occurred while updating role '" + roleBean.getRoleName() + " in tenant: "
                         + tenantDomain, e);
             }
         }//End of for loop iterating roleBean List
+        return isSuccessful;
     }
 }
