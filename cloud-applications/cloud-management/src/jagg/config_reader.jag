@@ -1,14 +1,15 @@
 <%
 include('constants.jag');
-var appFactoryConfigReaderModule = require("appFactory");
-var appFactoryConfigReader = new appFactoryConfigReaderModule.AppFactoryConfigurationReader();
+var carbon = require('carbon');
+var server = carbon.server;
+var cloudCommonService = server.osgiService('org.wso2.carbon.cloud.common.CloudMgtConfiguration');
 
     function getProperty(expression){
-        return  appFactoryConfigReader.getFirstProperty(expression);
+        return cloudCommonService.getFirstProperty(expression);
     }
   
     function getProperties(expression){
-    	var properties = appFactoryConfigReader.getProperties(expression);
+        var properties = cloudCommonService.getProperties(expression);
   	    return  properties;
     }
 
