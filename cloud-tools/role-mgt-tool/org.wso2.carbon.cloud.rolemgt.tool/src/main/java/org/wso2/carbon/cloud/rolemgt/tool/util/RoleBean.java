@@ -22,6 +22,7 @@ import org.wso2.carbon.user.core.Permission;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Represents the data holder for Role Configuration details
@@ -69,7 +70,7 @@ public class RoleBean {
      * @param user
      */
     public void addUser(String user) {
-        if (user != null && !user.trim().isEmpty()) {
+        if (user != null && !user.isEmpty()) {
             users.add(user);
         }
     }
