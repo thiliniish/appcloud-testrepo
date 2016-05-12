@@ -9,7 +9,7 @@ var cloudCommonService = server.osgiService('org.wso2.carbon.cloud.common.CloudM
     }
   
     function getProperties(expression){
-        var properties = cloudCommonService.getProperties(expression);
+  	    var properties = cloudCommonService.getProperties(expression);
   	    return  properties;
     }
 

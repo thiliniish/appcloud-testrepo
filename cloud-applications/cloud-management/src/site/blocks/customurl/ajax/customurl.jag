@@ -1,7 +1,6 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
-
 (function () {
 
     var loginStatus = jagg.isUserLoggedIn();
