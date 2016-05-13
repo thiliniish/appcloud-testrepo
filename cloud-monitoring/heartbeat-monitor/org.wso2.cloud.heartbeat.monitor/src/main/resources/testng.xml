@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  ~  Copyright 2015 WSO2, Inc. (http://wso2.com)
+  ~  Copyright 2016 WSO2, Inc. (http://wso2.com)
   ~
   ~  WSO2 Inc. licenses this file to you under the Apache License,
   ~  Version 2.0 (the "License"); you may not use this file except
@@ -16,36 +16,24 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
+
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="AppFTestSuite" parallel="false">
     <listeners>
-        <listener class-name="org.wso2.appfactory.testlisteners.AppFactoryTestManagerListener"/>
-        <listener
-                class-name="org.wso2.cloud.heartbeat.monitor.modules.appfactory.listeners.IntegrationTestListener"/>
+        <listener class-name="org.wso2.appcloud.integration.test.listeners.AppCloudTestManagerListner"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestReportListener"/>
-        <listener
-                class-name="org.wso2.cloud.heartbeat.monitor.modules.appfactory.listeners.OverrideSslProperties"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestExecutionListener"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestSuiteListener"/>
-        <listener
-                class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
     </listeners>
 
     <test name="AppF-Sample-Test" preserve-order="true" verbose="2">
         <classes>
-            <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.DatabaseTestCase"/>
-            <class name="org.wso2.appfactory.tests.scenarios.DatasourceTestCase"/>
-            <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BuildRepoTestCase"/>
-            <class name="org.wso2.appfactory.tests.scenarios.ApplicationCreationDeletionTestCase"/>
-            <class name="org.wso2.appfactory.tests.scenarios.GovernanceTestCase"/>
-            <class name="org.wso2.appfactory.tests.scenarios.IssueTrackerTestCase"/>
-
-
-            <!-- <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BAMDataPublisherTestCase"/>-->
-            <!--class name="org.wso2.appfactory.tests.scenarios.DomainMappingTestCase"/ -->
-            <!--<class name="org.wso2.appfactory.tests.scenarios.tenantadmin.UserManagementTestCase"/>-->
-            <!--Cannot run against live cloud since there are code level changes which requires to be fixed while running against live-->
-
+            <class name="org.wso2.appcloud.integration.test.scenarios.WARApplicationTestCase"/>
+            <class name="org.wso2.appcloud.integration.test.scenarios.MSF4JApplicationTestCase"/>
+            <class name="org.wso2.appcloud.integration.test.scenarios.PHPApplicationTestCase"/>
+            <class name="org.wso2.appcloud.integration.test.scenarios.DatabaseTestCase"/>
         </classes>
     </test>
 </suite>

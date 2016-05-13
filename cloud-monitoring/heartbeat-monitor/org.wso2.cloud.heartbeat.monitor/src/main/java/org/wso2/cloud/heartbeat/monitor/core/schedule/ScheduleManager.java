@@ -29,9 +29,7 @@ import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiIntegrationTest;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiLifeCycleTest;
 import org.wso2.cloud.heartbeat.monitor.core.status.LiveStatusConnector;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiStatisticTest;
-import org.wso2.cloud.heartbeat.monitor.modules.appfactory.ApplicationBuildTest;
-import org.wso2.cloud.heartbeat.monitor.modules.appfactory.ImportMemberToTenantTest;
-import org.wso2.cloud.heartbeat.monitor.modules.appfactory.IntegrationTest;
+import org.wso2.cloud.heartbeat.monitor.modules.appcloud.IntegrationTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.CassandraPastLogsDeletionTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.DataPublishingTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.HiveScriptExecutionTest;
@@ -166,6 +164,7 @@ public class ScheduleManager {
         Node modules = rootNode.findChildNodeByName(Constants.MODULES);
         heartbeatTenant = rootNode.findChildNodeByName(Constants.HEARTBEAT_TENANT);
 
+        /*
         //AppFactory
         if(modules.findChildNodeByName(Constants.APPFACTORY)!=null){
             List<Class> appfactoryClasses= new ArrayList<Class>();
@@ -173,6 +172,13 @@ public class ScheduleManager {
             appfactoryClasses.add(ImportMemberToTenantTest.class);
             appfactoryClasses.add(IntegrationTest.class);
             scheduleJobs(modules.findChildNodeByName(Constants.APPFACTORY), appfactoryClasses);
+        }*/
+
+        //AppCloud
+        if(modules.findChildNodeByName(Constants.APPCLOUD)!=null){
+            List<Class> appCloudClasses= new ArrayList<Class>();
+            appCloudClasses.add(IntegrationTest.class);
+            scheduleJobs(modules.findChildNodeByName(Constants.APPCLOUD), appCloudClasses);
         }
 
         //CloudMgt - contains both cloudmgt and issue tracker
