@@ -37,12 +37,17 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 /**
- * Custom LDAP based user store implementation for cloud.
+ * A service which exposes user information
  */
 public class CloudUserManager {
 
     private static Log log = LogFactory.getLog(CloudUserManager.class);
 
+    /**
+     * Returns an Array of {@link TenantInfoBean}s of the current user
+     * @return  an Array of {@link TenantInfoBean}
+     * @throws CloudUserManagerException
+     */
     public TenantInfoBean[] getTenantDisplayNames() throws CloudUserManagerException {
         ArrayList<TenantInfoBean> tenantInfoList;
         String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
@@ -56,16 +61,15 @@ public class CloudUserManager {
             DataSource dataSource = (DataSource) initContext.lookup(CloudUserManagerConstants.CLOUD_MGT_DATASOURCE);
             if (dataSource != null) {
                 conn = dataSource.getConnection();
-                preparedStatement = conn.prepareStatement("SELECT * FROM ORGANIZATIONS WHERE"
-                        + " tenantDomain IN (SELECT tenantDomain FROM TENANT_USER_MAPPING WHERE userName=?)");
+                preparedStatement = conn.prepareStatement(CloudUserManagerConstants.GET_TENANT_INFORMATION_QUERY);
                 preparedStatement.setString(1, loggedInUser);
                 ResultSet rs = preparedStatement.executeQuery();
                 while (rs.next()) {
                     TenantInfoBean tenantInfo = new TenantInfoBean();
-                    String tenantDomain = rs.getString("tenantDomain");
-                    String tenantDisplayName = rs.getString("displayName");
+                    String tenantDomain = rs.getString(CloudUserManagerConstants.TENANT_DOMAIN);
+                    String tenantDisplayName = rs.getString(CloudUserManagerConstants.DISPLAY_NAME);
+                    tenantInfo.setTenantDomain(tenantDomain);
                     tenantInfo.setTenantDisplayName(tenantDisplayName);
-                    tenantInfo.setTenantName(tenantDomain);
                     tenantInfoList.add(tenantInfo);
                 }
             } else {

@@ -22,4 +22,9 @@ public class CloudUserManagerConstants {
 
     public static final String CLOUD_MGT_DATASOURCE = "jdbc/cloud_mgt";
 
+    public static final String GET_TENANT_INFORMATION_QUERY = "SELECT * FROM ORGANIZATIONS WHERE"
+            + " tenantDomain IN (SELECT tenantDomain FROM TENANT_USER_MAPPING WHERE userName=?)";
+    public static final String TENANT_DOMAIN = "tenantDomain";
+    public static final String DISPLAY_NAME = "displayName";
+
 }
