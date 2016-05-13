@@ -120,7 +120,7 @@ public class UserManagementService extends AbstractAdmin {
 			userStoreManager = UserMgtUtil.getRealmService()
 					.getTenantUserRealm(MultitenantConstants.SUPER_TENANT_ID)
 					.getUserStoreManager();
-			if(!isUserInRole(user, CloudConstants.CLOUD_DEFAULT_ROLE)){
+			if (!isUserInRole(user, CloudConstants.CLOUD_DEFAULT_ROLE)) {
 				String[] roles = { CloudConstants.CLOUD_DEFAULT_ROLE };
 				userStoreManager.updateRoleListOfUser(user, null, roles);
 			}
