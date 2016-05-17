@@ -21,7 +21,6 @@
 
 <suite name="AppFTestSuite" parallel="false">
     <listeners>
-        <listener class-name="org.wso2.appcloud.integration.test.listeners.AppCloudTestManagerListner"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestReportListener"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestExecutionListener"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestSuiteListener"/>
