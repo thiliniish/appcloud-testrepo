@@ -290,12 +290,12 @@
         </urls>
 
         <defaultTenant>
-            <firstName>Danushka</firstName>
-            <lastName>Fernando</lastName>
-            <email>firstName@example.com</email>
-            <admin>amanisoysa.gmail.com</admin>
-            <adminPassword>Admin@123</adminPassword>
-            <tenantDomain>pingpong</tenantDomain>
+            <firstName>user</firstName>
+            <lastName>user</lastName>
+            <email>email@email.com</email>
+            <admin>email@email.com</admin>
+            <adminPassword>userpassword</adminPassword>
+            <tenantDomain>tenantDomains</tenantDomain>
             <usagePlan>Demo</usagePlan>
         </defaultTenant>
 
