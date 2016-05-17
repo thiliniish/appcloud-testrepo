@@ -497,7 +497,6 @@ var sendEmail = function (to, link) {
             log.error(ex);
         }
 
-        .
         throw (e);
     }
 };
