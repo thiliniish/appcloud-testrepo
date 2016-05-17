@@ -164,16 +164,6 @@ public class ScheduleManager {
         Node modules = rootNode.findChildNodeByName(Constants.MODULES);
         heartbeatTenant = rootNode.findChildNodeByName(Constants.HEARTBEAT_TENANT);
 
-        /*
-        //AppFactory
-        if(modules.findChildNodeByName(Constants.APPFACTORY)!=null){
-            List<Class> appfactoryClasses= new ArrayList<Class>();
-            appfactoryClasses.add(ApplicationBuildTest.class);
-            appfactoryClasses.add(ImportMemberToTenantTest.class);
-            appfactoryClasses.add(IntegrationTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.APPFACTORY), appfactoryClasses);
-        }*/
-
         //AppCloud
         if(modules.findChildNodeByName(Constants.APPCLOUD)!=null){
             List<Class> appCloudClasses= new ArrayList<Class>();
