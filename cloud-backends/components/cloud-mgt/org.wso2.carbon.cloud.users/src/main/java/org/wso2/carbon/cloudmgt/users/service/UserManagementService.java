@@ -152,8 +152,8 @@ public class UserManagementService extends AbstractAdmin {
 				}
 			}
 		} catch (UserStoreException e) {
-			String msg = "Error occurred while checking whether the user : " + user + " is in role : " + role;
-			throw new UserManagementException(msg, e);
+			throw new UserManagementException(
+					"Error occurred while checking whether the user : " + user + " is in role : " + role, e);
 		}
 		return false;
 	}
