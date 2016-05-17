@@ -43,10 +43,6 @@ var BPS_SERVER_URL = "ServerUrls.BPS";
 var GREG_SERVER_URL = "ServerUrls.Greg";
 var SS_SERVER_URL = "ServerUrls.SS";
 
-var DEV_SERVER_URL = "ApplicationDeployment.DeploymentStage.Development.DeploymentServerURL";
-var TEST_SERVER_URL = "ApplicationDeployment.DeploymentStage.Testing.DeploymentServerURL";
-var PROD_SERVER_URL = "ApplicationDeployment.DeploymentStage.Production.DeploymentServerURL";
-
 var ROLE_ADMIN = "admin";
 var ROLE_PUBLISHER = "publisher";
 var ROLE_SUBSCRIBER = "subscriber";
@@ -76,7 +72,6 @@ var PREFERRED_REPOSITORY_TYPE = "RepositoryType";
 var SHOW_OTHER_SERVICES_TAB = "OtherServices.ShowOtherServicesTab";
 var SHOW_SONAR_BTN = "EnableSonar";
 
-var DEPLOYMENT_STAGES="ApplicationDeployment.DeploymentStage";
 var STORAGE_SERVER_URL = "StorageServerUrl";
 var RSS_NAME="RssName";
 
