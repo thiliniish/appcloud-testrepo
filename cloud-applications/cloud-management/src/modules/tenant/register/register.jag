@@ -382,9 +382,19 @@ var storeTempRegistration = function (email, uuid, isInvitee) {
     } catch (e) {
         log.error("Error while storeTempRegistration for email: " + email);
         log.error(e);
+        try {
+            var emailSubject = "Storing in TEMP_REGISTRATION failed for user: " + email;
+            var emailContent = "Initial tenant creation failed for newly signed-up user: ";
+            emailContent = emailContent.concat(email).concat(" Exception occurred while Storing in TEMP_REGISTRATION. UUID: ").concat(uuid).
+            concat(" ").concat(e).concat(e.stack);
+            var isEmailSent = jagg.module("util").sendEmail(emailContent, emailSubject, null);
+        } catch (ex) {
+            log.error("Error sending email notification at, store temp registration failure for customer email: " + email);
+            log.error(ex);
+        }
         throw (e);
     }
-    log.info("Sucessfully added to the temp registration user: " + email);
+    log.info("Successfully added to the temp registration user: " + email);
 };
 
 var sendInvite = function (email, token) {
@@ -474,8 +484,18 @@ var sendEmail = function (to, link) {
         sender.send();
         log.info("email successfully sent to " + to + " link : " + link);
     } catch (e) {
-        log.error("Error while sending email to : " + to);
+        log.error("Error while sending email to: " + to);
         log.error(e);
+        try {
+            var emailSubject = "Sending email with one time link failed for newly signed-up user: " + to;
+            var emailContent = "Initial registration failed for newly signed-up user: ";
+            emailContent = emailContent.concat(email).concat(" Exception occurred while sending email with one time link.   ").concat(e).concat(e.stack);
+            var isEmailSent = jagg.module("util").sendEmail(emailContent, emailSubject, null);
+        } catch (ex) {
+            log.error("Error sending email notification at, Sending one time link failure for customer email: " + email);
+            log.error(ex);
+        }
+
         throw (e);
     }
 };
