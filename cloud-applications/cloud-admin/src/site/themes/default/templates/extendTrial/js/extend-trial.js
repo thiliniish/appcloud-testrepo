@@ -219,19 +219,29 @@ function checkEmailExist() {
     });
 }
 
-
-function fillTenantOptionDropDown(resultJSON){
+function fillTenantOptionDropDown(resultJSON) {
     var $optionContainer = $('#tenant-select');
     $optionContainer.empty();
-    var noOfTenants = resultJSON.Tenants.Tenant.length;
-    if(noOfTenants!= undefined){
-        for (var i=0; i < noOfTenants; i++) {
-            var $option= $('<option value="'+ resultJSON.Tenants.Tenant[i].tenantDomain +'">' + resultJSON.Tenants.Tenant[i].tenantDomain + '</option>');
+    var tenantsArray = [];
+    var tenantEntry = resultJSON.Tenants.Tenant;
+    //data service returns results in {"Entries":{"Entry":[{"xxx":"333"}, {"yyy":"333"}]}} format.
+    //If there is only one object it sends like {"Entries":{"Entry":{"yyy":"333"}}}
+    //Entry can be an 'Array' or an 'Object'.
+    if (tenantEntry instanceof Array) {
+        tenantsArray = tenantEntry;
+    }
+    //When an object is returned.
+    else {
+        tenantsArray.push(tenantEntry);
+    }
+    var noOfTenants = tenantsArray.length;
+    if (noOfTenants != undefined) {
+        for (var i = 0; i < noOfTenants; i++) {
+            var $option = $('<option value="' + tenantsArray[i].tenantDomain + '">' + tenantsArray[i].tenantDomain + '</option>');
             $optionContainer.append($option);
         }
     }
 }
-
 
 $(document).ready(function () {
 
