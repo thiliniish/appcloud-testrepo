@@ -21,20 +21,17 @@ package org.wso2.carbon.cloud.user.manager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.user.manager.beans.TenantInfoBean;
+import org.wso2.carbon.cloud.user.manager.util.CloudDatabaseManager;
 import org.wso2.carbon.cloud.user.manager.util.CloudUserManagerConstants;
 import org.wso2.carbon.cloud.user.manager.util.CloudUserManagerException;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.List;
 
 /**
  * A service which exposes user information
@@ -45,56 +42,40 @@ public class CloudUserManager {
 
     /**
      * Returns an Array of {@link TenantInfoBean}s of the current user
-     * @return  an Array of {@link TenantInfoBean}
+     *
+     * @return an Array of {@link TenantInfoBean}
      * @throws CloudUserManagerException
      */
     public TenantInfoBean[] getTenantDisplayNames() throws CloudUserManagerException {
-        ArrayList<TenantInfoBean> tenantInfoList;
+        List<TenantInfoBean> tenantInfoList;
         String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
-        Connection conn = null;
+        Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         try {
             tenantInfoList = new ArrayList<TenantInfoBean>();
-            Hashtable<String, String> environment = new Hashtable<String, String>();
-            environment.put("java.naming.factory.initial", "org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory");
-            Context initContext = new InitialContext(environment);
-            DataSource dataSource = (DataSource) initContext.lookup(CloudUserManagerConstants.CLOUD_MGT_DATASOURCE);
-            if (dataSource != null) {
-                conn = dataSource.getConnection();
-                preparedStatement = conn.prepareStatement(CloudUserManagerConstants.GET_TENANT_INFORMATION_QUERY);
-                preparedStatement.setString(1, loggedInUser);
-                ResultSet rs = preparedStatement.executeQuery();
-                while (rs.next()) {
-                    TenantInfoBean tenantInfo = new TenantInfoBean();
-                    String tenantDomain = rs.getString(CloudUserManagerConstants.TENANT_DOMAIN);
-                    String tenantDisplayName = rs.getString(CloudUserManagerConstants.DISPLAY_NAME);
-                    tenantInfo.setTenantDomain(tenantDomain);
-                    tenantInfo.setTenantDisplayName(tenantDisplayName);
-                    tenantInfoList.add(tenantInfo);
-                }
-            } else {
-                log.info("Cannot Find a data source with the name : " + CloudUserManagerConstants.CLOUD_MGT_DATASOURCE);
+            connection = CloudDatabaseManager.getConnection();
+            preparedStatement = connection.prepareStatement(CloudUserManagerConstants.GET_TENANT_INFORMATION_QUERY);
+            preparedStatement.setString(1, loggedInUser);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                TenantInfoBean tenantInfo = new TenantInfoBean();
+                String tenantDomain = resultSet.getString(CloudUserManagerConstants.TENANT_DOMAIN);
+                String tenantDisplayName = resultSet.getString(CloudUserManagerConstants.DISPLAY_NAME);
+                tenantInfo.setTenantDomain(tenantDomain);
+                tenantInfo.setTenantDisplayName(tenantDisplayName);
+                tenantInfoList.add(tenantInfo);
             }
-        } catch (NamingException e) {
-            String msg =
-                    "Error occurred while getting the datasource : " + CloudUserManagerConstants.CLOUD_MGT_DATASOURCE;
-            log.error(msg, e);
-            throw new CloudUserManagerException(msg, e);
         } catch (SQLException e) {
             String msg = "Error occurred while getting the tenant information of user : " + loggedInUser;
             log.error(msg, e);
-            throw new CloudUserManagerException(msg, e);
+            throw new CloudUserManagerException(msg);
+        } catch (CloudUserManagerException e) {
+            String msg = "Error occurred while getting the tenant information of user : " + loggedInUser;
+            log.error(msg, e);
+            throw new CloudUserManagerException(msg);
         } finally {
-            try {
-                if (preparedStatement != null) {
-                    preparedStatement.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                log.warn("Error occurred while cleaning up SQL connections.", e);
-            }
+            CloudDatabaseManager.closeAllConnections(connection, preparedStatement, resultSet);
         }
         return tenantInfoList.toArray(new TenantInfoBean[tenantInfoList.size()]);
     }
