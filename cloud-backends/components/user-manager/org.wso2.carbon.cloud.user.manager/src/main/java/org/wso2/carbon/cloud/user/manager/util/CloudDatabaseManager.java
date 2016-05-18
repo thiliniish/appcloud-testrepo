@@ -34,7 +34,6 @@ public class CloudDatabaseManager {
     private static final Log log = LogFactory.getLog(CloudDatabaseManager.class);
 
     private static volatile DataSource dataSource = null;
-    private static final String DATA_SOURCE_NAME = "jdbc/cloud_mgt";
 
     private CloudDatabaseManager() {
     }
@@ -48,13 +47,14 @@ public class CloudDatabaseManager {
         synchronized (CloudDatabaseManager.class) {
             if (dataSource == null) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Initializing data source for : " + DATA_SOURCE_NAME);
+                    log.debug("Initializing data source for : " + CloudUserManagerConstants.CLOUD_MGT_DATASOURCE);
                 }
                 try {
                     Context ctx = new InitialContext();
-                    dataSource = (DataSource) ctx.lookup(DATA_SOURCE_NAME);
+                    dataSource = (DataSource) ctx.lookup(CloudUserManagerConstants.CLOUD_MGT_DATASOURCE);
                 } catch (NamingException e) {
-                    throw new CloudUserManagerException("Error while looking up the data source: " + DATA_SOURCE_NAME,
+                    throw new CloudUserManagerException(
+                            "Error while looking up the data source: " + CloudUserManagerConstants.CLOUD_MGT_DATASOURCE,
                             e);
                 }
 
