@@ -22,9 +22,6 @@ public class CloudUserManagerException extends Exception {
 
     private static final long serialVersionUID = -8122785505033077527L;
 
-    public CloudUserManagerException() {
-    }
-
     public CloudUserManagerException(String s) {
         super(s);
     }
