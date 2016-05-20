@@ -46,46 +46,33 @@
         <finalName>wso2cloud-das-datapurge-tool${project.version}</finalName>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <descriptors>
-                        <descriptor>src/main/assembly/bin.xml</descriptor>
-                    </descriptors>
-                </configuration>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>zip</id>
-                        <phase>package</phase>
+                        <id>generate-scr-scrdescriptor</id>
                         <goals>
-                            <goal>single</goal>
+                            <goal>scr</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>org.wso2.cloud.das.datapurge.tool.DataPurgeTool</mainClass>
-                        </manifest>
-                    </archive>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>
+                            org.wso2.cloud.das.datapurge.tool.internal
+                        </Private-Package>
+                        <Import-Package>
+                            org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
+                            org.osgi.framework; version="${imp.pkg.version.osgi.framework}"
+                        </Import-Package>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
