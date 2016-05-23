@@ -182,6 +182,7 @@
             var match = pattern.test(names[i]);
             if(match == false){
                 allEmailAddressesMatch = false;
+            }
         }
         return allEmailAddressesMatch;
     }
