@@ -200,7 +200,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			productOverUsageCharge.setChargeType(BillingConstants.RATEPLAN_CHARGE_TYPE_OVERUSAGE);
 			productOverUsageCharge.setName(BillingConstants.RATEPLAN_CHARGE_NAME_OVERUSAGE);
 			productOverUsageCharge.setTriggerEvent(BillingConstants.RATEPLAN_CHARGE_TRIGGER_EVENT);
-			productOverUsageCharge.setUOM(MonetizationConstants.UNIT_OF_MEASURE);
+			productOverUsageCharge.setUOM(MonetizationConstants.UNIT_OF_MEASURE_DISPLAY_NAME);
 			productOverUsageCharge.setProductRatePlanId(productRatePlanId);
 
 			// Create ProductRatePlanChargeTier
@@ -225,7 +225,7 @@ public class ZuoraProductClient extends ZuoraClient {
 			productOverUsageCharge.setProductRatePlanChargeTierData(chargeTierData);
 			SaveResult saveResultOverUsage = zuoraClientUtils.create(productOverUsageCharge);
 			if (saveResultOverUsage != null && !saveResultOverUsage.getSuccess()) {
-				throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(result));
+				throw new CloudBillingZuoraException(zuoraClientUtils.getZuoraErrorMessage(saveResultOverUsage));
 			} else {
 				return objectToJson(productRatePlanId);
 			}
