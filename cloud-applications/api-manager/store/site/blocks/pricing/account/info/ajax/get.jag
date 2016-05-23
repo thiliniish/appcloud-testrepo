@@ -1,0 +1,54 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("site.blocks.pricing.account.info.ajax.get.jag");
+var carbon = require('carbon');
+var server = carbon.server;
+var mod = jagg.module("pricing");
+
+(function () {
+    var action = request.getParameter("action");
+    var user = jagg.getUser();
+    var mod = jagg.module("pricing");
+    var ssoEnabled = site.ssoConfiguration.enabled;
+    var msg = require("/site/conf/ui-messages.jag");
+    var message;
+    var responseObj;
+    if (!user) {
+        if (!ssoEnabled) {
+            print({
+                error: true,
+                message: msg.error.loginRequired(action)
+            });
+        }
+        return;
+    }
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    var monetizationStatus = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
+    if (monetizationStatus == null || monetizationStatus.error || !monetizationStatus.monetizationEnabled) {
+        response.status = 403;
+        print({
+            error: true,
+            statusCode: 403,
+            message: "API monetization feature is not available for this tenant.  Please contact the store admin."
+        });
+    }
+    if (action == "get-billing-account") {
+        var result = mod.getAccountDetails();
+        result.tenantDomain = tenantDomain;
+        if (result.error) {
+            result.cloudmgtURL = mod.getCloudmgtURL();
+        }
+        print(result);
+    } else {
+        message = "Invalid Action specified for action " + action;
+        responseObj = {
+            error: true,
+            message: message,
+            statusCode: 500
+        };
+        print(responseObj);
+    }
+}());
+%>

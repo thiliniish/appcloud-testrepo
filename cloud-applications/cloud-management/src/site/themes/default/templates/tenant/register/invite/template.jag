@@ -271,7 +271,7 @@ function getUserEmail() {
 <div class="container content-starter">
 	<div class="row">
 		<div class="col-lg-12">
-			<h1>Sign-Up to WSO2 Cloud</h1>
+			<h1>Sign Up to WSO2 Cloud</h1>
 			<div class="helper_text" id="helper_text">
 			    <p>The world's most comprehensive platform-as-a-service</p>
 		    </div>

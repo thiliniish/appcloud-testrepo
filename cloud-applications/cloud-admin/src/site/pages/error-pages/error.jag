@@ -1,0 +1,25 @@
+<html>
+<head>
+<style>
+    h1 {text-align:center;}
+    p {text-align:center;}
+</style>
+</head>
+<%
+var log = new Log();
+var errorMessage=session.get('ERROR_MSG');
+
+if(errorMessage!=null){%>
+
+    <body>
+        <h1>An Unexpected Error Occurred</h1><p><br/>Cause of Error : <b><%=errorMessage%>..Please Retry.. </b><br/>
+    </body>
+<%
+} else {%>
+    <body>
+    <h1>An Unexpected Error Occurred</h1><p><br/>Unknown Cause of Error.. Please Retry..<br/>
+    </body>
+<%
+}
+%>
+</html>

@@ -1,0 +1,147 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+
+    var loginStatus = jagg.isUserLoggedIn();
+    if (loginStatus.error) {
+        response.status = 401;
+        print(loginStatus);
+        return;
+    }
+    var tenantDomain;
+    var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+    var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var user = jagg.getUser();
+    if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == null) {
+        response.status = 401;
+        print({
+            error: true,
+            status: 401,
+            message: "Unauthorized. Login required."
+        });
+    }
+    if (!jagg.module("util").isUserInAdminRole()) {
+        response.status = 401;
+        print({
+            error: true,
+            status: 401,
+            message: "User does not have permission to perform the requested operation."
+        });
+    }
+    var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
+        response.status = 403;
+        print({
+            error: true,
+            status: 403,
+            message: "Feature not available for the organization."
+        });
+    }
+    var mod, result, returnObj,
+            action = encoder.getSafeText(request.getParameter("action")),
+            site = require("/site/conf/site.json");
+    mod = jagg.module("monetizing");
+    if (action != null && action == "getSubscriberUsage") {
+        var userId = encoder.getSafeText(request.getParameter("userId"));
+        var applicationName = encoder.getSafeText(request.getParameter("applicationName"));
+        var api = encoder.getSafeText(request.getParameter("api"));
+        var fromDate = encoder.getSafeText(request.getParameter("fromDate"));
+        var toDate = encoder.getSafeText(request.getParameter("toDate"));
+        result = mod.getSubscriberUsage(userId, applicationName, api, fromDate, toDate);
+        if (result == null || result.error) {
+            var message = result.message;
+            if (message == null) {
+                message = "Error while getting monetization subscriber usage data for  " + tenantDomain;
+            }
+            returnObj = {
+                error: true,
+                message: message,
+                status: result.status
+            };
+        } else {
+            returnObj = {
+                error: false,
+                usageObj: result.usageObj,
+                status: result.status
+            }
+        }
+        print(returnObj);
+    } else if (action != null && action == "getApimSubscriberIdsOfTenant") {
+        result = mod.getApimSubscriberIdsOfTenant();
+        if (result == null || result.error) {
+            var message = result.message;
+            if (message == null) {
+                message = "Error while getting subscriberIds of tenant: " + tenantDomain;
+            }
+            returnObj = {
+                error: true,
+                message: message,
+                status: result.status
+            };
+        } else {
+            returnObj = {
+                error: false,
+                subObj: result.subObj,
+                status: result.status
+            }
+        }
+        print(returnObj);
+    } else if (action != null && action == "getApiApplicationsOfUser") {
+        var userId = encoder.getSafeText(request.getParameter("userId"));
+        var api = encoder.getSafeText(request.getParameter("api"));
+        result = mod.getApiApplicationsOfUser(userId, api);
+        if (result == null || result.error) {
+            var message = result.message;
+            if (message == null) {
+                message = "Error while getting api applications of user: " + userId;
+            }
+            returnObj = {
+                error: true,
+                message: message,
+                status: result.status
+            };
+        } else {
+            returnObj = {
+                error: false,
+                appObj: result.appObj,
+                status: result.status
+            }
+        }
+        print(returnObj);
+    } else if (action != null && action == "getSubscribedApisOfUser") {
+        var userId = encoder.getSafeText(request.getParameter("userId"));
+        result = mod.getSubscribedApisOfUser(userId);
+        if (result == null || result.error) {
+            var message = result.message;
+            if (message == null) {
+                message = "Error while getting subscriber apis of user: " + userId;
+            }
+            returnObj = {
+                error: true,
+                message: message,
+                status: result.status
+            };
+        } else {
+            returnObj = {
+                error: false,
+                apiObj: result.apiObj,
+                status: result.status
+            }
+        }
+        print(returnObj);
+    }
+    else {
+        var msg = "Invalid action: " + action;
+        response.status = 400;
+        print({
+            error: true,
+            message: msg,
+            status: 400
+        });
+    }
+}());
+%>
+

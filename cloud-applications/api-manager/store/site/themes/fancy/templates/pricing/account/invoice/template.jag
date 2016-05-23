@@ -1,0 +1,125 @@
+<% jagg.template("pricing/account/invoice", function (inputs, outputs, jagg) { %>
+<div class="container content-starter">
+   <div class="row">
+      <div class="col-lg-12">
+         <h1>Invoice</h1>
+         <div class="helper_text" id="helper_text"></div>
+      </div>
+   </div>
+</div>
+<div class="container content-section-wrapper" id="form_div">
+   <div class="row">
+      <div class="col-lg-12 content-section">
+         <form class='form-horizontal'>
+            <input type="hidden" id="invoiceId" name="invoiceId" value="<%=outputs.invoiceId%>" />
+            <div class="box">
+               <div class="box-header">Basic Information</div>
+               <div class="box-content active">
+                  <div class="row">
+                     <div class="span5 offset1">
+                        <div class="row">
+                           <label class="control-label  title-label  label-style" > Account
+                           Name :</label> <label id="lblOrg" name="lblOrg"
+                              class="control-label  label-style"></label>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row" >
+                     <div class="span5 offset1">
+                        <div class="row" >
+                           <label class="control-label label-style title-label">Invoice
+                           Number :</label> <label id="lblInvoiceNum" name="lblInvoiceNum"
+                              class="control-label  label-style"></label>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="span5 offset1">
+                        <div class="row">
+                           <label class="control-label  title-label  label-style">Invoice
+                           Date :</label> <label id="lblInvoiceDate" name="lblInvoiceDate"
+                              class="control-label  label-style"></label>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="span5 offset1">
+                        <div class="row">
+                           <label class="control-label  title-label  label-style">Invoiced
+                           Amount :</label> <label id="lblInvoiceAmount"
+                              name="lblInvoiceAmount" class="control-label  label-style"></label>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </form>
+         <div class="box">
+            <div class="box-header">Invoice Details</div>
+            <div class="panel-body">
+               <table class="table table-hover">
+                  <thead>
+                     <tr>
+                        <th>Charge Date</th>
+                        <th>Charge Name</th>
+                        <th>Service Period</th>
+                        <th>Amount </th>
+                        <th>Discount </th>
+                        <th>Total </th>
+                     </tr>
+                  </thead>
+                  <tbody id="payments-tbody">
+                  </tbody>
+               </table>
+            </div>
+         </div>
+         <div class="box">
+            <div class="panel-body" style="background-color: #E0E0E0;">
+               <div class="row">
+                  <div class="span5 offset1">
+                     <div class="row">
+                        <div class="span6"> <label class="control-label  title-label">Amount :</label></div>
+                        <div class="span6"><label id="fAmount" name="fAmount"
+                           class="control-label label-style totalData"></label></div>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="span5 offset1">
+                     <div class="row">
+                        <div class="span6"><label class="control-label  title-label">Discount :</label></div>
+                        <div class="span6"><label id="fDiscount" name="fDiscount"
+                           class="control-label totalData"></label></div>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="span5 offset1">
+                     <div class="row">
+                        <div class="span6"><label class="control-label  title-label">Total :</label></div>
+                        <div class="span6"><label id="fTotal" name="fTotal"
+                           class="control-label label-style totalData"></label></div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="forms">
+               <div class="form-group span11 offset1">
+                  <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="gotoAccountPage();" >
+                  <span class="fw-stack fw-lg btn-action-ico">
+                  <i class="fw fw-ring fw-stack-2x"></i>
+                  <i class="fw fw-left-arrow fw-stack-1x"></i>
+                  </span>
+                  Back
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+    <%
+}); %>

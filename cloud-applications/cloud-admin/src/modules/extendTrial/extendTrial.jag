@@ -1,0 +1,159 @@
+<%
+include("/jagg/jagg.jag");
+
+
+var log = new Log("site/modules/extendTrial/extendTrial.jag");
+var requestType = "GET";
+var typeRequestHeaderName = 'Accept';
+var typeRequestHeaderValue = 'application/json';
+var getXMLHttpRequest = jagg.module("util").getXMLHttpRequest;
+var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
+
+var checkTenantExist = "BillingDataSourceCloudAdmin.HTTPEndpoint/checkTenantExist?";
+var checkTenantsForEmail = "BillingDataSourceCloudAdmin.HTTPEndpoint/getTenantsForEmail?";
+var getEndDateOfBillingSubscription = "NewDataServiceCloudBilling.HTTPEndpoint/getEndDate?";
+var userTrialExtendingUrl = "NewDataServiceCloudBilling.HTTPEndpoint/extendTrial?";
+
+var updateTenant = function (tenantDomain, subscription, selectedExtendType, selectedValue, endDate) {
+
+    var date;
+    var dateObject = getDateObject(endDate);
+    var URL = jsonObj.ServerUrl.DataServices_Server + userTrialExtendingUrl + "END_DATE=" + "valueToReplace" +
+            "&SUBSCRIPTION=" +subscription+ "&TENANT_DOMAIN=" + tenantDomain;
+
+    switch (selectedExtendType) {
+        case "1":
+            date = new Date(dateObject.setHours(dateObject.getHours()+parseInt(selectedValue)));
+            URL = URL.replace("valueToReplace", getDateSQLDateFormat(date));
+            break;
+        case "2":
+            date = new Date(dateObject.setDate(dateObject.getDate()+parseInt(selectedValue)));
+            URL = URL.replace("valueToReplace", getDateSQLDateFormat(date));
+            break;
+        case "3":
+            date = new Date(dateObject.setDate(dateObject.getDate()+parseInt(selectedValue)*7));
+            URL = URL.replace("valueToReplace", getDateSQLDateFormat(date));
+            break;
+        case "4":
+            date = new Date(dateObject.setMonth(dateObject.getMonth()+parseInt(selectedValue)));
+            URL = URL.replace("valueToReplace", getDateSQLDateFormat(date));
+            break;
+        case "5":
+            URL = URL.replace("valueToReplace", selectedValue+"T00:00:00");
+            break;
+        default:
+            break;
+    }
+
+    var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data : response
+        };
+    } else {
+        log.error("HTTP request: Error while extending the Trial." + tenantDomain);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "HTTP request: Error while extending the Trial." + tenantDomain
+        };
+    }
+};
+
+var checkTenant = function () {
+
+    var tenantDomain = request.getParameter("tenantDomain");
+
+    var URL = jsonObj.ServerUrl.DataServices_Server + checkTenantExist + "TENANT_DOMAIN=" + tenantDomain;
+    var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data : response
+        };
+    } else {
+        log.error("HTTP request: Error while checking Tenant exist or not." + tenantDomain);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "HTTP request: Error while checking Tenant exist or not." + tenantDomain
+        };
+    }
+};
+
+var checkEmailExist = function () {
+
+    var email = request.getParameter("email");
+    var parameterEmail = email.replace("@", ".");
+    var URL = jsonObj.ServerUrl.DataServices_Server + checkTenantsForEmail + "userName=" + parameterEmail;
+
+    var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data : response
+        };
+    } else {
+        log.error("HTTP request: Error while checking Email exist or not." + email);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "HTTP request: Error while checking Email exist or not." + email
+        };
+    }
+};
+
+var getEndBillingSubscriptionDate = function (tenantDomain, subscription) {
+
+    var endDateURL = jsonObj.ServerUrl.DataServices_Server + getEndDateOfBillingSubscription + "SUBSCRIPTION=" +
+            subscription + "&TENANT_DOMAIN=" + tenantDomain;
+    var response = getXMLHttpRequest(endDateURL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data : response
+        };
+    } else {
+        log.error("HTTP request: Error while extending the Trial." + tenantDomain);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "HTTP request: Error while extending the Trial." + tenantDomain
+        };
+    }
+};
+
+var getDateObject = function (endDate) {
+    endDate = endDate.split(".")[0];
+    var dateTime = endDate.split("T");
+    var date = dateTime[0].split("-");
+    var time = dateTime[1].split(":");
+    var year = date[0];
+    var month = date[1]-1;
+    var day = date[2];
+    var hour = time[0];
+    var min = time[1];
+    var sec = time[2];
+    return new Date(year, month, day, hour, min, sec, null);
+};
+
+var getDateSQLDateFormat = function (dateObject) {
+    var year = dateObject.getFullYear();
+    var month =(dateObject.getMonth()+1).toString();
+    var day = dateObject.getDate().toString();
+    var hour = dateObject.getHours().toString();
+    var min = dateObject.getMinutes().toString();
+    var sec = dateObject.getSeconds().toString();
+    return year+"-"+month+"-"+day+"T"+hour+":"+min+":"+sec;
+};
+
+%>

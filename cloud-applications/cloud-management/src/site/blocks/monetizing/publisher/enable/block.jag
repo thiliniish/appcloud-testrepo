@@ -1,0 +1,7 @@
+<%
+jagg.block("monetizing/publisher/enable", {
+    getOutputs: function (inputs) {
+        return inputs;
+    }
+});
+%>

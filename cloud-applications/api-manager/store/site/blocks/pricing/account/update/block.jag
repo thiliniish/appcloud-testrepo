@@ -1,0 +1,9 @@
+<%
+jagg.block("pricing/account/update", {
+	initialize:function (data) {
+	},
+	getOutputs: function (inputs) {
+		return inputs;
+	}
+});
+%>

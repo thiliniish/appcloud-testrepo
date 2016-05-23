@@ -1,0 +1,18 @@
+<%
+jagg.initializer("extendTrial", {
+
+    preInitialize:function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("extendTrial", "jquery-ui", "assets/css/jquery-ui.css");
+        jagg.addHeaderCSS("extendTrial", "custom", "assets/css/custom.css");
+        jagg.addHeaderCSS("billingStatistics", "bootstrap", "assets/css/bootstrap.css");
+
+        // UI related JS files
+        jagg.addFooterJS("extendTrial", "jquery.validate.min", "assets/js/jquery.validate.min.js");
+        jagg.addFooterJS("extendTrial", "jquery-ui.min", "assets/js/jquery-ui.min.js");
+
+        // Custom JS file
+        jagg.addFooterJS("extendTrial", "extend-trial", "templates/extendTrial/js/extend-trial.js");
+    }
+});
+%>

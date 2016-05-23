@@ -1,0 +1,621 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+include("/modules/pricing/utils.jag");
+
+var billingConstants = Packages.org.wso2.carbon.cloud.billing.commons.BillingConstants;
+var msg;
+var log = new Log("modules.pricing.manager.jag");
+var errorObj = {
+    error: true,
+    statusCode: 500,
+    message: "Internal error. Please retry..."
+};
+
+//Generate zuora HPM page parameters
+var generateParams = function (tenantDomain, workflowReference) {
+    try {
+        var clientParams = JSON.parse(billingService.prepareParams());
+        session.put(ZUORA_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
+        //passthrough parameters are used to pass the values between the iframe and account creation page. we can use
+        //those parameters by iteratively number them from 1
+        //field_passthrough1 is client token
+        clientParams.field_passthrough1 = clientParams.token;
+
+        if (workflowReference != null) {
+            //field_passthrough2 is workflowReference
+            clientParams.field_passthrough2 = workflowReference;
+            var apiData = decryptAndGetApiData(workflowReference);
+            //field_passthrough4 is selectedApp
+            clientParams.field_passthrough4 = apiData.appName;
+        }
+        //field_passthrough3 is tenantDomain
+        clientParams.field_passthrough3 = tenantDomain;
+
+        //can pre-load the new page with the previously entered information so that the user does not have to re-enter the information
+        clientParams.retainValues = true;
+
+        if (log.isDebugEnabled()) {
+            log.debug("Parameters generated for tenant: " + clientParams.tenantId);
+        }
+        return {
+            error: false,
+            statusCode: 200,
+            params: clientParams
+        }
+    } catch (e) {
+        log.error("Error while generating params: ");
+        log.error(e);
+        return errorObj;
+    }
+};
+
+
+var getAccountDetails = function () {
+    try {
+        var accountId = getAccountId();
+        var summary = billingService.getAccountSummary(accountId);
+        if (JSON.parse(summary.trim()).success) {
+            return {
+                error: false,
+                message: summary,
+                statusCode: 200
+            };
+        } else {
+            log.error("Get zuora account info failed. Error : " + JSON.stringify(response.reasons));
+            msg = "Getting account information failed .. Please retry ";
+            return {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+        }
+    } catch (e) {
+        msg = "Error while getting the account details.. Please retry ";
+        log.error("ERROR while getting the account details for : " + user + " - " + e.message);
+        log.error(e);
+        return {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+};
+
+
+var updateContactInfo = function (accountData) {
+    try {
+        var accountId = getAccountId();
+        var data = {};
+        data.billToContact = accountData;
+        var response = JSON.parse(billingService.updateAccount(accountId, JSON.stringify(data)));
+        if (response.success) {
+            return {
+                error: false,
+                message: "Your contact information is successfully added",
+                statusCode: 200
+            };
+        } else {
+            log.error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
+            msg = "Account Update Failed.. Please retry ";
+            return {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+        }
+    } catch (e) {
+        msg = "Account Update Failed.. Please retry ";
+        log.error("ERROR while updating contact info for : " + user + " - " + e.message);
+        return {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+
+};
+
+var removePaymentMethod = function (methodId) {
+    try {
+        var result =  JSON.parse(billingService.removePaymentMethod(methodId));
+        if (result.success) {
+            return {
+                error: false,
+                message: result,
+                statusCode: 200
+            };
+        } else {
+            log.error("Zuora remove payment method failed. Error : " + JSON.stringify(result.reasons));
+            msg = "Remove payment method failed.. Please retry ";
+            return {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+        }
+    } catch (e) {
+        log.error("ERROR while getting the payment methods  for : " + user + " - " + e.message);
+        log(e);
+        msg = "Error while getting the payment methods";
+        return {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+};
+
+var getAllPaymentMethods = function () {
+    try {
+        var accountId = getAccountId();
+        var summary = JSON.parse(billingService.getAllPaymentMethods(accountId));
+        if (summary.success) {
+            return {
+                error: false,
+                message: summary,
+                statusCode: 200
+            };
+        } else {
+            log.error("Zuora get payment methods failed. Error : " + JSON.stringify(summary.reasons));
+            msg = "Error getting payment methods.. Please retry ";
+            return {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+        }
+    } catch (e) {
+        log.error("ERROR while getting the payment methods  for : " + user + " - " + e.message);
+        log(e);
+        msg = "Error while getting the payment methods";
+        return {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+};
+
+var updateDefaultPaymentMethod = function (methodId) {
+    try {
+        var data = {
+            "defaultPaymentMethod": true
+        };
+        var response = JSON.parse(billingService.updateDefaultPaymentMethod(methodId, JSON.stringify(data)));
+        if (response.success) {
+            return {
+                error: false,
+                message: response.success,
+                statusCode: 200
+            };
+        } else {
+            log.error("Update default payment method failed. Error : " + JSON.stringify(response.reasons));
+            msg = "Update default payment method failed.. Please retry ";
+            return {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+        }
+    } catch (e) {
+        log.error("ERROR while while updating the default payment method: " + user + " - " + e.message);
+        log(e);
+        msg = "Error while updating payment methods";
+        return {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+};
+
+
+
+var getBillingInvoiceData = function (invoiceId) {
+    try {
+        var accountId = getAccountId();
+        var summary = billingService.getInvoices(accountId);
+        var invoiceObj = JSON.parse(summary);
+        if (invoiceObj.success) {
+            var invoices = invoiceObj.invoices;
+            for (var index = 0; index < invoices.length; index++) {
+                if (invoiceId == invoices[index].id) {
+                    var invoiceItems = invoices[index].invoiceItems;
+
+                    var invoiceData = {};
+
+                    invoiceData[ACCOUNT_NAME] = invoices[index].accountName;
+                    invoiceData[INVOICE_DATE] = invoices[index].invoiceDate;
+                    invoiceData[INVOICE_NUMBER] = invoices[index].invoiceNumber;
+                    invoiceData[AMOUNT] = invoices[index].amount;
+                    invoiceData[INVOICE_ITEMS] = [];
+
+                    for (var i = 0; i < invoiceItems.length; i++) {
+                        var item = {};
+                        var invoiceItem = invoiceItems[i];
+                        if (invoiceItem.chargeName == MONTHLY_SUBSCRIPTION_CHARGE_NAME) {
+                            item[CHARGE_NAME] = invoiceItem.chargeName;
+                            item[AMOUNT] = invoiceItem.chargeAmount;
+                            item[SERVIVICE_PERIOD] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
+                            item[CHARGE_DATE] = invoices[index].invoiceDate;
+                            //if next invoice item is not in the next billing cycle
+                            if ((i + 1) < invoiceItems.length && invoiceItems[i + 1].chargeName == DISCOUNT_CHARGE_NAME) {
+                                item[DISCOUNT] = invoiceItems[i + 1].chargeAmount;
+                            }
+                            else {
+                                item[DISCOUNT] = 0.0;
+                            }
+                        }
+                        else {
+                            item[CHARGE_NAME] = invoiceItem.chargeName;
+                            item[AMOUNT] = invoiceItem.chargeAmount;
+                            item[SERVIVICE_PERIOD] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
+                            item[CHARGE_DATE] = invoices[index].invoiceDate;
+                            item[DISCOUNT] = 0.0;
+                        }
+                        invoiceData[INVOICE_ITEMS].push(item);
+                    }
+                    return {
+                        error: false,
+                        message: invoiceData,
+                        statusCode: 200
+                    };
+                }
+            }
+        } else {
+            log.error("Error getting billing invoice data. Error : " + JSON.stringify(response.reasons));
+            msg = "Error getting billing invoice data.. Please retry ";
+            return {
+                error: true,
+                message: msg,
+                statusCode: 500
+            };
+        }
+    } catch (e) {
+        msg = "Error while updating payment methods";
+        log.error("ERROR while getting invoice data for : " + user + " - " + e.message);
+        return {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+};
+
+//API monetization enabled status
+var isMonetizationEnabled = function (tenantDomain) {
+
+    var status = session.get("monetizationEnabled");
+    if (status != null && status) {
+        return {
+            error: false,
+            statusCode: 200,
+            monetizationEnabled: status
+        };
+    }
+
+    try {
+        var monetizationStatus = apiMonService.isMonetizationEnabled(tenantDomain);
+        session.put("monetizationEnabled", monetizationStatus);
+        return {
+            error: false,
+            statusCode: 200,
+            monetizationEnabled: monetizationStatus
+        };
+    } catch (e) {
+        log.error("Error while checking the monetization status for tenant: " + tenantDomain);
+        log.error(e);
+        return errorObj;
+    }
+
+};
+
+//Create billing account with the subscription
+var createAccount = function (username, accountData, metaData, workflowRefData) {
+
+    var ratePlanId, errorMsg;
+    var tenantDomain = multiTenantUtils.getTenantDomain(username);
+
+    if (!validatePassThroughHash(metaData.field_passthrough1)) {
+        errorMsg = "Invalid token. ";
+        log.error(errorMsg + ". Hash value mismatch. ");
+        return {
+            error: true,
+            statusCode: 500,
+            message: errorMsg + "Please subscribe again.."
+        };
+    }
+
+    if (workflowRefData == null || "".equals(workflowRefData)) {
+        errorMsg = "Workflow refId is invalid. It should not be null or empty";
+        log.error(errorMsg);
+        return {
+            error: true,
+            statusCode: 500,
+            message: errorMsg
+        };
+    }
+
+    //base64 decode and decrypt the workflow data
+    var apiData = decryptWorkflowData(workflowRefData);
+    try {
+        ratePlanId = apiMonService.getRatePlanId(tenantDomain, apiData.ratePlanName);
+        if (ratePlanId == null || "".equals(ratePlanId)) {
+            errorMsg = "Rate plan invalid. it should be neither null nor empty";
+            log.error(errorMsg);
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg
+            };
+        }
+    } catch (e) {
+        log.error("Error while getting the subscribed rate plan id.");
+        log.error(e);
+        return {
+            error: true,
+            statusCode: 500,
+            message: e.message
+        };
+    }
+
+    try {
+        var effectiveDate = new Packages.java.util.Date();
+        var data = populateAccountInfo(accountData, metaData, effectiveDate, ratePlanId);
+        var response = billingService.createChildAccount(tenantDomain, stringify(data));
+
+        var responseObj = JSON.parse(response);
+        var createChildResObj = responseObj.createChildResponse;
+        var addParentObj = responseObj.addParentResponse;
+        var updateSubscriberResult, addSubscriptionResult;
+
+        if (createChildResObj.success) {
+            updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
+                    createChildResObj.accountNumber);
+            var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+            var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+            var messageBody, subject;
+
+            if (updateSubscriberResult) {
+                apiData.subscriptionNumber = createChildResObj.subscriptionNumber;
+                apiData.ratePlanId = ratePlanId;
+                addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildResObj
+                        .accountNumber, stringify(apiData), formattedEffectiveDate);
+                if (!addSubscriptionResult) {
+                    log.error("Error while updating subscription information. subscription information update failed. "
+                            + "account name: " + data.name + " account number: " + createChildResObj.accountNumber + "for tenant:"
+                            + tenantDomain);
+                    //ToDo This email and manual recovering process is a temporary fix for the MVP
+                    messageBody = "Error while updating subscription information in the database. Please update " +
+                            "the subscriptions table. Tenant: " + tenantDomain + ", Username: " +
+                            username + ", Account number: " + createChildResObj.accountNumber + ", Effective date: "
+                            + formattedEffectiveDate + ", API data: " + stringify(apiData);
+                    subject = "[Monetization][API Cloud][ALERT] Subscription db update failure";
+                    billingService.sendEmailToCloud(subject, messageBody);
+                    log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
+                            + " Tenant: " + tenantDomain);
+                    addSubscriptionResult = true;
+                }
+            } else {
+                //ToDo This email and manual recovering process is a temporary fix for the MVP
+                messageBody = "Error while updating subscriber information in the database. Please update " +
+                        "the subscriber table & subscriptions table. Tenant: " + tenantDomain + ", Username: " +
+                        username + ", Account number: " + createChildResObj.accountNumber + ", Effective date: "
+                        + formattedEffectiveDate + ", API data: " + stringify(apiData);
+                subject = "[Monetization][API Cloud][ALERT] Subscriber account db update failure";
+                billingService.sendEmailToCloud(subject, messageBody);
+                log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
+                        + " Tenant: " + tenantDomain);
+                updateSubscriberResult = true;
+                addSubscriptionResult = true;
+            }
+
+            if (addParentObj.success == null || !addParentObj.success) {
+                //ToDo This email and manual recovering process is a temporary fix for the MVP
+                messageBody = "Error while adding account parent for zuora. Please add parent account. " +
+                        "Tenant: " + tenantDomain + ", Username: " + username + ", Account number: " +
+                        createChildResObj.accountNumber;
+                subject = "[Monetization][API Cloud][ALERT] Adding account parent failure";
+                billingService.sendEmailToCloud(subject, messageBody);
+                log.error("Adding parent failed for child." + " Tenant: " + tenantDomain + " For monetizing. Reasons: "
+                        + stringify(createChildResObj.reasons));
+            }
+        } else {
+            errorMsg = "Billing account creation failed.";
+            //ToDo This email and manual recovering process is a temporary fix for the MVP
+            messageBody = errorMsg + " Tenant: " + tenantDomain + " For monetizing. Response: "
+                    + stringify(createChildResObj.reasons) + "  User may have retried later. No action required" +
+                    "unless this is a recurring issue. Please see the response details";
+
+            subject = "[Monetization][API Cloud][WARN] Zuora account creation failure";
+            billingService.sendEmailToCloud(subject, messageBody);
+
+            log.error(messageBody);
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg + " Please Retry..."
+            };
+        }
+
+        var modWorkflow = jagg.module("workflow");
+        var workflowStatus;
+        var workflowDesc;
+        var workflowReference = apiData.workflowRefId;
+        if (updateSubscriberResult && addSubscriptionResult) {
+            workflowStatus = "APPROVED";
+            workflowDesc = "subscription successful";
+            return modWorkflow.resumeWorkflow(workflowReference, workflowStatus, workflowDesc);
+        } else {
+            workflowStatus = "REJECTED";
+            workflowDesc = "subscription unsuccessful";
+            modWorkflow.resumeWorkflow(workflowReference, workflowStatus, workflowDesc);
+            //Send error notification. Roll back won't happen since the subscriptions has been already paid
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg + "Subscription failed. API will not be activated." +
+                "Since the payment has already been processed, please contact support."
+            };
+        }
+
+
+    } catch (e) {
+        log.error("Child account creation failure. ");
+        log.error(e);
+        return {
+            error: true,
+            statusCode: 500,
+            message: e.message
+        };
+    }
+};
+
+var getRatePlanInfo = function (tenantDomain, workflowRefData) {
+
+    var apiData = decryptAndGetApiData(workflowRefData);
+
+    var ratePlanName = apiData.ratePlanName;
+    var ratePlansObj = session.get(TENANT_RATE_PLANS);
+
+    if (ratePlansObj == null) {
+        return getAndAddRatePlanToSession(tenantDomain, ratePlanName);
+    } else {
+        var ratePlanObj = getRatePlan(ratePlanName, ratePlansObj);
+        if (ratePlanObj != null) {
+            return {
+                error: false,
+                statusCode: 200,
+                ratePlan: ratePlanObj
+            };
+        } else {
+            //Retry to check new rate plan availability
+            return getAndAddRatePlanToSession(tenantDomain, ratePlanName);
+        }
+    }
+};
+
+var getUsage = function (api, appName, startDate, endDate) {
+    var username = jagg.getUser().username;
+    var tenantDomain = multiTenantUtils.getTenantDomain(username);
+    if (api != null) {
+        var values = api.split(":v");
+        var apiName = values[0];
+        var version = (apiName == DEAULT_API_NAME) ? "*" : values[1];
+        var apiName = (apiName == DEAULT_API_NAME) ? "*" : apiName;
+        var appName = (appName == DEAULT_APP_NAME) ? "*" : appName;
+        try {
+            var usageData = JSON.parse(apiMonService.getTenantMonetizationUsageDataForGivenDateRange(tenantDomain,
+                    username, apiName, version, appName, startDate, endDate));
+            return {
+                error: false,
+                message: usageData,
+                statusCode: 200
+            };
+        } catch (e) {
+            log.error("Error while getting the usage for : " + tenantDomain);
+            log.error(e);
+            return errorObj;
+        }
+    } else {
+        var msg = "API name cannot be null when retrieving the usage";
+        return {
+            error: true,
+            message: msg,
+            statusCode: 500
+        };
+    }
+};
+
+var getAPIs = function () {
+    var username = jagg.getUser().username;
+    try {
+        var apiData = JSON.parse(apiMonService.getUserAPIs(username));
+        var apis = [];
+        apis.push(DEAULT_API_NAME);
+        // if there are multiple entries data services will return an array of entries
+        if (apiData.Entries.Entry instanceof Array) {
+            for (var x = 0; x < apis.Entries.Entry.length; x++) {
+                apis.push(apiData.Entries.Entry[x].ApiVersion);
+            }
+        } else {
+            //it will return an entry object without an array
+            apis.push(apiData.Entries.Entry.ApiVersion);
+        }
+
+        return {
+            error: false,
+            message: apis,
+            statusCode: 200
+        };
+    } catch (e) {
+        log.error("Error while getting the apis for : " + username);
+        log.error(e);
+        return errorObj;
+    }
+};
+
+var getApplications = function (api) {
+    var username = jagg.getUser().username;
+    try {
+        var appData;
+        appData = JSON.parse(apiMonService.getUserAPIApplications(username, api));
+        var apps = [];
+        apps.push(DEAULT_APP_NAME);
+        // if there are multiple entries data services will return an array of entries
+        if (appData.Entries.Entry instanceof Array) {
+            for (var x = 0; x < appData.Entries.Entry.length; x++) {
+                apps.push(appData.Entries.Entry[x].applicationName);
+            }
+        } else {
+            apps.push(appData.Entries.Entry.applicationName);
+        }
+        return {
+            error: false,
+            message: apps,
+            statusCode: 200
+        };
+    } catch (e) {
+        log.error("Error while getting the apis for : " + username);
+        log.error(e);
+        return errorObj;
+    }
+};
+
+var getAllProductPlansForTenant = function (tenantDomain) {
+    try {
+        var result = apiMonService.getTiers(tenantDomain);
+        var tierList = JSON.parse(result);
+
+        var result = apiMonService.getRatePlansInfo(tenantDomain);
+        if (log.isDebugEnabled()) {
+            log.debug("getAllProductPlansForTenant : " + stringify(result));
+        }
+        var ratePlanList = JSON.parse(result);
+        for (var index in ratePlanList){
+            for (var tiersIndex in tierList) {
+                if(tierList[tiersIndex].tierName == ratePlanList[index].RatePlanName) {
+                    ratePlanList[index].RequestCount = tierList[tiersIndex].maximumCount;
+                    var seconds = (parseInt(tierList[tiersIndex].unitTime)/ 1000).toFixed(0);
+                    ratePlanList[index].UnitTime =  seconds;
+                    break;
+                }
+            }
+            ratePlanList[index].MonthlyRental = parseFloat(ratePlanList[index].MonthlyRental).toFixed(2);
+            ratePlanList[index].OverUsageUnitsPrice = parseFloat(ratePlanList[index].OverUsageUnitsPrice).toFixed(2);
+        }
+        return {
+            error:false,
+            result:ratePlanList,
+            statusCode: 200
+        };
+    } catch (e) {
+        var errorMessage = "Error while getting rate plans for tenant:" + tenantDomain;
+        log.error(errorMessage);
+        log.error(e);
+        errorObj.message = errorMessage;
+        return errorObj;
+    }
+};
+%>

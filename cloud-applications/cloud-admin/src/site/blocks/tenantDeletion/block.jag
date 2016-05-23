@@ -1,0 +1,6 @@
+<%
+jagg.block("tenantDeletion", {
+    initialize:function (data) {
+    }
+});
+%>

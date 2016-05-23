@@ -1,0 +1,8 @@
+<%
+jagg.module("tenantDeletion", {
+
+    getDeletionTableDetails:function () {
+        return jagg.require(jagg.getModulesDir() + "tenantDeletion/tenantDeletion.jag").getDeletionTableDetails.apply(this, arguments);
+    }
+});
+%>

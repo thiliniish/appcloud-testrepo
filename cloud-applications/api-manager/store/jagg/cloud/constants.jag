@@ -1,0 +1,43 @@
+<%
+//Zuora related
+var EDIT_USER_INFO = "Edit_User_Info";
+var IS_FROM_CHANGE_PLAN = "isFromChangePlan";
+var ZUORA_DATE_FORMAT = "yyyy-MM-dd";
+
+var CLOUD_DEFAULT_ROLE = "default";
+
+//Error messages
+var COMMON_ERROR_MESSAGE = "An error occurred while processing the request. Please contact WSO2 Cloud Team for help.";
+var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
+
+var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
+var TENANT_RATE_PLANS = "TENANT_RATE_PLANS";
+var MONTHLY_SUBSCRIPTION_CHARGE_NAME = "Monthly subscription fee";
+
+//invoice object related constants
+var ACCOUNT_NAME = "accountName";
+var INVOICE_DATE = "invoiceDate";
+var INVOICE_NUMBER = "invoiceNumber";
+var AMOUNT = "amount";
+var INVOICE_ITEMS = "invoiceItems";
+var CHARGE_NAME = "chargeName";
+var CHARGE_DATE = "chargeDate";
+var SERVIVICE_PERIOD = "servicePeriod";
+var DISCOUNT = "discount";
+
+var DEAULT_API_NAME = "ALL";
+var DEAULT_APP_NAME = "ALL";
+
+var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+//Subscription Notifications related constants
+var SUBSCRIBER_EMAIL_REGISTRY_PATH = "_system/governance/apimgt/pricing/resources/user-subscription-notification-email.txt";
+var SUBSCRIBER_EMAIL_DEFAULT_PATH = "/site/conf/pricing/emails/user-subscription-notification-email.txt";
+var PROVIDER_EMAIL_DEFAULT_PATH = "/site/conf/pricing/emails/tenant-subscription-notification-email.txt";
+var SUBSCRIBER_EMAIL_SUBJECT = "Subscription notification";
+var PROVIDER_NOTIFICATION_TYPE = "providerNotification";
+var SUBSCRIBER_NOTIFICATION_TYPE =  "subscriberNotification";
+var CONTENT_TYPE_TEXT_PLAIN = "text/plain";
+var CONTENT_TYPE_HTML = "text/html";
+%>
+

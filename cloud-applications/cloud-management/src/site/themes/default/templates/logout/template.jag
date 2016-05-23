@@ -1,5 +1,5 @@
 <% jagg.template("logout", function(inputs, outputs, jagg) { %>
- 
+
 <%
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);

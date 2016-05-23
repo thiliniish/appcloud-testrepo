@@ -18,10 +18,9 @@ package org.wso2.carbon.cloud.billing.usage.util;
 import au.com.bytecode.opencsv.CSVWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.billing.beans.Usage;
-import org.wso2.carbon.cloud.billing.common.BillingConstants;
-import org.wso2.carbon.cloud.billing.common.CloudBillingException;
-import org.wso2.carbon.cloud.billing.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.beans.usage.Usage;
+import org.wso2.carbon.cloud.billing.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,26 +33,37 @@ import java.util.List;
 
 public class UsageCSVParser {
 
-    private static final Log log = LogFactory.getLog(UsageCSVParser.class);
+    private static final Log LOGGER = LogFactory.getLog(UsageCSVParser.class);
 
-    public static void writeCSVData(Usage[] usage) throws CloudBillingException {
-        String csvFile = CloudBillingUtils.getBillingConfiguration().getZuoraConfig().getUsageConfig()
-                .getUsageUploadFileLocation();
+    private UsageCSVParser() {
+    }
+
+    /**
+     * write to file
+     *
+     * @param usage usage stats
+     * @throws CloudBillingException
+     */
+    public static void writeCSVData(Usage[] usage, String filePath) throws CloudBillingException {
         CSVWriter csvWriter;
         try {
             csvWriter =
-                    new CSVWriter(new FileWriter(csvFile), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
+                    new CSVWriter(new FileWriter(filePath), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
             List<String[]> data = toStringArray(usage);
             csvWriter.writeAll(data);
             csvWriter.close();
-            log.info("Successfully created the csv file in  " + csvFile);
+            LOGGER.info("Successfully created the csv file in  " + filePath);
         } catch (IOException e) {
-            String msg = "Error while creating the csv file";
-            log.error(msg, e);
-            throw new CloudBillingException(msg, e);
+            throw new CloudBillingException("Error while creating the csv file", e);
         }
     }
 
+    /**
+     * To String array
+     *
+     * @param usage usage
+     * @return List if string array
+     */
     private static List<String[]> toStringArray(Usage[] usage) {
         List<String[]> records = new ArrayList<String[]>();
         //add header record

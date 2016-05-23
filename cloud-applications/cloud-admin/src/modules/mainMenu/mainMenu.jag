@@ -1,0 +1,76 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site/modules/mainMenu/mainMenu.jag");
+var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
+var getXMLHttpRequest = jagg.module("util").getXMLHttpRequest;
+var requestType = "GET";
+var typeRequestHeaderName = 'Accept';
+var typeRequestHeaderValue = 'application/json';
+
+var getBillingSubscriptionAnalysisData = function (startDate) {
+
+	var getBillingStatusAnalysis = "BillingStatistics.HTTPEndpoint/getBillingSubscriptionAnalysisData?";
+	var URL = jsonObj.ServerUrl.DataServices_Server + getBillingStatusAnalysis + "START_DATE=" + startDate;
+	var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+
+
+	if (response != null) {
+		return {
+			error: false,
+			statusCode: 200,
+			data : response
+		};
+	} else {
+		log.error("HTTP request: response from Billing Status was null.");
+		return {
+			error: true,
+			statusCode: 500,
+			message: "Error while getting user billing status subcription data"
+		};
+	}
+};
+
+var getUserData = function () {
+
+	var getUserCountURL = "BillingStatistics.HTTPEndpoint/getUserCount";
+	var URL = jsonObj.ServerUrl.DataServices_Server + getUserCountURL;
+	var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+	if (response != null) {
+		return {
+			error: false,
+			statusCode: 200,
+			data : response
+		};
+	} else {
+		log.error("Error while getting user count from billing status table");
+		return {
+			error: true,
+			statusCode: 500,
+			message: "Error while getting user count from billing status table"
+		};
+	}
+};
+
+var getTenantDeletionUserCount = function () {
+
+	var getTenantDeletionUserCountURL = "NewDataServiceCloudBilling.HTTPEndpoint/getTenantDeletionUserCount";
+	var URL = jsonObj.ServerUrl.DataServices_Server + getTenantDeletionUserCountURL;
+	var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
+	if (response != null) {
+		return {
+			error: false,
+			statusCode: 200,
+			data : response
+		};
+	} else {
+		log.error("HTTP request: response from Billing Status was null.");
+		return {
+			error: true,
+			statusCode: 500,
+			message: "Error while getting tenant deletion user count from tenant deletion table"
+		};
+	}
+};
+
+%>

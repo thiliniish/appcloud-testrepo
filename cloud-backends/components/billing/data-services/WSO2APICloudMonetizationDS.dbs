@@ -1,0 +1,572 @@
+<data name="WSO2APICloudMonetizationDS">
+    <description>WSO2 API Cloud Monetization data service</description>
+    <config id="apim_stat">
+        <property name="carbon_datasource_name">apim_stats</property>
+    </config>
+    <config id="cloud_mgt">
+        <property name="carbon_datasource_name">cloud_mgt</property>
+    </config>
+    <config id="apim_db">
+      <property name="carbon_datasource_name">apim_db</property>
+   </config>
+    <query id="getSubscriberInfoQ" useConfig="cloud_mgt">
+        <sql>SELECT USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS
+        WHERE (USER_NAME, TENANT_DOMAIN) = (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN);</sql>
+        <result element="Subscribers" rowName="Subscriber">
+            <element column="TENANT_DOMAIN" name="Tenant" xsdType="string"/>
+            <element column="USER_NAME" name="Username" xsdType="string"/>
+            <element column="TEST_ACCOUNT" name="TestAccount" xsdType="boolean"/>
+            <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
+        </result>
+        <param name="TENANT_DOMAIN" sqlType="STRING"/>
+        <param name="USER_NAME" sqlType="STRING"/>
+    </query>
+    <query id="addSubscriberInfoQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
+            VALUES (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER);</sql>
+         <param name="USER_NAME" sqlType="STRING"/>
+         <param name="TENANT_DOMAIN" sqlType="STRING"/>
+         <param name="TEST_ACCOUNT" sqlType="BOOLEAN"/>
+         <param name="ACCOUNT_NUMBER" defaultValue="#{NULL}" sqlType="STRING"/>
+    </query>
+    <query id="addSubscriptionInfoQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIPTIONS (ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION,
+          AM_API_PROVIDER, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE) VALUES ((:ACCOUNT_NUMBER), (:AM_APP_NAME),
+          (:AM_API_NAME), (:AM_API_VERSION), (:AM_API_PROVIDER), (:RATE_PLAN_ID), (:SUBSCRIPTION_NUMBER),
+          (:START_DATE));</sql>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+         <param name="AM_API_NAME" sqlType="STRING"/>
+         <param name="AM_API_VERSION" sqlType="STRING"/>
+         <param name="AM_API_PROVIDER" sqlType="STRING"/>
+         <param name="RATE_PLAN_ID" sqlType="STRING"/>
+         <param name="SUBSCRIPTION_NUMBER" sqlType="STRING"/>
+         <param name="START_DATE" sqlType="STRING"/>
+    </query>
+    <query id="getSubscriptionInfoQ" useConfig="cloud_mgt">
+         <sql>SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION, AM_API_PROVIDER, RATE_PLAN_ID,
+         SUBSCRIPTION_NUMBER, START_DATE FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=
+         (:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME) AND AM_API_NAME=(:AM_API_NAME) AND AM_API_VERSION=
+         (:AM_API_VERSION);</sql>
+         <result element="Subscription" rowName="">
+            <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
+            <element column="AM_APP_NAME" name="AppName" xsdType="string"/>
+            <element column="AM_API_NAME" name="ApiName" xsdType="string"/>
+            <element column="AM_API_PROVIDER" name="ApiProvider" xsdType="string"/>
+            <element column="RATE_PLAN_ID" name="RatePlanId" xsdType="string"/>
+            <element column="SUBSCRIPTION_NUMBER" name="SubscriptionNumber" xsdType="string"/>
+            <element column="START_DATE" name="StartDate" xsdType="string"/>
+         </result>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+         <param name="AM_API_NAME" sqlType="STRING"/>
+         <param name="AM_API_VERSION" sqlType="STRING"/>
+    </query>
+    <query id="deleteSubscriptionInfoQ" useConfig="cloud_mgt">
+         <sql>DELETE FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND
+         AM_APP_NAME=(:AM_APP_NAME) AND AM_API_NAME=(:AM_API_NAME) AND AM_API_VERSION=(:AM_API_VERSION);</sql>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+         <param name="AM_API_NAME" sqlType="STRING"/>
+         <param name="AM_API_VERSION" sqlType="STRING"/>
+    </query>
+    <query id="addSubscriptionInfoToHistoryQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY (ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION,
+          AM_API_PROVIDER, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE, END_DATE) SELECT ACCOUNT_NUMBER,
+          AM_APP_NAME, AM_API_NAME, AM_API_VERSION, AM_API_PROVIDER, RATE_PLAN_ID, SUBSCRIPTION_NUMBER, START_DATE,
+          NOW() FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE (ACCOUNT_NUMBER=(:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME)
+           AND AM_API_NAME=(:AM_API_NAME) AND AM_API_VERSION=(:AM_API_VERSION));</sql>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+         <param name="AM_API_NAME" sqlType="STRING"/>
+         <param name="AM_API_VERSION" sqlType="STRING"/>
+    </query>
+    <query id="getAppSubscriptionInfoQ" useConfig="cloud_mgt">
+         <sql>SELECT ACCOUNT_NUMBER, AM_APP_NAME, AM_API_NAME, AM_API_VERSION, AM_API_PROVIDER, RATE_PLAN_ID,
+         SUBSCRIPTION_NUMBER, START_DATE FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE ACCOUNT_NUMBER=
+         (:ACCOUNT_NUMBER) AND AM_APP_NAME=(:AM_APP_NAME);</sql>
+         <result element="Subscriptions" rowName="Subscription">
+            <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
+            <element column="AM_APP_NAME" name="AppName" xsdType="string"/>
+            <element column="AM_API_NAME" name="ApiName" xsdType="string"/>
+            <element column="AM_API_VERSION" name="ApiVersion" xsdType="string"/>
+            <element column="AM_API_PROVIDER" name="ApiProvider" xsdType="string"/>
+            <element column="RATE_PLAN_ID" name="RatePlanId" xsdType="string"/>
+            <element column="SUBSCRIPTION_NUMBER" name="SubscriptionNumber" xsdType="string"/>
+            <element column="START_DATE" name="StartDate" xsdType="string"/>
+         </result>
+         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+         <param name="AM_APP_NAME" sqlType="STRING"/>
+    </query>
+    <query id="updateSubscriberInfoQ" useConfig="cloud_mgt">
+         <sql>INSERT INTO MONETIZATION_API_CLOUD_SUBSCRIBERS (USER_NAME, TENANT_DOMAIN, TEST_ACCOUNT, ACCOUNT_NUMBER)
+          VALUES (SUBSTRING_INDEX((:USER_NAME),'@', 1), :TENANT_DOMAIN, :TEST_ACCOUNT, :ACCOUNT_NUMBER) ON DUPLICATE KEY UPDATE TEST_ACCOUNT=
+          (:TEST_ACCOUNT), ACCOUNT_NUMBER=(:ACCOUNT_NUMBER);</sql>
+         <param name="USER_NAME" sqlType="STRING"/>
+         <param name="TENANT_DOMAIN" sqlType="STRING"/>
+         <param name="TEST_ACCOUNT" sqlType="BOOLEAN"/>
+         <param name="ACCOUNT_NUMBER" defaultValue="#{NULL}" sqlType="STRING"/>
+    </query>
+    <query id="getTotalRequestCountPerDayQ" useConfig="apim_stat">
+        <sql>SELECT SUM(total_request_count) AS totalCount, apiPublisher, year, month, day, consumerKey, api, userId,
+            applicationName, version FROM API_REQUEST_SUMMARY WHERE year = :YEAR AND month = :MONTH AND day = :DAY GROUP
+            BY userId, year, month, day, consumerKey, api_version
+        </sql>
+        <result element="Entries" rowName="Entry">
+            <element column="consumerKey" name="ConsumerKey" xsdType="string"/>
+            <element column="api" name="Api" xsdType="string"/>
+            <element column="userId" name="UserId" xsdType="string"/>
+            <element column="totalCount" name="TotalCount" xsdType="string"/>
+            <element column="applicationName" name="ApplicationName" xsdType="string"/>
+            <element column="apiPublisher" name="ApiPublisher" xsdType="string"/>
+            <element column="version" name="ApiVersion" xsdType="string"/>
+            <element column="year" name="Year" xsdType="string"/>
+            <element column="month" name="Month" xsdType="string"/>
+            <element column="day" name="Day" xsdType="string"/>
+            <call-query href="getAccountDetailsForUserQ" requiredRoles="">
+                <with-param name="USER_NAME" query-param="userId"/>
+                <with-param name="API_VERSION" query-param="version"/>
+                <with-param name="APP_NAME" query-param="applicationName"/>
+                <with-param name="API_NAME" query-param="api"/>
+            </call-query>
+        </result>
+        <param name="YEAR" sqlType="STRING"/>
+        <param name="MONTH" sqlType="STRING"/>
+        <param name="DAY" sqlType="STRING"/>
+    </query>
+    <query id="getSubscriptionNumberForAppQ" useConfig="cloud_mgt">
+        <sql>SELECT SUBSCRIPTION_NUMBER, START_DATE, RATE_PLAN_ID FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE
+            ACCOUNT_NUMBER= :ACCOUNT_NUMBER AND AM_API_NAME=:API_NAME AND AM_API_VERSION = :API_VERSION AND AM_APP_NAME
+            =:APP_NAME UNION ALL (SELECT SUBSCRIPTION_NUMBER, START_DATE, RATE_PLAN_ID FROM
+            MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY WHERE ACCOUNT_NUMBER=:ACCOUNT_NUMBER AND AM_API_NAME=:API_NAME
+            AND AM_API_VERSION = :API_VERSION AND AM_APP_NAME=:APP_NAME ORDER BY START_DATE DESC Limit 1) ORDER BY
+            START_DATE DESC LIMIT 1;
+        </sql>
+        <result element="Subscription" rowName="">
+            <element column="SUBSCRIPTION_NUMBER" name="SubscriptionNumber" xsdType="string"/>
+            <call-query href="getRatePlanDetailsForPlanIdQ" requiredRoles="">
+                <with-param name="RATE_PLAN_ID" query-param="RATE_PLAN_ID"/>
+            </call-query>
+        </result>
+        <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+        <param name="APP_NAME" sqlType="STRING"/>
+        <param name="API_VERSION" sqlType="STRING"/>
+        <param name="API_NAME" sqlType="STRING"/>
+    </query>
+    <query id="getAccountDetailsForUserQ" useConfig="cloud_mgt">
+        <sql>SELECT ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE USER_NAME =
+            SUBSTRING_INDEX(:USER_NAME,'@',1);
+        </sql>
+        <result element="Account" rowName="">
+            <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
+            <call-query href="getSubscriptionNumberForAppQ" requiredRoles="">
+                <with-param column="ACCOUNT_NUMBER" name="ACCOUNT_NUMBER"/>
+                <with-param column="APP_NAME" name="APP_NAME"/>
+                <with-param column="API_VERSION" name="API_VERSION"/>
+                <with-param column="API_NAME" name="API_NAME"/>
+            </call-query>
+        </result>
+        <param name="USER_NAME" sqlType="STRING"/>
+        <param name="API_VERSION" sqlType="STRING"/>
+        <param name="APP_NAME" sqlType="STRING"/>
+        <param name="API_NAME" sqlType="STRING"/>
+    </query>
+    <query id="getUsageDataQ" useConfig="apim_stat">
+        <sql>SELECT SUM(total_request_count) AS totalCount, applicationName, userId, api_version, time, day, year, month
+            From API_REQUEST_SUMMARY WHERE userId like :SUBSCRIBER_ID AND (time BETWEEN DATE(:START_DATE) AND
+            DATE(:END_DATE)) GROUP BY applicationName, userId, api_version, day, year, month ORDER BY time;
+        </sql>
+        <result element="Entries" rowName="Entry">
+            <element column="applicationName" name="ApplicationName" xsdType="string"/>
+            <element column="userId" name="UserId" xsdType="string"/>
+            <element column="api_version" name="ApiVersion" xsdType="string"/>
+            <element column="month" name="month" xsdType="string"/>
+            <element column="day" name="Day" xsdType="string"/>
+            <element column="year" name="Year" xsdType="string"/>
+            <element column="totalCount" name="TotalCount" xsdType="string"/>
+            <call-query href="getAccountDetailsForUserQ" requiredRoles="">
+                <with-param name="USER_NAME" query-param="userId"/>
+                <with-param name="API_VERSION" query-param="api_version"/>
+                <with-param name="APP_NAME" query-param="applicationName"/>
+            </call-query>
+        </result>
+        <param name="SUBSCRIBER_ID" sqlType="STRING"/>
+        <param name="START_DATE" sqlType="STRING"/>
+        <param name="END_DATE" sqlType="STRING"/>
+    </query>
+    <query id="getRatePlanDetailsForPlanIdQ" useConfig="cloud_mgt">
+        <sql>SELECT RATE_PLAN_NAME, MAX_DAILY_USAGE,UOM_UNIT FROM MONETIZATION_PRODUCT_PLANS INNER JOIN
+            MONETIZATION_API_CLOUD_PLANS_INFO ON MONETIZATION_PRODUCT_PLANS.RATE_PLAN_ID =
+            MONETIZATION_API_CLOUD_PLANS_INFO.RATE_PLAN_ID WHERE MONETIZATION_PRODUCT_PLANS.RATE_PLAN_ID = :RATE_PLAN_ID
+        </sql>
+        <result element="RatePlan" rowName="">
+            <element column="RATE_PLAN_NAME" name="RatePlanName" xsdType="string"/>
+            <element column="MAX_DAILY_USAGE" name="MaxDailyUsage" xsdType="string"/>
+            <element column="UOM_UNIT" name="OverUsageUnits" xsdType="integer"/>
+        </result>
+        <param name="RATE_PLAN_ID" sqlType="STRING"/>
+    </query>
+    <query id="getRatePlansInfoForTenantQ"  useConfig="cloud_mgt">
+      <sql>SELECT RATE_PLAN_NAME, MAX_DAILY_USAGE, MONTHLY_RENTAL, UOM_UNIT, UOM_PRICE FROM
+      MONETIZATION_API_CLOUD_PLANS_INFO AS A INNER JOIN (SELECT RATE_PLAN_ID, RATE_PLAN_NAME FROM
+      MONETIZATION_PRODUCT_PLANS WHERE TENANT_DOMAIN=(:TENANT_DOMAIN) AND ZUORA_PRODUCT_NAME=CONCAT(
+      (:TENANT_DOMAIN), '_api_cloud')) AS B ON A.RATE_PLAN_ID=B.RATE_PLAN_ID;</sql>
+        <result element="Entry" rowName="RatePlans">
+            <element column="RATE_PLAN_NAME" name="RatePlanName" xsdType="string"/>
+            <element column="MAX_DAILY_USAGE" name="MaxDailyUsage" xsdType="string"/>
+            <element column="MONTHLY_RENTAL" name="MonthlyRental" xsdType="double"/>
+            <element column="UOM_UNIT" name="OverUsageUnits" xsdType="integer"/>
+            <element column="UOM_PRICE" name="OverUsageUnitsPrice" xsdType="double"/>
+        </result>
+      <param name="TENANT_DOMAIN" sqlType="STRING"/>
+    </query>
+    <query id="updateApiSubscriptionsStatusQ" useConfig="apim_db">
+      <sql>UPDATE AM_SUBSCRIPTION AMS INNER JOIN (SELECT SP.SUBSCRIPTION_ID AS SUBSCRIPTION_ID FROM AM_SUBSCRIPTION SP, AM_API API, AM_SUBSCRIBER SB, AM_APPLICATION APP WHERE SB.USER_ID = :USER_ID AND SB.TENANT_ID = :TENANT_ID AND SB.SUBSCRIBER_ID = APP.SUBSCRIBER_ID AND APP.APPLICATION_ID=SP.APPLICATION_ID AND API.API_ID = SP.API_ID GROUP BY SUBSCRIPTION_ID) SELECTED_AMS ON AMS.SUBSCRIPTION_ID = SELECTED_AMS.SUBSCRIPTION_ID SET AMS.SUB_STATUS = :SUB_STATUS</sql>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="TENANT_ID" sqlType="STRING"/>
+      <param name="SUB_STATUS" sqlType="STRING"/>
+   </query>
+   <query id="getUsageOfSubscriberForApiByApplicationQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount, api_version,applicationName,userId,day,year,month From API_REQUEST_SUMMARY WHERE api = :API AND version = :VERSION AND userId = :USER_ID AND applicationName = :APPLICATION_NAME AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY applicationName, day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="applicationName" name="ApplicationName" xsdType="string"/>
+         <element column="userId" name="UserId" xsdType="string"/>
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="APPLICATION_NAME" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+      <param name="API" sqlType="STRING"/>
+      <param name="VERSION" sqlType="STRING"/>
+    </query>
+    <query id="getUsageOfApiQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount, api_version,day,year,month From API_REQUEST_SUMMARY WHERE api = :API AND version =:VERSION AND apiPublisher like :API_PUBLISHER AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="API" sqlType="STRING"/>
+      <param name="VERSION" sqlType="STRING"/>
+      <param name="API_PUBLISHER" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+    </query>
+    <query id="getSubscriberUsageQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount,userId,day,year,month From API_REQUEST_SUMMARY WHERE  userId = :USER_ID AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="userId" name="UserId" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+    </query>
+    <query id="getTenantUsageQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount,day,year,month From API_REQUEST_SUMMARY WHERE apiPublisher like :API_PUBLISHER AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="API_PUBLISHER" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+   </query>
+    <query id="getUsageOfSubscriberForApi" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount, api_version,userId,day,year,month From API_REQUEST_SUMMARY WHERE api = :API AND version = :VERSION AND userId = :USER_ID AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      </sql>
+      <result element="Entries" rowName="Entry">
+         <element column="userId" name="UserId" xsdType="string"/>
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="API" sqlType="STRING"/>
+      <param name="VERSION" sqlType="STRING"/>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+    </query>
+    <query id="getAppListForUserAPIQ" useConfig="apim_stat">
+      <sql>select distinct applicationName from API_REQUEST_SUMMARY where userId=:USER_ID AND api_version=:API_VERSION</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="applicationName" name="applicationName" xsdType="string"/>
+      </result>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="API_VERSION" sqlType="STRING"/>
+    </query>
+   <query id="getApiListForUserQ" useConfig="apim_stat">
+      <sql>select DISTINCT api_version from API_REQUEST_SUMMARY where userId=:USER_ID</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+      </result>
+      <param name="USER_ID" sqlType="STRING"/>
+   </query>
+   <query id="deletePaidApiSubscriptionsOfUserQ" useConfig="apim_db">
+      <sql>DELETE from AM_SUBSCRIPTION where SUBSCRIPTION_ID IN (SELECT SUBSCRIPTION_ID from (select SUBS.SUBSCRIPTION_ID from AM_SUBSCRIPTION SUBS, AM_SUBSCRIBER SUB, AM_APPLICATION APP where SUB.USER_ID = :USER_ID AND SUB.TENANT_ID = :TENANT_ID AND SUB.SUBSCRIBER_ID = APP.SUBSCRIBER_ID AND SUBS.APPLICATION_ID=APP.APPLICATION_ID AND SUBS.TIER_ID NOT IN (:FREE_TIERS)) as SUBIDS);</sql>
+      <param name="USER_ID" sqlType="STRING"/>
+      <param name="TENANT_ID" sqlType="STRING"/>
+      <param name="FREE_TIERS" paramType="ARRAY" sqlType="STRING"/>
+   </query>
+    <operation name="getSubscriber">
+        <call-query href="getSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+        </call-query>
+    </operation>
+    <operation name="addSubscriber">
+        <call-query href="addSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </operation>
+    <operation name="addSubscription">
+        <call-query href="addSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+            <with-param name="AM_API_PROVIDER" query-param="apiProvider"/>
+            <with-param name="RATE_PLAN_ID" query-param="ratePlanId"/>
+            <with-param name="SUBSCRIPTION_NUMBER" query-param="subscriptionNumber"/>
+            <with-param name="START_DATE" query-param="startDate"/>
+        </call-query>
+    </operation>
+    <operation name="getSubscription">
+        <call-query href="getSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </operation>
+    <operation name="addSubscriptionToHistory">
+        <call-query href="addSubscriptionInfoToHistoryQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </operation>
+    <operation name="deleteSubscription">
+        <call-query href="deleteSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </operation>
+    <operation name="getAppSubscription">
+        <call-query href="getAppSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+        </call-query>
+    </operation>
+    <operation name="updateSubscriber">
+        <call-query href="updateSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </operation>
+    <operation name="getUsagePerDay">
+        <call-query href="getTotalRequestCountPerDayQ">
+            <with-param name="YEAR" query-param="year"/>
+            <with-param name="MONTH" query-param="month"/>
+            <with-param name="DAY" query-param="day"/>
+        </call-query>
+    </operation>
+    <operation name="getUsageDataPerTenant">
+        <call-query href="getUsageDataQ">
+            <with-param name="SUBSCRIBER_ID" query-param="subscriberId"/>
+            <with-param name="START_DATE" query-param="startDate"/>
+            <with-param name="END_DATE" query-param="endDate"/>
+        </call-query>
+    </operation>
+    <operation name="getRatePlansInfoForTenant">
+        <call-query href="getRatePlansInfoForTenantQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenantDomain"/>
+        </call-query>
+    </operation>
+    <resource method="GET" path="v1/subscribers/{tenant}/{username}">
+        <call-query href="getSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+        </call-query>
+    </resource>
+    <resource method="POST" path="v1/subscribers/{tenant}/{username}" returnRequestStatus="true">
+        <call-query href="addSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </resource>
+    <resource method="PUT" path="v1/subscribers/{tenant}/{username}" returnRequestStatus="true">
+        <call-query href="updateSubscriberInfoQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+            <with-param name="USER_NAME" query-param="username"/>
+            <with-param name="TEST_ACCOUNT" query-param="isTestAccount"/>
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+        </call-query>
+    </resource>
+    <resource method="POST" path="v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}" returnRequestStatus="true">
+        <call-query href="addSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+            <with-param name="AM_API_PROVIDER" query-param="apiProvider"/>
+            <with-param name="RATE_PLAN_ID" query-param="ratePlanId"/>
+            <with-param name="SUBSCRIPTION_NUMBER" query-param="subscriptionNumber"/>
+            <with-param name="START_DATE" query-param="startDate"/>
+        </call-query>
+    </resource>
+    <resource method="GET" path="v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}">
+        <call-query href="getSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </resource>
+    <resource method="DELETE" path="v1/subscriptions/{accountNumber}/{appName}/{apiName}/{apiVersion}"
+    returnRequestStatus="true">
+        <call-query href="deleteSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </resource>
+    <resource method="POST" path="v1/subscriptions-history/{accountNumber}/{appName}/{apiName}/{apiVersion}"
+    returnRequestStatus="true">
+        <call-query href="addSubscriptionInfoToHistoryQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+            <with-param name="AM_API_NAME" query-param="apiName"/>
+            <with-param name="AM_API_VERSION" query-param="apiVersion"/>
+        </call-query>
+    </resource>
+    <!--resource method="GET" path="v1/subscriptions/{accountNumber}/{appName}"-->
+    <resource method="GET" path="v1/app-subscriptions/{accountNumber}/{appName}">
+        <call-query href="getAppSubscriptionInfoQ">
+            <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+            <with-param name="AM_APP_NAME" query-param="appName"/>
+        </call-query>
+    </resource>
+    <resource method="GET" path="v1/rate-plans/tenants/{tenant}/api-cloud">
+        <call-query href="getRatePlansInfoForTenantQ">
+            <with-param name="TENANT_DOMAIN" query-param="tenant"/>
+        </call-query>
+    </resource>
+    <resource method="GET" path="v1/usage/daily-usage">
+        <call-query href="getTotalRequestCountPerDayQ">
+            <with-param name="YEAR" query-param="YEAR"/>
+            <with-param name="MONTH" query-param="MONTH"/>
+            <with-param name="DAY" query-param="DAY"/>
+        </call-query>
+    </resource>
+    <resource method="GET" path="v1/usage/subscribers/{subscriberId}">
+        <call-query href="getUsageDataQ">
+            <with-param name="SUBSCRIBER_ID" query-param="subscriberId"/>
+            <with-param name="START_DATE" query-param="startDate"/>
+            <with-param name="END_DATE" query-param="endDate"/>
+        </call-query>
+    </resource>
+   <resource method="PUT" path="v1/apim/subscriptions/{tenantId}" returnRequestStatus="true">
+      <call-query href="updateApiSubscriptionsStatusQ">
+         <with-param name="USER_ID" query-param="userId"/>
+         <with-param name="TENANT_ID" query-param="tenantId"/>
+         <with-param name="SUB_STATUS" query-param="subStatus"/>
+      </call-query>
+   </resource>
+  <!-- To do with dss update -->
+  <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}/apis/{api}/{version}/applications/{application}" -->
+  <resource method="GET" path="v1/usage/subscriber-application-api/{subscriberId}/{application}/{api}/{version}">
+      <call-query href="getUsageOfSubscriberForApiByApplicationQ">
+         <with-param name="USER_ID" query-param="subscriberId"/>
+         <with-param name="APPLICATION_NAME" query-param="application"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+         <with-param name="API" query-param="api"/>
+         <with-param name="VERSION" query-param="version"/>
+      </call-query>
+   </resource>
+   <!--path="v1/usage/tenants/{tenant}/apis/{api}/{version}" -->
+   <resource method="GET" path="v1/usage/apis/{api}/{version}">
+      <call-query href="getUsageOfApiQ">
+         <with-param name="API" query-param="api"/>
+         <with-param name="VERSION" query-param="version"/>
+         <with-param name="API_PUBLISHER" query-param="tenant"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+      </call-query>
+   </resource>
+   <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}" -->
+   <resource method="GET" path="v1/usage/subscribers/{subscriberId}">
+      <call-query href="getSubscriberUsageQ">
+         <with-param name="USER_ID" query-param="subscriberId"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="v1/usage/tenants/{tenant}">
+      <call-query href="getTenantUsageQ">
+         <with-param name="API_PUBLISHER" query-param="tenant"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+      </call-query>
+   </resource>
+   <!--path="v1/usage/tenants/{tenant}/subscribers/{subscriberId}/apis/{api}/{version}" -->
+   <resource method="GET" path="v1/usage/subscriber-api/{subscriberId}/{api}/{version}">
+      <call-query href="getUsageOfSubscriberForApi">
+         <with-param name="API" query-param="api"/>
+         <with-param name="VERSION" query-param="version"/>
+         <with-param name="USER_ID" query-param="subscriberId"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+      </call-query>
+   </resource>   
+    <!--path="v1/usage/subscribers/apis/{username}" -->
+    <resource method="GET" path="v1/apis/{username}" >
+      <call-query href="getApiListForUserQ">
+         <with-param name="USER_ID" query-param="username"/>
+      </call-query>
+   </resource>
+    <!--path="v1/usage/subscribers/apis/apps/{username}/{apiName}" -->
+   <resource method="GET" path="v1/apps/{username}/{apiName}">
+      <call-query href="getAppListForUserAPIQ">
+         <with-param name="USER_ID" query-param="username"/>
+         <with-param name="API_VERSION" query-param="apiName"/>
+      </call-query>
+   </resource>
+   <resource method="DELETE" path="v1/apim/{tenantId}/{subscriberId}/subscriptions" returnRequestStatus="true">
+      <call-query href="deletePaidApiSubscriptionsOfUserQ">
+         <with-param name="USER_ID" query-param="subscriberId"/>
+         <with-param name="TENANT_ID" query-param="tenantId"/>
+         <with-param name="FREE_TIERS" query-param="freeTier"/>
+      </call-query>
+    </resource>
+</data>

@@ -1,0 +1,21 @@
+<%
+jagg.module("billingStatistics", {
+
+    getBillingStatusDetails:function () {
+        return jagg.require(jagg.getModulesDir() + "billingStatistics/billingStatistics.jag").getBillingStatusDetails
+                .apply(this, arguments);
+    },
+    getBillingSubscriptionAnalysisData:function () {
+        return jagg.require(jagg.getModulesDir() + "billingStatistics/billingStatistics.jag")
+                .getBillingSubscriptionAnalysisData.apply(this, arguments);
+    },
+    getRatePlanNames:function () {
+        return jagg.require(jagg.getModulesDir() + "billingStatistics/billingStatistics.jag").getRatePlanNames
+                .apply(this, arguments);
+    },
+    getRatePlanList:function () {
+        return jagg.require(jagg.getModulesDir() + "billingStatistics/billingStatistics.jag").getRatePlanList
+                .apply(this, arguments);
+    }
+});
+%>

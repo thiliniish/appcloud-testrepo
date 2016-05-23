@@ -4,19 +4,19 @@
     var cloudMgtUrl = cloudConfig.ServerUrls.cloudmgt;
     var isSessionAuthenticated = jagg.module("util").isSessionAuthenticated();
     if (isSessionAuthenticated) {
-        var userName = session.get("LOGGED_IN_USER");
+        var username = session.get("LOGGED_IN_USER");
         var tenantDomain = jagg.module("manager").getTenantDomain();
         var documentationLink = cloudConfig.documentation.selfSignUpDocumentationLink;
         var type = cloudConfig.subscriptions.type;
         var publisherUrl = type[1].urls.cloudTypeUrl;
         var storeUrl = type[1].urls.storeUrl + "/?tenant=" + tenantDomain;
-        var isSignupConfigured = (jagg.module("registry").checkSignupConfiguredInRegistry(userName)).trim();
+        var signupConfigResult = jagg.module("selfSignup").checkSignupConfiguredInRegistry(username);
         jagg.includeBlock("page/messages", null);
         %>
 
   <script type="text/javascript">
      function doSubmit() {
-            var userName = $("#userName").attr('value');
+            var username = $("#username").attr('value');
             var publisherUrl = $("#publisherUrl").attr('value');
             var cloudMgtUrl = $("#cloudMgtUrl").attr('value');
             var userPassword = $("#password").attr('value');
@@ -28,23 +28,24 @@
 
                   jagg.post("../blocks/selfSignup/ajax/configure.jag", {
                       action:"checkSignUpConfiguredForUser",
-                      userName:userName,
+                      username:username,
                       userPassword:userPassword,
                       fromAddress:fromAddress,
                       contactEmail:contactEmail,
                       signupType:signupType
                   },
                   function (result) {
+                  var configResult = JSON.parse(result).response;
                   document.getElementById("spinner").style.display = 'none';
 
                   //if the feature has already been configured.
-                  if (result.trim() == "configured") {
+                  if ("configured" == configResult) {
                       $('#btn_submit').attr('disabled',true);
                           jagg.message({content:'Self signup is already enabled.', type:'error', cbk:function() {
                            window.location.href = publisherUrl;
                            }
                           });
-                  } else if (result.trim() == "signUpConfigured") {
+                  } else if ("signUpConfigured" == configResult) {
                         var docLink = $("#docLink").attr('value');
                         var publisherUrl = $("#publisherUrl").attr('value');
                         var storeUrl = $("#storeUrl").attr('value');
@@ -57,13 +58,13 @@
                         $(".content-starter h1").css('color','black');
                         $("#success_content").replaceWith("<div class='container content-section-wrapper'><div class='row'><div class='col-lg-12 content-section'><div class='content'>" +
                         "<h5>You can</h5><ul style='list-style-type:disc'>" +
-                        "<li><p><h5>See it in action in the <a target='_blank' href='"+ storeUrl +"'>API Store after about 15 minutes.</a>(Log off to see the Sign-Up button.)</h5></p></li> "+
+                        "<li><p><h5>See it in action in the <a target='_blank' href='"+ storeUrl +"'>API Store after about 15 minutes.</a>(Log off to see the Sign Up button.)</h5></p></li> "+
                         "<li><p><h5>Go back to the <a target='_blank' href='"+ publisherUrl +"'>API Publisher.</a></h5></p></li>"+
                         "<li><p><h5>Read more about self sign-up in our <a target='_blank' href='"+ docLink +"'>documentation.</a></h5></p></li></ul><p></br><h5>If you opted to enable the approval process in the previous step, you will get emails with approval requests whenever visitors self sign up.</h5></p></div></div></div></div>");
                         $(".helper_text h5").css({'font-size':'17px', 'text-align':'left','color':'black'});
                         $("#helper_text").hide();
                         $("#success-message").show();
-                   } else if (result.trim() == "resourcePending") {
+                   } else if ("resourcePending" == configResult) {
                         jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.', type:'success', cbk:function() {
                           window.location.href = publisherUrl;
                           }
@@ -86,7 +87,7 @@
         //function to disable the form attributes
         function disableFormAttributes() {
             $('#btn_submit').attr('disabled',true);
-            $('#userName').attr('disabled',true);
+            $('#username').attr('disabled',true);
             $('#password').attr('disabled',true);
             $('#fromAddress').attr('disabled',true);
             $('#contactEmail').attr('disabled',true);
@@ -110,13 +111,13 @@
         $(document).ready(function($){
             var clickwithblur = false;
             jQuery.validator.addMethod("validatePassword", function(value) {
-                var userName = $("#userName").attr('value');
+                var username = $("#username").attr('value');
                 var isValid = false;
                 $.ajax({ url: "../blocks/user/authenticate/ajax/login.jag",
             	     type: "POST",
                      data: {
                         action:"validatePassword",
-                        userName:userName,
+                        userName:username,
                         password:value
                       },
                      async: false,
@@ -196,30 +197,32 @@
         <div class="row">
             <div class="col-lg-12">
     <%
-        if (isSignupConfigured == true || isSignupConfigured.trim() == "true") {%>
-            <h1>Self-Signup Successfully Configured</h1>
-             <div class="helper_text" id="success-message">
-                 <p id="success_helper_content"></p>
-                 <p id="success_content"></p>
-              </div>
+        if (signupConfigResult.signUpConfigured == true || "true".equals(signupConfigResult.signUpConfigured.trim())) {
+            %>
+                        <h1>Self-Signup Successfully Configured</h1>
+                         <div class="helper_text" id="success-message">
+                             <p id="success_helper_content"></p>
+                             <p id="success_content"></p>
+                          </div>
 
-            </div>
-        </div>
-    </div>
-    <div class='container content-section-wrapper'>
-           <div class='row'>
-             <div class='col-lg-12 content-section'>
-                   <div class='content'>
-
-                        <div class="center-block">
-                             <div><h3>You have already configured the self signup feature for the tenant API Store. Read more about this feature in our  <a target='_blank' href='<%=documentationLink%>'>documentation </a></h3></div>
                         </div>
                     </div>
-                  </div>
-              </div>
-     </div>
-        <%
-        } else {%>
+                </div>
+                <div class='container content-section-wrapper'>
+                       <div class='row'>
+                         <div class='col-lg-12 content-section'>
+                               <div class='content'>
+
+                                    <div class="center-block">
+                                         <div><h3>You have already configured the self signup feature for the tenant API Store. Read more about this feature in our  <a target='_blank' href='<%=documentationLink
+            %>'>documentation </a></h3></div>
+                                    </div>
+                                </div>
+                              </div>
+                          </div>
+                 </div>
+                    <%
+        } else if (!"error".equals(signupConfigResult.signUpConfigured)) {%>
             <h1>Configure Self Sign-up for the API Store</h1>
             <div class="helper_text" id="success-message">
               <p id="success_helper_content"></p>
@@ -233,24 +236,27 @@
         </div>
        </div>
      </div>
-          <% if (isSignupConfigured == "resourcePending") {%>
-    <div class="container content-section-wrapper">
-        <form>
-            <div class="row">
-                <div class="col-lg-12 content-section">
-                    <div class="content">
-                        <div class="center-block">
-                             <div><h3>Click the button below to open the API Publisher. Once the Publisher fully loads, come back to this page to continue.</h3></div>
-                        </div>
-                        </br>
-                         <input type="button" class='btn btn-primary' id="btn_apiCloud" name="btn_apiCloud" value="Go to API Publisher" onclick="location.href = '<%=publisherUrl%>';">
+          <%
+            if ("resourcePending".equals(signupConfigResult.signUpConfigured)) {
+                %>
+                    <div class="container content-section-wrapper">
+                        <form>
+                            <div class="row">
+                                <div class="col-lg-12 content-section">
+                                    <div class="content">
+                                        <div class="center-block">
+                                             <div><h3>Click the button below to open the API Publisher. Once the Publisher fully loads, come back to this page to continue.</h3></div>
+                                        </div>
+                                        </br>
+                                         <input type="button" class='btn btn-primary' id="btn_apiCloud" name="btn_apiCloud" value="Go to API Publisher" onclick="location.href = '<%=publisherUrl
+                %>';">
+                                                </div>
+                                              </div>
+                                          </div>
+                                      </form>
                                 </div>
-                              </div>
-                          </div>
-                      </form>
-                </div>
-                    <%
-              } else { %>
+                                    <%
+            } else { %>
    <div class="container content-section-wrapper">
     <form class='form-horizontal' id='selfSignupForm' role='form'>
       <div class="row">
@@ -299,29 +305,50 @@
                </div>
             </div>
             </br>
-            <input type="hidden" name="userName" id="userName" value="<%=
-            userName
-            %>"/>
-         <input type="hidden" name="docLink" id="docLink" value="<%=
-            documentationLink
-            %>"/>
-         <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=
-            publisherUrl
-            %>"/>
-         <input type="hidden" name="storeUrl" id="storeUrl" value="<%=
-            storeUrl
-            %>"/>
-         <input type="hidden" name="cloudMgtUrl" id="cloudMgtUrl" value="<%=
-            cloudMgtUrl%>"/>
-         </div>
-      </div>
-    </form>
-  </div>
-        <% }
-        }
+            <input type="hidden" name="username" id="username" value="<%=
+                username
+                %>"/>
+             <input type="hidden" name="docLink" id="docLink" value="<%=
+                documentationLink
+                %>"/>
+             <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=
+                publisherUrl
+                %>"/>
+             <input type="hidden" name="storeUrl" id="storeUrl" value="<%=
+                storeUrl
+                %>"/>
+             <input type="hidden" name="cloudMgtUrl" id="cloudMgtUrl" value="<%=
+                cloudMgtUrl
+                %>"/>
+                         </div>
+                      </div>
+                    </form>
+                  </div>
+          <% }
+        } else { %>
+             <div class="helper_text" id="success-message">
+                 <p id="success_helper_content"></p>
+                 <p id="success_content"></p>
+              </div>
+
+            </div>
+        </div>
+    </div>
+    <div class='container content-section-wrapper'>
+           <div class='row'>
+             <div class='col-lg-12 content-section'>
+                   <div class='content'>
+
+                        <div class="center-block">
+                             <div><h3>An error occurred while loading the configurations for the self signup feature for your organization. Please contact the WSO2 Cloud team for help. </h3></div>
+                        </div>
+                    </div>
+                  </div>
+              </div>
+     </div>
+     <% }
     } else {
         log.error("Session is not authenticated, Prompted to log in");
         response.sendRedirect(cloudMgtUrl);
-      }
+    }
 }); %>
-

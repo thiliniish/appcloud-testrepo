@@ -1,0 +1,9 @@
+<%
+jagg.module("manager", {
+
+    getTenantId:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getTenantId.apply(this, arguments);
+    }
+
+});
+%>

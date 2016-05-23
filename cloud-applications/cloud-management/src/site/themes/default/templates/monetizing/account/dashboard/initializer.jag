@@ -1,0 +1,26 @@
+<%
+jagg.initializer("monetizing/account/dashboard", {
+    preInitialize : function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("account/dashboard", "jquery.dataTables", "new-assets/css/datatables-1.10.7/jquery.dataTables.min.css");
+        jagg.addHeaderCSS("account/dashboard", "jquery.dataTables.override", "new-assets/css/datatables-1.10.7/jquery.dataTables.override.css");
+        jagg.addHeaderCSS("account/dashboard", "select2", "new-assets/css/select2-4.0.0/select2.min.css");
+        jagg.addHeaderCSS("account/dashboard", "select2.override", "new-assets/css/select2-4.0.0/select2.override.css");
+        jagg.addHeaderCSS("account/dashboard", "c3", 'new-assets/css/c3/c3.min.css');
+        // UI related JS files
+        jagg.addFooterJS("account/dashboard", "custom", "js/custom/custom.js");
+        jagg.addFooterJS("account/dashboard", "jquery.dataTables.min", "js/datatables-1.10.7/jquery.dataTables.min.js");
+        jagg.addFooterJS("account/dashboard", "jeditable", "js/Jeditable-1.7.3/jquery.jeditable.js");
+        jagg.addFooterJS("account/dashboard", "dataTables.inlineEdit", "js/datatables-1.10.7/jquery.dataTables.inlineEdit.js");
+        jagg.addFooterJS("account/dashboard", "dataTables.columnFilter", "js/datatables-1.10.7/jquery.dataTables.columnFilter.js");
+        jagg.addFooterJS("account/dashboard", "select2.min", "js/select2-4.0.0/select2.min.js");
+        jagg.addFooterJS("account/dashboard", "noty", "js/noty-2.3.5/jquery.noty.packaged.min.js");
+        jagg.addFooterJS("account/dashboard", "noty.theme", "js/noty-2.3.5/themes/noty.theme.wso2.js");
+        jagg.addFooterJS("account/dashboard", "moment", "new-assets/js/daterangepicker-2.0.8/moment.js");
+        jagg.addFooterJS("account/dashboard", "d3", "new-assets/js/d3-3.5.3/d3.min.js");
+        jagg.addFooterJS("account/dashboard", "c3", "new-assets/js/c3/c3.min.js");
+        // Custom JS file
+        jagg.addFooterJS("account/dashboard", "account-dashboard", "templates/monetizing/account/dashboard/js/account-dashboard.js");
+    }
+});
+%>

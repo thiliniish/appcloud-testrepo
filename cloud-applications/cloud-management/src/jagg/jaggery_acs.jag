@@ -65,11 +65,13 @@ include("/modules/database/sql.jag");
             var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
             session.put("LOGGED_IN_USER_TENANT_DOMAIN", tenantDomain);
             session.put("LOGGED_IN_USER_EMAIL", email);
+            session.put("LOGGED_IN_USER_FULL_NAME", firstName + " " + lastName);
 
-            log.info("Logged in User : " + session.get("LOGGED_IN_USER"));
-            log.info("Logged in User's email : " + session.get("LOGGED_IN_USER_EMAIL"));
-            log.info("Logged in User's Tenant Domain : " + tenantDomain);
-            log.info("Logged in User's Tenant Domain Display Name : " + tenantDisplayName);
+            log.info("Logged in User [ User : " + session.get("LOGGED_IN_USER") +
+                    ", Full Name : " + session.get("LOGGED_IN_USER_FULL_NAME") +
+                    ", Email : " + session.get("LOGGED_IN_USER_EMAIL") +
+                    ", Tenant : " + session.get("LOGGED_IN_USER_TENANT_DOMAIN") +
+                    ", DisplayName : " + session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME") + " ]");
 
             var type = cloudConfig.subscriptions.type;
             var storeUrl = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
@@ -82,6 +84,7 @@ include("/modules/database/sql.jag");
                 var lastNameCheckList = lastName == "$2" || lastName == "undefined" || lastName == undefined || lastName == "";
 
                 if (firstNameCheckList || lastNameCheckList) {
+                    session.put("LOGGED_IN_USER_FULL_NAME", email);
                     response.sendRedirect("../" + PROFILE_PAGE);
                 } else {
                     response.sendRedirect(requestedURI);

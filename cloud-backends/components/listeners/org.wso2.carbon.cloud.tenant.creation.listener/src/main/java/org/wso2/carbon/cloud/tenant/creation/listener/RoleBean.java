@@ -57,7 +57,7 @@ public class RoleBean {
     }
 
     public void addUser(String user) {
-        if (user != null && !"".equals(user.trim())) {
+        if (user != null && !user.trim().isEmpty()) {
             users.add(user);
         }
     }

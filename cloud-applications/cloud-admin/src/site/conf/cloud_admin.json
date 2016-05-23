@@ -1,0 +1,10 @@
+{
+	"ServerUrl": {
+        "DataServices_Server":"https://milestones.appfactory.wso2.com:9443/services/",
+	  	"CloudAdmin": "https://milestones.appfactory.wso2.com:9443/cloudadmin/"
+	},
+
+  	"AdminService": {
+	  	"CLOUD_ADMIN_SERVICE_URL":"https://milestones.appfactory.wso2.com:9443/admin/services/"
+	}
+}

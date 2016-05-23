@@ -335,14 +335,21 @@ $(document).ready(function($) {
 				var mainMenuData = mainMenu[attr];
 				var menuURL = mainMenu[attr].url;
 				var menuIcon = mainMenu[attr].icon;
+		    if (mainMenu[attr].isDropDown == "false") {
+			    if (attr == "Monetization") {
+				    if (isUserAdmin) { %>
+						 <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
+				          </span></a></li>
+				<% }
+			    } else { %>
 				if (attr == "Support") {
 				    menuURL = menuURL + "?cloudType=" + subscription;
 				}
 				if (mainMenu[attr].isDropDown == "false") {%>
 				     <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
 				     </span></a></li>
-				<%
-                } else {
+			   <% }
+		    } else {
                     if (!isBillingEnable && attr == "Account") {
 
                     } else if (isBillingEnable && attr == "Account") {

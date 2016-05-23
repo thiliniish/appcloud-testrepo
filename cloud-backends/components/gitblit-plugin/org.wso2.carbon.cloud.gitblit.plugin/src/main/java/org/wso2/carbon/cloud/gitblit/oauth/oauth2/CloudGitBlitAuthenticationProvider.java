@@ -27,13 +27,13 @@ public class CloudGitBlitAuthenticationProvider extends AppFactoryGitBlitAuthent
         return userModel;
     }
 
-    private  String doConvert(String userName) {
-        StringBuilder convertedUser = new StringBuilder(userName);
-        if (userName == null) {
-            logger.error("Cloud Plugin: User name can not be null.");
+    private  String doConvert(String username) {
+        StringBuilder convertedUser = new StringBuilder(username);
+        if ("".equals(username)) {
+            logger.error("Cloud Plugin: User name can not be empty.");
         }
-        else if (userName.contains("@")) {
-            int index = userName.indexOf("@");
+        else if (username.contains("@")) {
+            int index = username.indexOf("@");
             convertedUser.setCharAt(index, '.');
         }
         return convertedUser.toString();

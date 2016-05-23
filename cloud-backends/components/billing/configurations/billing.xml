@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
+  ~  WSO2 Inc. licenses this file to you under the Apache License,
+  ~  Version 2.0 (the "License"); you may not use this file except
+  ~  in compliance with the License.
+  ~  You may obtain a copy of the License at
   ~
-  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
+  ~  Unless required by applicable law or agreed to in writing,
+  ~  software distributed under the License is distributed on an
+  ~  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~  KIND, either express or implied.  See the License for the
+  ~  specific language governing permissions and limitations
+  ~  under the License.
   -->
 
 <CloudBilling xmlns="http://www.wso2.org/cloud/billing">
     <!--Billing functionality enable/disable status-->
-    <BillingEnable>true</BillingEnable>
+    <BillingEnabled>true</BillingEnabled>
+    <!--Billing component is deployed for cloudmgt. Set this to false if the billing component is
+    deployed in APIM or other server as a supporting component. This will disable mgt tasks-->
+    <MgtModeEnabled>true</MgtModeEnabled>
     <DataServiceAPI>
-        <RequestCount>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/requestcount</RequestCount>
-        <Usage>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/usage</Usage>
-        <Amendments>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/amendments</Amendments>
-        <TenantAccount>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/tenantaccount?TENANT_DOMAIN={tenantDomain}</TenantAccount>
-        <PendingDisableTenants>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/pendingdisables</PendingDisableTenants>
-        <DisableTenant>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/disabletenant</DisableTenant>
-        <SubscriptionStatus>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/subscriptionstatus</SubscriptionStatus>
-	 <BillingHistory>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/billinghistory</BillingHistory>
-	 <SubscriptionMapping>https://localhost:9453/services/WSO2CloudBillingDS.SecureHTTPEndpoint/mappingforsubscription</SubscriptionMapping>
+        <CloudBillingServiceURI>/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURI>
+        <CloudMonetizationServiceURI>/services/WSO2CloudMonetizationDS.SecureHTTPEndpoint</CloudMonetizationServiceURI>
+        <APICloudMonetizationServiceURI>/services/WSO2APICloudMonetizationDS.SecureHTTPEndpoint</APICloudMonetizationServiceURI>
         <User>admin</User>
         <Password>admin</Password>
         <HttpClientConfig>
@@ -44,9 +43,11 @@
         <User>USERNAME</User>
         <Password>PASSWORD</Password>
         <Currency>USD</Currency>
-
+        <!--set the value less than the actual value ex: for 1h here it is set to: 50m. value is in milliseconds-->
+        <SessionExpired>3000000</SessionExpired>
         <!--Payment Type EVERGREEN-->
         <TermType>EVERGREEN</TermType>
+        <!--value is in milliseconds-->
         <SignatureExpired>1800000</SignatureExpired>
         <EnabledProtocols>TLSv1.1,TLSv1.2</EnabledProtocols>
         <HttpClientConfig>
@@ -57,27 +58,18 @@
         </HttpClientConfig>
         <HostedPage>
             <PublicKey>PUBLIC_KEY</PublicKey>
-            <URL>https://apisandbox.zuora.com/apps/PublicHostedPageLite.do</URL>
-            <EndPoint>https://apisandbox.zuora.com/apps/v1/rsa-signatures</EndPoint>
+            <!--public hosted page uri-->
+            <URI>/apps/PublicHostedPageLite.do</URI>
+            <!--rsa signature generating uri-->
+            <EndPointURI>/apps/v1/rsa-signatures</EndPointURI>
             <PageId>2c92c0f849f118b5014a09ca329b5df7</PageId>
             <PaymentGateway>test</PaymentGateway>
             <Locale>en</Locale>
         </HostedPage>
-        <APIs>
-            <Usage>https://apisandbox-api.zuora.com/rest/v1/usage</Usage>
-            <AccountSummary>https://apisandbox-api.zuora.com/rest/v1/accounts/{account-key}/summary</AccountSummary>
-            <RatePlans>https://apisandbox-api.zuora.com/rest/v1/subscriptions/accounts/{account-key}</RatePlans>
-            <Accounts>https://apisandbox-api.zuora.com/rest/v1/accounts</Accounts>
-            <CancelSubscription>https://apisandbox-api.zuora.com/rest/v1/subscriptions/{subscription-key}/cancel</CancelSubscription>
-            <Subscriptions>https://apisandbox-api.zuora.com/rest/v1/subscriptions</Subscriptions>
-            <PaymentMethods>https://apisandbox-api.zuora.com/rest/v1/payment-methods/credit-cards</PaymentMethods>
-            <RemovePaymentMethod>https://apisandbox-api.zuora.com/rest/v1/payment-methods</RemovePaymentMethod>
-            <InvoiceInfo>https://apisandbox-api.zuora.com/rest/v1/transactions/invoices/accounts/{account-key}</InvoiceInfo>
-            <PaymentInfo>https://apisandbox-api.zuora.com/rest/v1/transactions/payments/accounts/{account-key}</PaymentInfo>
-            <Products>https://apisandbox-api.zuora.com/rest/v1/catalog/products</Products>
-        </APIs>
+        <!--Uncomment and provide host name for the zuora rest api if the rest api url host is different from the hpm url host-->
+        <!--<ServiceURLHost>apisandbox-api.zuora.com</ServiceURLHost>-->
         <Subscriptions>
-            <Subscription id="api_cloud">
+            <Subscription id="api_cloud" name="API Cloud" productId="2c92c0f949ac00800149b8333c0502b8">
                 <Plan>
                     <Id>2c92c0f949ac00830149b83db24f1b77</Id>
                     <Name>Starter</Name>
@@ -131,15 +123,14 @@
             <Cron>0 57 11 ? * * *</Cron>
             <UsageUploadFileLocation>USAGE_CSV_PATH</UsageUploadFileLocation>
         </Usage>
-        <!--For testing purposes change the value to false-->
-        <SSLCertificateValid>false</SSLCertificateValid>
         <SubscriptionCleanUp>
             <EnableCleanUp>true</EnableCleanUp>
             <Cron>0 57 23 ? * * *</Cron>
         </SubscriptionCleanUp>
     </Zoura>
     <SSORelyingParty>
-        <KeyStorePath>KEYSTORE_PATH</KeyStorePath>
+        <!--TrustStore should be in security resource directory -->
+        <TrustStore>client-truststore.jks</TrustStore>
         <TrustStorePassword>wso2carbon</TrustStorePassword>
     </SSORelyingParty>
     <Utils>
@@ -147,5 +138,15 @@
             <!--This is for statistical purposes .Usage display period in days-->
             <UsageDisplayPeriod>30</UsageDisplayPeriod>
         </APICloud>
+        <Notification>
+            <Email>
+                <Host>smtp.gmail.com</Host>
+                <Port>25</Port>
+                <Username>username</Username>
+                <Password>password</Password>
+                <Tls>true</Tls>
+                <Sender>WSO2 Cloud Team &lt;cloud@wso2.com&gt;</Sender>
+            </Email>
+        </Notification>
     </Utils>
 </CloudBilling>

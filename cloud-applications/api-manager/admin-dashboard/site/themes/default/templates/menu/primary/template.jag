@@ -1,0 +1,437 @@
+<% jagg.template("menu/primary", function(inputs, outputs, jagg) { %>
+<%var reqUrl = request.getRequestURI();
+    var inlineUrl=jagg.getAbsoluteUrl("/site/pages/inline-editor.jag");
+    var log = new Log("site/themes/default/templates/menu/primary/template.jag");
+
+    var isBillingEnable = session.get("IS_BILLING_ENABLE");
+    var checkIsBillingEnable = function () {
+        var isBillingEnable;
+        try {
+            // verify billing enable/disable mode
+            var billingConfigFile = new File("/site/conf/billing_conf.json");
+            billingConfigFile.open("r");
+            var configs = parse(billingConfigFile.readAll());
+            billingConfigFile.close();
+            var billing = configs.billing;
+            isBillingEnable = billing.enable;
+        } catch (e) {
+            log.error("Error while checking, billing functionality enable/disable status. Error:" + e);
+        } finally {
+            session.put("IS_BILLING_ENABLE", isBillingEnable);
+        }
+    };
+
+    if (isBillingEnable == null) {
+        checkIsBillingEnable();
+        isBillingEnable = session.get("IS_BILLING_ENABLE");
+    }
+
+    var urlPrefix;
+    var urlPostfix;
+    var tenant= encode.forUriComponent(request.getParameter("tenant"));
+    if(tenant!='null') {urlPrefix="?tenant="+tenant;}else{urlPrefix='';}
+    if(tenant!='null') {urlPostfix="&tenant="+tenant;}else{urlPostfix='';}
+
+    var file = new File("/site/conf/toplink_menu.json");
+    file.open("r");
+    var data = file.readAll();
+    file.close();
+    var jsonObj = parse(data);
+    var tenantDomain = outputs.user.username.split("@")[1];
+    var cloudMgtPath = "https://milestones.appfactory.wso2.com:9443/cloudmgt/";
+    var tenantUserName = outputs.user.username.split("@")[0];
+    var isUserAdmin = session.get("IS_USER_ADMIN");
+
+    var checkIsUserAdmin = function () {
+        try {
+            var PrivilegedCarbonContext = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
+            var context = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            var realmService = context.getOSGiService((java.lang.Class).forName('org.wso2.carbon.user.core.service.RealmService'));
+            var tenantManager = realmService.getTenantManager();
+            var tenantId = tenantManager.getTenantId(tenantDomain);
+
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantId);
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            isUserAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(tenantUserName, "admin");
+        } catch (Exception) {
+            log.error("Error while checking, current user is tenant admin. User: "+ userName +". Error:" +e);
+            isUserAdmin= false;
+        } finally {
+            session.put("IS_USER_ADMIN", isUserAdmin);
+            context.endTenantFlow();
+        }
+    }
+    if (isUserAdmin == null) {
+        checkIsUserAdmin();
+    }
+
+    var mainMenu = jsonObj.Main;
+    var leftMenu = jsonObj.Left_menu;
+
+    if (isBillingEnable) {
+        //Billing properties
+        var type = {PAID: "PAID", TRIAL: "TRIAL", FREE: "FREE"};
+        var status = {
+            ACTIVE: "ACTIVE",
+            INACTIVE: "INACTIVE",
+            EXTENDED: "EXTENDED",
+            PENDING_DISABLE: "PENDING_DISABLE",
+            DISABLED: "DISABLED"
+        };
+        var subscription = "api_cloud";
+
+        var isExpired = true;
+        var trialPeriod = 14;
+        var date;
+        var noOfDays;
+        var queryString = "SELECT TYPE, STATUS, END_DATE FROM BILLING_STATUS WHERE TENANT_DOMAIN='" + tenantDomain + "' && SUBSCRIPTION='" + subscription + "' ORDER BY TYPE;";
+
+        var db = new Database("cloud_mgt");
+        var sqlDateFormatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        var results = db.query(queryString);
+        var accountContent;
+        db.close();
+
+        var addDays = function (date, days) {
+            var cal = Packages.java.util.Calendar.getInstance();
+            cal.setTime(date);
+            cal.add(Packages.java.util.Calendar.DATE, days);
+            return cal.getTime();
+        };
+
+        if(results.length > 0) {
+            var potentialDisabled = false;
+            for (var rowNum in results) {
+                if((results[rowNum]["STATUS"] === status.ACTIVE || results[rowNum]["STATUS"] === status.PENDING_DISABLE) && results[rowNum]["TYPE"] === type.PAID) {
+                    accountContent="Account";
+                    var isExpired = false;
+                    break
+                } else if ((results[rowNum]["STATUS"] === status.ACTIVE || results[rowNum]["STATUS"] === status.EXTENDED) && results[rowNum]["TYPE"] === type.TRIAL) {
+                    date=results[0]["END_DATE"];
+                    var currDate = new java.util.Date();
+                    var endDate =  sqlDateFormatter.parse(date);
+                    var diff = endDate.getTime() - currDate.getTime();
+                    if(diff > 0) {
+                        var isExpired = false;
+                        noOfDays = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(diff);
+                        accountContent = "Trial - " + (noOfDays+1) + " days to upgrade";
+                    } else {
+                        isExpired = true;
+                        accountContent="Trial Expired";
+                    }
+                    break
+                } else if (results[rowNum]["STATUS"] === status.INACTIVE && results[rowNum]["TYPE"] === type.TRIAL) {
+                    var acStartDate = new Packages.java.util.Date();
+                    var acEndDate = sqlDateFormatter.format(addDays(acStartDate, trialPeriod));
+                    db = new Database("cloud_mgt");
+                    queryString = "UPDATE BILLING_STATUS SET STATUS = ('ACTIVE'), START_DATE " +
+                                  "= ('"+ sqlDateFormatter.format(acStartDate) +"') , END_DATE = " +
+                                  "('"+ acEndDate +"') WHERE (TENANT_DOMAIN, SUBSCRIPTION, TYPE) = ('" + tenantDomain + "','" + subscription + "','" + type.TRIAL + "')";
+                    db.query(queryString);
+                    log.info("Trial account activated for tenant: " + tenantDomain);
+                    db.close();
+                    var isExpired = false;
+                    accountContent = "Trial - "+ (trialPeriod)  +" days to upgrade";
+                    break
+                } else if (results[rowNum]["STATUS"] === status.DISABLED && (results[rowNum]["TYPE"] === type.PAID || results[rowNum]["TYPE"] === type.TRIAL)) {
+                    if (potentialDisabled) {
+                        log.info("Access denied for tenant: " +tenantDomain + " with a DISABLED subscription. Redirected to CloudMgt");
+                        response.sendRedirect(cloudMgtPath + "/site/pages/index.jag");
+                    } else {
+                        potentialDisabled = true;
+                    }
+                }
+            }
+        }
+    }
+    %>
+
+   <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("lib/bootstrap/css/bootstrap.css"))%>" rel="stylesheet">
+<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("lib/bootstrap/css/bootstrap-responsive.css"))%>" rel="stylesheet">
+<link rel="shortcut icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/favicon.ico"))%>">
+<link rel="apple-touch-icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/apple-touch-icon.png"))%>">
+<link rel="apple-touch-icon" sizes="72x72" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/apple-touch-icon-72x72.png"))%>">
+<link rel="apple-touch-icon" sizes="114x114" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/apple-touch-icon-114x114.png"))%>">
+
+<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("css/localstyles.css"))%>" rel="stylesheet">
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('lib/jquery-1.7.1.min.js'))%>"></script>
+
+    <link
+        href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"
+        rel="stylesheet">
+
+    <style>
+    .menu1 {
+        margin-left: 230px;
+    }
+
+    .menu1,.menu2 {
+        color: #898989;
+        font-size: 18px;
+        margin-bottom: 0;
+    }
+
+    .menu1 li {
+        float: left;
+    }
+
+    .menu2 li {
+        float: right;
+    }
+
+    .menu1 li i,.menu2 li i {
+        color: #999;
+    }
+
+    .menu1 li,.menu2 li {
+        list-style-type: none;
+        text-align: center;
+        border-left: 1px solid #181B1E;
+        border-right: 1px solid #444B55;
+        padding: 5px 12px;
+    }
+
+    .menu1 li a,.menu2 li a {
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .menu1 li span,.menu2 li span {
+        color: #999999;
+        font-size: 12px;
+    }
+
+    .top-menu-left {
+        width: 251px;
+        float: left;
+    }
+
+    .top-menu-right {
+        width: 100%;
+        float: left;
+    }
+
+    .dropdown-menu {
+        background-clip: padding-box;
+        background-color: #181B1E;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        text-align: left;
+    }
+
+    .dropdown-menu li {
+        float: left;
+        border: none;
+        width: 150px;
+    }
+
+    .dropdown-menu li a {
+        text-align: left;
+    }
+
+    ul.menu2 .dropdown-menu li a:hover {
+        background: #3c4245;
+        color: #fff;
+    }
+
+    .brand {
+        height: auto;
+        margin-top: 3px;
+    }
+
+    .login-header {
+        margin-bottom: 0;
+    }
+
+    .publisher-sub-menu-container {
+        background: #4C5C69;
+    }
+
+    .application-title-container {
+        height: 60px;
+        line-height: 60px;
+    }
+
+    .application-title-container a {
+        color: #efefef;
+        font-weight: bold;
+        font-size: 16px;
+        text-decoration: none;
+    }
+
+    #left {
+        margin-top: 0
+    }
+
+    #middle ul.breadcrumb {
+        padding: 10px 0 0 0;
+    }
+
+    .tenant-position-setter {
+        margin-top: 20px;
+        color: #fff;
+        padding-right: 28px;
+    }
+
+    .tenant-position-setter a {
+        color: #fff;
+    }
+
+    .data-toggle expired {
+        color: red;
+    }
+
+
+
+    </style>
+    <script type="text/javascript">
+    $(document).ready(function($) {
+        // Check for billing enable/disable mode
+        var isBillingEnable = $("#isBillingEnable").attr('value');
+        if (isBillingEnable) {
+            var isExpired = <%=isExpired%>;
+        var cloudMgtPath = "<%=cloudMgtPath%>";
+        var subscription = "<%=subscription%>";
+        if (isExpired) {
+                if (<%=isUserAdmin%>) {
+                    jagg.messageDisplay({content:"Was it a successful trial? Your trial unfortunately expired, however it is really easy to upgrade to a paid plan and keep using WSO2 API Cloud.",title:"Trial Expired" ,buttons:[
+                        {name:"Upgrade Now",cssClass:"btn btn-primary",cbk:function() {
+                            window.location.href = cloudMgtPath + "/site/pages/payment-plans.jag?cloud-type=" + subscription;
+
+                        }},
+                        {name:"Request Extension",cssClass:"btn",cbk:function() {
+                            window.location.href = cloudMgtPath + "/site/pages/contact-us.jag?cloud-type="+ subscription + "&request-extension=true";
+                        }}
+                        ]
+                    });
+                } else {
+                    jagg.messageDisplay({content:"Unfortunately your trial period is expired, Please contact organization administrator for more details.",
+                        title:"Trial Expired"});
+                }
+        }
+    }
+});
+</script>
+<div class="container-fluid login-header">
+	<div class="top-menu-left">
+		<a class="brand"
+			href="https://milestones.appfactory.wso2.com:9443/site/pages/index.jag"><img
+			src="https://milestones.appfactory.wso2.com:9443/cloudmgt/site/themes/default/new-assets/img/logo.png"
+			alt="API PROVIDER"> </a>
+	</div>
+	<div class="top-menu-right">
+		<ul class="pull-left menu1">
+			<%for (var attr in mainMenu) {
+        var mainMenuData = mainMenu[attr];
+        var menuURL = mainMenu[attr].url;
+        var menuIcon = mainMenu[attr].icon;
+
+        if (mainMenu[attr].isDropDown == "false") {
+            if (attr == "Monetization") {
+                if (isUserAdmin) { %>
+						 <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
+				          </span></a></li>
+				<% }
+            } else { %>
+				     <li><a href="<%=menuURL%>"><i class="<%=menuIcon%>"></i> <span><br> <%=attr%>
+				     </span></a></li>
+			   <% }
+        } else {
+            if (!isBillingEnable && attr == "Account") {
+
+            } else if (isBillingEnable && attr == "Account") {
+                if (isUserAdmin) {%>
+				            <li class="dropdown"><a data-toggle="dropdown"
+				               class="dropdown-toggle expired" href="#"><i class="<%=menuIcon%>"></i>
+
+				               <%if (accountContent !="Account") { %>
+				                   <span><br><font color="red"><%=accountContent%></font></span> <b class="caret"></b></a>
+				               <%} else {%>
+				                   <span><br><%=accountContent%></span> <b class="caret"></b> </a>
+				            <%}%>
+
+				            <ul class="dropdown-menu">
+		  				<%}
+            } else { %>
+					    <li class="dropdown"><a data-toggle="dropdown"
+						   class="dropdown-toggle" href="#"><i class="<%=menuIcon%>"></i> <span><br><%=attr%></span> <b class="caret"></b> </a>
+						<ul class="dropdown-menu">
+					<%}
+
+            var dropDown = mainMenu[attr].isDropDown;
+            for (var subAttr in dropDown) {
+                var subURL = dropDown[subAttr].url;
+                var subIcon  = dropDown[subAttr].icon;
+                var target  = dropDown[subAttr].target;
+                if (isUserAdmin == true) {
+                    if (isBillingEnable && accountContent == "Account") {
+                        if (subAttr == "Request Extension") {
+                        } else if (subAttr == "Upgrade Now") {
+                            subURL = (subURL.split("?")[0]).replace("payment-plans","account-summary"); %>
+									<li><a href="<%=subURL%>"><i class="fa fa-book"></i><span> Account Summary
+									</span> </a></li>
+								<%} else { %>
+									<li><a href="<%=subURL%>"><i class="<%=subIcon%>"></i> <span> <%=subAttr%>
+									</span> </a></li>
+								<%}
+                    } else if (!isBillingEnable && (subAttr == "Request Extension" || subAttr == "Upgrade Now" || subAttr == "Usage")) {
+
+                    } else { %>
+								<li><a target="<%=target%>" href="<%=subURL%>"><i class="<%=subIcon%>"></i> <span> <%=subAttr%>
+								</span> </a></li>
+									<%
+                    }
+                } else {
+                    if (subAttr != "Request Extension" && subAttr != "Upgrade Now" && subAttr != "Usage data") {%>
+								<li><a target="<%=target%>" href="<%=subURL%>"><i class="<%=subIcon%>"></i> <span> <%=subAttr%>
+								</span> </a></li>
+								<%
+                    }
+                }
+            }%>
+						</ul>
+					</li>
+					<%
+        }
+
+    }%>
+				</ul>
+				<ul class="pull-right menu2">
+					<li class="dropdown"><a data-toggle="dropdown"
+						class="dropdown-toggle" href="#"><i class="fa fa-user"></i> <span><br>
+						<%if (outputs.user != null) {%>
+						    <%=outputs.user.username%>
+                        <%}
+    %><b class="caret"></b> </span> </a>
+    <ul class="dropdown-menu">
+        <li><a
+            href="https:///milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/change-password.jag"><i
+                class="fa fa-lock"></i> <span> Change Password</span> </a></li>
+        <li><a
+            href="https:///milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/user-profile.jag"><i
+                class="fa fa-user"></i> <span>Profile</span> </a></li>
+        <li><a
+            href="<%=jagg.getAbsoluteUrl('/site/pages/logout.jag')%><%=urlPrefix%>"><i
+									class="fa fa-sign-out"></i> <span>Logout</span> </a></li>
+						</ul>
+					</li>
+				</ul>
+	</div>
+</div>
+
+<div class="container-fluid publisher-sub-menu-container">
+	<div class="row-fluid">
+		<div class="span12">
+			<div class="application-title-container pull-left">
+				<a href="<%=jagg.getAbsoluteUrl("/")%>">Admin Dashboard</a>
+			</div>
+			<div class="pull-right">
+			</div>
+			<input type="hidden" name="isBillingEnable" id="isBillingEnable"  value="<%= isBillingEnable %>" />
+		</div>
+	</div>
+</div>
+
+<%});%>

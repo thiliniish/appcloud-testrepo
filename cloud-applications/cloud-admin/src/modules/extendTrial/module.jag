@@ -1,0 +1,20 @@
+<%
+jagg.module("extendTrial", {
+
+	checkTenant:function () {
+		return jagg.require(jagg.getModulesDir() + "extendTrial/extendTrial.jag").checkTenant.apply(this, arguments);
+	},
+	checkEmailExist:function () {
+		return jagg.require(jagg.getModulesDir() + "extendTrial/extendTrial.jag").checkEmailExist.apply(this, arguments);
+	},
+	updateTenant:function () {
+
+		return jagg.require(jagg.getModulesDir() + "extendTrial/extendTrial.jag").updateTenant.apply(this, arguments);
+	},
+	getEndBillingSubscriptionDate:function () {
+
+		return jagg.require(jagg.getModulesDir() + "extendTrial/extendTrial.jag").getEndBillingSubscriptionDate.apply(this, arguments);
+
+	}
+});
+%>
