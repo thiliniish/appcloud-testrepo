@@ -29,8 +29,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.carbon</groupId>
-    <artifactId>org.wso2.carbon.cloud.das.datapurge.tool</artifactId>
+    <artifactId>org.wso2.cloud.das.datapurge.tool</artifactId>
     <version>1.0.0</version>
+    <packaging>bundle</packaging>
     <name>Cloud - DAS DataPurge Tool</name>
     <description>Tool to purge unnecessary data from DAS</description>
 
@@ -40,10 +41,14 @@
             <artifactId>commons-logging</artifactId>
             <version>${commons.logging.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core.services</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <finalName>wso2cloud-das-datapurge-tool${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -70,7 +75,8 @@
                         </Private-Package>
                         <Import-Package>
                             org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
-                            org.osgi.framework; version="${imp.pkg.version.osgi.framework}"
+                            org.osgi.framework; version="${imp.pkg.version.osgi.framework}",
+                            org.wso2.carbon.context; version="${imp.pkg.version.carbon.platform}"
                         </Import-Package>
                     </instructions>
                 </configuration>

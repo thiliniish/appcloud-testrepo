@@ -15,29 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.wso2.cloud.das.datapurge.tool;
+package org.wso2.cloud.das.datapurge.tool.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.cloud.das.datapurge.tool.DataPurgeTool;
+import org.wso2.carbon.core.ServerStartupHandler;
 
 /**
- * Helper class that executes DAS data purging
+ * Represents the listener that identify the server startup
  */
-public class DataPurgeTool implements Runnable{
-    private static final Log log = LogFactory.getLog(DataPurgeTool.class);
+public class DASPurgeToolServerStartListener implements ServerStartupHandler {
+
+    private static final Log log = LogFactory.getLog(DASPurgeToolServerStartListener.class);
 
     /**
-     * Method to override run
+     * This method waits until the server starts for execution
      */
-    @Override public void run() {
-        purge();
+    @Override public void invoke() {
         if (log.isDebugEnabled()) {
-            log.debug("Role Manager started Successfully.");
+            log.debug("RoleManagerServerStartListener is activated");
         }
-    }
-
-    public void purge(){
-        log.info("Data purge tool is starting...");
+        Thread t1 = new Thread(new DataPurgeTool());
+        t1.start();
     }
 }
