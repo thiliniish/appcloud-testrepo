@@ -14,6 +14,7 @@ $(document).ready(function () {
             var tenantDomain = result.tenantDomain;
             if (!result.error) {
                 var accountObj = jQuery.parseJSON(result.message);
+                var ZERO_PAYMENT_VALUE = 0;
                 invoiceData = accountObj.invoices;
                 paymentData = accountObj.payments;
                 accountId = accountObj.basicInfo.id;
