@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
+
+
 /**
  * Represents the data holder for Role Configuration details
  */
@@ -70,7 +72,7 @@ public class RoleBean {
      * @param user
      */
     public void addUser(String user) {
-        if (user != null && !user.isEmpty()) {
+        if (StringUtils.isNotBlank(user)) {
             users.add(user);
         }
     }
