@@ -16,16 +16,16 @@
  *  under the License.
  */
 
-package org.wso2.cloud.das.datapurge.tool.internal;
+package org.wso2.carbon.cloud.das.datapurge.tool.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.core.ServerStartupHandler;
-import org.wso2.cloud.das.datapurge.tool.DataPurgeTool;
+import org.wso2.carbon.cloud.das.datapurge.tool.DataPurgeTool;
 
 /**
- * @scr.component name="org.wso2.cloud.das.datapurge.tool"
+ * @scr.component name="org.wso2.carbon.cloud.das.datapurge.tool"
  */
 public class DASDataPurgeComponent {
     private static Log log = LogFactory.getLog(DASDataPurgeComponent.class);
@@ -36,6 +36,7 @@ public class DASDataPurgeComponent {
             //Register the server start up handler which hold the execution of its invoke method until the server starts
             context.getBundleContext()
                     .registerService(ServerStartupHandler.class.getName(), new DASPurgeToolServerStartListener(), null);
+            log.info("DAS data purge tool is activated");
             if (log.isDebugEnabled()) {
                 log.debug("DAS data purge tool is activated");
             }

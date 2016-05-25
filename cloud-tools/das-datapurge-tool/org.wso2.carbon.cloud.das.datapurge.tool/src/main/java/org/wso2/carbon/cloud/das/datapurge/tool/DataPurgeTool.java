@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.cloud.das.datapurge.tool;
+package org.wso2.carbon.cloud.das.datapurge.tool;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +31,7 @@ public class DataPurgeTool implements Runnable{
      * Method to override run
      */
     @Override public void run() {
+        log.info("DAS data purge tool started Successfully.Inside run..");
         purge();
         if (log.isDebugEnabled()) {
             log.debug("Role Manager started Successfully.");
