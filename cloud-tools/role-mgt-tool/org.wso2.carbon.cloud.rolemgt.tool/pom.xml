@@ -7,7 +7,7 @@
         <groupId>org.wso2.carbon.cloud</groupId>
         <artifactId>cloud-tools</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
