@@ -591,6 +591,11 @@ function populateState() {
     }
 }
 
+function populateStateValue(defaultState){
+    postState = defaultState;
+    populateState();
+}
+
 function initCountry(country) {
     populateCountry(country);
     populateState();

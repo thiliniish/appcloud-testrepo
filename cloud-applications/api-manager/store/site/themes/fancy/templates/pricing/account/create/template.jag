@@ -78,13 +78,13 @@
                       <label class="input-label span5">Country</label>
                       <div class="input-control input-full-width span7 select">
                          <select id="country" name="country" onchange='populateState()'></select>
-                         <script type="text/javascript">initCountry('US');</script>
+                         <script type="text/javascript">initCountry('');</script>
                       </div>
                    </div>
                    <div class="row-fluid">
                       <label class="input-label span5">State/Province/Region</label>
                       <div class="input-control input-full-width span7 text">
-                         <select id="state" name="state"></select>
+                         <input type="text" id="state" name="state" value=""/>
                       </div>
                    </div>
                    <div class="row-fluid">

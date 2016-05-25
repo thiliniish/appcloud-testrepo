@@ -38,7 +38,7 @@
             </div>
             <div class="form-group span6 marg-left0">
                 <label for="country">Country: </label>
-                <select id="country" name="country" onchange='populateState()'></select>
+                <select id="country" name="country" onchange='populateStateValue("")'></select>
                 <script type="text/javascript">
                     var countryCode = getCountryCode("<%=outputs.creditCardCountry%>");
                     postCountry = countryCode;
