@@ -126,7 +126,7 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException ex) {
             String message = "Error occurred while updating the account for Account Id: " + accountId;
             LOGGER.error(message, ex);
-            throw new CloudBillingException(message + ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 
@@ -143,7 +143,7 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException ex) {
             String message = "Error occurred while creating the account";
             LOGGER.error(message, ex);
-            throw new CloudBillingException(message + ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 
@@ -162,7 +162,7 @@ public class CloudBillingService extends AbstractAdmin {
             String message =
                     "Error occurred while updating the subscription details for Subscription Id: " + subscriptionId;
             LOGGER.error(message, ex);
-            throw new CloudBillingException(message + ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 
@@ -179,7 +179,7 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException ex) {
             String message = "Error occurred while retrieving the account details for Account Id: " + accountId;
             LOGGER.error(message, ex);
-            throw new CloudBillingException(message + ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 
@@ -196,7 +196,7 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException ex) {
             String message = "Error occurred while removing the payment method for Method Id: " + methodId;
             LOGGER.error(message, ex);
-            throw new CloudBillingException(message + ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 
@@ -213,7 +213,7 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException ex) {
             String message = "Error occurred while retrieving all payment methods for Account Id: " + accountId;
             LOGGER.error(message, ex);
-            throw new CloudBillingException(message + ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 
@@ -232,7 +232,7 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException ex) {
             String message = "Error occurred while updating the default payment methods for Method Id: " + methodId;
             LOGGER.error(message, ex);
-            throw new CloudBillingException(message + ex);
+            throw new CloudBillingException(message, ex);
         }
     }
 
@@ -781,7 +781,7 @@ public class CloudBillingService extends AbstractAdmin {
             workflowResource.setContent(content.getBytes());
             return CloudBillingUtils.putRegistryResource(tenantDomain, workflowUrl, workflowResource);
         } catch (RegistryException | ParserConfigurationException | SAXException | IOException | TransformerException e) {
-            throw new CloudBillingException("Error occurred while updating the Registry workflowExtensionContent " + e);
+            throw new CloudBillingException("Error occurred while updating the Registry workflowExtensionContent ", e);
         }
     }
 
@@ -814,8 +814,7 @@ public class CloudBillingService extends AbstractAdmin {
                                                             BillingConstants.GOVERNANCE_REGISTRY);
         } catch (Exception e) {
             throw new CloudBillingException(
-                    "Error occurred while creating the registry file " + emailFileName + " error:" +
-                    e);
+                    "Error occurred while creating the registry file " + emailFileName + " error: ", e);
         }
     }
 
@@ -847,7 +846,7 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (CloudBillingException e) {
             throw new CloudBillingException(
                     "Error occurred while creating the ProductRatePlan : " + ratePlanName + " for the tenant : " +
-                    tenantDomain + e);
+                    tenantDomain, e);
         }
     }
 
@@ -929,7 +928,7 @@ public class CloudBillingService extends AbstractAdmin {
             return CloudBillingUtils.putRegistryResource(tenantDomain,tenantConfUrl,tenantConfResource,BillingConstants.CONFIG_REGISTRY);
 
         } catch (RegistryException e) {
-            throw new CloudBillingException("Error occurred while updating the monetization status in registry " + e);
+            throw new CloudBillingException("Error occurred while updating the monetization status in registry ", e);
         }
     }
 
@@ -948,7 +947,7 @@ public class CloudBillingService extends AbstractAdmin {
             return CloudBillingServiceUtils
                     .updateProductRatePlan(tenantDomain, ratePlanName, recurringCharge, overageCharge, description);
         } catch (CloudBillingException e) {
-            throw new CloudBillingException("Error occurred while updating the Product rate plan " + e);
+            throw new CloudBillingException("Error occurred while updating the Product rate plan ", e);
         }
     }
 

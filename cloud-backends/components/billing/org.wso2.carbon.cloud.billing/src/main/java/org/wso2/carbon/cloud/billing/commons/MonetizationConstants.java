@@ -91,7 +91,7 @@ public final class MonetizationConstants {
     public static final int OVER_USAGE_THRESHOLD = 0;
     public static final String TOTAL_COUNT = "TotalCount";
     public static final String CSV_EXTENSION = ".csv";
-    public static final String UNIT_OF_MEASURE_DISPLAY_NAME = "Overage Daily API Calls";
+    public static final String UNIT_OF_MEASURE_DISPLAY_NAME = "100K Overage Daily API Calls";
     public static final String START_DATE = "startDate";
     public static final String END_DATE = "endDate";
     public static final String TENANT = "tenant";
