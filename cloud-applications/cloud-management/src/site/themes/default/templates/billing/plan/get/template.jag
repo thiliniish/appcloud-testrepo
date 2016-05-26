@@ -137,12 +137,16 @@ if (isBillingEnabled) {
 	var l = Packages.java.util.Locale.getDefault();
 	var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
 	var marketing = request.getParameter("isFromOTPricingPage");
-	if (marketing && ratePlans == null) {
-		var selectedPlanId = request.getParameter("productRatePlanId");
+	var isFromChangePlan = request.getParameter("is-from-change-plan");
+	if (marketing) {
+		if (ratePlans == null) {
+			var selectedPlanId = request.getParameter("productRatePlanId");
+		} else {
+			isFromChangePlan = true;
+		}
 	}
 	session.put("RATE_PLANS", paymentPlans);
 	session.put("OLD_PLAN_ID", currRatePlanId);
-	var isFromChangePlan = request.getParameter("is-from-change-plan");
 	if (isFromChangePlan == null || isFromChangePlan == 'null') {
 		isFromChangePlan = false;
 	}
