@@ -33,9 +33,8 @@ public class DASPurgeToolServerStartListener implements ServerStartupHandler {
      * This method waits until the server starts for execution
      */
     @Override public void invoke() {
-        log.info("RoleManagerServerStartListener is activated");
         if (log.isDebugEnabled()) {
-            log.debug("RoleManagerServerStartListener is activated");
+            log.debug("DASPurgeToolServerStartListener is activated");
         }
         Thread t1 = new Thread(new DataPurgeTool());
         t1.start();

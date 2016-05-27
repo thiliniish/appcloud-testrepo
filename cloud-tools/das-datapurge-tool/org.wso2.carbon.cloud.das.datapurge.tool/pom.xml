@@ -61,15 +61,12 @@
                             org.wso2.carbon.cloud.das.datapurge.tool.internal
                         </Private-Package>
                         <Import-Package>
-                            org.wso2.carbon.user.core.*; version="${wso2das.version}",
-                            org.wso2.carbon.utils; version="${wso2das.version}",
+                            org.apache.commons.logging.*; version="${commons.logging.version}",
+                            org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
+                            org.osgi.framework; version="${imp.pkg.version.osgi.framework}",
                             org.wso2.carbon.core; version="${wso2das.version}",
-                            org.wso2.carbon.context; version="${wso2das.version}",
-                            org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
-                            org.wso2.carbon.user.api; version="${wso2das.version}",
-                            org.osgi.service.component; version="${wso2das.version}",
-                            org.osgi.framework; version="${wso2das.version}",
-                            org.wso2.carbon.registry.*; version="${wso2das.version}"
+                            org.wso2.carbon.analytics.api.*; version=${wso2analytics.api.version},
+                            org.wso2.carbon.analytics.datasource.commons.*; resolution:=optional
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -77,40 +74,41 @@
         </plugins>
     </build>
 
-   <dependencies>
-       <dependency>
-           <groupId>org.wso2.carbon</groupId>
-           <artifactId>org.wso2.carbon.core.services</artifactId>
-           <version>${wso2das.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.wso2.carbon</groupId>
-           <artifactId>org.wso2.carbon.logging</artifactId>
-           <version>${wso2das.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.wso2.carbon</groupId>
-           <artifactId>org.wso2.carbon.registry.core</artifactId>
-           <version>${wso2das.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.wso2.carbon</groupId>
-           <artifactId>org.wso2.carbon.registry.api</artifactId>
-           <version>${wso2das.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.wso2.carbon</groupId>
-           <artifactId>org.wso2.carbon.utils</artifactId>
-           <version>${wso2das.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>commons-logging</groupId>
-           <artifactId>commons-logging</artifactId>
-           <version>${commons.logging.version}</version>
-       </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons.logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component</artifactId>
+            <version>${org.osgi.service.component.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${org.osgi.framework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core.services</artifactId>
+            <version>${wso2das.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.analytics.api</artifactId>
+            <version>${wso2analytics.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.analytics.datasource.commons</artifactId>
+            <version>${wso2analytics.api.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>
         <wso2das.version>4.4.3</wso2das.version>
+        <wso2analytics.api.version>1.0.5</wso2analytics.api.version>
     </properties>
 </project>
