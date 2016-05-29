@@ -21,6 +21,7 @@ package org.wso2.carbon.cloud.das.datapurge.tool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.analytics.api.AnalyticsDataAPI;
+import org.wso2.carbon.analytics.dataservice.commons.SearchResultEntry;
 import org.wso2.carbon.analytics.datasource.commons.AnalyticsSchema;
 import org.wso2.carbon.analytics.datasource.commons.ColumnDefinition;
 import org.wso2.carbon.analytics.datasource.commons.exception.AnalyticsException;
@@ -58,12 +59,25 @@ public class DataPurgeTool implements Runnable {
             List<String> tables = analyticsDataAPI.listTables(tenantId);
             for (int i = 0; i < tables.size(); i++) {
                 log.info("Table: " + tables.get(i));
+
+
+                //Get column names
                 AnalyticsSchema analyticsSchema = analyticsDataAPI.getTableSchema(tenantId, tables.get(i));
                 Map<String, ColumnDefinition> columns = analyticsSchema.getColumns();
                 Set<String> columnNames = columns.keySet();
-                //Get columns of table
-                for (String name : columnNames) {
-                    log.info("Column: " + name);
+
+                String year = "2016";
+                String tenantDomain = "wso2.com";
+
+                if (columnNames.contains("tenantDomain") && columnNames.contains("year")) {
+                    String columnName ="year";
+                    //"SELECT * FROM " + tables.get(i) + " WHERE " + columnName+ " = '" +year+"' ;";
+                    String query = "tenantDomain:" +tenantDomain + "AND year:" +year;
+                    List<SearchResultEntry> searchResultEntries = analyticsDataAPI
+                            .search(tenantId, tables.get(i), query, 0, 100);
+                    for (SearchResultEntry searchResultEntry : searchResultEntries) {
+                        log.info("Record Id: "+ searchResultEntry.getId());
+                    }
                 }
             }
         } catch (AnalyticsException e) {

@@ -66,7 +66,8 @@
                             org.osgi.framework; version="${imp.pkg.version.osgi.framework}",
                             org.wso2.carbon.core; version="${wso2das.version}",
                             org.wso2.carbon.analytics.api.*; version=${wso2analytics.api.version},
-                            org.wso2.carbon.analytics.datasource.commons.*; resolution:=optional
+                            org.wso2.carbon.analytics.datasource.commons.*; resolution:=optional,
+                            org.wso2.carbon.analytics.dataservice.commons.*;resolution:=optional
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -103,6 +104,11 @@
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
             <artifactId>org.wso2.carbon.analytics.datasource.commons</artifactId>
+            <version>${wso2analytics.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.analytics</groupId>
+            <artifactId>org.wso2.carbon.analytics.dataservice.commons</artifactId>
             <version>${wso2analytics.api.version}</version>
         </dependency>
     </dependencies>

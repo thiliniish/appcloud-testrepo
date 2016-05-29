@@ -25,11 +25,10 @@ import org.wso2.carbon.analytics.api.AnalyticsDataAPI;
 import org.wso2.carbon.core.ServerStartupHandler;
 
 /**
- * Represents the OSGI service component used to expose DAS data purge tool
- *
  * @scr.component name="org.wso2.carbon.cloud.das.datapurge.tool"
- * @scr.reference name="analytics.component" interface="org.wso2.carbon.analytics.api.AnalyticsDataAPI"
- * cardinality="1..1" policy="dynamic" bind="setAnalyticsDataAPI" unbind="unsetAnalyticsDataAPI"
+ * @scr.reference name="analytics.component"
+ * interface="org.wso2.carbon.analytics.api.AnalyticsDataAPI" cardinality="1..1"
+ * policy="dynamic" bind="setAnalyticsDataAPI" unbind="unsetAnalyticsDataAPI"
  */
 public class DASDataPurgeComponent {
     private static Log log = LogFactory.getLog(DASDataPurgeComponent.class);
