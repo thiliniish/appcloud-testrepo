@@ -7,7 +7,7 @@ var carbon = require('carbon');
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var multitenancy = carbon.multitenancy;
 var sessionId = session.getId();
-var isAuthenticated = jagg.module("util").isSessionAuthenticated();
+var username = session.get("LOGGED_IN_USER");
 var registry = "";
 var serverUrl = cloudConfig.ServerUrls.cloudmgtServices.toString();
 
@@ -56,7 +56,7 @@ var getResourceFromTenantSpace = function (path, tenantDomain, username) {
         response: response,
         statusCode: 500
     }
-    if (isAuthenticated) {
+    if (username != null) {
         try {
             var resourcExistsResult = isResourceExistingInTenantSpace(path, tenantDomain, username);
             if (resourcExistsResult.resourceExistsInTenantSpace) {
@@ -115,7 +115,7 @@ var updateRegistryFile = function (path, contentToAdd, mediaType, tenantDomain, 
         message: message,
         statusCode: 500
     }
-    if (isAuthenticated) {
+    if (username != null) {
         try {
             var optionsResult = configureRegistryParameters(tenantDomain, username);
             if (!optionsResult.error) {
@@ -167,7 +167,7 @@ var isResourceExistingInTenantSpace = function (path, tenantDomain, username) {
         statusCode: 500
     }
 
-    if (isAuthenticated) {
+    if (username != null) {
         try {
             var optionsResult = configureRegistryParameters(tenantDomain, username);
             if (!optionsResult.error) {
