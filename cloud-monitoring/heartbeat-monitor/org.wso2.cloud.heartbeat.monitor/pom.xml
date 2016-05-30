@@ -208,47 +208,24 @@
             <classifier>tests</classifier>
             <version>${apimserver.version}</version>
         </dependency>
+
         <dependency>
-            <groupId>org.wso2.appfactory</groupId>
-            <artifactId>org.wso2.appfactory.tests.scenarios</artifactId>
-            <version>${org.wso2.appfactory.version}</version>
+            <groupId>org.wso2.appcloud</groupId>
+            <artifactId>org.wso2.appcloud.integration.test.utils</artifactId>
+            <version>${appcloud.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.wso2.appcloud</groupId>
+            <artifactId>org.wso2.appcloud.integration.tests.scenarios</artifactId>
+            <version>${appcloud.version}</version>
             <classifier>tests</classifier>
             <exclusions>
                 <exclusion>
-                    <groupId>org.eclipse.jgit.wso2</groupId>
-                    <artifactId>org.eclipse.jgit</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.wso2.appfactory</groupId>
-                    <artifactId>org.wso2.appfactory.integration.test.utils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.wso2.appfactory</groupId>
-                    <artifactId>org.wso2.appfactory.integration.admin.clients</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.axis2.wso2</groupId>
-                    <artifactId>axis2-client</artifactId>
+                    <artifactId>org.wso2.appcloud.integration.test.utils</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.appfactory</groupId>
-            <artifactId>org.wso2.appfactory.integration.test.utils</artifactId>
-            <version>${org.wso2.appfactory.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.wso2.appfactory</groupId>
-                    <artifactId>org.wso2.appfactory.integration.admin.clients</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.appfactory</groupId>
-            <artifactId>org.wso2.appfactory.integration.admin.clients</artifactId>
-            <version>${org.wso2.appfactory.version}</version>
         </dependency>
 
         <dependency>
@@ -331,6 +308,7 @@
         <maven.test.failure.ignore>false</maven.test.failure.ignore>
         <skipTests>false</skipTests>
         <apimserver.version>1.10.1-SNAPSHOT</apimserver.version>
+        <appcloud.version>3.0.0-SNAPSHOT</appcloud.version>
     </properties>
 
 </project>
