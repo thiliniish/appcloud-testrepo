@@ -53,9 +53,16 @@ public class DataPurgeTool implements Runnable {
      * Method used to purge data from DAS
      */
     public void purge() {
-        AnalyticsDataAPI analyticsDataAPI = ServiceHolder.getAnalyticsDataAPI();
         log.info("Data purge tool is starting...");
+        String year = "2016";
+        String month = "4";
+        String tenantDomain = "wso2.com";
+        //purge data based on date and tenant domain
+        purgeData(year, month, tenantDomain);
+    }
 
+    private void purgeData(String year, String month, String tenantDomain){
+        AnalyticsDataAPI analyticsDataAPI = ServiceHolder.getAnalyticsDataAPI();
         // Get tables
         try {
             List<String> tables = analyticsDataAPI.listTables(DASPurgeToolConstants.SUPER_USER_TENANT_ID);
@@ -68,48 +75,36 @@ public class DataPurgeTool implements Runnable {
                 Map<String, ColumnDefinition> columns = analyticsSchema.getColumns();
                 Set<String> columnNames = columns.keySet();
 
-                String year = "2016";
-                String month = "5";
-                String tenantDomain = "wso2.com";
-
                 String query = "";
+
+                //Set the time based filtering
                 if (columnNames.contains(DASPurgeToolConstants.YEAR_COLUMN) && columnNames
                         .contains(DASPurgeToolConstants.MONTH_COLUMN)) {
 
                     query = DASPurgeToolConstants.YEAR_COLUMN + ":" + year + " " + DASPurgeToolConstants.AND_OPERATOR
-                            + DASPurgeToolConstants.MONTH_COLUMN + ":" + month;
+                            + " " + DASPurgeToolConstants.MONTH_COLUMN + ":" + month;
+
                 } else if (columnNames.contains(DASPurgeToolConstants.TIMESTAMP_COLUMN)) {
                     query = DASPurgeToolConstants.TIMESTAMP_COLUMN + ":" + year + "-" + month + "*";
+
                 } else if (columnNames.contains(DASPurgeToolConstants.REQUEST_TIME_COLUMN)) {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-M-yyyy");
-                    String startDateInString = "01-05-2016";
-                    String endDateInString = "31-05-2016";
-                    try {
-                        Date startDate = simpleDateFormat.parse(startDateInString);
-                        Date endDate = simpleDateFormat.parse(endDateInString);
-                        query = DASPurgeToolConstants.REQUEST_TIME_COLUMN + ":[" + startDate.getTime() + " TO " + ""
-                                + endDate.getTime() + "]";
-                    } catch (ParseException e) {
-                        log.error("Error while parsing date.", e);
-                    }
+                    query = getTimeQuery(DASPurgeToolConstants.REQUEST_TIME_COLUMN,year,month);
+
                 } else if (columnNames.contains(DASPurgeToolConstants.EVENT_TIME_COLUMN)) {
-                    //Get date
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-M-yyyy");
-                    String startDateInString = "01-05-2016";
-                    String endDateInString = "31-05-2016";
-                    try {
-                        Date startDate = simpleDateFormat.parse(startDateInString);
-                        Date endDate = simpleDateFormat.parse(endDateInString);
-                        query = DASPurgeToolConstants.EVENT_TIME_COLUMN + ":[" + startDate.getTime() + " TO " + ""
-                                + endDate.getTime() + "]";
-                    } catch (ParseException e) {
-                        log.error("Error while parsing date.", e);
-                    }
+                    query = getTimeQuery(DASPurgeToolConstants.EVENT_TIME_COLUMN,year,month);
+
+                } else if (columnNames.contains(DASPurgeToolConstants.CREATED_TIME_COLUMN)) {
+                    query = getTimeQuery(DASPurgeToolConstants.CREATED_TIME_COLUMN,year,month);
+
+                } else if (columnNames.contains(DASPurgeToolConstants.THROTTLED_TIME_COLUMN)) {
+                    query = getTimeQuery(DASPurgeToolConstants.THROTTLED_TIME_COLUMN,year,month);
+
                 } else {
                     continue;
                 }
-                List<String> columnNamesWithTenantDomain = getColumnNamesWithTenantDomain(columnNames);
 
+                //Set the tenant domain based filtering
+                List<String> columnNamesWithTenantDomain = getColumnNamesWithTenantDomain(columnNames);
                 query = query.concat(" " + DASPurgeToolConstants.AND_OPERATOR + " ( ");
                 String columnName;
                 for (int j = 0; j < columnNamesWithTenantDomain.size(); j++) {
@@ -122,6 +117,7 @@ public class DataPurgeTool implements Runnable {
                     }
                 }
                 query = query.concat(" )");
+                log.info("Search query: " + query);
                 //Get the search count for each query
                 int searchResultCount = analyticsDataAPI
                         .searchCount(DASPurgeToolConstants.SUPER_USER_TENANT_ID, tables.get(i), query);
@@ -148,12 +144,12 @@ public class DataPurgeTool implements Runnable {
             log.error("An error occurred while indexing table records.", e);
         } catch (AnalyticsException e) {
             log.error("An error occurred while listing tables.", e);
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error("An error occurred while purging data from DAS.", e);
         }
     }
 
-    public List<String> getColumnNamesWithTenantDomain(Set<String> columnNames) {
+    private List<String> getColumnNamesWithTenantDomain(Set<String> columnNames) {
         List<String> columnNamesWithTenantDomain = new ArrayList<String>();
         if (columnNames.contains(DASPurgeToolConstants.API_PUBLISHER_COLUMN)) {
             columnNamesWithTenantDomain.add(DASPurgeToolConstants.API_PUBLISHER_COLUMN);
@@ -164,4 +160,19 @@ public class DataPurgeTool implements Runnable {
         }
         return columnNamesWithTenantDomain;
     }
+    private String getTimeQuery(String timeRelatedColumn, String year, String month) {
+        //Get start date and end date
+        Calendar gc = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month)-1, 1);
+        Date startDate = gc.getTime();
+        gc.setTime(startDate);
+        gc.set(Calendar.DAY_OF_MONTH, gc.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date endDate = gc.getTime();
+        String query = timeRelatedColumn+ ":[" + startDate.getTime() + " TO " + ""
+                + endDate.getTime() + "]";
+        return query;
+    }
+
+    private readPaid
+
+
 }

@@ -38,6 +38,8 @@ public class DASPurgeToolConstants {
     public static final String TIMESTAMP_COLUMN ="timestamp";
     public static final String REQUEST_TIME_COLUMN ="requestTime";
     public static final String EVENT_TIME_COLUMN ="eventTime";
+    public static final String CREATED_TIME_COLUMN ="createdTime";
+    public static final String THROTTLED_TIME_COLUMN ="throttledTime";
     public static final String TENANT_DOMAIN_COLUMN ="tenantDomain";
     public static final String API_PUBLISHER_COLUMN ="apiPublisher";
     public static final String USER_ID_COLUMN ="userId";
