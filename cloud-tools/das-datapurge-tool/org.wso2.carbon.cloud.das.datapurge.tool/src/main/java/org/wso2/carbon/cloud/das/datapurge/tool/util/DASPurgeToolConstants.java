@@ -43,4 +43,10 @@ public class DASPurgeToolConstants {
     public static final String TENANT_DOMAIN_COLUMN ="tenantDomain";
     public static final String API_PUBLISHER_COLUMN ="apiPublisher";
     public static final String USER_ID_COLUMN ="userId";
+
+    public static final String SQL_SELECT_STATUS_FROM_BILLING_STATUS =
+            "SELECT TENANT_DOMAIN FROM BILLING_STATUS WHERE TYPE LIKE 'PAID';";
+    //database connection constants
+    public static final String CLOUD_DATASOURCE = "jdbc/cloud_mgt";
+
 }

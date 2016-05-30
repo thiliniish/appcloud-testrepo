@@ -28,10 +28,14 @@ import org.wso2.carbon.analytics.datasource.commons.ColumnDefinition;
 import org.wso2.carbon.analytics.datasource.commons.exception.AnalyticsException;
 import org.wso2.carbon.cloud.das.datapurge.tool.internal.ServiceHolder;
 import org.wso2.carbon.cloud.das.datapurge.tool.util.DASPurgeToolConstants;
+import org.wso2.carbon.cloud.das.datapurge.tool.util.DBConnector;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import javax.naming.NamingException;
+import java.sql.SQLException;
 import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Helper class that executes DAS data purging
@@ -59,9 +63,11 @@ public class DataPurgeTool implements Runnable {
         String tenantDomain = "wso2.com";
         //purge data based on date and tenant domain
         purgeData(year, month, tenantDomain);
+        //Read paid tenant list
+        getPaidTenantList();
     }
 
-    private void purgeData(String year, String month, String tenantDomain){
+    private void purgeData(String year, String month, String tenantDomain) {
         AnalyticsDataAPI analyticsDataAPI = ServiceHolder.getAnalyticsDataAPI();
         // Get tables
         try {
@@ -88,16 +94,16 @@ public class DataPurgeTool implements Runnable {
                     query = DASPurgeToolConstants.TIMESTAMP_COLUMN + ":" + year + "-" + month + "*";
 
                 } else if (columnNames.contains(DASPurgeToolConstants.REQUEST_TIME_COLUMN)) {
-                    query = getTimeQuery(DASPurgeToolConstants.REQUEST_TIME_COLUMN,year,month);
+                    query = getTimeQuery(DASPurgeToolConstants.REQUEST_TIME_COLUMN, year, month);
 
                 } else if (columnNames.contains(DASPurgeToolConstants.EVENT_TIME_COLUMN)) {
-                    query = getTimeQuery(DASPurgeToolConstants.EVENT_TIME_COLUMN,year,month);
+                    query = getTimeQuery(DASPurgeToolConstants.EVENT_TIME_COLUMN, year, month);
 
                 } else if (columnNames.contains(DASPurgeToolConstants.CREATED_TIME_COLUMN)) {
-                    query = getTimeQuery(DASPurgeToolConstants.CREATED_TIME_COLUMN,year,month);
+                    query = getTimeQuery(DASPurgeToolConstants.CREATED_TIME_COLUMN, year, month);
 
                 } else if (columnNames.contains(DASPurgeToolConstants.THROTTLED_TIME_COLUMN)) {
-                    query = getTimeQuery(DASPurgeToolConstants.THROTTLED_TIME_COLUMN,year,month);
+                    query = getTimeQuery(DASPurgeToolConstants.THROTTLED_TIME_COLUMN, year, month);
 
                 } else {
                     continue;
@@ -160,19 +166,26 @@ public class DataPurgeTool implements Runnable {
         }
         return columnNamesWithTenantDomain;
     }
+
     private String getTimeQuery(String timeRelatedColumn, String year, String month) {
         //Get start date and end date
-        Calendar gc = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month)-1, 1);
+        Calendar gc = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month) - 1, 1);
         Date startDate = gc.getTime();
         gc.setTime(startDate);
         gc.set(Calendar.DAY_OF_MONTH, gc.getActualMaximum(Calendar.DAY_OF_MONTH));
         Date endDate = gc.getTime();
-        String query = timeRelatedColumn+ ":[" + startDate.getTime() + " TO " + ""
-                + endDate.getTime() + "]";
+        String query = timeRelatedColumn + ":[" + startDate.getTime() + " TO " + "" + endDate.getTime() + "]";
         return query;
     }
 
-    private readPaid
-
-
+    private void getPaidTenantList() {
+        DBConnector dbConnector = new DBConnector();
+        try {
+            String tenantDomains = dbConnector.getPaidTenantDomains();
+        } catch (NamingException e) {
+            log.error("Error while checking user account validity for admin user." + e.getMessage(), e);
+        } catch (SQLException e) {
+            log.error("Error while getting paid tenant list " + e.getMessage(), e);
+        }
+    }
 }
