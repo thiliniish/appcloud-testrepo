@@ -57,7 +57,8 @@ public class Constants {
 
 	public static final String SERVER_LOGIN_TEST = "server_login_test";
 
-	public static final String APPFACTORY = "appfactory";
+	public static final String APPCLOUD = "appcloud";
+
 	public static final String CLOUD_MGT = "cloud_management";
 
 	public static final String STRATOS_CONTROLLER_DEV = "manager_dev";

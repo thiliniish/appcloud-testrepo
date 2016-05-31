@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-package org.wso2.cloud.heartbeat.monitor.modules.appfactory;
+package org.wso2.cloud.heartbeat.monitor.modules.appcloud;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Runs appfactory integration test cases through heartbeat
+ * Runs appcloud integration test cases through heartbeat
  */
 public class IntegrationTest implements Job {
 
@@ -57,15 +57,15 @@ public class IntegrationTest implements Job {
             testStateHandler.onSuccess(testInfo);
         } catch (AutomationFrameworkException e) {
             log.info("Integration Test Failed :" + e);
-            testStateHandler.onFailure(testInfo, "App Factory Integration Test AutomationFrameworkException", e);
+            testStateHandler.onFailure(testInfo, "App Cloud Integration Test AutomationFrameworkException", e);
         } catch (Exception e) {
             log.info("Exception Integration Test : " + e);
-            testStateHandler.onFailure(testInfo, "App Factory Integration Test exception", e);
+            testStateHandler.onFailure(testInfo, "App Cloud Integration Test exception", e);
         }
     }
 
     public void runTestSuite() throws AutomationFrameworkException {
-        System.setProperty("AFIntegrationTestSeverity", severity);
+        System.setProperty("AppCloudIntegrationTestSeverity", severity);
         System.setProperty("framework.resource.location", "resources/");
         System.setProperty(ARG_VERBOSE, "0");
         System.setProperty(ARG_SUITE_XML_FILES, "resources/testng.xml");
