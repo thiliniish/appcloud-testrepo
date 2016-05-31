@@ -29,24 +29,23 @@ public class DASPurgeToolConstants {
     private DASPurgeToolConstants() {
     }
 
-    public static final int SUPER_USER_TENANT_ID = -1234;
     public static final String AND_OPERATOR = "AND";
     public static final String OR_OPERATOR = "OR";
 
-    public static final String YEAR_COLUMN ="year";
-    public static final String MONTH_COLUMN ="month";
-    public static final String TIMESTAMP_COLUMN ="timestamp";
-    public static final String REQUEST_TIME_COLUMN ="requestTime";
-    public static final String EVENT_TIME_COLUMN ="eventTime";
-    public static final String CREATED_TIME_COLUMN ="createdTime";
-    public static final String THROTTLED_TIME_COLUMN ="throttledTime";
-    public static final String TENANT_DOMAIN_COLUMN ="tenantDomain";
-    public static final String API_PUBLISHER_COLUMN ="apiPublisher";
-    public static final String USER_ID_COLUMN ="userId";
+    public static final String YEAR_COLUMN = "year";
+    public static final String MONTH_COLUMN = "month";
+    public static final String TIMESTAMP_COLUMN = "timestamp";
+    public static final String REQUEST_TIME_COLUMN = "requestTime";
+    public static final String EVENT_TIME_COLUMN = "eventTime";
+    public static final String CREATED_TIME_COLUMN = "createdTime";
+    public static final String THROTTLED_TIME_COLUMN = "throttledTime";
+    public static final String TENANT_DOMAIN_COLUMN = "tenantDomain";
+    public static final String API_PUBLISHER_COLUMN = "apiPublisher";
+    public static final String USER_ID_COLUMN = "userId";
 
-    public static final String SQL_SELECT_STATUS_FROM_BILLING_STATUS =
-            "SELECT TENANT_DOMAIN FROM BILLING_STATUS WHERE TYPE LIKE 'PAID';";
     //database connection constants
     public static final String CLOUD_DATASOURCE = "jdbc/cloud_mgt";
-
+    //SQL query to retrieve all tenants except paid tenants
+    public static final String SQL_SELECT_NOT_PAID_TENANTS =
+            "SELECT TENANT_DOMAIN FROM BILLING_STATUS WHERE TYPE " + "NOT LIKE 'PAID';";
 }

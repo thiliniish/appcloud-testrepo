@@ -29,6 +29,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This DB Connector class will create the DB Connection to the cloud and get the paid tenant list
@@ -38,33 +40,32 @@ public class DBConnector {
     private final Log log = LogFactory.getLog(DBConnector.class);
 
     /**
-     * Accessing the status of the tenant
-     * @return String
+     * Get all tenants except the paid tenants from cloud-mgt database
+     *
+     * @return
      * @throws NamingException
      * @throws SQLException
      */
-    public String getPaidTenantDomains() throws NamingException, SQLException {
+    public List<String> getNotPaidTenantDomains() throws NamingException, SQLException {
         Connection connection = getDataSourceConnection();
-        String query = DASPurgeToolConstants.SQL_SELECT_STATUS_FROM_BILLING_STATUS;
-        PreparedStatement preparedStatement ;
+        PreparedStatement preparedStatement;
+        String query = DASPurgeToolConstants.SQL_SELECT_NOT_PAID_TENANTS;
         ResultSet resultSet;
+        List<String> allTenantDomains = new ArrayList<>();
         try {
             preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String tenantDomain = resultSet.getString(1);
-                resultSet.close();
-                return tenantDomain;
+            while (resultSet.next()) {
+                allTenantDomains.add(resultSet.getString(1));
             }
+            return allTenantDomains;
         } catch (SQLException e) {
-            String message = "Error while accessing database. Query - "+ query + e.getErrorCode();
-            log.error(message , e);
-            throw new SQLException(message,e);
+            String message = "Error while accessing database. Query - " + query + e.getErrorCode();
+            log.error(message, e);
+            throw new SQLException(message, e);
         } finally {
             closeConnection(connection);
         }
-        return null;
-
     }
 
     public Connection getDataSourceConnection() throws NamingException, SQLException {
@@ -81,14 +82,15 @@ public class DBConnector {
         privilegedCarbonContext.setTenantDomain(tenantDomain);
 
         //getting the cloud-mgt data source connection
-        DataSource ds = (DataSource) privilegedCarbonContext.getJNDIContext().lookup(DASPurgeToolConstants.CLOUD_DATASOURCE);
+        DataSource ds = (DataSource) privilegedCarbonContext.getJNDIContext()
+                .lookup(DASPurgeToolConstants.CLOUD_DATASOURCE);
         try {
             conn = ds.getConnection();
         } catch (SQLException e) {
-            String message = "Error while connecting to data Source "+ DASPurgeToolConstants.CLOUD_DATASOURCE +
-                    " , "+ e.getErrorCode();
-            log.error(message , e);
-            throw new SQLException(message,e);
+            String message = "Error while connecting to data Source " + DASPurgeToolConstants.CLOUD_DATASOURCE +
+                    " , " + e.getErrorCode();
+            log.error(message, e);
+            throw new SQLException(message, e);
         } finally {
             //Ending the tenant flow
             PrivilegedCarbonContext.endTenantFlow();
@@ -101,12 +103,11 @@ public class DBConnector {
             connection.close();
 
         } catch (SQLException e) {
-            String message = "Error while closing the database connection - "+ e.getErrorCode();
-            log.error(message , e);
-            throw new SQLException(message,e);
+            String message = "Error while closing the database connection - " + e.getErrorCode();
+            log.error(message, e);
+            throw new SQLException(message, e);
         }
 
     }
-
 
 }

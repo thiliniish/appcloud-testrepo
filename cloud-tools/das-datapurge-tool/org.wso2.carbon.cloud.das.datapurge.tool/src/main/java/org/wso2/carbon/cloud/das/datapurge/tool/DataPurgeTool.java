@@ -29,13 +29,11 @@ import org.wso2.carbon.analytics.datasource.commons.exception.AnalyticsException
 import org.wso2.carbon.cloud.das.datapurge.tool.internal.ServiceHolder;
 import org.wso2.carbon.cloud.das.datapurge.tool.util.DASPurgeToolConstants;
 import org.wso2.carbon.cloud.das.datapurge.tool.util.DBConnector;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.naming.NamingException;
 import java.sql.SQLException;
 import java.util.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 /**
  * Helper class that executes DAS data purging
@@ -59,74 +57,50 @@ public class DataPurgeTool implements Runnable {
     public void purge() {
         log.info("Data purge tool is starting...");
         String year = "2016";
-        String month = "4";
+        String month = "5";
         String tenantDomain = "wso2.com";
         //purge data based on date and tenant domain
-        purgeData(year, month, tenantDomain);
-        //Read paid tenant list
-        getPaidTenantList();
+        purgeData(year, month);
+        purgeData("rest.com");
     }
 
-    private void purgeData(String year, String month, String tenantDomain) {
+    /**
+     * Purge data corresponding to a specific year and month, from all tenants except paid tenants
+     *
+     * @param tenantDomain
+     */
+    private void purgeData(String tenantDomain) {
         AnalyticsDataAPI analyticsDataAPI = ServiceHolder.getAnalyticsDataAPI();
         // Get tables
         try {
-            List<String> tables = analyticsDataAPI.listTables(DASPurgeToolConstants.SUPER_USER_TENANT_ID);
+            //Get super user tenant id
+            int superUserTenantId = MultitenantConstants.SUPER_TENANT_ID;
+            List<String> tables = analyticsDataAPI.listTables(superUserTenantId);
+
             for (int i = 0; i < tables.size(); i++) {
                 log.info("Table: " + tables.get(i));
 
                 //Get column names
-                AnalyticsSchema analyticsSchema = analyticsDataAPI
-                        .getTableSchema(DASPurgeToolConstants.SUPER_USER_TENANT_ID, tables.get(i));
+                AnalyticsSchema analyticsSchema = analyticsDataAPI.getTableSchema(superUserTenantId, tables.get(i));
                 Map<String, ColumnDefinition> columns = analyticsSchema.getColumns();
                 Set<String> columnNames = columns.keySet();
 
                 String query = "";
-
-                //Set the time based filtering
-                if (columnNames.contains(DASPurgeToolConstants.YEAR_COLUMN) && columnNames
-                        .contains(DASPurgeToolConstants.MONTH_COLUMN)) {
-
-                    query = DASPurgeToolConstants.YEAR_COLUMN + ":" + year + " " + DASPurgeToolConstants.AND_OPERATOR
-                            + " " + DASPurgeToolConstants.MONTH_COLUMN + ":" + month;
-
-                } else if (columnNames.contains(DASPurgeToolConstants.TIMESTAMP_COLUMN)) {
-                    query = DASPurgeToolConstants.TIMESTAMP_COLUMN + ":" + year + "-" + month + "*";
-
-                } else if (columnNames.contains(DASPurgeToolConstants.REQUEST_TIME_COLUMN)) {
-                    query = getTimeQuery(DASPurgeToolConstants.REQUEST_TIME_COLUMN, year, month);
-
-                } else if (columnNames.contains(DASPurgeToolConstants.EVENT_TIME_COLUMN)) {
-                    query = getTimeQuery(DASPurgeToolConstants.EVENT_TIME_COLUMN, year, month);
-
-                } else if (columnNames.contains(DASPurgeToolConstants.CREATED_TIME_COLUMN)) {
-                    query = getTimeQuery(DASPurgeToolConstants.CREATED_TIME_COLUMN, year, month);
-
-                } else if (columnNames.contains(DASPurgeToolConstants.THROTTLED_TIME_COLUMN)) {
-                    query = getTimeQuery(DASPurgeToolConstants.THROTTLED_TIME_COLUMN, year, month);
-
-                } else {
-                    continue;
-                }
-
                 //Set the tenant domain based filtering
                 List<String> columnNamesWithTenantDomain = getColumnNamesWithTenantDomain(columnNames);
-                query = query.concat(" " + DASPurgeToolConstants.AND_OPERATOR + " ( ");
                 String columnName;
                 for (int j = 0; j < columnNamesWithTenantDomain.size(); j++) {
                     columnName = columnNamesWithTenantDomain.get(j);
                     log.info("Column with tenant Id: " + columnName);
-                    query = query.concat(columnName + ":" +
-                            tenantDomain);
+                    query = query.concat(columnName + ":" + tenantDomain);
                     if (j != columnNamesWithTenantDomain.size() - 1) {
                         query = query.concat(" " + DASPurgeToolConstants.OR_OPERATOR + " ");
                     }
                 }
-                query = query.concat(" )");
+
                 log.info("Search query: " + query);
                 //Get the search count for each query
-                int searchResultCount = analyticsDataAPI
-                        .searchCount(DASPurgeToolConstants.SUPER_USER_TENANT_ID, tables.get(i), query);
+                int searchResultCount = analyticsDataAPI.searchCount(superUserTenantId, tables.get(i), query);
 
                 //Skip this search as there are no results
                 if (searchResultCount <= 0) {
@@ -136,15 +110,118 @@ public class DataPurgeTool implements Runnable {
 
                 //Get record ids for each table satisfying the query
                 List<SearchResultEntry> searchResultEntries = analyticsDataAPI
-                        .search(DASPurgeToolConstants.SUPER_USER_TENANT_ID, tables.get(i), query, 0, searchResultCount);
+                        .search(superUserTenantId, tables.get(i), query, 0, searchResultCount);
                 List<String> resultIds = new ArrayList<String>();
                 for (SearchResultEntry searchResultEntry : searchResultEntries) {
                     log.info("Result Id: " + searchResultEntry.getId());
                     resultIds.add(searchResultEntry.getId());
                 }
                 //Delete records which satisfy the search query
-                //analyticsDataAPI.delete(DASPurgeToolConstants.SUPER_USER_TENANT_ID, tables.get(i),resultIds);
+                //analyticsDataAPI.delete(superUserTenantId, tables.get(i),resultIds);
+            }
 
+        } catch (AnalyticsIndexException e) {
+            log.error("An error occurred while indexing table records.", e);
+        } catch (AnalyticsException e) {
+            log.error("An error occurred while listing tables.", e);
+        } catch (Exception e) {
+            log.error("An error occurred while purging data from DAS.", e);
+        }
+    }
+
+    /**
+     * Purge data corresponding to a specific year and month, from all tenants except paid tenants
+     *
+     * @param year
+     * @param month
+     */
+    private void purgeData(String year, String month) {
+        AnalyticsDataAPI analyticsDataAPI = ServiceHolder.getAnalyticsDataAPI();
+        // Get tables
+        try {
+            //Get super user tenant id
+            int superUserTenantId = MultitenantConstants.SUPER_TENANT_ID;
+            List<String> tables = analyticsDataAPI.listTables(superUserTenantId);
+
+            //Search for all tenants except paid tenants
+            List<String> allNotPaidTenants = getTenantDomainsFromDB();
+            for (String tenantDomain : allNotPaidTenants) {
+
+                for (int i = 0; i < tables.size(); i++) {
+                    log.info("Table: " + tables.get(i));
+
+                    //Get column names
+                    AnalyticsSchema analyticsSchema = analyticsDataAPI.getTableSchema(superUserTenantId, tables.get(i));
+                    Map<String, ColumnDefinition> columns = analyticsSchema.getColumns();
+                    Set<String> columnNames = columns.keySet();
+
+                    String query = "";
+
+                    //Set the time based filtering
+                    if (columnNames.contains(DASPurgeToolConstants.YEAR_COLUMN) && columnNames
+                            .contains(DASPurgeToolConstants.MONTH_COLUMN)) {
+
+                        query = DASPurgeToolConstants.YEAR_COLUMN + ":" + year + " "
+                                + DASPurgeToolConstants.AND_OPERATOR + " " + DASPurgeToolConstants.MONTH_COLUMN + ":"
+                                + month;
+
+                    } else if (columnNames.contains(DASPurgeToolConstants.TIMESTAMP_COLUMN)) {
+                        query = DASPurgeToolConstants.TIMESTAMP_COLUMN + ":" + year + "-" + month + "*";
+
+                    } else if (columnNames.contains(DASPurgeToolConstants.REQUEST_TIME_COLUMN)) {
+                        query = getTimeQuery(DASPurgeToolConstants.REQUEST_TIME_COLUMN, year, month);
+
+                    } else if (columnNames.contains(DASPurgeToolConstants.EVENT_TIME_COLUMN)) {
+                        query = getTimeQuery(DASPurgeToolConstants.EVENT_TIME_COLUMN, year, month);
+
+                    } else if (columnNames.contains(DASPurgeToolConstants.CREATED_TIME_COLUMN)) {
+                        query = getTimeQuery(DASPurgeToolConstants.CREATED_TIME_COLUMN, year, month);
+
+                    } else if (columnNames.contains(DASPurgeToolConstants.THROTTLED_TIME_COLUMN)) {
+                        query = getTimeQuery(DASPurgeToolConstants.THROTTLED_TIME_COLUMN, year, month);
+
+                    } else {
+                        continue;
+                    }
+
+                    //Set the tenant domain based filtering
+                    List<String> columnNamesWithTenantDomain = getColumnNamesWithTenantDomain(columnNames);
+
+                    if (!columnNamesWithTenantDomain.isEmpty()) {
+                        query = query.concat(" " + DASPurgeToolConstants.AND_OPERATOR + " ( ");
+                        String columnName;
+                        for (int j = 0; j < columnNamesWithTenantDomain.size(); j++) {
+                            columnName = columnNamesWithTenantDomain.get(j);
+                            log.info("Column with tenant Id: " + columnName);
+                            query = query.concat(columnName + ":" + tenantDomain);
+                            if (j != columnNamesWithTenantDomain.size() - 1) {
+                                query = query.concat(" " + DASPurgeToolConstants.OR_OPERATOR + " ");
+                            }
+                        }
+                        query = query.concat(" )");
+                    }
+
+                    log.info("Search query: " + query);
+                    //Get the search count for each query
+                    int searchResultCount = analyticsDataAPI.searchCount(superUserTenantId, tables.get(i), query);
+
+                    //Skip this search as there are no results
+                    if (searchResultCount <= 0) {
+                        log.info("Skipping this search as there are no records satisfying the query.");
+                        continue;
+                    }
+
+                    //Get record ids for each table satisfying the query
+                    List<SearchResultEntry> searchResultEntries = analyticsDataAPI
+                            .search(superUserTenantId, tables.get(i), query, 0, searchResultCount);
+                    List<String> resultIds = new ArrayList<String>();
+                    for (SearchResultEntry searchResultEntry : searchResultEntries) {
+                        log.info("Result Id: " + searchResultEntry.getId());
+                        resultIds.add(searchResultEntry.getId());
+                    }
+                    //Delete records which satisfy the search query
+                    //analyticsDataAPI.delete(superUserTenantId, tables.get(i),resultIds);
+                }
             }
         } catch (AnalyticsIndexException e) {
             log.error("An error occurred while indexing table records.", e);
@@ -155,18 +232,34 @@ public class DataPurgeTool implements Runnable {
         }
     }
 
+    /**
+     * Given a list of column names return the column names which contain tenant domain
+     *
+     * @param columnNames
+     * @return list of column names
+     */
     private List<String> getColumnNamesWithTenantDomain(Set<String> columnNames) {
-        List<String> columnNamesWithTenantDomain = new ArrayList<String>();
+        List<String> columnNamesWithTenantDomain = new ArrayList<>();
         if (columnNames.contains(DASPurgeToolConstants.API_PUBLISHER_COLUMN)) {
             columnNamesWithTenantDomain.add(DASPurgeToolConstants.API_PUBLISHER_COLUMN);
-        } else if (columnNames.contains(DASPurgeToolConstants.TENANT_DOMAIN_COLUMN)) {
+        }
+        if (columnNames.contains(DASPurgeToolConstants.TENANT_DOMAIN_COLUMN)) {
             columnNamesWithTenantDomain.add(DASPurgeToolConstants.TENANT_DOMAIN_COLUMN);
-        } else if (columnNames.contains(DASPurgeToolConstants.USER_ID_COLUMN)) {
+        }
+        if (columnNames.contains(DASPurgeToolConstants.USER_ID_COLUMN)) {
             columnNamesWithTenantDomain.add(DASPurgeToolConstants.USER_ID_COLUMN);
         }
         return columnNamesWithTenantDomain;
     }
 
+    /**
+     * Get time based query for columns which require time in millis
+     *
+     * @param timeRelatedColumn
+     * @param year
+     * @param month
+     * @return a time based query
+     */
     private String getTimeQuery(String timeRelatedColumn, String year, String month) {
         //Get start date and end date
         Calendar gc = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month) - 1, 1);
@@ -178,14 +271,22 @@ public class DataPurgeTool implements Runnable {
         return query;
     }
 
-    private void getPaidTenantList() {
+    /**
+     * Get all tenant domains except paid tenants from the cloud-mgt database
+     *
+     * @return list of tenant Domains except paid tenants
+     */
+    private List<String> getTenantDomainsFromDB() {
         DBConnector dbConnector = new DBConnector();
+        List<String> tenantDomains = new ArrayList<>();
         try {
-            String tenantDomains = dbConnector.getPaidTenantDomains();
+            tenantDomains = dbConnector.getNotPaidTenantDomains();
+
         } catch (NamingException e) {
             log.error("Error while checking user account validity for admin user." + e.getMessage(), e);
         } catch (SQLException e) {
             log.error("Error while getting paid tenant list " + e.getMessage(), e);
         }
+        return tenantDomains;
     }
 }
