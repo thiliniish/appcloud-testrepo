@@ -2,6 +2,7 @@ var invoiceData;
 var paymentData, jsonObj;
 var accountId;
 var lastPayment;
+var lastPaymentDate;
 
 $(document).ready(function () {
     $.ajax({
@@ -15,12 +16,17 @@ $(document).ready(function () {
             if (!result.error) {
                 var accountObj = jQuery.parseJSON(result.message);
                 var ZERO_PAYMENT_VALUE = 0;
+                var LAST_PAYMENT_DATE = "N/A";
                 invoiceData = accountObj.invoices;
                 paymentData = accountObj.payments;
                 accountId = accountObj.basicInfo.id;
                 lastPayment = accountObj.basicInfo.lastPaymentAmount;
                 if (lastPayment == null) {
                     lastPayment = ZERO_PAYMENT_VALUE;
+                }
+                lastPaymentDate = accountObj.basicInfo.lastPaymentDate;
+                if (lastPaymentDate == null) {
+                    lastPaymentDate = LAST_PAYMENT_DATE;
                 }
                 $("#accountId").val(accountId);
                 $("#tenantDomain").val(tenantDomain);
@@ -30,7 +36,7 @@ $(document).ready(function () {
                 $("#accName").text(accountObj.basicInfo.name);
                 $("#lastPayment").text(lastPayment + " " + accountObj.basicInfo.currency);
                 $("#accBalance").text(accountObj.basicInfo.balance);
-                $("#lastPaymentDate").text(accountObj.basicInfo.lastPaymentDate);
+                $("#lastPaymentDate").text(lastPaymentDate);
                 $("#lastInvoice").text(accountObj.basicInfo.lastInvoiceDate);
                 // set contact info
                 $("#fname").text(accountObj.billToContact.firstName);
