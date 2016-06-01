@@ -37,5 +37,6 @@
         <module>role-mgt-tool/org.wso2.carbon.cloud.rolemgt.tool</module>
         <module>das-datapurge-tool/org.wso2.carbon.cloud.das.datapurge.tool</module>
         <module>das-datapurge-tool/org.wso2.carbon.cloud.das.purge.admin.service</module>
+        <module>das-datapurge-tool/DasDataPurgeTool</module>
     </modules>
 </project>
