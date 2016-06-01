@@ -43,7 +43,7 @@ public class DataPurgeTool {
 
     private AnalyticsDataAPI analyticsDataAPI;
 
-    public void setAnalyticsDataAPI() {
+    private void setAnalyticsDataAPI() {
         try {
             PrivilegedCarbonContext.startTenantFlow();
             Object service = PrivilegedCarbonContext.getThreadLocalCarbonContext()
@@ -61,7 +61,8 @@ public class DataPurgeTool {
      *
      * @param tenantDomain
      */
-    public void purgeDataForTenant(String tenantDomain) {
+    public boolean purgeDataForTenant(String tenantDomain) {
+        boolean isSuccessful = false;
         setAnalyticsDataAPI();
         // Get tables
         try {
@@ -115,11 +116,16 @@ public class DataPurgeTool {
 
         } catch (AnalyticsIndexException e) {
             log.error("An error occurred while indexing table records.", e);
+            return isSuccessful;
         } catch (AnalyticsException e) {
             log.error("An error occurred while listing tables.", e);
+            return isSuccessful;
         } catch (Exception e) {
             log.error("An error occurred while purging data from DAS.", e);
+            return isSuccessful;
         }
+        isSuccessful = true;
+        return isSuccessful;
     }
 
     /**
@@ -128,7 +134,8 @@ public class DataPurgeTool {
      * @param year
      * @param month
      */
-    public void purgeDataForDate(String year, String month) {
+    public boolean purgeDataForDate(String year, String month) {
+        boolean isSuccessful = false;
         setAnalyticsDataAPI();
         // Get tables
         try {
@@ -218,11 +225,16 @@ public class DataPurgeTool {
             }
         } catch (AnalyticsIndexException e) {
             log.error("An error occurred while indexing table records.", e);
+            return isSuccessful;
         } catch (AnalyticsException e) {
             log.error("An error occurred while listing tables.", e);
+            return isSuccessful;
         } catch (Exception e) {
             log.error("An error occurred while purging data from DAS.", e);
+            return isSuccessful;
         }
+        isSuccessful =true;
+        return isSuccessful;
     }
 
     /**
