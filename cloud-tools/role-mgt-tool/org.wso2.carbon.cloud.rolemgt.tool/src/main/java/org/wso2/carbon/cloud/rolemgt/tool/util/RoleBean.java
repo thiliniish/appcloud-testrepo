@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
-
-
 /**
  * Represents the data holder for Role Configuration details
  */
