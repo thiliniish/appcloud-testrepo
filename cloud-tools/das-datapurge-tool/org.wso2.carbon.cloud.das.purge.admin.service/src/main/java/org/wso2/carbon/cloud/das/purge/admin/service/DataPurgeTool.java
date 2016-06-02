@@ -79,24 +79,21 @@ public class DataPurgeTool {
                 Map<String, ColumnDefinition> columns = analyticsSchema.getColumns();
                 Set<String> columnNames = columns.keySet();
 
-                String query = "";
                 //Set the tenant domain based filtering
                 List<String> columnNamesWithTenantDomain = getColumnNamesWithTenantDomain(columnNames);
-                String columnName;
-                for (int j = 0; j < columnNamesWithTenantDomain.size(); j++) {
-                    columnName = columnNamesWithTenantDomain.get(j);
-                    log.info("Column with tenant Id: " + columnName);
-                    query = query.concat(columnName + ":" + tenantDomain);
-                    if (j != columnNamesWithTenantDomain.size() - 1) {
-                        query = query.concat(" " + DASPurgeToolConstants.OR_OPERATOR + " ");
-                    }
-                }
-
+                String query = getTenantDomainBasedQuery(columnNamesWithTenantDomain, tenantDomain);
                 log.info("Search query: " + query);
+
+                //Skip this search if the query is empty
+                if (query.isEmpty()) {
+                    log.info("Skipping this search as there are no columns in table: " + tables.get(i)
+                            + " corresponding to tenant domain: " + tenantDomain);
+                    continue;
+                }
                 //Get the search count for each query
                 int searchResultCount = analyticsDataAPI.searchCount(superUserTenantId, tables.get(i), query);
 
-                //Skip this search as there are no results
+                //Skip this search if there are no results
                 if (searchResultCount <= 0) {
                     log.info("Skipping this search as there are no records satisfying the query.");
                     continue;
@@ -183,25 +180,24 @@ public class DataPurgeTool {
                     } else {
                         continue;
                     }
+                    //Skip this search if the time based query is empty
+                    if (query.isEmpty()) {
+                        log.info("Skipping this search as there are no columns in table: " + tables.get(i)
+                                + " denoting time.");
+                        continue;
+                    }
 
                     //Set the tenant domain based filtering
                     List<String> columnNamesWithTenantDomain = getColumnNamesWithTenantDomain(columnNames);
 
                     if (!columnNamesWithTenantDomain.isEmpty()) {
                         query = query.concat(" " + DASPurgeToolConstants.AND_OPERATOR + " ( ");
-                        String columnName;
-                        for (int j = 0; j < columnNamesWithTenantDomain.size(); j++) {
-                            columnName = columnNamesWithTenantDomain.get(j);
-                            log.info("Column with tenant Id: " + columnName);
-                            query = query.concat(columnName + ":" + tenantDomain);
-                            if (j != columnNamesWithTenantDomain.size() - 1) {
-                                query = query.concat(" " + DASPurgeToolConstants.OR_OPERATOR + " ");
-                            }
-                        }
+                        query = query.concat(getTenantDomainBasedQuery(columnNamesWithTenantDomain, tenantDomain));
                         query = query.concat(" )");
                     }
 
                     log.info("Search query: " + query);
+
                     //Get the search count for each query
                     int searchResultCount = analyticsDataAPI.searchCount(superUserTenantId, tables.get(i), query);
 
@@ -233,7 +229,7 @@ public class DataPurgeTool {
             log.error("An error occurred while purging data from DAS.", e);
             return isSuccessful;
         }
-        isSuccessful =true;
+        isSuccessful = true;
         return isSuccessful;
     }
 
@@ -255,6 +251,20 @@ public class DataPurgeTool {
             columnNamesWithTenantDomain.add(DASPurgeToolConstants.USER_ID_COLUMN);
         }
         return columnNamesWithTenantDomain;
+    }
+
+    private String getTenantDomainBasedQuery(List<String> columnNamesWithTenantDomain, String tenantDomain) {
+        String query = "";
+        String columnName;
+        for (int j = 0; j < columnNamesWithTenantDomain.size(); j++) {
+            columnName = columnNamesWithTenantDomain.get(j);
+            log.info("Column with tenant Id: " + columnName);
+            query = query.concat(columnName + ":" + tenantDomain);
+            if (j != columnNamesWithTenantDomain.size() - 1) {
+                query = query.concat(" " + DASPurgeToolConstants.OR_OPERATOR + " ");
+            }
+        }
+        return query;
     }
 
     /**

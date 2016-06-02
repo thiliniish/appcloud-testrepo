@@ -12,7 +12,7 @@
 
 <%
 var ws = require('ws');
-
+var log = new Log();
 // if it's post request to purge data
 if(request.getMethod() == "POST"){
     var tenantDomain = request.getParameter("tenantDomain");
