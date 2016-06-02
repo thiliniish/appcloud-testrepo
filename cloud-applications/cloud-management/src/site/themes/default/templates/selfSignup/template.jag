@@ -2,9 +2,8 @@
 
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudMgtUrl = cloudConfig.ServerUrls.cloudmgt;
-    var isSessionAuthenticated = jagg.module("util").isSessionAuthenticated();
-    if (isSessionAuthenticated) {
-        var username = session.get("LOGGED_IN_USER");
+    var username = session.get("LOGGED_IN_USER");
+    if (username != null) {
         var tenantDomain = jagg.module("manager").getTenantDomain();
         var documentationLink = cloudConfig.documentation.selfSignUpDocumentationLink;
         var type = cloudConfig.subscriptions.type;

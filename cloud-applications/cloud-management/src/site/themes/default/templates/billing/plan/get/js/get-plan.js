@@ -38,9 +38,9 @@ $(document).ready(function () {
             var ratePlanDetails = JSON.parse(ratePlansObj);
             for (var index in ratePlanDetails.entry) {
                 if (ratePlanDetails.entry[index].id == selectedPlanId) {
-                    createAccount(selectedPlanId, ratePlans, ratePlanDetails.entry[index].maxAccounts,
+                    createAccount(selectedPlanId, ratePlanDetails.entry[index].name, ratePlanDetails.entry[index].maxAccounts,
                         ratePlanDetails.entry[index].maxDailyUsage, ratePlanDetails.entry[index].overUsage,
-                        ratePlanDetails.entry[index].monthlyRental, false);
+                        ratePlanDetails.entry[index].monthlyRental.replace("$",""), false);
                     break;
                 }
             }
