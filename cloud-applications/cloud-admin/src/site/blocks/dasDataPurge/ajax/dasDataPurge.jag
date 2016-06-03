@@ -1,0 +1,51 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site/blocks/dasDataPurge/ajax/dasDataPurge.jag");
+
+(function () {
+    var result;
+    var action = request.getParameter("action");
+    var mod = jagg.module("dasDataPurge");
+    var tenantDomain = null;
+    var year = null;
+    var month = null;
+
+    if (action == "purgeDataBasedOnDate") {
+        try {
+            year = request.getParameter("year");
+            month = request.getParameter("month");
+            result = mod.purgeOnDate(year, month);
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Purge data based on Date.");
+            }
+        } catch (e) {
+            log.error("Error while Purging data based on date " + month + ":" + year + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while Purging data based on date " + month + ":" + year
+            };
+        }
+    } else if (action == "purgeDataBasedOnTenant") {
+        try {
+            tenantDomain = request.getParameter("tenantDomain");
+            result = mod.purgeOnTenant(tenantDomain);
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("Could Not Purge data based on Tenant");
+            }
+        } catch (e) {
+            log.error("Error while Purging data based on Tenant " + tenantDomain + e);
+            return {
+                error: true,
+                statusCode: 500,
+                message: "Error while Purging data based on tenant : " + tenantDomain
+            };
+        }
+    }
+}());
+%>

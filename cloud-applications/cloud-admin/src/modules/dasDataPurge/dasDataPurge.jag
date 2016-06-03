@@ -1,0 +1,86 @@
+<%
+include("/jagg/jagg.jag");
+
+
+var log = new Log("site/modules/dasDataPurge/dasDataPurge.jag");
+var ws = require('ws');
+
+var purgeOnDate = function(year,month){
+    var response = false;
+
+    var purgeDataForDate = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:purgeDataForDate";
+    var payload = '<ser:purgeDataForDate xmlns:ser="http://service.admin.purge.das.cloud.carbon.wso2' +
+                '.org"><ser:year>'+year+'</ser:year><ser:month>'+month+'</ser:month></ser:purgeDataForDate>';
+    var result;
+    try {
+        purgeDataForDate.open(options, "https://172.17.0.1:9446/services/DASDataPurgeTool", false, "admin", "admin");
+        purgeDataForDate.send(payload);
+        result = purgeDataForDate.responseXML;
+        var returnText = result.*::["return"].text();
+        if(returnText == "true")
+        {
+            response = true;
+        }
+    } catch (e) {
+        log.error(e.toString());
+    }
+
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data : response
+        };
+    } else {
+        log.error("Error while purging data on date." + year + ":" + month);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while purging data on date." + year + ":" + month
+        };
+    }
+};
+var purgeOnTenant = function(tenantDomain){
+
+    var response = false;
+
+    var purgeDataForTenant = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:purgeDataForTenant";
+    var payload = '<ser:purgeDataForTenant xmlns:ser="http://service.admin.purge.das.cloud.carbon.wso2' +
+            '.org"><ser:tenantDomain>'+tenantDomain+'</ser:tenantDomain></ser:purgeDataForTenant>';
+    var result;
+
+    try {
+        purgeDataForTenant.open(options, "https://172.17.0.1:9446/services/DASDataPurgeTool", false, "admin", "admin");
+        purgeDataForTenant.send(payload);
+        result = purgeDataForTenant.responseXML;
+        var returnText = result.*::["return"].text();
+        if(returnText == "true")
+        {
+            response = true;
+        }
+    } catch (e) {
+        log.error(e.toString());
+    }
+
+    if (response != null) {
+       return {
+            error: false,
+            statusCode: 200,
+            data : response
+       };
+    } else {
+        log.error("Error while purging data on tenant." + tenantDomain);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while purging data on tenant." + tenantDomain
+        };
+    }
+};
+%>
