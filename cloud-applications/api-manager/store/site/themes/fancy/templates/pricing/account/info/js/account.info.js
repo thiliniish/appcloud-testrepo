@@ -16,7 +16,7 @@ $(document).ready(function () {
             if (!result.error) {
                 var accountObj = jQuery.parseJSON(result.message);
                 var ZERO_PAYMENT_VALUE = 0;
-                var LAST_PAYMENT_DATE = "N/A";
+                var LAST_PAYMENT_DATE_DEFAULT_VALUE = "N/A";
                 invoiceData = accountObj.invoices;
                 paymentData = accountObj.payments;
                 accountId = accountObj.basicInfo.id;
@@ -26,7 +26,7 @@ $(document).ready(function () {
                 }
                 lastPaymentDate = accountObj.basicInfo.lastPaymentDate;
                 if (lastPaymentDate == null) {
-                    lastPaymentDate = LAST_PAYMENT_DATE;
+                    lastPaymentDate = LAST_PAYMENT_DATE_DEFAULT_VALUE;
                 }
                 $("#accountId").val(accountId);
                 $("#tenantDomain").val(tenantDomain);
