@@ -22,6 +22,7 @@ import org.wso2.carbon.user.core.Permission;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Represents the data holder for Role Configuration details
@@ -61,6 +62,17 @@ public class RoleBean {
      */
     public List<String> getUsers() {
         return users;
+    }
+
+    /**
+     * Method to add a user to role
+     *
+     * @param user
+     */
+    public void addUser(String user) {
+        if (StringUtils.isNotBlank(user)) {
+            users.add(user);
+        }
     }
 
     /**
