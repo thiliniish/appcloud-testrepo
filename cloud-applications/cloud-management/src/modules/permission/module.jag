@@ -35,15 +35,6 @@ jagg.module("permission", {
     },
     checkUserAuthorization:function () {
         return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). hasApplevelUserMgtPermission.apply(this, arguments);
-    },
-    authorizeRole:function () {
-        return jagg.require(jagg.getModulesDir() + "permission/remotePermission.jag"). authorizeRole.apply(this, arguments);
-    },
-    denyRole:function () {
-        return jagg.require(jagg.getModulesDir() + "permission/remotePermission.jag"). denyRole.apply(this, arguments);
-    },
-    isRoleAuthorized:function () {
-        return jagg.require(jagg.getModulesDir() + "permission/remotePermission.jag"). isRoleAuthorized.apply(this, arguments);
     }
 });
 %>

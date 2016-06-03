@@ -9,6 +9,7 @@ jagg.initializer("pricing/account/update", {
         jagg.addHeaderJS("update", "custom", "templates/pricing/js/custom/custom.js");
         jagg.addHeaderJS("update", "select2.min", "templates/pricing/js/select2-4.0.0/select2.min.js");
         jagg.addHeaderJS("update", "account.update", "templates/pricing/account/update/js/account.update.js");
+        jagg.addHeaderJS("update", "countriesAndState", "/js/lib/countriesAndStates.js");
 
         jagg.addHeaderCSS("update", "font-awesome", "templates/pricing/css/fontwso2-1.2/css/font-wso2.css");
         jagg.addHeaderCSS("update", "font-awesome.min", "templates/pricing/css/font-awesome-4.2.0/font-awesome.min.css");

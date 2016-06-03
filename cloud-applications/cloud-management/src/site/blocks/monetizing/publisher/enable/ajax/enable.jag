@@ -1,7 +1,6 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
-include("/jagg/config_reader.jag");
 (function () {
     var mod, result, returnObj,
             action = request.getParameter("action"),

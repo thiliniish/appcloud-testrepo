@@ -7,7 +7,7 @@
         <groupId>org.wso2.carbon.cloud</groupId>
         <artifactId>cloud-tools</artifactId>
         <version>1.0.0</version>
-        <relativePath>../../../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -51,6 +51,7 @@
                             org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             org.apache.commons.io,
+                            org.apache.commons.lang; version="${imp.pkg.version.commons-lang}",
                             org.wso2.carbon.user.api; version="${imp.pkg.version.carbon.user.api}",
                             org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
                             org.osgi.framework; version="${imp.pkg.version.osgi.framework}",
@@ -96,6 +97,11 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>${commons.logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang.wso2</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons.lang.version}</version>
         </dependency>
     </dependencies>
 </project>
