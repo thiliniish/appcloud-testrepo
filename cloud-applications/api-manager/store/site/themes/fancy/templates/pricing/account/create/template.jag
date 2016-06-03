@@ -1,5 +1,4 @@
 <% jagg.template("pricing/account/create", function(inputs, outputs, jagg) { %>
-
 <div class="title-section">
    <h2>Account</h2>
 </div>
@@ -76,15 +75,16 @@
                       </div>
                    </div>
                    <div class="row-fluid">
-                      <label class="input-label span5">State/Province/Region</label>
-                      <div class="input-control input-full-width span7 text">
-                         <input type="text" id="state" value="" placeholder="e.g. Alentejo"/>
+                      <label class="input-label span5">Country</label>
+                      <div class="input-control input-full-width span7 select">
+                         <select id="country" name="country" onchange='populateState()'></select>
+                         <script type="text/javascript">initCountry('');</script>
                       </div>
                    </div>
                    <div class="row-fluid">
-                      <label class="input-label span5">Country</label>
+                      <label class="input-label span5">State/Province/Region</label>
                       <div class="input-control input-full-width span7 text">
-                         <input type="text" id="country" value="" placeholder="e.g. Portugal"/>
+                         <input type="text" id="state" name="state" value=""/>
                       </div>
                    </div>
                    <div class="row-fluid">
