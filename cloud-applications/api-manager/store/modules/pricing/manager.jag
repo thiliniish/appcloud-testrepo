@@ -53,6 +53,7 @@ var generateParams = function (tenantDomain, workflowReference) {
 
 var getAccountDetails = function () {
     try {
+        var username = jagg.getUser().username;
         var accountId = getAccountId();
         var summary = billingService.getAccountSummary(accountId);
         if (JSON.parse(summary.trim()).success) {
@@ -72,7 +73,7 @@ var getAccountDetails = function () {
         }
     } catch (e) {
         msg = "Error while getting the account details.. Please retry ";
-        log.error("ERROR while getting the account details for : " + user + " - " + e.message);
+        log.error("ERROR while getting the account details for : " + username + " - " + e.message);
         log.error(e);
         return {
             error: true,
@@ -85,6 +86,7 @@ var getAccountDetails = function () {
 
 var updateContactInfo = function (accountData) {
     try {
+        var username = jagg.getUser().username;
         var accountId = getAccountId();
         var data = {};
         data.billToContact = accountData;
@@ -106,7 +108,7 @@ var updateContactInfo = function (accountData) {
         }
     } catch (e) {
         msg = "Account Update Failed.. Please retry ";
-        log.error("ERROR while updating contact info for : " + user + " - " + e.message);
+        log.error("ERROR while updating contact info for : " + username + " - " + e.message);
         return {
             error: true,
             message: msg,
@@ -214,6 +216,7 @@ var updateDefaultPaymentMethod = function (methodId) {
 
 var getBillingInvoiceData = function (invoiceId) {
     try {
+        var username = jagg.getUser().username;
         var accountId = getAccountId();
         var summary = billingService.getInvoices(accountId);
         var invoiceObj = JSON.parse(summary);
@@ -274,7 +277,7 @@ var getBillingInvoiceData = function (invoiceId) {
         }
     } catch (e) {
         msg = "Error while updating payment methods";
-        log.error("ERROR while getting invoice data for : " + user + " - " + e.message);
+        log.error("ERROR while getting invoice data for : " + username + " - " + e.message);
         return {
             error: true,
             message: msg,
