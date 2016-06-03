@@ -131,7 +131,7 @@ public class DataPurgeTool {
      * @param year
      * @param month
      */
-    public boolean purgeDataForDate(String year, String month) {
+    public boolean purgeDataForDate(String year, String month, boolean useYearOnly) {
         boolean isSuccessful = false;
         setAnalyticsDataAPI();
         // Get tables
@@ -157,25 +157,31 @@ public class DataPurgeTool {
                     //Set the time based filtering
                     if (columnNames.contains(DASPurgeToolConstants.YEAR_COLUMN) && columnNames
                             .contains(DASPurgeToolConstants.MONTH_COLUMN)) {
-
-                        query = DASPurgeToolConstants.YEAR_COLUMN + ":" + year + " "
-                                + DASPurgeToolConstants.AND_OPERATOR + " " + DASPurgeToolConstants.MONTH_COLUMN + ":"
-                                + month;
+                        if (useYearOnly) {
+                            query = DASPurgeToolConstants.YEAR_COLUMN + ":" + year;
+                        } else {
+                            query = DASPurgeToolConstants.YEAR_COLUMN + ":" + year + " "
+                                    + DASPurgeToolConstants.AND_OPERATOR + " " + DASPurgeToolConstants.MONTH_COLUMN
+                                    + ":" + month;
+                        }
 
                     } else if (columnNames.contains(DASPurgeToolConstants.TIMESTAMP_COLUMN)) {
-                        query = DASPurgeToolConstants.TIMESTAMP_COLUMN + ":" + year + "-" + month + "*";
-
+                        if (useYearOnly) {
+                            query = DASPurgeToolConstants.TIMESTAMP_COLUMN + ":" + year + "*";
+                        } else {
+                            query = DASPurgeToolConstants.TIMESTAMP_COLUMN + ":" + year + "-" + month + "*";
+                        }
                     } else if (columnNames.contains(DASPurgeToolConstants.REQUEST_TIME_COLUMN)) {
-                        query = getTimeQuery(DASPurgeToolConstants.REQUEST_TIME_COLUMN, year, month);
+                        query = getTimeQuery(DASPurgeToolConstants.REQUEST_TIME_COLUMN, year, month, useYearOnly);
 
                     } else if (columnNames.contains(DASPurgeToolConstants.EVENT_TIME_COLUMN)) {
-                        query = getTimeQuery(DASPurgeToolConstants.EVENT_TIME_COLUMN, year, month);
+                        query = getTimeQuery(DASPurgeToolConstants.EVENT_TIME_COLUMN, year, month, useYearOnly);
 
                     } else if (columnNames.contains(DASPurgeToolConstants.CREATED_TIME_COLUMN)) {
-                        query = getTimeQuery(DASPurgeToolConstants.CREATED_TIME_COLUMN, year, month);
+                        query = getTimeQuery(DASPurgeToolConstants.CREATED_TIME_COLUMN, year, month, useYearOnly);
 
                     } else if (columnNames.contains(DASPurgeToolConstants.THROTTLED_TIME_COLUMN)) {
-                        query = getTimeQuery(DASPurgeToolConstants.THROTTLED_TIME_COLUMN, year, month);
+                        query = getTimeQuery(DASPurgeToolConstants.THROTTLED_TIME_COLUMN, year, month, useYearOnly);
 
                     } else {
                         continue;
@@ -275,14 +281,26 @@ public class DataPurgeTool {
      * @param month
      * @return a time based query
      */
-    private String getTimeQuery(String timeRelatedColumn, String year, String month) {
-        //Get start date and end date
-        Calendar gc = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month) - 1, 1);
-        Date startDate = gc.getTime();
-        gc.setTime(startDate);
-        gc.set(Calendar.DAY_OF_MONTH, gc.getActualMaximum(Calendar.DAY_OF_MONTH));
-        Date endDate = gc.getTime();
-        String query = timeRelatedColumn + ":[" + startDate.getTime() + " TO " + "" + endDate.getTime() + "]";
+    private String getTimeQuery(String timeRelatedColumn, String year, String month, boolean useYearOnly) {
+        String query = "";
+        if (useYearOnly) {
+            //Get start date and end date
+            Calendar gc = new GregorianCalendar(Integer.parseInt(year), 0, 1); // 0 = January and 1 = 1st Day
+            Date startDate = gc.getTime();
+            gc.setTime(startDate);
+            gc.set(Calendar.MONTH, 11); // 11 = December
+            gc.set(Calendar.DAY_OF_MONTH, gc.getActualMaximum(Calendar.DAY_OF_MONTH));
+            Date endDate = gc.getTime();
+            query = timeRelatedColumn + ":[" + startDate.getTime() + " TO " + "" + endDate.getTime() + "]";
+        } else {
+            //Get start date and end date
+            Calendar gc = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month) - 1, 1);
+            Date startDate = gc.getTime();
+            gc.setTime(startDate);
+            gc.set(Calendar.DAY_OF_MONTH, gc.getActualMaximum(Calendar.DAY_OF_MONTH));
+            Date endDate = gc.getTime();
+            query = timeRelatedColumn + ":[" + startDate.getTime() + " TO " + "" + endDate.getTime() + "]";
+        }
         return query;
     }
 

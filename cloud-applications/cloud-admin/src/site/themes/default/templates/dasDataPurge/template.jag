@@ -41,7 +41,10 @@
                     <div class="col-sm-6">
                         <table style="width: 100%">
                             <tr>
-                                <td><input type="text" id="month" name="month" class="required"/>
+                                <td>
+                                    <input type="text" id="month" name="month" class="required" />
+                                    <label><input type="checkbox" name="useYearOnly" id="useYearOnly" > Use the year
+                                    Only</label>
                                 </td>
                             </tr>
                         </table>

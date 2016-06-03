@@ -5,7 +5,7 @@ include("/jagg/jagg.jag");
 var log = new Log("site/modules/dasDataPurge/dasDataPurge.jag");
 var ws = require('ws');
 
-var purgeOnDate = function(year,month){
+var purgeOnDate = function(year,month,useYearOnly){
     var response = false;
 
     var purgeDataForDate = new ws.WSRequest();
@@ -13,7 +13,7 @@ var purgeOnDate = function(year,month){
     options.useSOAP = 1.1;
     options.action = "urn:purgeDataForDate";
     var payload = '<ser:purgeDataForDate xmlns:ser="http://service.admin.purge.das.cloud.carbon.wso2' +
-                '.org"><ser:year>'+year+'</ser:year><ser:month>'+month+'</ser:month></ser:purgeDataForDate>';
+                '.org"><ser:year>'+year+'</ser:year><ser:month>'+month+'</ser:month><ser:useYearOnly>'+useYearOnly+'</ser:useYearOnly></ser:purgeDataForDate>';
     var result;
     try {
         purgeDataForDate.open(options, "https://172.17.0.1:9446/services/DASDataPurgeTool", false, "admin", "admin");

@@ -10,12 +10,15 @@ var log = new Log("site/blocks/dasDataPurge/ajax/dasDataPurge.jag");
     var tenantDomain = null;
     var year = null;
     var month = null;
+    var isYearOnly = null;
 
     if (action == "purgeDataBasedOnDate") {
         try {
             year = request.getParameter("year");
             month = request.getParameter("month");
-            result = mod.purgeOnDate(year, month);
+            isYearOnly = request.getParameter("isYearOnly");
+            log.info("Use only year " + isYearOnly);
+            result = mod.purgeOnDate(year, month, isYearOnly);
             if (result != null) {
                 print(result);
             } else {

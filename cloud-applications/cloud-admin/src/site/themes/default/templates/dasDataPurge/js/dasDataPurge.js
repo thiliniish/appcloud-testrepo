@@ -22,11 +22,15 @@ function doSubmitDate() {
     submitType = 1;
     var year = $("#year").attr('value');
     var month = $("#month").attr('value');
-
+    var isYearOnly = false;
+    if($("#useYearOnly").is(":checked")) {
+        isYearOnly = true;
+    }
     jagg.post("../blocks/dasDataPurge/ajax/dasDataPurge.jag", {
         action:"purgeDataBasedOnDate",
         year : year,
-        month : month
+        month : month,
+        isYearOnly : isYearOnly
     }, function (result) {
         result = JSON.parse(result);
         if (!result.error) {
@@ -81,6 +85,15 @@ $(document).ready(function () {
             $("#purgeDataByTenant").hide();
             $("#purgeDataByDate").show();
             $("#dateBasedPurgeNotification").html("");
+        }useYearOnly
+    });
+
+    $('#useYearOnly').click(function () {
+        if($(this).is(":checked")){
+            $('#month').prop( "disabled", true );
+        } else {
+            $('#month').prop( "disabled", false );
         }
     });
+
 });
