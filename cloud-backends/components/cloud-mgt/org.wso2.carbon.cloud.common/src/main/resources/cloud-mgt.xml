@@ -24,6 +24,7 @@
                 /permission/admin/login,
                 /permission/protected/manage/monitor/tenants
             </Permission>
+            <DisplayRole>false</DisplayRole>
         </Role>
         <Role name="subscriber">
             <DisplayName>Subscriber</DisplayName>
@@ -31,6 +32,7 @@
                 /permission/admin/login,
                 /permission/admin/manage/api/subscribe
             </Permission>
+            <DisplayRole>true</DisplayRole>
         </Role>
         <Role name="publisher">
             <DisplayName>Publisher</DisplayName>
@@ -42,6 +44,7 @@
                 /_system/governance/apimgt:REGISTRY_PUT,
                 /_system/governance/apimgt:REGISTRY_DELETE
             </Permission>
+            <DisplayRole>true</DisplayRole>
         </Role>
         <Role name="globalAPIPublisher">
             <Permission>
@@ -54,6 +57,7 @@
                 event/topics:subscribe,
                 event/topics:publish
             </Permission>
+            <DisplayRole>false</DisplayRole>
         </Role>
     </TenantRoles>
 </CloudMgt>
