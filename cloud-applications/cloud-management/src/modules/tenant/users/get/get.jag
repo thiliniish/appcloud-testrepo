@@ -51,7 +51,7 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
             for(var j=0;j<tmproles.length;j++) {
                 var enableDisplayRole = getProperty("TenantRoles.Role." + tmproles[j] + ".DisplayRole");
                 // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
-                if ( !enableDisplayRole || tmproles[j].indexOf("Internal/") != -1) {
+                if (!enableDisplayRole || tmproles[j].indexOf("Internal/") != -1) {
                     continue;
                 }
                 if (allRoles != "") {
