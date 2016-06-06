@@ -18,7 +18,11 @@ jagg.block("menu/primary", {
     getOutputs:function (inputs) {
         var links = [], user = jagg.getUser(),
                 path = inputs.pagePath;
-        var tenant=inputs.tenant;
+        var tenant = inputs.tenant;
+        //Logic to check if the passed tenant domain is null.
+        if (tenant == null || tenant == "") {
+            tenant = jagg.getTenantDomain();
+        }
 		var urlPrefix = jagg.getTenantURLPrefix("?");
         var mod = jagg.module("manager");
         var tenantDomains = mod.getActiveTenantDomains().tenantDomains;
@@ -89,14 +93,14 @@ jagg.block("menu/primary", {
             "active":(path == "/site/pages/forum.jag")
         });
         var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenant);
-        if (isMonetizationEnabledObj.monetizationEnabled) {
+        if (isMonetizationEnabledObj != null && !isMonetizationEnabledObj.error && isMonetizationEnabledObj.monetizationEnabled) {
             links.push({
                 "title": "Pricing",
                 "url": jagg.getMappedUrl("/site/pages/pricing/pricing-menu.jag" + urlPrefix),
                 "classes": "link-ss",
                 "classIcon": "fa fa-usd",
                 "tooltip": "Pricing Menu",
-                "active": (path == "/site/pages/pricng/pricing-menu.jag")
+                "active": (path == "/site/pages/pricing/pricing-menu.jag")
             });
         }
 
