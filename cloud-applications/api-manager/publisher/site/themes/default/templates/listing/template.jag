@@ -59,6 +59,8 @@
             if (apiCount == 0) {
                 localStorage.setItem("interactiveTutorialEnabled", true);
                 if (isEnjoyHintEnabled()) {
+                    // Hide deploy sample button
+                    $('#deploy_sample1').hide();
                     runEnjoyHintScript(enjoyhint_instance, item_listing_script_data);
                 }
             } else if (apiCount > 0) {
