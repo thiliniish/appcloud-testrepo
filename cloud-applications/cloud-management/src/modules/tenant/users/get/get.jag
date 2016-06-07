@@ -30,50 +30,50 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
         for(var i=0;i<users.length;i++){
         	var user=users[i];
         	var tmpUser={};
-        	var tmpuserName=user.getUserName();
-            var tmpemail=user.getEmail();
-            var tmpdisplayName=user.getDisplayName();
-            var tmpfirstName=user.getFirstName();
-            var tmplastName=user.getLastName();
-            var tmproles=user.getRoles();
-            tmpUser.userName=tmpuserName;
-            var userName=tmpuserName;
-            tmpUser.email=tmpemail;
-            if(tmpfirstName =="$1" || tmplastName == "$2" || tmpfirstName == "undefined" || (tmpfirstName == null))  {
+        	var tmpUserName=user.getUserName();
+            var tmpEmail=user.getEmail();
+            var tmpDisplayName=user.getDisplayName();
+            var tmpFirstName=user.getFirstName();
+            var tmpLastName=user.getLastName();
+            var tmpRoles=user.getRoles();
+            tmpUser.userName=tmpUserName;
+            var userName=tmpUserName;
+            tmpUser.email=tmpEmail;
+            if(tmpFirstName =="$1" || tmpLastName == "$2" || tmpFirstName == "undefined" || (tmpFirstName == null))  {
                  tmpUser.displayName=tmpUser.email;
             } else {
-               tmpUser.displayName=tmpdisplayName;
+               tmpUser.displayName=tmpDisplayName;
             }
 
-            tmpUser.firstName=tmpfirstName;
-            tmpUser.lastName=tmplastName;
+            tmpUser.firstName=tmpFirstName;
+            tmpUser.lastName=tmpLastName;
             var allRoles="";
-            for(var j=0;j<tmproles.length;j++) {
-                var enableDisplayRole = getProperty("TenantRoles.Role." + tmproles[j] + ".DisplayRole");
+            for(var j=0;j<tmpRoles.length;j++) {
+                var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
                 // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
-                if (!enableDisplayRole || tmproles[j].indexOf("Internal/") != -1) {
+                if (!enableDisplayRole || tmpRoles[j].indexOf("Internal/") != -1) {
                     continue;
                 }
                 if (allRoles != "") {
-                    allRoles = tmproles[j] + "\n" + allRoles;
+                    allRoles = tmpRoles[j] + "\n" + allRoles;
                 } else {
-                    allRoles = tmproles[j];
+                    allRoles = tmpRoles[j];
                 }
             }
             
             tmpUser.roles=allRoles;
-            var troles=tmproles;
+            var temporaryRoles=tmpRoles;
             tmpUser.displayRoles=[];
-            for(var ttRole in troles){
-                var tmpRole= troles[ttRole];
-                var disName=getProperty("TenantRoles.Role." +tmpRole+ ".DisplayName");
+            for(var temporaryRole in temporaryRoles){
+                var tmpRole= temporaryRoles[temporaryRole];
+                var displayName=getProperty("TenantRoles.Role." +tmpRole+ ".DisplayName");
                 if(tmpRole=='admin'){
                     tmpUser.displayRoles=[];
                     tmpUser.displayRoles.push('Admin');
                     break;
                 }
-                if(disName!=null){
-                    tmpUser.displayRoles.push(disName);
+                if(displayName!=null){
+                    tmpUser.displayRoles.push(displayName);
                 }
             }
             resultUsers.push(tmpUser);
@@ -128,7 +128,7 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
             tmpUser.lastName = tmpLastName;
             tmpUser.roleTypes = [];
             for (var j = 0; j < tmpRoles.length; j++) {
-                var enableDisplayRole = getProperty("TenantRoles.Role." + tmproles[j] + ".DisplayRole");
+                var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
                 // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
                 if (!enableDisplayRole  || tmpRoles[j].indexOf("Internal/") != -1) {
                     continue;
@@ -275,23 +275,23 @@ var getUserInfo = function getUserInfo(userName) {
             context.endTenantFlow();
          }
        try {
-       var tmpuserName=user.getUserName();
-        var tmpemail=user.getEmail();
-        var tmpdisplayName=user.getDisplayName();
-        var tmpfirstName=user.getFirstName();
-        var tmplastName=user.getLastName();
-        var tmproles=user.getRoles();
-        tmpUser.userName=tmpuserName;
-        var userName=tmpuserName;
-        tmpUser.email=tmpemail;
-        tmpUser.displayName=tmpdisplayName;
-        tmpUser.firstName=tmpfirstName;
-        tmpUser.lastName=tmplastName;
-        tmpUser.roles=tmproles;
-        var troles=tmpUser.roles;
+       var tmpUserName=user.getUserName();
+        var tmpEmail=user.getEmail();
+        var tmpDisplayName=user.getDisplayName();
+        var tmpFirstName=user.getFirstName();
+        var tmpLastName=user.getLastName();
+        var tmpRoles=user.getRoles();
+        tmpUser.userName=tmpUserName;
+        var userName=tmpUserName;
+        tmpUser.email=tmpEmail;
+        tmpUser.displayName=tmpDisplayName;
+        tmpUser.firstName=tmpFirstName;
+        tmpUser.lastName=tmpLastName;
+        tmpUser.roles=tmpRoles;
+        var temporaryRoles=tmpUser.roles;
         tmpUser.displayRoles=[];
-        for(var ttRole in troles){
-            tmpUser.displayRoles.push(getProperty("TenantRoles.Role." + troles[ttRole] + ".DisplayName"));
+        for(var temporaryRole in temporaryRoles){
+            tmpUser.displayRoles.push(getProperty("TenantRoles.Role." + temporaryRoles[temporaryRole] + ".DisplayName"));
         }
 
        	if(log.isDebugEnabled()){
