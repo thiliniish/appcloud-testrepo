@@ -1,19 +1,18 @@
 <%
 include("/jagg/jagg.jag");
 
-
 var log = new Log("site/modules/dasDataPurge/dasDataPurge.jag");
 var ws = require('ws');
 
-var purgeOnDate = function(year,month,useYearOnly){
+var purgeOnDate = function(year, month, useYearOnly) {
     var response = false;
-
     var purgeDataForDate = new ws.WSRequest();
     var options = new Array();
     options.useSOAP = 1.1;
     options.action = "urn:purgeDataForDate";
     var payload = '<ser:purgeDataForDate xmlns:ser="http://service.admin.purge.das.cloud.carbon.wso2' +
-                '.org"><ser:year>'+year+'</ser:year><ser:month>'+month+'</ser:month><ser:useYearOnly>'+useYearOnly+'</ser:useYearOnly></ser:purgeDataForDate>';
+                '.org"><ser:year>' + year + '</ser:year><ser:month>' + month
+            + '</ser:month><ser:useYearOnly>' + useYearOnly + '</ser:useYearOnly></ser:purgeDataForDate>';
     var result;
     try {
         purgeDataForDate.open(options, "https://172.17.0.1:9446/services/DASDataPurgeTool", false, "admin", "admin");
@@ -25,9 +24,8 @@ var purgeOnDate = function(year,month,useYearOnly){
             response = true;
         }
     } catch (e) {
-        log.error(e.toString());
+        log.error("An error occurred during the service call to purge data based on date.", e.toString());
     }
-
     if (response != null) {
         return {
             error: false,
@@ -43,16 +41,15 @@ var purgeOnDate = function(year,month,useYearOnly){
         };
     }
 };
+
 var purgeOnTenant = function(tenantDomain){
-
     var response = false;
-
     var purgeDataForTenant = new ws.WSRequest();
     var options = new Array();
     options.useSOAP = 1.1;
     options.action = "urn:purgeDataForTenant";
     var payload = '<ser:purgeDataForTenant xmlns:ser="http://service.admin.purge.das.cloud.carbon.wso2' +
-            '.org"><ser:tenantDomain>'+tenantDomain+'</ser:tenantDomain></ser:purgeDataForTenant>';
+            '.org"><ser:tenantDomain>' + tenantDomain + '</ser:tenantDomain></ser:purgeDataForTenant>';
     var result;
 
     try {
@@ -65,7 +62,7 @@ var purgeOnTenant = function(tenantDomain){
             response = true;
         }
     } catch (e) {
-        log.error(e.toString());
+        log.error("An error occurred during the service call to purge data based on tenant.", e.toString());
     }
 
     if (response != null) {
@@ -83,4 +80,5 @@ var purgeOnTenant = function(tenantDomain){
         };
     }
 };
+
 %>

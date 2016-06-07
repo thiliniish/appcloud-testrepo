@@ -1,6 +1,5 @@
 <%
 jagg.module("dasDataPurge", {
-
     purgeOnDate:function () {
         return jagg.require(jagg.getModulesDir() + "dasDataPurge/dasDataPurge.jag").purgeOnDate.apply(this, arguments);
     },
