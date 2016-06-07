@@ -29,6 +29,12 @@ var item_listing_script_data = [
     }
 ];
 
+var trial_expired_script_data = [
+    {
+        'click #messageModal': 'Your trial unfortunately expired. Please upgrade to a paid plan or request extension.'
+    }
+];
+
 var item_add_script_data = [
     {
         selector: '#create-new-api',

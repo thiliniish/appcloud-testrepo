@@ -42,6 +42,25 @@
    function hideMsg() {
        $('#apiInfo').hide("fast");
    }
+
+   var intervalId;
+   function runTutorialHints() {
+    intervalId = setInterval(function() {
+    runEnjoyHint_tutorial_Script()
+        }, 1000);
+    }
+    function runEnjoyHint_tutorial_Script() {
+        if (isEnjoyHintEnabled()) {
+            var trialExpireMessageBoxHidden = document.getElementById("messageModal").getAttribute("aria-hidden");
+            if (trialExpireMessageBoxHidden === "true") {
+                stopTrialExpiredMessageHint();
+                runEnjoyHintScript(enjoyhint_instance, item_listing_script_data);
+            }
+        }
+    }
+    function stopTrialExpiredMessageHint() {
+        clearInterval(intervalId);
+    }
        $(document).ready(function () {
         if($.cookie('showAPIInfo')=="yes"){
         $('#apiInfo').show();
@@ -57,11 +76,17 @@
         var apiCount = apis.length;
             // Check whether no APIs exists
             if (apiCount == 0) {
+                var isTrialExpiredMessageHidden = messageModal.getAttribute("aria-hidden");
                 localStorage.setItem("interactiveTutorialEnabled", true);
                 if (isEnjoyHintEnabled()) {
                     // Hide deploy sample button
                     $('#deploy_sample1').hide();
-                    runEnjoyHintScript(enjoyhint_instance, item_listing_script_data);
+                    if (isTrialExpiredMessageHidden) {
+                        runEnjoyHintScript(enjoyhint_instance, trial_expired_script_data);
+                        runTutorialHints();
+                    } else {
+                        runEnjoyHintScript(enjoyhint_instance, item_listing_script_data);
+                    }
                 }
             } else if (apiCount > 0) {
                 // Check whether the user enabled the tutorial by clicking Documentation sub-menu
