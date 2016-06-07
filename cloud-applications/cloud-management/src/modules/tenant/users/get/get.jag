@@ -128,8 +128,9 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
             tmpUser.lastName = tmpLastName;
             tmpUser.roleTypes = [];
             for (var j = 0; j < tmpRoles.length; j++) {
-                //This was introduced as a temporary fix; Please refer https://support.wso2.com/jira/browse/WSOTWOCLOUD-342
-                if (tmpRoles[j] == CLOUD_DEFAULT_ROLE  || tmpRoles[j].indexOf("Internal/") != -1) {
+                var enableDisplayRole = getProperty("TenantRoles.Role." + tmproles[j] + ".DisplayRole");
+                // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
+                if (!enableDisplayRole  || tmpRoles[j].indexOf("Internal/") != -1) {
                     continue;
                 }
                 if (tmpRoles[j] == 'admin') {
