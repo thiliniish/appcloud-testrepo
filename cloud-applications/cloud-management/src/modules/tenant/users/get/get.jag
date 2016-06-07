@@ -27,7 +27,7 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
         var userMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         var users = userMgtService.getUsersofTenant();
         var resultUsers = [];
-        for (var i=0 ; i<users.length ; i++) {
+        for (var i = 0; i < users.length; i++) {
             var user = users[i];
             var tmpUser = {};
             var tmpUserName = user.getUserName();
@@ -47,7 +47,7 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
             tmpUser.firstName = tmpFirstName;
             tmpUser.lastName = tmpLastName;
             var allRoles = "";
-            for(var j=0 ; j<tmpRoles.length ; j++) {
+            for(var j = 0; j < tmpRoles.length; j++) {
                 var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
                 // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
                 if (!enableDisplayRole || tmpRoles[j].indexOf("Internal/") != -1) {
