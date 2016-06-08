@@ -1,7 +1,7 @@
 <%
 jagg.initializer("dasDataPurge", {
 
-    preInitialize:function () {
+    preInitialize: function () {
         // UI related CSS files
         jagg.addHeaderCSS("dasDataPurge", "jquery-ui", "assets/css/jquery-ui.css");
         jagg.addHeaderCSS("dasDataPurge", "custom", "assets/css/custom.css");

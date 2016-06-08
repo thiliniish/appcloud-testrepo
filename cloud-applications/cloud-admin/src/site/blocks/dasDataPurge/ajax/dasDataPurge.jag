@@ -13,7 +13,6 @@ var log = new Log("site/blocks/dasDataPurge/ajax/dasDataPurge.jag");
             var year = request.getParameter("year");
             var month = request.getParameter("month");
             var isYearOnly = request.getParameter("isYearOnly");
-            log.info("Use only year " + isYearOnly);
             result = mod.purgeOnDate(year, month, isYearOnly);
             if (result != null) {
                 print(result);

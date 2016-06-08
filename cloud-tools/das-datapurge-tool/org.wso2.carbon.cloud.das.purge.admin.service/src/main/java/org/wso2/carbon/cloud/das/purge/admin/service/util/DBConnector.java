@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This DB Connector class will create the DB Connection to the cloud and get the paid tenant list
+ * This DB Connector class will create the DB Connection to the cloudmgt database and get the paid tenant list
  */
 public class DBConnector {
 
@@ -46,11 +46,11 @@ public class DBConnector {
      * @throws NamingException
      * @throws SQLException
      */
-    public List<String> getNotPaidTenantDomains() throws NamingException, SQLException {
+    public List<String> getFreeTenantDomains() throws NamingException, SQLException {
         Connection connection = getDataSourceConnection();
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement = null;
         String query = DASPurgeToolConstants.SQL_SELECT_NOT_PAID_TENANTS;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         List<String> allTenantDomains = new ArrayList<>();
         try {
             preparedStatement = connection.prepareStatement(query);
@@ -64,12 +64,11 @@ public class DBConnector {
             log.error(message, e);
             throw new SQLException(message, e);
         } finally {
-            closeConnection(connection);
+            closeConnection(connection, preparedStatement, resultSet);
         }
     }
 
     public Connection getDataSourceConnection() throws NamingException, SQLException {
-
         //super tenant details
         int tenantId = MultitenantConstants.SUPER_TENANT_ID;
         String tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
@@ -98,16 +97,23 @@ public class DBConnector {
         return conn;
     }
 
-    public void closeConnection(Connection connection) throws SQLException {
+    public void closeConnection(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet)
+            throws SQLException {
         try {
-            connection.close();
-
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
         } catch (SQLException e) {
             String message = "Error while closing the database connection - " + e.getErrorCode();
             log.error(message, e);
             throw new SQLException(message, e);
         }
-
     }
 
 }

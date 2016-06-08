@@ -1,10 +1,14 @@
 {
-	"ServerUrl": {
-        "DataServices_Server":"https://milestones.appfactory.wso2.com:9443/services/",
-	  	"CloudAdmin": "https://milestones.appfactory.wso2.com:9443/cloudadmin/"
-	},
-
-  	"AdminService": {
-	  	"CLOUD_ADMIN_SERVICE_URL":"https://milestones.appfactory.wso2.com:9443/admin/services/"
-	}
+  "ServerUrl": {
+    "DataServices_Server": "https://milestones.appfactory.wso2.com:9443/services/",
+    "CloudAdmin": "https://milestones.appfactory.wso2.com:9443/cloudadmin/"
+  },
+  "AdminService": {
+    "CLOUD_ADMIN_SERVICE_URL": "https://milestones.appfactory.wso2.com:9443/admin/services/"
+  },
+  "DasDataPurgeService": {
+    "DAS_DATA_PURGE_SERVICE_URL": "https://milestones.appfactory.wso2.com:9446/services/DASDataPurgeTool",
+    "username": "admin",
+    "password": "admin"
+  }
 }

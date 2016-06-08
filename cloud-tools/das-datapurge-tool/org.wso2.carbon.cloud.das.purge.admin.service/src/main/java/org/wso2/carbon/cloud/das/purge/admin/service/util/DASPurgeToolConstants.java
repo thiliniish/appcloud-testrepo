@@ -24,7 +24,7 @@ package org.wso2.carbon.cloud.das.purge.admin.service.util;
 public class DASPurgeToolConstants {
 
     /**
-     * Avoids instantiation of DASPurgeToolConstants
+     * Avoids instantiation of DASPurgeToolConsdtants
      */
     private DASPurgeToolConstants() {
     }

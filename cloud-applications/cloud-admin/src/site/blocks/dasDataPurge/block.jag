@@ -1,6 +1,6 @@
 <%
 jagg.block("dasDataPurge", {
-    initialize:function (data) {
+    initialize: function (data) {
     }
 });
 %>

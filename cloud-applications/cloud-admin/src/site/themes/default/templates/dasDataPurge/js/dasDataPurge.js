@@ -20,7 +20,7 @@ function doSubmitDate() {
     var year = $("#year").attr('value');
     var month = $("#month").attr('value');
     var isYearOnly = false;
-    if($("#useYearOnly").is(":checked")) {
+    if (month == "") {
         isYearOnly = true;
     }
     jagg.post("../blocks/dasDataPurge/ajax/dasDataPurge.jag", {
@@ -34,21 +34,19 @@ function doSubmitDate() {
             var response = result.data;
             if (response == true) {
                 $("#dateBasedPurgeNotification").html("<span class='label label-success'>" + "Data Purge has" +
-                    " successfully " +
-                    "completed." + "</span>");
+                    " successfully completed." + "</span>");
             } else {
-                $("#dateBasedPurgeNotification").html("<span class='label label-danger'>" + "Data Purge was not" + 
+                $("#dateBasedPurgeNotification").html("<span class='label label-danger'>" + "Data Purge was not" +
                     " successful." + "</span>");
             }
         } else {
-            jagg.message({type:'error', content:'<strong>Error!</strong>' + result.message});
+            jagg.message({type: 'error', content: '<strong>Error!</strong>' + result.message});
         }
     });
 }
 
 function doSubmitTenant() {
     var tenantDomain = $("#tenantDomain").attr('value');
-
     jagg.post("../blocks/dasDataPurge/ajax/dasDataPurge.jag", {
         action: "purgeDataBasedOnTenant",
         tenantDomain: tenantDomain
@@ -58,19 +56,19 @@ function doSubmitTenant() {
             var response = result.data;
             if (response == true) {
                 $("#tenantBasedPurgeNotification").html("<span class='label label-success'>" + "Data Purge has" +
-                    " successfully " + "completed."+"</span>");
+                    " successfully " + "completed." + "</span>");
             } else {
                 $("#tenantBasedPurgeNotification").html("<span class='label label-danger'>" + "Data Purge was not" +
                     " successful." + "</span>");
             }
         } else {
-            jagg.message({type:'error',content:'<strong>Error!</strong>' + result.message});
+            jagg.message({type: 'error', content: '<strong>Error!</strong>' + result.message});
         }
     });
 }
 
 $(document).ready(function () {
-    $('input[type="radio"]').click(function() {
+    $('input[type="radio"]').click(function () {
         if ($(this).attr("value") == "two") {
             $("#purgeDataByDate").hide();
             $("#purgeDataByTenant").show();
@@ -82,13 +80,4 @@ $(document).ready(function () {
             $("#dateBasedPurgeNotification").html("");
         }
     });
-
-    $('#useYearOnly').click(function () {
-        if($(this).is(":checked")){
-            $('#month').prop( "disabled", true );
-        } else {
-            $('#month').prop( "disabled", false );
-        }
-    });
-
 });
