@@ -169,7 +169,8 @@
     "trialExtension": "http://sbox.rw001.com/wso2test/srv/api/cldtrialext",
     "cloudUpgrade": "http://sbox.rw001.com/wso2test/srv/api/cldupgrade",
     "signupLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/wso2cloud_api_signup",
-    "upgradeLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/WSO2-cloud-upgrade"
+    "upgradeLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/WSO2-cloud-upgrade",
+    "selfSignupSubmission":"http://connect.wso2.com/wso2/srv/api/cloud2016"
   },
   "supportContact": {
     "to": "cloudpreview-noreply@wso2.com"

@@ -73,6 +73,9 @@ include("/jagg/constants.jag");
                         log.debug("Notification sent to the cloud team regarding the user " + username + " enabling the self sign up feature for the tenant store " + tenantDomain);
                     }
                     message = "Completed the uploading process for the user " + username;
+
+                    //Adding the submission to Rightwave to trigger the feature activation email to the user after 15 mins.
+                    jagg.module("selfSignup").addSelfSignupSubmissionToRightwave(tenantEmail);
                     log.info(message);
                     result = {
                         error: false,
@@ -80,7 +83,6 @@ include("/jagg/constants.jag");
                         response: statusResult.registryUpdateResult,
                         statusCode: 200
                     }
-
                 } else {
                     message = "Error while uploading the files to the BPS server for the self sign up feature for the user " + username;
                     log.error(message);
