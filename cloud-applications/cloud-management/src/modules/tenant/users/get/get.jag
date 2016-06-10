@@ -13,7 +13,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
-var userName =  session.get("LOGGED_IN_USER");
+var userName = session.get("LOGGED_IN_USER");
 
 var getUsersofTenant = function getUsersofTenant(tenantDomain) {
     var context = multitenancy.getPrivilegedCarbonContext();
@@ -40,14 +40,14 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
             var userName = tmpUserName;
             tmpUser.email = tmpEmail;
             if (tmpFirstName == "$1" || tmpLastName == "$2" || tmpFirstName == "undefined" || (tmpFirstName == null)) {
-                 tmpUser.displayName = tmpUser.email;
+                tmpUser.displayName = tmpUser.email;
             } else {
-               tmpUser.displayName = tmpDisplayName;
+                tmpUser.displayName = tmpDisplayName;
             }
             tmpUser.firstName = tmpFirstName;
             tmpUser.lastName = tmpLastName;
             var allRoles = "";
-            for(var j = 0; j < tmpRoles.length; j++) {
+            for (var j = 0; j < tmpRoles.length; j++) {
                 var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
                 // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
                 if (!enableDisplayRole || tmpRoles[j].indexOf("Internal/") != -1) {
@@ -88,7 +88,7 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
     finally {
         context.endTenantFlow();
     }
-    return resultUsers ;
+    return resultUsers;
 };
 
 var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDomain, cloudType) {
@@ -128,7 +128,7 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
             for (var j = 0; j < tmpRoles.length; j++) {
                 var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
                 // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
-                if (!enableDisplayRole  || tmpRoles[j].indexOf("Internal/") != -1) {
+                if (!enableDisplayRole || tmpRoles[j].indexOf("Internal/") != -1) {
                     continue;
                 }
                 if (tmpRoles[j] == 'admin') {
@@ -194,7 +194,7 @@ var getPendingUsersOfRole = function getPendingUsersOfRole(tenantDomain, role) {
                 pendingUser = {};
                 pendingUser.email = tmpEmail;
                 pendingUser.roleTypes = [];
-                for(var k = 0; k < tmpRoles.length; k++) {
+                for (var k = 0; k < tmpRoles.length; k++) {
                     var userRoles = {};
                     displayRole = jagg.module("util").getUserRoleDisplayName(tmpRoles[k]);
                     if (displayRole != null && displayRole != "") {
@@ -257,7 +257,7 @@ var getUserInfo = function getUserInfo(userName) {
     var tmpUser = {};
     var tenantDomain = modManager.getTenantDomain();
     var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();  
+    var tenantManager = multitenancy.getTenantManager();
 
     try {
         var tenantId = tenantManager.getTenantId(tenantDomain);
@@ -300,7 +300,7 @@ var getUserInfo = function getUserInfo(userName) {
     return tmpUser;
 };
 
-var isFirstLogin = function(){
+var isFirstLogin = function () {
     var user = session.get("LOGGED_IN_USER").split('@')[0];
     var tenantDomain = modManager.getTenantDomain();
     var tenantManager = multitenancy.getTenantManager();
@@ -316,11 +316,11 @@ var isFirstLogin = function(){
         log.error("Error occured while checking first login status");
         throw "Error occured while checking first login status"
     }
-}
+};
 
-var getApplicatioinKeysOfUser = function(userName){
+var getApplicatioinKeysOfUser = function (userName) {
     var appsOfUser;
-    var tenantDomain = modManager.getTenantDomain() ;
+    var tenantDomain = modManager.getTenantDomain();
     var context = multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();
     try {
