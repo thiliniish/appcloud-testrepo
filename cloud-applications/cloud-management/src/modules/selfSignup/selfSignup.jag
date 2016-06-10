@@ -247,7 +247,7 @@ var addSelfSignupSubmissionToRightwave = function (email) {
                 "email": email
             };
             var data = "json=" + JSON.stringify(jsonData);
-            var result = post(URL, data, {'Content-Type': 'application/json'}, 'text');
+            var result = post(URL, data, {'Content-Type': 'application/json'}, RIGHTWAVE_RESPONSE_TYPE);
             var response = JSON.parse(result['data']);
             if (response != null) {
                 var responseMessage = response.message;
