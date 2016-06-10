@@ -269,6 +269,7 @@ public class RoleManager implements Runnable {
                 if (isRoleDelete) {
                     if (userStoreManager.isExistingRole(roleBean.getRoleName())) {
                         userStoreManager.deleteRole(roleBean.getRoleName());
+                        isSuccessful = true;
                     } else {
                         if (log.isDebugEnabled()) {
                             log.debug("The role '" + roleBean.getRoleName() + "' does not exist or has already been "
