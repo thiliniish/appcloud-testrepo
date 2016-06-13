@@ -20,7 +20,7 @@ jagg.block("menu/primary", {
                 path = inputs.pagePath;
         var tenant = inputs.tenant;
         //Logic to check if the passed tenant domain is null.
-        if (tenant == null || tenant == "") {
+        if (typeof tenant === "undefined" || tenant == null || tenant == "") {
             tenant = jagg.getTenantDomain();
         }
 		var urlPrefix = jagg.getTenantURLPrefix("?");

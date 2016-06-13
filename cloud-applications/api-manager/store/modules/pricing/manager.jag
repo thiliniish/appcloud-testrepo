@@ -299,7 +299,7 @@ var isMonetizationEnabled = function (tenantDomain) {
     }
 
     try {
-        if (tenantDomain != null) {
+        if (typeof tenantDomain != "undefined" && tenantDomain != null && tenantDomain != "") {
             var monetizationStatus = apiMonService.isMonetizationEnabled(tenantDomain);
             session.put("monetizationEnabled", monetizationStatus);
             return {
