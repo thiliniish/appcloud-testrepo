@@ -265,7 +265,7 @@ var addSelfSignupSubmissionToRightwave = function (email) {
             }
         }
          else {
-            log.error("Error while adding the self signup feature activation details to Rightwave since the user email was unavailable for" +
+            log.error("Error while adding the self signup feature activation details to Rightwave since the user email was unavailable for " +
                       + "the user " + username);
         }
     } else {
