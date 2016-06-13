@@ -299,13 +299,20 @@ var isMonetizationEnabled = function (tenantDomain) {
     }
 
     try {
-        var monetizationStatus = apiMonService.isMonetizationEnabled(tenantDomain);
-        session.put("monetizationEnabled", monetizationStatus);
-        return {
-            error: false,
-            statusCode: 200,
-            monetizationEnabled: monetizationStatus
-        };
+        if (typeof tenantDomain != "undefined" && tenantDomain != null && tenantDomain != "") {
+            var monetizationStatus = apiMonService.isMonetizationEnabled(tenantDomain);
+            session.put("monetizationEnabled", monetizationStatus);
+            return {
+                error: false,
+                statusCode: 200,
+                monetizationEnabled: monetizationStatus
+            };
+        } else {
+            var message = "Unable to check the monetization status when the tenant domain is null";
+            log.error(message);
+            errorObj.message = message;
+            return errorObj;
+        }
     } catch (e) {
         log.error("Error while checking the monetization status for tenant: " + tenantDomain);
         log.error(e);
