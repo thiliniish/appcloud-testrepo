@@ -256,15 +256,13 @@ var addSelfSignupSubmissionToRightwave = function (email) {
                              + "to Rightwave ");
                 } else {
                     log.error("An error occurred while submitting the self-signup feature activation for the user " + username +
-                              + "to Rightwave");
-                    log.error("Error received from Rightwave :" + responseMessage);
+                              + "to Rightwave. \n Error received from Rightwave :" + responseMessage);
                 }
             } else {
                 log.error("The response received from Rightwave was NULL when adding the self signup feature activation details " +
                           + "for the user " + username);
             }
-        }
-         else {
+        } else {
             log.error("Error while adding the self signup feature activation details to Rightwave since the user email was unavailable for " +
                       + "the user " + username);
         }
