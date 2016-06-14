@@ -47,5 +47,7 @@ public class DASPurgeToolConstants {
     public static final String CLOUD_DATASOURCE = "jdbc/cloud_mgt";
     //SQL query to retrieve all tenants except paid tenants
     public static final String SQL_SELECT_NOT_PAID_TENANTS =
-            "SELECT TENANT_DOMAIN FROM BILLING_STATUS WHERE TYPE " + "NOT LIKE 'PAID';";
+            "SELECT DISTINCT TENANT_DOMAIN FROM BILLING_STATUS WHERE TENANT_DOMAIN NOT IN (SELECT TENANT_DOMAIN FROM "
+                    + "BILLING_STATUS WHERE TYPE='PAID' AND STATUS='ACTIVE' AND SUBSCRIPTION='api_cloud') AND "
+                    + "SUBSCRIPTION='api_cloud';";
 }
