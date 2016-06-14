@@ -48,6 +48,6 @@ public class DASPurgeToolConstants {
     //SQL query to retrieve all tenants except paid tenants
     public static final String SQL_SELECT_NOT_PAID_TENANTS =
             "SELECT DISTINCT TENANT_DOMAIN FROM BILLING_STATUS WHERE TENANT_DOMAIN NOT IN (SELECT TENANT_DOMAIN FROM "
-                    + "BILLING_STATUS WHERE TYPE='PAID' AND STATUS='ACTIVE' AND SUBSCRIPTION='api_cloud') AND "
+                    + "BILLING_STATUS WHERE TYPE='PAID' AND SUBSCRIPTION='api_cloud') AND "
                     + "SUBSCRIPTION='api_cloud';";
 }
