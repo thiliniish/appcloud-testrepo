@@ -22,14 +22,12 @@ import org.wso2.carbon.user.core.Permission;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Represents the data holder for Role Configuration details
  */
 public class RoleBean {
     private String roleName;
-    private List<String> users;
     private List<Permission> authorizedPermissions;
     private List<Permission> deniedPermissions;
     private String action;
@@ -41,7 +39,6 @@ public class RoleBean {
      */
     public RoleBean(String roleName) {
         this.roleName = roleName;
-        users = new ArrayList<String>();
         authorizedPermissions = new ArrayList<Permission>();
         deniedPermissions = new ArrayList<Permission>();
     }
@@ -53,26 +50,6 @@ public class RoleBean {
      */
     public String getRoleName() {
         return roleName;
-    }
-
-    /**
-     * Method to get users
-     *
-     * @return List of String
-     */
-    public List<String> getUsers() {
-        return users;
-    }
-
-    /**
-     * Method to add a user to role
-     *
-     * @param user
-     */
-    public void addUser(String user) {
-        if (StringUtils.isNotBlank(user)) {
-            users.add(user);
-        }
     }
 
     /**
