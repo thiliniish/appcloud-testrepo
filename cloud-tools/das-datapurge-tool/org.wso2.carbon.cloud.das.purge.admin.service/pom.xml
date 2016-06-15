@@ -36,12 +36,12 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.core</artifactId>
-            <version>4.2.0</version>
+            <version>${wso2das.registry.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.api</artifactId>
-            <version>${wso2carbon.version}</version>
+            <version>${wso2das.registry.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.analytics</groupId>
@@ -88,7 +88,7 @@
     </build>
 
     <properties>
-        <wso2das.version>4.4.3</wso2das.version>
+        <wso2das.registry.version>4.4.3</wso2das.registry.version>
         <wso2analytics.api.version>1.0.5</wso2analytics.api.version>
     </properties>
 
