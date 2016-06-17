@@ -14,12 +14,12 @@
     var urlPrefix;
     var urlPostfix;
     var query = request.getParameter('query');
-    if (tenant != 'null') {
+    if (tenant!='null') {
         urlPrefix = "?tenant=" + tenant;
     } else {
-        urlPrefix = '';
+        urlPrefix='';
     }
-    if (tenant != 'null') {
+    if (tenant!='null') {
         urlPostfix = "&tenant=" + tenant;
     } else {
         urlPostfix = '';
