@@ -15,14 +15,14 @@
     var urlPostfix;
     var query = request.getParameter('query');
     if (tenant!='null') {
-        urlPrefix = "?tenant=" + tenant;
+        urlPrefix="?tenant="+tenant;
     } else {
         urlPrefix='';
     }
     if (tenant!='null') {
-        urlPostfix = "&tenant=" + tenant;
+        urlPostfix="&tenant="+tenant;
     } else {
-        urlPostfix = '';
+        urlPostfix='';
     }
     if ((outputs.apis != null && outputs.apis.length > 0) || query != null) {
         jagg.includeBlock("search/api-search", null);
