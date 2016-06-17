@@ -73,7 +73,7 @@
         if ($.cookie('showAPIInfo') == "yes") {
             $('#apiInfo').show();
             var date = new Date();
-            date.setTime(date.getTime() + (40 * 1000));
+            date.setTime(date.getTime() + (40* 1000));
             $.cookie('showAPIInfo', 'false',{ path: '/',expires: date });
             var t = setTimeout("hideMsg()", 3000);
         }
@@ -152,7 +152,7 @@
 
          if (request.getParameter('page') != null) {
            currentPage = parseInt(request.getParameter('page'));
-           if ((currentPage-1) * itemsPerPage == length) {
+           if ((currentPage-1)*itemsPerPage == length) {
                 if (String(currentPage) == '1') { %>
                  <script>
                     window.location.href = "<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%><%=urlPrefix%>";
@@ -161,17 +161,17 @@
                 currentPage = currentPage - 1;
                 %>
                 <script>
-                    window.location.href = "<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" + "?page=" + "<%=String(currentPage)%><%=urlPostfix%>";
+                    window.location.href = "<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" +"?page="+"<%=String(currentPage)%><%=urlPostfix%>";
                 </script><%
                 }
             }
         }
-        var from = (currentPage - 1) * itemsPerPage;
-        var to = currentPage * itemsPerPage;
+        var from = (currentPage - 1)*itemsPerPage;
+        var to = currentPage*itemsPerPage;
         if (currentPage == numberOfPages) {
             to = length%(itemsPerPage*currentPage);
             if (to == 0) {
-                to = itemsPerPage * currentPage;
+                to = itemsPerPage*currentPage;
             }
         }
         if (length == 0) {
@@ -182,11 +182,11 @@
         if (apis) {
             for (i = from; i < to; i++) {
                 api = apis[i];
-                path = jagg.getMappedUrl("/site/pages/item-info.jag") + "?name=" + api.name + "&version=" + api.version + "&provider=" + api.provider + urlPostfix;
+                path = jagg.getMappedUrl("/site/pages/item-info.jag") + "?name=" + api.name + "&version=" + api.version + "&provider=" + api.provider+urlPostfix;
 
                 var nameSubstring = api.name;
                 if (api.name.length > 15) {
-                    nameSubstring = api.name.substring(0, 15) + "..";
+                    nameSubstring = api.name.substring(0, 15)+"..";
                 }
 
         %>
