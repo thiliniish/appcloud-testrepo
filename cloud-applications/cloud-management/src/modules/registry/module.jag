@@ -12,6 +12,9 @@ jagg.module("registry", {
     },
     updateRegistryFile: function () {
         return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").updateRegistryFile.apply(this, arguments);
+    },
+    loadTenant: function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").loadTenant.apply(this, arguments);
     }
 });
 %>
