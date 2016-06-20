@@ -2,7 +2,7 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 
-var log = new Log('modules/registry/tenant/registry.jag');
+var log = new Log('modules.registry.tenant.registry.jag');
 var carbon = require('carbon');
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var multitenancy = carbon.multitenancy;

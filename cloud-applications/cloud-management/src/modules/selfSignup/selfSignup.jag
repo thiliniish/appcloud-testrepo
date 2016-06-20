@@ -2,7 +2,7 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 
-var log = new Log("modules/selfSignup/selfSignup.jag");
+var log = new Log("modules.selfSignup.selfSignup.jag");
 
 var registryModule = jagg.module("registry");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);

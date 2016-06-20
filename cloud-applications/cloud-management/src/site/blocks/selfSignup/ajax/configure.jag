@@ -17,7 +17,7 @@ include("/jagg/constants.jag");
     var contactEmail = request.getParameter("contactEmail");
     var signupType = request.getParameter("signupType");
     var site = require("/site/conf/site.json");
-    var log = new Log("site/blocks/selfSignup/ajax/configure.jag");
+    var log = new Log("site.blocks.selfSignup.ajax.configure.jag");
 
     //Method to check if the self sign up feature has been configured for the user.
     if (action == "checkSignUpConfiguredForUser") {
