@@ -1,5 +1,5 @@
-
 <!DOCTYPE html>
+
 <html>
 
 <%
@@ -23,14 +23,15 @@ var contactUsPage = cloudUrl + "site/pages/contact-us.jag";
         </div>
         <div class="text-label">
             <h1>Oops something went wrong </h1>
-            <h2>404 - Not Found </h2>
+            <h2>503 - Service Unavailable </h2>
             <div style="clear: both"></div>
             <div class="button-label">
-                <a href="<%=homePage%>"><label class="label-back">Back to API Cloud </label></a>
+                 <a href="<%=homePage%>"><label class="label-back">Back to API Cloud </label></a>
                 <a href="<%=contactUsPage%>"><label class="label-report">Report Issue</label></a></div>
         </div>
         </div>
     </section>
+
     <div class="clouds_one"></div>
     <div class="clouds_two"></div>
     <div class="clouds_three"></div>

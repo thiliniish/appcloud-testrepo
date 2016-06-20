@@ -1,0 +1,43 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/cloud/constants.jag");
+var log=new Log("modules.util.uril.jsg");
+var site = require("/site/conf/site.json");
+
+var MultitenantConstants = Packages.org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+/**
+ * This method will check if the user logged into the session is a tenant admin.
+ */
+var isUserInAdminRole = function () {
+    var carbon = require('carbon');
+    var server = carbon.server;
+    var username = jagg.getUser().username;
+    var context = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
+    var isAdmin = false;
+    if (username != null && !"".equals(username)) {
+        try {
+            context.startTenantFlow();
+            var usernameWithoutTenant = username.substring(0, username.lastIndexOf('@'));
+            var tenantDomain=(session.get("LOGGED_IN_USER").split("@"))[1];
+            var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+            var tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+            if (tenantId != null && MultitenantConstants.SUPER_TENANT_ID != tenantId) {
+                context.getThreadLocalCarbonContext().setTenantId(tenantId);
+                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+                isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(usernameWithoutTenant, ADMIN_ROLE);
+            }
+        } catch (e) {
+            log.error("Error while authenticating user for admin role. User: "+ username);
+            log.error(e);
+            return false;
+        } finally {
+            context.endTenantFlow();
+          }
+    } else {
+        log.error("Username was not available hence unable to check if user is a tenant admin");
+    }
+    return isAdmin;
+};
+
+%>

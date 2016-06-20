@@ -1,36 +1,36 @@
+
+<!DOCTYPE html>
+<html>
 <%
-include("/jagg/jagg.jag");
-var site = require("/site/conf/site.json");
-
-(function () {
-
-    jagg.render({
-        "name":"page/base",
-        "inputs":{
-            "title":"Admin Dashboard - Error",
-          "header":{
-                "name":"menu/login"
-            },
-            "body":[
-                {
-                    "name":"layout/base",
-                    "inputs":{
-                        "top":null,
-                        "left":null,
-                        "right":null,
-                         "middle":{
-                            "name":"errors",
-                            "inputs":{
-                                "error":"401"
-                            }
-                        },
-                        "bottom":null
-                    }
-                }
-            ]
-        }
-    });
-}());
-
-
+var site = require("../../conf/site.json");
+var homePage = site.ServerURLs.publisherURL;
+var cloudUrl = site.ServerURLs.cloudMgtURL;
+var contactUsPage = cloudUrl + "site/pages/contact-us.jag";
 %>
+<head>
+    <meta charset='UTF-8'>
+    <link rel="stylesheet" href="/admin-dashboard/site/pages/error-pages/style/style.css">
+    <link rel="stylesheet" href="/admin-dashboard/site/pages/error-pages/style/font-mf.css">
+</head>
+
+<body>
+<div class="sky">
+    <section>
+        <div class="error-400">
+            <img src="/admin-dashboard/site/pages/error-pages/images/400-error.svg">
+        </div>
+        <div class="text-label">
+            <h1>Oops something went wrong </h1>
+            <h2>401 - Unauthorized </h2>
+            <div style="clear: both"></div>
+            <div class="button-label">
+                <a href="<%=homePage%>"><label class="label-back">Back to API Cloud </label></a>
+                <a href="<%=contactUsPage%>"><label class="label-report">Report Issue</label></a></div>
+        </div>
+    </section>
+    <div class="clouds_one"></div>
+    <div class="clouds_two"></div>
+    <div class="clouds_three"></div>
+</div>
+</body>
+</html>
