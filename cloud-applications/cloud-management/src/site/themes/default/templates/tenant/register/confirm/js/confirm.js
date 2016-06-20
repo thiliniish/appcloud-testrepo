@@ -16,7 +16,7 @@ function generateResponse() {
             if (message == "expired") {
                 jagg.message({
                     type: 'error',
-                    content: 'You have either already clicked the link that was emailed to you or it must have been expired',
+                    content: 'You have either already clicked the link that was emailed to you or it has expired',
                     cbk: function () {
                         window.location.href = "../pages/index.jag";
                     }
