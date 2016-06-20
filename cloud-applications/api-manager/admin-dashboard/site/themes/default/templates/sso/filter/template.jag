@@ -51,8 +51,8 @@
 		}
 	    ssoRelyingParty.setProperty("identityProviderURL", site.ssoConfiguration.identityProviderURL);
 	    ssoRelyingParty.setProperty("keyStorePassword", site.ssoConfiguration.keyStorePassword);
-	    ssoRelyingParty.setProperty("identityAlias",site.ssoConfiguration.identityAlias);
-	    ssoRelyingParty.setProperty("keyStoreName",site.ssoConfiguration.keyStoreName);
+	    ssoRelyingParty.setProperty("identityAlias", site.ssoConfiguration.identityAlias);
+	    ssoRelyingParty.setProperty("keyStoreName", site.ssoConfiguration.keyStoreName);
 
 		var consumerUrl = jagg.getHttpsUrl("/jagg/jaggery_acs.jag");
 

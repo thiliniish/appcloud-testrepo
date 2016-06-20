@@ -15,11 +15,11 @@ var isUserInAdminRole = function () {
     var username = jagg.getUser().username;
     var context = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
     var isAdmin = false;
-    if (username != null && !"".equals(username)) {
+    if (username != null && !"".equals(username && username.indexOf("@") != -1)) {
         try {
             context.startTenantFlow();
             var usernameWithoutTenant = username.substring(0, username.lastIndexOf('@'));
-            var tenantDomain=(session.get("LOGGED_IN_USER").split("@"))[1];
+            var tenantDomain = username.split("@")[1];
             var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
             var tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             if (tenantId != null && MultitenantConstants.SUPER_TENANT_ID != tenantId) {

@@ -27,8 +27,8 @@ var getAdminCookie = function() {
  * This method will return the admin cookie used to authenticate the BPS end.
  */
 var getBPSAdminCookieBySAMLToken = function () {
-    var clock = new Date();
-    var timeNow = clock.getTime();
+    var dateTime = new Date();
+    var timeNow = dateTime.getTime();
     if (application.get("workflowCookieLastUpdatedTime") == null) {
         application.put("workflowCookieLastUpdatedTime", timeNow);
     }
@@ -101,6 +101,7 @@ var loadTenantRegistry = function (tenantDomain) {
     }    
 };
 
+//Method was taken from the api manager store jaggery app.
 var loadTenantAxisConfiguration = function (tenantDomain) {
 
     try {
