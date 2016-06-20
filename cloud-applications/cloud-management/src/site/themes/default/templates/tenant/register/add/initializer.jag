@@ -1,8 +1,16 @@
 <%
 jagg.initializer("tenant/register/add", {
-
     preInitialize:function () {
+        //css
+        jagg.addHeaderCSS("register/add","add.css",'templates/tenant/register/add/css/add.css');
 
+        //js functions
+        //jagg.addFooterJS("register/add","validate.password.js","js/jquery.validate.password.js");
+        //jagg.addFooterJS("register/add","validate.organization.js","js/validate.organization.js");
+        //jagg.addFooterJS("register/add","validate.organization.js","js/userActivity.js");
+
+        //custom js functions
+        jagg.addFooterJS("register/add","validate.organization.js","templates/tenant/register/add/js/add.js");
     }
 });
 %>
