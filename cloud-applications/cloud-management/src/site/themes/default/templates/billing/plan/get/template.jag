@@ -115,10 +115,11 @@ var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
 var isBillingEnabled = jagg.module("billing").isBillingEnabled();
 var tenantDomain;
-if ((session.get("TENANT_INFO")) != null) {
+var isMonetizationEnabled = false;
+if (session.get("TENANT_INFO") != null) {
 	tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+	isMonetizationEnabled = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
 }
-var isMonetizationEnabled = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
 if (isBillingEnabled) {
 	var serviceId = session.get("SERVICE_ID");
 	var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
