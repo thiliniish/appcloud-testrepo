@@ -253,10 +253,10 @@ if (isBillingEnabled) {
                     </div>
                 </div>
                 <div class="pricing-table-features">
-                    <p>Portal Users</p>
+                    <p>Portal users</p>
                     <p>Calls/day</p>
                     <p>Calls above plan</p>
-                    <p>Monetization Availability</p>
+                    <p>API monetization</p>
                 </div>
 			</div>
 
