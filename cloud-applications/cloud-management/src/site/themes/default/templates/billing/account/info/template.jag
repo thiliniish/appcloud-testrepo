@@ -105,6 +105,7 @@
                     },
                 success: function(data) {
                     var accountObj = jQuery.parseJSON(data);
+                    var ZERO_PAYMENT_VALUE = 0;
                     accountId = accountObj.basicInfo.id;
                     contactInfo = accountObj.billToContact;
                     accountName = accountObj.basicInfo.name;

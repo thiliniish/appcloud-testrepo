@@ -24,6 +24,8 @@ jagg.initializer("pricing/account/create", {
                 "templates/pricing/js/jquery-1.11.1/jquery.min.js");
         jagg.addHeaderJS("pricing/account/create", "custom",
                 "templates/pricing/js/custom/custom.js");
+        jagg.addHeaderJS("pricing/account/create", "countriesAndState",
+                "/js/lib/countriesAndStates.js");
         jagg.addHeaderJS("pricing/account/create", "create-account",
                 "templates/pricing/account/create/js/create-account.js");
 

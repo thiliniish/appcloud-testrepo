@@ -29,9 +29,7 @@ import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiIntegrationTest;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiLifeCycleTest;
 import org.wso2.cloud.heartbeat.monitor.core.status.LiveStatusConnector;
 import org.wso2.cloud.heartbeat.monitor.modules.apimanager.ApiStatisticTest;
-import org.wso2.cloud.heartbeat.monitor.modules.appfactory.ApplicationBuildTest;
-import org.wso2.cloud.heartbeat.monitor.modules.appfactory.ImportMemberToTenantTest;
-import org.wso2.cloud.heartbeat.monitor.modules.appfactory.IntegrationTest;
+import org.wso2.cloud.heartbeat.monitor.modules.appcloud.IntegrationTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.CassandraPastLogsDeletionTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.DataPublishingTest;
 import org.wso2.cloud.heartbeat.monitor.modules.bam.HiveScriptExecutionTest;
@@ -66,9 +64,10 @@ public class ScheduleManager {
 
     /**
      * Initializes ScheduleManager
+     *
      * @throws java.io.IOException
      */
-    public ScheduleManager () throws IOException {
+    public ScheduleManager() throws IOException {
         rootNode = new Node();
         buildConfTree();
         liveStatusConnector = new LiveStatusConnector(rootNode);
@@ -76,6 +75,7 @@ public class ScheduleManager {
 
     /**
      * Starts Scheduler
+     *
      * @throws org.quartz.SchedulerException
      */
     public void startScheduler() throws SchedulerException {
@@ -87,20 +87,22 @@ public class ScheduleManager {
 
     /**
      * Shutdown Scheduler
+     *
      * @throws org.quartz.SchedulerException
      */
-    public void shutDownScheduler () throws SchedulerException {
+    public void shutDownScheduler() throws SchedulerException {
         scheduler.shutdown();
         liveStatusConnector.closePort();
     }
 
     /**
      * Schedules Jobs
+     *
      * @throws org.quartz.SchedulerException
      */
     public void schedule() throws SchedulerException {
         SchedulerFactory schedulerFactory = new org.quartz.impl.StdSchedulerFactory();
-        scheduler=schedulerFactory.getScheduler();
+        scheduler = schedulerFactory.getScheduler();
         scheduleTests();
         scheduleUtilJobs();
 
@@ -110,243 +112,242 @@ public class ScheduleManager {
 
     /**
      * Schedule utility Jobs
+     *
      * @throws org.quartz.SchedulerException
      */
     private void scheduleUtilJobs() throws SchedulerException {
         //Digest mail scheduler
         Node digestMailNode = rootNode.findChildNodeByName(Constants.NOTIFICATION).findChildNodeByName("email");
-        ArrayList <String> digestMailTags = new ArrayList<String>();
+        ArrayList<String> digestMailTags = new ArrayList<String>();
         digestMailTags.add("digest_mail_interval");
 
         String digestMailTriggerTime = digestMailNode.getProperty("digest_mail_interval");
         int triggerTimeDigestMail;
-        try{
-            triggerTimeDigestMail = Integer.parseInt(((digestMailTriggerTime.split("h"))[0]).replace(" ",""));
-        }catch (Exception e){
-            log.error("ScheduleManager: Invalid digest mail interval: Value changed to 24 hours." +
-                      " value should be in hours (h)");
+        try {
+            triggerTimeDigestMail = Integer.parseInt(((digestMailTriggerTime.split("h"))[0]).replace(" ", ""));
+        } catch (Exception e) {
+            log.error("ScheduleManager: Invalid digest mail interval: Value changed to 24 hours."
+                    + " value should be in hours (h)");
             triggerTimeDigestMail = 24;
         }
 
-        UtilJobScheduler digestMailJobScheduler = new UtilJobScheduler(scheduler, digestMailNode,
-                                                                       digestMailTags, triggerTimeDigestMail,
-                                                                       DigestMailer.class, false);
+        UtilJobScheduler digestMailJobScheduler = new UtilJobScheduler(scheduler, digestMailNode, digestMailTags,
+                triggerTimeDigestMail, DigestMailer.class, false);
         digestMailJobScheduler.schedule();
 
         //database flushing scheduler
         Node dbCleanerNode = rootNode.findChildNodeByName(Constants.DATA_SOURCE);
-        ArrayList <String> dbCleanerTags = new ArrayList<String>();
+        ArrayList<String> dbCleanerTags = new ArrayList<String>();
         dbCleanerTags.add("flush_before");
 
         String dbCleanerTriggerTime = dbCleanerNode.getProperty("flush_before");
         int triggerTimeDbCleaner;
-        try{
-            int days = Integer.parseInt(((dbCleanerTriggerTime.split("d"))[0]).replace(" ",""));
-            if(days>=30){
-                triggerTimeDbCleaner = 24*days;
+        try {
+            int days = Integer.parseInt(((dbCleanerTriggerTime.split("d"))[0]).replace(" ", ""));
+            if (days >= 30) {
+                triggerTimeDbCleaner = 24 * days;
             } else {
                 throw new Exception();
             }
-        }catch (Exception e){
-            log.error("ScheduleManager: Invalid database flush interval: Value changed to 30 days." +
-                      " value should be in days (d) and minimum is 30 days");
-            triggerTimeDbCleaner = 24*30;
+        } catch (Exception e) {
+            log.error("ScheduleManager: Invalid database flush interval: Value changed to 30 days."
+                    + " value should be in days (d) and minimum is 30 days");
+            triggerTimeDbCleaner = 24 * 30;
         }
-        UtilJobScheduler dbCleanerJobScheduler = new UtilJobScheduler(scheduler, dbCleanerNode,
-                                                                      dbCleanerTags, triggerTimeDbCleaner,
-                                                                      DbCleaner.class, false);
+        UtilJobScheduler dbCleanerJobScheduler = new UtilJobScheduler(scheduler, dbCleanerNode, dbCleanerTags,
+                triggerTimeDbCleaner, DbCleaner.class, false);
         dbCleanerJobScheduler.schedule();
     }
 
     /**
      * Schedule service tests
+     *
      * @throws org.quartz.SchedulerException
      */
     private void scheduleTests() throws SchedulerException {
         Node modules = rootNode.findChildNodeByName(Constants.MODULES);
         heartbeatTenant = rootNode.findChildNodeByName(Constants.HEARTBEAT_TENANT);
 
-        //AppFactory
-        if(modules.findChildNodeByName(Constants.APPFACTORY)!=null){
-            List<Class> appfactoryClasses= new ArrayList<Class>();
-            appfactoryClasses.add(ApplicationBuildTest.class);
-            appfactoryClasses.add(ImportMemberToTenantTest.class);
-            appfactoryClasses.add(IntegrationTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.APPFACTORY), appfactoryClasses);
+        //AppCloud
+        if (modules.findChildNodeByName(Constants.APPCLOUD) != null) {
+            List<Class> appCloudClasses = new ArrayList<Class>();
+            appCloudClasses.add(IntegrationTest.class);
+            scheduleJobs(modules.findChildNodeByName(Constants.APPCLOUD), appCloudClasses);
         }
 
         //CloudMgt - contains both cloudmgt and issue tracker
-        if(modules.findChildNodeByName(Constants.CLOUD_MGT)!=null){
-            List<Class> cloudMgtClasses= new ArrayList<Class>();
-	        cloudMgtClasses.add(ImportUserMembersToTenantTest.class);
-	        cloudMgtClasses.add(ChangePassswordTest.class);
+        if (modules.findChildNodeByName(Constants.CLOUD_MGT) != null) {
+            List<Class> cloudMgtClasses = new ArrayList<Class>();
+            cloudMgtClasses.add(ImportUserMembersToTenantTest.class);
+            cloudMgtClasses.add(ChangePassswordTest.class);
             scheduleJobs(modules.findChildNodeByName(Constants.CLOUD_MGT), cloudMgtClasses);
         }
 
         //Identity Server
-        if(modules.findChildNodeByName(Constants.IDENTITY_SERVER)!=null){
+        if (modules.findChildNodeByName(Constants.IDENTITY_SERVER) != null) {
             List<Class> isClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.IDENTITY_SERVER),isClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.IDENTITY_SERVER), isClasses);
         }
 
         //Business Process Server
-        if(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER)!=null){
+        if (modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER) != null) {
             List<Class> bpsClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER),bpsClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER), bpsClasses);
         }
 
         //Storage Server
-        if(modules.findChildNodeByName(Constants.STORAGE_SERVER)!=null){
-            List<Class> storageServerClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.STORAGE_SERVER),storageServerClasses);
+        if (modules.findChildNodeByName(Constants.STORAGE_SERVER) != null) {
+            List<Class> storageServerClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.STORAGE_SERVER), storageServerClasses);
         }
 
         //UES server
-        if(modules.findChildNodeByName(Constants.UES)!=null){
-            List<Class> uesClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.UES),uesClasses,UESTenantLoginTest.class);
+        if (modules.findChildNodeByName(Constants.UES) != null) {
+            List<Class> uesClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.UES), uesClasses, UESTenantLoginTest.class);
         }
 
         //Gitblit server
-        if(modules.findChildNodeByName(Constants.GITBLIT)!=null){
-            List<Class> gitblitClasses= new ArrayList<Class>();
+        if (modules.findChildNodeByName(Constants.GITBLIT) != null) {
+            List<Class> gitblitClasses = new ArrayList<Class>();
             gitblitClasses.add(GitCloneAndPushTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.GITBLIT),gitblitClasses,GitTenantLoginTest.class);
+            scheduleJobs(modules.findChildNodeByName(Constants.GITBLIT), gitblitClasses, GitTenantLoginTest.class);
         }
 
         //Gitblit server
-        if(modules.findChildNodeByName(Constants.JENKINS)!=null){
-            List<Class> jenkinsClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.JENKINS),jenkinsClasses,JenkinsTenantLoginTest.class);
+        if (modules.findChildNodeByName(Constants.JENKINS) != null) {
+            List<Class> jenkinsClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.JENKINS), jenkinsClasses, JenkinsTenantLoginTest.class);
         }
 
         //S2 Gitblit server
-        if(modules.findChildNodeByName(Constants.S2_GITBLIT)!=null){
-            List<Class> s2gitblitClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.S2_GITBLIT),s2gitblitClasses,GitTenantLoginTest.class);
+        if (modules.findChildNodeByName(Constants.S2_GITBLIT) != null) {
+            List<Class> s2gitblitClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.S2_GITBLIT), s2gitblitClasses, GitTenantLoginTest.class);
         }
 
         //Cloud Controller
-        if(modules.findChildNodeByName(Constants.CLOUD_CONTROLLER)!=null){
-            List<Class> cloudControllerClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.CLOUD_CONTROLLER),cloudControllerClasses);
+        if (modules.findChildNodeByName(Constants.CLOUD_CONTROLLER) != null) {
+            List<Class> cloudControllerClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.CLOUD_CONTROLLER), cloudControllerClasses);
         }
 
         //Business Activity Monitor
-        if(modules.findChildNodeByName(Constants.BUSINESS_ACTIVITY_MONITOR)!=null){
+        if (modules.findChildNodeByName(Constants.BUSINESS_ACTIVITY_MONITOR) != null) {
             List<Class> bamClasses = new ArrayList<Class>();
-	        bamClasses.add(HiveScriptExecutionTest.class);
-	        bamClasses.add(CassandraPastLogsDeletionTest.class);
+            bamClasses.add(HiveScriptExecutionTest.class);
+            bamClasses.add(CassandraPastLogsDeletionTest.class);
             bamClasses.add(DataPublishingTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_ACTIVITY_MONITOR),bamClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_ACTIVITY_MONITOR), bamClasses);
         }
 
         //Task Server
-        if(modules.findChildNodeByName(Constants.TASK_SERVER)!=null){
+        if (modules.findChildNodeByName(Constants.TASK_SERVER) != null) {
             List<Class> taskServerClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.TASK_SERVER),taskServerClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.TASK_SERVER), taskServerClasses);
         }
 
         //Stratos Controllers (Development, Test, Production)
-        if(modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_DEV)!=null){
-            List<Class> scDevClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_DEV),scDevClasses);
+        if (modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_DEV) != null) {
+            List<Class> scDevClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_DEV), scDevClasses);
         }
-        if(modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_TEST)!=null){
-            List<Class> scTestClasses= new ArrayList<Class>();
+        if (modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_TEST) != null) {
+            List<Class> scTestClasses = new ArrayList<Class>();
             scheduleJobs(modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_TEST), scTestClasses);
         }
-        if(modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_PROD)!=null){
-            List<Class> scProdClasses= new ArrayList<Class>();
+        if (modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_PROD) != null) {
+            List<Class> scProdClasses = new ArrayList<Class>();
             scheduleJobs(modules.findChildNodeByName(Constants.STRATOS_CONTROLLER_PROD), scProdClasses);
         }
 
         //Application Servers (Development, Test, Production)
-        if(modules.findChildNodeByName(Constants.APPLICATION_SERVER_DEV)!=null){
-            List<Class> asDevClasses= new ArrayList<Class>();
+        if (modules.findChildNodeByName(Constants.APPLICATION_SERVER_DEV) != null) {
+            List<Class> asDevClasses = new ArrayList<Class>();
             asDevClasses.add(EndpointInvokeTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_DEV),asDevClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_DEV), asDevClasses);
         }
-        if(modules.findChildNodeByName(Constants.APPLICATION_SERVER_TEST)!=null){
-            List<Class> asTestClasses= new ArrayList<Class>();
+        if (modules.findChildNodeByName(Constants.APPLICATION_SERVER_TEST) != null) {
+            List<Class> asTestClasses = new ArrayList<Class>();
             asTestClasses.add(EndpointInvokeTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_TEST),asTestClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_TEST), asTestClasses);
         }
-        if(modules.findChildNodeByName(Constants.APPLICATION_SERVER_PROD)!=null){
-            List<Class> asProdClasses= new ArrayList<Class>();
+        if (modules.findChildNodeByName(Constants.APPLICATION_SERVER_PROD) != null) {
+            List<Class> asProdClasses = new ArrayList<Class>();
             asProdClasses.add(EndpointInvokeTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_PROD),asProdClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.APPLICATION_SERVER_PROD), asProdClasses);
         }
 
         //Enterprise Service Bus (Development, Test, Production)
-        if(modules.findChildNodeByName(Constants.ESB_DEV)!=null){
-            List<Class> esbDevClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.ESB_DEV),esbDevClasses);
+        if (modules.findChildNodeByName(Constants.ESB_DEV) != null) {
+            List<Class> esbDevClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.ESB_DEV), esbDevClasses);
         }
-        if(modules.findChildNodeByName(Constants.ESB_TEST)!=null){
-            List<Class> esbTestClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.ESB_TEST),esbTestClasses);
+        if (modules.findChildNodeByName(Constants.ESB_TEST) != null) {
+            List<Class> esbTestClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.ESB_TEST), esbTestClasses);
         }
-        if(modules.findChildNodeByName(Constants.ESB_PROD)!=null){
-            List<Class> esbProdClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.ESB_PROD),esbProdClasses);
+        if (modules.findChildNodeByName(Constants.ESB_PROD) != null) {
+            List<Class> esbProdClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.ESB_PROD), esbProdClasses);
         }
 
         //Business Process Server (Development, Test, Production)
-        if(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_DEV)!=null){
+        if (modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_DEV) != null) {
             List<Class> bpsDevClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_DEV),bpsDevClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_DEV), bpsDevClasses);
         }
-        if(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_TEST)!=null){
+        if (modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_TEST) != null) {
             List<Class> bpsTestClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_TEST),bpsTestClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_TEST), bpsTestClasses);
         }
-        if(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_PROD)!=null){
+        if (modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_PROD) != null) {
             List<Class> bpsProdClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_PROD),bpsProdClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.BUSINESS_PROCESS_SERVER_PROD), bpsProdClasses);
         }
 
         //API Manager
-        if(modules.findChildNodeByName(Constants.API_MANAGER)!=null){
+        if (modules.findChildNodeByName(Constants.API_MANAGER) != null) {
             List<Class> apiManagerClasses = new ArrayList<Class>();
             apiManagerClasses.add(ApiLifeCycleTest.class);
             apiManagerClasses.add(ApiStatisticTest.class);
             apiManagerClasses.add(ApiIntegrationTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.API_MANAGER),apiManagerClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.API_MANAGER), apiManagerClasses);
         }
 
         /*
          * API Cloud
          */
         //API  - Gateway
-        if(modules.findChildNodeByName(Constants.API_GATEWAY)!=null){
+        if (modules.findChildNodeByName(Constants.API_GATEWAY) != null) {
             List<Class> gatewayClasses = new ArrayList<Class>();
             gatewayClasses.add(ApiInvokeTest.class);
-            scheduleJobs(modules.findChildNodeByName(Constants.API_GATEWAY),gatewayClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.API_GATEWAY), gatewayClasses);
         }
 
         //API - Store
-        if(modules.findChildNodeByName(Constants.API_STORE)!=null){
+        if (modules.findChildNodeByName(Constants.API_STORE) != null) {
             List<Class> storeClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.API_STORE),storeClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.API_STORE), storeClasses);
         }
 
         //API - Publisher
-        if(modules.findChildNodeByName(Constants.API_PUBLISHER)!=null){
+        if (modules.findChildNodeByName(Constants.API_PUBLISHER) != null) {
             List<Class> publisherClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.API_PUBLISHER),publisherClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.API_PUBLISHER), publisherClasses);
         }
 
         //API - KeyManager
-        if(modules.findChildNodeByName(Constants.API_KEY_MANAGER)!=null){
+        if (modules.findChildNodeByName(Constants.API_KEY_MANAGER) != null) {
             List<Class> keyManagerClasses = new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.API_KEY_MANAGER),keyManagerClasses);
+            scheduleJobs(modules.findChildNodeByName(Constants.API_KEY_MANAGER), keyManagerClasses);
 
         }
         //SERVER_LOGIN_TEST
-        if(modules.findChildNodeByName(Constants.SERVER_LOGIN_TEST)!=null){
-            List<Class> newTestClasses= new ArrayList<Class>();
-            scheduleJobs(modules.findChildNodeByName(Constants.SERVER_LOGIN_TEST), newTestClasses, ServerLoginTest.class);
+        if (modules.findChildNodeByName(Constants.SERVER_LOGIN_TEST) != null) {
+            List<Class> newTestClasses = new ArrayList<Class>();
+            scheduleJobs(modules.findChildNodeByName(Constants.SERVER_LOGIN_TEST), newTestClasses,
+                    ServerLoginTest.class);
         }
     }
 
@@ -364,6 +365,7 @@ public class ScheduleManager {
 
     /**
      * Builds configuration nodes tree
+     *
      * @throws java.io.IOException
      */
     private void buildConfTree() throws IOException {

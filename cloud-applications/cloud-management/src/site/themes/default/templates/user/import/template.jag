@@ -5,9 +5,6 @@
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var type = cloudConfig.subscriptions.type;
     var emailValidationPattern = cloudConfig.emailValidationPattern;
-    include("/jagg/constants.jag");
-    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var type = cloudConfig.subscriptions.type;
     var defaultSubscriptionName = DEFAULT_SUBSCRIPTION_NAME;
 %>
 
@@ -34,17 +31,12 @@
                         "id": tempRoleArray[indexInTemp].roleName,
                         "text": tempRoleArray[indexInTemp].displayRoles
                     });
-                for(var indexInTemp in tempRoleArray){
-                    tempChildRole.push({
-                        "id": tempRoleArray[indexInTemp].roleName,
-                        "text": tempRoleArray[indexInTemp].displayRoles});
                 }
                 jsonData.push({
                     "id": "",
                     "text": type[index].name,
                     "children": tempChildRole
                 });
-                    "children":tempChildRole });
             }
         }
         roleList = jsonData;
@@ -190,6 +182,7 @@
             var match = pattern.test(names[i]);
             if(match == false){
                 allEmailAddressesMatch = false;
+            }
         }
         return allEmailAddressesMatch;
     }

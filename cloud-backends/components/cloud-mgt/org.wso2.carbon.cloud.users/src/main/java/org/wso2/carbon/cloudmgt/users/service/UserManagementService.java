@@ -10,6 +10,7 @@ import org.wso2.carbon.cloudmgt.users.beans.UserInfoBean;
 import org.wso2.carbon.cloudmgt.users.util.DatabaseManager;
 import org.wso2.carbon.cloudmgt.users.util.UserMgtUtil;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
@@ -119,9 +120,10 @@ public class UserManagementService extends AbstractAdmin {
 			userStoreManager = UserMgtUtil.getRealmService()
 					.getTenantUserRealm(MultitenantConstants.SUPER_TENANT_ID)
 					.getUserStoreManager();
-
-			String[] roles = { "default" };
-			userStoreManager.updateRoleListOfUser(user, null, roles);
+			if (!isUserInRole(user, CloudConstants.CLOUD_DEFAULT_ROLE)) {
+				String[] roles = { CloudConstants.CLOUD_DEFAULT_ROLE };
+				userStoreManager.updateRoleListOfUser(user, null, roles);
+			}
 		} catch (UserStoreException e) {
 			String msg = "Error adding the default role to the user "
 					+ " failed due to " + e.getMessage();
@@ -129,6 +131,31 @@ public class UserManagementService extends AbstractAdmin {
 			throw new UserManagementException(e.getMessage(), e);
 		}
 
+	}
+
+	/**
+	 * Checks whether a user is in a given role
+	 *
+	 * @param user user
+	 * @param role role
+	 * @return true, if the user is in the given role
+	 * @throws UserManagementException
+	 */
+	private boolean isUserInRole(String user, String role) throws UserManagementException {
+		try {
+			UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserRealm()
+					.getUserStoreManager();
+			String[] rolesOfUser = userStoreManager.getRoleListOfUser(user);
+			for (String roleOfUser : rolesOfUser) {
+				if (roleOfUser.equalsIgnoreCase(role)) {
+					return true;
+				}
+			}
+		} catch (UserStoreException e) {
+			throw new UserManagementException(
+					"Error occurred while checking whether the user : " + user + " is in role : " + role, e);
+		}
+		return false;
 	}
 
 	public boolean isExistingUser(String user) throws UserManagementException {
