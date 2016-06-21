@@ -201,7 +201,7 @@ function checkEmailExist() {
             var resultJSON = JSON.parse(result.data);
 
             var tenant = resultJSON.Tenants.Tenant;
-            if(tenant == undefined || tenant === "" || tenant === "null"){
+            if (tenant == undefined || tenant === "" || tenant === "null") {
                 var emailvaildation = $(".validateEmailExit");
                 emailvaildation.empty();
                 emailvaildation.append("<left>Email Does not Exist.</left>");
