@@ -201,13 +201,13 @@ function checkEmailExist() {
             var resultJSON = JSON.parse(result.data);
 
             var tenant = resultJSON.Tenants.Tenant;
-            if(tenant == undefined){
+            if(tenant == undefined || tenant === "" || tenant === "null"){
                 var emailvaildation = $(".validateEmailExit");
                 emailvaildation.empty();
                 emailvaildation.append("<left>Email Does not Exist.</left>");
                 $('.message_box').empty();
             } else {
-                fillTenantOptionDropDown(resultJSON);
+                fillTenantOptionDropDown(tenant);
                 $(".validateEmailExit").empty();
                 $('.message_box').empty();
             }
@@ -219,11 +219,10 @@ function checkEmailExist() {
     });
 }
 
-function fillTenantOptionDropDown(resultJSON) {
+function fillTenantOptionDropDown(tenantEntry) {
     var $optionContainer = $('#tenant-select');
     $optionContainer.empty();
     var tenantsArray = [];
-    var tenantEntry = resultJSON.Tenants.Tenant;
     //data service returns results in {"Entries":{"Entry":[{"xxx":"333"}, {"yyy":"333"}]}} format.
     //If there is only one object it sends like {"Entries":{"Entry":{"yyy":"333"}}}
     //Entry can be an 'Array' or an 'Object'.
