@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -251,6 +252,7 @@ public class RoleManager implements Runnable {
         boolean isRoleAdd;
         boolean isRoleUpdate;
         boolean isRoleDelete;
+        List<String> users = new ArrayList<>();
         for (RoleBean roleBean : roleBeanList) {
             //Initialize the variables for role
             isRoleAdd = false;
@@ -259,7 +261,7 @@ public class RoleManager implements Runnable {
             if (RoleManagerConstants.ROLE_ADD.equals(roleBean.getAction())) {
                 isRoleAdd = true;
                 //Set tenant admin as default user
-                roleBean.addUser(tenantAdmin);
+                users.add(tenantAdmin);
             } else if (RoleManagerConstants.ROLE_UPDATE.equals(roleBean.getAction())) {
                 isRoleUpdate = true;
             } else if (RoleManagerConstants.ROLE_DELETE.equals(roleBean.getAction())) {
@@ -269,6 +271,7 @@ public class RoleManager implements Runnable {
                 if (isRoleDelete) {
                     if (userStoreManager.isExistingRole(roleBean.getRoleName())) {
                         userStoreManager.deleteRole(roleBean.getRoleName());
+                        isSuccessful = true;
                     } else {
                         if (log.isDebugEnabled()) {
                             log.debug("The role '" + roleBean.getRoleName() + "' does not exist or has already been "
@@ -295,7 +298,7 @@ public class RoleManager implements Runnable {
                 } else if (isRoleAdd) {
                     isAuthorizedPermissions = true;
                     // add role and authorize given authorized permission list
-                    userStoreManager.addRole(roleBean.getRoleName(), roleBean.getUsers().toArray(new String[0]),
+                    userStoreManager.addRole(roleBean.getRoleName(), users.toArray(new String[0]),
                             roleBean.getPermissions(isAuthorizedPermissions).toArray(new Permission[0]));
 
                     if (log.isDebugEnabled()) {

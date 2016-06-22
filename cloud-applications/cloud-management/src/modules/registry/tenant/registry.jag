@@ -6,6 +6,8 @@ var log = new Log('modules/registry/tenant/registry.jag');
 var carbon = require('carbon');
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var multitenancy = carbon.multitenancy;
+var multitenantConstants = Packages.org.wso2.carbon.base.MultitenantConstants;
+var tenantAxisUtils = Packages.org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 var sessionId = session.getId();
 var username = session.get("LOGGED_IN_USER");
 var registry = "";
@@ -24,6 +26,7 @@ var configureRegistryParameters = function (tenantDomain, username) {
     try {
         var tenantManager = multitenancy.getTenantManager();
         var tenantId = tenantManager.getTenantId(tenantDomain);
+        loadTenant(tenantDomain);
         options = {system: true, domain: tenantDomain, tenantId: tenantId};
         message = "Successfully configured the tenant specific parameters for the user " + username;
         result = {
@@ -204,6 +207,17 @@ var isResourceExistingInTenantSpace = function (path, tenantDomain, username) {
         }
     }
     return result;
+};
+
+// This method loads the tenant before checking for the registry files.
+var loadTenant = function(tenantDomain) {
+        var service;
+        var ctx;
+        if (tenantDomain != null && !multitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+            service = carbon.server.osgiService('org.wso2.carbon.utils.ConfigurationContextService');
+            ctx = service.getServerConfigContext();
+            tenantAxisUtils.setTenantAccessed(tenantDomain, ctx);
+        }
 };
 
 %>
