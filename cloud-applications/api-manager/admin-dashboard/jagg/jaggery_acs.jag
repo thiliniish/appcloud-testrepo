@@ -32,9 +32,9 @@
             if(site.ssoConfiguration.responseSigningEnabled === 'true'){
 		var fullUserName = ssoRelyingParty.getSAMLResponseNameId(samlResponse);			
 			if(fullUserName != null && fullUserName.indexOf("@")!=-1){
-				var domainName = fullUserName.split("@")[1];
+				var domainName = jagg.module("util").getTenantDomain(fullUserName);
                 var MultitenantConstants = Packages.org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName && null != domainName) {
+                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName && null != domainName && "" != domainName) {
                     jagg.module("manager").loadTenantRegistry(domainName);
                     jagg.module("manager").loadTenantAxisConfiguration(domainName);
                 }
@@ -54,7 +54,7 @@
             var username = ssoRelyingParty.getLoggedInUser(sessionId);
             //First check whether user is having sufficent permissions [create/publish]
             if (isUserCreatePermitted.permitted && username.indexOf("@") != -1) {
-                var userDomain = username.split("@")[1];
+                var userDomain = jagg.module("util").getTenantDomain(username);
                 if (userDomain != null && userDomain != "") {
                     jagg.setUser({username: username, cookie: null, "userDomain": userDomain});
                     session.put("LOGGED_IN_USER", ssoRelyingParty.getLoggedInUser(sessionId));

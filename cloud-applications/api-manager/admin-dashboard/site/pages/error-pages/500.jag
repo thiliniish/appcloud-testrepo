@@ -3,9 +3,9 @@
 <html>
 
 <%
-var site = require("../../conf/site.json");
-var homePage = site.ServerURLs.publisherURL;
-var cloudUrl = site.ServerURLs.cloudMgtURL;
+var dashboardConfig = require("/site/conf/admin_dashboard_conf.json");
+var homePage = dashboardConfig.ServerURLs.publisherURL;
+var cloudUrl = dashboardConfig.ServerURLs.cloudMgtURL;
 var contactUsPage = cloudUrl + "site/pages/contact-us.jag";
 %>
 

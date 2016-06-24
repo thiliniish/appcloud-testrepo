@@ -3,6 +3,7 @@ include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
 var log=new Log("modules.util.uril.jsg");
 var site = require("/site/conf/site.json");
+var dashboardConfig = require("/site/conf/admin_dashboard_conf.json");
 
 var MultitenantConstants = Packages.org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -39,5 +40,22 @@ var isUserInAdminRole = function () {
     }
     return isAdmin;
 };
+
+/**
+ * This method returns the tenant domain.
+ */
+var getTenantDomain = function (username) {
+    var isEmailUserNameEnabled = dashboardConfig.isEmailUserNameEnabled;
+    var tenantDomain = "";
+    if (username != null) {
+        if (username.indexOf("@") != -1 && !isEmailUserNameEnabled) {
+            tenantDomain = username.substring(username.lastIndexOf("@") + 1);
+        } else if (isEmailUserNameEnabled && username.indexOf("@") != username.lastIndexOf("@")) {
+            tenantDomain = username.substring(username.lastIndexOf("@") + 1);
+        }
+    }
+    return tenantDomain;
+};
+
 
 %>

@@ -2,6 +2,9 @@
 jagg.module("util", {
     isUserInAdminRole: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").isUserInAdminRole.apply(this, arguments);
+    },
+    getTenantDomain: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getTenantDomain.apply(this, arguments);
     }
 });
 %>
