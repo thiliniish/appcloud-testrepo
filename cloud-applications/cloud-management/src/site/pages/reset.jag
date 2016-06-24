@@ -1,21 +1,31 @@
 <%
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
+var log = new Log("site.pages.password-verifier.jag");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+
 (function () {
+    var inputsObj = {};
+    var confirm = encoder.getSafeText(request.getParameter("confirmation"));
+    var id = encoder.getSafeText(request.getParameter("id"));
+
+    inputsObj.confirm = (confirm == null ? "" : confirm);
+    inputsObj.id = (id == null ? "" : id);
 
     jagg.render({
-        "name":"page/base",
-        "inputs":{
-            "title":"WSO2 Cloud",
-            "pagePath":"/site/pages/reset.jag",
-            "body":[
+        "name": "page/base",
+        "inputs": {
+            "title": "WSO2 Cloud",
+            "pagePath": "/site/pages/reset.jag",
+            "body": [
                 {
-                    "name":"layout/base",
-                    "inputs":{
-                        "title":"Forget Password",
-                        "middle":[
+                    "name": "layout/base",
+                    "inputs": {
+                        "title": "Forget Password",
+                        "middle": [
                             {
-                            	"name":"user/reset"
+                                "name": "user/reset",
+                                "inputs": inputsObj
                             }
                         ]
                     }
