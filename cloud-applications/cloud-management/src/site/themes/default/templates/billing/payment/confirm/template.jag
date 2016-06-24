@@ -140,7 +140,7 @@ $(document).ready(function($){
 					<p class="product-summery">PRODUCT SUMMARY</p>
 					<p class="product-planname"><%=currRatePlan%></p>
 					<ul>
-						<li><%=accounts%> accounts</li>
+						<li><%=accounts%> portal users</li>
 						<li><%=callsPerDay%> calls/day</li>
 						<li><%=callsAbovePlan%> calls above plan</li>
 					</ul>
