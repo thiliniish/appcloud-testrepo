@@ -65,13 +65,6 @@
             } else {
                 response.sendRedirect("../site/pages/error-pages/error.jag");
             }
-            /*var isCreatePermitted = api.hasCreatePermission();
-            var isPublishPermitted = api.hasPublishPermission();
-	    var hasTierPermission = api.hasManageTierPermission();
-            jagg.setCreatePermitted(isCreatePermitted);
-            jagg.setPublishPermitted(isPublishPermitted);
-            jagg.setManageTierPermitted(hasTierPermission);
-            response.sendRedirect(requestedURI); */
             var isUserInAdminRole = jagg.module("util").isUserInAdminRole();
             if (isUserInAdminRole) {
                 session.put("authenticated", true);
