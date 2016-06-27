@@ -2,7 +2,8 @@
 jagg.initializer("subscriptions", {
 
     preInitialize:function () {
-
+        // Custom JS file
+        jagg.addFooterJS("plan/get", "get-plan", "templates/subscriptions/js/subscriptions.js");
     }
 });
 %>

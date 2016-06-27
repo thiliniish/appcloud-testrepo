@@ -2,8 +2,9 @@
 include("/jagg/constants.jag");
 
 var getWelcomeMsg = function (username) {
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var modUserProfile = jagg.module("user/profile");
-    var welcomeMsg = "Welcome back";
+    var welcomeMsg = cloudConfig.welcomeMsg;
     var profileDetails = modUserProfile.getProfile(username);
     if (profileDetails.firstname != null) {
         if (profileDetails.firstname != "undefined" && profileDetails.firstname != "$1" && profileDetails.firstname
@@ -51,13 +52,15 @@ var getBillingTypeInfo = function (types, domainName) {
             var queryStringForBillingType = SQL_QUERY_STRINGS.SELECT_TYPE_FROM_BILLING_STATUS;
             var billingType = jagg.module("database").executeQuery(queryStringForBillingType, parameters);
             if (billingType.length > 0) {
-                billingTypeInfo[columnName] = billingType[0]["TYPE"];
+                billingTypeInfo[columnName] = billingType[0][TYPE_COLUMN];
             } else {
                 //As a fail proof assign the billing type to trial for each subscription
-                billingTypeInfo[columnName] = "TRIAL";
+                billingTypeInfo[columnName] = TRIAL_TYPE;
                 log.error("Billing Type details were not found for " + columnName + " of tenant " + domainName);
             }
-            log.debug("Billing type" + columnName + ":" + billingTypeInfo[columnName]);
+            if (log.isDebugEnabled()) {
+                log.debug("Billing type" + columnName + ":" + billingTypeInfo[columnName]);
+            }
         }
     }
     return billingTypeInfo;

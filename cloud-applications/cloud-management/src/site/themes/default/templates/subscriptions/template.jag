@@ -1,68 +1,47 @@
 <% jagg.template("subscriptions", function (inputs, outputs, jagg) { %>
 <%
-	include("/modules/database/dataaccess.jag");
-	include("/jagg/constants.jag");
-	include("/modules/subscriptions/subscriptionsUtil.jag");
+    include("/modules/database/dataaccess.jag");
+    include("/jagg/constants.jag");
+    include("/modules/subscriptions/subscriptionsUtil.jag");
 
-	var log = new Log();
-	var username = session.get("LOGGED_IN_USER");
+    var log = new Log("site.themes.default.templates.subscriptions.template.jag");
+    var username = session.get("LOGGED_IN_USER");
 
-	if (username != null) {
-		var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-		var modUserManagement = jagg.module("user/management");
+    if (username != null) {
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var modUserManagement = jagg.module("user/management");
 
-		//Get welcome message
-		var welcomeMsg = getWelcomeMsg(username);
-		//Check if user has admin role
-		var hasAdminRole = modUserManagement.hasUserRole(username, ROLE_ADMIN);
-		//Check if user has publisher role
-		var hasPublisherRole = modUserManagement.hasUserRole(username, ROLE_PUBLISHER);
-		if (hasAdminRole || hasPublisherRole) {
-			log.debug("The user has an admin or publisher role.");
-			var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
-			if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
-				var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
-				var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
-			}
-		}
-		var types = cloudConfig.subscriptions.type;
-		var domainName = jagg.module("manager").getTenantDomain(userName);
-		var subscriptionInfo = getSubscriptionInfo(types, domainName);
-		var billingTypeInfo = getBillingTypeInfo(types, domainName);
-		%>
-
-
-        <script type="text/javascript">
-			function subscription(type,domain,url) {
-				// I have not done this in a seperate thread as it is not supported by older versions of firefox and chrome.
-				  jagg.post("../blocks/subscriptions/ajax/subscriptions.jag", {
-						action:"addCloudUserSubscription",
-						type:type,
-						domain:domain
-						},
-						function (result) {
-
-							},
-					   function (jqXHR, textStatus, errorThrown) {
-					   });
-			  return true;
-			}
-			function redirectToCloud(url){
-				window.open(url);
-			}
-        </script>
+        //Get welcome message
+        var welcomeMsg = getWelcomeMsg(username);
+        //Check if user has admin role
+        var hasAdminRole = modUserManagement.hasUserRole(username, ROLE_ADMIN);
+        //Check if user has publisher role
+        var hasPublisherRole = modUserManagement.hasUserRole(username, ROLE_PUBLISHER);
+        if (hasAdminRole || hasPublisherRole) {
+            log.debug("The user " + username + ", has an admin or publisher role.");
+            var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
+            if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
+                var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
+                var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
+            }
+        }
+        var types = cloudConfig.subscriptions.type;
+        var domainName = jagg.module("manager").getTenantDomain(userName);
+        var subscriptionInfo = getSubscriptionInfo(types, domainName);
+        var billingTypeInfo = getBillingTypeInfo(types, domainName);
+        %>
 
             <!-- Bootstrap -->
             <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/bootstrap-3.2.0/bootstrap.min.css'))
-		%>" />
+        %>" />
             <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.2/css/font-wso2.css'))
-		%>" />
+        %>" />
             <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/font-awesome-4.2.0/font-awesome.min.css'))
-		%>" />
+        %>" />
             <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/web-fonts/Roboto.css'))
-		%>" />
+        %>" />
             <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index-css/styles.css'))
-		%>" />
+        %>" />
 
             <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
             <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -71,72 +50,102 @@
             <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 
         <div class="inner-wrapper">
-        	<div class="container-fluid">
-               	<div class="row row-centered">
+            <div class="container-fluid">
+                   <div class="row row-centered">
                     <div class="col-centered col-xs-10 col-sm-8 col-md-5 col-lg-3 cloud-intro">
-                        <h1><%=welcomeMsg%></h1>
-						<div class="description">
-							Select a Cloud below to get started
-						</div>
-            		</div>
-        		</div>
-        		<div class="row row-centered">
-           			<div class="row-same-height row-full-height">
-            			<% for (var i = 0; i < types.length; i++) {
-							if(types[i].id != "integration_cloud") {
-								if (types[i].id != DEFAULT_SUBSCRIPTION) {
-									if (subscriptionInfo[types[i].id] == true) { %>
+                        <h1><%=welcomeMsg
+        %></h1>
+                                <div class="description">
+                                    Select a Cloud below to get started
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-centered">
+                               <div class="row-same-height row-full-height">
+                                <%
+        for (var i = 0; i < types.length; i++) {
+            if (types[i].id != "integration_cloud") {
+                if (types[i].id != DEFAULT_SUBSCRIPTION) {
+                    if (subscriptionInfo[types[i].id] == true) { %>
 						<div class="col-xs-12 col-sm-5 col-md-3 col-lg-2 col-centered col-full-height">
 							<div class="cloud-app-select">
 								<div class="heading">
-									<% if (types[i].isBeta == true) { %>
+									<%
+                        if (types[i].isBeta == true) { %>
 									<div class="ribbon-wrapper-beta">
                             			<div class="ribbon">BETA</div>
                         			</div>
-                        			<% } %>
-									<i class="<%=types[i].logoClass%> <%=types[i].logoClass%>-<%=types[i].logo%> <%=types[i].logoClass%>-3x"></i>
+                        			<%
+                        }
+                        %>
+                                                           <i class="<%=types[i].logoClass%> <%=types[i].logoClass%>-<%=types[i].logo%> <%=types[i].logoClass%>-3x"></i>
 									<div class="cloud-name"><%=types[i].name%></div>
 								</div>
 								<div class="content">
-										<%=types[i].description%>
-									<div class="clearfix"></div>
-									<% if (billingTypeInfo[types[i].id] != "TRIAL") { %>
+										<%=types[i].description
+                        %>
+                                                            <div class="clearfix"></div>
+                                                            <%
+                        if (billingTypeInfo[types[i].id] != "TRIAL") { %>
 									<div class="btn-footer">
-										<% if (hasAdminRole || hasPublisherRole) {%>
-										<button type="button" class="cu-btn cu-btn-md cu-btn-blue"
-										onclick="subscription('<%=types[i].id%>','<%=domainName%>','<%=types[i].urls.cloudTypeUrl%>');redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Go</button>
-										<%} else {
-											log.info("Not adding store invitee user "+username+" to rightwave");%>
-										<button type="button" class="cu-btn cu-btn-md cu-btn-blue"
-										onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Go</button>
-											<% }
-										 %>
-									</div>
-									<% } else { %>
+										<%
+                            if (hasAdminRole || hasPublisherRole) {
+                                %>
+                                                                        <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
+                                                                        onclick="subscription('<%=types[i].id%>','<%=domainName%>');redirectToCloud('<%=types[i].urls.cloudTypeUrl
+                                %>');">Go</button>
+                                                                        <%
+                            } else {
+                                log.info("Not adding store invitee user " + username + " to rightwave");
+                                %>
+                                                                        <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
+                                                                        onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl
+                                %>');">Go</button>
+                                                                            <%
+                            }
+                            %>
+                       </div>
+                       <%
+                        } else { %>
 									<div class="btn-footer trial-color">
 										<div class="footer-msg"> 14 Days trial</div>
-										<% if (hasAdminRole || hasPublisherRole) { %>
-										<button type="button" class="cu-btn cu-btn-md cu-btn-orange"
-										onclick="subscription('<%=types[i].id%>','<%=domainName%>','<%=types[i].urls.cloudTypeUrl%>');redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Go</button>
-										<% } else {
-											log.info("Not adding store invitee user "+username+" to rightwave"); %>
-										<button type="button" class="cu-btn cu-btn-md cu-btn-orange"
-										onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Try</button>
-										<% } %>
-                   					</div>
-                   					<% } %>
-               					</div>
-           					</div>
-       					</div>
-				          			<% } else { %>
-									<% }
-								}
-							}
-						} %>
-                   	</div>
-                </div>
-           	</div>
-       	</div>
-<%  }  %>
-<%
+										<%
+                            if (hasAdminRole || hasPublisherRole) {
+                                %>
+                                                                       <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
+                                                                       onclick="subscription('<%=types[i].id%>','<%=domainName%>');redirectToCloud('<%=types[i].urls.cloudTypeUrl
+                                %>');">Go</button>
+                                                                        <%
+                            } else {
+                                log.info("Not adding store invitee user " + username + " to rightwave");
+                                %>
+                                                                       <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
+                                                                       onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl
+                                %>');">Try</button>
+                                                                        <%
+                            }
+                            %>
+                                                                  </div>
+                                                                  <%
+                        }
+                        %>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                                             <%
+                    } else { %>
+									<%
+                    }
+                }
+            }
+        }
+        %>
+                              </div>
+                       </div>
+                      </div>
+                  </div>
+       <%
+    }
+    %>
+  <%
 }); %>
