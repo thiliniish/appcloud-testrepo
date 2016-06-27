@@ -309,7 +309,6 @@ var isMonetizationEnabled = function (tenantDomain) {
             };
         } else {
             var message = "Unable to check the monetization status when the tenant domain is null";
-            log.error(message);
             errorObj.message = message;
             return errorObj;
         }

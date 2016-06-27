@@ -16,32 +16,18 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.user.manager.beans;
+package org.wso2.carbon.cloud.user.manager.util;
 
-/**
- * Represents a tenants information in Cloud
- * tenantDomain - Platform Tenant Domain
- * tenantDisplayName - The display name of this tenant
- */
-public class TenantInfoBean {
+public class CloudUserManagerException extends Exception {
 
-    private String tenantDomain;
-    private String tenantDisplayName;
+    private static final long serialVersionUID = -8122785505033077527L;
 
-    public String getTenantDisplayName() {
-        return tenantDisplayName;
+    public CloudUserManagerException(String s) {
+        super(s);
     }
 
-    public void setTenantDisplayName(String tenantDisplayName) {
-        this.tenantDisplayName = tenantDisplayName;
-    }
-
-    public String getTenantDomain() {
-        return tenantDomain;
-    }
-
-    public void setTenantDomain(String tenantDomain) {
-        this.tenantDomain = tenantDomain;
+    public CloudUserManagerException(String s, Throwable throwable) {
+        super(s, throwable);
     }
 
 }
