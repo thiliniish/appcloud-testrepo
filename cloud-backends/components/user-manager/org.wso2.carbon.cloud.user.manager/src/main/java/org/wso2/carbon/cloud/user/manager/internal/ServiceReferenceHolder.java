@@ -29,7 +29,6 @@ public class ServiceReferenceHolder {
     private static UserRealm userRealm;
     private static RegistryService registryService;
     private static ConfigurationContextService configurationContextService;
-    private static ConfigurationContextService contextService;
 
     private ServiceReferenceHolder() {
 
@@ -59,6 +58,9 @@ public class ServiceReferenceHolder {
         ServiceReferenceHolder.configurationContextService = configurationContextService;
     }
 
+    public static ConfigurationContextService getConfigurationContextService() {
+        return ServiceReferenceHolder.configurationContextService;
+    }
 
     public static void setUserRealm(UserRealm realm) {
         userRealm = realm;
