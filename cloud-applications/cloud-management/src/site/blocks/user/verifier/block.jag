@@ -1,7 +1,6 @@
 <%
 jagg.block("user/verifier", {
     initialize: function (data) {
-
     },
 
     getOutputs: function (inputs) {
