@@ -1,0 +1,6 @@
+<%
+jagg.block("dasDataPurge", {
+    initialize: function (data) {
+    }
+});
+%>

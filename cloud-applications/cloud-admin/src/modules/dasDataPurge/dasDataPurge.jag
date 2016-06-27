@@ -1,0 +1,86 @@
+<%
+include("/jagg/jagg.jag");
+
+var log = new Log("site.modules.dasDataPurge.dasDataPurge.jag");
+var ws = require('ws');
+var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
+
+var purgeOnDate = function (year, month, useYearOnly) {
+    var response = false;
+    var purgeDataByDate = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:purgeDataByDate";
+    var payload = '<ser:purgeDataByDate xmlns:ser="http://service.admin.purge.das.cloud.carbon.wso2' +
+            '.org"><ser:year>' + year + '</ser:year><ser:month>' + month
+            + '</ser:month><ser:useYearOnly>' + useYearOnly + '</ser:useYearOnly></ser:purgeDataByDate>';
+    var result;
+    try {
+        purgeDataByDate.open(options, jsonObj.DasDataPurgeService.DAS_DATA_PURGE_SERVICE_URL, false,
+                jsonObj.DasDataPurgeService.username, jsonObj.DasDataPurgeService.password);
+        purgeDataByDate.send(payload);
+        result = purgeDataByDate.responseXML;
+        var returnText = result.*::["return"].text();
+        if (returnText == "true") {
+            response = true;
+        }
+    } catch (e) {
+        log.error("An error occurred during the service call to purge data based on date.");
+        log.error(e);
+    }
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data: response
+        };
+    } else {
+        log.error("Error while purging data on date." + year + ":" + month);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while purging data on date." + year + ":" + month
+        };
+    }
+};
+
+var purgeOnTenant = function (tenantDomain) {
+    var response = false;
+    var purgeDataByTenant = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:purgeDataByTenant";
+    var payload = '<ser:purgeDataByTenant xmlns:ser="http://service.admin.purge.das.cloud.carbon.wso2' +
+            '.org"><ser:tenantDomain>' + tenantDomain + '</ser:tenantDomain></ser:purgeDataByTenant>';
+    var result;
+    try {
+        purgeDataByTenant.open(options, jsonObj.DasDataPurgeService.DAS_DATA_PURGE_SERVICE_URL, false, jsonObj
+                .DasDataPurgeService.username, jsonObj.DasDataPurgeService.password);
+        purgeDataByTenant.send(payload);
+        result = purgeDataByTenant.responseXML;
+        var returnText = result.*::["return"].text();
+        if (returnText == "true") {
+            response = true;
+        }
+    } catch (e) {
+        log.error("An error occurred during the service call to purge data based on tenant.");
+        log.error(e);
+    }
+
+    if (response != null) {
+        return {
+            error: false,
+            statusCode: 200,
+            data: response
+        };
+    } else {
+        log.error("Error while purging data on tenant." + tenantDomain);
+        return {
+            error: true,
+            statusCode: 500,
+            message: "Error while purging data on tenant." + tenantDomain
+        };
+    }
+};
+
+%>
