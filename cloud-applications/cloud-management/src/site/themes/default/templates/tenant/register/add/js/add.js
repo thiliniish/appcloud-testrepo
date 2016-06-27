@@ -81,7 +81,7 @@ function checkConfirmation() {
     var cloudmgtURL = $("#cloudmgtURL").attr('value');
     if (key == 'null' || key == "") {
         jagg.message({
-            content: "You have either already clicked the link that was emailed to you or it must have been expired",
+            content: "You have either already clicked the link that was emailed to you or it has expired.",
             type: 'error',
             cbk: function () {
                 window.location.href = cloudmgtURL;
@@ -104,7 +104,7 @@ function getProfile() {
         function (jqXHR, textStatus, errorThrown) {
             jagg.message({
                 type: 'error',
-                content: "Unable to retrieve the user profile at the moment. Please contact WSO2 Cloud Team for help. "
+                content: "Unable to retrieve the user profile at the moment. Please contact WSO2 Cloud Team for help."
             });
         })
 }
@@ -175,7 +175,7 @@ $(document).ready(function ($) {
         });
         return isSuccess;
     }, function (value, element) {
-        return "Company name \" " + element.value + " \" is already taken. Please provide some other name"
+        return "Company name \" " + element.value + " \" is already taken. Please provide some other name."
     });
 
     jQuery.validator.addMethod("validatePassword", function (value, element) {
