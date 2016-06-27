@@ -7,12 +7,14 @@ var getWelcomeMsg = function (username) {
     var welcomeMsg = cloudConfig.welcomeMsg;
     var profileDetails = modUserProfile.getProfile(username);
     if (profileDetails.firstname != null) {
+        //Checking erroneous values in LDAP
         if (profileDetails.firstname != "undefined" && profileDetails.firstname != "$1" && profileDetails.firstname
                 != "") {
             welcomeMsg = welcomeMsg + ", " + profileDetails.firstname;
         }
     } else {
         if (profileDetails.lastname != null) {
+            //Checking erroneous values in LDAP
             if (profileDetails.lastname != "undefined" && profileDetails.lastname != "$2" && profileDetails
                             .lastname != "") {
                 welcomeMsg = welcomeMsg + ", " + profileDetails.lastname;
@@ -30,9 +32,9 @@ var getSubscriptionInfo = function (types, domainName) {
             var columnName = types[i].id;
             var queryString = SQL_QUERY_STRINGS.SELECT_FROM_SUBSCRIPTIONS;
             var parameters = [columnName, domainName];
-            var isRegistered = jagg.module("database").executeQuery(queryString, parameters);
-            if (isRegistered.length > 0) {
-                subscriptionInfo[columnName] = isRegistered[0][columnName];
+            var registrationInfo = jagg.module("database").executeQuery(queryString, parameters);
+            if (registrationInfo.length > 0) {
+                subscriptionInfo[columnName] = registrationInfo[0][columnName];
             } else {
                 subscriptionInfo[columnName] = "true";//as a fail proof, it is assumed that tenant has subscribed to all the available clouds.
                 log.error("Subscription details were not found for " + columnName + " of tenant " + domainName);

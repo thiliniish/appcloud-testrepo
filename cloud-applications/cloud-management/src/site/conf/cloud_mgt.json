@@ -12,7 +12,7 @@
         "id": "app_cloud",
         "name": "App Cloud",
         "isBeta": true,
-        "logoClass":"fa",
+        "logoClass": "fa",
         "logo": "cubes",
         "description": "Host your microservices and web applications in the Cloud.",
         "serviceType": "free",
