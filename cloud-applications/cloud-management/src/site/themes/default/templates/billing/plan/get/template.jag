@@ -114,6 +114,12 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
 var isBillingEnabled = jagg.module("billing").isBillingEnabled();
+var tenantDomain;
+var isMonetizationEnabled = false;
+if (session.get("TENANT_INFO") != null) {
+	tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+	isMonetizationEnabled = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+}
 if (isBillingEnabled) {
 	var serviceId = session.get("SERVICE_ID");
 	var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
@@ -247,9 +253,10 @@ if (isBillingEnabled) {
                     </div>
                 </div>
                 <div class="pricing-table-features">
-                    <p>Accounts</p>
+                    <p>Portal users</p>
                     <p>Calls/day</p>
                     <p>Calls above plan</p>
+                    <p>API monetization</p>
                 </div>
 			</div>
 
@@ -281,24 +288,35 @@ if (isBillingEnabled) {
                     <p><%=paymentPlans[i].maxAccounts%></p>
                     <p><%=maxUsageStr%></p>
                     <p><%=paymentPlans[i].overUsage%></p>
+                    <p><%if (paymentPlans[i].name == BILLING_STARTER_PLAN) {
+				%>No<%
+			} else {
+				%>Yes<%
+			}%>
+ 	           </p>
                 </div>
                 <div class="pricing-table-signup-tiny">
 	        <%
                 var spinner = "spinner_"+paymentPlans[i].id;
                 var selectbtn = "selectbtn_"+paymentPlans[i].id;
-                if(currRatePlanId == paymentPlans[i].id) {
+                if (currRatePlanId == paymentPlans[i].id) {
                 %>
 
                     <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
                     <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
                 	<%
-                	} else {
-                	var paymentPlanName = paymentPlans[i].name.toUpperCase();
-					%>
-					    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" >Select</button>
-				        <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
-                    <%
-                    }
+                } else {
+			var paymentPlanName = paymentPlans[i].name.toUpperCase();
+			if (isMonetizationEnabled && paymentPlans[i].name == BILLING_STARTER_PLAN) {%>
+				<p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" disabled>Select</button>
+		        	<i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
+		        	</p>
+		        <%} else {%>
+                        	<p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" >Select</button>
+			       	<i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
+			       	</p>
+			<%}
+		}
             %>
                 </div>
 			</div>
@@ -310,6 +328,7 @@ if (isBillingEnabled) {
             <input type="hidden" name="isFromChangePlan" id="isFromChangePlan" value="true"/>
             <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
             <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
+            <input type="hidden" name="isMonetizationEnabled" id="isMonetizationEnabled"  value="<%=isMonetizationEnabled%>" />
             <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
 
             <input type="hidden" name="marketing" id="marketing"  value="<%= marketing %>" />
@@ -319,6 +338,9 @@ if (isBillingEnabled) {
 		</div>
 	</div>
 	<div class="row pad-bot-50">
+		<div style="width:100%; align-content:center; padding: 25px;">
+			<p>"Portal users" are defined as all accounts (email address plus password) that have direct access to Publisher or Developer Portal (API Store) web user interfaces. The actual number of end users of the APIs (for example, users of mobile applications invoking them) is not limited.</p>
+ 		</div>
 		<div class="container col-md-8">
 			&nbsp;
 		</div>
