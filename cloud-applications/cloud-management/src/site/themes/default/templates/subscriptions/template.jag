@@ -51,44 +51,42 @@
 
         <div class="inner-wrapper">
             <div class="container-fluid">
-                   <div class="row row-centered">
+                <div class="row row-centered">
                     <div class="col-centered col-xs-10 col-sm-8 col-md-5 col-lg-3 cloud-intro">
-                        <h1><%=welcomeMsg
-        %></h1>
-                                <div class="description">
-                                    Select a Cloud below to get started
-                                </div>
-                            </div>
+                        <h1><%=welcomeMsg%></h1>
+                        <div class="description">
+                            Select a Cloud below to get started
                         </div>
-                        <div class="row row-centered">
-                               <div class="row-same-height row-full-height">
-                                <%
+                    </div>
+                </div>
+                <div class="row row-centered">
+                    <div class="row-same-height row-full-height">
+        <%
         for (var i = 0; i < types.length; i++) {
             if (types[i].id != "integration_cloud") {
                 if (types[i].id != DEFAULT_SUBSCRIPTION) {
                     if (subscriptionInfo[types[i].id] == true) { %>
-						<div class="col-xs-12 col-sm-5 col-md-3 col-lg-2 col-centered col-full-height">
-							<div class="cloud-app-select">
-								<div class="heading">
-									<%
+                        <div class="col-xs-12 col-sm-5 col-md-3 col-lg-2 col-centered col-full-height">
+                            <div class="cloud-app-select">
+                                <div class="heading">
+                        <%
                         if (types[i].isBeta == true) { %>
-									<div class="ribbon-wrapper-beta">
-                            			<div class="ribbon">BETA</div>
-                        			</div>
-                        			<%
+                                    <div class="ribbon-wrapper-beta">
+                                        <div class="ribbon">BETA</div>
+                                    </div>
+                                    <%
                         }
                         %>
-                                                           <i class="<%=types[i].logoClass%> <%=types[i].logoClass%>-<%=types[i].logo%> <%=types[i].logoClass%>-3x"></i>
-									<div class="cloud-name"><%=types[i].name%></div>
-								</div>
-								<div class="content">
-										<%=types[i].description
-                        %>
-                                                            <div class="clearfix"></div>
-                                                            <%
+                                    <i class="<%=types[i].logoClass%> <%=types[i].logoClass%>-<%=types[i].logo%> <%=types[i].logoClass%>-3x"></i>
+                                    <div class="cloud-name"><%=types[i].name%></div>
+                                </div>
+                                <div class="content">
+                                        <%=types[i].description%>
+                                    <div class="clearfix"></div>
+                        <%
                         if (billingTypeInfo[types[i].id] != "TRIAL") { %>
-									<div class="btn-footer">
-										<%
+                                    <div class="btn-footer">
+                                        <%
                             if (hasAdminRole || hasPublisherRole) {
                                 %>
                                                                         <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
@@ -107,45 +105,38 @@
                        </div>
                        <%
                         } else { %>
-									<div class="btn-footer trial-color">
-										<div class="footer-msg"> 14 Days trial</div>
-										<%
+                                    <div class="btn-footer trial-color">
+                                        <div class="footer-msg"> 14 Days trial</div>
+                                        <%
                             if (hasAdminRole || hasPublisherRole) {
                                 %>
-                                                                       <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
-                                                                       onclick="subscription('<%=types[i].id%>','<%=domainName%>');redirectToCloud('<%=types[i].urls.cloudTypeUrl
-                                %>');">Go</button>
+                                        <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
+                                         onclick="subscription('<%=types[i].id%>','<%=domainName%>');
+                                         redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Go</button>
                                                                         <%
                             } else {
                                 log.info("Not adding store invitee user " + username + " to rightwave");
                                 %>
-                                                                       <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
-                                                                       onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl
-                                %>');">Try</button>
-                                                                        <%
-                            }
-                            %>
-                                                                  </div>
-                                                                  <%
-                        }
-                        %>
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                                             <%
-                    } else { %>
-									<%
-                    }
+                                        <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
+                                        onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Try</button>
+                            <% } %>
+                                    </div>
+                    <%  } %>
+                                </div>
+                            </div>
+                        </div>
+                <%  } else { %>
+                <%  }
                 }
             }
         }
         %>
-                              </div>
-                       </div>
-                      </div>
-                  </div>
+                    </div>
+                </div>
+            </div>
+        </div>
        <%
     }
     %>
-  <%
+    <%
 }); %>
