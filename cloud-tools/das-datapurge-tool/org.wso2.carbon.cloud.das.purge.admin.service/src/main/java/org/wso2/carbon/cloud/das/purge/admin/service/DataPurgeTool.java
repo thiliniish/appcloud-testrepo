@@ -157,7 +157,7 @@ public class DataPurgeTool {
         }
 
         //Search for all tenants except paid tenants
-        List<String> allFreeTenants = getFreeTenantDomainsFromDB();
+        List<String> allFreeTenants = getTrialTenantDomainsFromDB();
         for (String tenantDomain : allFreeTenants) {
             boolean errorInTenantSearch = false;
             for (int i = 0; i < tables.size(); i++) {
@@ -357,7 +357,7 @@ public class DataPurgeTool {
      *
      * @return list of tenant Domains except paid tenants
      */
-    private List<String> getFreeTenantDomainsFromDB() {
+    private List<String> getTrialTenantDomainsFromDB() {
         List<String> tenantDomains = new ArrayList<>();
         try {
             tenantDomains = DBConnector.getTrialTenantDomains();
