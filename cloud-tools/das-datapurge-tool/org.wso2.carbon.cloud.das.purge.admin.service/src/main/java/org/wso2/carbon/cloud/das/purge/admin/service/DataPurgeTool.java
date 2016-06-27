@@ -118,7 +118,7 @@ public class DataPurgeTool {
                     resultIds.add(searchResultEntry.getId());
                 }
                 //Delete records which satisfy the search query
-                //analyticsDataAPI.delete(superTenantId, tables.get(i), resultIds);
+                analyticsDataAPI.delete(superTenantId, tables.get(i), resultIds);
             } catch (AnalyticsException e) {
                 log.error("An error occurred while deleting records related to tenant:" + tenantDomain + " in " + tables
                         .get(i), e);
@@ -207,7 +207,7 @@ public class DataPurgeTool {
                         resultIds.add(searchResultEntry.getId());
                     }
                     //Delete records which satisfy the search query
-                    //analyticsDataAPI.delete(superTenantId, tables.get(i), resultIds);
+                    analyticsDataAPI.delete(superTenantId, tables.get(i), resultIds);
                 } catch (AnalyticsException e) {
                     log.error("An error occurred while deleting records related to date in " + tables.get(i) + " for "
                             + "tenant " + tenantDomain, e);
