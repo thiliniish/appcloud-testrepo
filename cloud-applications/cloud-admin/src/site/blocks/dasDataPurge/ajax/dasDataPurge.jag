@@ -1,48 +1,64 @@
 <%
 include("/jagg/jagg.jag");
 
-var log = new Log("site/blocks/dasDataPurge/ajax/dasDataPurge.jag");
+var log = new Log("site.blocks.dasDataPurge.ajax.dasDataPurge.jag");
 
 (function () {
+    var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     var result;
-    var action = request.getParameter("action");
+    var action = encoder.getSafeText(request.getParameter("action"));
     var mod = jagg.module("dasDataPurge");
+    var errorObj = {
+        error: true,
+        statusCode: 500,
+        message: "Internal error. Please retry..."
+    };
 
     if (action == "purgeDataBasedOnDate") {
         try {
-            var year = request.getParameter("year");
-            var month = request.getParameter("month");
+            var year = encoder.getSafeText(request.getParameter("year"));
+            var month = encoder.getSafeText(request.getParameter("month"));
             var isYearOnly = request.getParameter("isYearOnly");
             result = mod.purgeOnDate(year, month, isYearOnly);
             if (result != null) {
                 print(result);
             } else {
-                log.error("Could Not Purge data based on Date.");
+                var errorMsg = "Result is null for purge data based on year: " + year;
+                if (!isYearOnly) {
+                    errorMsg = errorMsg + " and month: " + month;
+                }
+                log.error(errorMsg);
+                errorObj.message = errorMsg;
+                return errorObj;
             }
         } catch (e) {
-            log.error("Error while Purging data based on date " + month + ":" + year + e);
-            return {
-                error: true,
-                statusCode: 500,
-                message: "Error while Purging data based on date " + month + ":" + year
-            };
+            var errorMsg = "Error while Purging data based on year: " + year;
+            if (!isYearOnly) {
+                errorMsg = errorMsg + " and month: " + month;
+            }
+            log.error(errorMsg);
+            log.error(e);
+            errorObj.message = errorMsg;
+            return errorObj;
         }
     } else if (action == "purgeDataBasedOnTenant") {
         try {
-            var tenantDomain = request.getParameter("tenantDomain");
+            var tenantDomain = encoder.getSafeText(request.getParameter("tenantDomain"));
             result = mod.purgeOnTenant(tenantDomain);
             if (result != null) {
                 print(result);
             } else {
-                log.error("Could Not Purge data based on Tenant");
+                var errorMsg = "Result is null for Purge data based on tenant: " + tenantDomain;
+                log.error(errorMsg);
+                errorObj.message = errorMsg;
+                return errorObj;
             }
         } catch (e) {
-            log.error("Error while Purging data based on Tenant " + tenantDomain + e);
-            return {
-                error: true,
-                statusCode: 500,
-                message: "Error while Purging data based on tenant : " + tenantDomain
-            };
+            var errorMsg = "Error while Purging data based on tenant: " + tenantDomain;
+            log.error(errorMsg);
+            log.error(e);
+            errorObj.message = errorMsg;
+            return errorObj;
         }
     }
 }());

@@ -118,7 +118,7 @@ public class DataPurgeTool {
                     resultIds.add(searchResultEntry.getId());
                 }
                 //Delete records which satisfy the search query
-                analyticsDataAPI.delete(superTenantId, tables.get(i), resultIds);
+                //analyticsDataAPI.delete(superTenantId, tables.get(i), resultIds);
             } catch (AnalyticsException e) {
                 log.error("An error occurred while deleting records related to tenant:" + tenantDomain + " in " + tables
                         .get(i), e);
@@ -207,7 +207,7 @@ public class DataPurgeTool {
                         resultIds.add(searchResultEntry.getId());
                     }
                     //Delete records which satisfy the search query
-                    analyticsDataAPI.delete(superTenantId, tables.get(i), resultIds);
+                    //analyticsDataAPI.delete(superTenantId, tables.get(i), resultIds);
                 } catch (AnalyticsException e) {
                     log.error("An error occurred while deleting records related to date in " + tables.get(i) + " for "
                             + "tenant " + tenantDomain, e);
@@ -327,23 +327,25 @@ public class DataPurgeTool {
      */
     private StringBuffer getTimeQuery(String timeRelatedColumn, String year, String month, boolean useYearOnly) {
         StringBuffer query = new StringBuffer("");
+        Calendar gc;
+        Date startDate, endDate;
         if (useYearOnly) {
             //Get start date and end date
-            Calendar gc = new GregorianCalendar(Integer.parseInt(year), 0, 1); // 0 = January and 1 = 1st Day
-            Date startDate = gc.getTime();
+            gc = new GregorianCalendar(Integer.parseInt(year), 0, 1); // 0 = January and 1 = 1st Day
+            startDate = gc.getTime();
             gc.setTime(startDate);
             gc.set(Calendar.MONTH, 11); // 11 = December
             gc.set(Calendar.DAY_OF_MONTH, gc.getActualMaximum(Calendar.DAY_OF_MONTH));
-            Date endDate = gc.getTime();
+            endDate = gc.getTime();
             query = query.append(timeRelatedColumn + ":[" + startDate.getTime() + " TO " + "" + endDate.getTime() +
                     "]");
         } else {
             //Get start date and end date
-            Calendar gc = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month) - 1, 1);
-            Date startDate = gc.getTime();
+            gc = new GregorianCalendar(Integer.parseInt(year), Integer.parseInt(month) - 1, 1);
+            startDate = gc.getTime();
             gc.setTime(startDate);
             gc.set(Calendar.DAY_OF_MONTH, gc.getActualMaximum(Calendar.DAY_OF_MONTH));
-            Date endDate = gc.getTime();
+            endDate = gc.getTime();
             query = query.append(timeRelatedColumn + ":[" + startDate.getTime() + " TO " + "" + endDate.getTime() +
                     "]");
         }
@@ -356,10 +358,9 @@ public class DataPurgeTool {
      * @return list of tenant Domains except paid tenants
      */
     private List<String> getFreeTenantDomainsFromDB() {
-        DBConnector dbConnector = new DBConnector();
         List<String> tenantDomains = new ArrayList<>();
         try {
-            tenantDomains = dbConnector.getFreeTenantDomains();
+            tenantDomains = DBConnector.getTrialTenantDomains();
         } catch (NamingException e) {
             log.error("Error while checking user account validity for admin user." + e.getMessage(), e);
         } catch (SQLException e) {

@@ -1,7 +1,7 @@
 <%
 include("/jagg/jagg.jag");
 
-var log = new Log("site/modules/dasDataPurge/dasDataPurge.jag");
+var log = new Log("site.modules.dasDataPurge.dasDataPurge.jag");
 var ws = require('ws');
 var jsonObj = jagg.module("util").getJsonFromFile("/site/conf/cloud_admin.json");
 

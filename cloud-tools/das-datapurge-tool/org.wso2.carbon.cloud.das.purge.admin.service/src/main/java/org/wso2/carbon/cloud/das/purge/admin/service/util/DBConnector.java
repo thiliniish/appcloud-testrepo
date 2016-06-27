@@ -1,28 +1,28 @@
 /*
- *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.cloud.das.purge.admin.service.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -33,11 +33,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This DB Connector class will create the DB Connection to the cloudmgt database and get the paid tenant list
+ * This DB Connector class will create the DB Connection to the cloudmgt database and get the trial tenant list
  */
 public class DBConnector {
+    private static final Log log = LogFactory.getLog(DBConnector.class);
 
-    private final Log log = LogFactory.getLog(DBConnector.class);
+    private static volatile DataSource dataSource = null;
+
+    private DBConnector() {
+    }
+
+    /**
+     * Initializes the data source
+     *
+     * @throws NamingException if an error occurs while loading DB configuration
+     */
+    private static void initialize() throws NamingException {
+        synchronized (DBConnector.class) {
+            if (dataSource == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Initializing data source for : " + DASPurgeToolConstants.CLOUD_DATASOURCE);
+                }
+                Context ctx = new InitialContext();
+                dataSource = (DataSource) ctx.lookup(DASPurgeToolConstants.CLOUD_DATASOURCE);
+            }
+        }
+    }
+
+    /**
+     * Utility method to get a new database connection
+     *
+     * @return Connection
+     * @throws NamingException, SQLException if failed to get Connection
+     */
+    public static Connection getConnection() throws NamingException, SQLException {
+        if (dataSource == null) {
+            initialize();
+        }
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new SQLException("Error when getting a database connection object from the Cloud Mgt data source.",
+                    e);
+        }
+    }
 
     /**
      * Get all tenants except the paid tenants from cloud-mgt database
@@ -46,8 +85,8 @@ public class DBConnector {
      * @throws NamingException
      * @throws SQLException
      */
-    public List<String> getFreeTenantDomains() throws NamingException, SQLException {
-        Connection connection = getDataSourceConnection();
+    public static List<String> getTrialTenantDomains() throws NamingException, SQLException {
+        Connection connection = getConnection();
         PreparedStatement preparedStatement = null;
         String query = DASPurgeToolConstants.SQL_SELECT_NOT_PAID_TENANTS;
         ResultSet resultSet = null;
@@ -64,56 +103,66 @@ public class DBConnector {
             log.error(message, e);
             throw new SQLException(message, e);
         } finally {
-            closeConnection(connection, preparedStatement, resultSet);
+            closeAllConnections(connection, preparedStatement, resultSet);
         }
     }
 
-    public Connection getDataSourceConnection() throws NamingException, SQLException {
-        //super tenant details
-        int tenantId = MultitenantConstants.SUPER_TENANT_ID;
-        String tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-        Connection conn = null;
-
-        //changing the tenant flow to the supper tenant
-        PrivilegedCarbonContext.startTenantFlow();
-        PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-        privilegedCarbonContext.setTenantId(tenantId);
-        privilegedCarbonContext.setTenantDomain(tenantDomain);
-
-        //getting the cloud-mgt data source connection
-        DataSource ds = (DataSource) privilegedCarbonContext.getJNDIContext()
-                .lookup(DASPurgeToolConstants.CLOUD_DATASOURCE);
-        try {
-            conn = ds.getConnection();
-        } catch (SQLException e) {
-            String message = "Error while connecting to data Source " + DASPurgeToolConstants.CLOUD_DATASOURCE +
-                    " , " + e.getErrorCode();
-            log.error(message, e);
-            throw new SQLException(message, e);
-        } finally {
-            //Ending the tenant flow
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-        return conn;
+    /**
+     * Utility method to close the connection streams.
+     *
+     * @param preparedStatement PreparedStatement
+     * @param connection        Connection
+     * @param resultSet         ResultSet
+     */
+    public static void closeAllConnections(Connection connection, PreparedStatement preparedStatement,
+            ResultSet resultSet) {
+        closeConnection(connection);
+        closeResultSet(resultSet);
+        closeStatement(preparedStatement);
     }
 
-    public void closeConnection(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet)
-            throws SQLException {
-        try {
-            if (resultSet != null) {
+    /**
+     * Close Connection
+     *
+     * @param dbConnection Connection
+     */
+    private static void closeConnection(Connection dbConnection) {
+        if (dbConnection != null) {
+            try {
+                dbConnection.close();
+            } catch (SQLException e) {
+                log.warn("Error occurred while closing the database connection.", e);
+            }
+        }
+    }
+
+    /**
+     * Close ResultSet
+     *
+     * @param resultSet ResultSet
+     */
+    private static void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
                 resultSet.close();
+            } catch (SQLException e) {
+                log.warn("Error occurred while closing the result set.", e);
             }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            String message = "Error while closing the database connection - " + e.getErrorCode();
-            log.error(message, e);
-            throw new SQLException(message, e);
         }
     }
 
+    /**
+     * Close PreparedStatement
+     *
+     * @param preparedStatement PreparedStatement
+     */
+    private static void closeStatement(PreparedStatement preparedStatement) {
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                log.warn("Error occurred while closing the prepared statement.", e);
+            }
+        }
+    }
 }
