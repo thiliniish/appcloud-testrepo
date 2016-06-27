@@ -6,11 +6,8 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
     var inputsObj = {};
-    var confirm = encoder.getSafeText(request.getParameter("confirmation"));
-    var id = encoder.getSafeText(request.getParameter("id"));
-
-    inputsObj.confirm = (confirm == null ? "" : confirm);
-    inputsObj.id = (id == null ? "" : id);
+    inputsObj.confirm = encoder.getSafeText(request.getParameter("confirmation"));
+    inputsObj.id = encoder.getSafeText(request.getParameter("id"));
 
     jagg.render({
         "name": "page/base",
