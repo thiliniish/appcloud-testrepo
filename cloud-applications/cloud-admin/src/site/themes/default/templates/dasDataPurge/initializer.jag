@@ -1,0 +1,18 @@
+<%
+jagg.initializer("dasDataPurge", {
+
+    preInitialize: function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("dasDataPurge", "jquery-ui", "assets/css/jquery-ui.css");
+        jagg.addHeaderCSS("dasDataPurge", "custom", "assets/css/custom.css");
+        jagg.addHeaderCSS("dasDataPurge", "bootstrap", "assets/css/bootstrap.css");
+
+        // UI related JS files
+        jagg.addFooterJS("dasDataPurge", "jquery.validate.min", "assets/js/jquery.validate.min.js");
+        jagg.addFooterJS("dasDataPurge", "jquery-ui.min", "assets/js/jquery-ui.min.js");
+
+        // Custom JS file
+        jagg.addFooterJS("dasDataPurge", "dasDataPurge", "templates/dasDataPurge/js/dasDataPurge.js");
+    }
+});
+%>
