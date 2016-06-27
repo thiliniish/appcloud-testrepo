@@ -64,8 +64,7 @@
         <%
         for (var i = 0; i < types.length; i++) {
             if (types[i].id != "integration_cloud") {
-                if (types[i].id != DEFAULT_SUBSCRIPTION) {
-                    if (subscriptionInfo[types[i].id] == true) { %>
+                if (types[i].id != DEFAULT_SUBSCRIPTION) { %>
                         <div class="col-xs-12 col-sm-5 col-md-3 col-lg-2 col-centered col-full-height">
                             <div class="cloud-app-select">
                                 <div class="heading">
@@ -81,9 +80,16 @@
                                     <div class="cloud-name"><%=types[i].name%></div>
                                 </div>
                                 <div class="content">
+                                    <% if (subscriptionInfo[types[i].id] == true) { %>
                                         <%=types[i].description%>
+                                    <% } else { %>
+                                        <%=disabledSubscriptionWarning%>
+                                    <% } %>
                                     <div class="clearfix"></div>
-                        <%
+                                    <%  var buttonStatus = "";
+                                        if (subscriptionInfo[types[i].id] != true) {
+                                            buttonStatus = "disabled";
+                                        }
                         if (billingTypeInfo[types[i].id] != "TRIAL") { %>
                                     <div class="btn-footer">
                             <%
@@ -91,12 +97,14 @@
                                 %>
                                         <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
                                         onclick="subscription('<%=types[i].id%>','<%=domainName%>');
-                                        redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Go</button>
+                                        redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
+                                        >Go</button>
                             <%
                             } else {
                                 log.info("Not adding store invitee user " + username + " to rightwave"); %>
                                         <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
-                                        onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Go</button>
+                                        onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"
+                                        <%=buttonStatus%> >Go</button>
                             <%
                             }
                             %>
@@ -109,21 +117,22 @@
                             if (hasAdminRole || hasPublisherRole) { %>
                                         <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
                                          onclick="subscription('<%=types[i].id%>','<%=domainName%>');
-                                         redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Go</button>
+                                         redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
+                                         >Go</button>
                             <%
                             } else {
                                 log.info("Not adding store invitee user " + username + " to rightwave");
                                 %>
                                         <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
-                                        onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');">Try</button>
+                                        onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"
+                                        <%=buttonStatus%> >Try</button>
                             <% } %>
                                     </div>
                     <%  } %>
                                 </div>
                             </div>
                         </div>
-                <%  } else { %>
-                <%  }
+                <%
                 }
             }
         }
