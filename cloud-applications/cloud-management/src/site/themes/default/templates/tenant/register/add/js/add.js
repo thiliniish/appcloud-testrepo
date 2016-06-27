@@ -92,7 +92,6 @@ function checkConfirmation() {
 }
 
 function getProfile() {
-    var email = $("#email").attr('value');
     var userName = $("#userName").attr('value');
     jagg.post("../blocks/user/profile/ajax/profile.jag", {
             action: "getProfile",

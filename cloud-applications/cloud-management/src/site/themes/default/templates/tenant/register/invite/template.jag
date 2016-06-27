@@ -1,12 +1,4 @@
 <% jagg.template("tenant/register/invite", function(inputs, outputs, jagg) { %>
-<%
-
-var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var otEmail = request.getParameter("email");
-var sourceToken = request.getParameter("tokenid");
-var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-
-%>
 
 <!-- Google Tag Manager for Google Analytics-->
 <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PSTXMT"
@@ -17,7 +9,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-PSTXMT');</script>
 <!-- End Google Tag Manager -->
-
 
 <div class="container content-starter">
    <div class="row">
@@ -74,12 +65,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                </div>
             </div>
             <input type="hidden" name="otEmail" id="otEmail"
-               value="<%=otEmail%>" /> <input type="hidden" name="imagePath"
+               value="<%=outputs.otEmail%>" /> <input type="hidden" name="imagePath"
                id="imagePath" value="" />
             <input type="hidden" name="sourceToken" id="sourceToken"
-               value="<%=sourceToken%>" /> <input type="hidden" name="imagePath"
+               value="<%=outputs.sourceToken%>" /> <input type="hidden" name="imagePath"
                id="imagePath" value="" />
-            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
+            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=outputs.cloudmgtURL%>"/>
          </form>
       </div>
    </div>

@@ -1,22 +1,13 @@
 <% jagg.template("tenant/register/confirm", function(inputs, outputs, jagg) { %>
-<%
-include("/jagg/constants.jag");
-
-var confirm = org.wso2.carbon.ui.util.CharacterEncoder.getSafeText(request.getParameter("confirmation"));
-var isInvitee = request.getParameter("isInvitee");
-var isStoreInvitee = request.getParameter("isStoreInvitee");
-%>
-
 <div class="wrapper">
    <div class="branding">
    </div>
    <article class="start">
       <div class="alert alert-error error" id="registerError"><% jagg.includeBlock("page/messages", null); %></div>
-      <input type="hidden" name="confirm" id="confirm" value="<%=confirm%>"/>
-      <input type="hidden" name="isInvitee" id="isInvitee" value="<%=isInvitee%>"/>
-      <input type="hidden" name="isStoreInvitee" id="isStoreInvitee" value="<%=isStoreInvitee%>"/>
+      <input type="hidden" name="confirm" id="confirm" value="<%=outputs.confirm%>"/>
+      <input type="hidden" name="isInvitee" id="isInvitee" value="<%=outputs.isInvitee%>"/>
+      <input type="hidden" name="isStoreInvitee" id="isStoreInvitee" value="<%=outputs.isStoreInvitee%>"/>
    </article>
 </div>
-
 <% }); %>
 

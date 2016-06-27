@@ -1,22 +1,29 @@
 <%
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
+var log = new Log("site.pages.confirm-verification.jagg");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
+    var inputsObj = {};
+    inputsObj.confirm = encoder.getSafeText(request.getParameter("confirmation"));
+    inputsObj.isInvitee = encoder.getSafeText(request.getParameter("isInvitee"));
+    inputsObj.isStoreInvitee = encoder.getSafeText(request.getParameter("isStoreInvitee"));
 
     jagg.render({
-        "name":"page/base",
-        "inputs":{
-            "title":"WSO2 Cloud App",
-            "pagePath":"/site/pages/confirm-verification.jag",
-            "body":[
+        "name": "page/base",
+        "inputs": {
+            "title": "WSO2 Cloud App",
+            "pagePath": "/site/pages/confirm-verification.jag",
+            "body": [
                 {
-                    "name":"layout/base",
-                    "inputs":{
-                        "title":"Register",
-                        "middle":[
+                    "name": "layout/base",
+                    "inputs": {
+                        "title": "Register",
+                        "middle": [
                             {
-                            	"name":"tenant/register/confirm"
+                                "name": "tenant/register/confirm",
+                                "inputs": inputsObj
                             }
                         ]
                     }
