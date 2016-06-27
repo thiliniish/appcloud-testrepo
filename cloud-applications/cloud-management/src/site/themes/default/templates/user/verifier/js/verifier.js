@@ -1,10 +1,3 @@
-//function cleanup() {
-//    $('#form_div').hide();
-//    $('#helper_text').hide();
-//    var submitButton = document.getElementById('submitbtn');
-//    $('#submitbtn').css('background-color', '#F9BFBB');
-//    submitButton.disabled = true;
-//}
 
 function doSubmit() {
     disable();
@@ -57,20 +50,12 @@ function doSubmit() {
         });
 }
 
-
 function disable() {
     document.getElementById("spinner").style.display = '';
     var submitButton = document.getElementById('submitbtn');
     $('#submitbtn').css('background-color', '#F9BFBB');
     submitButton.disabled = true;
 }
-
-//function enable() {
-//    document.getElementById("spinner").style.display = 'none';
-//    var submitButton = document.getElementById('submitbtn');
-//    $('#submitbtn').css('background-color', '#428BCA');
-//    submitButton.disabled = false;
-//}
 
 $(document).ready(function ($) {
     jQuery.validator.setDefaults({
