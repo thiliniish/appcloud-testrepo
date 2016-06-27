@@ -365,7 +365,7 @@ var productRatePlanId =  $("#productRatePlanId").attr('value');
 						<span class="product-planname"><%=currRatePlan%></span>
 					</p>
 					<ul>
-						<li><%=accounts%> accounts</li>
+						<li><%=accounts%> portal users</li>
 						<li><%=callsPerDay%> calls/day</li>
 						<li><%=callsAbovePlan%> calls above plan</li>
 					</ul>
