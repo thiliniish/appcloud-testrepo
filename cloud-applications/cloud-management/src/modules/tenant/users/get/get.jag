@@ -6,7 +6,7 @@ include("/jagg/config_reader.jag");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var subscriptionsType = cloudConfig.subscriptions.type;
 // used for logging
-var log = new Log("modules/tenant/users/get/get.jag");
+var log = new Log("modules.tenant.users.get.get.jag");
 
 var modManager = jagg.module("manager");
 var carbon = require('carbon');
