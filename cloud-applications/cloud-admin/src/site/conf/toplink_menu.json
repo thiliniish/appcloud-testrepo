@@ -1,41 +1,47 @@
 {
-    "Main": {
-        "Extend User Trial": {
-            "url": "https://milestones.appfactory.wso2.com:9443/cloudadmin/site/pages/extendtrial.jag",
-            "icon": "fa fa-fast-forward",
-            "isDropDown": "false",
-            "target": "_self"
-        },
-        "User Trial History": {
-            "url": "https://milestones.appfactory.wso2.com:9443/cloudadmin/site/pages/userhistory.jag",
-            "icon": "fa fa-tasks",
-            "isDropDown": "false",
-            "target": "_self"
-        },
-        "User Activity": {
-            "url": "https://milestones.appfactory.wso2.com:9443/cloudadmin/site/pages/useractivity.jag",
-            "icon": "fa fa-users",
-            "isDropDown": "false",
-            "target": "_self"
-        },
-        "Tenant Deletion": {
-            "url": "https://milestones.appfactory.wso2.com:9443/cloudadmin/site/pages/tenant-deletion.jag",
-            "icon": "fa fa-times",
-            "isDropDown": "false",
-            "target": "_self"
-        },
-        "Billing Statistics": {
-            "url": "https://milestones.appfactory.wso2.com:9443/cloudadmin/site/pages/billing-statistics.jag",
-            "icon": "fa fa-list-alt",
-            "isDropDown": "false",
-            "target": "_self"
-        }
+  "Main": {
+    "Extend User Trial": {
+      "url": "https://milestones.appfactory.wso2.com:9444/cloudadmin/site/pages/extendtrial.jag",
+      "icon": "fa fa-fast-forward",
+      "isDropDown": "false",
+      "target": "_self"
     },
-    "Left_menu": {
-        "Logout": {
-            "url": "https://milestones.appfactory.wso2.com:9443/cloudadmin/site/pages/logout.jag",
-            "icon": "fa fa-sign-out",
-            "isDropDown": "false"
-        }
+    "User Trial History": {
+      "url": "https://milestones.appfactory.wso2.com:9444/cloudadmin/site/pages/userhistory.jag",
+      "icon": "fa fa-tasks",
+      "isDropDown": "false",
+      "target": "_self"
+    },
+    "User Activity": {
+      "url": "https://milestones.appfactory.wso2.com:9444/cloudadmin/site/pages/useractivity.jag",
+      "icon": "fa fa-users",
+      "isDropDown": "false",
+      "target": "_self"
+    },
+    "Tenant Deletion": {
+      "url": "https://milestones.appfactory.wso2.com:9444/cloudadmin/site/pages/tenant-deletion.jag",
+      "icon": "fa fa-times",
+      "isDropDown": "false",
+      "target": "_self"
+    },
+    "Billing Statistics": {
+      "url": "https://milestones.appfactory.wso2.com:9444/cloudadmin/site/pages/billing-statistics.jag",
+      "icon": "fa fa-list-alt",
+      "isDropDown": "false",
+      "target": "_self"
+    },
+    "DAS Data Purge": {
+      "url": "https://milestones.appfactory.wso2.com:9444/cloudadmin/site/pages/das-data-purge.jag",
+      "icon": "fa fa-book",
+      "isDropDown": "false",
+      "target": "_self"
     }
+  },
+  "Left_menu": {
+    "Logout": {
+      "url": "https://milestones.appfactory.wso2.com:9444/cloudadmin/site/pages/logout.jag",
+      "icon": "fa fa-sign-out",
+      "isDropDown": "false"
+    }
+  }
 }
