@@ -1,8 +1,8 @@
 <%
 jagg.initializer("user/reset", {
-
     preInitialize:function () {
-
+        //custom JS
+        jagg.addFooterJS("user/reset", "user.reset.js","templates/user/reset/js/reset.js");
     }
 });
 %>

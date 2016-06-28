@@ -1,8 +1,10 @@
 <%
 jagg.block("user/reset", {
-    initialize:function (data) {
+    initialize: function (data) {
+    },
+
+    getOutputs: function (inputs) {
+        return inputs;
     }
-
-
 });
 %>

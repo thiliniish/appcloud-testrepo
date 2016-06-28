@@ -1,8 +1,11 @@
 <%
 jagg.initializer("user/initiate", {
+    preInitialize: function () {
+        //custom CSS
+        jagg.addHeaderCSS("user/initiate", "user.initiate.css",'templates/user/initiate/css/initiate.css');
 
-    preInitialize:function () {
-
+        //custom JS
+        jagg.addFooterJS("user/initiate", "user.initiate.js","templates/user/initiate/js/initiate.js");
     }
 });
 %>

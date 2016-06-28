@@ -1,8 +1,11 @@
 <%
 jagg.initializer("user/verifier", {
-
     preInitialize:function () {
+        //custom CSS
+        jagg.addHeaderCSS("user/verifier","user.verifier.css",'templates/user/verifier/css/verifier.css');
 
+        //custom JS
+        jagg.addFooterJS("user/verifier","user.verifier.js","templates/user/verifier/js/verifier.js");
     }
 });
 %>
