@@ -1,8 +1,16 @@
 <%
 include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
 var site = require("/site/conf/site.json");
+var log = new Log("site.pages.signup.jag");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
+    var inputsObj = {};
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    inputsObj.otEmail = encoder.getSafeText(request.getParameter("email"));
+    inputsObj.sourceToken = encoder.getSafeText(request.getParameter("tokenid"));
+    inputsObj.cloudmgtURL = encoder.getSafeText(cloudConfig.ServerUrls.cloudmgt.toString());
 
     jagg.render({
         "name":"page/base",
@@ -16,7 +24,8 @@ var site = require("/site/conf/site.json");
                         "title":"Sign Up",
                         "middle":[
                             {
-                            	"name":"tenant/register/invite"
+                            	"name":"tenant/register/invite",
+                                "inputs":inputsObj
                             }
                         ]
                     }

@@ -1,23 +1,60 @@
 <%
-    include("/jagg/jagg.jag");
-    var site = require("/site/conf/site.json");
-    var log = new Log();
-(function () {
-    var sessionId = session.getId();
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var site = require("/site/conf/site.json");
+var log = new Log("site.pages.add-tenant.jag");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
-   jagg.render({
-        "name":"page/base",
-        "inputs":{
-            "title":"WSO2 Cloud Mgt",
-            "pagePath":"/site/pages/add-tenant.jag",
-            "body":[
+(function () {
+    var inputsObj = {};
+    inputsObj.sessionId = session.getId();
+    inputsObj.confirmationKey = session.get("registration-intermediate-data");
+
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    inputsObj.cloudMgtURL = encoder.getSafeText(cloudConfig.ServerUrls.cloudmgt.toString());
+    var ssoName = cloudConfig.SSORelyingParty.name;
+    var ssoProvider = cloudConfig.SSORelyingParty.identityProviderURL;
+    var ssoKeystorePassword = cloudConfig.SSORelyingParty.keyStorePassword;
+    var ssoKeyAlias = cloudConfig.SSORelyingParty.identityKeyAlias;
+    var ssoKeystoreName = cloudConfig.SSORelyingParty.keyStoreName;
+
+    var security = require("sso");
+    var ssoRelyingParty = new security.SSORelyingParty(ssoName);
+    ssoRelyingParty.setProperty("identityProviderURL", ssoProvider);
+    ssoRelyingParty.setProperty("keyStorePassword", ssoKeystorePassword);
+    ssoRelyingParty.setProperty("identityAlias", ssoKeyAlias);
+    ssoRelyingParty.setProperty("keyStoreName", ssoKeystoreName);
+    var samlAuthRequest = ssoRelyingParty.getSAMLAuthRequest();
+    inputsObj.encodedRequest = ssoRelyingParty.encode(samlAuthRequest);
+    inputsObj.relayState = ssoRelyingParty.getUUID();
+    ssoRelyingParty.setRelayStateProperty(inputsObj.relayState, "/cloudmgt/site/pages/index.jag");
+    inputsObj.idpURL = ssoRelyingParty.getProperty("identityProviderURL") + "?SAML2.HTTPBinding=HTTP-POST";
+
+    if (session.get("registration-email") != null && session.get("isInvitee") != null &&
+            session.get("isUserAvail") != null) {
+        inputsObj.email = session.get("registration-email");
+        inputsObj.userName = encoder.getSafeText(jagg.module("manager").getUserNameFromEmail(inputsObj.email));
+        inputsObj.isInvitee = session.get("isInvitee");
+        inputsObj.isUserAvail = session.get("isUserAvail");
+    } else {
+        inputsObj.confirmationKey = null;
+        log.error("Required parameter values are not available for the account registration");
+    }
+
+    jagg.render({
+        "name": "page/base",
+        "inputs": {
+            "title": "WSO2 Cloud Mgt",
+            "pagePath": "/site/pages/add-tenant.jag",
+            "body": [
                 {
-                    "name":"layout/base",
-                    "inputs":{
-                        "title":"Tenant Mgt",
-                        "middle":[
+                    "name": "layout/base",
+                    "inputs": {
+                        "title": "Tenant Mgt",
+                        "middle": [
                             {
-                            	"name":"tenant/register/add"
+                                "name": "tenant/register/add",
+                                "inputs": inputsObj
                             }
                         ]
                     }
