@@ -163,6 +163,7 @@ var ZUORA_DATE_FORMAT = "yyyy-MM-dd";
 var RIGHTWAVE_DATE_FORMAT = "yyyy-MM-dd";
 var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
 var RIGHTWAVE_SUBMISSION_SUCCESS = "Data Submitted Successfully";
+var RIGHTWAVE_RESPONSE_TYPE = "text";
 
 //session related
 var BILLING_INFO = "billingInfo";
