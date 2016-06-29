@@ -222,23 +222,21 @@ function checkEmailExist() {
 function fillTenantOptionDropDown(tenantEntry) {
     var $optionContainer = $('#tenant-select');
     $optionContainer.empty();
-    var tenantsArray = [];
+    var tenantArray = [];
     //data service returns results in {"Entries":{"Entry":[{"xxx":"333"}, {"yyy":"333"}]}} format.
     //If there is only one object it sends like {"Entries":{"Entry":{"yyy":"333"}}}
     //Entry can be an 'Array' or an 'Object'.
     if (tenantEntry instanceof Array) {
-        tenantsArray = tenantEntry;
+        tenantArray = tenantEntry;
     }
     //When an object is returned.
     else {
-        tenantsArray.push(tenantEntry);
+        tenantArray.push(tenantEntry);
     }
-    var noOfTenants = tenantsArray.length;
-    if (noOfTenants != undefined) {
-        for (var i = 0; i < noOfTenants; i++) {
-            var $option = $('<option value="' + tenantsArray[i].tenantDomain + '">' + tenantsArray[i].tenantDomain + '</option>');
-            $optionContainer.append($option);
-        }
+    var noOfTenants = tenantArray.length;
+    for (var i = 0; i < noOfTenants; i++) {
+        var $option = $('<option value="' + tenantArray[i].tenantDomain + '">' + tenantArray[i].tenantDomain + '</option>');
+        $optionContainer.append($option);
     }
 }
 
