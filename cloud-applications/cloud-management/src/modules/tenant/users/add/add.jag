@@ -117,7 +117,7 @@ var sendInvite = function (email, tenant, roles, message) {
         }
     }
     var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
-    parameters = [tenant, email, uuid, roles, uuid, roles];
+    parameters = [tenant, email, uuid, roles, 0, uuid, roles, 0];
     var results = jagg.module("database").executeQuery(queryString, parameters);
 
     log.info("Successfully added the temp registration");
