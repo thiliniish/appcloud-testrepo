@@ -39,7 +39,7 @@ var log = new Log();
         var userName = request.getParameter("userName");
         var newRoles = request.getParameter("rolesToAdd");
         var removeRoles = request.getParameter("rolesToDelete");
-        var customResponse = {};
+        var responseObj = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             try {
@@ -59,28 +59,28 @@ var log = new Log();
         }
     } else if (action == "deleteUserFromTenant") {
         var userName = request.getParameter("userName");
-        var customResponse = {};
+        var responseObj = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             try {
                 var result = mod.deleteUserFromTenant(userName);
                 if (result != null) {
-                    customResponse.error = false;
-                    customResponse.message = result;
-                    print(stringify(customResponse));
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    print(stringify(responseObj));
                 }
             } catch (e) {
                 throw "Error while removing user " + userName;
             }
         } else {
-            customResponse.error = true;
-            customResponse.message = "You don't have permission to delete users";
-            print(stringify(customResponse));
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to delete users";
+            print(stringify(responseObj));
         }
     } else if (action == "sendUserInvite") {
         var users = request.getParameter("users");
         var roles = request.getParameter("roles");
-        var customResponse = {};
+        var responseObj = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             var userArray = users.split(",");
@@ -90,17 +90,17 @@ var log = new Log();
             try {
                 var result = mod.sendUserInvite(userArray, roles);
                 if (result != null) {
-                    customResponse.error = false;
-                    customResponse.message = result;
-                    print(stringify(customResponse));
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    print(stringify(responseObj));
                 }
             } catch (e) {
                 throw "Error while Sending invite user " + userName;
             }
         } else {
-            customResponse.error = true;
-            customResponse.message = "You don't have permission to invite users";
-            print(stringify(customResponse));
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to invite users";
+            print(stringify(responseObj));
         }
 
     } else if (action == "inviteUsers") {
@@ -108,7 +108,7 @@ var log = new Log();
         var userRoleList = parse(request.getParameter("userRoleList"));
         var defaultRoles = parse(request.getParameter("defaultRoles"));
         var message = request.getParameter("message");
-        var customResponse = {};
+        var responseObj = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
 
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
@@ -119,63 +119,63 @@ var log = new Log();
             try {
                 var result = mod.inviteUsers(userRoleList, defaultRoles, message);
                 if (result != null) {
-                    customResponse.error = false;
-                    customResponse.message = result;
-                    print(stringify(customResponse));
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    print(stringify(responseObj));
                 }
                 else {
                     log.error("Error while sending user invitations");
-                    customResponse.error = true;
-                    customResponse.message = "Error while sending user invitations";
-                    print(stringify(customResponse));
+                    responseObj.error = true;
+                    responseObj.message = "Error while sending user invitations";
+                    print(stringify(responseObj));
                 }
             } catch (e) {
                 log.error("Error while sending user invitations");
-                customResponse.error = true;
-                customResponse.message = "Error while sending user invitations";
-                print(stringify(customResponse));
+                responseObj.error = true;
+                responseObj.message = "Error while sending user invitations";
+                print(stringify(responseObj));
             }
         } else {
-            customResponse.error = true;
-            customResponse.message = "You don't have permission to invite users";
-            print(stringify(customResponse));
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to invite users";
+            print(stringify(responseObj));
         }
 
     } else if (action == "resendInvite") {
         var email = request.getParameter("email");
-        var customResponse = {};
+        var responseObj = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             email = email.replace(/^\s+|\s+$/g, '');
             try {
                 var result = mod.resendInvite(email);
                 if (result != null) {
-                    customResponse.error = false;
-                    customResponse.message = result;
-                    print(stringify(customResponse));
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    print(stringify(responseObj));
                 }
                 else {
                     log.error("Error while re-sending invitation to " + email);
-                    customResponse.error = true;
-                    customResponse.message = "Error while re-sending invitation to " + email;
-                    print(stringify(customResponse));
+                    responseObj.error = true;
+                    responseObj.message = "Error while re-sending invitation to " + email;
+                    print(stringify(responseObj));
                 }
             } catch (e) {
                 log.error("Error while re-sending invitation to " + email);
-                customResponse.error = true;
-                customResponse.message = "Error while re-sending invitation to " + email;
-                print(stringify(customResponse));
+                responseObj.error = true;
+                responseObj.message = "Error while re-sending invitation to " + email;
+                print(stringify(responseObj));
             }
         } else {
-            customResponse.error = true;
-            customResponse.message = "You don't have permission to invite users";
-            print(stringify(customResponse));
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to invite users";
+            print(stringify(responseObj));
         }
     } else if (action == "sendEmailWithCustomMessage") {
         var toList = parse(request.getParameter("to"));
         var subject = request.getParameter("subject");
         var message = request.getParameter("message");
-        var customResponse = {};
+        var responseObj = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             for (var i = 0; i < toList.length; i++) {
@@ -184,26 +184,26 @@ var log = new Log();
             try {
                 var result = mod.sendEmailWithCustomMessage(toList, subject, message);
                 if (result != null) {
-                    customResponse.error = false;
-                    customResponse.message = result;
-                    print(stringify(customResponse));
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    print(stringify(responseObj));
                 }
                 else {
                     log.error("Error while sending custom emails");
-                    customResponse.error = true;
-                    customResponse.message = "Error while sending custom emails";
-                    print(stringify(customResponse));
+                    responseObj.error = true;
+                    responseObj.message = "Error while sending custom emails";
+                    print(stringify(responseObj));
                 }
             } catch (e) {
                 log.error("Error while sending email to " + email);
-                customResponse.error = true;
-                customResponse.message = "Error while sending email to " + email;
-                print(stringify(customResponse));
+                responseObj.error = true;
+                responseObj.message = "Error while sending email to " + email;
+                print(stringify(responseObj));
             }
         } else {
-            customResponse.error = true;
-            customResponse.message = "You don't have permission to send custom emails";
-            print(stringify(customResponse));
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to send custom emails";
+            print(stringify(responseObj));
         }
 
     } else if (action == "importInvitedUser") {

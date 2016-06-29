@@ -31,14 +31,14 @@ var log = new Log();
     } else if (action == "updateProfile") {
         var tenantDomain = request.getParameter("tenantDomain");
         var displayName = request.getParameter("displayName");
-        var customResponse = {};
+        var responseObj = {};
         if(jagg.module("permission").hasOrganizationMgtPermission(tenantDomain)){
             try {
                 var result = mod.updateProfile(tenantDomain,displayName);
                 if (result != null) {
-                    customResponse.error = false;
-                    customResponse.message = result;
-                    print(stringify(customResponse));
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    print(stringify(responseObj));
                 } else {
                     throw "Error while updating the Organization profile ";
                 }
@@ -46,9 +46,9 @@ var log = new Log();
                 throw "Error while updating the Organization profile " + e.message;
             }
         } else{
-            customResponse.error = true;
-            customResponse.message = "You don't have permission to update Organization profile";
-            print(stringify(customResponse));
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to update Organization profile";
+            print(stringify(responseObj));
         }
     } else {
         throw new Error("No action specified");
