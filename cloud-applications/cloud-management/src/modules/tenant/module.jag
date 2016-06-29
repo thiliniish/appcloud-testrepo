@@ -25,6 +25,9 @@ jagg.module("tenant", {
 	getUserRolesByCloudType: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserRolesByCloudType.apply(this, arguments);
 	},
+	getPendingUsers: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsers.apply(this, arguments);
+	},
 	getPendingUsersOfRole: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersOfRole.apply(this, arguments);
 	},

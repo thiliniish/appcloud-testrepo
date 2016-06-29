@@ -151,6 +151,34 @@ var getRolesOfCloudType = function getRolesOfCloudType(cloudType) {
     return cloudTypeRoles;
 };
 
+var getPendingUsers = function getPendingUsersOfRole(tenantDomain, role) {
+    try {
+        var queryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE_BY_TENANT_DOMAIN;
+        var parameters = [tenantDomain];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+    } catch (e) {
+        log.error("Error while retrieving pending users of tenant " + tenantDomain);
+        log.error(e);
+        throw "Error while retrieving pending users";
+    }
+    var pendingUsers = [];
+    for (var i = 0; i < results.length; i++) {
+        var tmpEmail = results[i]["email"];
+        var tmpRoles = results[i]["roles"].split(',');
+        pendingUser = {};
+        pendingUser.email = tmpEmail;
+        pendingUser.roles = [];
+        for (var k = 0; k < tmpRoles.length; k++) {
+            displayRole = jagg.module("util").getUserRoleDisplayName(tmpRoles[k]);
+            if (displayRole != null && displayRole != "") {
+                pendingUser.roles.push(displayRole);
+            }
+        }
+        pendingUsers.push(pendingUser);
+    }
+    return pendingUsers;
+};
+
 var getPendingUsersOfRole = function getPendingUsersOfRole(tenantDomain, role) {
 
     try {

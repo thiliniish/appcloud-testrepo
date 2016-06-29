@@ -25,6 +25,7 @@ if (user != null) {
     <script type="text/javascript">
 
     var usersWithRoles = [];
+    var pendingUsersWithRoles = [];
     var checkedUsers = [];
     var selectedCount = 0;
     var permittedToInvite = <%=hasInviteUserPermission%>;
@@ -159,6 +160,32 @@ function updateTable() {
         //messageElement.html("Error occured while loading User/Roles information!").fadeIn();
 
     });
+
+    //Get pending invitation details
+    jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
+        action: "getPendingUsers",
+        tenantDomain: tenantDomain
+    }, function(result) {
+        var recordCount = 0;
+        if (result !== undefined) {
+            pendingUsersWithRoles = result;
+            recordCount = pendingUsersWithRoles.length;
+        }
+        if (recordCount > 0) {
+            $('#invitationCount').text(recordCount);
+            $('#pendingInvitationsMessage').show();
+
+            if (recordCount === 1) {
+                $('#pendingMembersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">1 Pending ' +
+                    'Invitation</h2>');
+            } else {
+                $('#pendingMembersCount').replaceWith('<h2 id="membersCount" class="big ' +
+                    'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
+            }
+        }
+    }, function(jqXHR, textStatus, errorThrown) {
+
+    });
 }
 /* This method will create the members list table */
  function createTable(usersWithRolesArray){
@@ -238,6 +265,75 @@ function updateTable() {
      });
 }
 
+/*This method will create the pending invitations table */
+function createPendingUserTable(pendingUsersWithRolesArray) {
+
+    var $pendingUserListContainer = $('#pendingUserListContainer');
+    /*getting the total number of pages using max users in a page and checking if the number of members are equal to the max members in a page,else add a new page to the total*/
+    totalPages = ((pendingUsersWithRolesArray.length % maxUsersInPage) == 0) ? (pendingUsersWithRolesArray.length / maxUsersInPage) : (pendingUsersWithRolesArray.length / maxUsersInPage) + 1;
+    totalPages = Math.floor(totalPages);
+    //console.log("total pages:" + totalPages);
+    if (totalPages > 1) {
+        $('.pagefooter').bootpag({
+            total: totalPages,
+            page: pageNumber
+        }).show();
+    } else {
+        $('.pagefooter').hide();
+    }
+    //looping until the max number of users in a page is added
+    for (var i = ((pageNumber - 1) * maxUsersInPage); i < pendingUsersWithRolesArray.length && i < (pageNumber * maxUsersInPage); i++) {
+        //console.log("in for loop");
+        var pendingUserRoles = pendingUsersWithRolesArray[i];
+        var checkBoxString = "";
+        if (pendingUserRoles.roles.indexOf('admin') < 0) {
+            checkBoxString = '<input id="ck_' + i + '" type="checkbox" name="action_check" class="action_check" ' +
+                'data-roles="' + pendingUserRoles.roles + '" data-user="' + pendingUserRoles.email + '" />';
+        } else {
+            checkBoxString = '';
+        }
+
+        //Show pending invitations
+        var $pendingUserListContainerRow = $('<li class="list_row_item cleanable" data-email="' + pendingUserRoles.email + '" ' +
+            'data-name="' + pendingUserRoles.email + '">' +
+            '<ul class="list_row" id="' + pendingUserRoles.email + '">' +
+            '<li class="list_col first_list_col item_select">' +
+            '<div class="list_col_content">' +
+            checkBoxString +
+            '</div>' +
+            '</li>' +
+            '<li onclick="selectCheckBox(' + i + ')" class="list_col team_member">' +
+            '<div class="list_col_content">' +
+            '<div class="image_list">' +
+            '<dl>' +
+            '<dt>' + pendingUserRoles.email + '</dt>' +
+            '<dd class="img"><span class="icon-user"></span></dd>' +
+            '<dd>' + pendingUserRoles.email + '</dd>' +
+            '</dl>' +
+            '</div>' +
+            '</div>' +
+            '</li>' +
+            '<li onclick="selectCheckBox(' + i + ')" class="list_col  team_role">' +
+            '<div class="list_col_content">' + pendingUserRoles.roles.toString() + '</div>' +
+            '</li>' +
+            '<li onclick="selectCheckBox(' + i + ')" class="list_col team_last_login">' +
+            '<div class="list_col_content">' +
+            // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
+            '</div>' +
+            '</li>' +
+            '<li onclick="selectCheckBox(' + i + ')" class="list_col team_controller">' +
+            '<div class="list_col_heading">&nbsp;</div>' +
+            '<div class="list_col_content">&nbsp;</div>' +
+            '</li>' +
+            '</ul>' +
+            '</li>');
+
+        $pendingUserListContainer.append($pendingUserListContainerRow);
+    }
+    $('#pendingInvitations').show();
+    $('#pendingInvitationsMessage').hide();
+}
+
 var allRoles = [];
 var getRoleByName = function(roleName){
     var roleObj;
@@ -299,6 +395,11 @@ var manageRoleCheckList = function(){
 
     var  finalUsers=[];//globally declared
 $(document).ready(function(){
+
+    // hide pending invitations related details
+    $('#pendingInvitationsMessage').hide();
+    $('#pendingInvitations').hide();
+
     initializeUserActivity("Members Page");
     if(isInvitationSent) {
         jagg.message({type:'success',content:'You have successfully sent the member invitations.',type:'success',cbk:function(){
@@ -711,6 +812,20 @@ $('#removeUsers').click(function(){
              </div>
         </header>
         <section class="separator">
+            <!--This message is shown when pending invitations are available -->
+            <div class="message" id="pendingInvitationsMessage">
+               <div id="push"></div>
+               <div class="alert alert-info alert-pending" role="alert">
+                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                  <span class="alert-content">
+                  <i class="fa fa-check-circle-o"></i> <strong> <span id="invitationCount"></span>
+                  invitations are pending..
+                  .</strong> <a class="click_to_expand" href="#" onclick="createPendingUserTable
+                     (pendingUsersWithRoles);">Click here to view</a>
+                  </span>
+               </div>
+            </div>
+
             <div class="content">
                 <h2 id="membersCount" class="big push_bottom_40"> Members in Team</h2>
                 <ul class="list_table highlight" id="userListContainer">
@@ -757,6 +872,43 @@ $('#removeUsers').click(function(){
                               </ul>
                        </li>
                 </ul>
+            </div>
+
+            <div class="content" id="pendingInvitations">
+               <br><br><br>
+               <h2 id="pendingMembersCount" class="big push_bottom_20"> Pending User Invitations</h2>
+               <ul class="list_table highlight" id="pendingUserListContainer">
+                  <li class="list_row_item first_list_row_item">
+                     <ul class="list_row first_list_row ">
+                        <li class="list_col first_list_col item_select cursover_remover">
+                           <h2 class="list_col_heading"><input type="checkbox" name="select_all" id="select_all_check" /></h2>
+                        </li>
+                        <li class="list_col team_member cursover_remover">
+                           <h2 class="list_col_heading" style="padding-left:11px;">Email</h2>
+                        </li>
+                        <li class="list_col  team_role cursover_remover">
+                           <h2 class="list_col_heading" style="padding-left:11px;">Role</h2>
+                        </li>
+                        <li class="list_col team_last_login cursover_remover">
+                        </li>
+                        <li class="list_col team_controller cursover_remover">
+                           <div class="list_col_heading" id="editDelDiv">
+                              <ul class="inline_list item_right">
+                                 <li class="inline_item">
+                                    <a href="#" class="icon_link" id="jsroleAssignPopup" title="Edit user roles" data-popover-my-position="top right" popover-target-position="bottom right" data-hasqtip="0" aria-describedby="qtip-0" ><span class="fa fa-pencil" title="Edit user roles"></span></a>
+                                    <div class="popover_content hide">
+                                       <form class="form-container" id="jsroleAssignPopupForm" />
+                                    </div>
+                                 </li>
+                                 <li class="inline_item"><a id="removeUsers" href="#" class="icon_link" title="Remove User"><span class="fa fa-trash-o" title="Remove User"></span></a></li>
+                              </ul>
+                           </div>
+                           <div class="list_col_content">
+                           </div>
+                        </li>
+                     </ul>
+                  </li>
+               </ul>
             </div>
         </section>
 
