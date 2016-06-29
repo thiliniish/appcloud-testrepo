@@ -45,17 +45,17 @@ var log = new Log();
             try {
                 var result = mod.updateUserRoles(userName, newRoles, removeRoles);
                 if (result != null) {
-                    customResponse.error = false;
-                    customResponse.message = result;
-                    print(stringify(customResponse));
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    print(stringify(responseObj));
                 }
             } catch (e) {
                 throw "Error while updating user " + userName;
             }
         } else {
-            customResponse.error = true;
-            customResponse.message = "You don't have permission to update users";
-            print(stringify(customResponse));
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to update users";
+            print(stringify(responseObj));
         }
     } else if (action == "deleteUserFromTenant") {
         var userName = request.getParameter("userName");
