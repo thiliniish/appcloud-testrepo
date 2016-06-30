@@ -55,8 +55,8 @@ var createAccount = function (serviceId){
 	        }
 	        
 	       	 var ratePlans = session.get("RATE_PLANS");
-	     	 var response = mod.changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
-	      	 print(response);
+	     	 var result = mod.changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
+	      	 print(result);
 	        
 	    }
     }
