@@ -1,7 +1,7 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
-var log=new Log("modules.util.uril.jsg");
+var log = new Log("modules.util.uril.jsg");
 var site = require("/site/conf/site.json");
 var dashboardConfig = require("/site/conf/admin_dashboard_conf.json");
 
@@ -11,16 +11,23 @@ var MultitenantConstants = Packages.org.wso2.carbon.utils.multitenancy.Multitena
  * This method will check if the user logged into the session is a tenant admin.
  */
 var isUserInAdminRole = function () {
+    var message = "An error occurred while checking if user is in the admin role";
+    var result = {
+        error: true,
+        message: message,
+        statusCode: 500
+    };
+
     var carbon = require('carbon');
     var server = carbon.server;
     var username = jagg.getUser().username;
     var context = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
     var isAdmin = false;
-    if (username != null && !"".equals(username && username.indexOf("@") != -1)) {
+    if (username != null && !"".equals(username) && username.indexOf("@") != -1) {
         try {
             context.startTenantFlow();
             var usernameWithoutTenant = username.substring(0, username.lastIndexOf('@'));
-            var tenantDomain = username.split("@")[1];
+            var tenantDomain = getTenantDomain(username);
             var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
             var tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             if (tenantId != null && MultitenantConstants.SUPER_TENANT_ID != tenantId) {
@@ -28,17 +35,28 @@ var isUserInAdminRole = function () {
                 context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
                 isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(usernameWithoutTenant, ADMIN_ROLE);
             }
+            message = "Successfully checked the existence of the admin role for the user " + username;
+            result = {
+                error: false,
+                message: message,
+                isAdmin: isAdmin,
+                statusCode: 200
+            };
         } catch (e) {
-            log.error("Error while authenticating user for admin role. User: "+ username);
+            log.error("Error while authenticating user for admin role. User: " + username);
             log.error(e);
-            return false;
+            result = {
+                error: true,
+                message: e.message,
+                statusCode: 500
+            };
         } finally {
             context.endTenantFlow();
-          }
+        }
     } else {
         log.error("Username was not available hence unable to check if user is a tenant admin");
     }
-    return isAdmin;
+    return result;
 };
 
 /**

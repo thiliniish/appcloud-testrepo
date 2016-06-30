@@ -12,7 +12,6 @@ var version = new ws.WSRequest();
 var options = new Array();
 options.useSOAP = 1.2;
 options.action = "http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803/simpleQuery";
-//var cookie=session.get("workflowCookie");
 var cookie = jagg.module("manager").getBPSAdminCookieBySAMLToken();
 if(cookie != null){
     options["HTTPHeaders"] = [
@@ -92,7 +91,6 @@ var version = new ws.WSRequest();
 var options = new Array();
 options.useSOAP = 1.2;
 options.action = "http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803/loadTask";
-//var cookie=session.get("workflowCookie");
 var cookie = jagg.module("manager").getBPSAdminCookieBySAMLToken();
 
 if (cookie==null) {
