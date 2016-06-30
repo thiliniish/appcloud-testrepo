@@ -123,7 +123,7 @@ public class CloudIntegrationConstants {
     //This is the action name which calls the method to extend the API Cloud trial.
     public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_ACTION_NAME = "sendExtensionRequest";
 
-    //Support extension request database related properties
+    //Support extension request related properties
     public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_EMAIL_SUBJECT =
             "//cloudProperties/support/supportRequest/emailSubject";
     public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_EMAIL_BODY =
