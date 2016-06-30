@@ -81,6 +81,21 @@ public class DbConnectionManager {
     }
 
     /**
+     * This method can be used for mysql insert/update/delete operations.
+     *
+     * @param query      query which needs to be executed.
+     * @param parameters List<String> of parameter values which need to be replaced within the query.
+     * @throws SQLException
+     */
+    public void executeUpdate(String query, List<String> parameters) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        for (int i = 0; i < parameters.size(); i++) {
+            preparedStatement.setString(i + 1, parameters.get(i));
+        }
+        preparedStatement.executeUpdate();
+    }
+
+    /**
      * After the connection is used closing the connection
      *
      * @throws SQLException

@@ -18,7 +18,10 @@
     var publisherUrl = (cloudConfig.subscriptions.type)[1].urls.cloudTypeUrl;
     var trialPeriod = (jagg.module("billing").getTrialPeriod()).toString();
     var to = cloudConfig.supportContact.to;
-    var serviceId = session.get("SERVICE_ID");
+    var serviceId = null;
+    if (request.getParameter("cloud-type") != null) {
+        serviceId = session.get("SERVICE_ID");
+    }
 %>
 
 <style>
