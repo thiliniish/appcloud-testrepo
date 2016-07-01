@@ -3,7 +3,7 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/modules/database/dataaccess.jag");
 
-var log = new Log('/modules/util/util.jag');
+var log = new Log('modules.util.util.jag');
 var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
@@ -301,6 +301,7 @@ var getInviteeDirectUrl = function(userRoles) {
 
 function addUserToOT (email, pass, firstName, lastName) {
 	try {
+        log.info("Adding user [ "+email+" ] to OT");
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 		var AUTH_EMAIL = cloudConfig.OTUserApi.auth_email;
@@ -319,8 +320,7 @@ function addUserToOT (email, pass, firstName, lastName) {
 		if(enabled.toString() == "true") {
 			var result = post(URL,data,undefined, 'text');
 		}
-		log.info("response "+stringify(result));
-
+		log.info("Response from OT "+stringify(result));
 	} catch (e){
 		log.error(e)
 	}
@@ -360,7 +360,7 @@ function convertValue (value) {
 };
 
 function changeOTUserPass (email,pass) {
-	log.info("Changing OT password for user: " + email);
+	log.info("Changing the OT password for user [ " + email +" ]");
     try {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
@@ -439,7 +439,6 @@ function escapeSpecialCharsXML (str) {
 };
 
 var generateUUId = function() {
-    log.info("generating the UUID ");
 	var d = new Date().getTime();
 	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 	    var r = (d + Math.random()*16)%16 | 0;

@@ -2,7 +2,7 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 
-var log = new Log("modules/user/change/user.jag");
+var log = new Log("modules.user.change.user.jag");
 var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
@@ -41,7 +41,7 @@ var changePassword = function (oldPassword, newPassword) {
 };
 
 var updatePasswordWithUserInput = function (userName, email, newPassword, confirmationKey) {
-    log.info("Resetting password of user : " + userName + " by Password reset");
+    log.info("Resetting the password of user [ " + userName + " ]");
     var ws = require('ws');
     var request = new ws.WSRequest();
     var options = new Array();
@@ -70,7 +70,7 @@ var updatePasswordWithUserInput = function (userName, email, newPassword, confir
             jagg.module("util").changeOTUserPass(email, newPassword);
             result.error = false;
             result.message = "Password reset successful";
-            log.info("Password reset successful for user " + userName);
+            log.info("Password reset is successful for the user [ " + userName +" ]");
             return result;
         } else {
             log.error(error);
