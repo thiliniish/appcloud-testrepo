@@ -103,7 +103,7 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
             Assert.assertNotNull(result, "User Should have a billing account");
             JSONObject invoiceObject = new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
             Assert.assertEquals(invoiceObject.getString("invoiceNumber"), invoiceNumber,
-                                "invoice number should be equals");
+                                "invoice number should be equal");
         }
     }
 
