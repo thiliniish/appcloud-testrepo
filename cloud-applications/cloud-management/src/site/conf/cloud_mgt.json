@@ -13,24 +13,8 @@
         "serviceType": "free",
         "roleTypes": [
           {
-            "roleName": "devops",
-            "displayRoles": "DevOps"
-          },
-          {
-            "roleName": "cxo",
-            "displayRoles": "CXO"
-          },
-          {
-            "roleName": "appowner",
-            "displayRoles": "Application Owner"
-          },
-          {
-            "roleName": "qa",
-            "displayRoles": "QA"
-          },
-          {
-            "roleName": "developer",
-            "displayRoles": "Developer"
+            "roleName": "appclouduser",
+            "displayRoles": "AppCloudUser"
           }
         ],
         "urls": {
