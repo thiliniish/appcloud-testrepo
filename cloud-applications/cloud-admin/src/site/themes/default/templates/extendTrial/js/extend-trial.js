@@ -201,13 +201,13 @@ function checkEmailExist() {
             var resultJSON = JSON.parse(result.data);
 
             var tenant = resultJSON.Tenants.Tenant;
-            if(tenant == undefined){
+            if (tenant == undefined || tenant === "" || tenant === "null") {
                 var emailvaildation = $(".validateEmailExit");
                 emailvaildation.empty();
                 emailvaildation.append("<left>Email Does not Exist.</left>");
                 $('.message_box').empty();
             } else {
-                fillTenantOptionDropDown(resultJSON);
+                fillTenantOptionDropDown(tenant);
                 $(".validateEmailExit").empty();
                 $('.message_box').empty();
             }
@@ -219,19 +219,26 @@ function checkEmailExist() {
     });
 }
 
-
-function fillTenantOptionDropDown(resultJSON){
+function fillTenantOptionDropDown(tenantEntry) {
     var $optionContainer = $('#tenant-select');
     $optionContainer.empty();
-    var noOfTenants = resultJSON.Tenants.Tenant.length;
-    if(noOfTenants!= undefined){
-        for (var i=0; i < noOfTenants; i++) {
-            var $option= $('<option value="'+ resultJSON.Tenants.Tenant[i].tenantDomain +'">' + resultJSON.Tenants.Tenant[i].tenantDomain + '</option>');
-            $optionContainer.append($option);
-        }
+    var tenantArray = [];
+    //data service returns results in {"Entries":{"Entry":[{"xxx":"333"}, {"yyy":"333"}]}} format.
+    //If there is only one object it sends like {"Entries":{"Entry":{"yyy":"333"}}}
+    //Entry can be an 'Array' or an 'Object'.
+    if (tenantEntry instanceof Array) {
+        tenantArray = tenantEntry;
+    }
+    //When an object is returned.
+    else {
+        tenantArray.push(tenantEntry);
+    }
+    var noOfTenants = tenantArray.length;
+    for (var i = 0; i < noOfTenants; i++) {
+        var $option = $('<option value="' + tenantArray[i].tenantDomain + '">' + tenantArray[i].tenantDomain + '</option>');
+        $optionContainer.append($option);
     }
 }
-
 
 $(document).ready(function () {
 

@@ -1,0 +1,33 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+
+(function () {
+    var userName = session.get("LOGGED_IN_USER");
+    if (userName == null) {
+        response.sendRedirect("../pages/logIn.jag");
+        return;
+    }
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 Cloud Mgt",
+            "pagePath":"/site/pages/das-data-purge.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"DAS Data Purge",
+                        "middle":[
+                            {
+                                "name":"dasDataPurge"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

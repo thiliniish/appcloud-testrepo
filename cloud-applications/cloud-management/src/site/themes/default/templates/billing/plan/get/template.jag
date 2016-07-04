@@ -118,7 +118,10 @@ var tenantDomain;
 var isMonetizationEnabled = false;
 if (session.get("TENANT_INFO") != null) {
 	tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-	isMonetizationEnabled = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+	var result = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+	if (!result.error) {
+		isMonetizationEnabled = result.monetizationEnabled;
+	}
 }
 if (isBillingEnabled) {
 	var serviceId = session.get("SERVICE_ID");

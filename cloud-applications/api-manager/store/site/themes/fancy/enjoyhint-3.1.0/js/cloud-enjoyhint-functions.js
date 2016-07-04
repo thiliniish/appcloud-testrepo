@@ -36,3 +36,11 @@ function removeLocalStorageVariables() {
         localStorage.removeItem("isApiConsoleTabClicked");
     }
 }
+
+// Intercept Enter key press
+$(document).keypress(function(e) {
+    if (e.which == 13) {
+        e.preventDefault();
+        return false;
+    }
+});
