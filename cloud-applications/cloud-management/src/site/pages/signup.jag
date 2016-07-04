@@ -24,8 +24,8 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
                         "title":"Sign Up",
                         "middle":[
                             {
-                            	"name":"tenant/register/invite",
-                                "inputs":inputsObj
+                            	"name": "tenant/register/invite",
+                                "inputs": inputsObj
                             }
                         ]
                     }
