@@ -13,8 +13,8 @@
         "serviceType": "free",
         "roleTypes": [
           {
-            "roleName":"appclouduser",
-            "displayRoles":"AppCloudUser"
+            "roleName": "appclouduser",
+            "displayRoles": "AppCloudUser"
           }
         ],
         "urls": {
