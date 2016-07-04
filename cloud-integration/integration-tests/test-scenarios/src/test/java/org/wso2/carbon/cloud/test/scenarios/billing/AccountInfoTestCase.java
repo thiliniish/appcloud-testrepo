@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTest;
+import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 import org.wso2.carbon.cloud.integration.test.utils.external.HttpHandler;
 import org.wso2.carbon.cloud.integration.test.utils.restclients.JaggeryAppAuthenticatorClient;
 
@@ -151,6 +152,8 @@ public class AccountInfoTestCase extends CloudIntegrationTest{
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "createAccount");
         params.put("responseFrom", "Edit_User_Info");
+        String organizationName = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_DOMAIN);
+        params.put("orgName", organizationName);
         Iterator keys = contactInfo.keys();
         while (keys.hasNext()){
             String key = (String)keys.next();
