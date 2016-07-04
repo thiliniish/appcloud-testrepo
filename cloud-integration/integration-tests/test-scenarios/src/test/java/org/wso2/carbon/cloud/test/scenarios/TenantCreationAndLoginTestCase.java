@@ -40,19 +40,17 @@ import java.util.*;
  * This tenant is created appending timestamp to the given tenantDomain
  * it is required to provide only two characters to tenant domain
  */
-public class TenantCreationandLoginTestCase extends CloudIntegrationTest {
-    private static final Log log = LogFactory.getLog(TenantCreationandLoginTestCase.class);
+public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
+    private static final Log log = LogFactory.getLog(TenantCreationAndLoginTestCase.class);
 
     private JaggeryAppAuthenticatorClient authenticatorClient;
     private String uuid;
     private String tenantEmail;
     private String currentTimeStamp;
 
-    private static final String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
-    private static final String confirmVerificationUrl =
-            cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_CONFIRM_URL_SFX;
-    private static final String addTenantUrl =
-            cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_ADD_TENANT_URL_SFX;
+    private String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
+    private String confirmVerificationUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_CONFIRM_URL_SFX;
+    private String addTenantUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_ADD_TENANT_URL_SFX;
     private static final String tenantDomainPrefix =
             CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_DOMAIN);
     private static final String tenantEmailSuffix = CloudIntegrationTestUtils
