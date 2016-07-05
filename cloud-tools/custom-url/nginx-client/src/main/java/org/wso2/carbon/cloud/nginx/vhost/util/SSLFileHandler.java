@@ -63,7 +63,8 @@ public class SSLFileHandler {
 	public File storeFileInLocal(String fileType, String tenantDomain, String type)
 			throws IOException, RegistryException, KeyStoreException, NoSuchAlgorithmException, CertificateException,
 			       UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException,
-			       InvalidKeyException, InvalidAlgorithmParameterException, InterruptedException {
+			       InvalidKeyException, InvalidAlgorithmParameterException, InterruptedException,
+			       DomainMapperException {
 
 		String defaultRegistryLocation =
 				configReader.getProperty("remoteregistry.path") + "api-cloud/" + tenantDomain + "/" +
@@ -78,10 +79,10 @@ public class SSLFileHandler {
 		String fileContent;
 
 		String indexingVectorFilePath = defaultRegistryLocation + ".iv";
-		byte[] byteContentOfIVResource = this.retrieveFileFromRegistry(indexingVectorFilePath);
-		indexingVectorArray = new Base64().decode(byteContentOfIVResource);
 
 		try {
+			byte[] byteContentOfIVResource = this.retrieveFileFromRegistry(indexingVectorFilePath);
+			indexingVectorArray = new Base64().decode(byteContentOfIVResource);
 			if (NginxVhostConstants.CERTIFICATE_FILE.equals(fileType)) {
 				filePath = defaultFilePath + "-certificate.pem";
 				String publicKeyFileLocation = defaultRegistryLocation + ".pub";
@@ -110,6 +111,10 @@ public class SSLFileHandler {
 			this.writeFile(file.getAbsolutePath(), fileContent);
 
 			return file;
+		} catch (DomainMapperException ex){
+			String errorMessage = "Error occurred while retrieving file from registry ";
+			log.error(errorMessage + ex);
+			throw new DomainMapperException(errorMessage);
 		} catch (RegistryException ex) {
 			String errorMessage = "Error occurred when retrieving ssl files from registry";
 			log.error(errorMessage);
@@ -189,7 +194,7 @@ public class SSLFileHandler {
 		}
 	}
 
-	protected byte[] retrieveFileFromRegistry(String registryPath) throws RegistryException {
+	protected byte[] retrieveFileFromRegistry(String registryPath) throws RegistryException, DomainMapperException {
 		int retryCount = 0;
 		try {
 			while (!this.isFileAvailableInRegistry(registryPath) && retryCount < 3) {
@@ -207,7 +212,7 @@ public class SSLFileHandler {
 			} else {
 				String errorMessage = "Requested resource is not available in " + registryPath;
 				log.error(errorMessage);
-				throw new RuntimeException(errorMessage);
+				throw new DomainMapperException(errorMessage);
 			}
 		} catch (RegistryException ex) {
 			String errorMessage = "Error occurred when accessing registry location " + registryPath;

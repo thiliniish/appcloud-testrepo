@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.cloud.nginx.vhost.conf.ConfigReader;
 import org.wso2.carbon.cloud.nginx.vhost.modules.VHostEntry;
+import org.wso2.carbon.cloud.nginx.vhost.util.DomainMapperException;
 import org.wso2.carbon.cloud.nginx.vhost.util.RegistryManager;
 import org.wso2.carbon.cloud.nginx.vhost.util.SSLFileHandler;
 import org.wso2.carbon.cloud.nginx.vhost.util.TemplateManager;
@@ -320,60 +321,63 @@ public class VHostManager {
 
 								//Defining store virtual hosts
 								VHostEntry storeEntry = new VHostEntry();
-								storeEntry.setTenantDomain(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
+								storeEntry.setTenantDomain(
+                                        jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
 								storeEntry.setCustomDomain(((JSONObject) jsonObject.get(STORE_NODE))
-										                           .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
+                                                                   .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
 								storeEntry.setCloudName(cloudName);
 								storeEntry.setTemplate(apiStoreVHostTemplate);
-								storeEntry.setSecurityCertificateFilePath(sslFileHandler.storeFileInLocal(
-										                                          NginxVhostConstants.CERTIFICATE_FILE, jsonObject
-										                                          .getString(
-												                                          NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
-										                                          STORE_NODE).getAbsolutePath());
+                                try {
+                                    storeEntry.setSecurityCertificateFilePath(sslFileHandler.storeFileInLocal(
+                                            NginxVhostConstants.CERTIFICATE_FILE,
+                                            jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN), STORE_NODE)
+                                                                                            .getAbsolutePath());
 
-								storeEntry.setSecurityCertificateKeyFilePath(sslFileHandler.storeFileInLocal(
-										                                             NginxVhostConstants.KEY_FILE, jsonObject
-										                                             .getString(
-												                                             NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
-										                                             STORE_NODE).getAbsolutePath());
+                                    storeEntry.setSecurityCertificateKeyFilePath(sslFileHandler.storeFileInLocal(
+                                            NginxVhostConstants.KEY_FILE,
+                                            jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN), STORE_NODE)
+                                                                                               .getAbsolutePath());
+                                    apiStoreHosts.add(storeEntry);
+                                } catch (DomainMapperException ex) {
+                                    log.warn("Adding Vhost template avoided for STORE");
+                                }
 
-								//Defining gateway virtual hosts
-								VHostEntry gatewayEntry = new VHostEntry();
-								gatewayEntry.setTenantDomain(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
-								gatewayEntry.setCustomDomain(((JSONObject) jsonObject.get(GATEWAY_NODE))
-										                             .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
-								gatewayEntry.setCloudName(cloudName);
-								gatewayEntry.setTemplate(apiHttpGatewayVHostTemplate);
-								gatewayEntry.setSecurityCertificateFilePath(null);
-								gatewayEntry.setSecurityCertificateKeyFilePath(null);
+                                //Defining gateway virtual hosts
+                                VHostEntry gatewayEntry = new VHostEntry();
+                                gatewayEntry.setTenantDomain(
+                                        jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
+                                gatewayEntry.setCustomDomain(((JSONObject) jsonObject.get(GATEWAY_NODE))
+                                                                     .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
+                                gatewayEntry.setCloudName(cloudName);
+                                gatewayEntry.setTemplate(apiHttpGatewayVHostTemplate);
+                                gatewayEntry.setSecurityCertificateFilePath(null);
+                                gatewayEntry.setSecurityCertificateKeyFilePath(null);
+                                apiGatewayHosts.add(gatewayEntry);
 
-								//Defining https gateway virtual hosts
-								VHostEntry httpsGatewayEntry = new VHostEntry();
-								httpsGatewayEntry
-										.setTenantDomain(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
-								httpsGatewayEntry.setCustomDomain(((JSONObject) jsonObject.get(GATEWAY_NODE))
-										                                  .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
-								httpsGatewayEntry.setCloudName(cloudName);
-								httpsGatewayEntry.setTemplate(apiHttpsGatewayVHostTemplate);
-								httpsGatewayEntry.setSecurityCertificateFilePath(sslFileHandler.storeFileInLocal(
-										                                                 NginxVhostConstants.CERTIFICATE_FILE,
-										                                                 jsonObject.getString(
-												                                                 NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
-										                                                 GATEWAY_NODE)
-								                                                               .getAbsolutePath());
-								httpsGatewayEntry.setSecurityCertificateKeyFilePath(sslFileHandler.storeFileInLocal(
-										                                                    NginxVhostConstants.KEY_FILE,
-										                                                    jsonObject.getString(
-												                                                    NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
-										                                                    GATEWAY_NODE)
-								                                                                  .getAbsolutePath());
-
-								apiStoreHosts.add(storeEntry);
-								apiGatewayHosts.add(gatewayEntry);
-								apiHttpsGatewayHosts.add(httpsGatewayEntry);
-
-							}
-						} catch (JSONException e) {
+                                //Defining https gateway virtual hosts
+                                VHostEntry httpsGatewayEntry = new VHostEntry();
+                                httpsGatewayEntry
+										.setTenantDomain(
+                                                jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
+                                httpsGatewayEntry.setCustomDomain(((JSONObject) jsonObject.get(GATEWAY_NODE)).getString(
+                                        NginxVhostConstants.PAYLOAD_CUSTOM_URL));
+                                httpsGatewayEntry.setCloudName(cloudName);
+                                httpsGatewayEntry.setTemplate(apiHttpsGatewayVHostTemplate);
+                                try {
+                                    httpsGatewayEntry.setSecurityCertificateFilePath(sslFileHandler.storeFileInLocal(
+                                            NginxVhostConstants.CERTIFICATE_FILE,
+                                            jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
+                                            GATEWAY_NODE).getAbsolutePath());
+                                    httpsGatewayEntry.setSecurityCertificateKeyFilePath(sslFileHandler.storeFileInLocal(
+                                            NginxVhostConstants.KEY_FILE,
+                                            jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
+                                            GATEWAY_NODE).getAbsolutePath());
+                                    apiHttpsGatewayHosts.add(httpsGatewayEntry);
+                                } catch (DomainMapperException ex) {
+                                    log.warn("Adding Vhost template avoided for GATEWAY");
+                                }
+                            }
+                        } catch (JSONException e) {
 							String errorMessage = "Error occurred when parsing json url-mapping of " + tenantId;
 							log.error(errorMessage, e);
 							throw new JSONException(errorMessage);
