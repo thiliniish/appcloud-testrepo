@@ -27,6 +27,7 @@
         }
         var types = cloudConfig.subscriptions.type;
         var domainName = jagg.module("manager").getTenantDomain(userName);
+        var disabledSubscriptionWarning = cloudConfig.disabledSubscriptionWarning;
         var subscriptionInfo = getSubscriptionInfo(types, domainName);
         var billingTypeInfo = getBillingTypeInfo(types, domainName);
         %>

@@ -3,6 +3,7 @@
   "emailValidationPattern" : "/^([a-zA-Z0-9]+[a-zA-Z0-9._\\-\\+]*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,4})$/",
   "commonSubscription" : "Common",
   "welcomeMsg" : "Welcome back",
+  "disabledSubscriptionWarning": "Your Subscription is Disabled.\nPlease contact WSO2 Cloud team if you need any help.",
   "adminRole" : "admin",
   "adminRoleDisplayName" : "Admin",
   "internalRole" : "Internal/",
