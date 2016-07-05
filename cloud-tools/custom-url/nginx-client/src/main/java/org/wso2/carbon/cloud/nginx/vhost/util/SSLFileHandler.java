@@ -113,7 +113,7 @@ public class SSLFileHandler {
 			return file;
 		} catch (DomainMapperException ex){
 			String errorMessage = "Error occurred while retrieving file from registry ";
-			log.error(errorMessage + ex);
+			log.error(errorMessage, ex);
 			throw new DomainMapperException(errorMessage);
 		} catch (RegistryException ex) {
 			String errorMessage = "Error occurred when retrieving ssl files from registry";
