@@ -2,7 +2,7 @@
 <%
     include("/modules/database/dataaccess.jag");
     include("/jagg/constants.jag");
-    include("/modules/subscriptions/subscriptionsUtil.jag");
+    include("/modules/subscriptions/subscriptions.jag");
 
     var log = new Log("site.themes.default.templates.subscriptions.template.jag");
     var username = session.get("LOGGED_IN_USER");
