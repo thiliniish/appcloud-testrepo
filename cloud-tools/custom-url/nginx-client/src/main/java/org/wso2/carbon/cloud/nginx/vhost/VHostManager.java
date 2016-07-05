@@ -340,7 +340,8 @@ public class VHostManager {
                                                                                                .getAbsolutePath());
                                     apiStoreHosts.add(storeEntry);
                                 } catch (DomainMapperException ex) {
-                                    log.warn("Adding Vhost template avoided for STORE for TENANT ID " + tenantId + " due to no STORE registry resource for certificates");
+                                    log.warn("Adding Vhost template avoided for STORE for TENANT ID " + tenantId +
+                                             " due to no STORE registry resource for certificates");
                                 }
 
                                 //Defining gateway virtual hosts
@@ -374,7 +375,8 @@ public class VHostManager {
                                             GATEWAY_NODE).getAbsolutePath());
                                     apiHttpsGatewayHosts.add(httpsGatewayEntry);
                                 } catch (DomainMapperException ex) {
-                                    log.warn("Adding Vhost template avoided for GATEWAY for TENANT ID " + tenantId + " due to no GATEWAY registry resource for certificates");
+                                    log.warn("Adding Vhost template avoided for GATEWAY for TENANT ID " + tenantId +
+                                             " due to no GATEWAY registry resource for certificates");
                                 }
                             }
                         } catch (JSONException e) {
