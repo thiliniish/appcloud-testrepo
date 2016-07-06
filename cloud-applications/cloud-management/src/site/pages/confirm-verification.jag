@@ -13,13 +13,13 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     jagg.render({
         "name": "page/base",
         "inputs": {
-            "title": "WSO2 Cloud App",
+            "title": "WSO2 Cloud Management",
             "pagePath": "/site/pages/confirm-verification.jag",
             "body": [
                 {
                     "name": "layout/base",
                     "inputs": {
-                        "title": "Register",
+                        "title": "Register Tenant",
                         "middle": [
                             {
                                 "name": "tenant/register/confirm",

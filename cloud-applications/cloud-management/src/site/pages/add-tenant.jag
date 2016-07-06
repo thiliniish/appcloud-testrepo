@@ -44,13 +44,13 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     jagg.render({
         "name": "page/base",
         "inputs": {
-            "title": "WSO2 Cloud Mgt",
+            "title": "WSO2 Cloud Management",
             "pagePath": "/site/pages/add-tenant.jag",
             "body": [
                 {
                     "name": "layout/base",
                     "inputs": {
-                        "title": "Tenant Mgt",
+                        "title": "Add Tenant",
                         "middle": [
                             {
                                 "name": "tenant/register/add",
