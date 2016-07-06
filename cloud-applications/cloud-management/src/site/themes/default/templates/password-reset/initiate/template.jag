@@ -1,0 +1,42 @@
+<% jagg.template("password-reset/initiate", function (inputs, outputs, jagg) { %>
+
+<div class="container content-starter">
+   <div class="row">
+      <div class="col-lg-12">
+         <h1>Password Reset</h1>
+         <div class="helper_text" id="helper_text">
+            <p>Please enter your username below to reset your account credentials.
+               You will get an email notification soon with the link to reset your password.
+               </br>You can still login using your old credentials till you reset the password.
+            </p>
+         </div>
+      </div>
+   </div>
+</div>
+<%
+    jagg.includeBlock("page/messages", null);
+%>
+ <div class="container content-section-wrapper" id="form_div">
+    <div class="row">
+       <div class="col-lg-12 content-section">
+          <form method='post' name="inputData" class='form-horizontal' id='userForm' action="javascript:doSubmit()"
+          role="form">
+             <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">Email</label>
+                <div class="col-sm-8">
+                   <input type="text" id="email" name="email" class="required"  />
+                </div>
+             </div>
+             <div class="form-group">
+                <label for="empty" class="col-sm-2 control-label"></label>
+                <div class="col-sm-8">
+                   <input id="submitbtn" type='submit' value='Request Password Change' class='btn btn-primary'/>
+                   <i class="fa fa-spinner fa-spin fa-4x" id="spinner" style="display:none; margin-left: 10px;"></i>
+                </div>
+             </div>
+          </form>
+       </div>
+    </div>
+ </div>
+    <%
+}); %>

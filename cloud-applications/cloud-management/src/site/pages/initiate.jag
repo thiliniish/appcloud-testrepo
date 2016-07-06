@@ -6,7 +6,7 @@ var site = require("/site/conf/site.json");
     jagg.render({
         "name":"page/base",
         "inputs":{
-            "title":"WSO2 Cloud",
+            "title":"WSO2 Cloud Management",
             "pagePath":"/site/pages/initiate.jag",
             "body":[
                 {
@@ -15,7 +15,7 @@ var site = require("/site/conf/site.json");
                         "title":"Forget Password",
                         "middle":[
                             {
-                            	"name":"user/initiate"
+                                "name":"password-reset/initiate"
                             }
                         ]
                     }

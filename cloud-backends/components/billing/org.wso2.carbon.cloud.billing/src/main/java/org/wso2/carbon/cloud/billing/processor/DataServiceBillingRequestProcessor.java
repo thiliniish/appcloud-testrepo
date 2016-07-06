@@ -157,6 +157,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         post.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
+        post.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
         if (ArrayUtils.isNotEmpty(nameValuePairs)) {
             post.setRequestBody(nameValuePairs);
         }
@@ -192,7 +193,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         // default accept response body in JSON
         String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
-
+        put.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
         put.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
         if (ArrayUtils.isNotEmpty(nameValuePairs)) {
             put.setQueryString(nameValuePairs);
@@ -218,6 +219,7 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         delete.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         delete.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
+        delete.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
         if (ArrayUtils.isNotEmpty(nameValuePairs)) {
             delete.setQueryString(nameValuePairs);
         }

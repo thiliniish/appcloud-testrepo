@@ -12,16 +12,16 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     jagg.render({
         "name": "page/base",
         "inputs": {
-            "title": "WSO2 Cloud",
+            "title": "WSO2 Cloud Management",
             "pagePath": "/site/pages/reset.jag",
             "body": [
                 {
                     "name": "layout/base",
                     "inputs": {
-                        "title": "Forget Password",
+                        "title": "Password Reset Link",
                         "middle": [
                             {
-                                "name": "user/reset",
+                                "name": "password-reset/reset",
                                 "inputs": inputsObj
                             }
                         ]
