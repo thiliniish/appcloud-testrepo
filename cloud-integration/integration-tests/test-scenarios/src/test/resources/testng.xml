@@ -47,4 +47,11 @@
             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>
         </classes>
     </test>
+
+    <test name="Support" preserve-order="true" verbose="2">
+        <classes>
+            <class name="org.wso2.carbon.cloud.test.scenarios.support.SupportRequestTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.support.TrialExtensionTestCase"/>
+        </classes>
+    </test>
 </suite>
