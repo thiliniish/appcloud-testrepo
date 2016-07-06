@@ -329,7 +329,7 @@
             </payments>
         </billing>
         <tenantNewUserEmails>aaar@discard.email,bbbr@discard.email</tenantNewUserEmails>
-        <allTenantRoles>devops,cxo,appowner,qa,developer,subscriber,publisher</allTenantRoles>
+        <allTenantRoles>devops,cxo,appowner,qa,developer,subscriber,publisher,admin</allTenantRoles>
         <support>
             <userEmail>test@wso2.com</userEmail>
             <jiraCreationEnabled>false</jiraCreationEnabled>
@@ -337,10 +337,13 @@
                 <emailSubject>Need help with WSO2 Cloud</emailSubject>
                 <emailBody>Test Mail for Support Request</emailBody>
             </supportRequest>
-            <accountExtension>
+            <accountExtensionRequest>
                 <emailSubject>Trial Extension Request</emailSubject>
                 <emailBody>Test Mail for Trial Extension Request</emailBody>
-            </accountExtension>
+                <extensionPeriod>14</extensionPeriod>
+                <trialUserStatus>ACTIVE</trialUserStatus>
+                <subscriptionType>api_cloud</subscriptionType>
+            </accountExtensionRequest>
         </support>
     </cloudProperties>
 </automation>
