@@ -8,6 +8,7 @@ var homePage = dashboardConfig.ServerURLs.publisherURL;
 var cloudUrl = dashboardConfig.ServerURLs.cloudMgtURL;
 var contactUsPage = cloudUrl + "site/pages/contact-us.jag";
 %>
+
 <head>
     <meta charset='UTF-8'>
     <link rel="stylesheet" href="/admin-dashboard/site/pages/error-pages/style/style.css">
@@ -22,13 +23,15 @@ var contactUsPage = cloudUrl + "site/pages/contact-us.jag";
         </div>
         <div class="text-label">
             <h1>Oops something went wrong </h1>
-            <h2>403 - Forbidden </h2>
+            <h2>An unexpected Error Occurred </h2>
             <div style="clear: both"></div>
             <div class="button-label">
-                <a href="<%=homePage%>"><label class="label-back">Back to API Cloud </label></a>
-                <a href="<%=contactUsPage%>"><label class="label-report">Report Issue</label></a></div>
+                 <a href="<%=homePage%>"><label class="label-back">Back to API Cloud </label></a>
+                 <a href="<%=contactUsPage%>"><label class="label-report"> Report Issue </label></a></div>
+        </div>
         </div>
     </section>
+
     <div class="clouds_one"></div>
     <div class="clouds_two"></div>
     <div class="clouds_three"></div>
