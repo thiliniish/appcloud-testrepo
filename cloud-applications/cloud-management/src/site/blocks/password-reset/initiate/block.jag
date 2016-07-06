@@ -1,0 +1,6 @@
+<%
+jagg.block("password-reset/initiate", {
+    initialize: function (data) {
+    }
+});
+%>
