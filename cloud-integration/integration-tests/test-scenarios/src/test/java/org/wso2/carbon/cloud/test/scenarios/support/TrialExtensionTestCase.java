@@ -75,7 +75,6 @@ public class TrialExtensionTestCase extends CloudIntegrationTest {
         emailBody = CloudIntegrationTestUtils
                 .getPropertyValue(
                         CloudIntegrationConstants.CLOUD_ACCOUNT_EXTENTION_REQUEST_EMAIL_BODY);
-        loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
         tenantDomain = CloudIntegrationTestUtils
                 .getPropertyValue(
                         CloudIntegrationConstants.TENANT_ADMIN_DOMAIN);
@@ -88,6 +87,7 @@ public class TrialExtensionTestCase extends CloudIntegrationTest {
         trialExtensionPeriod = CloudIntegrationTestUtils
                 .getPropertyValue(
                         CloudIntegrationConstants.API_CLOUD_TRIAL_EXTENSION_PERIOD);
+        loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
     }
 
     /**
@@ -111,7 +111,7 @@ public class TrialExtensionTestCase extends CloudIntegrationTest {
                 .doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
         String extensionRequestResult =
                 resultMap.get(CloudIntegrationConstants.RESPONSE).toString();
-        Assert.assertEquals(extensionRequestResult, "true",
+        Assert.assertEquals(extensionRequestResult, CloudIntegrationConstants.STRING_TRUE_RESPONSE,
                             "An error occurred while extending the API Cloud trial and sending the trial extension request to the Cloud Team.");
     }
 
@@ -155,8 +155,7 @@ public class TrialExtensionTestCase extends CloudIntegrationTest {
             String message =
                     "An error occurred while reverting the trial extension request for API Cloud " +
                     e.getMessage();
-            LOGGER.error(message);
-            LOGGER.error(e);
+            LOGGER.error(message, e);
             throw new SQLException(message, e);
         } finally {
             connectionManager.closeConnection();

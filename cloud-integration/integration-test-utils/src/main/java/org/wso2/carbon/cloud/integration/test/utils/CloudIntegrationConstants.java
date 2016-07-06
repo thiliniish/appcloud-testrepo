@@ -137,7 +137,7 @@ public class CloudIntegrationConstants {
     public static final String DELETE_BILLING_STATUS_HISTORY_QUERY =
             "DELETE FROM BILLING_STATUS_HISTORY WHERE TENANT_DOMAIN = (?) && SUBSCRIPTION = (?)";
     public static final String REVERT_EXTENSION_REQUEST_QUERY =
-            "update BILLING_STATUS  SET STATUS = (?), START_DATE = (?), END_DATE = (?) where TENANT_DOMAIN = (?) && SUBSCRIPTION = (?);";
+            "UPDATE BILLING_STATUS  SET STATUS = (?), START_DATE = (?), END_DATE = (?) WHERE TENANT_DOMAIN = (?) && SUBSCRIPTION = (?);";
     public static final String DATE_TIME_FORMAT ="yyyy-MM-dd HH:mm:ss";
 
     //This is the action name which calls the method to checks if the Jira creation is enabled/disabled.
@@ -156,6 +156,8 @@ public class CloudIntegrationConstants {
     public static final String RESPONSE = "Response";
     public static final String COOKIE = "Cookie";
     public static final String MYSQL_REPLACE = "mysql";
+    public static final String STRING_TRUE_RESPONSE = "true";
+    public static final String STRING_FALSE_RESPONSE = "false";
 
     //default tenant users
     public static final String TENANT_USER_USERNAME =
