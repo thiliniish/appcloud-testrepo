@@ -1,8 +1,11 @@
 <%
 jagg.initializer("tenant/register/invite", {
-
     preInitialize:function () {
+        //css
+        jagg.addHeaderCSS("register/invite","invite.css",'templates/tenant/register/invite/css/invite.css');
 
+        //custom js functions
+        jagg.addFooterJS("register/invite","invite.js","templates/tenant/register/invite/js/invite.js");
     }
 });
 %>

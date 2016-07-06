@@ -1,0 +1,32 @@
+.form-horizontal .control-label
+{
+    width: auto;
+    overflow: hidden;
+    height: 50px;
+}
+.fixed-width-label
+{
+    width: 175x;
+    overflow: hidden;
+    height: 50px;
+}
+ul
+{
+    list-style-type: none;
+}
+#wrapper
+{
+    margin:0 auto;
+}
+#submain
+{
+    margin:0 auto;
+}
+#sub-left
+{
+    height: 400px;
+}
+#sub-right
+{
+    height: 400px;
+}
