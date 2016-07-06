@@ -43,7 +43,7 @@ if(cookie != null){
     return parseResponse(result,taskType,endpoint);
 
     } catch (e) {
-    log.error(e.toString());
+    log.error(e);
     session.put("showLogin", "true");
     return null;
     }
@@ -129,7 +129,7 @@ return false;
 }
 
 } catch (e) {
-log.error(e.toString());
+log.error(e);
 session.put("showLogin", "true");
 return false;
 }

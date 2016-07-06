@@ -62,7 +62,7 @@ if (cookie != null) {
         }
 
     } catch (e) {
-        log.error(e.toString());
+        log.error(e);
         return {
             error: true
         }
@@ -115,7 +115,7 @@ var cookie = jagg.module("manager").getBPSAdminCookieBySAMLToken();
             return refId;
 
         } catch (e) {
-            log.error(e.toString());
+            log.error(e);
             return 0;
         }
     } else {
