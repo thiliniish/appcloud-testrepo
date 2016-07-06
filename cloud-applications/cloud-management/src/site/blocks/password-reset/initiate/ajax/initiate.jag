@@ -22,6 +22,5 @@ include("/jagg/constants.jag");
     } else {
         throw new Error("No action specified");
     }
-
 }());
 %>
