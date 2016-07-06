@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationConstants;
 import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTest;
+import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 import org.wso2.carbon.cloud.integration.test.utils.external.HttpHandler;
 import org.wso2.carbon.cloud.integration.test.utils.restclients.JaggeryAppAuthenticatorClient;
 
@@ -39,7 +40,7 @@ import java.util.Map;
  * This class is to test the billing components account information.
  * Test cases will cover getting view account info, get billing invoices,update contact info and view usage.
  */
-public class AccountInfoTestCase extends CloudIntegrationTest{
+public class AccountInfoTestCase extends CloudIntegrationTest {
 
     private static final Log log = LogFactory.getLog(AccountInfoTestCase.class);
     private JaggeryAppAuthenticatorClient authenticatorClient;
@@ -59,6 +60,7 @@ public class AccountInfoTestCase extends CloudIntegrationTest{
 
     /**
      * Check the billing account details of a specific tenant
+     *
      * @throws Exception
      */
     @Test(description = "View Account of the Billing enabled tenant")
@@ -69,7 +71,6 @@ public class AccountInfoTestCase extends CloudIntegrationTest{
         billingAccountInfo = getAccountInfo();
         Assert.assertEquals(billingAccountInfo.getString("success"), "true", "Value mismatch should be true.");
     }
-
 
     private JSONObject getAccountInfo() throws IOException, JSONException {
         Map<String, String> params = new HashMap<String, String>();
@@ -85,12 +86,12 @@ public class AccountInfoTestCase extends CloudIntegrationTest{
      *
      * @throws Exception
      */
-    @Test(description = "get invoices of the Billing enabled tenant",dependsOnMethods = {"viewAccountInfo"})
+    @Test(description = "get invoices of the Billing enabled tenant", dependsOnMethods = { "viewAccountInfo" })
     public void viewInvoices() throws Exception {
         log.info("started running test case invoice information");
         JSONArray invoiceArray = (JSONArray) billingAccountInfo.get("invoices");
         Assert.assertNotNull(invoiceArray, "Account dose not contain any invoices");
-        for(int i = 0; i < invoiceArray.length(); i++ ){
+        for (int i = 0; i < invoiceArray.length(); i++) {
             Assert.assertNotNull(invoiceArray.getJSONObject(i).get("id"), "Invoice Number cannot be empty");
             String invoiceId = invoiceArray.getJSONObject(i).get("id").toString();
             String invoiceNumber = invoiceArray.getJSONObject(i).get("invoiceNumber").toString();
@@ -101,7 +102,8 @@ public class AccountInfoTestCase extends CloudIntegrationTest{
             Map result = HttpHandler.doPostHttps(getInvoiceUrl, params, authenticatorClient.getSessionCookie());
             Assert.assertNotNull(result, "User Should have a billing account");
             JSONObject invoiceObject = new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
-            Assert.assertEquals(invoiceObject.getString("invoiceNumber"), invoiceNumber, "invoice number should be equals");
+            Assert.assertEquals(invoiceObject.getString("invoiceNumber"), invoiceNumber,
+                                "invoice number should be equal");
         }
     }
 
@@ -110,11 +112,11 @@ public class AccountInfoTestCase extends CloudIntegrationTest{
      *
      * @throws Exception
      */
-    @Test(description = "get invoices of the Billing enabled tenant", dependsOnMethods = {"viewAccountInfo"})
+    @Test(description = "get invoices of the Billing enabled tenant", dependsOnMethods = { "viewAccountInfo" })
     public void updateContactInfo() throws Exception {
 
         String errorMessage = "Error updating the contact information ";
-        JSONObject newContactInfo =  new JSONObject();
+        JSONObject newContactInfo = new JSONObject();
         newContactInfo.put("firstName", "firstName");
         newContactInfo.put("lastName", "lastName");
         newContactInfo.put("address1", "address1");
@@ -125,59 +127,60 @@ public class AccountInfoTestCase extends CloudIntegrationTest{
         newContactInfo.put("country", "Sri Lanka");
         newContactInfo.put("email", "test2@wso2.com");
 
-
         Assert.assertEquals(invokeUpdateContactInfo(newContactInfo), "Your contact information is successfully added",
-                errorMessage);
+                            errorMessage);
 
         JSONObject updatedContactInfo = getAccountInfo();
         Iterator keys = newContactInfo.keys();
         //verifying if the update is success
         while (keys.hasNext()) {
-            String key = (String)keys.next();
+            String key = (String) keys.next();
             String value = newContactInfo.getString(key);
-            if(key.equalsIgnoreCase("email")){
+            if (key.equalsIgnoreCase("email")) {
                 key = "workEmail";
             }
-            if(!key.equalsIgnoreCase("responseFrom")) {
+            if (!key.equalsIgnoreCase("responseFrom")) {
                 Assert.assertEquals((updatedContactInfo.getJSONObject("billToContact")).getString(key), value,
-                        (errorMessage + key));
+                                    (errorMessage + key));
             }
         }
 
     }
 
-    private String invokeUpdateContactInfo(JSONObject contactInfo) throws  Exception{
-
+    private String invokeUpdateContactInfo(JSONObject contactInfo) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "createAccount");
         params.put("responseFrom", "Edit_User_Info");
+        String organizationName =
+                CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_DOMAIN);
+        params.put("orgName", organizationName);
         Iterator keys = contactInfo.keys();
-        while (keys.hasNext()){
-            String key = (String)keys.next();
+        while (keys.hasNext()) {
+            String key = (String) keys.next();
             String value = contactInfo.getString(key);
-            if(key.equalsIgnoreCase("workEmail")){
+            if (key.equalsIgnoreCase("workEmail")) {
                 key = "email";
             }
-            params.put(key,value);
+            params.put(key, value);
         }
 
-        String addAccountDetailsUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_ACCOUNT_DETAILS_ADD_URL_SFX;
+        String addAccountDetailsUrl =
+                cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_ACCOUNT_DETAILS_ADD_URL_SFX;
         Map result = HttpHandler.doPostHttps(addAccountDetailsUrl, params, authenticatorClient.getSessionCookie());
         return result.get(CloudIntegrationConstants.RESPONSE).toString();
     }
 
-
     @AfterClass(alwaysRun = true)
     public void unDeployService() throws Exception {
         //reverting the changers
-       if(billingAccountInfo != null) {
-          String response = invokeUpdateContactInfo(billingAccountInfo.getJSONObject("billToContact"));
-           if(!response.equalsIgnoreCase("Your contact information is successfully added")){
-               String msg = "Error has occurred when updating the billing contact Info " ;
-               log.error(msg);
-               throw new Exception(msg);
-           }
-       }
+        if (billingAccountInfo != null) {
+            String response = invokeUpdateContactInfo(billingAccountInfo.getJSONObject("billToContact"));
+            if (!response.equalsIgnoreCase("Your contact information is successfully added")) {
+                String msg = "Error has occurred when updating the billing contact Info ";
+                log.error(msg);
+                throw new Exception(msg);
+            }
+        }
         authenticatorClient.logout();
         super.cleanup();
     }

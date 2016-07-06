@@ -329,7 +329,7 @@
             </payments>
         </billing>
         <tenantNewUserEmails>aaar@discard.email,bbbr@discard.email</tenantNewUserEmails>
-        <allTenantRoles>devops,cxo,appowner,qa,developer,subscriber,publisher</allTenantRoles>
+        <allTenantRoles>devops,cxo,appowner,qa,developer,subscriber,publisher,admin</allTenantRoles>
         <support>
             <userEmail>test@wso2.com</userEmail>
             <jiraCreationEnabled>false</jiraCreationEnabled>
