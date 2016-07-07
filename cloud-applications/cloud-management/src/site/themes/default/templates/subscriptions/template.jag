@@ -16,7 +16,9 @@
         //Check if user has publisher role
         var hasPublisherRole = modUserManagement.hasUserRole(username, ROLE_PUBLISHER);
         if (hasAdminRole || hasPublisherRole) {
-            log.debug("The user " + username + ", has an admin or publisher role.");
+            if (log.isDebugEnabled()) {
+                log.debug("The user " + username + ", has an admin or publisher role.");
+            }
             var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
             if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
                 var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
@@ -29,18 +31,6 @@
         var subscriptionInfo = getSubscriptionInfo(types, domainName);
         var billingTypeInfo = getBillingTypeInfo(types, domainName);
         %>
-
-            <!-- Bootstrap -->
-            <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/bootstrap-3.2.0/bootstrap.min.css'))
-        %>" />
-            <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.2/css/font-wso2.css'))
-        %>" />
-            <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/font-awesome-4.2.0/font-awesome.min.css'))
-        %>" />
-            <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/web-fonts/Roboto.css'))
-        %>" />
-            <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index-css/styles.css'))
-        %>" />
 
             <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
             <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
