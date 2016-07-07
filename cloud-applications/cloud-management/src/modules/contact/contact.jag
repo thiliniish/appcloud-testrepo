@@ -124,7 +124,7 @@ var sendSupportRequestAndCreateJira = function (customerEmail, subject, body, cl
         var resultSupportRequest = false;
         var subjectContent = subject;
         var subject = "";
-        if (userName == null || userName == 'null') {
+        if (userName == null || userName == 'null' || session.get("LOGGED_IN_USER_TENANT_DOMAIN") == null) {
             emailBody = emailBody.replace("$username", "New User");
             subject = "[Support Request] [New User] " + subject
         } else {

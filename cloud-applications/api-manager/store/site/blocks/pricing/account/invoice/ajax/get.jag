@@ -22,9 +22,11 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         }
         return;
     }
+    var tenantDomain = null;
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
-
+    if (user != null && user.username != null) {
+        tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    }
     var monetizationStatus = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
     if (monetizationStatus == null || monetizationStatus.error || !monetizationStatus.monetizationEnabled) {
         print({

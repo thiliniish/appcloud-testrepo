@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.cloud.nginx.vhost.conf.ConfigReader;
 import org.wso2.carbon.cloud.nginx.vhost.modules.VHostEntry;
+import org.wso2.carbon.cloud.nginx.vhost.util.DomainMapperException;
 import org.wso2.carbon.cloud.nginx.vhost.util.RegistryManager;
 import org.wso2.carbon.cloud.nginx.vhost.util.SSLFileHandler;
 import org.wso2.carbon.cloud.nginx.vhost.util.TemplateManager;
@@ -123,16 +124,16 @@ public class MessageBrokerConsumer implements MessageListener {
 					if (UPDATE_STATUS.equals(status)) {
 						vHostManager.removeHostMapping(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
 						                               jsonObject.getString(NginxVhostConstants.CLOUD_TYPE), node);
-						sslFileHandler
-								.removeSecurityFilesFromLocal(jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
-								                              node);
+						sslFileHandler.removeSecurityFilesFromLocal(
+								jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN), node);
 					}
 
-					File securityCertificate = sslFileHandler.storeFileInLocal(NginxVhostConstants.CERTIFICATE_FILE, jsonObject
+					File securityCertificate = sslFileHandler.storeFileInLocal(NginxVhostConstants.CERTIFICATE_FILE,
+					                                                           jsonObject.getString(
+							                                                           NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
+					                                                           node);
+					File securityPrivateKey = sslFileHandler.storeFileInLocal(NginxVhostConstants.KEY_FILE, jsonObject
 							.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN), node);
-					File securityPrivateKey = sslFileHandler
-							.storeFileInLocal(NginxVhostConstants.KEY_FILE, jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
-							                  node);
 					String cloudType = jsonObject.getString(NginxVhostConstants.PAYLOAD_CLOUD_TYPE);
 					String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
 					String customUrl = jsonObject.getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL);
@@ -173,6 +174,9 @@ public class MessageBrokerConsumer implements MessageListener {
 					vHostManager.restartNginX();
 
 				}
+			} catch (DomainMapperException ex){
+				String errorMessage = "Error occurred while retrieving file from registry";
+				log.error(errorMessage, ex);
 			} catch (JSONException ex) {
 				String errorMessage = "Error occurred when parsing json object.";
 				log.error(errorMessage, ex);

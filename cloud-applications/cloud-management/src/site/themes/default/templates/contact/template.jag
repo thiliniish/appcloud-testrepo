@@ -18,6 +18,7 @@
     var publisherUrl = (cloudConfig.subscriptions.type)[1].urls.cloudTypeUrl;
     var trialPeriod = (jagg.module("billing").getTrialPeriod()).toString();
     var to = cloudConfig.supportContact.to;
+    var serviceId = session.get("SERVICE_ID");
 %>
 
 <style>
@@ -38,15 +39,16 @@
         var body  = $("#body").attr('value');
         var cloudmgtURL =  $("#cloudmgtURL").attr('value');
         var publisherUrl = $("#publisherUrl").attr('value');
-
+        var serviceId = $("#serviceId").attr('value');
         var isExtensionRequest = $("#isExtensionRequest").attr('value');
 
         if (isExtensionRequest == 'true'){
             jagg.post("../blocks/contact/ajax/contact.jag", {
                 action:"sendExtensionRequest",
-                from:from,
-                subject:subject,
-                body:body
+                from: from,
+                subject: subject,
+                body: body,
+                serviceId: serviceId
             },
             function (result) {
                 if (result.trim() != "false"){
@@ -185,6 +187,7 @@
                 <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
                 <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=publisherUrl%>"/>
                 <input type="hidden" name="isExtensionRequest" id="isExtensionRequest" value="<%=isExtensionRequest%>"/>
+                <input type="hidden" name="serviceId" id="serviceId" value="<%=serviceId%>"/>
             </form>
         </div>
     </div>

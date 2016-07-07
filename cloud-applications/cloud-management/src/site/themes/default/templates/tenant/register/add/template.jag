@@ -1,538 +1,166 @@
 <% jagg.template("tenant/register/add", function (inputs, outputs, jagg) {
     %>
-   <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.password.js'))
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.password.js'))
     %>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/validate.organization.js'))
+ <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/validate.organization.js'))
+    %>"></script>
+ <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))
     %>"></script>
 
-    <%
-    include("/jagg/constants.jag");
-    var log = new Log("site/themes/default/templates/tenant/register/add/template.jag");
-    var userName = null;
-    var isInvitee = null;
-    var email = null;
-    var isUserAvail = null;
-    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+<form method="post" action="<%=outputs.idpURL%>" id="OneTimeLoginSubmitForm">
+   <input type="hidden" name="SAMLRequest" value="<%=
+    outputs.encodedRequest
+    %>"/>
+ <input type="hidden" name="RelayState" value="<%=
+    outputs.relayState
+    %>"/>
+ <input type="hidden" name="SSOAuthSessionID" value="<%=
+    outputs.sessionId
+    %>"/>
+</form>
 
-    var types = cloudConfig.subscriptions.type;
-    var typeArr = new Array();
-    for (var i = 0; i < cloudConfig.subscriptions.type.length; i++) {
-        typeArr[i] = types[i].id;
-    }
-
-    var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-    var eulaData = jagg.module("util").getObjFromFile("/site/conf/eula.xml");
-
-    var eulaDoc = new XML(eulaData);
-    var eulaContent = eulaDoc.EULA.text();
-
-    var confirmationKey = session.get("registration-intermediate-data");
-
-    if (session.get("registration-email") != null && session.get("isInvitee") != null && session.get("isUserAvail") != null) {
-        email = session.get("registration-email");
-        userName = jagg.module("manager").getUserNameFromEmail(email);
-        isInvitee = session.get("isInvitee");
-        isUserAvail = session.get("isUserAvail");
-    } else {
-        confirmationKey = null;
-        log.error("Required parameter values are not available for the account registration");
+<div class="container content-starter">
+<div class="row">
+  <div class="col-lg-12">
+     <h1>Congratulations on joining WSO2 Cloud!</h1>
+     <div class="helper_text" id="helper_text">
+        <%
+    if (!outputs.isInvitee) {%>
+            <p>
+               For the completion of your account, please create a password and fill out the remaining profile
+               information.
+            </p>
+            <%
+    } else {%>
+            <p>
+               Hope you are excited and anxious to start using WSO2 Cloud as we
+               are to see you here !!! <br /> We just need one last bit of
+               information.
+            </p>
+            <%
     }
     %>
-
-    <style>
-    .form-horizontal .control-label
-    {
-        width: auto;
-        overflow: hidden;
-        height: 50px;
-    }
-    .fixed-width-label
-    {
-        width: 175x;
-        overflow: hidden;
-        height: 50px;
-    }
-    ul
-    {
-        list-style-type: none;
-    }
-    #wrapper
-    {
-        margin:0 auto;
-    }
-    #submain
-    {
-        margin:0 auto;
-    }
-    #sub-left
-    {
-        height: 400px;
-    }
-    #sub-right
-    {
-        height: 400px;
-    }
-    </style>
-
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))
-    %>"></script>
-    <script type="text/javascript">
-        initializeUserActivity("SignUp Page");
-
-        function disableSubmitAndEnableSpinner() {
-            document.getElementById("spinner").style.display = '';
-            var submitButton = document.getElementById('submitbtn');
-            $('#submitbtn').css('background-color','#F9BFBB');
-            submitButton.disabled = true;
-        }
-
-        function disableSpinner() {
-            document.getElementById("spinner").style.display = 'none';
-        }
-
-        function doSubmit() {
-            disableSubmitAndEnableSpinner();
-            var adminPassword = $("#password").attr('value');
-            var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-            var confirmationKey = $("#confirmationKey").attr('value');
-            var isInvitee = $("#isInvitee").attr('value');
-            var firstName = $("#firstName").attr('value');
-            var lastName = $("#lastName").attr('value');
-            if(isInvitee == "true") {
-                  jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                      action:"importInvitedUser",
-                      adminPassword:adminPassword ,
-                      confirmationKey:confirmationKey,
-                      firstName:firstName,
-                      lastName:lastName
-                  },
-                  function (result) {
-                      loginWithoutIdpScreen();
-                  },
-                  function (jqXHR, textStatus, errorThrown) {
-                      jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error',cbk:function(){
-                              window.location.href = cloudmgtURL;
-                          }
-                      });
-                  });
-                  disableSpinner();
-            } else {
-                 var companyName = $("#companyName").attr('value');
-                 var firstName = $("#firstName").attr('value');
-                 var lastName = $("#lastName").attr('value');
-                 jagg.post("../blocks/tenant/register/add/ajax/add.jag", {
-                     action:"registerOrg",
-                     adminPassword:adminPassword ,
-                     companyName:companyName ,
-                     usagePlan:'Demo',
-                     confirmationKey:confirmationKey,
-                     firstName:firstName,
-                     lastName:lastName
-                 },
-                 function (result) {
-                    if (result == false || result.trim() == "false") {
-                        jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error', cbk:function() {
-                             window.location.href = cloudmgtURL;
-                         }
-                     });
-                    } else {
-                        loginWithoutIdpScreen();
-                    }
-                 disableSpinner();
-                 },
-                 function (jqXHR, textStatus, errorThrown) {
-                     jagg.message({content:'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.', type:'error', cbk:function() {
-                             window.location.href = cloudmgtURL;
-                         }
-                     });
-                     disableSpinner();
-                 });
-            }
-        }
-
-        function checkConfirmation() {
-            var key =  $("#confirmationKey").attr('value');
-            var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-            if(key == 'null' || key == ""){
-                jagg.message({content:"You have either already clicked the link that was emailed to you or it must have been expired", type:'error', cbk:function() {
-                        window.location.href = cloudmgtURL;
-                    }
-                });
-                $('#registerForm').hide();
-            }
-        }
-
-        function getProfile() {
-            var email = '<%=email%>';
-        var userName = '<%=userName%>';
-        jagg.post("../blocks/user/profile/ajax/profile.jag", {
-                action:"getProfile",
-                user:userName
-            },
-            function (result) {
-                json = JSON.parse(result);
-                displayClaims(json);
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                jagg.message({type:'error',content:"Unable to retrieve the user profile at the moment. Please contact WSO2 Cloud Team for help. "});
-            })
-    }
-
-    function loginWithoutIdpScreen(){
-        jagg.syncPost("../blocks/user/authenticate/ajax/login.jag", {
-                 action:"getSectoken",
-                 email:"<%=email%>",
-                 password:"" + $("#password").attr('value')
-             },
-             function (result) {
-                $('<input />').attr('type', 'hidden')
-                      .attr('name', "sectoken")
-                      .attr('value', "" + result.sectoken)
-                      .appendTo('#OneTimeLoginSubmitForm');
-               $('#OneTimeLoginSubmitForm').submit();
-             },
-             function (jqXHR, textStatus, errorThrown) {
-                 jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
-                         window.location.href = cloudmgtURL;
-                    }
-                });
-              }
-        );
-    }
-
-    function displayClaims(claims){
-       if(claims.firstname != null | claims.firstname != undefined){
-            document.getElementById("firstName").value = claims.firstname;
-       }
-       if(claims.lastname != null | claims.lastname != undefined){
-            document.getElementById("lastName").value = claims.lastname;
-       }
-    }
-
-    $(document).ready(function($){
-        var clickwithblur = false;
-        var isKeyup = false;
-        checkConfirmation();
-        var isUserAvail = '<%=isUserAvail%>';
-        if(isUserAvail == 'true'){
-            getProfile();
-        }
-        jQuery.validator.setDefaults({
-                errorElement:'span'
-        });
-     
-        jQuery.validator.addMethod("domain", function(value, element) {
-            var isSuccess = false;
-            $.ajax({ url: "../blocks/tenant/register/add/ajax/add.jag",
-                    data: {
-                        action:"checkDomainAvailability",
-                        companyName:value
-                    },
-                    async: false,
-                success:
-                    function(msg) {
-                        msg = msg.replace(/[\r\n]/g, "");
-                        if(msg == "true"){
-                            isSuccess = true;
-                        }
-                     }
-            });
-            return isSuccess;
-        }, function(value, element) {
-            return "Company name &lt;" + element.value + "&gt; is already taken. Please supply a different name for your organization."
-        });
-        jQuery.validator.addMethod("confirmPassword", function(value, element) {
-            var isUserAvail = '<%=isUserAvail%>';
-            if(isUserAvail != 'true' || (isUserAvail == 'true' && isKeyup)){
-                return true;
-            }
-            var email = '<%=email%>';
-            var userName = '<%=userName%>';
-                var isValid = false;
-                $.ajax({ url: "../blocks/user/authenticate/ajax/login.jag",
-                    type: "POST",
-                        data: {
-                            action:"validatePassword",
-                            userName:userName,
-                            password:value
-                        },
-                        async: false,
-                    success:
-                        function(msg) {
-                            msg = msg.replace(/[\r\n]/g, "");
-                            if(msg == 'true'){
-                                isValid = true;
-                            }
-                         }
-                });
-                return isValid;
-            }, "Password is not correct.");
-            jQuery.validator.addMethod("validateCompanyName", function(value, element) {
-                   var isValid = validateOrganizationNameAlphaNumeric(value);
-                   return isValid;
-            }, "Please use only English letters, numbers and whitespaces");
-
-            $('#registerForm').validate({
-                onfocusout: false,
-                onkeyup: false,
-                rules : {
-                    password: {
-                        required: true,
-                        confirmPassword:true
-                    },
-                    companyName: {
-                        validateCompanyName: true,
-                        domain: true
-                    }
-                },
-                submitHandler: function(form) {
-                    doSubmit();
-                }
-            });
-
-            $('#companyName').blur(function(){
-               document.activeElement;
-               if(!clickwithblur)
-                  $('#companyName').valid();
-             });
-
-            $('#lastName').blur(function(){
-               document.activeElement;
-               if(!clickwithblur)
-                  $('#lastName').valid();
-            });
-
-            $('#firstName').blur(function(){
-               document.activeElement;
-               if(!clickwithblur)
-                  $('#firstName').valid();
-            });
-
-            $('#password').blur(function(){
-               $('.password-meter').hide();
-               isKeyup = false;
-               if (!clickwithblur){
-                  $('#password').valid();
-               }
-            });
-
-            $("#password").keyup(function() {
-               isKeyup = true;
-               $('#password').valid();
-            });
-
-            $('#password').focus(function() {
-               $('#password-help').show();
-               $('.password-meter').show();
-            });
-
-            $("#password2").keyup(function() {
-               $('#password2').valid();
-            });
-
-            $('#submitbtn').mousedown(function(){
-               clickwithblur = true;
-            });
-
-            $('#submitbtn').mouseup(function(){
-               clickwithblur = false;
-            });
-
-        });
-    </script>
-
-    <%
-    var ssoName = cloudConfig.SSORelyingParty.name;
-    var ssoProvider = cloudConfig.SSORelyingParty.identityProviderURL;
-    var ssoKeystorePassword = cloudConfig.SSORelyingParty.keyStorePassword;
-    var ssoKeyAlias = cloudConfig.SSORelyingParty.identityKeyAlias;
-    var ssoKeystoreName = cloudConfig.SSORelyingParty.keyStoreName;
-
-    var security = require("sso");
-    var ssoRelyingParty = new security.SSORelyingParty(ssoName);
-    var sessionId = session.getId();
-    var requestURI = request.getRequestURI();
-
-    ssoRelyingParty.setProperty("identityProviderURL", ssoProvider);
-    ssoRelyingParty.setProperty("keyStorePassword", ssoKeystorePassword);
-    ssoRelyingParty.setProperty("identityAlias", ssoKeyAlias);
-    ssoRelyingParty.setProperty("keyStoreName", ssoKeystoreName);
-
-    var samlAuthRequest = ssoRelyingParty.getSAMLAuthRequest();
-    var encodedRequest = ssoRelyingParty.encode(samlAuthRequest);
-    var relayState = ssoRelyingParty.getUUID();
-    ssoRelyingParty.setRelayStateProperty(relayState, "/cloudmgt/site/pages/index.jag");
-    var idpURL = ssoRelyingParty.getProperty("identityProviderURL") + "?SAML2.HTTPBinding=HTTP-POST";
-    %>
-
-     <form method="post" action="<%=idpURL
-    %>" id="OneTimeLoginSubmitForm">
-        <input type="hidden" name="SAMLRequest" value="<%=
-    encodedRequest
-    %>"/>
-       <input type="hidden" name="RelayState" value="<%=
-    relayState
-    %>"/>
-       <input type="hidden" name="SSOAuthSessionID" value="<%=
-    sessionId
-    %>"/>
-   </form>
-
-   <div class="container content-starter">
-       <div class="row">
-           <div class="col-lg-12">
-               <h1>Congratulations on joining WSO2 Cloud!</h1>
-               <div class="helper_text" id="helper_text">
+</div>
+</div>
+</div>
+</div>
+<%jagg.includeBlock("page/messages", null);%>
+<div class="container content-section-wrapper">
+   <div class="row">
+      <form method='post' name="inputData" class='form-horizontal' id='registerForm' role="form">
+         <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 content-section content-col1" id="sub-left">
+            <!--Request Tenant Password-->
+            <div class="form-group">
+               <label for="password" class="control-label">
+                  <h5>Create password for <%=outputs.email%>
+                  </h5>
+               </label>
                <%
-    if (!isInvitee) {%>
-                <p>
-                   To finalize your account, please create a password and fill out the remaining profile information:
-                </p>
-            <%
+    if (!outputs.isUserAvail) { %>
+               <!--Tenant Password Instructions-->
+               <div class="col-sm-8">
+                  <div class="row-fluid">
+                     <div class="span2" style="width: 500px;">
+                        <input type="password" id="password" name="password" class="required validatePassword "
+                        style="display:block; margin-bottom:5px;" />
+                        <div class="span6">
+                           <div class="password-meter" style="display:none;">
+                              <div class="password-meter-message"></div>
+                              <div class="password-meter-bg">
+                                 <div class="password-meter-bar"></div>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="help-block" id="password-help" style="display:none">
+                           Password must contain:
+                           <ul class="list1">
+                              <li class="fa fa-times gray">A minimum of 8 characters</li>
+                           </ul>
+                           At least three of the following types of characters:
+                           <ul class="list2">
+                              <li class="fa fa-times gray">Uppercase letters</li>
+                              <li class="fa fa-times gray">Lowercase letters</li>
+                              <li class="fa fa-times gray">Numbers</li>
+                              <li class="fa fa-times gray">Special characters (such as @ and !)</li>
+                           </ul>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <%
     } else {%>
-                <p>
-                    Hope you are excited and anxious to start using WSO2 Cloud as we
-                    are to see you here :) <br /> We just need one last bit of
-                    information.
-                </p>
-            <%
+               <div class="col-sm-8">
+                  <div class="row-fluid">
+                     <div class="span6">
+                        <input type="password" id="password" name="password" class="required avoidValidate"
+                        style="display:block; margin-bottom:5px;" />
+                        <div class="help-block" id="password-help" style="display:none">
+                           Please use your existing wso2.com account password.
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <%
     }
     %>
-                </div>
+</div>
+</div>
+<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 content-section content-col2" id="sub-right">
+<!--Organization-->
+<div class="form-group">
+ <label for="info" class="col-sm-2 control-label">
+    <h5>Remaining profile information</h5>
+ </label>
+</div>
+<div class="form-group">
+ <label class="col-lg-1"></label>
+ <label for="firstname" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" >
+ <span style="color:#ff0000;"> * </span>First name</label>
+ <div class="col-sm-6">
+    <input type="text" id="firstName" name="firstName" class="required left" style="margin-bottom:10px;"/>
+ </div>
+</div>
+<div class="form-group">
+ <label class="col-lg-1"></label>
+ <label for="lastName" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" >
+ <span style="color:#ff0000;"> * </span>Last name</label>
+ <div class="col-sm-6">
+    <input type="text" id="lastName" name="lastName" class="required left" style="margin-bottom:10px;"/>
+ </div>
+</div>
+<%
+    if (!outputs.isInvitee) {%>
+            <div class="form-group">
+               <label class="col-lg-1"></label>
+               <label for="companyName" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" >
+               <span style="color:#ff0000;"> * </span>Company</label>
+               <div class="col-sm-6">
+                  <input type="text" id="companyName" name="companyName" class="required validateDomain"
+                  style="margin-bottom:10px;" />
+               </div>
             </div>
-
-        </div>
-    </div>
-    <%
-    jagg.includeBlock("page/messages", null);
-    %>
-   <div class="container content-section-wrapper">
-       <div class="row">
-           <!--div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 " id="sub-left"-->
-           <form method='post' name="inputData" class='form-horizontal' id='registerForm' role="form">
-               <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 content-section content-col1" id="sub-left">
-                   <!--Admin Password-->
-                   <div class="form-group">
-                       <label for="password" class="control-label">
-                           <h5>Create password for
-                       <%=email
-    %>
-                        </h5></label>
-
-                        <%
-    if (!isUserAvail) {%>
-                        <!--Admin Re Password-->
-
-                        <div class="col-sm-8">
-                            <div class="row-fluid">
-                                <div class="span2" style="width: 500px;">
-                                    <input type="password" id="password" name="password" class="required validatePassword " style="display:block; margin-bottom:5px;" />
-                                    <div class="span6">
-                                        <div class="password-meter" style="display:none;">
-                                            <div class="password-meter-message"></div>
-                                            <div class="password-meter-bg">
-                                                <div class="password-meter-bar"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="help-block" id="password-help" style="display:none">
-                                        Password must contain:
-                                        <ul class="list1">
-                                            <li class="fa fa-times gray">A minimum of 8 characters</li>
-                                        </ul>
-                                        At least three of the following types of characters:
-                                        <ul class="list2">
-                                            <li class="fa fa-times gray">Uppercase letters</li>
-                                            <li class="fa fa-times gray">Lowercase letters</li>
-                                            <li class="fa fa-times gray">Numbers</li>
-                                            <li class="fa fa-times gray">Special characters (such as @ and !)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                <%
-    } else {%>
-                    <div class="col-sm-8">
-                        <div class="row-fluid">
-                            <div class="span6">
-                                <input type="password" id="password" name="password" class="required avoidValidate" style="display:block; margin-bottom:5px;" />
-                                <div class="help-block" id="password-help" style="display:none">
-                                    Please use your existing wso2.com account password.
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <%
+            <%
     }
     %>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 content-section content-col2" id="sub-right">
-                    <!--Organization-->
-                    <div class="form-group">
-                        <label for="info" class="col-sm-2 control-label">
-                            <h5>Remaining profile information</h5></label>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-lg-1"></label>
-                        <label for="firstname" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" >
-                            <span style="color:#ff0000;"> * </span>First name</label>
-                        <div class="col-sm-6">
-                            <input type="text" id="firstName" name="firstName" class="required left" style="margin-bottom:10px;"/>
-                        </div>
-
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-lg-1"></label>
-                        <label for="lastName" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" >
-                            <span style="color:#ff0000;"> * </span>Last name</label>
-                        <div class="col-sm-6">
-                            <input type="text" id="lastName" name="lastName" class="required left" style="margin-bottom:10px;"/>
-                        </div>
-
-                    </div>
-                    <%
-    if (!isInvitee) {%>
-                    <div class="form-group">
-                        <label class="col-lg-1"></label>
-                        <label for="companyName" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 fixed-width-label" >
-                            <span style="color:#ff0000;"> * </span>Company</label>
-                        <div class="col-sm-6">
-                            <input type="text" id="companyName" name="companyName" class="required domain" style="margin-bottom:10px;" />
-                        </div>
-
-                    </div>
-                    <%
-    }
-    %>
-                            <div class="form-group">
-                                <div class="col-sm-8">
-                                    <label for="empty" class="col-lg-4 control-label"></label>
-                                    <input id="submitbtn" type='submit' value='Continue >>' class="btn btn-primary right" />
-                                    <i class="fa fa-spinner fa-spin fa-3x" id="spinner" style="display:none; margin-left: 10px;"></i>
-                                </div>
-                            </div>
-
-
-                            <input type="hidden" name="isInvitee" id="isInvitee" value="<%=isInvitee%>" />
-                        <input type="hidden" name="confirmationKey" id="confirmationKey" value="<%=confirmationKey%>" />
-                        <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL
-    %>" />
-                            <input type="hidden" name="secretKey" id="secretKey" value="" />
-                            <input type="hidden" name="imagePath" id="imagePath" value="" />
-                </div>
-
-            </form>
-            <!--/div-->
-            <div class="signin"></div>
-
-
-        </div>
+ <div class="form-group">
+    <div class="col-sm-8">
+       <label for="empty" class="col-lg-4 control-label"></label>
+       <input id="submitbtn" type='submit' value='Continue >>' class="btn btn-primary right" />
+       <i class="fa fa-spinner fa-spin fa-3x" id="spinner" style="display:none; margin-left: 10px;"></i>
     </div>
+ </div>
+ <input type="hidden" name="isInvitee" id="isInvitee" value="<%=outputs.isInvitee%>" />
+            <input type="hidden" name="confirmationKey" id="confirmationKey" value="<%=outputs.confirmationKey%>" />
+            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=outputs.cloudMgtURL%>" />
+            <input type="hidden" name="secretKey" id="secretKey" value="" />
+            <input type="hidden" name="imagePath" id="imagePath" value="" />
+            <input type="hidden" name="isUserAvailable" id="isUserAvailable" value=<%=outputs.isUserAvail%> />
+            <input type="hidden" name="email" id="email" value=<%=outputs.email%> />
+            <input type="hidden" name="userName" id="userName" value=<%=outputs.userName%> />
+         </div>
+      </form>
+      <div class="signin"></div>
+   </div>
+</div>
     <%
 }); %>
-
