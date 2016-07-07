@@ -70,7 +70,7 @@ var updatePasswordWithUserInput = function (userName, email, newPassword, confir
             jagg.module("util").changeOTUserPass(email, newPassword);
             result.error = false;
             result.message = "Password reset successful";
-            log.info("Password reset is successful for the user [ " + userName +" ]");
+            log.info("Password reset is successful for the user [ " + userName + " ]");
             return result;
         } else {
             log.error(error);

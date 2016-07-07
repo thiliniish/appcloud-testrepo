@@ -9,12 +9,12 @@ var multitenancy = carbon.multitenancy;
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
-var IS_URL =  cloudConfig.ServerUrls.identity.toString();
-var CLOUDMGT_URL =  cloudConfig.ServerUrls.cloudmgt.toString();
+var IS_URL = cloudConfig.ServerUrls.identity.toString();
+var CLOUDMGT_URL = cloudConfig.ServerUrls.cloudmgt.toString();
 var senderEmail = cloudConfig.registrationEmail.username;
 var senderPort = parseInt(cloudConfig.registrationEmail.port);
-var senderPassword= cloudConfig.registrationEmail.password;
-var senderHost= cloudConfig.registrationEmail.host;
+var senderPassword = cloudConfig.registrationEmail.password;
+var senderHost = cloudConfig.registrationEmail.host;
 var from = cloudConfig.registrationEmail.from;
 var subject =  cloudConfig.passwordResetEmail.subject;
 var tls = cloudConfig.registrationEmail.tls.toString();
@@ -99,10 +99,10 @@ var sendRecoveryNotification = function (userName, key) {
     options["HTTPHeaders"] = [
         {name: "Cookie", value: modManager.getAdminCookie(IS_URL)}
     ];
-    var payload = '<sendRecoveryNotification xmlns="http://services.mgt.identity.carbon.wso2.org">'+
-            '<username>' + userName +'</username>'+
-            '<key>' + key + '</key>'+
-            '<notificationType>email</notificationType>'+
+    var payload = '<sendRecoveryNotification xmlns="http://services.mgt.identity.carbon.wso2.org">' +
+            '<username>' + userName + '</username>' +
+            '<key>' + key + '</key>' +
+            '<notificationType>email</notificationType>' +
             '</sendRecoveryNotification>';
     var result = {};
     var response;

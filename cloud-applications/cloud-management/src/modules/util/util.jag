@@ -301,7 +301,7 @@ var getInviteeDirectUrl = function(userRoles) {
 
 function addUserToOT (email, pass, firstName, lastName) {
 	try {
-        log.info("Adding user [ "+email+" ] to OT");
+        log.info("Adding user [ " + email + " ] to OT");
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 		var AUTH_EMAIL = cloudConfig.OTUserApi.auth_email;
@@ -320,7 +320,7 @@ function addUserToOT (email, pass, firstName, lastName) {
 		if(enabled.toString() == "true") {
 			var result = post(URL,data,undefined, 'text');
 		}
-		log.info("Response from OT "+stringify(result));
+        log.info("Response from OT - " + stringify(result));
 	} catch (e){
 		log.error(e)
 	}
