@@ -38,6 +38,7 @@ function subscription(type, domain) {
 function redirectToCloud(url) {
     window.open(url);
 }
+
 function getWelcomeMsg() {
     jagg.post("../blocks/subscriptions/ajax/subscriptions.jag", {
         action: "getWelcomeMsg"
