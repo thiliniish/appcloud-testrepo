@@ -6,7 +6,7 @@ include("/modules/database/dataaccess.jag");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 var types = cloudConfig.subscriptions.type;
-
+var mod = jagg.module("subscriptions");
 
 var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
 (function () {
@@ -91,6 +91,10 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
             }
             print(true);
         }
+    } else if (action == "getWelcomeMsg") {
+        var username = session.get("LOGGED_IN_USER");
+        var welcomeMsg = mod.getWelcomeMsg(username);
+        print(welcomeMsg);
     } else {
         throw new Error("No action specified");
     }

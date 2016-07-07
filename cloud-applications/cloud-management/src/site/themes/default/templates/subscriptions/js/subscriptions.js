@@ -16,8 +16,12 @@
  *  under the License.
  */
 
+$(document).ready(function () {
+    getWelcomeMsg();
+});
+
 function subscription(type, domain) {
-    // I have not done this in a seperate thread as it is not supported by older versions of firefox and chrome.
+    // I have not done this in a separate thread as it is not supported by older versions of firefox and chrome.
     jagg.post("../blocks/subscriptions/ajax/subscriptions.jag", {
             action: "addCloudUserSubscription",
             type: type,
@@ -33,4 +37,13 @@ function subscription(type, domain) {
 
 function redirectToCloud(url) {
     window.open(url);
+}
+function getWelcomeMsg() {
+    jagg.post("../blocks/subscriptions/ajax/subscriptions.jag", {
+        action: "getWelcomeMsg"
+    }, function (result) {
+        var welcomeMsg = result;
+        $('#welcomeMsg').html('<h1>'+ welcomeMsg + '</h1> <div class="description">Select a Cloud below to get' +
+            ' started</div>');
+    });
 }

@@ -11,8 +11,6 @@
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
         var modUserManagement = jagg.module("user/management");
 
-        //Get welcome message
-        var welcomeMsg = getWelcomeMsg(username);
         //Check if user has admin role
         var hasAdminRole = modUserManagement.hasUserRole(username, ROLE_ADMIN);
         //Check if user has publisher role
@@ -53,12 +51,8 @@
         <div class="inner-wrapper">
             <div class="container-fluid">
                 <div class="row row-centered">
-                    <div class="col-centered col-xs-10 col-sm-8 col-md-5 col-lg-3 cloud-intro">
-                        <h1><%=welcomeMsg%></h1>
-                        <div class="description">
-                            Select a Cloud below to get started
-                        </div>
-                    </div>
+                    <div class="col-centered col-xs-10 col-sm-8 col-md-5 col-lg-3 cloud-intro" id="welcomeMsg">
+            		</div>
                 </div>
                 <div class="row row-centered">
                     <div class="row-same-height row-full-height">
