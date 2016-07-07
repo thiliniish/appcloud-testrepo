@@ -389,6 +389,7 @@ var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
 };
 
 var storeTempRegistration = function (email, uuid, isInvitee) {
+    log.info("Adding temporary registration for user [ " + email + "]");
     try {
         var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_REGISTRATION;
         var parameters = [email, uuid, isInvitee, uuid];
@@ -498,7 +499,7 @@ var sendEmail = function (to, link) {
         sender.send();
         log.info("Successfully sent the sign up email to [ " + to + " ] with the link : " + link);
     } catch (e) {
-        log.error("Error while sending email to [ " + to + "]");
+        log.error("Error while sending email to [ " + to + " ]");
         log.error(e);
         try {
             var emailSubject = "Sending email with one time link failed for newly signed-up user [ " +to+" ]";

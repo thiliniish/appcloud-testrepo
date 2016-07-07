@@ -16,7 +16,7 @@ var senderPort = parseInt(cloudConfig.registrationEmail.port);
 var senderPassword = cloudConfig.registrationEmail.password;
 var senderHost = cloudConfig.registrationEmail.host;
 var from = cloudConfig.registrationEmail.from;
-var subject =  cloudConfig.passwordResetEmail.subject;
+var subject = cloudConfig.passwordResetEmail.subject;
 var tls = cloudConfig.registrationEmail.tls.toString();
 
 var body = jagg.module("util").getObjFromFile("/site/conf/emails/password_reset_email_body.txt");
@@ -51,8 +51,8 @@ var verifyUser = function (userName) {
     options["HTTPHeaders"] = [
         {name: "Cookie", value: modManager.getAdminCookie(IS_URL)}
     ];
-    var payload = '<verifyUser xmlns="http://services.mgt.identity.carbon.wso2.org">'+
-            '<username>'+userName+'</username>'+
+    var payload = '<verifyUser xmlns="http://services.mgt.identity.carbon.wso2.org">' +
+            '<username>' + userName + '</username>' +
             '</verifyUser>';
     var result = {};
     var response;
@@ -74,7 +74,7 @@ var verifyUser = function (userName) {
             result.verified = false;
             if (error.indexOf("18003") != -1) {
                 log.warn("Invalid user name given for verifying. User with user name [ " + userName + " ] does"+
-                        +"not exists");
+                        +"not exist");
                 result.error = "Invalid User name";
             } else {
                 log.warn("Password reset error - code [ "+error+" ]");
@@ -117,8 +117,8 @@ var sendRecoveryNotification = function (userName, key) {
         var notificationCode = entry.*::notificationData.*::notificationCode.text();
         var email = entry.*::notificationData.*::notificationAddress.text();
         if (verified == true) {
-            log.info("Recovery notification data retrieved successfully for user [ "+userName
-                    + " ], email [ "+email+" ]");
+            log.info("Recovery notification data retrieved successfully for the user [ " + userName
+                    + " ] with email [ " + email + " ]");
             sendRecoveryEmail(notificationCode, userName, email);
             result.error = false;
             result.message = "Email sent successfully";
@@ -136,14 +136,14 @@ var sendRecoveryNotification = function (userName, key) {
 };
 
 var sendRecoveryEmail = function (notificationCode, userName, emailAddress) {
-    log.info("Sending Email to [ "+emailAddress+" ]");
+    log.info("Sending Email to [ " + emailAddress + " ]");
     var userInfo = jagg.module("tenant").getUserInfo(userName);
     var link = CLOUDMGT_URL + "/site/pages/reset.jag?id=" + userName + "&confirmation=" + notificationCode;
     try {
         body = body.replace("$passwordRestLink", link).replace("$passwordRestLink", link);
         body = body.replace("$userName", emailAddress.toString()).replace("$userName", emailAddress.toString());
         jagg.module("util").sendEmail(body, subject, emailAddress.toString());
-        log.info("Email successfully sent to [ "+userInfo.email.toString()+" ]");
+        log.info("Email successfully sent to [ " + userInfo.email.toString() + " ]");
     } catch (e) {
         log.error("Error while sending email \n" + e);
         throw e;
