@@ -30,7 +30,6 @@ CREATE TABLE TEMP_INVITEE (
   uuid varchar(500) NOT NULL,
   roles varchar(500) NOT NULL,
   dateTime datetime NOT NULL,
-  isSelfSigned TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY(tenantDomain, email)
 );
 
