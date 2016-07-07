@@ -34,7 +34,7 @@
         "isBeta":false,
         "logoClass":"fw",
         "logo": "api",
-        "description": "Turn your web services into managed APIs and provide access via the Developer Portal.",
+        "description": "Turn your web services into managed APIs and provide access via the developer portal.",
         "serviceType": "commercial",
         "roleTypes": [
           {
