@@ -43,8 +43,10 @@ function login(userName, password){
             finalResult.message="User successfully logged in";
             finalResult.username=userName;
             finalResult.cookie=cookieString;
+            var tenantDomain = modManager.getTenantDomain();
             session.put("LOGGED_IN_USER",userName);
             session.put("LOGGED_IN_USER_EMAIL", jagg.module("manager").getEmailOfUser(userName));
+            session.put("LOGGED_IN_USER_TENANT_DOMAIN", tenantDomain);
             log.info("User: " + userName + " successfully logged in from Login API.");
             return stringify(finalResult);
         }

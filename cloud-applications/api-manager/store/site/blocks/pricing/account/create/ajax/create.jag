@@ -2,7 +2,7 @@
 include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
 
-var log = new Log("site/blocks/pricing/account/create/ajax/create.jag");
+var log = new Log("site.blocks.pricing.account.create.ajax.create.jag");
 var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
 (function () {
@@ -24,8 +24,11 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         return;
     }
 
+    var tenantDomain = null;
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-    var tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    if (user != null && user.username != null) {
+        tenantDomain = multiTenantUtils.getTenantDomain(user.username);
+    }
     var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
 
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {

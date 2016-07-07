@@ -116,12 +116,29 @@ public class CloudIntegrationConstants {
             "//cloudProperties/support/supportRequest/emailSubject";
     public static final String CLOUD_SUPPORT_REQUEST_USER_EMAIL =
             "//cloudProperties/support/userEmail";
+
+    //This is the action name which calls the method to send the support request of cloud users.
+    public static final String SUPPORT_REQUEST_ACTION_NAME = "sendSupportRequest";
+
+    //This is the action name which calls the method to extend the API Cloud trial.
+    public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_ACTION_NAME = "sendExtensionRequest";
+
+    //Support extension request related properties
     public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_EMAIL_SUBJECT =
             "//cloudProperties/support/supportRequest/emailSubject";
     public static final String CLOUD_ACCOUNT_EXTENTION_REQUEST_EMAIL_BODY =
             "//cloudProperties/support/supportRequest/emailBody";
-    //This is the action name which calls the method to send the support request of cloud users.
-    public static final String SUPPORT_REQUEST_ACTION_NAME = "sendSupportRequest";
+    public static final String API_CLOUD_TRIAL_EXTENSION_PERIOD =
+            "//cloudProperties/support/accountExtensionRequest/extensionPeriod";
+    public static final String API_CLOUD_TRIAL_USER_DEFAULT_STATUS =
+            "//cloudProperties/support/accountExtensionRequest/trialUserStatus";
+    public static final String API_CLOUD_SUBSCRIPTION_NAME =
+            "//cloudProperties/support/accountExtensionRequest/subscriptionType";
+    public static final String DELETE_BILLING_STATUS_HISTORY_QUERY =
+            "DELETE FROM BILLING_STATUS_HISTORY WHERE TENANT_DOMAIN = (?) && SUBSCRIPTION = (?)";
+    public static final String REVERT_EXTENSION_REQUEST_QUERY =
+            "UPDATE BILLING_STATUS  SET STATUS = (?), START_DATE = (?), END_DATE = (?) WHERE TENANT_DOMAIN = (?) && SUBSCRIPTION = (?);";
+    public static final String DATE_TIME_FORMAT ="yyyy-MM-dd HH:mm:ss";
 
     //This is the action name which calls the method to checks if the Jira creation is enabled/disabled.
     public static final String JIRA_CREATION_ENABLED_ACTION_NAME = "isJiraCreationEnabled";
@@ -139,6 +156,8 @@ public class CloudIntegrationConstants {
     public static final String RESPONSE = "Response";
     public static final String COOKIE = "Cookie";
     public static final String MYSQL_REPLACE = "mysql";
+    public static final String STRING_TRUE_RESPONSE = "true";
+    public static final String STRING_FALSE_RESPONSE = "false";
 
     //default tenant users
     public static final String TENANT_USER_USERNAME =

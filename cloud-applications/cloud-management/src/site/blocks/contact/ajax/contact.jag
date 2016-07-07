@@ -24,7 +24,7 @@ var body = request.getParameter("body");
 
 if (action == "sendExtensionRequest") {
     if (jagg.module("util").isUserInAdminRole()) {
-        var serviceId = session.get("SERVICE_ID");
+        var serviceId = request.getParameter("serviceId");
         var result = jagg.module("billing").extendTrial(serviceId, body);
         print(result);
     } else {

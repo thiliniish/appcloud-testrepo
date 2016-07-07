@@ -24,5 +24,14 @@ jagg.module("manager", {
     getAPIProviderObj:function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAPIProviderObj.apply(this, arguments);
      },
+    loadTenantAxisConfiguration:function (tenantDomain) {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").loadTenantAxisConfiguration.apply(this, arguments);
+    },
+    getBPSAdminCookieBySAMLToken:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getBPSAdminCookieBySAMLToken.apply(this, arguments);
+    },
+    updateAdminCookie:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").updateAdminCookie.apply(this, arguments);
+    }
  });
  %>
