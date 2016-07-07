@@ -267,7 +267,11 @@ function updateTable() {
 
 /*This method will create the pending invitations table */
 function createPendingUserTable(pendingUsersWithRolesArray) {
-
+    //track the member count in organization
+    var memberCount = 0;
+    if(usersWithRoles != undefined){
+        memberCount = usersWithRoles.length;
+    }
     var $pendingUserListContainer = $('#pendingUserListContainer');
     /*getting the total number of pages using max users in a page and checking if the number of members are equal to the max members in a page,else add a new page to the total*/
     totalPages = ((pendingUsersWithRolesArray.length % maxUsersInPage) == 0) ? (pendingUsersWithRolesArray.length / maxUsersInPage) : (pendingUsersWithRolesArray.length / maxUsersInPage) + 1;
@@ -281,8 +285,9 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     } else {
         $('.pagefooter').hide();
     }
+    var maxInvitationsInPage = maxUsersInPage - memberCount;
     //looping until the max number of users in a page is added
-    for (var i = ((pageNumber - 1) * maxUsersInPage); i < pendingUsersWithRolesArray.length && i < (pageNumber * maxUsersInPage); i++) {
+    for (var i = ((pageNumber - 1) * maxInvitationsInPage); i < pendingUsersWithRolesArray.length && i < (pageNumber * maxInvitationsInPage); i++) {
         //console.log("in for loop");
         var pendingUserRoles = pendingUsersWithRolesArray[i];
         var checkBoxString = "";
@@ -890,17 +895,23 @@ $('#removeUsers').click(function(){
                            <h2 class="list_col_heading" style="padding-left:11px;">Role</h2>
                         </li>
                         <li class="list_col team_last_login cursover_remover">
+                            &nbsp;
                         </li>
                         <li class="list_col team_controller cursover_remover">
                            <div class="list_col_heading" id="editDelDiv">
                               <ul class="inline_list item_right">
                                  <li class="inline_item">
-                                    <a href="#" class="icon_link" id="jsroleAssignPopup" title="Edit user roles" data-popover-my-position="top right" popover-target-position="bottom right" data-hasqtip="0" aria-describedby="qtip-0" ><span class="fa fa-pencil" title="Edit user roles"></span></a>
+                                    <a href="#" class="icon_link" id="jsUpdateInvitation" title="Update Invitation"
+                                    data-popover-my-position="top right" popover-target-position="bottom right"
+                                    data-hasqtip="0" aria-describedby="qtip-0" ><span class="fa fa-pencil"
+                                    title="Update Invitation"></span></a>
                                     <div class="popover_content hide">
-                                       <form class="form-container" id="jsroleAssignPopupForm" />
+                                       <form class="form-container" id="jsUpdateInvitationForm" />
                                     </div>
                                  </li>
-                                 <li class="inline_item"><a id="removeUsers" href="#" class="icon_link" title="Remove User"><span class="fa fa-trash-o" title="Remove User"></span></a></li>
+                                 <li class="inline_item"><a id="revokeInvitation" href="#" class="icon_link"
+                                 title="Revoke Invitation"><span class="fa fa-trash-o" title="Revoke
+                                 Invitation"></span></a></li>
                               </ul>
                            </div>
                            <div class="list_col_content">
