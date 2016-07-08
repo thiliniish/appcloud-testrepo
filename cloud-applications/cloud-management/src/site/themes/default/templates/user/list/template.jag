@@ -30,9 +30,11 @@ if (user != null) {
     var selectedCount = 0;
     var permittedToInvite = <%=hasInviteUserPermission%>;
     var isInvitationSent = <%=isInvitationSent%>;
-    var maxUsersInPage = <%=itemsPerPage%>;
-    var pageNumber = 1;
-    var totalPages = 1;
+    var maxItemsInPage = Math.floor(<%=itemsPerPage%>/2);
+    var pageNumberForMembers = 1;
+    var pageNumberForInvitations = 1;
+    var totalPagesForMembers = 1;
+    var totalPagesForInvitations = 1;
     var appOwners = [];
  	
 /* This method validates a single email address given as an input parameter */
@@ -198,15 +200,15 @@ function updateTable() {
      }
      /*getting the total number of pages using max users in a page
      checking if the number of members are equal to the max members in a page,else add a new page to the total*/
-	totalPages= ((usersWithRolesArray.length % maxUsersInPage) == 0 )?(usersWithRolesArray.length/maxUsersInPage):(usersWithRolesArray.length/maxUsersInPage)+1;
-	totalPages=Math.floor(totalPages);
-	if(totalPages >1){
-		$('.pagefooter').bootpag({total: totalPages, page:pageNumber}).show();
+	totalPagesForMembers= ((usersWithRolesArray.length % maxItemsInPage) == 0 )?(usersWithRolesArray.length/maxItemsInPage):(usersWithRolesArray.length/maxItemsInPage)+1;
+	totalPagesForMembers=Math.floor(totalPagesForMembers);
+	if(totalPagesForMembers >1){
+		$('.pagefooter').bootpag({total: totalPagesForMembers, page:pageNumberForMembers}).show();
 	}else{
 		$('.pagefooter').hide();
 	}
 	//looping uptil the max number of users in a page is added
-	for (var i=((pageNumber-1)*maxUsersInPage); i <usersWithRolesArray.length && i < (pageNumber*maxUsersInPage); i++ ) {
+	for (var i=((pageNumberForMembers-1)*maxItemsInPage); i <usersWithRolesArray.length && i < (pageNumberForMembers*maxItemsInPage); i++ ) {
 		 var userRoles = usersWithRolesArray[i];
          var  checkBoxString="";
          if(userRoles.roles.indexOf('admin')<0){
@@ -267,28 +269,28 @@ function updateTable() {
 
 /*This method will create the pending invitations table */
 function createPendingUserTable(pendingUsersWithRolesArray) {
+    $('.cleanableInvitation').remove();
     //track the member count in organization
     var memberCount = 0;
     if(usersWithRoles != undefined){
         memberCount = usersWithRoles.length;
     }
+    //var maxInvitationsInPage = maxItemsInPage - memberCount;
     var $pendingUserListContainer = $('#pendingUserListContainer');
     /*getting the total number of pages using max users in a page and checking if the number of members are equal to the max members in a page,else add a new page to the total*/
-    totalPages = ((pendingUsersWithRolesArray.length % maxUsersInPage) == 0) ? (pendingUsersWithRolesArray.length / maxUsersInPage) : (pendingUsersWithRolesArray.length / maxUsersInPage) + 1;
-    totalPages = Math.floor(totalPages);
-    //console.log("total pages:" + totalPages);
-    if (totalPages > 1) {
-        $('.pagefooter').bootpag({
-            total: totalPages,
-            page: pageNumber
+    totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ? (pendingUsersWithRolesArray.length /maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
+    totalPagesForInvitations = Math.floor(totalPagesForInvitations);
+    if (totalPagesForInvitations > 1) {
+        $('.pageFooterInvitations').bootpag({
+            total: totalPagesForInvitations,
+            page: pageNumberForInvitations
         }).show();
     } else {
-        $('.pagefooter').hide();
+        $('.pageFooterInvitations').hide();
     }
-    var maxInvitationsInPage = maxUsersInPage - memberCount;
+
     //looping until the max number of users in a page is added
-    for (var i = ((pageNumber - 1) * maxInvitationsInPage); i < pendingUsersWithRolesArray.length && i < (pageNumber * maxInvitationsInPage); i++) {
-        //console.log("in for loop");
+    for (var i = ((pageNumberForInvitations - 1) * maxItemsInPage); i < pendingUsersWithRolesArray.length && i < (pageNumberForInvitations * maxItemsInPage); i++) {
         var pendingUserRoles = pendingUsersWithRolesArray[i];
         var checkBoxString = "";
         if (pendingUserRoles.roles.indexOf('admin') < 0) {
@@ -299,7 +301,7 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
         }
 
         //Show pending invitations
-        var $pendingUserListContainerRow = $('<li class="list_row_item cleanable" data-email="' + pendingUserRoles.email + '" ' +
+        var $pendingUserListContainerRow = $('<li class="list_row_item cleanableInvitation" data-email="' + pendingUserRoles.email + '" ' +
             'data-name="' + pendingUserRoles.email + '">' +
             '<ul class="list_row" id="' + pendingUserRoles.email + '">' +
             '<li class="list_col first_list_col item_select">' +
@@ -337,6 +339,16 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     }
     $('#pendingInvitations').show();
     $('#pendingInvitationsMessage').hide();
+    if (totalPagesForInvitations > 1) {
+	    $('.pageFooterInvitations').bootpag({
+	        total: totalPagesForInvitations
+	    }).on("page", function(event, num) {
+	        pageNumberForInvitations = num;
+	        createPendingUserTable(pendingUsersWithRoles);
+	    });
+	} else {
+	    $('.pageFooterInvitations').hide();
+	}
 }
 
 var allRoles = [];
@@ -413,11 +425,11 @@ $(document).ready(function(){
     }
     updateTable();
     updatePopupUserRoles();
-	if(totalPages >1){
+	if(totalPagesForMembers >1){
 		$('.pagefooter').bootpag({
-			total: totalPages
+			total: totalPagesForMembers
 		    }).on("page", function(event, num){
-			    pageNumber=num;
+			    pageNumberForMembers=num;
 			    createTable(usersWithRoles);	
 		});
 	}else{
@@ -762,7 +774,7 @@ $('#removeUsers').click(function(){
                 function (result) {
                     if(count==(length-1)){
                         window.setTimeout(function () {
-                        	pageNumber=1;
+                        	pageNumberForMembers=1;
                             updateTable();
                         }, 300);
                     }
@@ -816,6 +828,7 @@ $('#removeUsers').click(function(){
                 </ul>
              </div>
         </header>
+
         <section class="separator">
             <!--This message is shown when pending invitations are available -->
             <div class="message" id="pendingInvitationsMessage">
@@ -830,7 +843,9 @@ $('#removeUsers').click(function(){
                   </span>
                </div>
             </div>
+        </section>
 
+        <section class="separator">
             <div class="content">
                 <h2 id="membersCount" class="big push_bottom_40"> Members in Team</h2>
                 <ul class="list_table highlight" id="userListContainer">
@@ -878,7 +893,12 @@ $('#removeUsers').click(function(){
                        </li>
                 </ul>
             </div>
+        </section>
 
+        <div class="clearfix"></div>
+        <div class="pagefooter" style="width:30%; margin:0 auto"></div>
+
+        <section class="separator">
             <div class="content" id="pendingInvitations">
                <br><br><br>
                <h2 id="pendingMembersCount" class="big push_bottom_20"> Pending User Invitations</h2>
@@ -895,7 +915,9 @@ $('#removeUsers').click(function(){
                            <h2 class="list_col_heading" style="padding-left:11px;">Role</h2>
                         </li>
                         <li class="list_col team_last_login cursover_remover">
-                            &nbsp;
+                            <h2 class="list_col_heading">
+                                &nbsp;
+                            </h2>
                         </li>
                         <li class="list_col team_controller cursover_remover">
                            <div class="list_col_heading" id="editDelDiv">
@@ -922,9 +944,8 @@ $('#removeUsers').click(function(){
                </ul>
             </div>
         </section>
-
-    <div class="clearfix"></div>
-    <div class="pagefooter" style="width:30%; margin:0 auto"></div>
+        <div class="clearfix"></div>
+        <div class="pageFooterInvitations" style="width:30%; margin:0 auto"></div>
     </article>
     </div>
 </div>
