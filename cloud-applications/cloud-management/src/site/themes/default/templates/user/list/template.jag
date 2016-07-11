@@ -28,6 +28,7 @@ if (user != null) {
     var pendingUsersWithRoles = [];
     var checkedUsers = [];
     var selectedCount = 0;
+    var selectedInvitationCount = 0;
     var permittedToInvite = <%=hasInviteUserPermission%>;
     var isInvitationSent = <%=isInvitationSent%>;
     var maxItemsInPage = Math.floor(<%=itemsPerPage%>/2);
@@ -76,7 +77,19 @@ function ValidateEmail(inputText){
             disable('removeUsers');
 
         }
+    }
+    function enableDisableEditDeleteButtonsForInvitations(enablePara){
+        if(enablePara){
+            //enable delete and edit
+            enable('jsUpdateInvitation');
+            enable('revokeInvitation');
 
+        }else{
+            //disable edit and delete buttons
+            disable('jsUpdateInvitation');
+            disable('revokeInvitation');
+
+        }
     }
 function selectCheckBox(id){
 	var isChecked = $('#ck_'+id).is(':checked');
@@ -87,6 +100,17 @@ function selectCheckBox(id){
 		$("#ck_"+id).attr('checked',true);
 	}
 	enableButton($('#ck_'+id).is(':checked'));
+}
+
+function selectCheckBoxForInvitations(id){
+	var isChecked = $('#ick_'+id).is(':checked');
+	if(isChecked){
+		$('#ick_'+id).removeAttr('checked');
+	} else {
+
+		$("#ick_"+id).attr('checked',true);
+	}
+	enableButton($('#ick_'+id).is(':checked'));
 }
 
 function enableButton(ischecked){
@@ -100,6 +124,19 @@ function enableButton(ischecked){
 	    }
 	}
 }
+
+function enableButtonForInvitations(ischecked){
+	if(ischecked){
+	    selectedInvitationCount++;
+	    enableDisableEditDeleteButtonsForInvitations(true);
+	}else{
+	    selectedInvitationCount--;
+	    if(selectedInvitationCount===0){
+		enableDisableEditDeleteButtonsForInvitations(false);
+	    }
+	}
+}
+
 function getBlockedSubscriptions() {
     var blockedSubs;
     jagg.syncPost("../blocks/tenant/users/add/ajax/add.jag", {
@@ -294,7 +331,7 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
         var pendingUserRoles = pendingUsersWithRolesArray[i];
         var checkBoxString = "";
         if (pendingUserRoles.roles.indexOf('admin') < 0) {
-            checkBoxString = '<input id="ck_' + i + '" type="checkbox" name="action_check" class="action_check" ' +
+            checkBoxString = '<input id="ick_' + i + '" type="checkbox" name="action_check" class="action_check" ' +
                 'data-roles="' + pendingUserRoles.roles + '" data-user="' + pendingUserRoles.email + '" />';
         } else {
             checkBoxString = '';
@@ -309,7 +346,7 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
             checkBoxString +
             '</div>' +
             '</li>' +
-            '<li onclick="selectCheckBox(' + i + ')" class="list_col team_member">' +
+            '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_member">' +
             '<div class="list_col_content">' +
             '<div class="image_list">' +
             '<dl>' +
@@ -320,15 +357,15 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
             '</div>' +
             '</div>' +
             '</li>' +
-            '<li onclick="selectCheckBox(' + i + ')" class="list_col  team_role">' +
+            '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col  team_role">' +
             '<div class="list_col_content">' + pendingUserRoles.roles.toString() + '</div>' +
             '</li>' +
-            '<li onclick="selectCheckBox(' + i + ')" class="list_col team_last_login">' +
+            '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_last_login">' +
             '<div class="list_col_content">' +
             // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
             '</div>' +
             '</li>' +
-            '<li onclick="selectCheckBox(' + i + ')" class="list_col team_controller">' +
+            '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_controller">' +
             '<div class="list_col_heading">&nbsp;</div>' +
             '<div class="list_col_content">&nbsp;</div>' +
             '</li>' +
@@ -336,7 +373,9 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
             '</li>');
 
         $pendingUserListContainer.append($pendingUserListContainerRow);
+        enableDisableEditDeleteButtonsForInvitations(false);
     }
+    selectedInvitationCount = 0;
     $('#pendingInvitations').show();
     $('#pendingInvitationsMessage').hide();
     if (totalPagesForInvitations > 1) {
@@ -349,6 +388,13 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
 	} else {
 	    $('.pageFooterInvitations').hide();
 	}
+	$('#pendingUserListContainer .action_check').click(function(){
+             manageRoleCheckListForInvitations();
+         }
+     );
+     $('.action_check').click(function(){
+	        enableButtonForInvitations(this.checked);
+     });
 }
 
 var allRoles = [];
@@ -396,6 +442,51 @@ var manageRoleCheckList = function(){
     if(numberOfUsersChecked > 0 ){
         for(var i=0;i < allRoles.length;i++){
             if(allRoles[i].users.length  == numberOfUsersChecked){ //So every user has this role
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-checked"></span>');
+            } else if (allRoles[i].users.length  == 0){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+            } else if (allRoles[i].users.length  != 0 && allRoles[i].users.length < numberOfUsersChecked ){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-half"></span>');
+            }
+        }
+     }else{
+        for(var i=0;i < allRoles.length;i++){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+        }
+     }
+};
+
+var manageRoleCheckListForInvitations = function(){
+    allRoles = [];
+
+    $('#jsUpdateInvitationForm label').each(function(){
+        var trole=$(this).attr('data-role');
+        if(trole!=undefined){
+            allRoles.push({dom_obj:this, role_name:trole,users:[] });
+        }
+    });
+
+    //Push users to specific roles
+    var numberOfInvitationsChecked = 0;
+    $('#pendingUserListContainer .action_check').each(function(){
+        if($(this).is(':checked')){
+            numberOfInvitationsChecked++;
+            var userName = $(this).attr('data-user').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+            var tmrole=$(this).attr('data-roles');
+            if(tmrole!=undefined&&tmrole.length>0){
+                var allRolesForUser = tmrole.split('\n');
+                for(var i=0;i< allRolesForUser.length;i++){
+                    var role = allRolesForUser[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                    getRoleByName(role).users.push(userName);
+                }
+            }
+        }
+
+    });
+    //Now use the allRows array to show the role checkboxes..
+    if(numberOfInvitationsChecked > 0 ){
+        for(var i=0;i < allRoles.length;i++){
+            if(allRoles[i].users.length  == numberOfInvitationsChecked){ //So every user has this role
                 $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-checked"></span>');
             } else if (allRoles[i].users.length  == 0){
                 $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
@@ -546,6 +637,22 @@ $('#select_all_check').click(function(){
     manageRoleCheckList();
 }).removeAttr('checked');
 enableDisableEditDeleteButtons(false);//disabling edit and delete button on load
+
+$('#select_all_invitations_check').click(function(){
+    $('#pendingUserListContainer .action_check').each(function() {
+        if ($('#select_all_invitations_check').is(':checked')) {
+            $(this).attr('checked', 'checked');
+            selectedInvitationCount++;
+            enableDisableEditDeleteButtonsForInvitations(true);
+        } else {
+            $(this).removeAttr('checked');
+            selectedInvitationCount = 0;
+            enableDisableEditDeleteButtonsForInvitations(false);
+        }
+    });
+    manageRoleCheckListForInvitations();
+}).removeAttr('checked');
+enableDisableEditDeleteButtonsForInvitations(false);//disabling edit and delete button on load
 
 $('#saveUserRoles').click(function(){
     // iterate through allRoles and save the users with there roles
@@ -906,7 +1013,8 @@ $('#removeUsers').click(function(){
                   <li class="list_row_item first_list_row_item">
                      <ul class="list_row first_list_row ">
                         <li class="list_col first_list_col item_select cursover_remover">
-                           <h2 class="list_col_heading"><input type="checkbox" name="select_all" id="select_all_check" /></h2>
+                           <h2 class="list_col_heading"><input type="checkbox" name="select_all"
+                           id="select_all_invitations_check" /></h2>
                         </li>
                         <li class="list_col team_member cursover_remover">
                            <h2 class="list_col_heading" style="padding-left:11px;">Email</h2>
