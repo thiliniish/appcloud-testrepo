@@ -3,9 +3,8 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/modules/database/dataaccess.jag");
 include("/modules/database/sql.jag");
-// used for logging
-var log = new Log("/modules/tenant/users/add/add.jag");
 
+var log = new Log("modules.tenant.users.add.add.jag");
 var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
@@ -31,8 +30,6 @@ var addUserRoles = function addUserRoles(username,userRoles) {
 	} finally {
 		context.endTenantFlow();
 	}
-
-
 };
 
 var updateUserRoles = function (userName,addRoles,removeRols) {
@@ -92,10 +89,10 @@ var deleteUserFromTenant = function (userName){
 };
 
 var sendInvite = function (email, tenant, roles, message) {
-    log.info("Sending invitation for invited user " + email);
+    log.info("Sending invitation for invited user [ " + email + " ]");
     var displayName = modManager.getTenantDisplayName(tenant);
     var uuid = generateUUId();
-    log.info("Adding temp registration for user " + email);
+    log.info("Adding the user [ " + email + " ] to TEMP_INVITEE");
     var getRolesQueryString = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
     var parameters = [tenant, email];
     var existingRecord = jagg.module("database").executeQuery(getRolesQueryString, parameters);
@@ -120,7 +117,7 @@ var sendInvite = function (email, tenant, roles, message) {
     parameters = [tenant, email, uuid, roles, uuid, roles];
     var results = jagg.module("database").executeQuery(queryString, parameters);
 
-    log.info("Successfully added the temp registration");
+    log.info("Successfully added the user by email [ " + email + " ] to TEMP_INVITEE");
     var link = targetEpr + "?confirmation=" + uuid + "&isInvitee=true";
     sendEmail(email, link, displayName, roles, message);
     var modEvents = jagg.module("events");
@@ -175,7 +172,7 @@ var sendEmail = function(to,link,domain,roles,message) {
     }
     var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
     jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
-    log.info("Email successfully sent to " + to);
+    log.info("Successfully sent the email to [ " + to + " ], with the link : " + link);
 };
 
 var sendUserInvite = function (emails,roles){
@@ -306,7 +303,7 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         var email = results[0]["email"];
         var roles = results[0]["roles"];
         var tenantDomain = results[0]["tenantDomain"];
-        log.info(email + " is invited for " + tenantDomain + " as  " + roles);
+        log.info("The user [ " + email + " ] is joining [ " + tenantDomain + " ] as [ " + roles + " ]");
         session.put("TENANT_DOMAIN", tenantDomain.toString());
         var userName = modManager.getUserNameFromEmail(email);
         isUserExist = tenantMod.isExistingUser(userName);
@@ -331,16 +328,16 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
             }
         }
         if (!isUserExist) {
-            log.info("Adding new user, " + userName + " to tenant : " + tenantDomain);
+            log.info("The invited new user [ " + userName + " ] joined the tenant [ " + tenantDomain + " ]");
             server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
             jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
         } else if (!isUserOfTenant) {
             assignedRoles.push(CLOUD_DEFAULT_ROLE);  //Need to add default role for users who exists already but not a member of tenant; hence adding default role here
         }
-        log.info("Updating the user roles of user " + userName);
+        log.info("Updating the user roles of user [ " + userName + " ]");
         server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(userName, assignedRoles, null);
     } catch (e) {
-        log.error("Error while importing " + firstName + " " + lastName + ": " + e.message);
+        log.error("Error while importing [ " + firstName + " ] , [ " + lastName + " ] , " + e.message);
         log.error(e);
         throw e;
     } finally {
@@ -348,14 +345,17 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
     }
     try {
         //Adding User -Tenant Mapping
+        log.info("Adding user [ " + userName + " ] and tenant [ " + tenantDomain + " ] in to TENANT_USER_MAPPING");
         var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
         var parameters = [userName, tenantDomain];
         var results = jagg.module("database").executeQuery(queryString, parameters);
         var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE;
         parameters = [confirmationKey];
         results = jagg.module("database").executeQuery(deleteString, parameters);
+        log.info("Tenant user mapping added successfully for [ " + userName + " ] and tenant [" + tenantDomain +"]");
     } catch (e) {
-        log.error("Error while adding tenant user mapping for user: " + userName + " with tenant domain: " + tenantDomain + ": " + e.message);
+        log.error("Error while adding tenant user mapping for user [ " + userName + " ] with tenant domain [ " +
+                tenantDomain + " ] " + e.message);
         log.error(e);
         throw e;
     }
