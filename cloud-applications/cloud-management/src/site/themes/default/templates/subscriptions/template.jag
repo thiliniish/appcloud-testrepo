@@ -5,7 +5,7 @@
     include("/modules/subscriptions/subscriptions.jag");
 
     var log = new Log("site.themes.default.templates.subscriptions.template.jag");
-    var username = inputs.username;
+    var username = outputs.username;
 
     if (username != null) {
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
