@@ -3,7 +3,7 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/modules/database/dataaccess.jag");
 
-var log = new Log("modules/tenant/register/register.jag");
+var log = new Log("modules.tenant.register.register.jag");
 var modManager = jagg.module("manager");
 
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
@@ -54,7 +54,8 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
                 var roles = tenantMod.importInvitedUser(confirm, null);
                 var url = jagg.module("util").getInviteeDirectUrl(roles);
                 if (log.isDebugEnabled()) {
-                    log.debug("user is invited to " + tenantMod);
+                    log.debug("User [ " + userName + " ] is invited to " + tenantMod);
+                    log.debug("The invitee redirect URL for [ " + userName + " ] - " + url);
                 }
                 return url;
             }
@@ -66,7 +67,7 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
             return "expired";
         }
     } catch (e) {
-        log.error("Error while confirming user: " + email);
+        log.error("Error while confirming user [ " + email + " ]");
         log.error(e);
         throw (e);
     }
@@ -83,9 +84,9 @@ var getConfirmationEmail = function(confirm){
                 var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
                 var parameters = [confirm];
                 var results = jagg.module("database").executeQuery(deleteString, parameters);
-                log.info("Confirmation Email: " + email);
+                log.info("Retrieved the email [ " + email + " ] from TEMP_REGISTRATION table");
             } else {
-                log.error("No temporary record for confirmation code: " + confirm);
+                log.error("For email [ " + email + " ] no temporary record for confirmation code [ " + confirm + "]");
             }
     return email;
     } catch (e) {
@@ -96,76 +97,78 @@ var getConfirmationEmail = function(confirm){
 };
 
 var registerOrg = function (organizationName, password, usagePlan, confirmationKey, firstName, lastName) {
-    log.info("Registering Organization: " + organizationName) ;
+    log.info("Registering the new organization [ " + organizationName + " ]");
     var email;
     var newUser = true;
     var adminUserName;
-        if (confirmationKey != null) {
-            email = getConfirmationEmail(confirmationKey);
-            if (email != null) {
-                adminUserName = modManager.getUserNameFromEmail(email.toString());
-            } else {
-                return false;
-            }
+    if (confirmationKey != null) {
+        email = getConfirmationEmail(confirmationKey);
+        if (email != null) {
+            adminUserName = modManager.getUserNameFromEmail(email.toString());
         } else {
-            var fullUserName = String(session.get("LOGGED_IN_USER"));
-            adminUserName = modManager.getTenantAwareUsername(fullUserName);
-            var tmpUser = jagg.module("tenant").getUserInfo(adminUserName);
-            firstName = tmpUser.firstName;
-            lastName = tmpUser.lastName;
-            email = tmpUser.email;
-            newUser = false;
+            return false;
         }
-        log.info("User Information [ adminUserName: " + adminUserName + ", FirstName: " + firstName + ", LastName: "
-                 + lastName + ", Email: " + email + " ]");
-        newUser = !isExistingUser(adminUserName);
-        var organizationDomain = getCompanyId(organizationName);
-        session.put("TENANT_DOMAIN", organizationDomain);
-        log.info("Organization Information [ Display Name: " + organizationName + ", Platform Tenant Domain: " + organizationDomain + " ]");
-        var adminPassword = jagg.module("util").escapeSpecialCharsXML(password);
-        var id = registerTenantForTrustedUser(organizationDomain, adminUserName, adminPassword, firstName, lastName, email, usagePlan);
-        log.info("Created Tenant in platform.");
-        var isUserInCloud = hasATenant(adminUserName);
-        if (!isUserInCloud) {
-            log.info("Sending tenant creation events to BAM");
-            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName, "ADD");
-
-            try {
-                jagg.module("util").addUserToOT(email, adminPassword, firstName, lastName);
-                //jagg.module("util").addUserToRightWave(email);
-            } catch (e) {
-                log.error("Error while registering organization: " + organizationDomain + " Email: " + email);
-                log.error(e);
-                throw (e);
-            }
-
+    } else {
+        var fullUserName = String(session.get("LOGGED_IN_USER"));
+        adminUserName = modManager.getTenantAwareUsername(fullUserName);
+        var tmpUser = jagg.module("tenant").getUserInfo(adminUserName);
+        firstName = tmpUser.firstName;
+        lastName = tmpUser.lastName;
+        email = tmpUser.email;
+        newUser = false;
+    }
+    log.info("User information to register [ Username: " + adminUserName + ", First Name: " + firstName + ", Last" +
+            " Name: " + lastName + ", Email: " + email + " ]");
+    newUser = !isExistingUser(adminUserName);
+    var organizationDomain = getCompanyId(organizationName);
+    session.put("TENANT_DOMAIN", organizationDomain);
+    log.info("Organization information to register [ Display Name: " + organizationName + ", Tenant Domain: " +
+            organizationDomain + " ]");
+    var adminPassword = jagg.module("util").escapeSpecialCharsXML(password);
+    var id = registerTenantForTrustedUser(organizationDomain, adminUserName, adminPassword, firstName, lastName, email, usagePlan);
+    var isUserInCloud = hasATenant(adminUserName);
+    if (!isUserInCloud) {
+        log.info("Sending tenant creation events of [ " + organizationDomain + " ] to BAM");
+        server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName, "ADD");
+        try {
+            jagg.module("util").addUserToOT(email, adminPassword, firstName, lastName);
+            //jagg.module("util").addUserToRightWave(email);
+        } catch (e) {
+            log.error("Error while registering organization [ " + organizationDomain + " ] Email [ " + email + "]");
+            log.error(e);
+            throw (e);
         }
 
-        //adding tenant mapping to the table
-        //TODO - Move the below to a listener
-        storeTenantMGTRegistration(adminUserName, organizationDomain);
-        storeTenantDisplayNameMapping(organizationDomain, organizationName);
-        if (newUser) {
-            addDefaultLoginRole(adminUserName);
-            log.info("Successfully Added default role ");
-        }
-        storeSubscription(organizationDomain);
+    }
 
-        //Add tenant to billing account database tables
-        var tenantId = modManager.getTenantId(organizationDomain);
+    //adding tenant mapping to the table
+    //TODO - Move the below to a listener
+    storeTenantMGTRegistration(adminUserName, organizationDomain);
+    storeTenantDisplayNameMapping(organizationDomain, organizationName);
+    if (newUser) {
+        log.info("Adding default login role for the user [ " + adminUserName + " ], tenant [" + organizationDomain + " ]");
+        addDefaultLoginRole(adminUserName);
+        log.info("Successfully added the default role for the user [ " + adminUserName + " ],"
+                +", tenant [" + organizationDomain + " ]");
+    }
+    storeSubscription(organizationDomain);
 
-        //Adding tenant to billing Account part removed temporarily.
-        //TODO uncomment following lines
+    //Add tenant to billing account database tables
+    var tenantId = modManager.getTenantId(organizationDomain);
+    log.info("Id of the tenant [ " + organizationDomain + " ] is [ " + tenantId + " ]");
 
-        jagg.module("billing").addTenantToBilling(tenantId, organizationDomain);
-        log.info("Billing account created for tenant: " + organizationDomain);
+    //Adding tenant to billing Account part removed temporarily.
+    //TODO uncomment following lines
 
-        log.info("Tenant Registration completed.");
+    jagg.module("billing").addTenantToBilling(tenantId, organizationDomain);
+    log.info("Billing account created for tenant [ " + organizationDomain + " ]");
 
-        //removing registration data from the session after successful registration.
-        session.remove("registration-intermediate-data");
-        session.remove("registration-email");
-        return true;
+    log.info("Tenant registration completed for [ " + organizationDomain + " ]");
+
+    //removing registration data from the session after successful registration.
+    session.remove("registration-intermediate-data");
+    session.remove("registration-email");
+    return true;
 };
 
 var hasATenant = function (userName) {
@@ -176,7 +179,7 @@ var hasATenant = function (userName) {
         if(results[0] == null ) {
             return false;
         } else {
-            log.info(results[0]["userName"]+"  already in the cloud system");
+            log.info("Username [ " + results[0]["userName"] + " ] already in the cloud system");
             return true;
         }
     }catch (e){
@@ -217,34 +220,39 @@ var isValidEmail = function(userName){
 };
 
 var isExistingUser = function( userName ) {
-    log.info("Checking if the email is valid for:  " + userName);
+    log.info("Validate email address and checking user existence for [ " + userName + " ]");
     var isExist = false;
     try {
         var user = userName;
         if(userName.indexOf('@') > 0) {
         	if(!isValidEmail(userName)){
-        	 	log.info(userName+" is not a valid email Address");
+                log.info("The email address [ " + userName + " ] is not valid");
         	 	throw "Invalid Email Address "+userName;
-        	 }
-            log.info("Checking user existence for: " + userName);
+            }
+            log.info("The email address [ " + userName + " ] is valid");
+            //log.info("Checking user existence for: " + userName);
             user = modManager.getUserNameFromEmail(userName);
         }
         isExist = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').isExistingUser(user);
     } catch (e) {
-        log.error("Error while checking the existence of user: " + user );
+        log.error("Error while checking the existence of user [ " + user + " ]");
         log.error(e);
         throw (e);
     }
-    log.info("User " + userName + " exist : " + isExist)
+    if(isExist){
+        log.info("A user for [ " + userName + " ] already exist");
+    }else{
+        log.info("A user for [ " + userName + " ] does not exist");
+    }
+    //log.info("User existence for " + userName + " is : " + isExist);
     return isExist;
 };
 
 var addDefaultLoginRole = function(userName) {
-    log.info("Adding default login role for user " + userName);
     try{
         return server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').addDefaultLoginRole(userName);
     }catch (e){
-        log.error("Error while adding defualt role for user: " + userName );
+        log.error("Error while adding defualt role for user [ " + userName + " ]");
         log.error(e);
         throw (e);
     }
@@ -252,13 +260,13 @@ var addDefaultLoginRole = function(userName) {
 
 var storeSubscription = function( domain) {
     try{
-        log.info("Adding subscriptions");
+        log.info("Adding subscriptions to the domain [ " + domain + " ]");
         var queryString =SQL_QUERY_STRINGS.INSERT_INTO_SUBSCRIPTIONS;
         var parameters =[domain];
         var results = jagg.module("database").executeQuery(queryString, parameters);
-        log.info("Subscriptions added successfully");
+        log.info("Subscriptions added successfully to the domain [ " + domain + " ]");
     }catch (e){
-        log.error("Error while storing subscription for domain: " + domain );
+        log.error("Error while storing subscription for domain [ " + domain + " ]");
         log.error(e);
         throw (e);
     }
@@ -266,8 +274,8 @@ var storeSubscription = function( domain) {
 };
 
 var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPassword, firstName,lastName,email,usagePlan) {
-    log.info("Creating tenant in platform - Tenant info: TenantDomain : " + tenantDomain + " , AdminUser : " + adminUser + " UsagePlan : " + usagePlan);
-    log.info("Creating tenant in platform - User info: FirstName : " + firstName + " , LastName : " + lastName + " , Email : " + email);
+    log.info("Creating the tenant with tenant domain [ "+tenantDomain+" ] for the admin user [" +
+            adminUser+" ] with usage plan [ "+usagePlan+" ]");
 	var ws = require("ws");
 	var creatTenant = new ws.WSRequest();
 	var options = new Array();
@@ -300,16 +308,17 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
 			creatTenant.open(options,endPoint, false);
 			creatTenant.send(payload);
 			result = creatTenant.responseE4X;
+            log.info("Tenant creation completed for tenant domain [ "+tenantDomain+" ]");
 			return result;
 		} catch (e) {
-			log.error("Error while registering organization: " + tenantDomain + " for trusted user: " + email);
+            log.error("Error while registering organization [ " + tenantDomain + " ] for trusted user [ " + email + " ]");
 			log.error(e);
 			throw (e);
 		}
 };
 
 var checkDomainAvailability = function (domainName) {
-    log.info("Checking Organization name availability for: " + domainName);
+    log.info("Checking the organization name availability");
     var isDomainAvailable = false;
     try{
         var companyDisplayName = jagg.module("util").escapeSpecialChars(domainName);
@@ -317,8 +326,13 @@ var checkDomainAvailability = function (domainName) {
         var parameters =[companyDisplayName];
         var results = jagg.module("database").executeQuery(queryString, parameters);
         isDomainAvailable = results.length == 0;
+        if(isDomainAvailable){
+            log.info("The organization name [ " + domainName + " ] is available");
+        }else{
+            log.info("The organization name [ " + domainName + " ] is not available");
+        }
     }catch (e) {
-        log.error("Error while checking Organization name availability for " + domainName);
+        log.error("Error while checking organization name availability for [ " + domainName + " ]");
         log.error(e);
         throw (e);
     }
@@ -326,31 +340,34 @@ var checkDomainAvailability = function (domainName) {
 };
 
 var checkTenantDomainAvailability = function (domainName) {
-    log.info("Checking domain availability for: " + domainName);
+    log.info("Checking domain availability for [ " + domainName + " ]");
     var availability = false;
     try{
         var tenantSelfRegistrationService = server.osgiService('org.wso2.carbon.tenant.mgt.services.TenantSelfRegistrationService');
         availability = tenantSelfRegistrationService.checkDomainAvailability(domainName);
     }catch (e) {
-        log.error("Error while checking domain availability for " + domainName );
+        log.error("Error while checking domain availability for [ " + domainName + " ]");
         log.error(e);
         throw (e);
     }
-    log.info("Domain " + domainName + " ,availability: " + availability);
+    if(availability){
+        log.info("The domain [ " + domainName + " ] is available ");
+    }else{
+        log.info("The domain [ " + domainName + " ] is not available ");
+    }
     return availability;
 };
 
 var storeTenantMGTRegistration = function (userName,tenantDomain) {
     try {
         //Adding User -Tenant Mapping
-        log.info("Adding tenant user mapping for user "+userName + " tenantDomain: " + tenantDomain );
+        log.info("Adding user [ " + userName + " ] and tenantDomain [ " + tenantDomain + " ] as a tenant user mapping");
         var queryString1 = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
         var parameters =[userName,tenantDomain];
         var results = jagg.module("database").executeQuery(queryString1, parameters);
-        log.info("Successfully added the tenant user mapping for user: " + userName + " tenantDomain: "+ tenantDomain);
-
+        log.info("Successfully added tenant details for user [ " + userName + " ] and tenant [ " + tenantDomain + " ]");
     }catch (e){
-        log.error("Error while storing tenant details for tenant: " + tenantDomain + " of user: " + userName );
+        log.error("Error while storing tenant details for tenant [ " + tenantDomain + " ] of user [ " + userName +" ]");
         log.error(e);
         throw (e);
     }
@@ -358,29 +375,28 @@ var storeTenantMGTRegistration = function (userName,tenantDomain) {
 
 var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
     try {
-
         //Adding Tenant - Display Name mapping
-        log.info("Adding tenant display name mapping for tenantDomain: "+ tenantDomain + " displayName: "+displayName);
+        log.info("Adding tenantDomain [ "+tenantDomain+" ] and displayName [ "+displayName+" ] as a tenant display name mapping");
         var displayName = jagg.module("util").escapeSpecialChars(displayName);   //company display name
         var queryString2 = SQL_QUERY_STRINGS.INSERT_INTO_ORGANIZATIONS;
         var parameters =[tenantDomain,displayName];
         var results = jagg.module("database").executeQuery(queryString2, parameters);
-        log.info("Successfully added the tenant display name mapping for tenantDomain: "+ tenantDomain + " displayName: "+displayName);
+        log.info("Successfully added the tenant display name mapping for tenant [ " + tenantDomain + " ]");
     }catch (e){
-        log.error("Error while storing tenant details for tenant: " + tenantDomain + " with display name: " + displayName);
+        log.error("Error while adding the tenant display name mapping for tenant [ " + tenantDomain + " ]");
         log.error(e);
         throw (e);
     }
 };
 
 var storeTempRegistration = function (email, uuid, isInvitee) {
-    log.info("Adding temp registration for user: " + email);
+    log.info("Adding temporary registration for user [ " + email + "]");
     try {
         var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_REGISTRATION;
         var parameters = [email, uuid, isInvitee, uuid];
         var results = jagg.module("database").executeQuery(queryString, parameters);
     } catch (e) {
-        log.error("Error while storeTempRegistration for email: " + email);
+        log.error("Error while adding the temporary registration for user [ " + email + " ]");
         log.error(e);
         try {
             var emailSubject = "Storing in TEMP_REGISTRATION failed for user: " + email;
@@ -389,16 +405,16 @@ var storeTempRegistration = function (email, uuid, isInvitee) {
             concat(" ").concat(e).concat(e.stack);
             var isEmailSent = jagg.module("util").sendEmail(emailContent, emailSubject, null);
         } catch (ex) {
-            log.error("Error sending email notification at, store temp registration failure for customer email: " + email);
+            log.error("Error sending email notification for store temp registration failure to [ " + email + " ]");
             log.error(ex);
         }
         throw (e);
     }
-    log.info("Successfully added to the temp registration user: " + email);
+    log.info("Successfully added the temporary registration for user [ "+email+" ]");
 };
 
 var sendInvite = function (email, token) {
-    log.info("Sending invitation for self signed user: " + email);
+    log.info("Sending the sign up email for user [ " + email + " ]");
     var uuid = jagg.module("util").generateUUId();
     var tokenId;
     storeTempRegistration(email, uuid, 0);
@@ -430,10 +446,10 @@ var sendInvite = function (email, token) {
             var events = [];
                 if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
                     actionString = actionString + "Success";
-                    log.info("Rightwave cloud signup api call success for the user " + email);
+                    log.info("Rightwave cloud signup api call success for the user [ " + email + " ]");
                 } else {
                     actionString = actionString + "Failed";
-                    log.error("Rightwave cloud signup api call failed for the user " + email + " : " + msg);
+                    log.error("Rightwave cloud signup api call failed for the user [ " + email + " ] : " + msg);
                 }
             var event = {};
             event.item = item;
@@ -448,7 +464,7 @@ var sendInvite = function (email, token) {
 };
 
 var reInvite = function (email) {
-    log.info("Resending invitation for self signed user: " + email);
+    log.info("Resending the sign up email for user [ " + email + " ]");
     var queryString1 = SQL_QUERY_STRINGS.SELECT_UUID_FROM_TEMP_REGISTRATION;
     var parameters =[email];
     var results = jagg.module("database").executeQuery(queryString1, parameters);
@@ -482,17 +498,17 @@ var sendEmail = function (to, link) {
         sender.subject = subject;
         sender.html = body;
         sender.send();
-        log.info("email successfully sent to " + to + " link : " + link);
+        log.info("Successfully sent the sign up email to [ " + to + " ] with the link : " + link);
     } catch (e) {
-        log.error("Error while sending email to: " + to);
+        log.error("Error while sending email to [ " + to + " ]");
         log.error(e);
         try {
-            var emailSubject = "Sending email with one time link failed for newly signed-up user: " + to;
+            var emailSubject = "Sending email with one time link failed for newly signed-up user [ " +to+" ]";
             var emailContent = "Initial registration failed for newly signed-up user: ";
-            emailContent = emailContent.concat(email).concat(" Exception occurred while sending email with one time link.   ").concat(e).concat(e.stack);
+            emailContent = emailContent.concat(email).concat(" Exception occurred while sending email with one time link.").concat(e).concat(e.stack);
             var isEmailSent = jagg.module("util").sendEmail(emailContent, emailSubject, null);
         } catch (ex) {
-            log.error("Error sending email notification at, Sending one time link failure for customer email: " + email);
+            log.error("Error sending email notification at, Sending one time link failure to [ " + email + " ]");
             log.error(ex);
         }
 

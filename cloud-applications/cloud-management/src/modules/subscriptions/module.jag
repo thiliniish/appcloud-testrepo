@@ -1,6 +1,7 @@
 <%
 jagg.module("subscriptions", {
-
-   
+    getWelcomeMsg: function () {
+        return jagg.require(jagg.getModulesDir() + "subscriptions/subscriptions.jag").getWelcomeMsg.apply(this, arguments);
+    }
 });
 %>
