@@ -40,8 +40,10 @@ function redirectToCloud(url) {
 }
 
 function getWelcomeMsg() {
+    var username = document.getElementById("username");
     jagg.post("../blocks/subscriptions/ajax/subscriptions.jag", {
-        action: "getWelcomeMsg"
+        action: "getWelcomeMsg",
+        username: "username"
     }, function (result) {
         var welcomeMsg = result;
         $('#welcomeMsg').html('<h1>'+ welcomeMsg + '</h1> <div class="description">Select a Cloud below to get' +

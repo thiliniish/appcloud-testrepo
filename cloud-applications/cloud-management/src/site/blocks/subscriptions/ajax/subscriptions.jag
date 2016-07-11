@@ -92,7 +92,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
             print(true);
         }
     } else if (action == "getWelcomeMsg") {
-        var username = session.get("LOGGED_IN_USER");
+        var username = request.getParameter("username");
         var welcomeMsg = mod.getWelcomeMsg(username);
         print(welcomeMsg);
     } else {

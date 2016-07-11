@@ -12,7 +12,8 @@ var log = new Log("site.pages.index.jag");
     } else {
 
     }
-    
+    var inputsObj = {};
+    inputsObj.username = username;
     jagg.render({
         "name":"page/base",
         "inputs":{
@@ -25,7 +26,8 @@ var log = new Log("site.pages.index.jag");
                         "title":"Cloud Mgt",
                         "middle":[
                             {
-                            	"name":"subscriptions"
+                            	"name":"subscriptions",
+                            	"inputs": inputsObj
                             }
                         ]
                     }
