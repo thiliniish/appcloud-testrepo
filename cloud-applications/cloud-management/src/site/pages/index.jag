@@ -1,16 +1,17 @@
 <%
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
-var log = new Log();
+var log = new Log("site.pages.index.jag");
 
 (function () {
-      
-	var userName = session.get("LOGGED_IN_USER");
+
+    var userName = session.get("LOGGED_IN_USER");
     var sessionId = session.getId();
     if(userName == null | userName == 'anonymous user') {
-	} else {
 
-	}
+    } else {
+
+    }
 
    jagg.render({
         "name":"page/base",
@@ -24,7 +25,7 @@ var log = new Log();
                         "title":"Cloud Mgt",
                         "middle":[
                             {
-                            	"name":"subscriptions"
+                                "name":"subscriptions"
                             }
                         ]
                     }
