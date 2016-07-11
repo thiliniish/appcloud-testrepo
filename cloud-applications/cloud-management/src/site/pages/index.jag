@@ -5,14 +5,14 @@ var log = new Log("site.pages.index.jag");
 
 (function () {
 
-    var userName = session.get("LOGGED_IN_USER");
+    var username = session.get("LOGGED_IN_USER");
     var sessionId = session.getId();
-    if(userName == null | userName == 'anonymous user') {
+    if(username == null | username == 'anonymous user') {
 
     } else {
 
     }
-
+    
     jagg.render({
         "name":"page/base",
         "inputs":{
