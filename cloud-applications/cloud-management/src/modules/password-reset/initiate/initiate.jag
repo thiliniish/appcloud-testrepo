@@ -73,7 +73,7 @@ var verifyUser = function (userName) {
         } else {
             result.verified = false;
             if (error.indexOf("18003") != -1) {
-                log.warn("Invalid user name given for verifying. User with user name [ " + userName + " ] does"+
+                log.warn("Invalid user name given for verifying. User with user name [ " + userName + " ] does "+
                         +"not exist");
                 result.error = "Invalid User name";
             } else {
