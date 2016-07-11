@@ -1,123 +1,114 @@
-<% jagg.template("subscriptions", function(inputs, outputs, jagg) { %>
+<% jagg.template("subscriptions", function (inputs, outputs, jagg) { %>
 <%
-include("/modules/database/dataaccess.jag");
-include("/jagg/constants.jag");
+    include("/modules/database/dataaccess.jag");
+    include("/jagg/constants.jag");
+    include("/modules/subscriptions/subscriptions.jag");
 
-var log = new Log();
-var userName = session.get("LOGGED_IN_USER");
+    var log = new Log("site.themes.default.templates.subscriptions.template.jag");
+    var username = outputs.username;
 
-if (userName != null) {
-	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-	var modUserManagement = jagg.module("user/management");
-	//Check if user has admin role
-	var hasAdminRole = modUserManagement.hasUserRole(userName, ROLE_ADMIN);
-	//Check if user has publisher role
-	var hasPublisherRole = modUserManagement.hasUserRole(userName, ROLE_PUBLISHER);
-	if (hasAdminRole || hasPublisherRole) {
-		log.debug("The user has an admin or publisher role.");
-		var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
-		if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
-			var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
-			var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
-		}
-	}
-	var types = cloudConfig.subscriptions.type;
-	var domainName = jagg.module("manager").getTenantDomain(userName);
-	var subscriptionInfo = {
-	};
-	for (var i = 0; i < types.length; i++) {
-		if (types[i].id != DEFAULT_SUBSCRIPTION) {
-			var columnName = types[i].id;
-			var url = types[i].url;
-			var queryString = SQL_QUERY_STRINGS.SELECT_FROM_SUBSCRIPTIONS;
-			var parameters = [columnName, domainName];
-			var isRegistered = jagg.module("database").executeQuery(queryString, parameters);
-			if (isRegistered.length > 0) {
-				subscriptionInfo[columnName] = isRegistered[0][columnName];
-			} else {
-				subscriptionInfo[columnName] = "true";//as a fail proof, it is assumed that tenant has subscribed to all the available clouds.
-				log.error("Subscription details were not found for " + columnName + " of tenant " + domainName);
+    if (username != null) {
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var modUserManagement = jagg.module("user/management");
+
+        //Check if user has admin role
+        var hasAdminRole = modUserManagement.hasUserRole(username, ROLE_ADMIN);
+        //Check if user has publisher role
+        var hasPublisherRole = modUserManagement.hasUserRole(username, ROLE_PUBLISHER);
+        if (hasAdminRole || hasPublisherRole) {
+            if (log.isDebugEnabled()) {
+                log.debug("The user " + username + ", has an admin or publisher role.");
+            }
+            var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
+            if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
+                var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
+                var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
             }
         }
-    }%>
-
-
-<script type="text/javascript">
-function subscription(type,domain) {
-	// I have not done this in a seperate thread as it is not supported by older versions of firefox and chrome.
-	  jagg.post("../blocks/subscriptions/ajax/subscriptions.jag", {
-	        action:"addCloudUserSubscription",
-	        type:type,
-	        domain:domain
-	        },
-	        function (result) {
-
-	            },
-	       function (jqXHR, textStatus, errorThrown) {
-	       });
-  return true;
-}
-</script>
-
-<link
-	rel="stylesheet"
-	href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index.css'))%>" />
-<link
-	rel="stylesheet"
-	href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>" />
-
-<div class="container content-starter">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="home-h1">Home</h1>
-
-		</div>
-	</div>
-</div>
-<div class="helper_text_home">
-	<p class="helper_text_bold">You are now signed in.</p>
-	<p>Click the logo of the cloud you want to access.</p>
-</div>
-<div class="container content-section-wrapper cloud-shifter">
-	<div class="row">
-		<div class="">
-			<div class="col-lg-3"></div>
-            <% for (var i = 0; i < types.length; i++) {
-                if (types[i].id != DEFAULT_SUBSCRIPTION) {
-                    if (subscriptionInfo[types[i].id] == true) { %>
-			<div class="col-lg-3">
-				<%  if(types[i].id=="integration_cloud") {%>
-				<i class="<%=types[i].id%>_disabled"></i>
-				<div class="helper_text">Coming Soon...</div>
-				<%} else {
-							if (hasAdminRole || hasPublisherRole) {%>
-
-				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" onclick="subscription('<%=types[i].id%>','<%=domainName%>');return true"></i></a>
-							<%} else {
-							log.info("Not adding store invitee user "+userName+" to rightwave");%>
-
-				<a title="Go to <%=types[i].name%>" href="<%=types[i].urls.cloudTypeUrl%>"><i class="<%=types[i].id%>" name="<%=types[i].id%>" ></i></a>
-				              <%}
-					} %>
-			</div>
-			<% } else { %>
-			<div class="col-lg-3">
-				<i class="<%=types[i].id%>_disabled"></i>
-				<div class="<%=types[i].id%>_disabled_helper helper_text" style= "color:black; font-size: 13px;">
-						subscription has been disabled. Please contact WSO2 Cloud team if you need any help</div>
-			</div>
-
-			<% }
-           }
-        } %>
-			<input type="hidden" name="secretKey" id="secretKey" value="" /> <input
-				type="hidden" name="imagePath" id="imagePath" value="" />
-
-		</div>
-		<br />
-
-	</div>
-</div>
-<% }
+        var types = cloudConfig.subscriptions.type;
+        var domainName = jagg.module("manager").getTenantDomain(userName);
+        var disabledSubscriptionWarning = cloudConfig.disabledSubscriptionWarning;
+        var subscriptionInfo = getSubscriptionInfo(types, domainName);
+        var billingTypeInfo = getBillingTypeInfo(types, domainName);
 %>
-<% }); %>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+
+        <div class="inner-wrapper">
+            <div class="container-fluid">
+                <div class="row row-centered">
+                    <div class="col-centered col-xs-10 col-sm-8 col-md-5 col-lg-3 cloud-intro" id="welcomeMsg">
+                    </div>
+                </div>
+                <div class="row row-centered">
+                    <div class="row-same-height row-full-height">
+                    <%  for (var i = 0; i < types.length; i++) {
+                            if (types[i].id != "integration_cloud") {
+                                if (types[i].id != DEFAULT_SUBSCRIPTION) { %>
+                                    <div class="col-xs-12 col-sm-5 col-md-3 col-lg-2 col-centered col-full-height">
+                                        <div class="cloud-app-select">
+                                            <div class="heading">
+                                            <%  if (types[i].isBeta == true) { %>
+                                                <div class="ribbon-wrapper-beta">
+                                                    <div class="ribbon">BETA</div>
+                                                </div>
+                                            <%  }  %>
+                                                <i class="<%=types[i].logoClass%> <%=types[i].logoClass%>-<%=types[i].logo%>
+                                                <%=types[i].logoClass%>-3x"></i>
+                                                <div class="cloud-name"><%=types[i].name%></div>
+                                            </div>
+                                            <div class="content">
+                                            <%  if (subscriptionInfo[types[i].id] == true) { %>
+                                                    <%=types[i].description%>
+                                            <%  } else { %>
+                                                    <%=disabledSubscriptionWarning%>
+                                            <%  } %>
+                                            <div class="clearfix"></div>
+                                            <%  var buttonStatus = "";
+                                                if (subscriptionInfo[types[i].id] != true) {
+                                                    buttonStatus = "disabled";
+                                                }
+                                                if (billingTypeInfo[types[i].id] != "TRIAL") { %>
+                                                    <div class="btn-footer">
+                                                    <%  if (hasAdminRole || hasPublisherRole) { %>
+                                                            <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
+                                                            onclick="subscription('<%=types[i].id%>','<%=domainName%>');
+                                                            redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
+                                                            >Go</button>
+                                                    <%  } else {
+                                                            log.info("Not adding store invitee user " + username + " to rightwave"); %>
+                                                            <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
+                                                            onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"
+                                                            <%=buttonStatus%> >Go</button>
+                                                    <%  } %>
+                                                    </div>
+                                            <%  } else { %>
+                                                    <div class="btn-footer trial-color">
+                                                        <div class="footer-msg"> 14 Days trial</div>
+                                                    <%  if (hasAdminRole || hasPublisherRole) { %>
+                                                            <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
+                                                            onclick="subscription('<%=types[i].id%>','<%=domainName%>');
+                                                            redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
+                                                            >Go</button>
+                                                    <%  } else {
+                                                            log.info("Not adding store invitee user " + username + " to rightwave");
+                                                    %>
+                                                            <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
+                                                            onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"
+                                                            <%=buttonStatus%> >Try</button>
+                                                    <% } %>
+                                                    </div>
+                                            <%  } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                            <%  }
+                            }
+                        } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="username" id="username" value="<%=username%>"/>
+<%  }
+}); %>
