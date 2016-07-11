@@ -39,11 +39,11 @@
         "roleTypes": [
           {
             "roleName": "subscriber",
-            "displayRoles": "Subscriber"
+            "displayRoles": "APICloudSubscriber"
           },
           {
             "roleName": "publisher",
-            "displayRoles": "Publisher"
+            "displayRoles": "APICloudPublisher"
           }
         ],
         "urls": {
