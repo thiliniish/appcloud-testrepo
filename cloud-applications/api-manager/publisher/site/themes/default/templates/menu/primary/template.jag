@@ -291,11 +291,12 @@ db.close();
 		if(<%=isUserAdmin%>){
 			jagg.messageDisplay({content:"Was it a successful trial? Your trial unfortunately expired, however it is really easy to upgrade to a paid plan and keep using WSO2 API Cloud.",title:"Trial Expired" ,buttons:[
                 {name:"Upgrade Now",cssClass:"btn btn-primary",cbk:function() {
-		            window.location.href = cloudMgtPath + "/site/pages/payment-plans.jag?cloud-type=" + subscription;
+		            window.location.href = cloudMgtPath + "/site/pages/payment-plans.jag?cloudType=" + subscription;
 
                 }},
                 {name:"Request Extension",cssClass:"btn",cbk:function() {
-                    window.location.href = cloudMgtPath + "/site/pages/contact-us.jag?cloud-type="+ subscription + "&request-extension=true";
+                    window.location.href = cloudMgtPath + "/site/pages/contact-us.jag?cloudType="+ subscription +
+                    "&request-extension=true";
                 }}
             ]
             });
@@ -317,6 +318,9 @@ db.close();
 		var menuURL = mainMenu[attr].url;
 		var menuIcon = mainMenu[attr].icon;
 
+		if (attr == "Support"){
+			menuURL = menuURL + "?cloudType=" + subscription;
+		}
 		if (mainMenu[attr].isDropDown == "false") {
 			if(attr == "Support" && isTrial){%>
 
