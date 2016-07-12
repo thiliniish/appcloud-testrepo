@@ -27,7 +27,7 @@
             <DisplayRole>false</DisplayRole>
         </Role>
         <Role name="subscriber">
-            <DisplayName>Subscriber</DisplayName>
+            <DisplayName>APICloudSubscriber</DisplayName>
             <Permission>
                 /permission/admin/login,
                 /permission/admin/manage/api/subscribe
@@ -35,7 +35,7 @@
             <DisplayRole>true</DisplayRole>
         </Role>
         <Role name="publisher">
-            <DisplayName>Publisher</DisplayName>
+            <DisplayName>APICloudPublisher</DisplayName>
             <Permission>
                 /permission/admin/login,
                 /permission/admin/manage/api/create,

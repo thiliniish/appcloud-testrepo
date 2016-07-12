@@ -2,7 +2,75 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 
-var log = new Log();
+var log = new Log("modules.subscriptions.subscriptions.jag");
 
+include("/jagg/constants.jag");
+
+var getWelcomeMsg = function (username) {
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var modUserProfile = jagg.module("user/profile");
+    var welcomeMsg = cloudConfig.welcomeMsg;
+    var profileDetails = modUserProfile.getProfile(username);
+    if (profileDetails.firstname != null) {
+        //Checking erroneous values in LDAP
+        if (profileDetails.firstname != "undefined" && profileDetails.firstname != "$1" && profileDetails.firstname
+                != "") {
+            welcomeMsg = welcomeMsg + ", " + profileDetails.firstname;
+        }
+    } else {
+        if (profileDetails.lastname != null) {
+            //Checking erroneous values in LDAP
+            if (profileDetails.lastname != "undefined" && profileDetails.lastname != "$2" && profileDetails
+                            .lastname != "") {
+                welcomeMsg = welcomeMsg + ", " + profileDetails.lastname;
+            }
+        }
+    }
+    welcomeMsg = welcomeMsg + "..!";
+    return welcomeMsg;
+};
+
+var getSubscriptionInfo = function (types, domainName) {
+    var subscriptionInfo = {};
+    for (var i = 0; i < types.length; i++) {
+        if (types[i].id != DEFAULT_SUBSCRIPTION) {
+            var columnName = types[i].id;
+            var queryString = SQL_QUERY_STRINGS.SELECT_FROM_SUBSCRIPTIONS;
+            var parameters = [columnName, domainName];
+            var registrationInfo = jagg.module("database").executeQuery(queryString, parameters);
+            if (registrationInfo.length > 0) {
+                subscriptionInfo[columnName] = registrationInfo[0][columnName];
+            } else {
+                subscriptionInfo[columnName] = "true";//as a fail proof, it is assumed that tenant has subscribed to all the available clouds.
+                log.error("Subscription details were not found for " + columnName + " of tenant " + domainName);
+            }
+        }
+    }
+    return subscriptionInfo;
+};
+
+var getBillingTypeInfo = function (types, domainName) {
+    var billingTypeInfo = {};
+    for (var i = 0; i < types.length; i++) {
+        if (types[i].id != DEFAULT_SUBSCRIPTION) {
+            var columnName = types[i].id;
+            var parameters = [columnName, domainName];
+            //Get the type of billing ( Paid, trial or free)
+            var queryStringForBillingType = SQL_QUERY_STRINGS.SELECT_TYPE_FROM_BILLING_STATUS;
+            var billingType = jagg.module("database").executeQuery(queryStringForBillingType, parameters);
+            if (billingType.length > 0) {
+                billingTypeInfo[columnName] = billingType[0][TYPE_COLUMN];
+            } else {
+                //As a fail proof assign the billing type to trial for each subscription
+                billingTypeInfo[columnName] = TRIAL_TYPE;
+                log.error("Billing Type details were not found for " + columnName + " of tenant " + domainName);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Billing type" + columnName + ":" + billingTypeInfo[columnName]);
+            }
+        }
+    }
+    return billingTypeInfo;
+};
 %>
 
