@@ -3,11 +3,11 @@ jagg.initializer("subscriptions", {
 
     preInitialize:function () {
         // UI related CSS files
-        jagg.addHeaderCSS("account/dashboard", "jquery.dataTables", "css/bootstrap-3.2.0/bootstrap.min.css");
-        jagg.addHeaderCSS("account/dashboard", "css/fontwso2-1.2/css/font-wso2.css");
-        jagg.addHeaderCSS("account/dashboard", "select2", "css/font-awesome-4.2.0/font-awesome.min.css");
-        jagg.addHeaderCSS("account/dashboard", "select2", "css/web-fonts/Roboto.css");
-        jagg.addHeaderCSS("account/dashboard", "select2", "css/index-css/styles.css");
+        jagg.addHeaderCSS("subscriptions", "jquery.dataTables", "css/bootstrap-3.2.0/bootstrap.min.css");
+        jagg.addHeaderCSS("subscriptions", "css/fontwso2-1.2/css/font-wso2.css");
+        jagg.addHeaderCSS("subscriptions", "select2", "css/font-awesome-4.2.0/font-awesome.min.css");
+        jagg.addHeaderCSS("subscriptions", "select2", "css/web-fonts/Roboto.css");
+        jagg.addHeaderCSS("subscriptions", "select2", "css/index-css/styles.css");
         // Custom JS file
         jagg.addFooterJS("subscriptions", "subscriptions", "templates/subscriptions/js/subscriptions.js");
     }
