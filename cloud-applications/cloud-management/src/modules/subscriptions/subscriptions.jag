@@ -15,14 +15,14 @@ var getWelcomeMsg = function (username) {
         //Checking erroneous values in LDAP
         if (profileDetails.firstname != "undefined" && profileDetails.firstname != "$1" && profileDetails.firstname
                 != "") {
-            welcomeMsg = welcomeMsg + ", " + profileDetails.firstname;
+            welcomeMsg = welcomeMsg + " " + profileDetails.firstname;
         }
     } else {
         if (profileDetails.lastname != null) {
             //Checking erroneous values in LDAP
             if (profileDetails.lastname != "undefined" && profileDetails.lastname != "$2" && profileDetails
                             .lastname != "") {
-                welcomeMsg = welcomeMsg + ", " + profileDetails.lastname;
+                welcomeMsg = welcomeMsg + " " + profileDetails.lastname;
             }
         }
     }
