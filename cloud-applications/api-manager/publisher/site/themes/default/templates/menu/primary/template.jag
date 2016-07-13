@@ -295,7 +295,7 @@ db.close();
 
                 }},
                 {name:"Request Extension",cssClass:"btn",cbk:function() {
-                    window.location.href = cloudMgtPath + "/site/pages/contact-us.jag?cloudType="+ subscription +
+                    window.location.href = cloudMgtPath + "/site/pages/contact-us.jag?cloudType=" + subscription +
                     "&request-extension=true";
                 }}
             ]
