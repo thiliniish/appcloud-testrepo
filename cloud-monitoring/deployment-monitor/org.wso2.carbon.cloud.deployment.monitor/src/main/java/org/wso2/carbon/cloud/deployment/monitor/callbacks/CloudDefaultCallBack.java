@@ -104,12 +104,12 @@ public class CloudDefaultCallBack implements OnResultCallback {
         if (ReSchedulingCache.getInstance().getCacheEntry(cacheKey)) {
             return;
         }
-        logger.info("Increasing scheduling frequency for Task : {} for Server : {}", runStatus.getTaskName(),
-                runStatus.getServerGroupName());
         TaskConfig taskConfig = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
         if (taskConfig != null) {
             boolean increaseFrequencyInFailure = (boolean) taskConfig.getTaskParams().get("increaseFrequencyInFailure");
             if (increaseFrequencyInFailure) {
+                logger.info("Increasing scheduling frequency for Task : {} for Server : {}", runStatus.getTaskName(),
+                        runStatus.getServerGroupName());
                 String triggerType = (String) taskConfig.getTaskParams().get("triggerType");
                 String triggerValue = (String) taskConfig.getTaskParams().get("trigger");
                 try {
