@@ -7,13 +7,14 @@ public class LiveStatus {
 
     private String server;
     private String taskName;
-    private boolean isUp;
+    private Status status;
 
-    public LiveStatus(String server, String taskName, boolean isUp) {
+    public enum Status {UP, DOWN, MAINTENANCE, NA}
+
+    public LiveStatus(String server, String taskName, Status status) {
         this.server = server;
-
         this.taskName = taskName;
-        this.isUp = isUp;
+        this.status = status;
     }
 
     public String getServer() {
@@ -32,12 +33,11 @@ public class LiveStatus {
         this.taskName = taskName;
     }
 
-    public boolean isUp() {
-        return isUp;
+    public String getStatus() {
+        return this.status.name();
     }
 
-    public void setUp(boolean up) {
-        isUp = up;
+    public void setStatus(Status status) {
+        this.status = status;
     }
-
 }

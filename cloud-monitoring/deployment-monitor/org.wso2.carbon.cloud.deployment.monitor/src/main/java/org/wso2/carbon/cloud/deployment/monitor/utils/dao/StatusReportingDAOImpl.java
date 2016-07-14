@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 public class StatusReportingDAOImpl implements StatusReportingDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(StatusReportingDAOImpl.class);
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override public void addSuccessRecord(SuccessRecord successRecord) {
         if (logger.isDebugEnabled()) {
@@ -54,7 +55,6 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         try {
             connection = DatabaseManager.getConnection();
             insert = connection.prepareStatement(QueryConstants.ADD_FAILURE_RECORD, Statement.RETURN_GENERATED_KEYS);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             insert.setString(1, sdf.format(failureRecord.getTimestamp()));
             insert.setString(2, failureRecord.getTaskName());
             insert.setString(3, failureRecord.getServer());
@@ -83,7 +83,6 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         try {
             connection = DatabaseManager.getConnection();
             statement = connection.prepareStatement(QueryConstants.ADD_FAILURE_SUMMARY);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             statement.setString(1, failureSummary.getTaskName());
             statement.setString(2, failureSummary.getServer());
             statement.setInt(3, failureSummary.getStartID());
@@ -103,7 +102,7 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
     @Override public void updateLiveStatus(LiveStatus liveStatus) {
         if (logger.isDebugEnabled()) {
             logger.debug("Updating Live Status {}-{} : Status : {}", liveStatus.getServer(), liveStatus.getTaskName(),
-                    liveStatus.isUp());
+                    liveStatus.getStatus());
         }
         Connection connection = null;
         PreparedStatement statement = null;
@@ -112,8 +111,9 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             statement = connection.prepareStatement(QueryConstants.UPDATE_LIVE_STATUS);
             statement.setString(1, liveStatus.getServer());
             statement.setString(2, liveStatus.getTaskName());
-            statement.setBoolean(3, liveStatus.isUp());
-            statement.setBoolean(4, liveStatus.isUp());
+            statement.setString(3, liveStatus.getStatus());
+            statement.setString(4, liveStatus.getStatus());
+            statement.setString(5, sdf.format(new Date(System.currentTimeMillis())));
             statement.executeUpdate();
         } catch (SQLException e) {
             logger.error("Error occurred while adding Live Status", e);

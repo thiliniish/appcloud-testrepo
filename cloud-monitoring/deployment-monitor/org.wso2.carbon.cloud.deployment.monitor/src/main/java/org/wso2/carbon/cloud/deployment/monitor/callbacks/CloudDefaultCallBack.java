@@ -55,7 +55,8 @@ public class CloudDefaultCallBack implements OnResultCallback {
             logger.info("[Task Successful] " + runStatus.getServerGroupName() + " : " + runStatus.getTaskName());
             SuccessRecord successRecord = new SuccessRecord(runStatus.getTaskName(), runStatus.getServerGroupName(),
                     currentTime);
-            LiveStatus liveStatus = new LiveStatus(runStatus.getServerGroupName(), runStatus.getTaskName(), true);
+            LiveStatus liveStatus = new LiveStatus(runStatus.getServerGroupName(), runStatus.getTaskName(),
+                    LiveStatus.Status.UP);
             reportingDAO.addSuccessRecord(successRecord);
             reportingDAO.updateLiveStatus(liveStatus);
 
@@ -80,7 +81,8 @@ public class CloudDefaultCallBack implements OnResultCallback {
             SMSSender.getInstance().send(msg);
             FailureRecord failureRecord = new FailureRecord(runStatus.getTaskName(), runStatus.getServerGroupName(),
                     errorMsg, currentTime);
-            LiveStatus liveStatus = new LiveStatus(runStatus.getServerGroupName(), runStatus.getTaskName(), false);
+            LiveStatus liveStatus = new LiveStatus(runStatus.getServerGroupName(), runStatus.getTaskName(),
+                    LiveStatus.Status.DOWN);
             int currentID = reportingDAO.addFailureRecord(failureRecord);
             reportingDAO.updateLiveStatus(liveStatus);
 

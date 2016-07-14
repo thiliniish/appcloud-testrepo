@@ -16,5 +16,5 @@ public class QueryConstants {
 
     public static final String UPDATE_LIVE_STATUS =
             "INSERT INTO LIVE_STATUS (SERVER,TASK,STATUS) VALUES (?,?,?) "
-                    + "ON DUPLICATE KEY UPDATE STATUS=?";
+                    + "ON DUPLICATE KEY UPDATE STATUS=?,LAST_UPDATED=?";
 }
