@@ -19,6 +19,14 @@
 
 <CloudMgt xmlns="http://www.wso2.org/cloud/">
     <TenantRoles>
+        <Role name="admin">
+            <Permission>
+                CreateApplication/CreateApplication:invoke-service,
+                /permission/admin/appfactory/ceo/dashboard,
+                /permission/admin/tenant/user/mgt
+            </Permission>
+            <DisplayRole>false</DisplayRole>
+        </Role>
         <Role name="default">
             <Permission>
                 /permission/admin/login,
