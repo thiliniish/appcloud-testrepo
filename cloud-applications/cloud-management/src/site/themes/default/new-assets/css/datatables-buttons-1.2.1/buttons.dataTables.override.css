@@ -1,0 +1,8 @@
+div.dt-buttons {
+    float: right;
+    margin-left: 10px;
+    position: relative;
+}
+a.dt-button {
+    height: 29px;
+}
