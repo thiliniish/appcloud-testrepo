@@ -30,7 +30,7 @@ include("/jagg/constants.jag");
             message: "User does not have permission to perform the requested operation."
         });
     }
-    /*
+    
     var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
         response.status = 403;
@@ -40,7 +40,7 @@ include("/jagg/constants.jag");
             message: "Feature not available for the organization."
         });
     }
-            */
+
     var mod, result, returnObj,
             action = encoder.getSafeText(request.getParameter("action")),
             site = require("/site/conf/site.json");
