@@ -134,15 +134,18 @@ public class CloudDefaultCallBack implements OnResultCallback {
         if (ReSchedulingCache.getInstance().getCacheEntry(cacheKey)) {
             logger.info("Resetting scheduling frequency for Task : {} for Server : {}", runStatus.getTaskName(),
                     runStatus.getServerGroupName());
-            try {
-                ScheduleManager.getInstance()
-                        .unScheduleTaskForServer(runStatus.getTaskName(), runStatus.getServerGroupName());
-                ScheduleManager.getInstance()
-                        .scheduleTaskForServer(runStatus.getTaskName(), runStatus.getServerGroupName());
-                ReSchedulingCache.getInstance().clearCacheEntry(cacheKey);
-            } catch (SchedulerException e) {
-                logger.error("Resetting scheduling frequency for Task - " + runStatus.getTaskName() + " for Server - "
-                        + runStatus.getServerGroupName() + " failed", e);
+            TaskConfig taskConfig = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
+            if (taskConfig != null) {
+                try {
+                    ScheduleManager.getInstance()
+                            .reScheduleTaskForServer(runStatus.getTaskName(), runStatus.getServerGroupName(),
+                                    taskConfig.getTriggerType(), taskConfig.getTrigger());
+                    ReSchedulingCache.getInstance().clearCacheEntry(cacheKey);
+                } catch (SchedulerException e) {
+                    logger.error(
+                            "Resetting scheduling frequency for Task - " + runStatus.getTaskName() + " for Server - "
+                                    + runStatus.getServerGroupName() + " failed", e);
+                }
             }
         }
     }
