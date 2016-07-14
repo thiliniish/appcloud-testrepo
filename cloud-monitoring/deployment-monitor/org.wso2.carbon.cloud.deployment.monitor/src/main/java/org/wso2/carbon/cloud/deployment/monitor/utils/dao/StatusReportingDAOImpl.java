@@ -52,6 +52,7 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         }
         Connection connection = null;
         PreparedStatement insert = null;
+        ResultSet generatedKeys = null;
         try {
             connection = DatabaseManager.getConnection();
             insert = connection.prepareStatement(QueryConstants.ADD_FAILURE_RECORD, Statement.RETURN_GENERATED_KEYS);
@@ -61,14 +62,14 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             insert.setString(4, failureRecord.getError());
             insert.executeUpdate();
 
-            ResultSet generatedKeys = insert.getGeneratedKeys();
+            generatedKeys = insert.getGeneratedKeys();
             if (generatedKeys.next()) {
                 return generatedKeys.getInt(1);
             }
         } catch (SQLException e) {
             logger.error("Error occurred while adding Failure Record", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, insert, null);
+            DatabaseManager.closeAllConnections(connection, insert, generatedKeys);
         }
         return 0;
     }
