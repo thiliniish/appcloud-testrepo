@@ -33,9 +33,9 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
         tmpUser.lastName = tmpLastName;
         var allRoles = "";
         for (var j = 0; j < tmpRoles.length; j++) {
-            var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
+            var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole") == "true";
             // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
-            if (!enableDisplayRole || enableDisplayRole == "false" || tmpRoles[j].indexOf(cloudConfig.internalRole) != -1) {
+            if (!enableDisplayRole || tmpRoles[j].indexOf(cloudConfig.internalRole) != -1) {
                 continue;
             }
             if (allRoles != "") {
@@ -91,9 +91,9 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
         tmpUser.lastName = tmpLastName;
         tmpUser.roleTypes = [];
         for (var j = 0; j < tmpRoles.length; j++) {
-            var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
+            var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole") == "true";
             // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
-            if (!enableDisplayRole || enableDisplayRole == "false" || tmpRoles[j].indexOf(cloudConfig.internalRole) != -1) {
+            if (!enableDisplayRole || tmpRoles[j].indexOf(cloudConfig.internalRole) != -1) {
                 continue;
             }
             if (tmpRoles[j] == cloudConfig.adminRole) {
