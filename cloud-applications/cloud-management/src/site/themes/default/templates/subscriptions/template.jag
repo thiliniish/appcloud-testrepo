@@ -84,7 +84,7 @@
                                                     </div>
                                             <%  } else { %>
                                                     <div class="btn-footer trial-color">
-                                                        <div class="footer-msg"> 14 Days trial</div>
+                                                        <div class="footer-msg"> 14-day trial</div>
                                                     <%  if (hasAdminRole || hasPublisherRole) { %>
                                                             <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
                                                             onclick="subscription('<%=types[i].id%>','<%=domainName%>');
