@@ -104,6 +104,8 @@ public class CloudDefaultCallBack implements OnResultCallback {
         if (ReSchedulingCache.getInstance().getCacheEntry(cacheKey)) {
             return;
         }
+        logger.info("Increasing scheduling frequency for Task : {} for Server : {}", runStatus.getTaskName(),
+                runStatus.getServerGroupName());
         TaskConfig taskConfig = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
         if (taskConfig != null) {
             boolean increaseFrequencyInFailure = (boolean) taskConfig.getTaskParams().get("increaseFrequencyInFailure");
@@ -115,8 +117,9 @@ public class CloudDefaultCallBack implements OnResultCallback {
                             .reScheduleTaskForServer(runStatus.getTaskName(), runStatus.getServerGroupName(),
                                     triggerType, triggerValue);
                 } catch (SchedulerException e) {
-                    logger.error("Re - Scheduling Task - " + runStatus.getTaskName() + " for Server - " + runStatus
-                            .getServerGroupName() + " failed", e);
+                    logger.error(
+                            "Increasing scheduling frequency for Task - " + runStatus.getTaskName() + " for Server - "
+                                    + runStatus.getServerGroupName() + " failed", e);
                 }
             }
             ReSchedulingCache.getInstance().addToCache(cacheKey, true);
@@ -129,6 +132,8 @@ public class CloudDefaultCallBack implements OnResultCallback {
     private void resetSchedule(RunStatus runStatus, String cacheKey) {
         //The task has been re-scheduled previously
         if (ReSchedulingCache.getInstance().getCacheEntry(cacheKey)) {
+            logger.info("Resetting scheduling frequency for Task : {} for Server : {}", runStatus.getTaskName(),
+                    runStatus.getServerGroupName());
             try {
                 ScheduleManager.getInstance()
                         .unScheduleTaskForServer(runStatus.getTaskName(), runStatus.getServerGroupName());
@@ -136,8 +141,8 @@ public class CloudDefaultCallBack implements OnResultCallback {
                         .scheduleTaskForServer(runStatus.getTaskName(), runStatus.getServerGroupName());
                 ReSchedulingCache.getInstance().clearCacheEntry(cacheKey);
             } catch (SchedulerException e) {
-                logger.error("Re - Scheduling Task - " + runStatus.getTaskName() + " for Server - " + runStatus
-                        .getServerGroupName() + " failed", e);
+                logger.error("Resetting scheduling frequency for Task - " + runStatus.getTaskName() + " for Server - "
+                        + runStatus.getServerGroupName() + " failed", e);
             }
         }
     }
