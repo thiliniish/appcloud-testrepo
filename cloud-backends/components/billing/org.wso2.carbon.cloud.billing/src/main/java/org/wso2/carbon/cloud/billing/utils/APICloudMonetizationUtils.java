@@ -911,9 +911,14 @@ public final class APICloudMonetizationUtils {
             String response = dsBRProcessor.doGet(usageInformationUri, BillingConstants.HTTP_TYPE_APPLICATION_JSON,
                     nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             return new JSONObject(response);
-        } catch (CloudBillingException | JSONException e) {
+        } catch (JSONException e) {
             throw new CloudMonetizationException(
-                    "Error while getting monetization usage data of tenant: " + tenantDomain, e);
+                    "Error occurred while creating the JSON response object from retrieved usage information for subscriber:"
+                            + subscriberId + " of tenant: " + tenantDomain, e);
+        } catch (CloudBillingException e) {
+            throw new CloudMonetizationException(
+                    "Error occurred while retrieving subscriber usage information for subscriber:" + subscriberId
+                            + " of tenant: " + tenantDomain, e);
         }
     }
 
