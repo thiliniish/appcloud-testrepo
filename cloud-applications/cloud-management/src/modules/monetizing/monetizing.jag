@@ -258,7 +258,7 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
 
 //Get usage for a given time line
 
-var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate, toDate) {
+var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate, toDate, isMonthly, displayType) {
     var tenantDomain = modManager.getTenantDomain();
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
         try {
@@ -275,7 +275,12 @@ var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate
                 var api = values[0];
                 var version = values[1];
             }
-            var response = monetizationService.getTenantMonetizationUsageDataForGivenDateRange(tenantDomain, userId, api, version, applicationName, fromDate, toDate);
+            if ("chart" == displayType) {
+                var response = monetizationService.getTenantMonetizationUsageDataForGivenDateRange(tenantDomain, userId, api, version, applicationName, fromDate, toDate);
+            }
+            else if ("table" == displayType) {
+                var response = monetizationService.getSubscriberUsageInformationForGivenDateRange(tenantDomain, userId, api, version, applicationName, fromDate, toDate, isMonthly);
+            }
             //data service returns results in {"Entries":{"Entry":[{"xxx":"333"}, {"yyy":"333"}]}} format.
             //If there is only one object it sends like {"Entries":{"Entry":{"yyy":"333"}}} Entry can 'Array' or an 'Object'.
             var Entries = JSON.parse(response).Entries;

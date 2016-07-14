@@ -7,6 +7,10 @@ jagg.initializer("monetizing/subscriber/usage/get", {
         jagg.addHeaderCSS("usage/get", "c3", 'new-assets/css/c3/c3.min.css');
         jagg.addHeaderCSS("usage/get", "daterangepicker", 'new-assets/css/daterangepicker/daterangepicker.css');
         jagg.addHeaderCSS("usage/get", "daterangepicker-override", 'new-assets/css/daterangepicker/daterangepicker.override.css');
+        jagg.addHeaderCSS("usage/get", "jquery.dataTables.min", 'new-assets/css/datatables-1.10.7/jquery.dataTables.min.css');
+        jagg.addHeaderCSS("usage/get", "jquery.dataTable.override", 'new-assets/css/datatables-1.10.7/jquery.dataTables.override.css');
+        jagg.addHeaderCSS("usage/get", "jquery.dataTable.buttons", 'new-assets/css/datatables-buttons-1.2.1/buttons.dataTables.min.css');
+        jagg.addHeaderCSS("usage/get", "jquery.dataTable.buttons.override", 'new-assets/css/datatables-buttons-1.2.1/buttons.dataTables.override.css');
         //js compiled plugins
         jagg.addFooterJS("usage/get", "datatables.min", "new-assets/js/datatables-1.10.7/jquery.dataTables.min.js");
         jagg.addFooterJS("usage/get", "jeditable", "new-assets/js/Jeditable-1.7.3/jquery.jeditable.js");
@@ -17,6 +21,11 @@ jagg.initializer("monetizing/subscriber/usage/get", {
         jagg.addFooterJS("usage/get", "moment", "new-assets/js/daterangepicker-2.0.8/moment.js");
         jagg.addFooterJS("usage/get", "datePicker", "new-assets/js/daterangepicker-2.0.8/daterangepicker.js");
         jagg.addFooterJS("usage/get", "c3", "new-assets/js/c3/c3.min.js");
+        jagg.addFooterJS("usage/get", "dataTables.buttons", "new-assets/js/datatables-buttons-1.2.1/dataTables.buttons.min.js");
+        jagg.addFooterJS("usage/get", "jszip", "new-assets/js/jszip-2.5.0/jszip.min.js");
+        jagg.addFooterJS("usage/get", "pdfmake", "new-assets/js/pdfmake-0.1.18/pdfmake.min.js");
+        jagg.addFooterJS("usage/get", "htmlButtons", "new-assets/js/datatables-buttons-1.2.1/buttons.html5.min.js");
+        jagg.addFooterJS("usage/get", "pdfMakeFont", "new-assets/js/pdfmake-0.1.18/vfs_fonts.js");
         //custom js functions
         jagg.addFooterJS("usage/get", "custom", "new-assets/js/custom/custom.js");
         jagg.addFooterJS("usage/get", "usage", "templates/monetizing/subscriber/usage/get/js/subscriber-usage.js");

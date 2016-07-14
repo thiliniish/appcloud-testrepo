@@ -50,6 +50,7 @@ public final class MonetizationConstants {
             "/v1/usage/subscriber-api/{subscriberId}/{apiName}/{version}";
     public static final String DS_API_URI_APIC_RATE_PLANS = "/v1/rate-plans/tenants/{tenant}/api-cloud";
     public static final String DS_API_URI_REMOVE_API_SUBSCRIPTION = "/v1/apim/{tenantId}/{subscriberId}/subscriptions";
+    public static final String DS_API_URI_SUBSCRIBER_USAGE_INFORMATION = "/v1/usage/usage-info";
 
     /*resource identifiers*/
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
@@ -96,6 +97,8 @@ public final class MonetizationConstants {
     public static final String END_DATE = "endDate";
     public static final String TENANT = "tenant";
     public static final String ASTERISK_SYMBOL = "*";
+    public static final String USAGE_FILTER_QUERY = "filterQuery";
+    public static final String USAGE_GROUP_BY_QUERY = "groupByQuery";
 
     /* SOAP body constants */
     public static final String SOAP_APP_NAME = "appName";
@@ -160,6 +163,10 @@ public final class MonetizationConstants {
     public static final String TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME = "monetization-remove-test-account.txt";
 
     public static final String EMAIl_RESOURCES_FOLDER = "repository/resources/cloud/emails";
+
+    /* DSS query-strings */
+    public static final String GROUP_USAGE_BY_MONTH = "year,month";
+    public static final String GROUP_USAGE_BY_DAY = "year,month,day";
 
     private MonetizationConstants() {
     }
