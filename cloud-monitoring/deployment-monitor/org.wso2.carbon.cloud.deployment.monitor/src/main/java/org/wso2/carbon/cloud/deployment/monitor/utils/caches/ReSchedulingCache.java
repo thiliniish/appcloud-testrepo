@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.deployment.monitor.utils;
+package org.wso2.carbon.cloud.deployment.monitor.utils.caches;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -63,7 +63,7 @@ public class ReSchedulingCache {
      * Returns an entry matching the {@link String} key
      *
      * @param key {@link String}
-     * @return {@link FailureSummary}
+     * @return {@link Boolean}
      */
     public boolean getCacheEntry(String key) {
         if (reSchedulingMap.containsKey(key)) {

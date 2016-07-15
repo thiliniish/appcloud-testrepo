@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.deployment.monitor.utils;
+package org.wso2.carbon.cloud.deployment.monitor.utils.caches;
 
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
 

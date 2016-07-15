@@ -122,4 +122,105 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             DatabaseManager.closeAllConnections(connection, statement, null);
         }
     }
+
+    public void updateLiveStatusForMaintenance(String serverName, String task, LiveStatus.Status status) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updating Live Status for maintenance in : {}", serverName);
+        }
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = DatabaseManager.getConnection();
+            if (task != null) {
+                statement = connection.prepareStatement(QueryConstants.UPDATE_LIVE_STATUS_FOR_MAINTENANCE);
+                statement.setString(1, status.name());
+                statement.setString(2, sdf.format(new Date(System.currentTimeMillis())));
+                statement.setString(3, serverName);
+                statement.setString(4, task);
+                statement.executeUpdate();
+            } else {
+                statement = connection.prepareStatement(QueryConstants.UPDATE_LIVE_STATUS_FOR_MAINTENANCE_FOR_SERVER);
+                statement.setString(1, status.name());
+                statement.setString(2, sdf.format(new Date(System.currentTimeMillis())));
+                statement.setString(3, serverName);
+                statement.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            logger.error("Error occurred while updating Live Status", e);
+        } finally {
+            DatabaseManager.closeAllConnections(connection, statement, null);
+        }
+    }
+
+    public void addMaintenanceSummary(String serverName, String task) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Adding summary for maintenance in : {} - {}", serverName, task);
+        }
+        Date date = new Date(System.currentTimeMillis());
+        if (task == null) {
+            task = "ALL";
+        }
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = DatabaseManager.getConnection();
+            statement = connection.prepareStatement(QueryConstants.ADD_MAINTENANCE_SUMMARY);
+            statement.setString(1, serverName);
+            statement.setString(2, task);
+            statement.setDate(3, date);
+            statement.setString(4, "INPROGRESS");
+            statement.setString(5, sdf.format(date));
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error occurred while adding Maintenance Summary", e);
+        } finally {
+            DatabaseManager.closeAllConnections(connection, statement, null);
+        }
+    }
+
+    public void updateMaintenanceSummary(String serverName, String task) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Adding summary for maintenance in : {} - {}", serverName, task);
+        }
+        if (task == null) {
+            task = "ALL";
+        }
+        Connection connection = null;
+        PreparedStatement selectStatement = null;
+        PreparedStatement updateStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = DatabaseManager.getConnection();
+            selectStatement = connection.prepareStatement(QueryConstants.SELECT_MAINTENANCE_SUMMARY);
+            selectStatement.setString(1, serverName);
+            selectStatement.setString(2, task);
+            selectStatement.setString(3, "INPROGRESS");
+            resultSet = selectStatement.executeQuery();
+            int id;
+            long startTime;
+            if (resultSet.next()) {
+                id = resultSet.getInt(1);
+                startTime = resultSet.getTimestamp(2).getTime();
+            } else {
+                logger.warn("Cannot find a Maintenance summary for : {} - {} in in progress state", serverName, task);
+                return;
+            }
+
+            Date endTime = new Date(System.currentTimeMillis());
+            long downTime = endTime.getTime() - startTime;
+
+            updateStatement = connection.prepareStatement(QueryConstants.UPDATE_MAINTENANCE_SUMMARY);
+            updateStatement.setString(1, "COMPLETED");
+            updateStatement.setString(2, sdf.format(endTime));
+            updateStatement.setInt(3, (int) (downTime / 1000));
+            updateStatement.setInt(4, id);
+            updateStatement.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error occurred while updating Maintenance Summary", e);
+        } finally {
+            DatabaseManager.closeAllConnections(connection, selectStatement, resultSet);
+            DatabaseManager.closeAllConnections(null, updateStatement, null);
+        }
+    }
 }

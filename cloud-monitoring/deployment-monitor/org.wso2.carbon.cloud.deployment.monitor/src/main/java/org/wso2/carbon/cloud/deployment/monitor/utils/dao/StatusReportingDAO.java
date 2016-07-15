@@ -18,4 +18,8 @@ public interface StatusReportingDAO {
 
     void updateLiveStatus(LiveStatus liveStatus);
 
+    void updateLiveStatusForMaintenance(String serverName, String task, LiveStatus.Status status);
+
+    void updateMaintenanceSummary(String serverName, String task);
+
 }

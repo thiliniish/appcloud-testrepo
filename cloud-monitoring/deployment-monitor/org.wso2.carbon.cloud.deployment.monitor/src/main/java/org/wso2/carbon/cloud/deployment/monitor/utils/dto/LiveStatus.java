@@ -9,7 +9,10 @@ public class LiveStatus {
     private String taskName;
     private Status status;
 
-    public enum Status {UP, DOWN, MAINTENANCE, NA}
+    /**
+     * Enum representing Live Status
+     */
+    public enum Status { UP, DOWN, MAINTENANCE, NA }
 
     public LiveStatus(String server, String taskName, Status status) {
         this.server = server;
