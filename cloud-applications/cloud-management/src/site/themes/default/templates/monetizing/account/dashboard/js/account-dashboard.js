@@ -56,7 +56,9 @@ function updateStatsDetails() {
         "api": "*",
         "applicationName": "*",
         "fromDate": selectedStartDate,
-        "toDate": selectedEndDate
+        "toDate": selectedEndDate,
+        "type": "chart"
+
     }, function (result) {
         if (!result.error) {
         } else {
@@ -184,7 +186,8 @@ function getJsonData(callback) {
             "api": "*",
             "applicationName": "*",
             "fromDate": selectedStartDate,
-            "toDate": selectedEndDate
+            "toDate": selectedEndDate,
+            "type": "chart"
         },
         success: callback
     });
