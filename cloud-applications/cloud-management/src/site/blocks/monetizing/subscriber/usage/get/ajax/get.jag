@@ -30,6 +30,7 @@ include("/jagg/constants.jag");
             message: "User does not have permission to perform the requested operation."
         });
     }
+
     var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
         response.status = 403;
@@ -39,6 +40,7 @@ include("/jagg/constants.jag");
             message: "Feature not available for the organization."
         });
     }
+
     var mod, result, returnObj,
             action = encoder.getSafeText(request.getParameter("action")),
             site = require("/site/conf/site.json");
@@ -49,7 +51,29 @@ include("/jagg/constants.jag");
         var api = encoder.getSafeText(request.getParameter("api"));
         var fromDate = encoder.getSafeText(request.getParameter("fromDate"));
         var toDate = encoder.getSafeText(request.getParameter("toDate"));
-        result = mod.getSubscriberUsage(userId, applicationName, api, fromDate, toDate);
+        var isMonthly = encoder.getSafeText(request.getParameter("isMonthly"));
+        var displayType = encoder.getSafeText(request.getParameter("type"));
+        //will check for empty strings (""), null, undefined
+        if (!userId || !applicationName || !api || !fromDate || !toDate || !displayType) {
+            var msg = "Invalid parameters";
+            response.status = 400;
+            print({
+                error: true,
+                message: msg,
+                status: 400
+            });
+        }
+        //check whether subscriber belongs to the correct tenant
+        if (userId != "*" && userId.indexOf("@" + tenantDomain) < 0) {
+            var msg = "Invalid subscriber Id parameter";
+            response.status = 400;
+            print({
+                error: true,
+                message: msg,
+                status: 400
+            });
+        }
+        result = mod.getSubscriberUsage(userId, applicationName, api, fromDate, toDate, isMonthly, displayType);
         if (result == null || result.error) {
             var message = result.message;
             if (message == null) {
