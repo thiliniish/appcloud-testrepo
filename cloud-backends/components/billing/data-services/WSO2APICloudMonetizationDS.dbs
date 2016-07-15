@@ -227,7 +227,7 @@
       <param name="SUB_STATUS" sqlType="STRING"/>
    </query>
    <query id="getUsageOfSubscriberForApiByApplicationQ" useConfig="apim_stat">
-      <sql>select SUM(total_request_count) AS totalCount, api_version,applicationName,userId,day,year,month From API_REQUEST_SUMMARY WHERE api = :API AND version = :VERSION AND userId = :USER_ID AND applicationName = :APPLICATION_NAME AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY applicationName, day,year,month ORDER BY time;
+      <sql>select SUM(total_request_count) AS totalCount, api_version,applicationName,userId,day,year,month From API_REQUEST_SUMMARY WHERE api_version = CONCAT(:API , ':v', :VERSION) AND userId = :USER_ID AND applicationName = :APPLICATION_NAME AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY applicationName, day,year,month ORDER BY time;
       </sql>
       <result element="Entries" rowName="Entry">
          <element column="applicationName" name="ApplicationName" xsdType="string"/>
@@ -289,7 +289,7 @@
       <param name="END_DATE" sqlType="STRING"/>
    </query>
     <query id="getUsageOfSubscriberForApi" useConfig="apim_stat">
-      <sql>select SUM(total_request_count) AS totalCount, api_version,userId,day,year,month From API_REQUEST_SUMMARY WHERE api = :API AND version = :VERSION AND userId = :USER_ID AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
+      <sql>select SUM(total_request_count) AS totalCount, api_version,userId,day,year,month From API_REQUEST_SUMMARY WHERE api_version = CONCAT(:API , ':v', :VERSION) AND userId = :USER_ID AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY day,year,month ORDER BY time;
       </sql>
       <result element="Entries" rowName="Entry">
          <element column="userId" name="UserId" xsdType="string"/>
@@ -325,6 +325,22 @@
       <param name="USER_ID" sqlType="STRING"/>
       <param name="TENANT_ID" sqlType="STRING"/>
       <param name="FREE_TIERS" paramType="ARRAY" sqlType="STRING"/>
+   </query>
+   <query id="getUsageInfoQ" useConfig="apim_stat">
+      <sql>select SUM(total_request_count) AS totalCount,userId,api_version,applicationName,:GROUP_BY_QUERY from API_REQUEST_SUMMARY where :FILTER_QUERY AND (time BETWEEN  DATE(:START_DATE) AND DATE(:END_DATE)) GROUP BY userId,api_version,applicationName,:GROUP_BY_QUERY</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="applicationName" name="ApplicationName" xsdType="string"/>
+         <element column="userId" name="UserId" xsdType="string"/>
+         <element column="api_version" name="ApiVersion" xsdType="string"/>
+         <element column="totalCount" name="TotalCount" xsdType="string"/>
+         <element column="day" name="Day" optional="true" xsdType="string"/>
+         <element column="year" name="Year" xsdType="string"/>
+         <element column="month" name="Month" xsdType="string"/>
+      </result>
+      <param name="FILTER_QUERY" sqlType="QUERY_STRING"/>
+      <param name="START_DATE" sqlType="STRING"/>
+      <param name="END_DATE" sqlType="STRING"/>
+      <param name="GROUP_BY_QUERY" sqlType="QUERY_STRING"/>
    </query>
     <operation name="getSubscriber">
         <call-query href="getSubscriberInfoQ">
@@ -569,4 +585,12 @@
          <with-param name="FREE_TIERS" query-param="freeTier"/>
       </call-query>
     </resource>
+   <resource method="GET" path="v1/usage/usage-info">
+      <call-query href="getUsageInfoQ">
+         <with-param name="FILTER_QUERY" query-param="filterQuery"/>
+         <with-param name="START_DATE" query-param="startDate"/>
+         <with-param name="END_DATE" query-param="endDate"/>
+         <with-param name="GROUP_BY_QUERY" query-param="groupByQuery"/>
+      </call-query>
+   </resource>
 </data>

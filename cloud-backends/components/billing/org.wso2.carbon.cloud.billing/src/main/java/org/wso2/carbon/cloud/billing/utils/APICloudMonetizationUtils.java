@@ -82,6 +82,7 @@ public final class APICloudMonetizationUtils {
     private static String userAPIApplicationsUri;
     private static String ratePlanInfoUri;
     private static String apiSubscriptionRemovalUri;
+    private static String usageInformationUri;
 
     static {
         dsBRProcessor = BillingRequestProcessorFactory.getInstance()
@@ -103,6 +104,7 @@ public final class APICloudMonetizationUtils {
         userAPIApplicationsUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS);
         ratePlanInfoUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APIC_RATE_PLANS);
         apiSubscriptionRemovalUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION);
+        usageInformationUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE_INFORMATION);
     }
 
     private APICloudMonetizationUtils() {
@@ -853,6 +855,70 @@ public final class APICloudMonetizationUtils {
         } catch (CloudBillingException | UnsupportedEncodingException | JSONException e) {
             throw new CloudMonetizationException(
                     "Error while getting monetization usage data of tenant: " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * @param tenantDomain    tenant domain
+     * @param subscriberId    subscriber id
+     * @param api             api name with version
+     * @param version         api version
+     * @param applicationName application name
+     * @param startDate       date range - start date
+     * @param endDate         date range - end date
+     * @param isMonthly       is monthly information requested
+     * @return JSON object of usage details
+     * @throws CloudMonetizationException
+     */
+    public static JSONObject getSubscriberUsageInformationForGivenDateRange(String tenantDomain, String subscriberId,
+            String api, String version, String applicationName, String startDate, String endDate, boolean isMonthly)
+            throws CloudMonetizationException {
+
+        //Variables to store query strings for constructing a Dynamic SQL Query.
+        String groupByQ;
+        String filterQ = "";
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+
+        //Check whether data requested by monthly or daily.
+        if (isMonthly) {
+            groupByQ = MonetizationConstants.GROUP_USAGE_BY_MONTH;
+        } else {
+            groupByQ = MonetizationConstants.GROUP_USAGE_BY_DAY;
+        }
+        try {
+            // Construct the filter query using the input data. "*" represents the selection of "all" option
+            if (MonetizationConstants.ASTERISK_SYMBOL.equals(subscriberId)) {
+                //Usage of tenant
+                filterQ += "apiPublisher like '%@" + tenantDomain + "'";
+            } else {
+                //Usage of subscriber
+                filterQ += "userId='" + subscriberId + "'";
+                if (!MonetizationConstants.ASTERISK_SYMBOL.equals(api)) {
+                    filterQ += " AND api_version='" + api + ":v" + version + "'";
+                }
+                if (!MonetizationConstants.ASTERISK_SYMBOL.equals(applicationName)) {
+                    filterQ += " AND applicationName='" + applicationName + "'";
+                }
+            }
+            NameValuePair startDateNVP = new NameValuePair(MonetizationConstants.START_DATE, startDate);
+            NameValuePair endDateNVP = new NameValuePair(MonetizationConstants.END_DATE, endDate);
+            NameValuePair groupByQNVP = new NameValuePair(MonetizationConstants.USAGE_GROUP_BY_QUERY, groupByQ);
+            NameValuePair filterQNVP = new NameValuePair(MonetizationConstants.USAGE_FILTER_QUERY, filterQ);
+            nameValuePairs.add(startDateNVP);
+            nameValuePairs.add(endDateNVP);
+            nameValuePairs.add(groupByQNVP);
+            nameValuePairs.add(filterQNVP);
+            String response = dsBRProcessor.doGet(usageInformationUri, BillingConstants.HTTP_TYPE_APPLICATION_JSON,
+                    nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+            return new JSONObject(response);
+        } catch (JSONException e) {
+            throw new CloudMonetizationException(
+                    "Error occurred while creating the JSON response object from retrieved usage information for subscriber:"
+                            + subscriberId + " of tenant: " + tenantDomain, e);
+        } catch (CloudBillingException e) {
+            throw new CloudMonetizationException(
+                    "Error occurred while retrieving subscriber usage information for subscriber:" + subscriberId
+                            + " of tenant: " + tenantDomain, e);
         }
     }
 
