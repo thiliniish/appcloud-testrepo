@@ -58,7 +58,6 @@ function updateStatsDetails() {
         "fromDate": selectedStartDate,
         "toDate": selectedEndDate,
         "type": "chart"
-
     }, function (result) {
         if (!result.error) {
         } else {
