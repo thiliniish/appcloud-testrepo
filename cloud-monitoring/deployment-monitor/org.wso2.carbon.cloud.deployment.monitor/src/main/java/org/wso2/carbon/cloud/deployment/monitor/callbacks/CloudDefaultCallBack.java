@@ -37,6 +37,7 @@ import org.wso2.deployment.monitor.core.scheduler.ScheduleManager;
 import org.wso2.deployment.monitor.utils.notification.email.EmailSender;
 import org.wso2.deployment.monitor.utils.notification.sms.SMSSender;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -45,6 +46,7 @@ import java.util.Date;
 public class CloudDefaultCallBack implements OnResultCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudDefaultCallBack.class);
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override public void callback(RunStatus runStatus) {
         long currentTime = System.currentTimeMillis();
@@ -52,11 +54,12 @@ public class CloudDefaultCallBack implements OnResultCallback {
         StatusReportingDAOImpl reportingDAO = new StatusReportingDAOImpl();
         String cacheKey = runStatus.getServerGroupName() + ":" + runStatus.getTaskName();
         if (runStatus.isSuccess()) {
-            logger.info("[Task Successful] " + runStatus.getServerGroupName() + " : " + runStatus.getTaskName());
+            String successMsg = "[Task Successful] " + runStatus.getServerGroupName() + " : " + runStatus.getTaskName();
+            logger.info(successMsg);
             SuccessRecord successRecord = new SuccessRecord(runStatus.getTaskName(), runStatus.getServerGroupName(),
                     currentTime);
             LiveStatus liveStatus = new LiveStatus(runStatus.getServerGroupName(), runStatus.getTaskName(),
-                    LiveStatus.Status.UP);
+                    LiveStatus.Status.UP, new Date(currentTime));
             reportingDAO.addSuccessRecord(successRecord);
             reportingDAO.updateLiveStatus(liveStatus);
 
@@ -65,28 +68,42 @@ public class CloudDefaultCallBack implements OnResultCallback {
                 long duration = currentTime - failureSummary.getStartTime();
                 failureSummary.setDownTime(duration);
                 failureSummary.setEndTime(currentTime);
+
+                String emailBody = runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + " is UP again at : "
+                        + sdf.format(currentTime);
+                emailBody = emailBody + ", " + "Downtime : " + duration/1000 + "s";
+
+                EmailSender.getInstance().send(successMsg, emailBody);
+                SMSSender.getInstance().send(successMsg);
+
                 reportingDAO.addFailureSummary(failureSummary);
                 failureSummaryCache.clearCacheEntry(cacheKey);
-
                 resetSchedule(runStatus, cacheKey);
             }
         } else {
-            String msg = "[Task Failed] " + runStatus.getServerGroupName() + " : " + runStatus.getTaskName();
+            String failureMsg = "[Task Failed] " + runStatus.getServerGroupName() + " : " + runStatus.getTaskName();
             HostBean hostBean = runStatus.getFailedHosts().get(0);
             String errorMsg = hostBean.getErrorMsg();
-            logger.error(msg + ", Error: " + errorMsg);
+            logger.error(failureMsg + ", Error: " + errorMsg);
 
-            //send notifications
-            EmailSender.getInstance().send(msg, errorMsg);
-            SMSSender.getInstance().send(msg);
+            boolean cacheHit = failureSummaryCache.getCacheEntry(cacheKey) != null;
+            //send notifications only if this is the fist time
+            if (!cacheHit) {
+                String emailBody = runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + "is DOWN since : "
+                        + sdf.format(currentTime);
+                emailBody = emailBody + "<br/>" + "Reason : " + errorMsg;
+                EmailSender.getInstance().send(failureMsg, emailBody);
+                SMSSender.getInstance().send(failureMsg);
+            }
+
             FailureRecord failureRecord = new FailureRecord(runStatus.getTaskName(), runStatus.getServerGroupName(),
                     errorMsg, currentTime);
             LiveStatus liveStatus = new LiveStatus(runStatus.getServerGroupName(), runStatus.getTaskName(),
-                    LiveStatus.Status.DOWN);
+                    LiveStatus.Status.DOWN, new Date(currentTime));
             int currentID = reportingDAO.addFailureRecord(failureRecord);
             reportingDAO.updateLiveStatus(liveStatus);
 
-            if (failureSummaryCache.getCacheEntry(cacheKey) != null) {
+            if (cacheHit) {
                 FailureSummary failureSummary = failureSummaryCache.getCacheEntry(cacheKey);
                 failureSummary.setEndID(currentID);
                 long duration = currentTime - failureSummary.getStartTime();
