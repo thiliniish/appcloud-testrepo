@@ -132,7 +132,7 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             statement.setString(2, liveStatus.getTaskName());
             statement.setString(3, liveStatus.getStatus());
             statement.setString(4, liveStatus.getStatus());
-            statement.setString(5, sdf.format(new Date(System.currentTimeMillis())));
+            statement.setString(5, sdf.format(liveStatus.getLastUpdated().getTime()));
             statement.executeUpdate();
         } catch (SQLException e) {
             logger.error("Error occurred while adding Live Status", e);

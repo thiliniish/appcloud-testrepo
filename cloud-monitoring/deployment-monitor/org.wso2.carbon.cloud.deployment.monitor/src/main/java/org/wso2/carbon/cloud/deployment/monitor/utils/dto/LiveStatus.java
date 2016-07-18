@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.utils.dto;
 
+import java.util.Date;
+
 /**
  * LiveStatus bean
  */
@@ -26,16 +28,18 @@ public class LiveStatus {
     private String server;
     private String taskName;
     private Status status;
+    private Date lastUpdated;
 
     /**
      * Enum representing Live Status
      */
     public enum Status { UP, DOWN, MAINTENANCE, NA }
 
-    public LiveStatus(String server, String taskName, Status status) {
+    public LiveStatus(String server, String taskName, Status status, Date lastUpdated) {
         this.server = server;
         this.taskName = taskName;
         this.status = status;
+        this.lastUpdated = new Date(lastUpdated.getTime());
     }
 
     public String getServer() {
@@ -60,5 +64,13 @@ public class LiveStatus {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Date getLastUpdated() {
+        return new Date(lastUpdated.getTime());
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = new Date(lastUpdated.getTime());
     }
 }
