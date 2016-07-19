@@ -175,6 +175,7 @@ var getPendingUsers = function getPendingUsersOfRole(tenantDomain, role) {
             }
         }
         pendingUsers.push(pendingUser);
+
     }
     return pendingUsers;
 };

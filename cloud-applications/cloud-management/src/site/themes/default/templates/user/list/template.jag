@@ -1,27 +1,27 @@
 <% jagg.template("user/list", function(inputs, outputs, jagg) { %>
 
 <%
-var user = session.get("LOGGED_IN_USER");
-if (user != null) {
+    var user = session.get("LOGGED_IN_USER");
+    if (user != null) {
 
-    var hasInviteUserPermission = outputs.hasInviteUserPermission;
-    var isInvitationSent = Boolean(request.getParameter("invitaton"));
-    var tenantDomain =  request.getParameter("tenant");
-    if(tenantDomain == null || tenantDomain == ''){
-        var userName =  session.get("LOGGED_IN_USER");
-        if(userName != null){
-            tenantDomain =  jagg.module("manager").getTenantDomain(userName);
+        var hasInviteUserPermission = outputs.hasInviteUserPermission;
+        var isInvitationSent = Boolean(request.getParameter("invitaton"));
+        var tenantDomain =  request.getParameter("tenant");
+        if(tenantDomain == null || tenantDomain == ''){
+            var userName =  session.get("LOGGED_IN_USER");
+            if(userName != null){
+                tenantDomain =  jagg.module("manager").getTenantDomain(userName);
+            }
         }
-    }
-    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var type = cloudConfig.subscriptions.type;
-    var carbon = require('carbon');
-    var server = carbon.server;
-    //getting the max items per page
-    var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
-%>
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var type = cloudConfig.subscriptions.type;
+        var carbon = require('carbon');
+        var server = carbon.server;
+        //getting the max items per page
+        var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
+        %>
 
- <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js'))%>"></script>
     <script type="text/javascript">
 
     var usersWithRoles = [];
@@ -38,7 +38,7 @@ if (user != null) {
     var totalPagesForMembers = 1;
     var totalPagesForInvitations = 1;
     var appOwners = [];
- 	
+
 /* This method validates a single email address given as an input parameter */
 function ValidateEmail(inputText){
 
@@ -81,14 +81,13 @@ function ValidateEmail(inputText){
     }
     function enableDisableEditDeleteButtonsForInvitations(enablePara){
         if(enablePara){
-            console.log("in enable edit/delete for invitations");
             //enable delete and edit
-            enable('jsUpdateInvitation');
+            enable('jsinvitationroleAssignPopup');
             enable('revokeInvitation');
 
         }else{
             //disable edit and delete buttons
-            disable('jsUpdateInvitation');
+            disable('jsinvitationroleAssignPopup');
             disable('revokeInvitation');
 
         }
@@ -98,7 +97,7 @@ function selectCheckBox(id){
 	if(isChecked){
 		$('#ck_'+id).removeAttr('checked');
 	} else {
-		 
+
 		$("#ck_"+id).attr('checked',true);
 	}
 	enableButton($('#ck_'+id).is(':checked'));
@@ -112,7 +111,7 @@ function selectCheckBoxForInvitations(id){
 
 		$("#ick_"+id).attr('checked',true);
 	}
-	enableButton($('#ick_'+id).is(':checked'));
+	enableButtonForInvitations($('#ick_'+id).is(':checked'));
 }
 
 function enableButton(ischecked){
@@ -147,7 +146,7 @@ function getBlockedSubscriptions() {
     function (result) {
       blockedSubs=result;
     });
-   return blockedSubs; 
+   return blockedSubs;
 }
 function updatePopupUserRoles() {
     var type = <%=type%>;
@@ -160,35 +159,35 @@ function updatePopupUserRoles() {
 		var tempRoleArray= type[i].roleTypes;
 	    for(var count=0; count< tempRoleArray.length; count++){
 			$jsroleAssign = $jsroleAssign + '<div class="input_row">'+
-	  	 	'<label class="text-box-overrider" data-role='+ tempRoleArray[count].roleName+'><span class="checkbox-unchecked"></span>'+ 
-	  	 	tempRoleArray[count].displayRoles+'</label></div>';		
-		}}	
+	  	 	'<label class="text-box-overrider" data-role='+ tempRoleArray[count].roleName+'><span class="checkbox-unchecked"></span>'+
+	  	 	tempRoleArray[count].displayRoles+'</label></div>';
+		}}
 	}
 	$jsAssignButton =$('<div class="btn_row"><button class="btn main small" type="button" id="saveUserRoles">Save</button><a href="#" class="popover_close small">Close</a> </div>');
-	$jsroleAssignPopupForm.append($jsroleAssign); 
-	$jsroleAssignPopupForm.append($jsAssignButton);  
-
+	$jsroleAssignPopupForm.append($jsroleAssign);
+	$jsroleAssignPopupForm.append($jsAssignButton);
 }
 
 function updatePopupUserRolesForInvitations() {
     var type = <%=type%>;
-	var $jsUpdateInvitationForm = $('#jsUpdateInvitationForm');
-	var $jsroleAssign ='';
+	var $jsinvitationroleAssignPopupForm = $('<form class="form-container" id="jsinvitationPopupForm">');
+	var $jsinvitationroleAssign ='';
 	var blockSubscriptions = getBlockedSubscriptions();
 	//getting the roles of each subscriptions
-	for(var i=0;i < type.length;i++){
+	for(var i=0;i < type.length; i++){
 		if(blockSubscriptions.indexOf(type[i].id) <0 || blockSubscriptions==null){
 		var tempRoleArray= type[i].roleTypes;
 	    for(var count=0; count< tempRoleArray.length; count++){
-	  	 	$jsroleAssign = $jsroleAssign + '<div class="input_row">'+
-	  	 	'<label class="text-box-overrider-invitations" data-role='+ tempRoleArray[count].roleName+'><span class="checkbox-unchecked"></span>'+
-	  	 	tempRoleArray[count].displayRoles+'</label></div>';
+	  	 	$jsinvitationroleAssign = $jsinvitationroleAssign + '<div class="input_row">'+'<label class="text-box-overrider" data-role='+ tempRoleArray[count].displayRoles+'><span class="checkbox-unchecked"></span>'+tempRoleArray[count].displayRoles+'</label></div>';
 		}}
 	}
-	$jsAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="updateInvitations">Update</button><a href="#" class="popover_close small">Close</a> </div>');
-	$jsUpdateInvitationForm.append($jsroleAssign);
-	$jsUpdateInvitationForm.append($jsAssignButton);
 
+	$jsroleAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="updateInvitations">Update</button><a href="#" class="popover_close small">Close</a> </div></form>');
+
+	$jsinvitationroleAssignPopupForm.append($jsinvitationroleAssign);
+	$jsinvitationroleAssignPopupForm.append($jsroleAssignButton);
+    var $jsinvitationPopupFormDiv = $('#jsinvitationPopupFormDiv');
+	$jsinvitationPopupFormDiv.append($jsinvitationroleAssignPopupForm);
 }
 
 
@@ -203,7 +202,7 @@ function updateTable() {
         if (result !== undefined) {
             usersWithRoles =result;
             recordCount = usersWithRoles.length;
-        }       
+        }
          if (recordCount > 0) {
             var countString='';
             if(recordCount===1){
@@ -211,7 +210,7 @@ function updateTable() {
             } else{
                 $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">'+recordCount+' Members in Organization</h2>');
             }
-            createTable(usersWithRoles); 
+            createTable(usersWithRoles);
         } else {
                $('#userListContainer').html('<li class="noData-message">no data</li>');
             //messageElement.html("No users/roles found!").fadeIn();
@@ -352,7 +351,8 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     //looping until the max number of users in a page is added
     for (var i = ((pageNumberForInvitations - 1) * maxItemsInPage); i < pendingUsersWithRolesArray.length && i < (pageNumberForInvitations * maxItemsInPage); i++) {
         var pendingUserRoles = pendingUsersWithRolesArray[i];
-        var checkBoxString = '<input id="ick_' + i + '" type="checkbox" name="action_check" class="action_check" ' +
+        var checkBoxString = '<input id="ick_' + i + '" type="checkbox" name="action_check_invitation" ' +
+         'class="action_check_invitation" ' +
                 'data-roles="' + pendingUserRoles.roles + '" data-user="' + pendingUserRoles.email + '" />';
         //Show pending invitations
         var $pendingUserListContainerRow = $('<li class="list_row_item cleanableInvitation" data-email="' + pendingUserRoles.email + '" ' +
@@ -405,11 +405,11 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
 	} else {
 	    $('.pageFooterInvitations').hide();
 	}
-	$('#pendingUserListContainer .action_check').click(function(){
+	$('#pendingUserListContainer .action_check_invitation').click(function(){
              manageRoleCheckListForInvitations();
          }
      );
-     $('.action_check').click(function(){
+     $('.action_check_invitation').click(function(){
 	        enableButtonForInvitations(this.checked);
      });
 }
@@ -429,7 +429,6 @@ var getRoleByName = function(roleName){
 };
 var getRoleByNameForInvitations = function(roleName){
     var roleObj;
-
     for(var i=0;i < allRolesForInvitations.length;i++){
         if(allRolesForInvitations[i].role_name == roleName){
             roleObj = allRolesForInvitations[i];
@@ -488,16 +487,15 @@ var manageRoleCheckList = function(){
 var manageRoleCheckListForInvitations = function(){
     allRolesForInvitations = [];
 
-    $('#jsUpdateInvitationForm label').each(function(){
+    $('#jsinvitationPopupForm label').each(function(){
         var trole=$(this).attr('data-role');
         if(trole!=undefined){
             allRolesForInvitations.push({dom_obj:this, role_name:trole,users:[] });
         }
     });
-
     //Push users to specific roles
     var numberOfInvitationsChecked = 0;
-    $('#pendingUserListContainer .action_check').each(function(){
+    $('#pendingUserListContainer .action_check_invitation').each(function(){
         if($(this).is(':checked')){
             numberOfInvitationsChecked++;
             var userName = $(this).attr('data-user').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -538,6 +536,7 @@ $(document).ready(function(){
     // hide pending invitations related details
     $('#pendingInvitationsMessage').hide();
     $('#pendingInvitations').hide();
+    //$('#jsinvitationPopupFormDiv').hide();
 
     initializeUserActivity("Members Page");
     if(isInvitationSent) {
@@ -553,18 +552,18 @@ $(document).ready(function(){
 			total: totalPagesForMembers
 		    }).on("page", function(event, num){
 			    pageNumberForMembers=num;
-			    createTable(usersWithRoles);	
+			    createTable(usersWithRoles);
 		});
 	}else{
 		$('.pagefooter').hide();
 	}
-	
+
     if(!permittedToInvite){
        $('#editDelDiv').hide();
        $('#btnAddMembers').hide();
        $('#select_all_check').parent().hide();
     }
-    $('#jsroleAssignPopup').each(function() {
+   $('#jsroleAssignPopup').each(function() {
 	$(this).qtip({
 		content: {
 			text: $(this).next()
@@ -611,7 +610,7 @@ $(document).ready(function(){
 	});
 }).bind('click', function(event){ event.preventDefault(); return false; });
 
-    $('#jsUpdateInvitation').each(function() {
+ $('#jsinvitationroleAssignPopup').each(function() {
 	$(this).qtip({
 		content: {
 			text: $(this).next()
@@ -634,7 +633,6 @@ $(document).ready(function(){
 			event: 'click',
 			effect: function(offset) {
                 if(selectedInvitationCount!==0){
-
 				$(this).slideDown(200);
                 }
 			}
@@ -642,7 +640,7 @@ $(document).ready(function(){
 		events: {
 					show: function(event, api) {
 						 api.elements.target.addClass('active');
-                        var $el = $(api.elements.target[0]);
+                        var $el = $(api.elements.target[1]);
                         $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
                         $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
                         			    $('.popover_content',$(this)).removeClass("hide");
@@ -700,7 +698,7 @@ $('.text-box-overrider-invitations').click(function(){
     var role = $(this).attr('data-role');
     checkedInvitations = [];
     if(allRolesForInvitations.length > 0 ){
-        $('#pendingUserListContainer .action_check').each(function(){
+        $('#pendingUserListContainer .action_check_invitation').each(function(){
                 if($(this).is(':checked')){
                     checkedInvitations.push($(this).attr('data-user'));
                 }
@@ -741,7 +739,7 @@ $('#select_all_check').click(function(){
 
                 selectedCount++;
                 enableDisableEditDeleteButtons(true);
-              
+
             }else{
                 $(this).removeAttr('checked');
                 selectedCount=0;
@@ -755,7 +753,7 @@ $('#select_all_check').click(function(){
 enableDisableEditDeleteButtons(false);//disabling edit and delete button on load
 
 $('#select_all_invitations_check').click(function(){
-    $('#pendingUserListContainer .action_check').each(function() {
+    $('#pendingUserListContainer .action_check_invitation').each(function() {
         if ($('#select_all_invitations_check').is(':checked')) {
             $(this).attr('checked', 'checked');
             selectedInvitationCount++;
@@ -825,7 +823,7 @@ $('#removeUsers').click(function(){
 $('#revokeInvitation').click(function(){
     checkedInvitations = [] ;
     jagg.removeMessage('teampageId');
-    $('#pendingUserListContainer .action_check').each(function(){
+    $('#pendingUserListContainer .action_check_invitation').each(function(){
                 if($(this).is(':checked')){
                     checkedInvitations.push($(this).attr('data-user'));
                 }
@@ -834,6 +832,11 @@ $('#revokeInvitation').click(function(){
     jagg.popMessage({type:'confirm',title:'Revoke Invitations',content:'Are you sure you want to revoke invitations?',
                                     okCallback:function(){ doRevokeInvitation(checkedInvitations);},cancelCallback:function(){}});
 });
+/*
+$('#jsinvitationroleAssignPopup').click(function(){
+    $('#jsinvitationPopupFormDiv').show();
+    manageRoleCheckListForInvitations();
+});*/
 
     function covertAllRoles(){
         //convert all roles array in to processable array in update user method
@@ -1147,7 +1150,7 @@ $('#revokeInvitation').click(function(){
         }
       createTable(searchUsers);
     }
-    
+
 
     /*delete a given user*/
     function deleteUser(username,count,length){
@@ -1215,7 +1218,7 @@ $('#revokeInvitation').click(function(){
     <div class="col-lg-12 content-section">
 
     <article class="main">
-        
+
         <header class="separator">
             <div class="content">
                 <div class="left">
@@ -1326,15 +1329,13 @@ $('#revokeInvitation').click(function(){
                             </h2>
                         </li>
                         <li class="list_col team_controller cursover_remover">
-                           <div class="list_col_heading" id="editDelDiv">
+                           <div class="list_col_heading" id="editDelDivInvitation">
                               <ul class="inline_list item_right">
-                                 <li class="inline_item">
-                                    <a href="#" class="icon_link" id="jsUpdateInvitation" title="Update Invitation"
-                                    data-popover-my-position="top right" popover-target-position="bottom right"
-                                    data-hasqtip="0" aria-describedby="qtip-0" ><span class="fa fa-pencil"
-                                    title="Update Invitation"></span></a>
-                                    <div class="popover_content hide">
-                                       <form class="form-container" id="jsUpdateInvitationForm" />
+                                 <li class="inline_item"><a href="#" class="icon_link"
+                                 id="jsinvitationroleAssignPopup" title="Update Invitation"
+                                 data-popover-my-position="top right" popover-target-position="bottom right" data-hasqtip="1" aria-describedby="qtip-1" ><span class="fa fa-pencil" title="Update Invitation"></span></a>
+                                    <div class="popover_content hide" id="jsinvitationPopupFormDiv">
+                                       <form class="form-container" id="jsinvitationPopupForm" />
                                     </div>
                                  </li>
                                  <li class="inline_item"><a id="revokeInvitation" href="#" class="icon_link"
@@ -1358,6 +1359,5 @@ $('#revokeInvitation').click(function(){
 
 
 <input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
-<% } 
-%>
-<% }); %>
+<% }
+}); %>
