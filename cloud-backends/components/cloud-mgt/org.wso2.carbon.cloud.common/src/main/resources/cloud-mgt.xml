@@ -40,6 +40,7 @@
                 /permission/admin/login,
                 /permission/admin/manage/api/create,
                 /permission/admin/manage/api/publish,
+                /permission/admin/manage/resources/browse,
                 /_system/governance/apimgt:REGISTRY_GET,
                 /_system/governance/apimgt:REGISTRY_PUT,
                 /_system/governance/apimgt:REGISTRY_DELETE

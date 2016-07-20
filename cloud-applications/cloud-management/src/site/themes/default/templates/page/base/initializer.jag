@@ -1,8 +1,10 @@
 <%
 jagg.initializer("page/base", {
 
-    preInitialize:function () {
-
+    preInitialize: function () {
+        //custom JS
+        jagg.addFooterJS("page/base", "page.base.base.js", "templates/page/base/js/base.js");
     }
+
 });
 %>
