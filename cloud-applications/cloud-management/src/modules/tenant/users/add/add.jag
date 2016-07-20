@@ -16,11 +16,6 @@ var from = cloudConfig.registrationEmail.from;
 var subject =  cloudConfig.invitationEmail.subject;
 var targetEpr = cloudConfig.registrationEmail.targetEpr.toString();
 
-var successObj = {
-    error: false,
-    statusCode: 200
-};
-
 var addUserRoles = function addUserRoles(username,userRoles) {
 	//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
 	log.info("addUserRoles "+username);
@@ -315,8 +310,11 @@ var importInvitedUserAndGetDirectURL = function (confirmationKey, defaultPasswor
             status: 500
         };
     }
-    successObj.data = url;
-    return successObj;
+    return {
+        error: false,
+        status: 200,
+        data: url
+    };
 };
 
 var importInvitedUser = function (confirmationKey, defaultPassword, firstName, lastName) {

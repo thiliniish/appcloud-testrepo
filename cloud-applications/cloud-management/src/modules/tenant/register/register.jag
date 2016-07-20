@@ -25,11 +25,6 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
-var successObj = {
-    error: false,
-    statusCode: 200
-};
-
 var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
     try {
         var isUserInvitee = (isInvitee != null && isInvitee == "true");
@@ -62,17 +57,26 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
                     log.debug("User [ " + userName + " ] is invited to " + tenantMod);
                     log.debug("The invitee redirect URL for [ " + userName + " ] - " + url);
                 }
-                successObj.data = url;
-                return successObj;
+                return {
+                    error: false,
+                    status: 200,
+                    data: url
+                };
             }
             session.put('isUserAvail', isUserAvail);
             session.put('registration-intermediate-data', confirm);
             session.put('registration-email', email);
-            successObj.data = "add-tenant.jag";
-            return successObj;
+            return {
+                error: false,
+                status: 200,
+                data: "add-tenant.jag"
+            };
         } else {
-            successObj.data = "expired";
-            return successObj;
+            return {
+                error: false,
+                status: 200,
+                data: "expired"
+            };
         }
     } catch (e) {
         log.error("Error while confirming user [ " + email + " ]");
@@ -238,8 +242,11 @@ var checkUserExistence = function (userName) {
             status: 500
         };
     }
-    successObj.data = isExist;
-    return successObj;
+    return {
+        error: false,
+        status: 200,
+        data: isExist
+    };
 };
 
 var addDefaultLoginRole = function(userName) {
@@ -465,8 +472,11 @@ var sendInvite = function (email, token) {
             modEvents.publishUserActivity(events, email, "not-defined");
         }, 0);
     }
-    successObj.data = email;
-    return successObj;
+    return {
+        error: false,
+        status: 200,
+        data: email
+    };
 };
 
 var reInvite = function (email) {
@@ -496,8 +506,11 @@ var reInvite = function (email) {
             status: 500
         };
     }
-    successObj.data = email;
-    return successObj;
+    return {
+        error: false,
+        status: 200,
+        data: email
+    };
 };
 
 var sendEmail = function (to, link) {
