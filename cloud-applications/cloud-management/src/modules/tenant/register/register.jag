@@ -132,7 +132,6 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     log.info("User information to register [ Username: " + adminUserName + ", First Name: " + firstName + ", Last" +
             " Name: " + lastName + ", Email: " + email + " ]");
     newUser = !modManager.isExistingUser(adminUserName);
-    log.info("*** newUser : "+newUser);
     var organizationDomain = getCompanyId(organizationName);
     session.put("TENANT_DOMAIN", organizationDomain);
     log.info("Organization information to register [ Display Name: " + organizationName + ", Tenant Domain: " +
