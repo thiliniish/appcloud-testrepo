@@ -31,6 +31,9 @@ jagg.module("tenant", {
 	getPendingUsersOfRole: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersOfRole.apply(this, arguments);
 	},
+	updateUserRolesInInvitations :function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRolesInInvitations.apply(this, arguments);
+	},
 	updateUserRoles: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRoles.apply(this, arguments);
 	},

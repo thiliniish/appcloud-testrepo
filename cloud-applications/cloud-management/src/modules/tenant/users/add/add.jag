@@ -63,6 +63,95 @@ var updateUserRoles = function (userName,addRoles,removeRols) {
     }
 };
 
+var updateUserRolesInInvitations = function (email, addRoles, removeRoles) {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+        //Get the existing roles in the invitation
+        var queryStringForRoles = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
+        var parameters = [tenantDomain, email];
+        var existingRoles = jagg.module("database").executeQuery(queryStringForRoles, parameters);
+        var currentRoles = [];
+        var role = '';
+        for (var i = 0; i < existingRoles.length; i++) {
+            var tmpRoles = existingRoles[i]["roles"].split(',');
+            for (var k = 0; k < tmpRoles.length; k++) {
+                currentRoles.push(tmpRoles[k]);
+            }
+        }
+        //Get roles to be added and deleted into arrays
+        var roles = [];
+        var paraAddRoles, paraRemoveRoles;
+        paraAddRoles = addRoles.split(",");
+        paraRemoveRoles = removeRoles.split(",");
+        if ((paraAddRoles.length == 0) || (paraAddRoles[0].length == 0)) {
+            paraAddRoles = null;
+        } else {
+            for (var i = 0; i < paraAddRoles.length; i++) {
+                role = jagg.module("util").getUserRoleGivenDisplayName(paraAddRoles[i]);
+                paraAddRoles[i] = role;
+            }
+        }
+        if ((paraRemoveRoles.length == 0) || (paraRemoveRoles[0].length == 0)) {
+            paraRemoveRoles = null;
+        } else {
+            for (var i = 0; i < paraRemoveRoles.length; i++) {
+                role = jagg.module("util").getUserRoleGivenDisplayName(paraRemoveRoles[i]);
+                paraRemoveRoles[i] = role;
+            }
+        }
+        //If there are no roles to be updated
+        if (paraAddRoles == null && paraRemoveRoles == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("No roles were selected to be added to or removed from invitation to " + email);
+            }
+            return true;
+        } else {
+            if (paraAddRoles != null) {
+                for (var i = 0; i < paraAddRoles.length; i++) {
+                    roles.push(paraAddRoles[i]);
+                }
+            }
+            if (currentRoles != null) {
+                var i = 0;
+                var j = 0;
+                for (i = 0; i < currentRoles.length; i++) {
+                    //Add all current roles to the role list if there are no roles to remove
+                    if (paraRemoveRoles == null) {
+                        roles.push(currentRoles[i]);
+                    } else {
+                        for (j = 0; j < paraRemoveRoles.length; j++) {
+                            if (currentRoles[i] == paraRemoveRoles[j]) {
+                                break;
+                            }
+                        }
+                        if (j < paraRemoveRoles.length) {
+                            //Do not add the role if it is a role to be removed
+                            continue;
+                        } else {
+                            roles.push(currentRoles[i]);
+                        }
+                    }
+                }
+            }
+            try {
+                var queryString = SQL_QUERY_STRINGS.UPDATE_TEMP_INVITEE;
+                parameters = [roles, tenantDomain, email];
+                var results = jagg.module("database").executeQuery(queryString, parameters);
+                return results;
+            } catch (e) {
+                log.error("Error while retrieving pending users of tenant " + tenantDomain);
+                log.error(e);
+                throw "Error while retrieving pending users";
+            }
+            return true;
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+        log.error(msg);
+        return false;
+    }
+};
+
 var deleteUserFromTenant = function (userName){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){

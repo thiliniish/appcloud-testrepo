@@ -246,9 +246,31 @@ var log = new Log();
                 throw "Error while getting blocked subscriptions";
             }
         }
-    }
-
-    else {
+    } else if (action == "updateUserRolesInInvitations") {
+        var email = request.getParameter("email");
+        var newRoles = request.getParameter("rolesToAdd");
+        var removeRoles = request.getParameter("rolesToDelete");
+        var responseObj = {};
+        var tenantDomain = jagg.module("manager").getTenantDomain();
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+            try {
+                log.info("email:" + email + ", new:" + newRoles + ", remove:" + removeRoles);
+                var result = mod.updateUserRolesInInvitations(email, newRoles, removeRoles);
+                log.info(result);
+                if (result != null) {
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    print(stringify(responseObj));
+                }
+            } catch (e) {
+                throw "Error while updating invitation for " + email;
+            }
+        } else {
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to update invitations";
+            print(stringify(responseObj));
+        }
+    } else {
         throw new Error("No action specified");
     }
 
