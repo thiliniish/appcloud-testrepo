@@ -46,7 +46,7 @@ import java.util.Date;
 public class CloudDefaultCallBack implements OnResultCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudDefaultCallBack.class);
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a z");
 
     @Override public void callback(RunStatus runStatus) {
         long currentTime = System.currentTimeMillis();
