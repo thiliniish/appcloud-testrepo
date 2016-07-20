@@ -76,6 +76,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
    </div>
 </div>
 <div id = "resent-success" class ="container content-starter email-resent-msg h5">
-   <p id = "resend-mail ">We have re-sent your email. Please check your inbox.</p>
+   <p id = "resend-mail">We have re-sent your email. Please check your inbox.</p>
 </div>
 <% }); %>

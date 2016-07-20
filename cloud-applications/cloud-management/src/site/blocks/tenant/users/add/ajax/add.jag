@@ -212,16 +212,8 @@ var log = new Log("blocks.tenant.users.add.ajax.add.jag");
         var password = request.getParameter("adminPassword");
         var firstName = request.getParameter("firstName");
         var lastName = request.getParameter("lastName");
-        try {
-            var result = mod.importInvitedUser(confirmationKey, password, firstName, lastName);
-            if (result != null) {
-                var url = jagg.module("util").getInviteeDirectUrl(result);
-                print(url);
-            }
-        } catch (e) {
-            log.error("Error while adding users " + e);
-            throw "Error while adding users, " + e;
-        }
+        var result = mod.importInvitedUserAndGetDirectURL(confirmationKey, password, firstName, lastName);
+        print(result);
 
     } else if (action == "changePassword") {
         var newPassword = request.getParameter("newPassword");

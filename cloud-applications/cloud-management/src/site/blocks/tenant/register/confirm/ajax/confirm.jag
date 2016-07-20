@@ -2,37 +2,23 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 
-var log = new Log("site/blocks/tenant/register/confirm/ajax/confirm.jag");
+var log = new Log("site.blocks.tenant.register.confirm.ajax.confirm.jag");
 (function () {
-	var mod, obj, result,
-	action = request.getParameter("action"),
-	site = require("/site/conf/site.json");
-	mod = jagg.module("tenant");
+    var action = request.getParameter("action"),
+            site = require("/site/conf/site.json"),
+            mod = jagg.module("tenant");
 
-	if (action == "confirmUser") {
-		var confirm = request.getParameter("confirm");
-		var isInvitee = request.getParameter("isInvitee");
-		var isStoreInvitee = request.getParameter("isStoreInvitee");
-		try {
-			var result = mod.confirmUser(confirm, isInvitee, isStoreInvitee);
-			if (result != null) {
-				print(result);
-			} else {
-				throw "Error while confirming user ";
-			}
-		} catch(e) {
-			var message = e.toString();
-			if(message.indexOf("Email verification failed") !== -1){
-				response.status = 500;
-				print("You have already click the link that post to you to configure your administrator account or it must have been expired.");
-			} else {
-				throw "Error while confirming user "+e;
-			}
-			 
-		}
-	}  else {
-		throw new Error("No action specified");
-	}
+    if (action == "confirmUser") {
+        var confirm = request.getParameter("confirm");
+        var isInvitee = request.getParameter("isInvitee");
+        var isStoreInvitee = request.getParameter("isStoreInvitee");
+        log.info("calling confirmUser in tenant module ");
+        var result = mod.confirmUser(confirm, isInvitee, isStoreInvitee);
+        print(result);
+
+    } else {
+        throw new Error("No action specified");
+    }
 
 }());
 %>

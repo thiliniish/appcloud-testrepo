@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
     var otEmail = $("#otEmail").val();
     if (otEmail != "null") {
         $('#userForm').hide();
@@ -10,7 +9,6 @@ $(document).ready(function () {
         errorElement: 'span'
     });
     jQuery.validator.addMethod("emailValid", function (value, element) {
-        //var isSuccess = false;
         var isSuccess = validateEmail(value);
         return isSuccess;
     }, "Please enter a Valid email address. Please use only letters (a-z), numbers, and periods.");
@@ -33,7 +31,6 @@ $(document).ready(function () {
 });
 
 function validateEmail() {
-    //var isEmailValid = true;
     var email = $("#email").val();
     var patternForEmailValidation = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     var isEmailValid = patternForEmailValidation.test(email);
@@ -80,52 +77,59 @@ function doSubmit() {
                 username: email
             },
             function (result) {
-                result = result.replace(/(\r\n|\n|\r)/gm, "");
-                if (result == "false") {
-                    jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
-                            action: "sendInvite",
-                            email: email,
-                            token: token
-                        },
-                        function (result) {
-                            $(".content-starter h1").text("Check Your Email");
-                            $(".content-starter h1").css('color', 'white');
-                            $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>"+email+
-                                "</b>. Please click the link in the email to continue signing up.</h5>");
-                            $(".helper_text h5").css({'font-size': '20px', 'text-align': 'left'});
-                            $("#helper_text").hide();
-                            $("#success-message").show();
-                            $(".content-section-wrapper").hide();
-                        },
-                        function (jqXHR, textStatus, errorThrown) {
-                            jagg.message({
-                                content: ' Error Sending the registration email ', type: 'error', cbk: function () {
-                                    window.location.href = "index.jag";
+                result = JSON.parse(result);
+                if (!result.error) {
+                    var isUserExist = result.data;
+                    //isUserExist = isUserExist.replace(/(\r\n|\n|\r)/gm, "");
+                    if (!isUserExist) {
+                        jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
+                                action: "sendInvite",
+                                email: email,
+                                token: token
+                            },
+                            function (result) {
+                                result = JSON.parse(result);
+                                if (!result.error) {
+                                    $(".content-starter h1").text("Check Your Email");
+                                    $(".content-starter h1").css('color', 'white');
+                                    $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>"
+                                        + email + "</b>. Please click the link in the email to continue signing up.</h5>");
+                                    $(".helper_text h5").css({'font-size': '20px', 'text-align': 'left'});
+                                    $("#helper_text").hide();
+                                    $("#success-message").show();
+                                    $(".content-section-wrapper").hide();
+                                } else {
+                                    jagg.message({
+                                        content: ' Error Sending the Registration Email ',
+                                        type: 'error',
+                                        cbk: function () {
+                                            window.location.href = "index.jag";
+                                        }
+                                    });
+                                    enable();
                                 }
                             });
-                            enable();
+                    } else {
+                        jagg.message({
+                            content: 'Looks like you have an account with wso2.com - So please just use the password ' +
+                            'that you have there to log in <br/>If you do not remember the password that you have at ' +
+                            'wso2.com - click  <a href="initiate.jag">here</a>  to reset and we will send you a new' +
+                            ' password.',
+                            type: 'success',
+                            cbk: function () {
+                                window.location.href = "index.jag";
+                            }
                         });
+                        enable();
+                    }
                 } else {
                     jagg.message({
-                        content: 'Looks like you have an account with wso2.com - So please just use the password ' +
-                        'that you have there to log in <br/>If you do not remember the password that you have at ' +
-                        'wso2.com - click  <a href="initiate.jag">here</a>  to reset and we will send you a new' +
-                        ' password.',
-                        type: 'success',
-                        cbk: function () {
+                        content: ' Error Sending the registration email ', type: 'error', cbk: function () {
                             window.location.href = "index.jag";
                         }
                     });
                     enable();
                 }
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                jagg.message({
-                    content: ' Error Sending the registration email ', type: 'error', cbk: function () {
-                        window.location.href = "index.jag";
-                    }
-                });
-                enable();
             });
     } else {
         jagg.message({
@@ -148,13 +152,14 @@ function resendInvitationEmail() {
             email: email
         },
         function (result) {
-            $('#resend-mail').text("We have re-sent your email. Please check your inbox.");
-        },
-        function (jqXHR, textStatus, errorThrown) {
-            $('#resend-mail').text("Error re-sending email.Please Please contact support.");
+            result = JSON.parse(result);
+            if (!result.error) {
+                $('#resend-mail').text("We have re-sent your email. Please check your inbox.");
+            } else {
+                $('#resend-mail').text("Error re-sending email. Please Please contact support.");
+            }
         });
     $('#resent-success').show();
-
     return true;
 }
 
