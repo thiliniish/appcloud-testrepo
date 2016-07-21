@@ -152,6 +152,22 @@ var updateUserRolesInInvitations = function (email, addRoles, removeRoles) {
     }
 };
 
+var revokeUserInvitation = function(email) {
+    var tenantDomain = modManager.getTenantDomain();
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+        try {
+            var queryString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE_REVOKE_INVITATION;
+            var parameters = [tenantDomain, email];
+            var results = jagg.module("database").executeQuery(queryString, parameters);
+            return results;
+        } catch (e) {
+            log.error("Error while revoking invitation to " + email + " of tenant " + tenantDomain);
+            log.error(e);
+            throw "Error while revoking invitations";
+        }
+    }
+};
+
 var deleteUserFromTenant = function (userName){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){

@@ -171,6 +171,11 @@ var getPendingUsers = function getPendingUsersOfRole(tenantDomain, role) {
         for (var k = 0; k < tmpRoles.length; k++) {
             displayRole = jagg.module("util").getUserRoleDisplayName(tmpRoles[k]);
             if (displayRole != null && displayRole != "") {
+                if (displayRole == cloudConfig.adminRoleDisplayName) {
+                    pendingUser.roles = [];
+                    pendingUser.roles.push(displayRole);
+                    break;
+                }
                 pendingUser.roles.push(displayRole);
             }
         }
@@ -197,7 +202,7 @@ var getPendingUsersOfRole = function getPendingUsersOfRole(tenantDomain, role) {
         var tmpRoles = results[i]["roles"].split(',');
         for (var j = 0; j < tmpRoles.length; j++) {
             if (tmpRoles[j] == role) {
-                pendingUser = {};
+                var pendingUser = {};
                 pendingUser.email = tmpEmail;
                 pendingUser.roleTypes = [];
                 for (var k = 0; k < tmpRoles.length; k++) {

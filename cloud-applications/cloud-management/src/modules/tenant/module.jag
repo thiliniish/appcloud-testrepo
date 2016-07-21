@@ -90,6 +90,9 @@ jagg.module("tenant", {
 	},
 	getBlockedSubscriptions:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").getBlockedSubscriptions.apply(this, arguments);
+	},
+	revokeUserInvitation:function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").revokeUserInvitation.apply(this, arguments);
 	}
 
 });

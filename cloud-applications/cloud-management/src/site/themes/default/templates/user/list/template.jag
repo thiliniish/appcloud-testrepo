@@ -37,9 +37,6 @@ if (user != null) {
     var pageNumberForInvitations = 1;
     var totalPagesForMembers = 1;
     var totalPagesForInvitations = 1;
-    var maxUsersInPage = <%=itemsPerPage%>;
-    var pageNumber = 1;
-    var totalPages = 1;
     var appOwners = [];
  	
 /* This method validates a single email address given as an input parameter */
@@ -230,6 +227,10 @@ function updateTable() {
 
     });
 
+}
+
+function updatePendingUserTable(isBasic) {
+    var tenantDomain = '<%=tenantDomain%>';
     //Get pending invitation details
     jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
         action: "getPendingUsers",
@@ -241,21 +242,29 @@ function updateTable() {
             recordCount = pendingUsersWithRoles.length;
         }
         if (recordCount > 0) {
+            if (recordCount === 1) {
+                $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big push_bottom_40">1 ' +
+                    'Pending ' +
+                    'Invitation</h2>');
+            } else {
+                $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big ' +
+                    'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
+            }
+            console.log("record count after update" + recordCount + "is basic" + isBasic);
+        }
+        if (isBasic) {
             $('#invitationCount').text(recordCount);
             $('#pendingInvitationsMessage').show();
 
-            if (recordCount === 1) {
-                $('#pendingMembersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">1 Pending ' +
-                    'Invitation</h2>');
-            } else {
-                $('#pendingMembersCount').replaceWith('<h2 id="membersCount" class="big ' +
-                    'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
-            }
+        } else {
+            console.log("length of pending users " + pendingUsersWithRoles.length + "is basic" + isBasic);
+            createPendingUserTable(pendingUsersWithRoles);
         }
     }, function(jqXHR, textStatus, errorThrown) {
 
     });
 }
+
 /* This method will create the members list table */
  function createTable(usersWithRolesArray){
 	 appOwners = [];
@@ -351,6 +360,7 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ? (pendingUsersWithRolesArray.length / maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
     totalPagesForInvitations = Math.floor(totalPagesForInvitations);
     if (totalPagesForInvitations > 1) {
+        $('.pageFooterInvitations').show();
         $('.pageFooterInvitations').bootpag({
             total: totalPagesForInvitations,
             page: pageNumberForInvitations
@@ -550,19 +560,23 @@ var manageRoleCheckListForInvitations = function() {
     var finalInvitations = [];
 $(document).ready(function(){
 
-    // hide pending invitations related details
-    $('#pendingInvitationsMessage').hide();
-    $('#pendingInvitations').hide();
-
     initializeUserActivity("Members Page");
     if(isInvitationSent) {
         jagg.message({type:'success',content:'You have successfully sent the member invitations.',type:'success',cbk:function(){
                         window.location.href = "../pages/user.jag";
                     }});
     }
+    // hide pending invitations related details
+    $('#pendingInvitationsMessage').hide();
+    $('#pendingInvitations').hide();
+    $('.pageFooterInvitations').hide();
+
     updateTable();
+    var isBasicPageLoad = true;
+    updatePendingUserTable(isBasicPageLoad);
     updatePopupUserRoles();
     updatePopupUserRolesForInvitations();
+
 	if(totalPagesForMembers >1){
 		$('.pagefooter').bootpag({
 			total: totalPagesForMembers
@@ -1130,40 +1144,40 @@ $('#revokeInvitation').click(function() {
 
     }
 
-    function doupdateInvitation(email, rolesToDel, rolestoAd, count) {
+    function doupdateInvitation(email,rolesToDel,rolestoAd,count){
         jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                action: "updateUserRolesInInvitations",
-                email: email,
-                rolesToDelete: rolesToDel.toString(),
-                rolesToAdd: rolestoAd.toString()
-            },
+                    action:"updateUserRolesInInvitations",
+                    email:email,
+                    rolesToDelete:rolesToDel.toString(),
+                    rolesToAdd:rolestoAd.toString()
+                },
 
-            function(result) {
+                function (result) {
+                    if(result != undefined || result==true){
 
-                if (result != undefined || result == true) {
+                        // TODO implement addApplicationToApp(applicationKey,
+                        // applicationName, applicationDescription);
+                        var x= (finalInvitations.length-1);
+                        console.log(x);
+                        if(count==x){
+                            window.setTimeout(function () {
+                                updatePendingUserTable(false);
 
-                    // TODO implement addApplicationToApp(applicationKey,
-                    // applicationName, applicationDescription);
-                    var x = (finalInvitations.length - 1)
-                    if (count == x) {
-                        window.setTimeout(function() {
-                            updateTable();
+                            }, 300);
 
-                        }, 300);
+                        }
+                        enableDisableEditDeleteButtonsForInvitations(false);
+                        $('#select_all_invitations_check').prop('checked', false);
+                        return result;
+                    }else if(result==false){
 
+                        return result;
                     }
-                    enableDisableEditDeleteButtonsForInvitations(false);
-                    $('#select_all_invitations_check').prop('checked', false);
-                    return result;
-                } else if (result == false) {
-
-                    return result;
-                }
-            },
-            function(jqXHR, textStatus, errorThrown) {
-                // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-            });
-        console.log("Update Invitation for " + username);
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
+                });
+            //console.log("Update Invitation for " + email  + "Add roles:" + rolestoAd + "delete roles:"+rolesToDel ) ;
     }
     $('#search_members').keyup(function(event){
         doSearch($(this).val());
@@ -1206,25 +1220,23 @@ $('#revokeInvitation').click(function() {
     }
 
     /*revoke a given invitation*/
-    function revokeInvitation(username, count, length) {
-
-        /*jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                    action:"deleteUserFromTenant",
-                    userName:username
+    function revokeInvitation(email, count, length){
+        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                    action:"revokeInvitation",
+                    email:email
                 },
                 function (result) {
                     if(count==(length-1)){
                         window.setTimeout(function () {
-                        	pageNumberForMembers=1;
-                            updateTable();
+                        	pageNumberForInvitations=1;
+                            updatePendingUserTable(false);
                         }, 300);
                     }
                 },
                 function (jqXHR, textStatus, errorThrown) {
                     //jagg.message({content:'Error Occured during the removal process of '+userToDelete:'error' });
                 });
-        */
-        console.log("Revoke Invitation for " + username);
+        console.log("Revoke Invitation for "+email);
 
     }
     

@@ -270,6 +270,29 @@ var log = new Log();
             responseObj.message = "You don't have permission to update invitations";
             print(stringify(responseObj));
         }
+    } else if (action == "revokeInvitation") {
+        var responseObj = {};
+        var email = request.getParameter("email");
+        var tenantDomain = jagg.module("manager").getTenantDomain();
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+            try {
+                log.info(email + " revoke");
+                var result = mod.revokeUserInvitation(email);
+                log.info("result " + result);
+                if (result != null) {
+                    responseObj.error = false;
+                    responseObj.message = result;
+                    log.info(responseObj.message);
+                    print(stringify(responseObj));
+                }
+            } catch (e) {
+                throw "Error while revoking invitation of " + email;
+            }
+        } else {
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to revoke invitations";
+            print(stringify(responseObj));
+        }
     } else {
         throw new Error("No action specified");
     }
