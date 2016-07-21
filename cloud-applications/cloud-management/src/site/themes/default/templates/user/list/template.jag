@@ -14,6 +14,7 @@ if (user != null) {
         }
     }
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var adminRoleDisplayName = cloudConfig.adminRoleDisplayName;
     var type = cloudConfig.subscriptions.type;
     var carbon = require('carbon');
     var server = carbon.server;
@@ -38,6 +39,8 @@ if (user != null) {
     var totalPagesForMembers = 1;
     var totalPagesForInvitations = 1;
     var appOwners = [];
+    var isAdminUser;
+    var adminRoleDisplayName = "<%=adminRoleDisplayName%>";
  	
 /* This method validates a single email address given as an input parameter */
 function ValidateEmail(inputText){
@@ -289,11 +292,17 @@ function updatePendingUserTable(isBasic) {
 	//looping uptil the max number of users in a page is added
 	for (var i = ((pageNumberForMembers - 1) * maxItemsInPage); i < usersWithRolesArray.length && i < (pageNumberForMembers * maxItemsInPage); i++) {
 		 var userRoles = usersWithRolesArray[i];
-         var  checkBoxString="";
-         if(userRoles.roles.indexOf('admin')<0){
-             checkBoxString='<input id="ck_'+i+'" type="checkbox" name="action_check" class="action_check" data-roles="'+userRoles.roles+'" data-user="'+userRoles.userName+'"' + chkDisableStr + ' />';
-         }else{
-             checkBoxString='';
+         isAdminUser = false;
+         var  checkBoxString = "";
+         if (userRoles.displayRoles.length > 0) {
+                for (var j = 0; j < userRoles.displayRoles.length; j++) {
+                    if (adminRoleDisplayName == userRoles.displayRoles[j]) {
+                        isAdminUser = true;
+                    }
+                }
+         }
+         if (!isAdminUser) {
+                checkBoxString = '<input id="ck_' + i + '" type="checkbox" name="action_check" class="action_check" data-roles="' + userRoles.roles + '" data-user="' + userRoles.userName + '"' + chkDisableStr + ' />';
          }
 
          var $userListContainerRow = $('<li class="list_row_item cleanable" data-email="'+userRoles.email+'" data-name="'+userRoles.userDisplayName+'">'+
