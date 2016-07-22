@@ -31,7 +31,7 @@ jagg.module("tenant", {
 	getPendingUsersOfRole: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersOfRole.apply(this, arguments);
 	},
-	updateUserInvitation :function () {
+	updateUserInvitation: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserInvitation.apply(this, arguments);
 	},
 	updateUserRoles: function () {
@@ -91,7 +91,7 @@ jagg.module("tenant", {
 	getBlockedSubscriptions:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").getBlockedSubscriptions.apply(this, arguments);
 	},
-	revokeUserInvitation:function () {
+	revokeUserInvitation: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").revokeUserInvitation.apply(this, arguments);
 	}
 
