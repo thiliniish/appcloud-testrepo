@@ -146,20 +146,20 @@ var log = new Log();
                     log.error("Error while retrieving pending users of tenant " + tenantDomain);
                     result = {};
                     result.error = true;
-                    result.message = "Error while retrieving pending users";
+                    result.message = "Error while retrieving pending users of tenant " + tenantDomain;
                     print(stringify(result));
                 }
             } catch (e) {
                 log.error("Error while retrieving pending users of tenant " + tenantDomain);
                 result = {};
                 result.error = true;
-                result.message = "Error while retrieving pending users";
+                result.message = "Error while retrieving pending users of tenant " + tenantDomain;
                 print(stringify(result));
             }
         } else {
             result = {};
             result.error = true;
-            result.message = "You don't have permission to view pending users";
+            result.message = "You don't have permission to retrieve pending users";
             print(stringify(result));
         }
     } else if (action == "getPendingUsersOfRole") {

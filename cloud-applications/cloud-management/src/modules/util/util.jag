@@ -593,7 +593,6 @@ var getUserRoleGivenDisplayName = function(displayName){
 
     //Merging clouds user roles
     var cloudUserRoles = [];
-
     for(var z = 0; z < subscriptionTypes.length; z++){
         cloudUserRoles = cloudUserRoles.concat(subscriptionTypes[z].roleTypes);
     }
@@ -604,7 +603,6 @@ var getUserRoleGivenDisplayName = function(displayName){
             break;
         }
     }
-
     return userRole;
 };
 

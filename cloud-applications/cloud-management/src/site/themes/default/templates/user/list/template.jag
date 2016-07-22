@@ -1155,7 +1155,7 @@ $('#revokeInvitation').click(function() {
 
     function doupdateInvitation(email,rolesToDel,rolestoAd,count){
         jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                    action:"updateUserRolesInInvitations",
+                    action:"updateUserInvitation",
                     email:email,
                     rolesToDelete:rolesToDel.toString(),
                     rolesToAdd:rolestoAd.toString()

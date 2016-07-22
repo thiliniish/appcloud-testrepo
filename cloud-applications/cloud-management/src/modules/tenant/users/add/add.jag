@@ -63,7 +63,7 @@ var updateUserRoles = function (userName,addRoles,removeRols) {
     }
 };
 
-var updateUserRolesInInvitations = function (email, addRoles, removeRoles) {
+var updateUserInvitation = function (email, addRoles, removeRoles) {
     var tenantDomain = modManager.getTenantDomain();
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         //Get the existing roles in the invitation
@@ -139,9 +139,9 @@ var updateUserRolesInInvitations = function (email, addRoles, removeRoles) {
                 var results = jagg.module("database").executeQuery(queryString, parameters);
                 return results;
             } catch (e) {
-                log.error("Error while retrieving pending users of tenant " + tenantDomain);
+                log.error("Error while updating user invitation to " + email + " to tenant " + tenantDomain);
                 log.error(e);
-                throw "Error while retrieving pending users";
+                throw "Error while updating user invitation";
             }
             return true;
         }
@@ -161,9 +161,9 @@ var revokeUserInvitation = function(email) {
             var results = jagg.module("database").executeQuery(queryString, parameters);
             return results;
         } catch (e) {
-            log.error("Error while revoking invitation to " + email + " of tenant " + tenantDomain);
+            log.error("Error while revoking user invitation to " + email + " to tenant " + tenantDomain);
             log.error(e);
-            throw "Error while revoking invitations";
+            throw "Error while revoking user invitation";
         }
     }
 };
