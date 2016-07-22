@@ -94,522 +94,566 @@ function ValidateEmail(inputText){
             disable('revokeInvitation');
         }
     }
-    function selectCheckBox(id){
-        var isChecked = $('#ck_'+id).is(':checked');
-        if(isChecked){
-            $('#ck_'+id).removeAttr('checked');
-        } else {
+function selectCheckBox(id){
+	var isChecked = $('#ck_'+id).is(':checked');
+	if(isChecked){
+		$('#ck_'+id).removeAttr('checked');
+	} else {
+		 
+		$("#ck_"+id).attr('checked',true);
+	}
+	enableButton($('#ck_'+id).is(':checked'));
+}
 
-            $("#ck_"+id).attr('checked',true);
-        }
-        enableButton($('#ck_'+id).is(':checked'));
+function selectCheckBoxForInvitations(id) {
+    var isChecked = $('#ick_' + id).is(':checked');
+    if (isChecked) {
+        $('#ick_' + id).removeAttr('checked');
+    } else {
+        $("#ick_" + id).attr('checked', true);
     }
+    enableButtonForInvitations($('#ick_' + id).is(':checked'));
+}
 
-    function selectCheckBoxForInvitations(id) {
-        var isChecked = $('#ick_' + id).is(':checked');
-        if (isChecked) {
-            $('#ick_' + id).removeAttr('checked');
-        } else {
-            $("#ick_" + id).attr('checked', true);
-        }
-        enableButtonForInvitations($('#ick_' + id).is(':checked'));
-    }
+function enableButton(ischecked){
+	if(ischecked){
+	    selectedCount++;
+	    enableDisableEditDeleteButtons(true);
+	}else{
+	    selectedCount--;
+	    if(selectedCount===0){
+		enableDisableEditDeleteButtons(false);
+	    }
+	}
+}
 
-    function enableButton(ischecked){
-        if(ischecked){
-            selectedCount++;
-            enableDisableEditDeleteButtons(true);
-        }else{
-            selectedCount--;
-            if(selectedCount===0){
-            enableDisableEditDeleteButtons(false);
-            }
-        }
-    }
-
-    function enableButtonForInvitations(ischecked) {
-        if (ischecked) {
-            selectedInvitationCount++;
-            enableDisableEditDeleteButtonsForInvitations(true);
-        } else {
-            selectedInvitationCount--;
-            if (selectedInvitationCount === 0) {
-                enableDisableEditDeleteButtonsForInvitations(false);
-            }
-        }
-    }
-
-    function getBlockedSubscriptions() {
-        var blockedSubs;
-        jagg.syncPost("../blocks/tenant/users/add/ajax/add.jag", {
-            action:"getBlockedSubscriptions"
-        },
-        function (result) {
-          blockedSubs=result;
-        });
-       return blockedSubs;
-    }
-
-    function updatePopupUserRoles() {
-        var type = <%=type%>;
-        var $jsroleAssignPopupForm = $('#jsroleAssignPopupForm');
-        var $jsroleAssign ='';
-        var blockSubscriptions = getBlockedSubscriptions();
-        //getting the roles of each subscriptions
-        for(var i=0;i < type.length;i++){
-            if(blockSubscriptions.indexOf(type[i].id) <0 || blockSubscriptions==null){
-            var tempRoleArray= type[i].roleTypes;
-            for(var count=0; count< tempRoleArray.length; count++){
-                $jsroleAssign = $jsroleAssign + '<div class="input_row">'+
-                '<label class="text-box-overrider" data-role='+ tempRoleArray[count].roleName+'><span class="checkbox-unchecked"></span>'+
-                tempRoleArray[count].displayRoles+'</label></div>';
-            }}
-        }
-        $jsAssignButton =$('<div class="btn_row"><button class="btn main small" type="button" id="saveUserRoles">Save</button><a href="#" class="popover_close small">Close</a> </div>');
-        $jsroleAssignPopupForm.append($jsroleAssign);
-        $jsroleAssignPopupForm.append($jsAssignButton);
-
-    }
-
-    function updatePopupUserRolesForInvitations() {
-        var type = <%=type%>;
-        var $jsInvitationRoleAssignPopupForm = $('<form class="form-container" id="jsinvitationPopupForm">');
-        var $jsInvitationRoleAssign = '';
-        var blockedSubscriptions = getBlockedSubscriptions();
-        //getting the roles of each subscriptions
-        for (var i = 0; i < type.length; i++) {
-            if (blockedSubscriptions.indexOf(type[i].id) < 0 || blockedSubscriptions == null) {
-                var tempRoleArray = type[i].roleTypes;
-                for (var count = 0; count < tempRoleArray.length; count++) {
-                    $jsInvitationRoleAssign = $jsInvitationRoleAssign + '<div class="input_row">' + '<label ' +
-                        'class="text-box-overrider-invitations" data-role=' + tempRoleArray[count].displayRoles + '><span ' +
-                        'class="checkbox-unchecked"></span>' + tempRoleArray[count].displayRoles + '</label></div>';
-
-                }
-            }
-        }
-
-        $jsRoleAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="updateInvitations">Update</button><a href="#" class="popover_close small">Close</a> </div></form>');
-
-        $jsInvitationRoleAssignPopupForm.append($jsInvitationRoleAssign);
-        $jsInvitationRoleAssignPopupForm.append($jsRoleAssignButton);
-        var $jsInvitationPopupFormDiv = $('#jsinvitationPopupFormDiv');
-        $jsInvitationPopupFormDiv.append($jsInvitationRoleAssignPopupForm);
-    }
-
-    function updateTable() {
-            $('.cleanable').remove();
-            var tenantDomain = '<%=tenantDomain%>';
-            jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
-                action: "getUsersofTenant",
-                tenantDomain: tenantDomain
-            }, function (result) {
-            var recordCount = 0;
-            if (result !== undefined) {
-                usersWithRoles =result;
-                recordCount = usersWithRoles.length;
-            }
-             if (recordCount > 0) {
-                var countString='';
-                if(recordCount===1){
-                    $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">1 Member in Organization</h2>');
-                } else{
-                    $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">'+recordCount+' Members in Organization</h2>');
-                }
-                createTable(usersWithRoles);
-            } else {
-                   $('#userListContainer').html('<li class="noData-message">no data</li>');
-                //messageElement.html("No users/roles found!").fadeIn();
-
-            }
-        }, function (jqXHR, textStatus, errorThrown) {
-
-            //messageElement.html("Error occured while loading User/Roles information!").fadeIn();
-
-        });
-
-    }
-
-    function updatePendingUserTable(isBasic) {
-        var tenantDomain = '<%=tenantDomain%>';
-        //Get pending invitation details
-        jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
-            action: "getPendingUsers",
-            tenantDomain: tenantDomain
-        }, function(result) {
-            var recordCount = 0;
-            if (result !== undefined) {
-                pendingUsersWithRoles = result;
-                recordCount = pendingUsersWithRoles.length;
-            }
-            if (recordCount > 0) {
-                if (recordCount === 1) {
-                    $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big push_bottom_40">1 ' +
-                        'Pending ' +
-                        'Invitation</h2>');
-                } else {
-                    $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big ' +
-                        'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
-                }
-                console.log("record count after update" + recordCount + "is basic" + isBasic);
-            }
-            if (isBasic) {
-                $('#invitationCount').text(recordCount);
-                $('#pendingInvitationsMessage').show();
-
-            } else {
-                createPendingUserTable(pendingUsersWithRoles);
-            }
-        }, function(jqXHR, textStatus, errorThrown) {
-
-        });
-    }
-
-    /* This method will create the members list table */
-     function createTable(usersWithRolesArray){
-         appOwners = [];
-         $('.cleanable').remove();
-         var $userListContainer = $('#userListContainer');
-         var chkDisableStr = "";
-         if(!permittedToInvite){
-            chkDisableStr = "style = 'display:none'";
-         }
-         /*getting the total number of pages using max users in a page
-         checking if the number of members are equal to the max members in a page,else add a new page to the total*/
-        totalPagesForMembers = ((usersWithRolesArray.length % maxItemsInPage) == 0) ? (usersWithRolesArray.length / maxItemsInPage) : (usersWithRolesArray.length / maxItemsInPage) + 1;
-        totalPagesForMembers = Math.floor(totalPagesForMembers);
-        if (totalPagesForMembers > 1) {
-            $('.pagefooter').bootpag({
-                total: totalPagesForMembers,
-                page: pageNumberForMembers
-            }).show();
-        }else{
-            $('.pagefooter').hide();
-        }
-        //looping uptil the max number of users in a page is added
-        for (var i = ((pageNumberForMembers - 1) * maxItemsInPage); i < usersWithRolesArray.length && i < (pageNumberForMembers * maxItemsInPage); i++) {
-            var userRoles = usersWithRolesArray[i];
-            isAdminUser = false;
-            var  checkBoxString = "";
-            if (userRoles.displayRoles.length > 0) {
-                for (var j = 0; j < userRoles.displayRoles.length; j++) {
-                    if (adminRoleDisplayName == userRoles.displayRoles[j]) {
-                        isAdminUser = true;
-                    }
-                }
-            }
-            if (!isAdminUser) {
-                checkBoxString = '<input id="ck_' + i + '" type="checkbox" name="action_check" class="action_check" data-roles="' + userRoles.roles + '" data-user="' + userRoles.userName + '"' + chkDisableStr + ' />';
-            }
-
-             var $userListContainerRow = $('<li class="list_row_item cleanable" data-email="'+userRoles.email+'" data-name="'+userRoles.userDisplayName+'">'+
-                         '<ul class="list_row" id="'+userRoles.userName+'">'+
-                             '<li class="list_col first_list_col item_select">'+
-                                 '<div class="list_col_content">'+
-                                     checkBoxString+
-                                 '</div>'+
-                             '</li>'+
-                             '<li onclick="selectCheckBox('+i+')" class="list_col team_member">'+
-                                 '<div class="list_col_content">'+
-                                     '<div class="image_list">'+
-                                         '<dl>'+
-                                             '<dt>'+userRoles.displayName+'</dt>'+
-                                             '<dd class="img"><span class="icon-user"></span></dd>'+
-                                             '<dd>'+userRoles.email+'</dd>'+
-                                        '</dl>'+
-                                     '</div>'+
-                                '</div>'+
-                             '</li>'+
-                             '<li onclick="selectCheckBox('+i+')" class="list_col  team_role">'+
-                                 '<div class="list_col_content">'+userRoles.displayRoles.toString()+'</div>'+
-                            '</li>'+
-                             '<li onclick="selectCheckBox('+i+')" class="list_col team_last_login">'+
-                                 '<div class="list_col_content">'+
-                                     // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
-                                 '</div>'+
-                             '</li>'+
-                             '<li onclick="selectCheckBox('+i+')" class="list_col team_controller">'+
-                                 '<div class="list_col_heading">&nbsp;</div>'+
-                                  '<div class="list_col_content">&nbsp;</div>'+
-                             '</li>'+
-                         '</ul>'+
-                    '</li>');
-
-                    if(userRoles.roles.indexOf("appowner")!=-1){
-                         $('.action_check',$userListContainerRow).attr('data-deletable','false');
-                        appOwners.push(userRoles.userName);
-                     }
-              $userListContainer.append($userListContainerRow);
-              enableDisableEditDeleteButtons(false);
-              selectedCount=0;
-         }
-         $('#userListContainer .action_check').click(function(){
-                 manageRoleCheckList();
-             }
-         );
-         $('.action_check').click(function(){
-                enableButton(this.checked);
-         });
-    }
-
-    /*This method will create the pending invitations table */
-    function createPendingUserTable(pendingUsersWithRolesArray) {
-        $('.cleanableInvitation').remove();
-        //track the member count in organization
-        var memberCount = 0;
-        if (usersWithRoles != undefined) {
-            memberCount = usersWithRoles.length;
-        }
-        //var maxInvitationsInPage = maxItemsInPage - memberCount;
-        var $pendingUserListContainer = $('#pendingUserListContainer');
-        /*getting the total number of pages using max items in a page and checking if the number of invitations are equal
-         to the max items in a page,else add a new page to the total*/
-        totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ? (pendingUsersWithRolesArray.length / maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
-        totalPagesForInvitations = Math.floor(totalPagesForInvitations);
-        if (totalPagesForInvitations > 1) {
-            $('.pageFooterInvitations').show();
-            $('.pageFooterInvitations').bootpag({
-                total: totalPagesForInvitations,
-                page: pageNumberForInvitations
-            }).show();
-        } else {
-            $('.pageFooterInvitations').hide();
-        }
-
-        //looping until the max number of invitations in a page is added
-        for (var i = ((pageNumberForInvitations - 1) * maxItemsInPage); i < pendingUsersWithRolesArray.length && i < (pageNumberForInvitations * maxItemsInPage); i++) {
-            var pendingUserRoles = pendingUsersWithRolesArray[i];
-            var checkBoxString = '<input id="ick_' + i + '" type="checkbox" name="action_check_invitation" ' +
-                'class="action_check_invitation" ' +
-                'data-roles="' + pendingUserRoles.roles + '" data-user="' + pendingUserRoles.email + '" />';
-            //Show pending invitations
-            var $pendingUserListContainerRow = $('<li class="list_row_item cleanableInvitation" data-email="' + pendingUserRoles.email + '" ' +
-                'data-name="' + pendingUserRoles.email + '">' +
-                '<ul class="list_row" id="' + pendingUserRoles.email + '">' +
-                '<li class="list_col first_list_col item_select">' +
-                '<div class="list_col_content">' +
-                checkBoxString +
-                '</div>' +
-                '</li>' +
-                '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_member">' +
-                '<div class="list_col_content">' +
-                '<div class="image_list">' +
-                '<dl>' +
-                '<dt>' + pendingUserRoles.email + '</dt>' +
-                '<dd class="img"><span class="icon-user"></span></dd>' +
-                '<dd>' + pendingUserRoles.email + '</dd>' +
-                '</dl>' +
-                '</div>' +
-                '</div>' +
-                '</li>' +
-                '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col  team_role">' +
-                '<div class="list_col_content">' + pendingUserRoles.roles.toString() + '</div>' +
-                '</li>' +
-                '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_last_login">' +
-                '<div class="list_col_content">' +
-                // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
-                '</div>' +
-                '</li>' +
-                '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_controller">' +
-                '<div class="list_col_heading">&nbsp;</div>' +
-                '<div class="list_col_content">&nbsp;</div>' +
-                '</li>' +
-                '</ul>' +
-                '</li>');
-
-            $pendingUserListContainer.append($pendingUserListContainerRow);
+function enableButtonForInvitations(ischecked) {
+    if (ischecked) {
+        selectedInvitationCount++;
+        enableDisableEditDeleteButtonsForInvitations(true);
+    } else {
+        selectedInvitationCount--;
+        if (selectedInvitationCount === 0) {
             enableDisableEditDeleteButtonsForInvitations(false);
         }
-        selectedInvitationCount = 0;
-        $('#pendingInvitations').show();
-        $('#pendingInvitationsMessage').hide();
-        if (totalPagesForInvitations > 1) {
-            $('.pageFooterInvitations').bootpag({
-                total: totalPagesForInvitations
-            }).on("page", function(event, num) {
-                pageNumberForInvitations = num;
-                createPendingUserTable(pendingUsersWithRoles);
-            });
-        } else {
-            $('.pageFooterInvitations').hide();
+    }
+}
+
+function getBlockedSubscriptions() {
+    var blockedSubs;
+    jagg.syncPost("../blocks/tenant/users/add/ajax/add.jag", {
+        action:"getBlockedSubscriptions"
+    },
+    function (result) {
+      blockedSubs=result;
+    });
+   return blockedSubs; 
+}
+function updatePopupUserRoles() {
+    var type = <%=type%>;
+	var $jsroleAssignPopupForm = $('#jsroleAssignPopupForm');
+	var $jsroleAssign ='';
+	var blockSubscriptions = getBlockedSubscriptions();
+	//getting the roles of each subscriptions
+	for(var i=0;i < type.length;i++){
+		if(blockSubscriptions.indexOf(type[i].id) <0 || blockSubscriptions==null){
+		var tempRoleArray= type[i].roleTypes;
+	    for(var count=0; count< tempRoleArray.length; count++){
+			$jsroleAssign = $jsroleAssign + '<div class="input_row">'+
+	  	 	'<label class="text-box-overrider" data-role='+ tempRoleArray[count].roleName+'><span class="checkbox-unchecked"></span>'+ 
+	  	 	tempRoleArray[count].displayRoles+'</label></div>';		
+		}}	
+	}
+	$jsAssignButton =$('<div class="btn_row"><button class="btn main small" type="button" id="saveUserRoles">Save</button><a href="#" class="popover_close small">Close</a> </div>');
+	$jsroleAssignPopupForm.append($jsroleAssign); 
+	$jsroleAssignPopupForm.append($jsAssignButton);  
+
+}
+
+function updatePopupUserRolesForInvitations() {
+    var type = <%=type%>;
+    var $jsInvitationRoleAssignPopupForm = $('<form class="form-container" id="jsinvitationPopupForm">');
+    var $jsInvitationRoleAssign = '';
+    var blockedSubscriptions = getBlockedSubscriptions();
+    //getting the roles of each subscriptions
+    for (var i = 0; i < type.length; i++) {
+        if (blockedSubscriptions.indexOf(type[i].id) < 0 || blockedSubscriptions == null) {
+            var tempRoleArray = type[i].roleTypes;
+            for (var count = 0; count < tempRoleArray.length; count++) {
+                $jsInvitationRoleAssign = $jsInvitationRoleAssign + '<div class="input_row">' + '<label ' +
+                    'class="text-box-overrider-invitations" data-role=' + tempRoleArray[count].displayRoles + '><span ' +
+                    'class="checkbox-unchecked"></span>' + tempRoleArray[count].displayRoles + '</label></div>';
+
+            }
         }
-        $('#pendingUserListContainer .action_check_invitation').click(function() {
-            manageRoleCheckListForInvitations();
-        });
-        $('.action_check_invitation').click(function() {
-            enableButtonForInvitations(this.checked);
-        });
     }
 
-    var allRoles = [];
-    var allRolesForInvitations = [];
+    $jsRoleAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="updateInvitations">Update</button><a href="#" class="popover_close small">Close</a> </div></form>');
 
-    var getRoleByName = function(roleName){
-        var roleObj;
+    $jsInvitationRoleAssignPopupForm.append($jsInvitationRoleAssign);
+    $jsInvitationRoleAssignPopupForm.append($jsRoleAssignButton);
+    var $jsInvitationPopupFormDiv = $('#jsinvitationPopupFormDiv');
+    $jsInvitationPopupFormDiv.append($jsInvitationRoleAssignPopupForm);
+}
 
-        for(var i=0;i < allRoles.length;i++){
-            if(allRoles[i].role_name == roleName){
-                roleObj = allRoles[i];
+function updateTable() {
+        $('.cleanable').remove();
+        var tenantDomain = '<%=tenantDomain%>';
+        jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
+            action: "getUsersofTenant",
+            tenantDomain: tenantDomain
+    	}, function (result) {
+        var recordCount = 0;
+        if (result !== undefined) {
+            usersWithRoles =result;
+            recordCount = usersWithRoles.length;
+        }       
+         if (recordCount > 0) {
+            var countString='';
+            if(recordCount===1){
+                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">1 Member in Organization</h2>');
+            } else{
+                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">'+recordCount+' Members in Organization</h2>');
             }
-        }
-        return roleObj;
-
-    };
-
-    var getRoleByNameForInvitations = function(roleName) {
-        var roleObj;
-        for (var i = 0; i < allRolesForInvitations.length; i++) {
-            if (allRolesForInvitations[i].role_name == roleName) {
-                roleObj = allRolesForInvitations[i];
-            }
-        }
-        return roleObj;
-    };
-
-    var manageRoleCheckList = function(){
-        allRoles = [];
-
-        $('#jsroleAssignPopupForm label').each(function(){
-            var trole=$(this).attr('data-role');
-            if(trole!=undefined){
-                allRoles.push({dom_obj:this, role_name:trole,users:[] });
-            }
-
-        });
-        //allRoles.push({dom_obj:{}, role_name:'appowner',users:[] });
-
-        //Push users to specific roles
-        var numberOfUsersChecked = 0;
-        $('#userListContainer .action_check').each(function(){
-            if($(this).is(':checked')){
-                numberOfUsersChecked++;
-                var userName = $(this).attr('data-user').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                var tmrole=$(this).attr('data-roles');
-                if(tmrole!=undefined&&tmrole.length>0){
-                    var allRolesForUser = tmrole.split('\n');
-                    for(var i=0;i< allRolesForUser.length;i++){
-                        var role = allRolesForUser[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                        getRoleByName(role).users.push(userName);
-                    }
-                }
-            }
-
-        });
-        //Now use the allRows array to show the role checkboxes..
-        if(numberOfUsersChecked > 0 ){
-            for(var i=0;i < allRoles.length;i++){
-                if(allRoles[i].users.length  == numberOfUsersChecked){ //So every user has this role
-                    $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-checked"></span>');
-                } else if (allRoles[i].users.length  == 0){
-                    $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
-                } else if (allRoles[i].users.length  != 0 && allRoles[i].users.length < numberOfUsersChecked ){
-                    $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-half"></span>');
-                }
-            }
-         }else{
-            for(var i=0;i < allRoles.length;i++){
-                    $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
-            }
-         }
-    };
-
-    var manageRoleCheckListForInvitations = function() {
-        allRolesForInvitations = [];
-
-        $('#jsinvitationPopupForm label').each(function() {
-            var role = $(this).attr('data-role');
-            if (role != undefined) {
-                allRolesForInvitations.push({
-                    dom_obj: this,
-                    role_name: role,
-                    users: []
-                });
-            }
-        });
-        //Push invitees to specific roles
-        var numberOfInvitationsChecked = 0;
-        $('#pendingUserListContainer .action_check_invitation').each(function() {
-            if ($(this).is(':checked')) {
-                numberOfInvitationsChecked++;
-                var username = $(this).attr('data-user').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                var role = $(this).attr('data-roles');
-                if (role != undefined && role.length > 0) {
-                    var allRolesForInvitation = role.split(',');
-                    for (var i = 0; i < allRolesForInvitation.length; i++) {
-                        var role = allRolesForInvitation[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                        var roleObj = getRoleByNameForInvitations(role);
-                        roleObj.users.push(username);
-                    }
-                }
-            }
-        });
-        //Display checkboxes based on allRolesForInvitations
-        if (numberOfInvitationsChecked > 0) {
-            for (var i = 0; i < allRolesForInvitations.length; i++) {
-                if (allRolesForInvitations[i].users.length == numberOfInvitationsChecked) { //Every invitation has this role
-                    $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-checked"></span>');
-                } else if (allRolesForInvitations[i].users.length == 0) {
-                    $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
-                } else if (allRolesForInvitations[i].users.length != 0 && allRolesForInvitations[i].users.length < numberOfInvitationsChecked) {
-                    $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-half"></span>');
-                }
-            }
+            createTable(usersWithRoles); 
         } else {
-            for (var i = 0; i < allRolesForInvitations.length; i++) {
-                $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+               $('#userListContainer').html('<li class="noData-message">no data</li>');
+            //messageElement.html("No users/roles found!").fadeIn();
+
+        }
+    }, function (jqXHR, textStatus, errorThrown) {
+
+        //messageElement.html("Error occured while loading User/Roles information!").fadeIn();
+
+    });
+
+}
+
+function updatePendingUserTable(isBasic) {
+    var tenantDomain = '<%=tenantDomain%>';
+    //Get pending invitation details
+    jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
+        action: "getPendingUsers",
+        tenantDomain: tenantDomain
+    }, function(result) {
+        var recordCount = 0;
+        if (result !== undefined) {
+            pendingUsersWithRoles = result;
+            recordCount = pendingUsersWithRoles.length;
+        }
+        if (recordCount > 0) {
+            if (recordCount === 1) {
+                $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big push_bottom_40">1 ' +
+                    'Pending ' +
+                    'Invitation</h2>');
+            } else {
+                $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big ' +
+                    'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
+            }
+            console.log("record count after update" + recordCount + "is basic" + isBasic);
+        }
+        if (isBasic) {
+            $('#invitationCount').text(recordCount);
+            $('#pendingInvitationsMessage').show();
+
+        } else {
+            createPendingUserTable(pendingUsersWithRoles);
+        }
+    }, function(jqXHR, textStatus, errorThrown) {
+
+    });
+}
+
+/* This method will create the members list table */
+ function createTable(usersWithRolesArray){
+	 appOwners = [];
+	 $('.cleanable').remove();
+	 var $userListContainer = $('#userListContainer');
+	 var chkDisableStr = "";
+     if(!permittedToInvite){
+     	chkDisableStr = "style = 'display:none'";
+     }
+     /*getting the total number of pages using max users in a page
+     checking if the number of members are equal to the max members in a page,else add a new page to the total*/
+    totalPagesForMembers = ((usersWithRolesArray.length % maxItemsInPage) == 0) ? (usersWithRolesArray.length / maxItemsInPage) : (usersWithRolesArray.length / maxItemsInPage) + 1;
+    totalPagesForMembers = Math.floor(totalPagesForMembers);
+    if (totalPagesForMembers > 1) {
+        $('.pagefooter').bootpag({
+            total: totalPagesForMembers,
+            page: pageNumberForMembers
+        }).show();
+	}else{
+		$('.pagefooter').hide();
+	}
+	//looping uptil the max number of users in a page is added
+    for (var i = ((pageNumberForMembers - 1) * maxItemsInPage); i < usersWithRolesArray.length && i < (pageNumberForMembers * maxItemsInPage); i++) {
+        var userRoles = usersWithRolesArray[i];
+        isAdminUser = false;
+        var  checkBoxString = "";
+        if (userRoles.displayRoles.length > 0) {
+            for (var j = 0; j < userRoles.displayRoles.length; j++) {
+                if (adminRoleDisplayName == userRoles.displayRoles[j]) {
+                    isAdminUser = true;
+                }
             }
         }
-    };
+        if (!isAdminUser) {
+            checkBoxString = '<input id="ck_' + i + '" type="checkbox" name="action_check" class="action_check" data-roles="' + userRoles.roles + '" data-user="' + userRoles.userName + '"' + chkDisableStr + ' />';
+        }
+
+         var $userListContainerRow = $('<li class="list_row_item cleanable" data-email="'+userRoles.email+'" data-name="'+userRoles.userDisplayName+'">'+
+                     '<ul class="list_row" id="'+userRoles.userName+'">'+
+                         '<li class="list_col first_list_col item_select">'+
+                             '<div class="list_col_content">'+
+                                 checkBoxString+
+                             '</div>'+
+                         '</li>'+
+                         '<li onclick="selectCheckBox('+i+')" class="list_col team_member">'+
+                             '<div class="list_col_content">'+
+                                 '<div class="image_list">'+
+                                     '<dl>'+
+                                         '<dt>'+userRoles.displayName+'</dt>'+
+                                         '<dd class="img"><span class="icon-user"></span></dd>'+
+                                         '<dd>'+userRoles.email+'</dd>'+
+                                    '</dl>'+
+                                 '</div>'+
+                            '</div>'+
+                         '</li>'+
+                         '<li onclick="selectCheckBox('+i+')" class="list_col  team_role">'+
+                             '<div class="list_col_content">'+userRoles.displayRoles.toString()+'</div>'+
+                        '</li>'+
+                         '<li onclick="selectCheckBox('+i+')" class="list_col team_last_login">'+
+                             '<div class="list_col_content">'+
+                                 // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
+                             '</div>'+
+                         '</li>'+
+                         '<li onclick="selectCheckBox('+i+')" class="list_col team_controller">'+
+                             '<div class="list_col_heading">&nbsp;</div>'+
+                              '<div class="list_col_content">&nbsp;</div>'+
+                         '</li>'+
+                     '</ul>'+
+                '</li>');
+
+                if(userRoles.roles.indexOf("appowner")!=-1){
+                     $('.action_check',$userListContainerRow).attr('data-deletable','false');
+                    appOwners.push(userRoles.userName);
+                 }
+          $userListContainer.append($userListContainerRow);
+          enableDisableEditDeleteButtons(false);
+          selectedCount=0;
+     }
+     $('#userListContainer .action_check').click(function(){
+             manageRoleCheckList();
+         }
+     );
+     $('.action_check').click(function(){
+	        enableButton(this.checked);
+     });
+}
+
+/*This method will create the pending invitations table */
+function createPendingUserTable(pendingUsersWithRolesArray) {
+    $('.cleanableInvitation').remove();
+    //track the member count in organization
+    var memberCount = 0;
+    if (usersWithRoles != undefined) {
+        memberCount = usersWithRoles.length;
+    }
+    //var maxInvitationsInPage = maxItemsInPage - memberCount;
+    var $pendingUserListContainer = $('#pendingUserListContainer');
+    /*getting the total number of pages using max items in a page and checking if the number of invitations are equal
+     to the max items in a page,else add a new page to the total*/
+    totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ? (pendingUsersWithRolesArray.length / maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
+    totalPagesForInvitations = Math.floor(totalPagesForInvitations);
+    if (totalPagesForInvitations > 1) {
+        $('.pageFooterInvitations').show();
+        $('.pageFooterInvitations').bootpag({
+            total: totalPagesForInvitations,
+            page: pageNumberForInvitations
+        }).show();
+    } else {
+        $('.pageFooterInvitations').hide();
+    }
+
+    //looping until the max number of invitations in a page is added
+    for (var i = ((pageNumberForInvitations - 1) * maxItemsInPage); i < pendingUsersWithRolesArray.length && i < (pageNumberForInvitations * maxItemsInPage); i++) {
+        var pendingUserRoles = pendingUsersWithRolesArray[i];
+        var checkBoxString = '<input id="ick_' + i + '" type="checkbox" name="action_check_invitation" ' +
+            'class="action_check_invitation" ' +
+            'data-roles="' + pendingUserRoles.roles + '" data-user="' + pendingUserRoles.email + '" />';
+        //Show pending invitations
+        var $pendingUserListContainerRow = $('<li class="list_row_item cleanableInvitation" data-email="' + pendingUserRoles.email + '" ' +
+            'data-name="' + pendingUserRoles.email + '">' +
+            '<ul class="list_row" id="' + pendingUserRoles.email + '">' +
+            '<li class="list_col first_list_col item_select">' +
+            '<div class="list_col_content">' +
+            checkBoxString +
+            '</div>' +
+            '</li>' +
+            '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_member">' +
+            '<div class="list_col_content">' +
+            '<div class="image_list">' +
+            '<dl>' +
+            '<dt>' + pendingUserRoles.email + '</dt>' +
+            '<dd class="img"><span class="icon-user"></span></dd>' +
+            '<dd>' + pendingUserRoles.email + '</dd>' +
+            '</dl>' +
+            '</div>' +
+            '</div>' +
+            '</li>' +
+            '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col  team_role">' +
+            '<div class="list_col_content">' + pendingUserRoles.roles.toString() + '</div>' +
+            '</li>' +
+            '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_last_login">' +
+            '<div class="list_col_content">' +
+            // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
+            '</div>' +
+            '</li>' +
+            '<li onclick="selectCheckBoxForInvitations(' + i + ')" class="list_col team_controller">' +
+            '<div class="list_col_heading">&nbsp;</div>' +
+            '<div class="list_col_content">&nbsp;</div>' +
+            '</li>' +
+            '</ul>' +
+            '</li>');
+
+        $pendingUserListContainer.append($pendingUserListContainerRow);
+        enableDisableEditDeleteButtonsForInvitations(false);
+    }
+    selectedInvitationCount = 0;
+    $('#pendingInvitations').show();
+    $('#pendingInvitationsMessage').hide();
+    if (totalPagesForInvitations > 1) {
+        $('.pageFooterInvitations').bootpag({
+            total: totalPagesForInvitations
+        }).on("page", function(event, num) {
+            pageNumberForInvitations = num;
+            createPendingUserTable(pendingUsersWithRoles);
+        });
+    } else {
+        $('.pageFooterInvitations').hide();
+    }
+    $('#pendingUserListContainer .action_check_invitation').click(function() {
+        manageRoleCheckListForInvitations();
+    });
+    $('.action_check_invitation').click(function() {
+        enableButtonForInvitations(this.checked);
+    });
+}
+
+var allRoles = [];
+var allRolesForInvitations = [];
+
+var getRoleByName = function(roleName){
+    var roleObj;
+
+    for(var i=0;i < allRoles.length;i++){
+        if(allRoles[i].role_name == roleName){
+            roleObj = allRoles[i];
+        }
+    }
+    return roleObj;
+
+};
+
+var getRoleByNameForInvitations = function(roleName) {
+    var roleObj;
+    for (var i = 0; i < allRolesForInvitations.length; i++) {
+        if (allRolesForInvitations[i].role_name == roleName) {
+            roleObj = allRolesForInvitations[i];
+        }
+    }
+    return roleObj;
+};
+
+var manageRoleCheckList = function(){
+    allRoles = [];
+
+    $('#jsroleAssignPopupForm label').each(function(){
+        var trole=$(this).attr('data-role');
+        if(trole!=undefined){
+            allRoles.push({dom_obj:this, role_name:trole,users:[] });
+        }
+
+    });
+    //allRoles.push({dom_obj:{}, role_name:'appowner',users:[] });
+
+    //Push users to specific roles
+    var numberOfUsersChecked = 0;
+    $('#userListContainer .action_check').each(function(){
+        if($(this).is(':checked')){
+            numberOfUsersChecked++;
+            var userName = $(this).attr('data-user').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+            var tmrole=$(this).attr('data-roles');
+            if(tmrole!=undefined&&tmrole.length>0){
+                var allRolesForUser = tmrole.split('\n');
+                for(var i=0;i< allRolesForUser.length;i++){
+                    var role = allRolesForUser[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                    getRoleByName(role).users.push(userName);
+                }
+            }
+        }
+
+    });
+    //Now use the allRows array to show the role checkboxes..
+    if(numberOfUsersChecked > 0 ){
+        for(var i=0;i < allRoles.length;i++){
+            if(allRoles[i].users.length  == numberOfUsersChecked){ //So every user has this role
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-checked"></span>');
+            } else if (allRoles[i].users.length  == 0){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+            } else if (allRoles[i].users.length  != 0 && allRoles[i].users.length < numberOfUsersChecked ){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-half"></span>');
+            }
+        }
+     }else{
+        for(var i=0;i < allRoles.length;i++){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+        }
+     }
+};
+
+var manageRoleCheckListForInvitations = function() {
+    allRolesForInvitations = [];
+
+    $('#jsinvitationPopupForm label').each(function() {
+        var role = $(this).attr('data-role');
+        if (role != undefined) {
+            allRolesForInvitations.push({
+                dom_obj: this,
+                role_name: role,
+                users: []
+            });
+        }
+    });
+    //Push invitees to specific roles
+    var numberOfInvitationsChecked = 0;
+    $('#pendingUserListContainer .action_check_invitation').each(function() {
+        if ($(this).is(':checked')) {
+            numberOfInvitationsChecked++;
+            var username = $(this).attr('data-user').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+            var role = $(this).attr('data-roles');
+            if (role != undefined && role.length > 0) {
+                var allRolesForInvitation = role.split(',');
+                for (var i = 0; i < allRolesForInvitation.length; i++) {
+                    var role = allRolesForInvitation[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                    var roleObj = getRoleByNameForInvitations(role);
+                    roleObj.users.push(username);
+                }
+            }
+        }
+    });
+    //Display checkboxes based on allRolesForInvitations
+    if (numberOfInvitationsChecked > 0) {
+        for (var i = 0; i < allRolesForInvitations.length; i++) {
+            if (allRolesForInvitations[i].users.length == numberOfInvitationsChecked) { //Every invitation has this role
+                $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-checked"></span>');
+            } else if (allRolesForInvitations[i].users.length == 0) {
+                $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+            } else if (allRolesForInvitations[i].users.length != 0 && allRolesForInvitations[i].users.length < numberOfInvitationsChecked) {
+                $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-half"></span>');
+            }
+        }
+    } else {
+        for (var i = 0; i < allRolesForInvitations.length; i++) {
+            $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+        }
+    }
+};
 
     var  finalUsers=[];//globally declared
     var finalInvitations = [];
+$(document).ready(function(){
 
-    $(document).ready(function(){
+    initializeUserActivity("Members Page");
+    if(isInvitationSent) {
+        jagg.message({type:'success',content:'You have successfully sent the member invitations.',type:'success',cbk:function(){
+                        window.location.href = "../pages/user.jag";
+                    }});
+    }
+    // hide pending invitations related details
+    $('#pendingInvitationsMessage').hide();
+    $('#pendingInvitations').hide();
+    $('.pageFooterInvitations').hide();
 
-        initializeUserActivity("Members Page");
-        if(isInvitationSent) {
-            jagg.message({type:'success',content:'You have successfully sent the member invitations.',type:'success',cbk:function(){
-                            window.location.href = "../pages/user.jag";
-                        }});
-        }
-        // hide pending invitations related details
-        $('#pendingInvitationsMessage').hide();
-        $('#pendingInvitations').hide();
-        $('.pageFooterInvitations').hide();
+    updateTable();
+    var isBasicPageLoad = true;
+    updatePendingUserTable(isBasicPageLoad);
+    updatePopupUserRoles();
+    updatePopupUserRolesForInvitations();
 
-        updateTable();
-        var isBasicPageLoad = true;
-        updatePendingUserTable(isBasicPageLoad);
-        updatePopupUserRoles();
-        updatePopupUserRolesForInvitations();
+	if(totalPagesForMembers >1){
+		$('.pagefooter').bootpag({
+			total: totalPagesForMembers
+		    }).on("page", function(event, num){
+			    pageNumberForMembers=num;
+			    createTable(usersWithRoles);	
+		});
+	}else{
+		$('.pagefooter').hide();
+	}
+	
+    if(!permittedToInvite){
+       $('#editDelDiv').hide();
+       $('#btnAddMembers').hide();
+       $('#select_all_check').parent().hide();
+    }
+    $('#jsroleAssignPopup').each(function() {
+	$(this).qtip({
+		content: {
+			text: $(this).next()
+		},
+		style: {
+				classes: 'popover_box short_box',
+				widget: false,
+				def: false,
+				tip: false
+			},
+		hide: {
+			fixed: true,
+			event: null,
+			effect: function(offset) {
+				$(this).slideUp(200);
+			}
+		},
+		show:
+		{
+			event: 'click',
+			effect: function(offset) {
+                if(selectedCount!==0){
 
-        if(totalPagesForMembers >1){
-            $('.pagefooter').bootpag({
-                total: totalPagesForMembers
-                }).on("page", function(event, num){
-                    pageNumberForMembers=num;
-                    createTable(usersWithRoles);
-            });
-        }else{
-            $('.pagefooter').hide();
-        }
+				$(this).slideDown(200);
+                }
+			}
+		},
+		events: {
+					show: function(event, api) {
+						 api.elements.target.addClass('active');
+                        var $el = $(api.elements.target[0]);
+                        $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
+                        $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+                        			    $('.popover_content',$(this)).removeClass("hide");
 
-        if(!permittedToInvite){
-           $('#editDelDiv').hide();
-           $('#btnAddMembers').hide();
-           $('#select_all_check').parent().hide();
-        }
-        $('#jsroleAssignPopup').each(function() {
+                        manageRoleCheckList();
+
+
+					},
+					hide: function(event, api) {
+						 api.elements.target.removeClass('active');
+					}
+				}
+	});
+}).bind('click', function(event){ event.preventDefault(); return false; });
+    $('#jsInvitationRoleAssignPopup').each(function() {
         $(this).qtip({
             content: {
                 text: $(this).next()
             },
             style: {
-                    classes: 'popover_box short_box',
-                    widget: false,
-                    def: false,
-                    tip: false
-                },
+                classes: 'popover_box short_box',
+                widget: false,
+                def: false,
+                tip: false
+            },
             hide: {
                 fixed: true,
                 event: null,
@@ -617,625 +661,579 @@ function ValidateEmail(inputText){
                     $(this).slideUp(200);
                 }
             },
-            show:
-            {
+            show: {
                 event: 'click',
                 effect: function(offset) {
-                    if(selectedCount!==0){
-
-                    $(this).slideDown(200);
+                    if (selectedInvitationCount !== 0) {
+                        $(this).slideDown(200);
                     }
                 }
             },
             events: {
-                        show: function(event, api) {
-                             api.elements.target.addClass('active');
-                            var $el = $(api.elements.target[0]);
-                            $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
-                            $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
-                                            $('.popover_content',$(this)).removeClass("hide");
+                show: function(event, api) {
+                    api.elements.target.addClass('active');
+                    var $el = $(api.elements.target[1]);
+                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
+                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+                    $('.popover_content', $(this)).removeClass("hide");
 
-                            manageRoleCheckList();
-
-
-                        },
-                        hide: function(event, api) {
-                             api.elements.target.removeClass('active');
-                        }
-                    }
-        });
-        }).bind('click', function(event){ event.preventDefault(); return false; });
-        $('#jsInvitationRoleAssignPopup').each(function() {
-            $(this).qtip({
-                content: {
-                    text: $(this).next()
+                    manageRoleCheckListForInvitations();
                 },
-                style: {
-                    classes: 'popover_box short_box',
-                    widget: false,
-                    def: false,
-                    tip: false
-                },
-                hide: {
-                    fixed: true,
-                    event: null,
-                    effect: function(offset) {
-                        $(this).slideUp(200);
-                    }
-                },
-                show: {
-                    event: 'click',
-                    effect: function(offset) {
-                        if (selectedInvitationCount !== 0) {
-                            $(this).slideDown(200);
-                        }
-                    }
-                },
-                events: {
-                    show: function(event, api) {
-                        api.elements.target.addClass('active');
-                        var $el = $(api.elements.target[1]);
-                        $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
-                        $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
-                        $('.popover_content', $(this)).removeClass("hide");
-
-                        manageRoleCheckListForInvitations();
-                    },
-                    hide: function(event, api) {
-                        api.elements.target.removeClass('active');
-                    }
-                }
-            });
-        }).bind('click', function(event) {
-            event.preventDefault();
-            return false;
-        });
-
-        $('.text-box-overrider').click(function(){
-            var $span = $('span',this);
-            var role = $(this).attr('data-role');
-            checkedUsers = [];
-            if(allRoles.length > 0 ){
-                $('#userListContainer .action_check').each(function(){
-                        if($(this).is(':checked')){
-                            checkedUsers.push($(this).attr('data-user'));
-                        }
-                    }
-                );
-                if($span.hasClass('checkbox-checked')){
-                    $('span',this).replaceWith('<span class="checkbox-unchecked"></span>');
-                    getRoleByName(role).users = [];
-                }else if($span.hasClass('checkbox-unchecked')  ){
-                    if(getRoleByName(role).halfUsers != null && getRoleByName(role).halfUsers != undefined){
-                        $('span',this).replaceWith('<span class="checkbox-half"></span>');
-                        getRoleByName(role).users = getRoleByName(role).halfUsers;
-                    }else{
-                        $('span',this).replaceWith('<span class="checkbox-checked"></span>');
-                        getRoleByName(role).users = checkedUsers;
-                    }
-                }else if($span.hasClass('checkbox-half')){
-                    $('span',this).replaceWith('<span class="checkbox-checked"></span>');
-                       getRoleByName(role).halfUsers =checkedUsers;
-                }
-
-            } else{
-                if($span.hasClass('checkbox-checked')){
-                    $('span',this).replaceWith('<span class="checkbox-unchecked"></span>');
-                }else if($span.hasClass('checkbox-unchecked')){
-                    $('span',this).replaceWith('<span class="checkbox-half"></span>');
-                }else if($span.hasClass('checkbox-half')){
-                    $('span',this).replaceWith('<span class="checkbox-checked"></span>');
+                hide: function(event, api) {
+                    api.elements.target.removeClass('active');
                 }
             }
         });
+    }).bind('click', function(event) {
+        event.preventDefault();
+        return false;
+    });
 
-        $('.text-box-overrider-invitations').click(function() {
-            var $span = $('span', this);
-            var role = $(this).attr('data-role');
-            checkedInvitations = [];
-            if (allRolesForInvitations.length > 0) {
-                $('#pendingUserListContainer .action_check_invitation').each(function() {
-                    if ($(this).is(':checked')) {
-                        checkedInvitations.push($(this).attr('data-user'));
-                    }
-                });
-                if ($span.hasClass('checkbox-checked')) {
-                    $('span', this).replaceWith('<span class="checkbox-unchecked"></span>');
-                    getRoleByNameForInvitations(role).users = [];
-                } else if ($span.hasClass('checkbox-unchecked')) {
-                    if (getRoleByNameForInvitations(role).halfUsers != null && getRoleByNameForInvitations(role).halfUsers != undefined) {
-                        $('span', this).replaceWith('<span class="checkbox-half"></span>');
-                        getRoleByNameForInvitations(role).halfusers = getRoleByName(role).halfUsers;
-                    } else {
-                        $('span', this).replaceWith('<span class="checkbox-checked"></span>');
-                        getRoleByNameForInvitations(role).users = checkedInvitations;
-                    }
-                } else if ($span.hasClass('checkbox-half')) {
-                    $('span', this).replaceWith('<span class="checkbox-checked"></span>');
-                    getRoleByNameForInvitations(role).users = checkedInvitations;
+$('.text-box-overrider').click(function(){
+    var $span = $('span',this);
+    var role = $(this).attr('data-role');
+    checkedUsers = [];
+    if(allRoles.length > 0 ){
+        $('#userListContainer .action_check').each(function(){
+                if($(this).is(':checked')){
+                    checkedUsers.push($(this).attr('data-user'));
                 }
+            }
+        );
+        if($span.hasClass('checkbox-checked')){
+            $('span',this).replaceWith('<span class="checkbox-unchecked"></span>');
+            getRoleByName(role).users = [];
+        }else if($span.hasClass('checkbox-unchecked')  ){
+            if(getRoleByName(role).halfUsers != null && getRoleByName(role).halfUsers != undefined){
+                $('span',this).replaceWith('<span class="checkbox-half"></span>');
+                getRoleByName(role).users = getRoleByName(role).halfUsers;
+            }else{
+                $('span',this).replaceWith('<span class="checkbox-checked"></span>');
+                getRoleByName(role).users = checkedUsers;
+            }
+        }else if($span.hasClass('checkbox-half')){
+            $('span',this).replaceWith('<span class="checkbox-checked"></span>');
+               getRoleByName(role).halfUsers =checkedUsers;
+        }
+
+    } else{
+        if($span.hasClass('checkbox-checked')){
+            $('span',this).replaceWith('<span class="checkbox-unchecked"></span>');
+        }else if($span.hasClass('checkbox-unchecked')){
+            $('span',this).replaceWith('<span class="checkbox-half"></span>');
+        }else if($span.hasClass('checkbox-half')){
+            $('span',this).replaceWith('<span class="checkbox-checked"></span>');
+        }
+    }
+});
+
+$('.text-box-overrider-invitations').click(function() {
+    var $span = $('span', this);
+    var role = $(this).attr('data-role');
+    checkedInvitations = [];
+    if (allRolesForInvitations.length > 0) {
+        $('#pendingUserListContainer .action_check_invitation').each(function() {
+            if ($(this).is(':checked')) {
+                checkedInvitations.push($(this).attr('data-user'));
+            }
+        });
+        if ($span.hasClass('checkbox-checked')) {
+            $('span', this).replaceWith('<span class="checkbox-unchecked"></span>');
+            getRoleByNameForInvitations(role).users = [];
+        } else if ($span.hasClass('checkbox-unchecked')) {
+            if (getRoleByNameForInvitations(role).halfUsers != null && getRoleByNameForInvitations(role).halfUsers != undefined) {
+                $('span', this).replaceWith('<span class="checkbox-half"></span>');
+                getRoleByNameForInvitations(role).halfusers = getRoleByName(role).halfUsers;
             } else {
-                if ($span.hasClass('checkbox-checked')) {
-                    $('span', this).replaceWith('<span class="checkbox-unchecked"></span>');
-                } else if ($span.hasClass('checkbox-unchecked')) {
-                    $('span', this).replaceWith('<span class="checkbox-half"></span>');
-                } else if ($span.hasClass('checkbox-half')) {
-                    $('span', this).replaceWith('<span class="checkbox-checked"></span>');
+                $('span', this).replaceWith('<span class="checkbox-checked"></span>');
+                getRoleByNameForInvitations(role).users = checkedInvitations;
+            }
+        } else if ($span.hasClass('checkbox-half')) {
+            $('span', this).replaceWith('<span class="checkbox-checked"></span>');
+            getRoleByNameForInvitations(role).users = checkedInvitations;
+        }
+    } else {
+        if ($span.hasClass('checkbox-checked')) {
+            $('span', this).replaceWith('<span class="checkbox-unchecked"></span>');
+        } else if ($span.hasClass('checkbox-unchecked')) {
+            $('span', this).replaceWith('<span class="checkbox-half"></span>');
+        } else if ($span.hasClass('checkbox-half')) {
+            $('span', this).replaceWith('<span class="checkbox-checked"></span>');
+        }
+    }
+});
+
+$('#select_all_check').click(function(){
+
+    $('#userListContainer .action_check').each(function(){
+            if($('#select_all_check').is(':checked')){
+                $(this).attr('checked','checked');
+
+                selectedCount++;
+                enableDisableEditDeleteButtons(true);
+              
+            }else{
+                $(this).removeAttr('checked');
+                selectedCount=0;
+                enableDisableEditDeleteButtons(false);
+            }
+        }
+    );
+
+    manageRoleCheckList();
+}).removeAttr('checked');
+enableDisableEditDeleteButtons(false);//disabling edit and delete button on load
+
+$('#select_all_invitations_check').click(function() {
+    $('#pendingUserListContainer .action_check_invitation').each(function() {
+        if ($('#select_all_invitations_check').is(':checked')) {
+            $(this).attr('checked', 'checked');
+            selectedInvitationCount++;
+            enableDisableEditDeleteButtonsForInvitations(true);
+        } else {
+            $(this).removeAttr('checked');
+            selectedInvitationCount = 0;
+            enableDisableEditDeleteButtonsForInvitations(false);
+        }
+    });
+    manageRoleCheckListForInvitations();
+}).removeAttr('checked');
+
+//disabling edit and delete button for invitations on load
+enableDisableEditDeleteButtonsForInvitations(false);
+
+$('#saveUserRoles').click(function(){
+    // iterate through allRoles and save the users with there roles
+    finalUsers=[];
+    covertAllRoles();
+    detectAllUserRoleChanges();
+    updateUsers();
+    $(this).parents('.qtip').qtip("hide");
+});
+
+$('#updateInvitations').click(function() {
+    // iterate through allRoles and save the invitees with their roles
+    finalInvitations = [];
+    covertAllRolesForInvitation();
+    detectAllUserRoleChangesForInvitations();
+    updateInvitations();
+    $(this).parents('.qtip').qtip("hide");
+});
+
+$('#removeUsers').click(function(){
+    checkedUsers = [] ;
+	jagg.removeMessage('teampageId');
+    $('#userListContainer .action_check').each(function(){
+                if($(this).is(':checked')){
+                    checkedUsers.push($(this).attr('data-user'));
                 }
             }
-        });
+    );
 
-        $('#select_all_check').click(function(){
+    var isOwner = false;
 
-            $('#userListContainer .action_check').each(function(){
-                    if($('#select_all_check').is(':checked')){
-                        $(this).attr('checked','checked');
+    for(var i in appOwners){
+        if(checkedUsers.indexOf(appOwners[i]) != -1){
+            isOwner = true;
+            break;
+        }
+    }
 
-                        selectedCount++;
-                        enableDisableEditDeleteButtons(true);
 
-                    }else{
-                        $(this).removeAttr('checked');
-                        selectedCount=0;
-                        enableDisableEditDeleteButtons(false);
-                    }
+    if(!isOwner){
+        jagg.popMessage({type:'confirm',title:'Delete Users',content:'Are you sure you want to delete members?',
+                                    okCallback:function(){ doDeleteUser(checkedUsers);},cancelCallback:function(){}});
+    }else{
+       jagg.message({
+                    content: "Users with 'Application Owner' role cannot be deleted. Please remove them from the selected users list.",
+                    type: 'warning', id:'teampageId'
+                    });
+    }
+
+
+
+
+});
+
+$('#revokeInvitation').click(function() {
+    checkedInvitations = [];
+    jagg.removeMessage('teampageId');
+    $('#pendingUserListContainer .action_check_invitation').each(function() {
+        if ($(this).is(':checked')) {
+            checkedInvitations.push($(this).attr('data-user'));
+        }
+    });
+    jagg.popMessage({
+        type: 'confirm',
+        title: 'Revoke Invitations',
+        content: 'Are you sure you want to revoke invitations?',
+        okCallback: function() {
+            doRevokeInvitation(checkedInvitations);
+        },
+        cancelCallback: function() {}
+    });
+});
+
+    function covertAllRoles(){
+        //convert all roles array in to processable array in update user method
+        for(var cUser in checkedUsers){
+            var user={};
+            user.name=checkedUsers[cUser];
+            user.roles=[];
+            finalUsers.push(user);
+        }
+        for (var index in allRoles){
+
+            var tempRole=allRoles[index];
+            var tmpRoleName=tempRole.role_name;
+            var tmpUsers=tempRole.users; //array
+            var halfUsers=tempRole.halfUsers;
+            var userFromFinalUsers=[];
+            for(var userIndex in tmpUsers){
+                userFromFinalUsers=getUserfromFinalUsers(tmpUsers[userIndex]);
+                if(userFromFinalUsers===null){
+                    var user={};
+                    var roles=[];
+                    user.name=tmpUsers[userIndex];
+                    roles.push(tmpRoleName);
+                    user.roles=roles;
+                    finalUsers.push(user);
+                }else{
+                    userFromFinalUsers.roles.push(tmpRoleName);
                 }
-            );
+            }
 
-            manageRoleCheckList();
-        }).removeAttr('checked');
-        enableDisableEditDeleteButtons(false);//disabling edit and delete button on load
+            for(var hUserIndex in halfUsers){
+                userFromFinalUsers=getUserfromFinalUsers(halfUsers[hUserIndex]);
+                if(userFromFinalUsers===null){
+                    var user={};
+                    var roles=[];
+                    user.name=halfUsers[hUserIndex];
+                    roles.push(tmpRoleName);
+                    user.roles=roles;
+                    finalUsers.push(user);
+                }else{
+                    userFromFinalUsers.roles.push(tmpRoleName);
+                }
+            }
 
-        $('#select_all_invitations_check').click(function() {
-            $('#pendingUserListContainer .action_check_invitation').each(function() {
-                if ($('#select_all_invitations_check').is(':checked')) {
-                    $(this).attr('checked', 'checked');
-                    selectedInvitationCount++;
-                    enableDisableEditDeleteButtonsForInvitations(true);
+        }
+
+    }
+
+    function covertAllRolesForInvitation() {
+        //convert all roles array in to processable array in update user method
+        for (var checkedInvitation in checkedInvitations) {
+            var invitation = {};
+            invitation.email = checkedInvitations[checkedInvitation];
+            invitation.roles = [];
+            finalInvitations.push(invitation);
+        }
+        for (var index in allRolesForInvitations) {
+            var tempRole = allRolesForInvitations[index];
+            var tmpRoleName = tempRole.role_name;
+            var tmpInvitations = tempRole.users; //array
+            var halfInvitations = tempRole.halfUsers;
+            var invitationFromFinalInvitations = [];
+            for (var index in tmpInvitations) {
+                invitationFromFinalInvitations = getInvitationfromFinalInvitations(tmpInvitations[index]);
+                if (invitationFromFinalInvitations === null) {
+                    var invitation = {};
+                    var roles = [];
+                    invitation.email = tmpInvitations[index];
+                    roles.push(tmpRoleName);
+                    invitation.roles = roles;
+                    finalInvitations.push(invitation);
                 } else {
-                    $(this).removeAttr('checked');
-                    selectedInvitationCount = 0;
-                    enableDisableEditDeleteButtonsForInvitations(false);
-                }
-            });
-            manageRoleCheckListForInvitations();
-        }).removeAttr('checked');
-
-        //disabling edit and delete button for invitations on load
-        enableDisableEditDeleteButtonsForInvitations(false);
-
-        $('#saveUserRoles').click(function(){
-            // iterate through allRoles and save the users with there roles
-            finalUsers=[];
-            covertAllRoles();
-            detectAllUserRoleChanges();
-            updateUsers();
-            $(this).parents('.qtip').qtip("hide");
-        });
-
-        $('#updateInvitations').click(function() {
-            // iterate through allRoles and save the invitees with their roles
-            finalInvitations = [];
-            covertAllRolesForInvitation();
-            detectAllUserRoleChangesForInvitations();
-            updateInvitations();
-            $(this).parents('.qtip').qtip("hide");
-        });
-
-        $('#removeUsers').click(function(){
-            checkedUsers = [] ;
-            jagg.removeMessage('teampageId');
-            $('#userListContainer .action_check').each(function(){
-                        if($(this).is(':checked')){
-                            checkedUsers.push($(this).attr('data-user'));
-                        }
-                    }
-            );
-
-            var isOwner = false;
-
-            for(var i in appOwners){
-                if(checkedUsers.indexOf(appOwners[i]) != -1){
-                    isOwner = true;
-                    break;
+                    invitationFromFinalInvitations.roles.push(tmpRoleName);
                 }
             }
 
-
-            if(!isOwner){
-                jagg.popMessage({type:'confirm',title:'Delete Users',content:'Are you sure you want to delete members?',
-                                            okCallback:function(){ doDeleteUser(checkedUsers);},cancelCallback:function(){}});
-            }else{
-               jagg.message({
-                            content: "Users with 'Application Owner' role cannot be deleted. Please remove them from the selected users list.",
-                            type: 'warning', id:'teampageId'
-                            });
-            }
-
-
-
-
-        });
-
-        $('#revokeInvitation').click(function() {
-            checkedInvitations = [];
-            jagg.removeMessage('teampageId');
-            $('#pendingUserListContainer .action_check_invitation').each(function() {
-                if ($(this).is(':checked')) {
-                    checkedInvitations.push($(this).attr('data-user'));
+            for (var index in halfInvitations) {
+                invitationFromFinalInvitations = getInvitationfromFinalInvitations(halfInvitations[index]);
+                if (invitationFromFinalInvitations === null) {
+                    var invitation = {};
+                    var roles = [];
+                    invitation.email = halfInvitations[index];
+                    roles.push(tmpRoleName);
+                    invitation.roles = roles;
+                    finalInvitations.push(invitation);
+                } else {
+                    invitationFromFinalInvitations.roles.push(tmpRoleName);
                 }
-            });
-            jagg.popMessage({
-                type: 'confirm',
-                title: 'Revoke Invitations',
-                content: 'Are you sure you want to revoke invitations?',
-                okCallback: function() {
-                    doRevokeInvitation(checkedInvitations);
-                },
-                cancelCallback: function() {}
-            });
-        });
-
-        function covertAllRoles(){
-            //convert all roles array in to processable array in update user method
-            for(var cUser in checkedUsers){
-                var user={};
-                user.name=checkedUsers[cUser];
-                user.roles=[];
-                finalUsers.push(user);
-            }
-            for (var index in allRoles){
-
-                var tempRole=allRoles[index];
-                var tmpRoleName=tempRole.role_name;
-                var tmpUsers=tempRole.users; //array
-                var halfUsers=tempRole.halfUsers;
-                var userFromFinalUsers=[];
-                for(var userIndex in tmpUsers){
-                    userFromFinalUsers=getUserfromFinalUsers(tmpUsers[userIndex]);
-                    if(userFromFinalUsers===null){
-                        var user={};
-                        var roles=[];
-                        user.name=tmpUsers[userIndex];
-                        roles.push(tmpRoleName);
-                        user.roles=roles;
-                        finalUsers.push(user);
-                    }else{
-                        userFromFinalUsers.roles.push(tmpRoleName);
-                    }
-                }
-
-                for(var hUserIndex in halfUsers){
-                    userFromFinalUsers=getUserfromFinalUsers(halfUsers[hUserIndex]);
-                    if(userFromFinalUsers===null){
-                        var user={};
-                        var roles=[];
-                        user.name=halfUsers[hUserIndex];
-                        roles.push(tmpRoleName);
-                        user.roles=roles;
-                        finalUsers.push(user);
-                    }else{
-                        userFromFinalUsers.roles.push(tmpRoleName);
-                    }
-                }
-
             }
 
         }
 
-        function covertAllRolesForInvitation() {
-            //convert all roles array in to processable array in update user method
-            for (var checkedInvitation in checkedInvitations) {
-                var invitation = {};
-                invitation.email = checkedInvitations[checkedInvitation];
-                invitation.roles = [];
-                finalInvitations.push(invitation);
-            }
-            for (var index in allRolesForInvitations) {
-                var tempRole = allRolesForInvitations[index];
-                var tmpRoleName = tempRole.role_name;
-                var tmpInvitations = tempRole.users; //array
-                var halfInvitations = tempRole.halfUsers;
-                var invitationFromFinalInvitations = [];
-                for (var index in tmpInvitations) {
-                    invitationFromFinalInvitations = getInvitationfromFinalInvitations(tmpInvitations[index]);
-                    if (invitationFromFinalInvitations === null) {
-                        var invitation = {};
-                        var roles = [];
-                        invitation.email = tmpInvitations[index];
-                        roles.push(tmpRoleName);
-                        invitation.roles = roles;
-                        finalInvitations.push(invitation);
-                    } else {
-                        invitationFromFinalInvitations.roles.push(tmpRoleName);
-                    }
-                }
+    }
 
-                for (var index in halfInvitations) {
-                    invitationFromFinalInvitations = getInvitationfromFinalInvitations(halfInvitations[index]);
-                    if (invitationFromFinalInvitations === null) {
-                        var invitation = {};
-                        var roles = [];
-                        invitation.email = halfInvitations[index];
-                        roles.push(tmpRoleName);
-                        invitation.roles = roles;
-                        finalInvitations.push(invitation);
-                    } else {
-                        invitationFromFinalInvitations.roles.push(tmpRoleName);
-                    }
-                }
-
-            }
-
+    function detectAllUserRoleChanges(){
+        for(u in finalUsers){
+            doDetectChangesNew(finalUsers[u].name);
         }
+    }
 
-        function detectAllUserRoleChanges(){
-            for(u in finalUsers){
-                doDetectChangesNew(finalUsers[u].name);
+    function detectAllUserRoleChangesForInvitations() {
+        for (index in finalInvitations) {
+            doDetectChangesNewInvitation(finalInvitations[index].email);
+        }
+    }
+
+    function getUserfromFinalUsers(name){
+        for(var index in finalUsers){
+            if(finalUsers[index].name===name){
+                return finalUsers[index];
+                break;
             }
         }
+        return null;
+    }
 
-        function detectAllUserRoleChangesForInvitations() {
-            for (index in finalInvitations) {
-                doDetectChangesNewInvitation(finalInvitations[index].email);
+    function getInvitationfromFinalInvitations(email) {
+        for (var index in finalInvitations) {
+            if (finalInvitations[index].email === email) {
+                return finalInvitations[index];
+                break;
             }
         }
+        return null;
+    }
 
-        function getUserfromFinalUsers(name){
-            for(var index in finalUsers){
-                if(finalUsers[index].name===name){
-                    return finalUsers[index];
-                    break;
-                }
+    function getUserFromUsersWithRoles(name){
+        for(var index in usersWithRoles){
+            if(usersWithRoles[index].userName===name){
+                return usersWithRoles[index];
+                break;
             }
-            return null;
+        }
+        return null;
+
+    }
+
+    function getInvitationFromInvitationsWithRoles(email) {
+        for (var index in pendingUsersWithRoles) {
+            if (pendingUsersWithRoles[index].email === email) {
+                return pendingUsersWithRoles[index];
+                break;
+            }
+        }
+        return null;
+    }
+
+    function doDeleteUser(checkedUsers){
+        var l=checkedUsers.length;
+        for(var i in checkedUsers){
+           deleteUser(checkedUsers[i],i,l);
         }
 
-        function getInvitationfromFinalInvitations(email) {
-            for (var index in finalInvitations) {
-                if (finalInvitations[index].email === email) {
-                    return finalInvitations[index];
-                    break;
-                }
-            }
-            return null;
+    }
+
+    function doRevokeInvitation(checkedInvitations) {
+        var checkedInvitationsCount = checkedInvitations.length;
+        for (var i in checkedInvitations) {
+            revokeInvitation(checkedInvitations[i], i, checkedInvitationsCount);
         }
 
-        function getUserFromUsersWithRoles(name){
-            for(var index in usersWithRoles){
-                if(usersWithRoles[index].userName===name){
-                    return usersWithRoles[index];
-                    break;
-                }
-            }
-            return null;
+    }
+    function doDetectChangesNew(userName){
+        var tmpUser= getUserfromFinalUsers(userName);
+        var endingRoles =tmpUser.roles||null;
+        var t=getUserFromUsersWithRoles(userName);
+        var startingRoles=t.roles.split('\n');
+        var trolesToAdd=[];
+        var trolesToDelete=[];
 
-        }
+        if(endingRoles!=null){
+            for(var i in startingRoles){
+                if(endingRoles.indexOf(startingRoles[i])===-1){
+                    //add to roles to delete
+                    trolesToDelete.push(startingRoles[i]);
 
-        function getInvitationFromInvitationsWithRoles(email) {
-            for (var index in pendingUsersWithRoles) {
-                if (pendingUsersWithRoles[index].email === email) {
-                    return pendingUsersWithRoles[index];
-                    break;
                 }
             }
-            return null;
-        }
-
-        function doDeleteUser(checkedUsers){
-            var l=checkedUsers.length;
-            for(var i in checkedUsers){
-               deleteUser(checkedUsers[i],i,l);
-            }
-
-        }
-
-        function doRevokeInvitation(checkedInvitations) {
-            var checkedInvitationsCount = checkedInvitations.length;
-            for (var i in checkedInvitations) {
-                revokeInvitation(checkedInvitations[i], i, checkedInvitationsCount);
-            }
-
-        }
-        function doDetectChangesNew(userName){
-            var tmpUser= getUserfromFinalUsers(userName);
-            var endingRoles =tmpUser.roles||null;
-            var t=getUserFromUsersWithRoles(userName);
-            var startingRoles=t.roles.split('\n');
-            var trolesToAdd=[];
-            var trolesToDelete=[];
-
-            if(endingRoles!=null){
-                for(var i in startingRoles){
-                    if(endingRoles.indexOf(startingRoles[i])===-1){
-                        //add to roles to delete
-                        trolesToDelete.push(startingRoles[i]);
-
-                    }
+            for(var j in endingRoles){
+                if(startingRoles.indexOf(endingRoles[j])===-1){
+                    //ad to rolestoadd
+                    trolesToAdd.push(endingRoles[j]);
                 }
-                for(var j in endingRoles){
-                    if(startingRoles.indexOf(endingRoles[j])===-1){
-                        //ad to rolestoadd
-                        trolesToAdd.push(endingRoles[j]);
-                    }
+            }
+        }else{
+            trolesToDelete=startingRoles;
+        }
+
+        tmpUser.rolesToDelete=trolesToDelete;
+        tmpUser.rolesToAdd=trolesToAdd;
+
+    }
+    function doDetectChangesNewInvitation(email) {
+        var tmpInvitation = getInvitationfromFinalInvitations(email);
+        var endingRoles = tmpInvitation.roles || null;
+        var invitation = getInvitationFromInvitationsWithRoles(email);
+        var startingRoles = invitation.roles;
+        var tempRolesToAdd = [];
+        var tempRolesToDelete = [];
+
+        if (endingRoles != null) {
+            for (var i in startingRoles) {
+                if (endingRoles.indexOf(startingRoles[i]) === -1) {
+                    //add to roles to delete
+                    tempRolesToDelete.push(startingRoles[i]);
                 }
-            }else{
-                trolesToDelete=startingRoles;
             }
-
-            tmpUser.rolesToDelete=trolesToDelete;
-            tmpUser.rolesToAdd=trolesToAdd;
-
-        }
-        function doDetectChangesNewInvitation(email) {
-            var tmpInvitation = getInvitationfromFinalInvitations(email);
-            var endingRoles = tmpInvitation.roles || null;
-            var invitation = getInvitationFromInvitationsWithRoles(email);
-            var startingRoles = invitation.roles;
-            var tempRolesToAdd = [];
-            var tempRolesToDelete = [];
-
-            if (endingRoles != null) {
-                for (var i in startingRoles) {
-                    if (endingRoles.indexOf(startingRoles[i]) === -1) {
-                        //add to roles to delete
-                        tempRolesToDelete.push(startingRoles[i]);
-                    }
+            for (var j in endingRoles) {
+                if (startingRoles.indexOf(endingRoles[j]) === -1) {
+                    //ad to rolestoadd
+                    tempRolesToAdd.push(endingRoles[j]);
                 }
-                for (var j in endingRoles) {
-                    if (startingRoles.indexOf(endingRoles[j]) === -1) {
-                        //ad to rolestoadd
-                        tempRolesToAdd.push(endingRoles[j]);
-                    }
-                }
-            } else {
-                tempRolesToDelete = startingRoles;
             }
-            tmpInvitation.rolesToDelete = tempRolesToDelete;
-            tmpInvitation.rolesToAdd = tempRolesToAdd;
+        } else {
+            tempRolesToDelete = startingRoles;
         }
-        function updateUsers(){
+        tmpInvitation.rolesToDelete = tempRolesToDelete;
+        tmpInvitation.rolesToAdd = tempRolesToAdd;
+    }
+    function updateUsers(){
 
-            for(var u in finalUsers){
-                var user=finalUsers[u];
-                doupdateUser(user.name,user.rolesToDelete,user.rolesToAdd,u);
-            }
-
-        }
-        function updateInvitations() {
-            for (var index in finalInvitations) {
-                var invitation = finalInvitations[index];
-                doUpdateInvitation(invitation.email, invitation.rolesToDelete, invitation.rolesToAdd, index);
-            }
+        for(var u in finalUsers){
+            var user=finalUsers[u];
+            doupdateUser(user.name,user.rolesToDelete,user.rolesToAdd,u);
         }
 
-
-        function doupdateUser(username,rolesToDel,rolestoAd,count){
-            jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                        action:"updateUserRoles",
-                        userName:username,
-                        rolesToDelete:rolesToDel.toString(),
-                        rolesToAdd:rolestoAd.toString()
-                    },
-
-                    function (result) {
-
-                        if(result != undefined || result==true){
-
-                            // TODO implement addApplicationToApp(applicationKey,
-                            // applicationName, applicationDescription);
-                            var x= (finalUsers.length-1)
-                            if(count==x){
-                                window.setTimeout(function () {
-                                    updateTable();
-
-                                }, 300);
-
-                            }
-                            enableDisableEditDeleteButtons(false);
-                            $('#select_all_check').prop('checked', false);
-                            return result;
-                        }else if(result==false){
-
-                            return result;
-                        }
-                    },
-                    function (jqXHR, textStatus, errorThrown) {
-                        // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-                    });
-
+    }
+    function updateInvitations() {
+        for (var index in finalInvitations) {
+            var invitation = finalInvitations[index];
+            doUpdateInvitation(invitation.email, invitation.rolesToDelete, invitation.rolesToAdd, index);
         }
+    }
 
-        function doUpdateInvitation(email, rolesToDelete, rolesToAdd, count) {
-            jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                    action: "updateUserInvitation",
-                    email: email,
-                    rolesToDelete: rolesToDelete.toString(),
-                    rolesToAdd: rolesToAdd.toString()
+
+    function doupdateUser(username,rolesToDel,rolestoAd,count){
+        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                    action:"updateUserRoles",
+                    userName:username,
+                    rolesToDelete:rolesToDel.toString(),
+                    rolesToAdd:rolestoAd.toString()
                 },
 
-                function(result) {
-                    if (result != undefined || result == true) {
-                        var x = (finalInvitations.length - 1);
-                        console.log(x);
-                        if (count == x) {
-                            window.setTimeout(function() {
-                                updatePendingUserTable(false);
-                            }, 300);
-                        }
-                        enableDisableEditDeleteButtonsForInvitations(false);
-                        $('#select_all_invitations_check').prop('checked', false);
-                        return result;
+                function (result) {
 
-                    } else if (result == false) {
-                        return result;
-                    }
-                },
-                function(jqXHR, textStatus, errorThrown) {
+                    if(result != undefined || result==true){
 
-                });
-        }
-        $('#search_members').keyup(function(event){
-            doSearch($(this).val());
-        });
-        function doSearch(searchtext){
-            var searchUsers = [];
-            for(var index in usersWithRoles){
-                var userRoles=usersWithRoles[index];
-                var userEmail=(userRoles.email).toLowerCase();
-                var userName=(userRoles.displayName).toLowerCase();
-                var pattern=new RegExp(searchtext.toLowerCase());
-                if((pattern.test(userEmail))||(pattern.test(userName))){
-                    searchUsers.push(userRoles);
-                 }
-            }
-          createTable(searchUsers);
-        }
-    
-
-        /*delete a given user*/
-        function deleteUser(username,count,length){
-
-            jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                        action:"deleteUserFromTenant",
-                        userName:username
-                    },
-                    function (result) {
-                        if(count==(length-1)){
+                        // TODO implement addApplicationToApp(applicationKey,
+                        // applicationName, applicationDescription);
+                        var x= (finalUsers.length-1)
+                        if(count==x){
                             window.setTimeout(function () {
-                                pageNumberForMembers=1;
                                 updateTable();
+
                             }, 300);
+
                         }
-                    },
-                    function (jqXHR, textStatus, errorThrown) {
+                        enableDisableEditDeleteButtons(false);
+                        $('#select_all_check').prop('checked', false);
+                        return result;
+                    }else if(result==false){
 
-                    });
-
-
-        }
-
-        /*Revoke a given invitation*/
-        function revokeInvitation(email, count, length) {
-            jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                    action: "revokeInvitation",
-                    email: email
+                        return result;
+                    }
                 },
-                function(result) {
-                    if (count == (length - 1)) {
+                function (jqXHR, textStatus, errorThrown) {
+                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
+                });
+
+    }
+
+    function doUpdateInvitation(email, rolesToDelete, rolesToAdd, count) {
+        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                action: "updateUserInvitation",
+                email: email,
+                rolesToDelete: rolesToDelete.toString(),
+                rolesToAdd: rolesToAdd.toString()
+            },
+
+            function(result) {
+                if (result != undefined || result == true) {
+                    var x = (finalInvitations.length - 1);
+                    console.log(x);
+                    if (count == x) {
                         window.setTimeout(function() {
-                            pageNumberForInvitations = 1;
                             updatePendingUserTable(false);
                         }, 300);
                     }
+                    enableDisableEditDeleteButtonsForInvitations(false);
+                    $('#select_all_invitations_check').prop('checked', false);
+                    return result;
+
+                } else if (result == false) {
+                    return result;
+                }
+            },
+            function(jqXHR, textStatus, errorThrown) {
+
+            });
+    }
+    $('#search_members').keyup(function(event){
+        doSearch($(this).val());
+    });
+    function doSearch(searchtext){
+        var searchUsers = [];
+        for(var index in usersWithRoles){
+            var userRoles=usersWithRoles[index];
+            var userEmail=(userRoles.email).toLowerCase();
+            var userName=(userRoles.displayName).toLowerCase();
+            var pattern=new RegExp(searchtext.toLowerCase());
+            if((pattern.test(userEmail))||(pattern.test(userName))){
+            	searchUsers.push(userRoles);
+	         }
+        }
+      createTable(searchUsers);
+    }
+    
+
+    /*delete a given user*/
+    function deleteUser(username,count,length){
+
+        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                    action:"deleteUserFromTenant",
+                    userName:username
                 },
-                function(jqXHR, textStatus, errorThrown) {
+                function (result) {
+                    if(count==(length-1)){
+                        window.setTimeout(function () {
+                            pageNumberForMembers=1;
+                            updateTable();
+                        }, 300);
+                    }
+                },
+                function (jqXHR, textStatus, errorThrown) {
 
                 });
-        }
 
 
-    });
+    }
+
+    /*Revoke a given invitation*/
+    function revokeInvitation(email, count, length) {
+        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                action: "revokeInvitation",
+                email: email
+            },
+            function(result) {
+                if (count == (length - 1)) {
+                    window.setTimeout(function() {
+                        pageNumberForInvitations = 1;
+                        updatePendingUserTable(false);
+                    }, 300);
+                }
+            },
+            function(jqXHR, textStatus, errorThrown) {
+
+            });
+    }
+
+
+});
 
 
 </script>
