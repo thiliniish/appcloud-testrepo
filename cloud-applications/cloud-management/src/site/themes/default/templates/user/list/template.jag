@@ -183,13 +183,10 @@ function updatePopupUserRolesForInvitations() {
                 $jsInvitationRoleAssign = $jsInvitationRoleAssign + '<div class="input_row">' + '<label ' +
                     'class="text-box-overrider-invitations" data-role=' + tempRoleArray[count].displayRoles + '><span ' +
                     'class="checkbox-unchecked"></span>' + tempRoleArray[count].displayRoles + '</label></div>';
-
             }
         }
     }
-
     $jsRoleAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="updateInvitations">Update</button><a href="#" class="popover_close small">Close</a> </div></form>');
-
     $jsInvitationRoleAssignPopupForm.append($jsInvitationRoleAssign);
     $jsInvitationRoleAssignPopupForm.append($jsRoleAssignButton);
     var $jsInvitationPopupFormDiv = $('#jsinvitationPopupFormDiv');
@@ -948,7 +945,6 @@ $('#revokeInvitation').click(function() {
                     invitationFromFinalInvitations.roles.push(tmpRoleName);
                 }
             }
-
             for (var index in halfInvitations) {
                 invitationFromFinalInvitations = getInvitationfromFinalInvitations(halfInvitations[index]);
                 if (invitationFromFinalInvitations === null) {
@@ -962,9 +958,7 @@ $('#revokeInvitation').click(function() {
                     invitationFromFinalInvitations.roles.push(tmpRoleName);
                 }
             }
-
         }
-
     }
 
     function detectAllUserRoleChanges(){
@@ -1033,7 +1027,6 @@ $('#revokeInvitation').click(function() {
         for (var i in checkedInvitations) {
             revokeInvitation(checkedInvitations[i], i, checkedInvitationsCount);
         }
-
     }
     function doDetectChangesNew(userName){
         var tmpUser= getUserfromFinalUsers(userName);
@@ -1076,13 +1069,11 @@ $('#revokeInvitation').click(function() {
         if (endingRoles != null) {
             for (var i in startingRoles) {
                 if (endingRoles.indexOf(startingRoles[i]) === -1) {
-                    //add to roles to delete
                     tempRolesToDelete.push(startingRoles[i]);
                 }
             }
             for (var j in endingRoles) {
                 if (startingRoles.indexOf(endingRoles[j]) === -1) {
-                    //ad to rolestoadd
                     tempRolesToAdd.push(endingRoles[j]);
                 }
             }
