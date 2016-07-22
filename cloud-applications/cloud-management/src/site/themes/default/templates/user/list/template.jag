@@ -249,11 +249,11 @@ function updatePendingUserTable(isBasic) {
             }
             console.log("record count after update" + recordCount + "is basic" + isBasic);
         }
-        if (isBasic) {
+        if (isBasic && recordCount>0) {
             $('#invitationCount').text(recordCount);
             $('#pendingInvitationsMessage').show();
-
-        } else {
+        }
+        if (!isBasic) {
             createPendingUserTable(pendingUsersWithRoles);
         }
     }, function(jqXHR, textStatus, errorThrown) {
