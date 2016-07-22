@@ -72,8 +72,8 @@ jagg.module("util", {
     getUserRoleDisplayName: function(){
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserRoleDisplayName.apply(this, arguments);
     },
-    getUserRoleGivenDisplayName: function () {
-        return jagg.require(jagg.getModulesDir() + "util/util.jag").getUserRoleGivenDisplayName.apply(this, arguments);
+    getRoleForGivenDisplayName: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getRoleForGivenDisplayName.apply(this, arguments);
     },
     sendEmail: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").sendEmail.apply(this, arguments);

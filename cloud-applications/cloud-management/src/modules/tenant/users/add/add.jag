@@ -87,7 +87,7 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
             paraAddRoles = null;
         } else {
             for (var i = 0; i < paraAddRoles.length; i++) {
-                role = jagg.module("util").getUserRoleGivenDisplayName(paraAddRoles[i]);
+                role = jagg.module("util").getRoleForGivenDisplayName(paraAddRoles[i]);
                 paraAddRoles[i] = role;
             }
         }
@@ -95,7 +95,7 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
             paraRemoveRoles = null;
         } else {
             for (var i = 0; i < paraRemoveRoles.length; i++) {
-                role = jagg.module("util").getUserRoleGivenDisplayName(paraRemoveRoles[i]);
+                role = jagg.module("util").getRoleForGivenDisplayName(paraRemoveRoles[i]);
                 paraRemoveRoles[i] = role;
             }
         }

@@ -586,7 +586,7 @@ var getUserRoleDisplayName = function(userRoleKey){
     return userRoleDisplayName;
 };
 
-var getUserRoleGivenDisplayName = function(displayName){
+var getRoleForGivenDisplayName = function(displayName){
     var cloudMgtJsonObject = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var subscriptionTypes = cloudMgtJsonObject.subscriptions.type;
     var userRole = "";
