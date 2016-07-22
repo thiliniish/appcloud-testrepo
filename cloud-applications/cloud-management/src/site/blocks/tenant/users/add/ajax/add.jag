@@ -274,13 +274,10 @@ var log = new Log();
         var tenantDomain = jagg.module("manager").getTenantDomain();
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             try {
-                log.info(email + " revoke");
                 var result = mod.revokeUserInvitation(email);
-                log.info("result " + result);
                 if (result != null) {
                     responseObj.error = false;
                     responseObj.message = result;
-                    log.info(responseObj.message);
                     print(stringify(responseObj));
                 }
             } catch (e) {
