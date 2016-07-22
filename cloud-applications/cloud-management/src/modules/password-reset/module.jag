@@ -1,5 +1,9 @@
 <%
-jagg.module("password-reset/reset", {
+jagg.module("password-reset", {
+
+    initiatePasswordReset: function () {
+        return jagg.require(jagg.getModulesDir() + "password-reset/initiate/initiate.jag").initiatePasswordReset.apply(this, arguments);
+    },
 
     verifyPasswordResetConfirmationCode: function () {
         return jagg.require(jagg.getModulesDir() + "password-reset/reset/reset.jag").verifyPasswordResetConfirmationCode.apply(this, arguments);

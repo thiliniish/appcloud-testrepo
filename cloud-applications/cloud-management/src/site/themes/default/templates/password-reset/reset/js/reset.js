@@ -42,13 +42,5 @@ function generateResponse() {
             } else {
                 window.location.href = "password-verifier.jag";
             }
-
-        },
-        function (jqXHR, textStatus, errorThrown) {
-            jagg.message({
-                content: COMMON_ERROR_MESSAGE, type: 'error', cbk: function () {
-                    window.location.href = "index.jag";
-                }
-            });
         });
 }
