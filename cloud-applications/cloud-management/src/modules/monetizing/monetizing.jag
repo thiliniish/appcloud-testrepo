@@ -18,7 +18,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 var message;
-var responseMessage;
+var responseMessage = "";
 var account;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
@@ -771,6 +771,8 @@ var enableMonetization = function (tenantPassword) {
                 var isProductCreated =
                         billingService.enableMonetization(tenantDomain, tenantPassword, tenantDisplayName);
                 if (isProductCreated) {
+                    responseMessage = "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                    throw responseMessage;
                     var cloudType = productIdFromServiceId.api_cloud;
                     // Add status to MONETIZATION_STATUS table
                     var addMonetizationStatus = addStatusToMonetizationStatusTable(tenantDomain, API_CLOUD);
@@ -808,11 +810,13 @@ var enableMonetization = function (tenantPassword) {
                             account: "paid"
                         };
                     } else {
-                        throw "Add status to monetization_status table failed for user: " + username + " of tenant: " +
-                        tenantDomain + ".";
+                        responseMessage = "Add status to monetization_status table failed for user: " + username + " of tenant: " +
+                                       tenantDomain + ".";
+                        throw responseMessage;
                     }
                 } else {
-                    throw "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                    responseMessage = "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                    throw responseMessage;
                 }
             }  else {
                 message = "Validation failed. User " + username + " is having a " + BILLING_STARTER_PLAN + " account.";
@@ -845,12 +849,16 @@ var enableMonetization = function (tenantPassword) {
         }
     } catch (e) {
         account = "";
-        var msg = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
-        log.error(msg);
+        var displayMessage = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(displayMessage);
         log.error(e);
+        if (responseMessage == "") {
+            responseMessage = displayMessage;
+        }
         return {
             error: true,
-            message: msg,
+            errorMessage: responseMessage,
+            message: displayMessage,
             status: 500,
             redirectionURL: contactUsURL,
             account: account
