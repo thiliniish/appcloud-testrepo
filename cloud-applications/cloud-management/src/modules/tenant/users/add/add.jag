@@ -136,6 +136,8 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
                 var queryString = SQL_QUERY_STRINGS.UPDATE_TEMP_INVITEE;
                 parameters = [roles, tenantDomain, email];
                 var results = jagg.module("database").executeQuery(queryString, parameters);
+                //Resend invitation email
+                resendInvite(email);
                 return results;
             } catch (e) {
                 log.error("Error while updating user invitation to " + email + " to tenant " + tenantDomain);
