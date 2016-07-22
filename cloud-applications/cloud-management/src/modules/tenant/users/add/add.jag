@@ -111,23 +111,23 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
                 }
             }
             if (currentRoles != null) {
-                var i = 0;
-                var j = 0;
-                for (i = 0; i < currentRoles.length; i++) {
+                var roleIndex = 0;
+                var removeRoleIndex = 0;
+                for (roleIndex = 0; roleIndex < currentRoles.length; roleIndex++) {
                     //Add all current roles to the role list if there are no roles to remove
                     if (paraRemoveRoles == null) {
-                        roles.push(currentRoles[i]);
+                        roles.push(currentRoles[roleIndex]);
                     } else {
-                        for (j = 0; j < paraRemoveRoles.length; j++) {
-                            if (currentRoles[i] == paraRemoveRoles[j]) {
+                        for (removeRoleIndex = 0; removeRoleIndex < paraRemoveRoles.length; removeRoleIndex++) {
+                            if (currentRoles[roleIndex] == paraRemoveRoles[removeRoleIndex]) {
                                 break;
                             }
                         }
-                        if (j < paraRemoveRoles.length) {
+                        if (removeRoleIndex < paraRemoveRoles.length) {
                             //Do not add the role if it is a role to be removed
                             continue;
                         } else {
-                            roles.push(currentRoles[i]);
+                            roles.push(currentRoles[roleIndex]);
                         }
                     }
                 }
