@@ -72,11 +72,10 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
         var existingRoles = jagg.module("database").executeQuery(queryStringForRoles, parameters);
         var currentRoles = [];
         var role = '';
-        for (var i = 0; i < existingRoles.length; i++) {
-            var tmpRoles = existingRoles[i]["roles"].split(',');
-            for (var k = 0; k < tmpRoles.length; k++) {
-                currentRoles.push(tmpRoles[k]);
-            }
+
+        var tmpRoles = existingRoles[0]["roles"].split(',');
+        for (var k = 0; k < tmpRoles.length; k++) {
+            currentRoles.push(tmpRoles[k]);
         }
         //Get roles to be added and deleted into arrays
         var roles = [];
