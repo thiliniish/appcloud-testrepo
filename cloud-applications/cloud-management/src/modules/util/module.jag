@@ -83,6 +83,9 @@ jagg.module("util", {
     },
     getLeadSourceToken: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getLeadSourceToken.apply(this, arguments);
+    },
+    getDistinctStringsInArray: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getDistinctStringsInArray.apply(this, arguments);
     }
 });
 %>

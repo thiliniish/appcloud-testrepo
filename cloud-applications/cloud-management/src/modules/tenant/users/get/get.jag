@@ -353,8 +353,11 @@ var getUserListOfRole = function (role) {
         var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
         var realm = realmService.getTenantUserRealm(tenantId);
         var userStoreManager = realm.getUserStoreManager();
-        var result = userStoreManager.getUserListOfRole(role);
-        return result;
+        var usersWithRole = userStoreManager.getUserListOfRole(role);
+        //Admin user can act as any role. Therefore, admins are also added to the result array
+        var adminUsers = userStoreManager.getUserListOfRole('admin');
+        var resultArray = jagg.module("util").getDistinctStringsInArray(usersWithRole.concat(adminUsers));
+        return resultArray;
     } catch (e) {
         log.error("Error occurred while getting users of role " + " " + role + " for tenant " + tenantDomain);
         log.error(e);

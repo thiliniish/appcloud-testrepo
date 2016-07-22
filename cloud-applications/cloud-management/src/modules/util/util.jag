@@ -604,6 +604,21 @@ var getRoleForGivenDisplayName = function(displayName){
         }
     }
     return userRole;
+
+/**
+ * Remove duplicate Strings in a given array and returns an array with distinct Strings
+ * @param {Array} array of Strings
+ * @return {Array} an array of distinct strings
+ */
+function getDistinctStringsInArray(array) {
+    for (var i = 0; i < array.length; ++i) {
+        for (var j = i + 1; j < array.length; ++j) {
+            if (stringify(array[i]) === stringify(array[j])) {
+                array.splice(j--, 1);
+            }
+        }
+    }
+    return array;
 };
 
 %>
