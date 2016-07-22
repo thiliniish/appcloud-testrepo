@@ -23,18 +23,7 @@ var account;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
 var contactUsURL = cloudmgtURL + CLOUD_CONTACT_US_URI;
-
-var errorObj = {
-    error: true,
-    statusCode: 500,
-    redirectionURL: contactUsURL,
-    message: "Internal error. Please retry..."
-};
-var successObj = {
-    error: false,
-    statusCode: 200
-};
-
+var data;
 
 var getSubscribersOfTenant = function () {
     var tenantDomain = modManager.getTenantDomain();
@@ -586,13 +575,22 @@ var getSubscriptions = function (accountNumber) {
     try {
         var parameters = [accountNumber, accountNumber];
         var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS;
-        successObj.data = modDb.executeQuery(queryString, parameters);
-        return successObj;
+        data = modDb.executeQuery(queryString, parameters);
+        return {
+            error: false,
+            statusCode: 200,
+            data: data
+        };
     } catch (e) {
         log.error("Error while getting the subscription information for accountId - " + accountNumber + ":");
         log.error(e);
-        errorObj.message = "Error occurred while getting the subscription information, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error occurred while getting the subscription information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
@@ -606,14 +604,22 @@ var getAccountIdFromUserName = function (username) {
         if (result.length > 0) {
             accountNumber = result[0].ACCOUNT_NUMBER;
         }
-        successObj.data = accountNumber;
-        return successObj;
+        return {
+            error: false,
+            statusCode: 200,
+            data: accountNumber
+        };
     } catch (e) {
         log.error("Error while getting the account id from the username - " + username + " :");
         log.error(e);
-        errorObj.message = "Error while getting the account id from the username - " + username +
+        message = "Error while getting the account id from the username - " + username +
                 ", Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
@@ -633,13 +639,21 @@ var getApiListFromAccountId = function (accountId) {
             };
             apiWithVersion.push(data);
         }
-        successObj.data = apiWithVersion;
-        return successObj;
+        return {
+            error: false,
+            statusCode: 200,
+            data: apiWithVersion
+        };
     } catch (e) {
         log.error("Error while getting the API list from account id - " + accountId + ":");
         log.error(e);
-        errorObj.message = "Error while getting the API list, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error while getting the API list, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 var getOrdedInvoices = function (accountId, invoiceId) {
@@ -660,39 +674,63 @@ var getOrdedInvoices = function (accountId, invoiceId) {
         }
         result.invoiceItems = orderedInvoiceList;
         result.subscriptionData = subscriptionDetails;
-        successObj.data = result;
-        return successObj;
+        return {
+            error: false,
+            statusCode: 200,
+            data: result
+        };
     } catch (e) {
         log.error("Error while getting the invoice data for accountId [" + accountId + "] :");
         log.error(e);
-        errorObj.message = "Error occurred while getting the invoice information, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error occurred while getting the invoice information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
 var getBillingAccountSummary = function (subscribersAccountId) {
     try {
         var summary = billingService.getAccountSummary(subscribersAccountId);
-        successObj.data = summary;
-        return successObj;
+        return {
+            error: false,
+            statusCode: 200,
+            data: summary
+        };
     } catch (e) {
         log.error("Error while getting the Billing data for accountId [" + subscribersAccountId + "] :");
         log.error(e);
-        errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
 var getBillingPaymentInfo = function (subscribersAccountId) {
     try {
         var summary = billingService.getPayments(subscribersAccountId);
-        successObj.data = summary;
-        return successObj;
+        return {
+            error: false,
+            statusCode: 200,
+            data: summary
+        };
     } catch (e) {
         log.error("Error while getting the Billing data for accountId [" + subscribersAccountId + "] :");
         log.error(e);
-        errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
@@ -906,14 +944,23 @@ var getNumberOfProductPlansForTenant = function (tenantDomain) {
         var queryString = SQL_QUERY_STRINGS.SELECT_NUMBER_OF_MONETIZATION_PRODUCT_PLANS_FOR_TENANT;
         var parameters = [tenantDomain, productName];
         var result = modDb.executeQuery(queryString, parameters);
-        successObj.data = result[0]["PRODUCT_PLAN_COUNT"];
-        return successObj;
+        data = result[0]["PRODUCT_PLAN_COUNT"];
+        return {
+            error: false,
+            statusCode: 200,
+            data: data
+        };
     } catch (e) {
         var message = "Error while getting the number of product plans for the tenant: " + tenantDomain;
         log.error(message);
         log.error(e);
-        errorObj.message = message;
-        return errorObj;
+        message = message;
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
