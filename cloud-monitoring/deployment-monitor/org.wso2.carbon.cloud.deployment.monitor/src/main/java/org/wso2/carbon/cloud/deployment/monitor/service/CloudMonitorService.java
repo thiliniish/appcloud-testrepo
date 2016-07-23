@@ -18,45 +18,46 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.service;
 
+import org.json.simple.JSONObject;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.StatusReportingDAOImpl;
-import org.wso2.carbon.cloud.deployment.monitor.utils.dto.LiveStatus;
+import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.deployment.monitor.core.scheduler.ScheduleManager;
+import org.wso2.msf4j.Microservice;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 /**
  * This service expose management actions of the Deployment Monitor
  */
-@Path("/deployment-monitor")
-public class CloudMonitorService {
+@Path("/monitor") @Produces({ "application/json" }) public class CloudMonitorService implements Microservice {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudMonitorService.class);
 
-    @POST @Path("/maintenance")
-    public Response scheduling(@QueryParam("action") String action,
+    @POST @Path("/maintenance") public Response doMaintenanceAction(@QueryParam("action") String action,
             @QueryParam("task") String task, @QueryParam("server") String server) {
         ScheduleManager scheduleManager;
         boolean isSuccess = false;
         String responseMsg = null;
-
+        JSONObject jsonObject = new JSONObject();
         //Checking the mandatory parameters
         if (action == null) {
             logger.warn("Action has not been specified.");
-            responseMsg = "Action name is not specified. "
-                    + "Please specify a action { schedule | unschedule | pause | resume }";
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(responseMsg).build();
+            createErrorObject(jsonObject, 400, "Action name is not specified. "
+                    + "Please specify a action { schedule | unschedule | pause | resume }");
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonObject).build();
         }
 
         if (server == null) {
             logger.warn("Server name has not been specified");
-            responseMsg = "Please specify the server";
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(responseMsg).build();
+            createErrorObject(jsonObject, 400, "Please specify the server");
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonObject).build();
         }
 
         logger.info("Action : " + action + ", Task : " + task + ", Server : " + server);
@@ -114,23 +115,31 @@ public class CloudMonitorService {
 
         } catch (SchedulerException e) {
             logger.error("Error occurred while running the Scheduling Service {}", e);
-            responseMsg = "Error occurred while running the Scheduling Service";
+            createErrorObject(jsonObject, 500, "Error occurred while running the Scheduling Service");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonObject).build();
         }
 
         if (isSuccess) {
             StatusReportingDAOImpl reportingDAO = new StatusReportingDAOImpl();
             if ("pause".equals(action) || "unschedule".equals(action)) {
-                reportingDAO.updateLiveStatusForMaintenance(server, task, LiveStatus.Status.MAINTENANCE);
+                reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.MAINTENANCE);
                 reportingDAO.addMaintenanceSummary(server, task);
             } else {
-                reportingDAO.updateLiveStatusForMaintenance(server, task, LiveStatus.Status.UP);
+                reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.UP);
                 reportingDAO.updateMaintenanceSummary(server, task);
             }
-
-            return Response.status(Response.Status.OK)
-                    .entity("Completed Action : " + action + " for Server : " + server).build();
+            jsonObject.put("success", true);
+            jsonObject.put("message", "Completed Action : " + action + " for Server : " + server);
+            return Response.status(Response.Status.OK).entity(jsonObject).build();
         } else {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(responseMsg).build();
+            createErrorObject(jsonObject, 400, responseMsg);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonObject).build();
         }
+    }
+
+    private void createErrorObject(JSONObject jsonObject, int code, String msg) {
+        jsonObject.put("error", true);
+        jsonObject.put("code", code);
+        jsonObject.put("message", msg);
     }
 }

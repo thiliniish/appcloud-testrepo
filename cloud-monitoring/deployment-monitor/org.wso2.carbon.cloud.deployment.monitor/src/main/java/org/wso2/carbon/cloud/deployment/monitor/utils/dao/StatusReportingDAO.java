@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.utils.dao;
 
+import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureRecord;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
-import org.wso2.carbon.cloud.deployment.monitor.utils.dto.LiveStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.SuccessRecord;
 
 /**
@@ -34,9 +34,9 @@ public interface StatusReportingDAO {
 
     void addFailureSummary(FailureSummary failureSummary);
 
-    void updateLiveStatus(LiveStatus liveStatus);
+    void updateCurrentTaskStatus(CurrentTaskStatus currentTaskStatus);
 
-    void updateLiveStatusForMaintenance(String serverName, String task, LiveStatus.Status status);
+    void updateCurrentTaskStatusForMaintenance(String serverName, String task, CurrentTaskStatus.State state);
 
     void updateMaintenanceSummary(String serverName, String task);
 

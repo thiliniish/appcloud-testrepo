@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.cloud.deployment.monitor.utils.caches.FailureSummaryCache;
 import org.wso2.carbon.cloud.deployment.monitor.utils.caches.ReSchedulingCache;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.StatusReportingDAOImpl;
+import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureRecord;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
-import org.wso2.carbon.cloud.deployment.monitor.utils.dto.LiveStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.SuccessRecord;
 import org.wso2.deployment.monitor.api.HostBean;
 import org.wso2.deployment.monitor.api.OnResultCallback;
@@ -34,8 +34,8 @@ import org.wso2.deployment.monitor.api.RunStatus;
 import org.wso2.deployment.monitor.core.TaskUtils;
 import org.wso2.deployment.monitor.core.model.TaskConfig;
 import org.wso2.deployment.monitor.core.scheduler.ScheduleManager;
-import org.wso2.deployment.monitor.utils.notification.email.EmailSender;
-import org.wso2.deployment.monitor.utils.notification.sms.SMSSender;
+import org.wso2.deployment.monitor.utils.notification.email.EmailNotifications;
+import org.wso2.deployment.monitor.utils.notification.sms.SMSNotifications;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,27 +58,28 @@ public class CloudDefaultCallBack implements OnResultCallback {
             logger.info(successMsg);
             SuccessRecord successRecord = new SuccessRecord(runStatus.getTaskName(), runStatus.getServerGroupName(),
                     currentTime);
-            LiveStatus liveStatus = new LiveStatus(runStatus.getServerGroupName(), runStatus.getTaskName(),
-                    LiveStatus.Status.UP, new Date(currentTime));
+            CurrentTaskStatus currentTaskStatus = new CurrentTaskStatus(runStatus.getServerGroupName(),
+                    runStatus.getTaskName(), CurrentTaskStatus.State.UP, new Date(currentTime));
             reportingDAO.addSuccessRecord(successRecord);
-            reportingDAO.updateLiveStatus(liveStatus);
+            reportingDAO.updateCurrentTaskStatus(currentTaskStatus);
 
             if (failureSummaryCache.getCacheEntry(cacheKey) != null) {
                 FailureSummary failureSummary = failureSummaryCache.getCacheEntry(cacheKey);
+                failureSummaryCache.clearCacheEntry(cacheKey);
+
                 long duration = currentTime - failureSummary.getStartTime();
                 failureSummary.setDownTime(duration);
                 failureSummary.setEndTime(currentTime);
-
-                String emailBody = runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + " is UP again at : "
-                        + sdf.format(currentTime);
-                emailBody = emailBody + ", " + "Downtime : " + duration/1000 + "s";
-
-                EmailSender.getInstance().send(successMsg, emailBody);
-                SMSSender.getInstance().send(successMsg);
-
                 reportingDAO.addFailureSummary(failureSummary);
-                failureSummaryCache.clearCacheEntry(cacheKey);
+
                 resetSchedule(runStatus, cacheKey);
+
+                String emailBody =
+                        runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + " is UP again at : " + sdf
+                                .format(currentTime);
+                emailBody = emailBody + ", " + "Downtime : " + duration / 1000 + "s";
+                EmailNotifications.getInstance().sendMail(successMsg, emailBody);
+                SMSNotifications.getInstance().sendSMS(successMsg);
             }
         } else {
             String failureMsg = "[Task Failed] " + runStatus.getServerGroupName() + " : " + runStatus.getTaskName();
@@ -89,19 +90,20 @@ public class CloudDefaultCallBack implements OnResultCallback {
             boolean cacheHit = failureSummaryCache.getCacheEntry(cacheKey) != null;
             //send notifications only if this is the fist time
             if (!cacheHit) {
-                String emailBody = runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + "is DOWN since : "
-                        + sdf.format(currentTime);
+                String emailBody =
+                        runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + "is DOWN since : " + sdf
+                                .format(currentTime);
                 emailBody = emailBody + "<br/>" + "Reason : " + errorMsg;
-                EmailSender.getInstance().send(failureMsg, emailBody);
-                SMSSender.getInstance().send(failureMsg);
+                EmailNotifications.getInstance().sendMail(failureMsg, emailBody);
+                SMSNotifications.getInstance().sendSMS(failureMsg);
             }
 
             FailureRecord failureRecord = new FailureRecord(runStatus.getTaskName(), runStatus.getServerGroupName(),
                     errorMsg, currentTime);
-            LiveStatus liveStatus = new LiveStatus(runStatus.getServerGroupName(), runStatus.getTaskName(),
-                    LiveStatus.Status.DOWN, new Date(currentTime));
+            CurrentTaskStatus currentTaskStatus = new CurrentTaskStatus(runStatus.getServerGroupName(),
+                    runStatus.getTaskName(), CurrentTaskStatus.State.DOWN, new Date(currentTime));
             int currentID = reportingDAO.addFailureRecord(failureRecord);
-            reportingDAO.updateLiveStatus(liveStatus);
+            reportingDAO.updateCurrentTaskStatus(currentTaskStatus);
 
             if (cacheHit) {
                 FailureSummary failureSummary = failureSummaryCache.getCacheEntry(cacheKey);

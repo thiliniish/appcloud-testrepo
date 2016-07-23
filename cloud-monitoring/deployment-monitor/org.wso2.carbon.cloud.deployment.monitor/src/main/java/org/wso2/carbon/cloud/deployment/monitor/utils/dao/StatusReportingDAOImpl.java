@@ -20,9 +20,9 @@ package org.wso2.carbon.cloud.deployment.monitor.utils.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureRecord;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
-import org.wso2.carbon.cloud.deployment.monitor.utils.dto.LiveStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.SuccessRecord;
 import org.wso2.deployment.monitor.utils.database.DatabaseManager;
 
@@ -52,9 +52,9 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             connection = DatabaseManager.getConnection();
             statement = connection.prepareStatement(QueryConstants.ADD_SUCCESS_RECORD);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            statement.setString(1, sdf.format(successRecord.getTimestamp()));
-            statement.setString(2, successRecord.getTaskName());
-            statement.setString(3, successRecord.getServer());
+            statement.setString(1, successRecord.getTaskName());
+            statement.setString(2, successRecord.getServer());
+            statement.setString(3, sdf.format(successRecord.getTimestamp()));
             statement.executeUpdate();
 
         } catch (SQLException e) {
@@ -74,9 +74,9 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         try {
             connection = DatabaseManager.getConnection();
             insert = connection.prepareStatement(QueryConstants.ADD_FAILURE_RECORD, Statement.RETURN_GENERATED_KEYS);
-            insert.setString(1, sdf.format(failureRecord.getTimestamp()));
-            insert.setString(2, failureRecord.getTaskName());
-            insert.setString(3, failureRecord.getServer());
+            insert.setString(1, failureRecord.getTaskName());
+            insert.setString(2, failureRecord.getServer());
+            insert.setString(3, sdf.format(failureRecord.getTimestamp()));
             insert.setString(4, failureRecord.getError());
             insert.executeUpdate();
 
@@ -118,54 +118,55 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         }
     }
 
-    @Override public void updateLiveStatus(LiveStatus liveStatus) {
+    @Override public void updateCurrentTaskStatus(CurrentTaskStatus currentTaskStatus) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Updating Live Status {}-{} : Status : {}", liveStatus.getServer(), liveStatus.getTaskName(),
-                    liveStatus.getStatus());
+            logger.debug("Updating Live State {}-{} : State : {}", currentTaskStatus.getServer(),
+                    currentTaskStatus.getTaskName(), currentTaskStatus.getState());
         }
         Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = DatabaseManager.getConnection();
-            statement = connection.prepareStatement(QueryConstants.UPDATE_LIVE_STATUS);
-            statement.setString(1, liveStatus.getServer());
-            statement.setString(2, liveStatus.getTaskName());
-            statement.setString(3, liveStatus.getStatus());
-            statement.setString(4, liveStatus.getStatus());
-            statement.setString(5, sdf.format(liveStatus.getLastUpdated().getTime()));
+            statement = connection.prepareStatement(QueryConstants.UPDATE_CURRENT_TASK_STATUS);
+            statement.setString(1, currentTaskStatus.getTaskName());
+            statement.setString(2, currentTaskStatus.getServer());
+            statement.setString(3, currentTaskStatus.getState());
+            statement.setString(4, currentTaskStatus.getState());
+            statement.setString(5, sdf.format(currentTaskStatus.getLastUpdated().getTime()));
             statement.executeUpdate();
         } catch (SQLException e) {
-            logger.error("Error occurred while adding Live Status", e);
+            logger.error("Error occurred while adding Live State", e);
         } finally {
             DatabaseManager.closeAllConnections(connection, statement, null);
         }
     }
 
-    public void updateLiveStatusForMaintenance(String serverName, String task, LiveStatus.Status status) {
+    public void updateCurrentTaskStatusForMaintenance(String serverName, String task, CurrentTaskStatus.State state) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Updating Live Status for maintenance in : {}", serverName);
+            logger.debug("Updating Live State for maintenance in : {}", serverName);
         }
         Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = DatabaseManager.getConnection();
             if (task != null) {
-                statement = connection.prepareStatement(QueryConstants.UPDATE_LIVE_STATUS_FOR_MAINTENANCE);
-                statement.setString(1, status.name());
+                statement = connection.prepareStatement(QueryConstants.UPDATE_CURRENT_TASK_STATUS_FOR_MAINTENANCE);
+                statement.setString(1, state.name());
                 statement.setString(2, sdf.format(new Date(System.currentTimeMillis())));
                 statement.setString(3, serverName);
                 statement.setString(4, task);
                 statement.executeUpdate();
             } else {
-                statement = connection.prepareStatement(QueryConstants.UPDATE_LIVE_STATUS_FOR_MAINTENANCE_FOR_SERVER);
-                statement.setString(1, status.name());
+                statement = connection
+                        .prepareStatement(QueryConstants.UPDATE_CURRENT_TASK_STATUS_FOR_MAINTENANCE_FOR_SERVER);
+                statement.setString(1, state.name());
                 statement.setString(2, sdf.format(new Date(System.currentTimeMillis())));
                 statement.setString(3, serverName);
                 statement.executeUpdate();
             }
 
         } catch (SQLException e) {
-            logger.error("Error occurred while updating Live Status", e);
+            logger.error("Error occurred while updating Live State", e);
         } finally {
             DatabaseManager.closeAllConnections(connection, statement, null);
         }
