@@ -90,14 +90,11 @@ function doSubmit() {
                             function (result) {
                                 result = JSON.parse(result);
                                 if (!result.error) {
-                                    $(".content-starter h1").text("Check Your Email");
-                                    $(".content-starter h1").css('color', 'white');
-                                    $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>"
-                                        + email + "</b>. Please click the link in the email to continue signing up.</h5>");
-                                    $(".helper_text h5").css({'font-size': '20px', 'text-align': 'left'});
+                                    document.getElementById("email-id").innerHTML = email;
+                                    $("#signup_topic").hide();
                                     $("#helper_text").hide();
-                                    $("#success-message").show();
                                     $(".content-section-wrapper").hide();
+                                    $("#success-message").show();
                                 } else {
                                     jagg.message({
                                         content: 'Error Sending the Registration Email',
