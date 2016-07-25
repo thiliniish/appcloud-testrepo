@@ -83,6 +83,7 @@ function ValidateEmail(inputText){
         }
 
     }
+
     function enableDisableEditDeleteButtonsForInvitations(enablePara) {
         if (enablePara) {
             //enable delete and edit
@@ -94,6 +95,7 @@ function ValidateEmail(inputText){
             disable('revokeInvitation');
         }
     }
+
 function selectCheckBox(id){
 	var isChecked = $('#ck_'+id).is(':checked');
 	if(isChecked){
@@ -350,12 +352,6 @@ function updatePendingUserTable(isBasic) {
 /*This method will create the pending invitations table */
 function createPendingUserTable(pendingUsersWithRolesArray) {
     $('.cleanableInvitation').remove();
-    //track the member count in organization
-    var memberCount = 0;
-    if (usersWithRoles != undefined) {
-        memberCount = usersWithRoles.length;
-    }
-    //var maxInvitationsInPage = maxItemsInPage - memberCount;
     var $pendingUserListContainer = $('#pendingUserListContainer');
     /*getting the total number of pages using max items in a page and checking if the number of invitations are equal
      to the max items in a page,else add a new page to the total*/
@@ -1057,6 +1053,7 @@ $('#revokeInvitation').click(function() {
         tmpUser.rolesToAdd=trolesToAdd;
 
     }
+
     function doDetectChangesNewInvitation(email) {
         var tmpInvitation = getInvitationfromFinalInvitations(email);
         var endingRoles = tmpInvitation.roles || null;
@@ -1090,13 +1087,13 @@ $('#revokeInvitation').click(function() {
         }
 
     }
+
     function updateInvitations() {
         for (var index in finalInvitations) {
             var invitation = finalInvitations[index];
             doUpdateInvitation(invitation.email, invitation.rolesToDelete, invitation.rolesToAdd, index);
         }
     }
-
 
     function doupdateUser(username,rolesToDel,rolestoAd,count){
         jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
