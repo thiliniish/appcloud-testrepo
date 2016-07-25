@@ -247,7 +247,6 @@ function updatePendingUserTable(isBasic) {
                 $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big ' +
                     'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
             }
-            console.log("record count after update" + recordCount + "is basic" + isBasic);
         }
         if (isBasic && recordCount>0) {
             $('#invitationCount').text(recordCount);
@@ -1136,6 +1135,11 @@ $('#revokeInvitation').click(function() {
     }
 
     function doUpdateInvitation(email, rolesToDelete, rolesToAdd, count) {
+        jagg.message({
+            type: 'success',
+            content: 'Please wait while member invitation for ' + email + ' is being updated...',
+            id: "updateMsg" + count
+        });
         jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
                 action: "updateUserInvitation",
                 email: email,
@@ -1146,7 +1150,7 @@ $('#revokeInvitation').click(function() {
             function(result) {
                 if (result != undefined || result == true) {
                     var x = (finalInvitations.length - 1);
-                    console.log(x);
+                    jagg.removeMessage("updateMsg" + count);
                     if (count == x) {
                         window.setTimeout(function() {
                             updatePendingUserTable(false);
@@ -1157,13 +1161,15 @@ $('#revokeInvitation').click(function() {
                     return result;
 
                 } else if (result == false) {
+                    jagg.removeMessage("updateMsg" + count);
                     return result;
                 }
             },
             function(jqXHR, textStatus, errorThrown) {
-
+                jagg.removeMessage("updateMsg" + count);
             });
     }
+
     $('#search_members').keyup(function(event){
         doSearch($(this).val());
     });
