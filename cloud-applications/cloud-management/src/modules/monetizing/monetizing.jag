@@ -852,12 +852,8 @@ var enableMonetization = function (tenantPassword) {
         var displayMessage = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
         log.error(displayMessage);
         log.error(e);
-        if (responseMessage == "") {
-            responseMessage = displayMessage;
-        }
         return {
             error: true,
-            errorMessage: responseMessage,
             message: displayMessage,
             status: 500,
             redirectionURL: contactUsURL,
