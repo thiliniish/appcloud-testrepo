@@ -250,7 +250,7 @@ function updatePendingUserTable(isBasic) {
                     'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
             }
         }
-        if (isBasic && recordCount>0) {
+        if (isBasic && recordCount > 0) {
             $('#invitationCount').text(recordCount);
             $('#pendingInvitationsMessage').show();
         }
@@ -1132,6 +1132,22 @@ $('#revokeInvitation').click(function() {
     }
 
     function doUpdateInvitation(email, rolesToDelete, rolesToAdd, count) {
+        //Check if final roles list is empty
+        var tmpInvitation = getInvitationfromFinalInvitations(email);
+        var finalRoles = tmpInvitation.roles || null;
+        if (finalRoles == null || (finalRoles.length === 0)) {
+            jagg.message({
+                type: 'success',
+                content: 'Please select at least one role for ' + email + ' in order to update...',
+                id: "updateMsg" + count,
+                type: 'error',
+                cbk: function() {
+                    updatePendingUserTable(false);
+                    jagg.removeMessage("updateMsg" + count);
+                }
+            });
+            return;
+        }
         jagg.message({
             type: 'success',
             content: 'Please wait while member invitation for ' + email + ' is being updated...',
