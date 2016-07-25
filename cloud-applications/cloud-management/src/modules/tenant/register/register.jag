@@ -47,15 +47,15 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
         var results = jagg.module("database").executeQuery(queryString, parameters);
         if (results.length >= 1) {
             var email = results[0]["email"];
-            var userName = modManager.getUserNameFromEmail(email);
-            var isUserAvail = modManager.isExistingUser(userName);
-            if ((isUserAvail && isStoreInvitee) || (isUserAvail && isUserInvitee)) {
+            var username = modManager.getUserNameFromEmail(email);
+            var isUserAvailable = modManager.isExistingUser(username);
+            if ((isUserAvailable && isStoreInvitee) || (isUserAvailable && isUserInvitee)) {
                 var tenantMod = jagg.module("tenant");
                 var roles = tenantMod.importInvitedUser(confirm, null);
                 var url = jagg.module("util").getInviteeDirectUrl(roles);
                 if (log.isDebugEnabled()) {
-                    log.debug("User [ " + userName + " ] is invited to " + tenantMod);
-                    log.debug("The invitee redirect URL for [ " + userName + " ] - " + url);
+                    log.debug("User [ " + username + " ] is invited to " + tenantMod);
+                    log.debug("The invitee redirect URL for [ " + username + " ] - " + url);
                 }
                 return {
                     error: false,
@@ -63,7 +63,7 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
                     data: url
                 };
             }
-            session.put('isUserAvail', isUserAvail);
+            session.put('isUserAvail', isUserAvailable);
             session.put('registration-intermediate-data', confirm);
             session.put('registration-email', email);
             return {
@@ -74,7 +74,7 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
         } else {
             return {
                 error: false,
-                status: 200,
+                status: 410,
                 data: "expired"
             };
         }
@@ -165,7 +165,7 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
         log.info("Adding default login role for the user [ " + adminUserName + " ], tenant [" + organizationDomain + " ]");
         addDefaultLoginRole(adminUserName);
         log.info("Successfully added the default role for the user [ " + adminUserName + " ] of the"
-                +" tenant [" + organizationDomain + " ]");
+                + " tenant [ " + organizationDomain + " ]");
     }
     storeSubscription(organizationDomain);
 
@@ -230,10 +230,10 @@ var getCompanyId = function (organizationName){
 	}
 };
 
-var checkUserExistence = function (userName) {
+var checkUserExistence = function (username) {
     var isExist = false;
     try {
-        isExist = modManager.isExistingUser(userName);
+        isExist = modManager.isExistingUser(username);
     } catch (e) {
         log.error(e);
         return {
@@ -419,11 +419,10 @@ var sendInvite = function (email, token) {
     var tokenId;
     var uuid = jagg.module("util").generateUUId();
     var link = targetEpr + "?confirmation=" + uuid;
-
-    try{
+    try {
         storeTempRegistration(email, uuid, 0);
         sendEmail(email, link);
-    }catch(e){
+    } catch (e) {
         log.error("Error while sending invitation to [ " + email + " ] ");
         log.error(e);
         return {
@@ -456,13 +455,13 @@ var sendInvite = function (email, token) {
             var page = "Rightwave";
             var item = type;
             var events = [];
-                if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                    actionString = actionString + "Success";
-                    log.info("Rightwave cloud signup api call success for the user [ " + email + " ]");
-                } else {
-                    actionString = actionString + "Failed";
-                    log.error("Rightwave cloud signup api call failed for the user [ " + email + " ] : " + msg);
-                }
+            if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                actionString = actionString + "Success";
+                log.info("Rightwave cloud signup api call success for the user [ " + email + " ]");
+            } else {
+                actionString = actionString + "Failed";
+                log.error("Rightwave cloud signup api call failed for the user [ " + email + " ] : " + msg);
+            }
             var event = {};
             event.item = item;
             event.timestamp = new Date().getTime();
@@ -492,7 +491,7 @@ var reInvite = function (email) {
             uuid = jagg.module("util").generateUUId();
             storeTempRegistration(email, uuid, 0);
         }
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("UUID fetched from db for email " + email + " = " + uuid);
         }
         var link = targetEpr + "?confirmation=" + uuid;

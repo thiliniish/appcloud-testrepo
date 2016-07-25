@@ -30,7 +30,7 @@ function doSubmit() {
                 result = JSON.parse(result);
                 if (!result.error) {
                     loginWithoutIdpScreen();
-                }else{
+                } else {
                     jagg.message({
                         content: 'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.',
                         type: 'error',

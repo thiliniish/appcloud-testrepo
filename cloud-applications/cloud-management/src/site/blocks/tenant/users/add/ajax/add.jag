@@ -14,8 +14,8 @@ var log = new Log("blocks.tenant.users.add.ajax.add.jag");
         }
     }
 
-    var site = require("/site/conf/site.json"),
-            mod = jagg.module("tenant");
+    var site = require("/site/conf/site.json");
+    var mod = jagg.module("tenant");
 
     if (action == "addRolesToUserInTheTenantDomain") {
 

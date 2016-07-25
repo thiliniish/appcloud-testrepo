@@ -3,9 +3,9 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 var log = new Log();
 (function () {
-    var action = request.getParameter("action"),
-            site = require("/site/conf/site.json"),
-            mod = jagg.module("tenant");
+    var action = request.getParameter("action");
+    var site = require("/site/conf/site.json");
+    var mod = jagg.module("tenant");
 
     if (action == "sendInvite") {
         var email = request.getParameter("email");

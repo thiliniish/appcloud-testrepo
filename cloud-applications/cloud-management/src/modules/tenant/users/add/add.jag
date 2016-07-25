@@ -328,8 +328,7 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         var tenantDomain = results[0]["tenantDomain"];
         session.put("TENANT_DOMAIN", tenantDomain.toString());
         var assignedRoles = roles.split(",");
-
-        var userName = modManager.getUserNameFromEmail(email);
+        var username = modManager.getUserNameFromEmail(email);
         var tenantManager = multitenancy.getTenantManager();
         var tenantId = tenantManager.getTenantId(tenantDomain);
         var context = multitenancy.getPrivilegedCarbonContext();
@@ -340,11 +339,11 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
 
         //if its a new user add to OT, and assign to the tenant.
-        var isUserExist = modManager.isExistingUser(userName);
+        var isUserExist = modManager.isExistingUser(username);
         if (!isUserExist) {
-            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(userName, defaultPassword, email, firstName, lastName);
+            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(username, defaultPassword, email, firstName, lastName);
             jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
-            log.info("The invited new user [ " + userName + " ] joined the tenant [ " + tenantDomain + " ]");
+            log.info("The invited new user [ " + username + " ] joined the tenant [ " + tenantDomain + " ]");
         }
 
         //update the newly assigned roles of the user
@@ -352,7 +351,7 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
         var realm = realmService.getTenantUserRealm(tenantId);
         var userStoreManager = realm.getUserStoreManager();
-        var userRoles = userStoreManager.getRoleListOfUser(userName);
+        var userRoles = userStoreManager.getRoleListOfUser(username);
         for (var i = 0; i < userRoles.length; i++) {
             if (userRoles[i] == "default") {
                 isUserOfTenant = true;
@@ -363,12 +362,12 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
             //Need to add default role for users who exists already but not a member of tenant; hence adding default role here
             assignedRoles.push(CLOUD_DEFAULT_ROLE);
         }
-        server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(userName, assignedRoles, null);
-        log.info("Updating the roles [ " + assignedRoles + " ] for the user [ " + userName + " ] of the tenant [ " +
+        server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
+        log.info("Updating the roles [ " + assignedRoles + " ] for the user [ " + username + " ] of the tenant [ " +
                 "" + tenantDomain + " ]");
 
     } catch (e) {
-        log.error("Error while importing [ " + userName + " ] to the tenant [ " + tenantDomain + " ]");
+        log.error("Error while importing [ " + username + " ] to the tenant [ " + tenantDomain + " ]");
         log.error(e);
         throw e;
     } finally {
@@ -378,20 +377,20 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
 
     try {
         //Adding to TENANT_USER_MAPPING
-        log.info("Adding user [ " + userName + " ] and tenant [ " + tenantDomain + " ] in to TENANT_USER_MAPPING");
+        log.info("Adding user [ " + username + " ] and tenant [ " + tenantDomain + " ] in to TENANT_USER_MAPPING");
         var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
-        var parameters = [userName, tenantDomain];
+        var parameters = [username, tenantDomain];
         var results = jagg.module("database").executeQuery(queryString, parameters);
-        log.info("Tenant user mapping added successfully for [ " + userName + " ] and tenant [" + tenantDomain + "]");
+        log.info("Tenant user mapping added successfully for [ " + username + " ] and tenant [" + tenantDomain + "]");
 
         //Deleting from TEMP_INVITEE
         var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE;
         parameters = [confirmationKey];
         results = jagg.module("database").executeQuery(deleteString, parameters);
-        log.info("The entry at TEMP_INVITEE is deleted for [ " + userName + " ] and tenant [" + tenantDomain + "]");
+        log.info("The entry at TEMP_INVITEE is deleted for [ " + username + " ] and tenant [" + tenantDomain + "]");
 
     } catch (e) {
-        log.error("Error while adding tenant user mapping for user [ " + userName + " ] with tenant domain [ " +
+        log.error("Error while adding tenant user mapping for user [ " + username + " ] with tenant domain [ " +
                 tenantDomain + " ] ");
         log.error(e);
         throw e;

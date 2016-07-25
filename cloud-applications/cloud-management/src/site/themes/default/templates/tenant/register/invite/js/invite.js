@@ -100,7 +100,7 @@ function doSubmit() {
                                     $(".content-section-wrapper").hide();
                                 } else {
                                     jagg.message({
-                                        content: ' Error Sending the Registration Email ',
+                                        content: 'Error Sending the Registration Email',
                                         type: 'error',
                                         cbk: function () {
                                             window.location.href = "index.jag";

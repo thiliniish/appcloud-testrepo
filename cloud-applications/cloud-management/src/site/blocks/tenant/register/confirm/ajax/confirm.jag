@@ -4,18 +4,16 @@ include("/jagg/constants.jag");
 
 var log = new Log("site.blocks.tenant.register.confirm.ajax.confirm.jag");
 (function () {
-    var action = request.getParameter("action"),
-            site = require("/site/conf/site.json"),
-            mod = jagg.module("tenant");
+    var action = request.getParameter("action");
+    var site = require("/site/conf/site.json");
+    var mod = jagg.module("tenant");
 
     if (action == "confirmUser") {
         var confirm = request.getParameter("confirm");
         var isInvitee = request.getParameter("isInvitee");
         var isStoreInvitee = request.getParameter("isStoreInvitee");
-        log.info("calling confirmUser in tenant module ");
         var result = mod.confirmUser(confirm, isInvitee, isStoreInvitee);
         print(result);
-
     } else {
         throw new Error("No action specified");
     }
