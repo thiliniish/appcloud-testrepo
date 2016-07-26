@@ -1284,21 +1284,6 @@ $('#revokeInvitation').click(function() {
                 </ul>
              </div>
         </header>
-        <section class="separator">
-            <!--This message is shown when pending invitations are available -->
-            <div class="message" id="pendingInvitationsMessage">
-               <div id="push"></div>
-               <div class="alert alert-info alert-pending" role="alert">
-                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                  <span class="alert-content">
-                  <i class="fa fa-check-circle-o"></i> <strong> <span id="invitationCount"></span>
-                  invitations are pending..
-                  .</strong> <a class="click_to_expand" href="#" onclick="createPendingUserTable
-                     (pendingUsersWithRoles);">Click here to view</a>
-                  </span>
-               </div>
-            </div>
-        </section>
 
         <section class="separator">
             <div class="content">
@@ -1352,6 +1337,22 @@ $('#revokeInvitation').click(function() {
 
         <div class="clearfix"></div>
         <div class="pagefooter" style="width:30%; margin:0 auto"></div>
+
+        <section class="separator">
+            <!--This message is shown when pending invitations are available -->
+            <div class="message" id="pendingInvitationsMessage">
+               <div id="push"></div>
+               <div class="alert alert-info alert-pending" role="alert">
+                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                  <span class="alert-content">
+                  <i class="fa fa-check-circle-o"></i> <strong> <span id="invitationCount"></span>
+                  invitations are pending..
+                  .</strong> <a class="click_to_expand" href="#" onclick="createPendingUserTable
+                     (pendingUsersWithRoles);">Click here to view</a>
+                  </span>
+               </div>
+            </div>
+        </section>
 
         <section class="separator">
             <div class="content" id="pendingInvitations">
