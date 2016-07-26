@@ -6,6 +6,17 @@ body#home {
     background: none #292E38;
 }
 
+.helper_text h1 {
+    color: white;
+    text-align: left;
+}
+
+.helper_text h5 {
+    color: white;
+    font-size: 20px;
+    text-align: left;
+}
+
 .sticky-wrapper {
     position: relative;
     height: auto !important;
