@@ -16,6 +16,9 @@ jagg.module("tenant", {
 	getRolesOfCloudType: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getRolesOfCloudType.apply(this, arguments);
 	},
+	getAllCloudRoles: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getAllCloudRoles.apply(this, arguments);
+	},
 	getUserInfo:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserInfo.apply(this, arguments);
 	},
@@ -43,6 +46,9 @@ jagg.module("tenant", {
 	importInvitedUser:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").importInvitedUser.apply(this, arguments);
 	},
+    importInvitedUserAndGetDirectURL: function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").importInvitedUserAndGetDirectURL.apply(this, arguments);
+    },
 	sendUserInvite:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").sendUserInvite.apply(this, arguments);
 	},
@@ -64,8 +70,8 @@ jagg.module("tenant", {
 	isOTTenantUser:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").isOTTenantUser.apply(this, arguments);
 	},
-	isExistingUser:function () {
-		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").isExistingUser.apply(this, arguments);
+	checkUserExistence: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").checkUserExistence.apply(this, arguments);
 	},
 	checkDomainAvailability:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").checkDomainAvailability.apply(this, arguments);

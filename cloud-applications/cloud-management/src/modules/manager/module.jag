@@ -3,6 +3,9 @@ jagg.module("manager", {
     isEmailUserNameEnabled: function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").isEmailUserNameEnabled.apply(this, arguments);
     },
+    isExistingUser: function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").isExistingUser.apply(this, arguments);
+    },
     getUserNameFromEmail: function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getUserNameFromEmail.apply(this, arguments);
     },

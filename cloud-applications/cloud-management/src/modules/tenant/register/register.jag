@@ -47,29 +47,45 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
         var results = jagg.module("database").executeQuery(queryString, parameters);
         if (results.length >= 1) {
             var email = results[0]["email"];
-            var userName = modManager.getUserNameFromEmail(email);
-            var isUserAvail = isExistingUser(userName);
-            if ((isUserAvail && isStoreInvitee) || (isUserAvail && isUserInvitee)) {
+            var username = modManager.getUserNameFromEmail(email);
+            var isUserAvailable = modManager.isExistingUser(username);
+            if ((isUserAvailable && isStoreInvitee) || (isUserAvailable && isUserInvitee)) {
                 var tenantMod = jagg.module("tenant");
                 var roles = tenantMod.importInvitedUser(confirm, null);
                 var url = jagg.module("util").getInviteeDirectUrl(roles);
                 if (log.isDebugEnabled()) {
-                    log.debug("User [ " + userName + " ] is invited to " + tenantMod);
-                    log.debug("The invitee redirect URL for [ " + userName + " ] - " + url);
+                    log.debug("User [ " + username + " ] is invited to " + tenantMod);
+                    log.debug("The invitee redirect URL for [ " + username + " ] - " + url);
                 }
-                return url;
+                return {
+                    error: false,
+                    status: 200,
+                    data: url
+                };
             }
-            session.put('isUserAvail', isUserAvail);
+            session.put('isUserAvail', isUserAvailable);
             session.put('registration-intermediate-data', confirm);
             session.put('registration-email', email);
-            return "add-tenant.jag";
+            return {
+                error: false,
+                status: 200,
+                data: "add-tenant.jag"
+            };
         } else {
-            return "expired";
+            return {
+                error: false,
+                status: 410,
+                data: "expired"
+            };
         }
     } catch (e) {
         log.error("Error while confirming user [ " + email + " ]");
         log.error(e);
-        throw (e);
+        return {
+            error: true,
+            message: e.message,
+            status: 500
+        };
     }
 };
 
@@ -119,7 +135,7 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     }
     log.info("User information to register [ Username: " + adminUserName + ", First Name: " + firstName + ", Last" +
             " Name: " + lastName + ", Email: " + email + " ]");
-    newUser = !isExistingUser(adminUserName);
+    newUser = !modManager.isExistingUser(adminUserName);
     var organizationDomain = getCompanyId(organizationName);
     session.put("TENANT_DOMAIN", organizationDomain);
     log.info("Organization information to register [ Display Name: " + organizationName + ", Tenant Domain: " +
@@ -148,8 +164,8 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     if (newUser) {
         log.info("Adding default login role for the user [ " + adminUserName + " ], tenant [" + organizationDomain + " ]");
         addDefaultLoginRole(adminUserName);
-        log.info("Successfully added the default role for the user [ " + adminUserName + " ],"
-                +", tenant [" + organizationDomain + " ]");
+        log.info("Successfully added the default role for the user [ " + adminUserName + " ] of the"
+                + " tenant [ " + organizationDomain + " ]");
     }
     storeSubscription(organizationDomain);
 
@@ -214,38 +230,23 @@ var getCompanyId = function (organizationName){
 	}
 };
 
-var isValidEmail = function(userName){
-    var patternForEmailValidation = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return patternForEmailValidation.test(userName);
-};
-
-var isExistingUser = function( userName ) {
-    log.info("Validate email address and checking user existence for [ " + userName + " ]");
+var checkUserExistence = function (username) {
     var isExist = false;
     try {
-        var user = userName;
-        if(userName.indexOf('@') > 0) {
-        	if(!isValidEmail(userName)){
-                log.info("The email address [ " + userName + " ] is not valid");
-        	 	throw "Invalid Email Address "+userName;
-            }
-            log.info("The email address [ " + userName + " ] is valid");
-            //log.info("Checking user existence for: " + userName);
-            user = modManager.getUserNameFromEmail(userName);
-        }
-        isExist = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').isExistingUser(user);
+        isExist = modManager.isExistingUser(username);
     } catch (e) {
-        log.error("Error while checking the existence of user [ " + user + " ]");
         log.error(e);
-        throw (e);
+        return {
+            error: true,
+            message: e.message,
+            status: 500
+        };
     }
-    if(isExist){
-        log.info("A user for [ " + userName + " ] already exist");
-    }else{
-        log.info("A user for [ " + userName + " ] does not exist");
-    }
-    //log.info("User existence for " + userName + " is : " + isExist);
-    return isExist;
+    return {
+        error: false,
+        status: 200,
+        data: isExist
+    };
 };
 
 var addDefaultLoginRole = function(userName) {
@@ -415,11 +416,21 @@ var storeTempRegistration = function (email, uuid, isInvitee) {
 
 var sendInvite = function (email, token) {
     log.info("Sending the sign up email for user [ " + email + " ]");
-    var uuid = jagg.module("util").generateUUId();
     var tokenId;
-    storeTempRegistration(email, uuid, 0);
+    var uuid = jagg.module("util").generateUUId();
     var link = targetEpr + "?confirmation=" + uuid;
-    sendEmail(email, link);
+    try {
+        storeTempRegistration(email, uuid, 0);
+        sendEmail(email, link);
+    } catch (e) {
+        log.error("Error while sending invitation to [ " + email + " ] ");
+        log.error(e);
+        return {
+            error: true,
+            message: e.message,
+            status: 500
+        };
+    }
     //getting lead source capturing token
     if (token != null && token != '') {
         tokenId = token;
@@ -444,13 +455,13 @@ var sendInvite = function (email, token) {
             var page = "Rightwave";
             var item = type;
             var events = [];
-                if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                    actionString = actionString + "Success";
-                    log.info("Rightwave cloud signup api call success for the user [ " + email + " ]");
-                } else {
-                    actionString = actionString + "Failed";
-                    log.error("Rightwave cloud signup api call failed for the user [ " + email + " ] : " + msg);
-                }
+            if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                actionString = actionString + "Success";
+                log.info("Rightwave cloud signup api call success for the user [ " + email + " ]");
+            } else {
+                actionString = actionString + "Failed";
+                log.error("Rightwave cloud signup api call failed for the user [ " + email + " ] : " + msg);
+            }
             var event = {};
             event.item = item;
             event.timestamp = new Date().getTime();
@@ -460,27 +471,45 @@ var sendInvite = function (email, token) {
             modEvents.publishUserActivity(events, email, "not-defined");
         }, 0);
     }
-    return email;
+    return {
+        error: false,
+        status: 200,
+        data: email
+    };
 };
 
 var reInvite = function (email) {
-    log.info("Resending the sign up email for user [ " + email + " ]");
-    var queryString1 = SQL_QUERY_STRINGS.SELECT_UUID_FROM_TEMP_REGISTRATION;
-    var parameters =[email];
-    var results = jagg.module("database").executeQuery(queryString1, parameters);
-    var uuid;
-    if (results.length >= 1) {
-        uuid = results[0]["UUID"];
-    } else {
-        uuid = jagg.module("util").generateUUId();
-        storeTempRegistration(email, uuid, 0);
+    try{
+        log.info("Resending the sign up email for [ " + email + " ]");
+        var queryString1 = SQL_QUERY_STRINGS.SELECT_UUID_FROM_TEMP_REGISTRATION;
+        var parameters =[email];
+        var results = jagg.module("database").executeQuery(queryString1, parameters);
+        var uuid;
+        if (results.length >= 1) {
+            uuid = results[0]["UUID"];
+        } else {
+            uuid = jagg.module("util").generateUUId();
+            storeTempRegistration(email, uuid, 0);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("UUID fetched from db for email " + email + " = " + uuid);
+        }
+        var link = targetEpr + "?confirmation=" + uuid;
+        sendEmail(email, link);
+    }catch(e){
+        log.error("Resending the sign up email for [ " + email + " ] failed");
+        log.error(e);
+        return {
+            error: true,
+            message: e.message,
+            status: 500
+        };
     }
-    if(log.isDebugEnabled()){
-        log.debug("UUID fetched from db for email " + email + " = " + uuid);
-    }
-    var link = targetEpr + "?confirmation=" + uuid;
-    sendEmail(email, link);
-    return email;
+    return {
+        error: false,
+        status: 200,
+        data: email
+    };
 };
 
 var sendEmail = function (to, link) {
@@ -498,9 +527,9 @@ var sendEmail = function (to, link) {
         sender.subject = subject;
         sender.html = body;
         sender.send();
-        log.info("Successfully sent the sign up email to [ " + to + " ] with the link : " + link);
+        log.info("Successfully sent the signup email to [ " + to + " ] with the link : " + link);
     } catch (e) {
-        log.error("Error while sending email to [ " + to + " ]");
+        log.error("Sending signup email to [ " + to + " ] failed");
         log.error(e);
         try {
             var emailSubject = "Sending email with one time link failed for newly signed-up user [ " +to+" ]";
@@ -508,10 +537,9 @@ var sendEmail = function (to, link) {
             emailContent = emailContent.concat(email).concat(" Exception occurred while sending email with one time link.").concat(e).concat(e.stack);
             var isEmailSent = jagg.module("util").sendEmail(emailContent, emailSubject, null);
         } catch (ex) {
-            log.error("Error sending email notification at, Sending one time link failure to [ " + email + " ]");
+            log.error("Error in sending \"Sending email with one time link ...\" failure email to [ " + to + " ]");
             log.error(ex);
         }
-
         throw (e);
     }
 };

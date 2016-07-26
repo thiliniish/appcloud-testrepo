@@ -27,16 +27,18 @@ function doSubmit() {
                 lastName: lastName
             },
             function (result) {
-                loginWithoutIdpScreen();
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                jagg.message({
-                    content: 'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.',
-                    type: 'error',
-                    cbk: function () {
-                        window.location.href = cloudmgtURL;
-                    }
-                });
+                result = JSON.parse(result);
+                if (!result.error) {
+                    loginWithoutIdpScreen();
+                } else {
+                    jagg.message({
+                        content: 'Error occurred while registering the account. Please contact WSO2 Cloud Team for help.',
+                        type: 'error',
+                        cbk: function () {
+                            window.location.href = cloudmgtURL;
+                        }
+                    });
+                }
             });
         disableSpinner();
     } else {

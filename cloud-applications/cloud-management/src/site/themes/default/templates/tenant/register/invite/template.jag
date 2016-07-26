@@ -13,12 +13,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="container content-starter">
    <div class="row">
       <div class="col-lg-12">
-         <h1>Sign Up to WSO2 Cloud</h1>
+         <div id="signup_topic">
+            <h1>Sign Up to WSO2 Cloud</h1>
+         </div>
          <div class="helper_text" id="helper_text">
             <p>Please enter a valid email address to try WSO2 Cloud</p>
          </div>
          <div class="helper_text" id="success-message">
-            <p id="email-sent-to"></p>
+            <h1>Check Your Email</h1>
+            <br>
+             <h5> We have sent you the welcome email to <b id="email-id"></b>. Please click the link in the email to
+             continue signing up.</h5>
             <br>
             <p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no
             typos and that the email didn’t get caught in your spam folder.</p>
@@ -76,6 +81,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
    </div>
 </div>
 <div id = "resent-success" class ="container content-starter email-resent-msg h5">
-   <p id = "resend-mail ">We have re-sent your email. Please check your inbox.</p>
+   <p id = "resend-mail">We have re-sent your email. Please check your inbox.</p>
 </div>
 <% }); %>
