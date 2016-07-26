@@ -151,6 +151,23 @@ var getRolesOfCloudType = function getRolesOfCloudType(cloudType) {
     return cloudTypeRoles;
 };
 
+//This method retrieves all the roles used in the cloud. (Specified in the cloud_mgt.json file)
+var getAllCloudRoles = function getAllCloudRoles() {
+    var cloudTypeRoles;
+    var allCloudRolesArray = [];
+    for (var i = 0; i < subscriptionsType.length; i++) {
+        //gets the roles for respective cloud type
+        cloudTypeRoles = getRolesOfCloudType(subscriptionsType[i].id);
+        if (cloudTypeRoles.length > 0) {
+            // Adding the roles respective to each cloud type.
+            for (var j = 0; j < cloudTypeRoles.length; j++) {
+                allCloudRolesArray.push(cloudTypeRoles[j]);
+            }
+        }
+    }
+    return allCloudRolesArray;
+};
+
 var getPendingUsersOfRole = function getPendingUsersOfRole(tenantDomain, role) {
 
     try {

@@ -1,13 +1,12 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
-var log = new Log();
+var log = new Log("blocks.tenant.register.add.ajax.add.jag");
 (function () {
-	var mod, modContact, obj, result,
-	action = request.getParameter("action"),
-	site = require("/site/conf/site.json");
-	mod = jagg.module("tenant");
-	modContact = jagg.module("contact");
+	var action = request.getParameter("action");
+	var site = require("/site/conf/site.json");
+	var mod = jagg.module("tenant");
+	var modContact = jagg.module("contact");
 
 	if (action == "generateCaptchaFromCloud") {
 		try {
@@ -20,6 +19,7 @@ var log = new Log();
 		} catch (e) {
 			throw "Error while generating captcha";
 		}
+
 	}else if(action=="sendInvite"){
 		log.info("Inside block register");
 		var userName=request.getParameter("username");
@@ -32,6 +32,7 @@ var log = new Log();
 		} catch(e) {
 			throw "Error sending email to the user  "+userName;
 		}
+
 	} else if (action == "checkDomainAvailability") {
 		var companyId = request.getParameter("companyName");
 		try {
