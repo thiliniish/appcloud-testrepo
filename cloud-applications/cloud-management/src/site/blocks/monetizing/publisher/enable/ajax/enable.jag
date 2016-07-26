@@ -27,7 +27,7 @@ include("/jagg/constants.jag");
             } else if (result != null && result.error) {
                 if (result.invalidPlanError) {
                     message = result.message;
-                    response.status = 200;
+                    response.status = 401;
                     print ({
                                error: true,
                                message: message,
