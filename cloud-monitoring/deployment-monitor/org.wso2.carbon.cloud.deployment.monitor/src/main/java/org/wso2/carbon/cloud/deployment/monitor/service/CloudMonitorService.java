@@ -22,6 +22,7 @@ import org.json.simple.JSONObject;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.StatusReportingDAOImpl;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.deployment.monitor.core.scheduler.ScheduleManager;
@@ -68,17 +69,17 @@ import javax.ws.rs.core.Response;
             if (task != null) {
                 switch (action) {
 
-                case "schedule":
+                case CloudMonitoringConstants.SCHEDULE:
                     isSuccess = scheduleManager.scheduleTaskForServer(task, server);
                     break;
-                case "unschedule":
+                case CloudMonitoringConstants.UNSCHEDULE:
                     isSuccess = scheduleManager.unScheduleTaskForServer(task, server);
                     break;
-                case "pause":
+                case CloudMonitoringConstants.PAUSE:
                     isSuccess = scheduleManager.pauseTaskForServer(task, server);
 
                     break;
-                case "resume":
+                case CloudMonitoringConstants.RESUME:
                     isSuccess = scheduleManager.resumeTaskForServer(task, server);
                     break;
 
@@ -92,16 +93,16 @@ import javax.ws.rs.core.Response;
             } else {
                 switch (action) {
 
-                case "schedule":
+                case CloudMonitoringConstants.SCHEDULE:
                     isSuccess = scheduleManager.scheduleTasksOfServer(server);
                     break;
-                case "unschedule":
+                case CloudMonitoringConstants.UNSCHEDULE:
                     isSuccess = scheduleManager.unScheduleTasksOfServer(server);
                     break;
-                case "pause":
+                case CloudMonitoringConstants.PAUSE:
                     isSuccess = scheduleManager.pauseTasksOfServer(server);
                     break;
-                case "resume":
+                case CloudMonitoringConstants.RESUME:
                     isSuccess = scheduleManager.resumeTasksOfServer(server);
                     break;
 
@@ -121,7 +122,7 @@ import javax.ws.rs.core.Response;
 
         if (isSuccess) {
             StatusReportingDAOImpl reportingDAO = new StatusReportingDAOImpl();
-            if ("pause".equals(action) || "unschedule".equals(action)) {
+            if (CloudMonitoringConstants.PAUSE.equals(action) || CloudMonitoringConstants.UNSCHEDULE.equals(action)) {
                 reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.MAINTENANCE);
                 reportingDAO.addMaintenanceSummary(server, task);
             } else {

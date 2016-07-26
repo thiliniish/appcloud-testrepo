@@ -34,8 +34,7 @@ import javax.ws.rs.core.Response;
 /**
  * This service expose management actions of the Deployment Monitor
  */
-@Path("/status") @Produces({ "application/json" }) public class CloudUptimeInformationService
-        implements Microservice {
+@Path("/status") @Produces({ "application/json" }) public class CloudUptimeInformationService implements Microservice {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudUptimeInformationService.class);
 
@@ -45,7 +44,8 @@ import javax.ws.rs.core.Response;
         if (object.get("error") != null) {
             return Response.status((Integer) object.get("code")).entity(object).build();
         } else {
-            return Response.status(Response.Status.OK).entity(object).build();
+            return Response.status(Response.Status.OK).entity(object).header("Access-Control-Allow-Origin", "*")
+                    .build();
         }
 
     }
@@ -56,7 +56,8 @@ import javax.ws.rs.core.Response;
         if (object.get("error") != null) {
             return Response.status((Integer) object.get("code")).entity(object).build();
         } else {
-            return Response.status(Response.Status.OK).entity(object).build();
+            return Response.status(Response.Status.OK).entity(object).header("Access-Control-Allow-Origin", "*")
+                    .build();
         }
     }
 
@@ -66,9 +67,9 @@ import javax.ws.rs.core.Response;
         if (object.get("error") != null) {
             return Response.status((Integer) object.get("code")).entity(object).build();
         } else {
-            return Response.status(Response.Status.OK).entity(object).build();
+            return Response.status(Response.Status.OK).entity(object).header("Access-Control-Allow-Origin", "*")
+                    .build();
         }
     }
-
 
 }

@@ -21,6 +21,7 @@ package org.wso2.carbon.cloud.deployment.monitor.callbacks;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.carbon.cloud.deployment.monitor.utils.caches.FailureSummaryCache;
 import org.wso2.carbon.cloud.deployment.monitor.utils.caches.ReSchedulingCache;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.StatusReportingDAOImpl;
@@ -46,7 +47,7 @@ import java.util.Date;
 public class CloudDefaultCallBack implements OnResultCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudDefaultCallBack.class);
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a z");
+    private SimpleDateFormat sdf = new SimpleDateFormat(CloudMonitoringConstants.SIMPLE_DATE_FORMAT_WITH_TIME_ZONE);
 
     @Override public void callback(RunStatus runStatus) {
         long currentTime = System.currentTimeMillis();
@@ -131,8 +132,8 @@ public class CloudDefaultCallBack implements OnResultCallback {
             if (increaseFrequencyInFailure) {
                 logger.info("Increasing scheduling frequency for Task : {} for Server : {}", runStatus.getTaskName(),
                         runStatus.getServerGroupName());
-                String triggerType = (String) taskConfig.getTaskParams().get("triggerType");
-                String triggerValue = (String) taskConfig.getTaskParams().get("trigger");
+                String triggerType = (String) taskConfig.getTaskParams().get(CloudMonitoringConstants.TRIGGER_TYPE);
+                String triggerValue = (String) taskConfig.getTaskParams().get(CloudMonitoringConstants.TRIGGER);
                 try {
                     ScheduleManager.getInstance()
                             .reScheduleTaskForServer(runStatus.getTaskName(), runStatus.getServerGroupName(),

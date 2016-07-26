@@ -20,9 +20,11 @@ package org.wso2.carbon.cloud.deployment.monitor.status;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.UptimeInformationDAO;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,9 @@ import java.util.Map;
  * {@link CurrentStatusRetriever}
  */
 public class CurrentStatusRetriever {
+
+    SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMM yyyy, HH:mm:ss");
+
 
     public JSONObject getCurrentServerStatus(String server) {
         UptimeInformationDAO uptimeInformationDAO = new UptimeInformationDAO();
@@ -82,21 +87,21 @@ public class CurrentStatusRetriever {
             JSONObject taskObj = new JSONObject();
             taskObj.put("name", currentTaskStatus.getTaskName());
             taskObj.put("status", currentTaskStatus.getState());
-            taskObj.put("lastUpdated", currentTaskStatus.getLastUpdated().toString());
+            taskObj.put("lastUpdated", sdf.format(currentTaskStatus.getLastUpdated()));
             tasks.add(taskObj);
         }
         serverObj.put("server", server);
         if (failedTaskCount == currentTaskStatuses.size()) {
-            serverObj.put("status", "DOWN");
+            serverObj.put("status", CloudMonitoringConstants.DOWN);
         } else if (maintenanceTaskCount == currentTaskStatuses.size()) {
-            serverObj.put("status", "MAINTENANCE");
+            serverObj.put("status", CloudMonitoringConstants.MAINTENANCE);
         } else if (failedTaskCount > 0 || maintenanceTaskCount > 0) {
-            serverObj.put("status", "DISRUPTIONS");
+            serverObj.put("status", CloudMonitoringConstants.DISRUPTIONS);
         } else {
-            serverObj.put("status", "NORMAL");
+            serverObj.put("status", CloudMonitoringConstants.UP);
         }
         Date lastUpdated = currentTaskStatuses.get(0).getLastUpdated();
-        serverObj.put("last-updated", lastUpdated.toString());
+        serverObj.put("lastUpdated", sdf.format(lastUpdated));
         serverObj.put("tasks", tasks);
         return serverObj;
     }
