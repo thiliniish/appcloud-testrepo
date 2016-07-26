@@ -996,36 +996,36 @@ $('#revokeInvitation').click(function() {
             revokeInvitation(checkedInvitations[i], i, checkedInvitationsCount);
         }
     }
-    function doDetectChangesNew(username, isInvitation){
-        var startingRoles, user;
-        var tmpUser= getUserFromFinalUsers(username, isInvitation);
-        var endingRoles =tmpUser.roles||null;
-        if(isInvitation){
-            user = getInvitationFromInvitationsWithRoles(username);
-            startingRoles = user.roles;
-        } else {
-            user=getUserFromUsersWithRoles(username);
-            startingRoles=user.roles.split('\n');
-        }
-        var tempRolesToAdd = [];
-        var tempRolesToDelete = [];
+    function doDetectChangesNew(username, isInvitation) {
+         var startingRoles, user;
+         var tmpUser = getUserFromFinalUsers(username, isInvitation);
+         var endingRoles = tmpUser.roles || null;
+         if (isInvitation) {
+             user = getInvitationFromInvitationsWithRoles(username);
+             startingRoles = user.roles;
+         } else {
+             user = getUserFromUsersWithRoles(username);
+             startingRoles = user.roles.split('\n');
+         }
+         var tempRolesToAdd = [];
+         var tempRolesToDelete = [];
 
-        if (endingRoles != null) {
-            for (var i in startingRoles) {
-                if (endingRoles.indexOf(startingRoles[i]) === -1) {
-                    tempRolesToDelete.push(startingRoles[i]);
-                }
-            }
-            for (var j in endingRoles) {
-                if (startingRoles.indexOf(endingRoles[j]) === -1) {
-                    tempRolesToAdd.push(endingRoles[j]);
-                }
-            }
-        } else {
-            tempRolesToDelete = startingRoles;
-        }
-        tmpUser.rolesToDelete = tempRolesToDelete;
-        tmpUser.rolesToAdd = tempRolesToAdd;
+         if (endingRoles != null) {
+             for (var i in startingRoles) {
+                 if (endingRoles.indexOf(startingRoles[i]) === -1) {
+                     tempRolesToDelete.push(startingRoles[i]);
+                 }
+             }
+             for (var j in endingRoles) {
+                 if (startingRoles.indexOf(endingRoles[j]) === -1) {
+                     tempRolesToAdd.push(endingRoles[j]);
+                 }
+             }
+         } else {
+             tempRolesToDelete = startingRoles;
+         }
+         tmpUser.rolesToDelete = tempRolesToDelete;
+         tmpUser.rolesToAdd = tempRolesToAdd;
     }
 
     function updateUsers(){
