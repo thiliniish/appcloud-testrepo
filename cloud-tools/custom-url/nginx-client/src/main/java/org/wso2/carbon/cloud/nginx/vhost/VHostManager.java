@@ -142,8 +142,8 @@ public class VHostManager {
 
         File configFile = new File(filePath);
         if (!configFile.exists()) {
-            log.error("Cannot find the Nginx Configuration file for VHost");
-            throw new FileNotFoundException("Cannot find the Nginx Configuration file for VHost");
+            log.info("Creating a new Nginx Configuration file for VHost as the file does not exist.");
+            configFile.createNewFile();
         }
         FileWriter fileWriter = null;
         BufferedWriter bufferedWriter = null;
