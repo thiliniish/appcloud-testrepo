@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.service;
 
-import org.json.simple.JSONObject;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.cloud.deployment.monitor.status.CurrentStatusRetriever;
@@ -40,9 +40,9 @@ import javax.ws.rs.core.Response;
 
     @GET @Path("/current/{server}") public Response getCurrentServerStatus(@PathParam("server") String server) {
         CurrentStatusRetriever currentStatusRetriever = new CurrentStatusRetriever();
-        JSONObject object = currentStatusRetriever.getCurrentServerStatus(server);
+        JsonObject object = currentStatusRetriever.getCurrentServerStatus(server);
         if (object.get("error") != null) {
-            return Response.status((Integer) object.get("code")).entity(object).build();
+            return Response.status(object.get("code").getAsInt()).entity(object).build();
         } else {
             return Response.status(Response.Status.OK).entity(object).header("Access-Control-Allow-Origin", "*")
                     .build();
@@ -52,9 +52,9 @@ import javax.ws.rs.core.Response;
 
     @GET @Path("/current/all") public Response getCurrentStatus() {
         CurrentStatusRetriever currentStatusRetriever = new CurrentStatusRetriever();
-        JSONObject object = currentStatusRetriever.getAllCurrentServerStatuses();
+        JsonObject object = currentStatusRetriever.getAllCurrentServerStatuses();
         if (object.get("error") != null) {
-            return Response.status((Integer) object.get("code")).entity(object).build();
+            return Response.status(object.get("code").getAsInt()).entity(object).build();
         } else {
             return Response.status(Response.Status.OK).entity(object).header("Access-Control-Allow-Origin", "*")
                     .build();
@@ -63,9 +63,9 @@ import javax.ws.rs.core.Response;
 
     @GET @Path("/failures/today/{server}") public Response getTodayFailures(@PathParam("server") String server) {
         DailyStatusRetriever dailyStatusRetriever = new DailyStatusRetriever();
-        JSONObject object = dailyStatusRetriever.getTodayFailures(server);
+        JsonObject object = dailyStatusRetriever.getTodayFailures(server);
         if (object.get("error") != null) {
-            return Response.status((Integer) object.get("code")).entity(object).build();
+            return Response.status(object.get("code").getAsInt()).entity(object).build();
         } else {
             return Response.status(Response.Status.OK).entity(object).header("Access-Control-Allow-Origin", "*")
                     .build();

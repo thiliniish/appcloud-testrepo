@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.status;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.UptimeInformationDAO;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
@@ -34,13 +34,13 @@ import java.util.Map;
  */
 public class CurrentStatusRetriever {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMM yyyy, HH:mm:ss");
+    private SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMM yyyy, HH:mm:ss");
 
 
-    public JSONObject getCurrentServerStatus(String server) {
+    public JsonObject getCurrentServerStatus(String server) {
         UptimeInformationDAO uptimeInformationDAO = new UptimeInformationDAO();
         List<CurrentTaskStatus> currentTaskStatuses = uptimeInformationDAO.getCurrentStatus(server);
-        JSONObject serverObj = new JSONObject();
+        JsonObject serverObj = new JsonObject();
         if (currentTaskStatuses == null) {
             createErrorObject(serverObj, 500, "Error occurred while getting the current status of the server");
         } else if (currentTaskStatuses.isEmpty()) {
@@ -53,29 +53,29 @@ public class CurrentStatusRetriever {
 
     }
 
-    public JSONObject getAllCurrentServerStatuses() {
+    public JsonObject getAllCurrentServerStatuses() {
         UptimeInformationDAO uptimeInformationDAO = new UptimeInformationDAO();
         Map<String, List<CurrentTaskStatus>> currentServerStatuses = uptimeInformationDAO.getAllCurrentStatuses();
 
-        JSONObject rootObject = new JSONObject();
+        JsonObject rootObject = new JsonObject();
         if (currentServerStatuses == null) {
             createErrorObject(rootObject, 500, "Error occurred while getting the current status of the server");
         } else if (currentServerStatuses.isEmpty()) {
             createErrorObject(rootObject, 404, "No Current Status records found for all servers");
         } else {
-            JSONArray servers = new JSONArray();
+            JsonArray servers = new JsonArray();
             for (Map.Entry<String, List<CurrentTaskStatus>> entry : currentServerStatuses.entrySet()) {
-                JSONObject serverObj = createServerObject(entry.getKey(), entry.getValue());
+                JsonObject serverObj = createServerObject(entry.getKey(), entry.getValue());
                 servers.add(serverObj);
             }
-            rootObject.put("servers", servers);
+            rootObject.add("servers", servers);
         }
         return rootObject;
     }
 
-    private JSONObject createServerObject(String server, List<CurrentTaskStatus> currentTaskStatuses) {
-        JSONObject serverObj = new JSONObject();
-        JSONArray tasks = new JSONArray();
+    private JsonObject createServerObject(String server, List<CurrentTaskStatus> currentTaskStatuses) {
+        JsonObject serverObj = new JsonObject();
+        JsonArray tasks = new JsonArray();
         int failedTaskCount = 0;
         int maintenanceTaskCount = 0;
         for (CurrentTaskStatus currentTaskStatus : currentTaskStatuses) {
@@ -84,32 +84,32 @@ public class CurrentStatusRetriever {
             } else if (CurrentTaskStatus.State.MAINTENANCE.name().equalsIgnoreCase(currentTaskStatus.getState())) {
                 maintenanceTaskCount++;
             }
-            JSONObject taskObj = new JSONObject();
-            taskObj.put("name", currentTaskStatus.getTaskName());
-            taskObj.put("status", currentTaskStatus.getState());
-            taskObj.put("lastUpdated", sdf.format(currentTaskStatus.getLastUpdated()));
+            JsonObject taskObj = new JsonObject();
+            taskObj.addProperty("name", currentTaskStatus.getTaskName());
+            taskObj.addProperty("status", currentTaskStatus.getState());
+            taskObj.addProperty("lastUpdated", sdf.format(currentTaskStatus.getLastUpdated()));
             tasks.add(taskObj);
         }
-        serverObj.put("server", server);
+        serverObj.addProperty("server", server);
         if (failedTaskCount == currentTaskStatuses.size()) {
-            serverObj.put("status", CloudMonitoringConstants.DOWN);
+            serverObj.addProperty("status", CloudMonitoringConstants.DOWN);
         } else if (maintenanceTaskCount == currentTaskStatuses.size()) {
-            serverObj.put("status", CloudMonitoringConstants.MAINTENANCE);
+            serverObj.addProperty("status", CloudMonitoringConstants.MAINTENANCE);
         } else if (failedTaskCount > 0 || maintenanceTaskCount > 0) {
-            serverObj.put("status", CloudMonitoringConstants.DISRUPTIONS);
+            serverObj.addProperty("status", CloudMonitoringConstants.DISRUPTIONS);
         } else {
-            serverObj.put("status", CloudMonitoringConstants.UP);
+            serverObj.addProperty("status", CloudMonitoringConstants.UP);
         }
         Date lastUpdated = currentTaskStatuses.get(0).getLastUpdated();
-        serverObj.put("lastUpdated", sdf.format(lastUpdated));
-        serverObj.put("tasks", tasks);
+        serverObj.addProperty("lastUpdated", sdf.format(lastUpdated));
+        serverObj.add("tasks", tasks);
         return serverObj;
     }
 
-    private void createErrorObject(JSONObject rootObject, int code, String msg) {
-        rootObject.put("error", true);
-        rootObject.put("code", code);
-        rootObject.put("message", msg);
+    private void createErrorObject(JsonObject rootObject, int code, String msg) {
+        rootObject.addProperty("error", true);
+        rootObject.addProperty("code", code);
+        rootObject.addProperty("message", msg);
     }
 
 }

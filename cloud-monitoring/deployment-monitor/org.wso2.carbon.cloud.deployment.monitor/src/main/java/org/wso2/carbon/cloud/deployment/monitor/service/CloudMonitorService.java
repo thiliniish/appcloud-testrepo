@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.service;
 
-import org.json.simple.JSONObject;
+import com.google.gson.JsonObject;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ import javax.ws.rs.core.Response;
         ScheduleManager scheduleManager;
         boolean isSuccess = false;
         String responseMsg = null;
-        JSONObject jsonObject = new JSONObject();
+        JsonObject jsonObject = new JsonObject();
         //Checking the mandatory parameters
         if (action == null) {
             logger.warn("Action has not been specified.");
@@ -129,8 +129,8 @@ import javax.ws.rs.core.Response;
                 reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.UP);
                 reportingDAO.updateMaintenanceSummary(server, task);
             }
-            jsonObject.put("success", true);
-            jsonObject.put("message", "Completed Action : " + action + " for Server : " + server);
+            jsonObject.addProperty("success", true);
+            jsonObject.addProperty("message", "Completed Action : " + action + " for Server : " + server);
             return Response.status(Response.Status.OK).entity(jsonObject).build();
         } else {
             createErrorObject(jsonObject, 400, responseMsg);
@@ -138,9 +138,9 @@ import javax.ws.rs.core.Response;
         }
     }
 
-    private void createErrorObject(JSONObject jsonObject, int code, String msg) {
-        jsonObject.put("error", true);
-        jsonObject.put("code", code);
-        jsonObject.put("message", msg);
+    private void createErrorObject(JsonObject jsonObject, int code, String msg) {
+        jsonObject.addProperty("error", true);
+        jsonObject.addProperty("code", code);
+        jsonObject.addProperty("message", msg);
     }
 }

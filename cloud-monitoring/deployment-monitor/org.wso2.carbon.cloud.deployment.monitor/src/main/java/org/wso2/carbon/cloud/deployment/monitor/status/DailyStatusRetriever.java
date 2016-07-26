@@ -18,11 +18,13 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.status;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.UptimeInformationDAO;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
 
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 
@@ -31,26 +33,27 @@ import java.util.List;
  */
 public class DailyStatusRetriever {
 
-    public JSONObject getTodayFailures(String server) {
+    public JsonObject getTodayFailures(String server) {
         UptimeInformationDAO uptimeInformationDAO = new UptimeInformationDAO();
         List<FailureSummary> failureSummaries = uptimeInformationDAO.getFailureSummaries(server, new Date());
-        JSONObject serverObj = new JSONObject();
+        JsonObject serverObj = new JsonObject();
         if (failureSummaries == null) {
             createErrorObject(serverObj, 500, "Error occurred while getting the current status of the server");
         } else if (failureSummaries.isEmpty()) {
             createErrorObject(serverObj, 404, "No Current Status records found for server");
         } else {
-            JSONArray jsonArray = new JSONArray();
-            jsonArray.addAll(failureSummaries);
-            serverObj.put("failures", jsonArray);
+            Gson gson = new Gson();
+            String jsonArrayString = gson.toJson(failureSummaries);
+            JsonArray jsonArray = gson.fromJson(jsonArrayString, (Type) FailureSummary.class);
+            serverObj.add("failures", jsonArray);
         }
         return serverObj;
 
     }
 
-    private void createErrorObject(JSONObject rootObject, int code, String msg) {
-        rootObject.put("error", true);
-        rootObject.put("code", code);
-        rootObject.put("message", msg);
+    private void createErrorObject(JsonObject rootObject, int code, String msg) {
+        rootObject.addProperty("error", true);
+        rootObject.addProperty("code", code);
+        rootObject.addProperty("message", msg);
     }
 }
