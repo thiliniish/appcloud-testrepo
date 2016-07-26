@@ -84,7 +84,7 @@ function ValidateEmail(inputText){
 
     }
 
-    function enableDisableEditDeleteButtonsForInvitations(enablePara) {
+    function enableActionButtonsForInvitations(enablePara) {
         if (enablePara) {
             //enable delete and edit
             enable('jsInvitationRoleAssignPopup');
@@ -132,11 +132,11 @@ function enableButton(ischecked){
 function enableButtonForInvitations(ischecked) {
     if (ischecked) {
         selectedInvitationCount++;
-        enableDisableEditDeleteButtonsForInvitations(true);
+        enableActionButtonsForInvitations(true);
     } else {
         selectedInvitationCount--;
         if (selectedInvitationCount === 0) {
-            enableDisableEditDeleteButtonsForInvitations(false);
+            enableActionButtonsForInvitations(false);
         }
     }
 }
@@ -228,7 +228,7 @@ function updateTable() {
 
 }
 
-function updatePendingUserTable(isBasic) {
+function updatePendingUserTable(isBasicPageLoad) {
     var tenantDomain = '<%=tenantDomain%>';
     //Get pending invitation details
     jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
@@ -250,11 +250,11 @@ function updatePendingUserTable(isBasic) {
                     'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
             }
         }
-        if (isBasic && recordCount > 0) {
+        if (isBasicPageLoad && recordCount > 0) {
             $('#invitationCount').text(recordCount);
             $('#pendingInvitationsMessage').show();
         }
-        if (!isBasic) {
+        if (!isBasicPageLoad) {
             createPendingUserTable(pendingUsersWithRoles);
         }
     }, function(jqXHR, textStatus, errorThrown) {
@@ -409,7 +409,7 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
             '</li>');
 
         $pendingUserListContainer.append($pendingUserListContainerRow);
-        enableDisableEditDeleteButtonsForInvitations(false);
+        enableActionButtonsForInvitations(false);
     }
     selectedInvitationCount = 0;
     $('#pendingInvitations').show();
@@ -568,6 +568,8 @@ $(document).ready(function(){
     $('.pageFooterInvitations').hide();
 
     updateTable();
+    // If isBasicPageLoad is true, only the message with available invitation count is shown
+    // otherwise the expanded table is shown
     var isBasicPageLoad = true;
     updatePendingUserTable(isBasicPageLoad);
     updatePopupUserRoles();
@@ -781,18 +783,18 @@ $('#select_all_invitations_check').click(function() {
         if ($('#select_all_invitations_check').is(':checked')) {
             $(this).attr('checked', 'checked');
             selectedInvitationCount++;
-            enableDisableEditDeleteButtonsForInvitations(true);
+            enableActionButtonsForInvitations(true);
         } else {
             $(this).removeAttr('checked');
             selectedInvitationCount = 0;
-            enableDisableEditDeleteButtonsForInvitations(false);
+            enableActionButtonsForInvitations(false);
         }
     });
     manageRoleCheckListForInvitations();
 }).removeAttr('checked');
 
 //disabling edit and delete button for invitations on load
-enableDisableEditDeleteButtonsForInvitations(false);
+enableActionButtonsForInvitations(false);
 
 $('#saveUserRoles').click(function(){
     // iterate through allRoles and save the users with there roles
@@ -1169,7 +1171,7 @@ $('#revokeInvitation').click(function() {
                             updatePendingUserTable(false);
                         }, 300);
                     }
-                    enableDisableEditDeleteButtonsForInvitations(false);
+                    enableActionButtonsForInvitations(false);
                     $('#select_all_invitations_check').prop('checked', false);
                     return result;
 
