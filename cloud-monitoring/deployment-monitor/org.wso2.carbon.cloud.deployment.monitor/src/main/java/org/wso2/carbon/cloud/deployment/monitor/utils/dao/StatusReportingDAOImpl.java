@@ -51,7 +51,6 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         try {
             connection = DatabaseManager.getConnection();
             statement = connection.prepareStatement(QueryConstants.ADD_SUCCESS_RECORD);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             statement.setString(1, successRecord.getTaskName());
             statement.setString(2, successRecord.getServer());
             statement.setString(3, sdf.format(successRecord.getTimestamp()));
