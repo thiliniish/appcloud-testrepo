@@ -153,13 +153,16 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
     }
 };
 
-var revokeUserInvitation = function(email) {
+var revokeUserInvitation = function (email) {
     var tenantDomain = modManager.getTenantDomain();
+    var user = jagg.getUser();
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         try {
             var queryString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE_REVOKE_INVITATION;
             var parameters = [tenantDomain, email];
             var results = jagg.module("database").executeQuery(queryString, parameters);
+            log.info("Member Invitation for " + email + " for the tenant " + tenantDomain + " has been revoked by " +
+                    user);
             return results;
         } catch (e) {
             log.error("Error while revoking user invitation to " + email + " to tenant " + tenantDomain);
