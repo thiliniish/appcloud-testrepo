@@ -142,7 +142,7 @@ public class VHostManager {
 
         File configFile = new File(filePath);
         if (!configFile.exists()) {
-            log.info("Creating a new Nginx Configuration file for VHost as the file does not exist.");
+            log.info("Creating a new Nginx Configuration file for VHost as the file does not exist");
             configFile.createNewFile();
         }
         FileWriter fileWriter = null;
