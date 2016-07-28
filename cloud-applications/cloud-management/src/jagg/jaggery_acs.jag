@@ -43,7 +43,7 @@ include("/modules/database/sql.jag");
             var audienceRestrictionsEnabled = Boolean(cloudConfig.SSORelyingParty.audienceRestrictionsEnabled);
             if (audienceRestrictionsEnabled) {
                 var isAudienceRestrictionsValid = ssoRelyingParty.validateAudienceRestrictions(samlResponse);
-                if (!Boolean(isAudienceRestrictionsValid)) {
+                if (!isAudienceRestrictionsValid) {
                     log.error("SAML Response Audience Restrictions verification failed");
                     response.sendRedirect("../site/pages/error-pages/401.html");
                     return;
@@ -65,7 +65,7 @@ include("/modules/database/sql.jag");
             var responseSigningEnabled = Boolean(cloudConfig.SSORelyingParty.responseSigningEnabled);
             if (responseSigningEnabled) {
                 var isSignatureValid = ssoRelyingParty.validateSignature(samlResponse);
-                if (!Boolean(isSignatureValid)) {
+                if (!isSignatureValid) {
                     log.error("SAML Response Signature verification failed.");
                     session.remove('ERROR_MSG');
                     session.put('ERROR_MSG', 'An authorization error occurred in the backend');
@@ -80,7 +80,7 @@ include("/modules/database/sql.jag");
             if (assertionSigningEnabled) {
                 // validating the saml assertion signature
                 var isAssertionSignatureValid = ssoRelyingParty.validateAssertionSignature(samlResponse);
-                if (!Boolean(isAssertionSignatureValid)) {
+                if (!isAssertionSignatureValid) {
                     log.error("SAML Assertion Signature verification failed.");
                     response.sendRedirect("../site/pages/error-pages/401.html");
                     return;
