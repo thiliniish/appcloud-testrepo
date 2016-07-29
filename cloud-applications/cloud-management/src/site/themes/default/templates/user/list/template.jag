@@ -71,8 +71,8 @@ function ValidateEmail(inputText){
             $('#'+btnId).removeClass("disable");
         }
     }
-    function enableDisableEditDeleteButtons(enablePara){
-        if(enablePara){
+    function enableDisableEditDeleteButtons(enableParam){
+        if(enableParam){
             //enable delete and edit
             enable('jsroleAssignPopup');
             enable('removeUsers');
@@ -86,8 +86,8 @@ function ValidateEmail(inputText){
 
     }
 
-    function enableActionButtonsForInvitations(enablePara) {
-        if (enablePara) {
+    function enableActionButtonsForInvitations(enableParam) {
+        if (enableParam) {
             //enable delete and edit
             enable('jsInvitationRoleAssignPopup');
             enable('revokeInvitation');
@@ -107,7 +107,6 @@ function selectCheckBox(id, isInvitation) {
     if (isChecked) {
         $('#' + checkBoxId + id).removeAttr('checked');
     } else {
-
         $('#' + checkBoxId + id).attr('checked', true);
     }
     enableButton($('#' + checkBoxId + id).is(':checked'), isInvitation);
