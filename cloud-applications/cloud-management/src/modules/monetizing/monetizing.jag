@@ -62,10 +62,12 @@ var getSubscribersOfTenant = function () {
                     }
                 }
                 subscribers.push(tmpSubscriber);
+                message = "Successfully retrieved the list of subscribers for the tenant " + tenantDomain;
             }
             return {
                 error: false,
                 subObj: subscribers,
+                message: message,
                 status: 200
             };
         } catch (e) {
@@ -148,9 +150,11 @@ var makeSubscriberAccountTest = function (subscriberString) {
                     //Send notification email
                     sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
                 }
-                log.info("Updating account to test for user: " + username + " of tenant: " + tenantDomain + " is successful.");
+                message = "Updating account to test for the user: " + username + " of tenant: " + tenantDomain + " is successful.";
+                log.info(message);
                 return {
                     error: false,
+                    message: message,
                     status: 200
                 };
             } else {
@@ -209,9 +213,11 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
                     updateMonetizationSubscriberTable(false, username, tenantDomain);
                     //Send notification email
                     sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_REMOVED_MAIL_TYPE);
-                    log.info("Removing test account status of user: " + username + " of tenant: " + tenantDomain + " is successful.");
+                    message = "Removing test account status of the user: " + username + " of tenant: " + tenantDomain + " is successful.";
+                    log.info(message);
                     return {
                         error: false,
+                        message: message,
                         status: 200
                     };
                 } else {
@@ -294,8 +300,10 @@ var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate
             else {
                 usageData.push(entry);
             }
+            message = "Successfully retrieved the usage data for the user " + userId + " of the tenant domain " + tenantDomain;
             return {
                 error: false,
+                message: message,
                 status: 200,
                 usageObj: usageData
             };
@@ -360,8 +368,10 @@ var getSubscribedApisOfUser = function (userId) {
                     apiNames.push(api);
                 }
             }
+            var msg = "Successfully retrieved the apis of user: " + userId;
             return {
                 error: false,
+                message: msg,
                 apiObj: apiNames,
                 status: 200
             };
@@ -426,8 +436,10 @@ var getApiApplicationsOfUser = function (userId, api) {
                     applicationArray.push(app);
                 }
             }
+            var msg = "Successfully retrieved the apps of the user: " + userId;
             return {
                 error: false,
+                message: msg,
                 appObj: applicationArray,
                 status: 200
             };
@@ -471,8 +483,10 @@ var getApimSubscriberIdsOfTenant = function () {
                 tmpSubscriber.text = tmpUser.email;
                 subscribersArray.push(tmpSubscriber);
             }
+            var msg = "Successfully retrieved the subscribers of the tenant: " + tenantDomain;
             return {
                 error: false,
+                message: msg,
                 subObj: subscribersArray,
                 status: 200
             };
@@ -512,8 +526,10 @@ var isMonetizationEnabled = function (tenantDomain) {
     try {
         var monetizationStatus = monetizationService.isMonetizationEnabled(tenantDomain);
         session.put("monetizationEnabled", monetizationStatus);
+        var msg = "Successfully checked the monetization status for tenant: " + tenantDomain;
         return {
             error: false,
+            message: msg,
             status: 200,
             monetizationEnabled: monetizationStatus
         };
@@ -576,8 +592,10 @@ var getSubscriptions = function (accountNumber) {
         var parameters = [accountNumber, accountNumber];
         var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS;
         data = modDb.executeQuery(queryString, parameters);
+        message = "Successfully retrieved the subscription information for the accountId - " + accountNumber;
         return {
             error: false,
+            mesage: message,
             statusCode: 200,
             data: data
         };
@@ -604,8 +622,10 @@ var getAccountIdFromUserName = function (username) {
         if (result.length > 0) {
             accountNumber = result[0].ACCOUNT_NUMBER;
         }
+        message = "Successfully retrieved the account id from the username - " + username
         return {
             error: false,
+            message: message,
             statusCode: 200,
             data: accountNumber
         };
@@ -639,8 +659,10 @@ var getApiListFromAccountId = function (accountId) {
             };
             apiWithVersion.push(data);
         }
+        message = "Successfully retrieved the API list from account id - " + accountId
         return {
             error: false,
+            message: message,
             statusCode: 200,
             data: apiWithVersion
         };
@@ -674,8 +696,10 @@ var getOrdedInvoices = function (accountId, invoiceId) {
         }
         result.invoiceItems = orderedInvoiceList;
         result.subscriptionData = subscriptionDetails;
+        message = "Successfully retreived the invoice data for the accountId [" + accountId + "] :";
         return {
             error: false,
+            message: message,
             statusCode: 200,
             data: result
         };
@@ -695,8 +719,10 @@ var getOrdedInvoices = function (accountId, invoiceId) {
 var getBillingAccountSummary = function (subscribersAccountId) {
     try {
         var summary = billingService.getAccountSummary(subscribersAccountId);
+        message = "Successfully retrieved the Billing data for the accountId [" + subscribersAccountId + "] :"
         return {
             error: false,
+            message: message,
             statusCode: 200,
             data: summary
         };
@@ -716,8 +742,10 @@ var getBillingAccountSummary = function (subscribersAccountId) {
 var getBillingPaymentInfo = function (subscribersAccountId) {
     try {
         var summary = billingService.getPayments(subscribersAccountId);
+        message = "Successfully retrieved the Billing data for accountId [" + subscribersAccountId + "] :"
         return {
             error: false,
+            message: message,
             statusCode: 200,
             data: summary
         };
@@ -827,7 +855,7 @@ var enableMonetization = function (tenantPassword) {
                     error: true,
                     invalidPlanError: true,
                     message: responseMessage,
-                    status: 401,
+                    status: 426,
                     redirectionURL: contactUsURL,
                     account: BILLING_STARTER_PLAN
                 };
@@ -842,7 +870,7 @@ var enableMonetization = function (tenantPassword) {
                 error: true,
                 invalidPlanError: true,
                 message: responseMessage,
-                status: 401,
+                status: 426,
                 redirectionURL: contactUsURL,
                 account: account
             };
@@ -949,8 +977,10 @@ var getNumberOfProductPlansForTenant = function (tenantDomain) {
         var parameters = [tenantDomain, productName];
         var result = modDb.executeQuery(queryString, parameters);
         data = result[0]["PRODUCT_PLAN_COUNT"];
+        var message = "Successfully retrieved the number of product plans for the tenant: " + tenantDomain;
         return {
             error: false,
+            message: message,
             statusCode: 200,
             data: data
         };
@@ -1008,8 +1038,10 @@ var getProductPlans = function () {
             }
             planList.push(tmpPlanList);
         }
+        var msg = "Successfully retrieved the product plan list at the moment. Please contact WSO2 Cloud Team for help.";
         return {
             error: false,
+            message: msg,
             status: 200,
             data: planList
         };
@@ -1030,14 +1062,16 @@ var addProductPlans = function (planName, planDescription, pricing, overageCharg
         var addProductPlansResult = JSON.parse(billingService.createProductRatePlan(tenantDomain, planName, pricing, overageCharge, planDescription));
         if (addProductPlansResult.id != null) {
             addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlansResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
+            var msg = "Successfully added the product rate plan: " + planName + " for the tenant " + tenantDomain;
             return {
                 error: false,
                 status: 200,
+                message: msg,
                 redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
             };
         } else {
             var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
-            log.error("Error occured while adding the product plans for tenant: " + tenantDomain);
+            log.error("Error occurred while adding the product plans for tenant: " + tenantDomain);
             return {
                 error: true,
                 redirectionURL: contactUsURL,
@@ -1063,8 +1097,10 @@ var getTiersOfTenant = function () {
     try {
         var tenantDomain = modManager.getTenantDomain();
         var tiersList = JSON.parse(monetizationService.getTiers(tenantDomain));
+        var msg = "Successfully retrieved the product plan list at the tenant " +tenantDomain;
         return {
             error: false,
+            message: msg,
             status: 200,
             data: tiersList
         };

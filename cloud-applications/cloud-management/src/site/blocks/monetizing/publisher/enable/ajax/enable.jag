@@ -14,7 +14,7 @@ include("/jagg/constants.jag");
     if (action == "enableMonetization") {
         if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
             result = mod.enableMonetization(tenantPassword);
-            if (result == null) {
+            if (result == null || result.status == null) {
                 message = "An error occurred while enabling the monetization of the tenant: " + tenantDomain;
                 response.status = 500;
                 print ({
@@ -27,7 +27,7 @@ include("/jagg/constants.jag");
             } else if (result != null && result.error) {
                 if (result.invalidPlanError) {
                     message = result.message;
-                    response.status = 401;
+                    response.status = result.status;
                     print ({
                                error: true,
                                message: message,
@@ -40,7 +40,7 @@ include("/jagg/constants.jag");
                     if (message == null) {
                         message = "An error occurred while enabling the monetization of the tenant: " + tenantDomain;
                     }
-                    response.status = 500;
+                    response.status = result.status;
                     print ({
                                error: true,
                                message: message,
