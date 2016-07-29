@@ -134,9 +134,13 @@
                     $('#paymentMethodType').text(String(accountObj.basicInfo.defaultPaymentMethod.paymentMethodType).replace(/([A-Z])/g, ' $1'));
                     $('#paymentType').text(accountObj.basicInfo.defaultPaymentMethod.creditCardType);
                     $('#ccNum').text(accountObj.basicInfo.defaultPaymentMethod.creditCardNumber);
-                    $('#ccExpiary').text(accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationMonth + " / " +
-                                            accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationYear);
-
+                    var creditCardExpirationMonth = accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationMonth;
+                    var creditCardExpirationYear = accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationYear;
+                    if (creditCardExpirationMonth == null || creditCardExpirationYear == null) {
+                        $('#ccExpiary').text('');
+                    } else {
+                        $('#ccExpiary').text(creditCardExpirationMonth + " / " + creditCardExpirationYear);
+                    }
                     // set subscription info
                     $('#subsStartDate').text(accountObj.subscriptions[0].subscriptionStartDate);
                     $('#subsStatus').text(accountObj.subscriptions[0].status);
