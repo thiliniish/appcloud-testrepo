@@ -137,9 +137,9 @@
                     var creditCardExpirationMonth = accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationMonth;
                     var creditCardExpirationYear = accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationYear;
                     if (creditCardExpirationMonth == null || creditCardExpirationYear == null) {
-                        $('#ccExpiary').text('');
+                        $('#ccExpiry').text('');
                     } else {
-                        $('#ccExpiary').text(creditCardExpirationMonth + " / " + creditCardExpirationYear);
+                        $('#ccExpiry').text(creditCardExpirationMonth + " / " + creditCardExpirationYear);
                     }
                     // set subscription info
                     $('#subsStartDate').text(accountObj.subscriptions[0].subscriptionStartDate);
@@ -409,7 +409,7 @@
                         </div>
                         <div class="col-lg-6 content-section-wrapper">
                             <label class="control-label label-style title-label">Expiration date :</label>
-                            <label id="ccExpiary" name="ccExpiary" class="control-label label-style"></label>
+                            <label id="ccExpiry" name="ccExpiry" class="control-label label-style"></label>
                         </div>
                     </div>
                 </div>
