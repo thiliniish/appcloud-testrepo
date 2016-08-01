@@ -569,7 +569,7 @@ $(document).ready(function(){
 		$('.pagefooter').bootpag({
 			total: totalPagesForMembers
 		    }).on("page", function(event, num){
-			    pageNumberForMembers=num;
+			    pageNumberForMembers = num;
 			    createTable(usersWithRoles);	
 		});
 	}else{
@@ -1161,12 +1161,12 @@ $('#revokeInvitation').click(function() {
                 function (result) {
                     if(count==(length-1)){
                         window.setTimeout(function () {
-                            pageNumberForMembers=1;
+                            pageNumberForMembers = 1;
                             updateTable();
                         }, 300);
                     }
                 },
-                function (jqXHR, textStatus, errorThrown) {
+                function (jqXHR, textStatus, errorThpageNumberForMembersrown) {
 
                 });
 
