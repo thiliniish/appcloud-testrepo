@@ -65,6 +65,7 @@ var updateUserRoles = function (userName,addRoles,removeRols) {
 
 var updateUserInvitation = function (email, addRoles, removeRoles) {
     var tenantDomain = modManager.getTenantDomain();
+    var message;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         //Get the existing roles in the invitation
         var queryStringForRoles = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
@@ -79,35 +80,41 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
         }
         //Get roles to be added and deleted into arrays
         var roles = [];
-        var paraAddRoles, paraRemoveRoles;
-        paraAddRoles = addRoles.split(",");
-        paraRemoveRoles = removeRoles.split(",");
-        if ((paraAddRoles.length == 0) || (paraAddRoles[0].length == 0)) {
-            paraAddRoles = null;
+        var paramAddRoles, paramRemoveRoles;
+        paramAddRoles = addRoles.split(",");
+        paramRemoveRoles = removeRoles.split(",");
+        if ((paramAddRoles.length == 0) || (paramAddRoles[0].length == 0)) {
+            paramAddRoles = null;
         } else {
-            for (var i = 0; i < paraAddRoles.length; i++) {
-                role = jagg.module("util").getRoleForGivenDisplayName(paraAddRoles[i]);
-                paraAddRoles[i] = role;
+            for (var i = 0; i < paramAddRoles.length; i++) {
+                role = jagg.module("util").getRoleForGivenDisplayName(paramAddRoles[i]);
+                paramAddRoles[i] = role;
             }
         }
-        if ((paraRemoveRoles.length == 0) || (paraRemoveRoles[0].length == 0)) {
-            paraRemoveRoles = null;
+        if ((paramRemoveRoles.length == 0) || (paramRemoveRoles[0].length == 0)) {
+            paramRemoveRoles = null;
         } else {
-            for (var i = 0; i < paraRemoveRoles.length; i++) {
-                role = jagg.module("util").getRoleForGivenDisplayName(paraRemoveRoles[i]);
-                paraRemoveRoles[i] = role;
+            for (var i = 0; i < paramRemoveRoles.length; i++) {
+                role = jagg.module("util").getRoleForGivenDisplayName(paramRemoveRoles[i]);
+                paramRemoveRoles[i] = role;
             }
         }
         //If there are no roles to be updated
-        if (paraAddRoles == null && paraRemoveRoles == null) {
+        if (paramAddRoles == null && paramRemoveRoles == null) {
+            message = "No roles were selected to be added to or removed from invitation to " + email;
             if (log.isDebugEnabled()) {
-                log.debug("No roles were selected to be added to or removed from invitation to " + email);
+                log.debug(message);
             }
-            return true;
+            return {
+                error: false,
+                result: true,
+                message: message,
+                statusCode: 200
+            };
         } else {
-            if (paraAddRoles != null) {
-                for (var i = 0; i < paraAddRoles.length; i++) {
-                    roles.push(paraAddRoles[i]);
+            if (paramAddRoles != null) {
+                for (var i = 0; i < paramAddRoles.length; i++) {
+                    roles.push(paramAddRoles[i]);
                 }
             }
             if (currentRoles != null) {
@@ -115,15 +122,15 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
                 var removeRoleIndex = 0;
                 for (roleIndex = 0; roleIndex < currentRoles.length; roleIndex++) {
                     //Add all current roles to the role list if there are no roles to remove
-                    if (paraRemoveRoles == null) {
+                    if (paramRemoveRoles == null) {
                         roles.push(currentRoles[roleIndex]);
                     } else {
-                        for (removeRoleIndex = 0; removeRoleIndex < paraRemoveRoles.length; removeRoleIndex++) {
-                            if (currentRoles[roleIndex] == paraRemoveRoles[removeRoleIndex]) {
+                        for (removeRoleIndex = 0; removeRoleIndex < paramRemoveRoles.length; removeRoleIndex++) {
+                            if (currentRoles[roleIndex] == paramRemoveRoles[removeRoleIndex]) {
                                 break;
                             }
                         }
-                        if (removeRoleIndex < paraRemoveRoles.length) {
+                        if (removeRoleIndex < paramRemoveRoles.length) {
                             //Do not add the role if it is a role to be removed
                             continue;
                         } else {
@@ -138,37 +145,70 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
                 var results = jagg.module("database").executeQuery(queryString, parameters);
                 //Resend invitation email
                 resendInvite(email);
-                return results;
+                return {
+                    error: false,
+                    result: results,
+                    message: "User Invitation resent to " + email,
+                    statusCode: 200
+                };
             } catch (e) {
-                log.error("Error while updating user invitation to " + email + " to tenant " + tenantDomain);
+                message = "Error while updating user invitation to " + email + " to tenant " + tenantDomain;
+                log.error(message);
                 log.error(e);
-                throw "Error while updating user invitation";
+                return {
+                    error: true,
+                    message: message,
+                    statusCode: 500
+                };
             }
-            return true;
         }
     } else {
-        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
-        log.error(msg);
-        return false;
+        message = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+        log.error(message);
+        return {
+            error: true,
+            message: message,
+            statusCode: 401
+        };
     }
 };
 
 var revokeUserInvitation = function (email) {
     var tenantDomain = modManager.getTenantDomain();
     var user = jagg.getUser();
+    var message;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         try {
             var queryString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE_REVOKE_INVITATION;
             var parameters = [tenantDomain, email];
             var results = jagg.module("database").executeQuery(queryString, parameters);
-            log.info("Member Invitation for " + email + " for the tenant " + tenantDomain + " has been revoked by " +
-                    user);
-            return results;
+            message = "Member Invitation for " + email + " for the tenant " + tenantDomain + " has been revoked by "
+                    + user;
+            log.info(message);
+            return {
+                error: false,
+                result: results,
+                message: message,
+                statusCode: 200
+            };
         } catch (e) {
-            log.error("Error while revoking user invitation to " + email + " to tenant " + tenantDomain);
+            message = "Error while revoking user invitation to " + email + " to tenant " + tenantDomain;
+            log.error(message);
             log.error(e);
-            throw "Error while revoking user invitation";
+            return {
+                error: true,
+                message: message,
+                statusCode: 500
+            };
         }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            statusCode: 401
+        };
     }
 };
 

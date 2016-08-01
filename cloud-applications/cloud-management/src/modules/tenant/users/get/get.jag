@@ -157,9 +157,14 @@ var getPendingUsers = function getPendingUsersOfRole(tenantDomain, role) {
         var parameters = [tenantDomain];
         var results = jagg.module("database").executeQuery(queryString, parameters);
     } catch (e) {
-        log.error("Error while retrieving pending users of tenant " + tenantDomain);
+        var message = "Error while retrieving pending users of tenant " + tenantDomain;
+        log.error(message);
         log.error(e);
-        throw "Error while retrieving pending users";
+        return {
+            error: true,
+            message: message,
+            statusCode: 500
+        };
     }
     var pendingUsers = [];
     for (var i = 0; i < results.length; i++) {
@@ -181,7 +186,11 @@ var getPendingUsers = function getPendingUsersOfRole(tenantDomain, role) {
         }
         pendingUsers.push(pendingUser);
     }
-    return pendingUsers;
+    return {
+        error: false,
+        result: pendingUsers,
+        statusCode: 200
+    };
 };
 
 //This method retrieves all the roles used in the cloud. (Specified in the cloud_mgt.json file)
