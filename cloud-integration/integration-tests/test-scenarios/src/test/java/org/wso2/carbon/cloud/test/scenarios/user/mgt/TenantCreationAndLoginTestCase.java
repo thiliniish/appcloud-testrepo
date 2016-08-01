@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.test.scenarios;
+package org.wso2.carbon.cloud.test.scenarios.user.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,7 +76,7 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "isExistingUser");
         params.put("username", tenantEmail);
-        Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
+        Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null, false);
         Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "false",
                             "failed to check the user existence");
     }
@@ -96,7 +96,7 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
 
         params.put("action", "sendInvite");
         params.put("email", tenantEmail);
-        Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
+        Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null, false);
         Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), tenantEmail,
                             "user invitation sending failed");
         DbConnectionManager con = new DbConnectionManager(CloudIntegrationConstants.CLOUD_MGT_DATASOURCE);
@@ -112,7 +112,7 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
 
         params.put("action", "confirmUser");
         params.put("confirm", uuid);
-        Map confirmMap = HttpHandler.doPostHttps(confirmVerificationUrl, params, null);
+        Map confirmMap = HttpHandler.doPostHttps(confirmVerificationUrl, params, null, false);
         Assert.assertEquals(confirmMap.get("Response"), "add-tenant.jag",
                             "Adding the user to ldap failed");
     }
@@ -137,8 +137,8 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
                 .getPropertyValue(CloudIntegrationConstants.NEW_TENANT_FIRSTNAME));
         params.put("lastName", CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.NEW_TENANT_LASTNAME));
-        Map resultMap = HttpHandler.doPostHttps(addTenantUrl, params, null);
-        Assert.assertEquals(resultMap.get("Response"), "true", "Adding new tenant successfull");
+        Map resultMap = HttpHandler.doPostHttps(addTenantUrl, params, null, false);
+        Assert.assertEquals(resultMap.get("Response"), "true", "Adding new tenant successful");
 
     }
 

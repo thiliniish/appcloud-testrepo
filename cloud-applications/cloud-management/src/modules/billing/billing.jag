@@ -703,15 +703,12 @@ var calculateDiscountForCoupon = function (couponData) {
 
 // Function for change the current subscription plan
 var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlans, serviceId,couponData) {
+	var previewMode = false;
+	var parameters;
+	var response = getChangeSubscriptionPlanResult(accountId, newProductRatePlanId, ratePlans, serviceId, couponData, previewMode);
 	// Get current rate plan id
 	var currentRatePlanId = session.get("CURRENT_RATE_PLAN_ID");
 	var effectiveDate = session.get("EFFECTIVE_DATE");
-	var previewMode = false;
-	var parameters;
-	// Remove session variable
-	session.remove("CURRENT_RATE_PLAN_ID");
-	session.remove("EFFECTIVE_DATE");
-	var response = getChangeSubscriptionPlanResult(accountId, newProductRatePlanId, ratePlans, serviceId, couponData, previewMode);
     if (response.success) {
         //add an entry to subscription
         //UPDATE_ BILLING_ACCOUNT_AMENDMENTS
