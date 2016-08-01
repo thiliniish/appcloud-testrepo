@@ -19,6 +19,15 @@ package org.wso2.carbon.cloud.integration.test.utils;
 
 public class CloudIntegrationConstants {
     public static final String CLOUD_PRODUCT_GROUP = "cloud";
+    public static final String TRUE = "true";
+    public static final String FALSE = "false";
+    public static final String SUCCESS = "success";
+    public static final String LOGIN_ERROR_MESSAGE = "Tenant login failed.";
+    public static final String PUBLISHER_LOGIN_ERROR_MESSAGE = "Tenant login failed for publisher.";
+    public static final String PARAMETER_KEY_ACTION = "action";
+    public static final String PARAMETER_KEY_RESPONSE_FROM = "responseFrom";
+    public static final String BILLING_STARTER_PLAN = "Starter";
+    public static final String MONETIZATION_STARTER_PLAN = "Getting Traction";
 
     public static final String CLOUD_LOGIN_URL_SFX =
             "/cloudmgt/site/blocks/user/authenticate/ajax/login.jag";
@@ -46,14 +55,30 @@ public class CloudIntegrationConstants {
             "/cloudmgt/site/blocks/billing/account/add/ajax/add.jag";
     public static final String CLOUD_BILLING_API_USAGE =
             "/cloudmgt/site/blocks/billing/usage/get/ajax/get.jag";
+    public static final String CLOUD_BILLING_BILLING_PLAN_GET_URL_SFX =
+            "/cloudmgt/site/blocks/billing/plan/get/ajax/get.jag";
+    public static final String CLOUD_BILLING_BILLING_PLAN_REMOVE_URL_SFX =
+            "/cloudmgt/site/blocks/billing/account/remove/ajax/remove.jag";
+    public static final String CLOUD_MONETIZATION_ENABLE_URL_SFX =
+            "/cloudmgt/site/blocks/monetizing/publisher/enable/ajax/enable.jag";
+    public static final String CLOUD_MONETIZATION_ADD_RATE_PLANS_URL_SFX =
+            "/cloudmgt/site/blocks/monetizing/productPlan/add/ajax/add.jag";
+    public static final String CLOUD_SELF_SIGNUP_ENABLE_URL_SFX =
+            "/cloudmgt/site/blocks/selfSignup/ajax/configure.jag";
+    public static final String PARAMETER_KEY_SERVICE_ID = "serviceId";
+    public static final String PARAMETER_KEY_TENANT_PASSWORD = "tenantPassword";
+    public static final String PARAMETER_KEY_PRODUCT_RATE_PLAN_ID = "productRatePlanId";
+    public static final String PARAMETER_KEY_ACCOUNT_ID = "accountId";
+    public static final String PARAMETER_KEY_COUPON_ID = "couponData";
+    public static final String PARAMETER_KEY_RATE_PLANS = "ratePlans";
 
     //User Management
     public static final String CHANGE_PASSWORD_URL_SFX =
             "/cloudmgt/site/blocks/user/change/ajax/user.jag";
     public static final String INITIATE_PASSWORD_RESET_SFX =
-            "/cloudmgt/site/blocks/user/initiate/ajax/initiate.jag";
+            "/cloudmgt/site/blocks/password-reset/initiate/ajax/initiate.jag";
     public static final String PASSWORD_RESET_VERIFY_SFX =
-            "/cloudmgt/site/blocks/user/reset/ajax/reset.jag";
+            "/cloudmgt/site/blocks/password-reset/reset/ajax/reset.jag";
     public static final String PASSWORD_UPDATE_SFX =
             "/cloudmgt/site/blocks/user/change/ajax/user.jag";
     public static final String USER_PROFILE_URL_SFX =
@@ -106,6 +131,14 @@ public class CloudIntegrationConstants {
             "//cloudProperties/billing/payments/serviceId";
     public static final String BILLING_PAYMENT_PRODUCT_RATE_PLAN_ID =
             "//cloudProperties/billing/payments/productRatePlanId";
+    public static final String BILLING_PAYMENT_ACCOUNT_ID = "//cloudProperties/billing/payments/accountId";
+    public static final String BILLING_PAYMENT_COUPON_ID = "//cloudProperties/billing/payments/couponId";
+    public static final String BILLING_PAYMENT_UPGRADE_RATE_PLAN_ID =
+            "//cloudProperties/billing/payments/upgradeRatePlanId";
+    public static final String BILLING_PAYMENT_SECONDARY_PAYMENT_METHOD_ID =
+            "//cloudProperties/billing/payments/secondaryPaymentMethodId";
+    public static final String BILLING_PAYMENT_PRIMARY_PAYMENT_METHOD_ID =
+            "//cloudProperties/billing/payments/primaryPaymentMethodId";
 
     //cloud support related parameters
     public static final String CLOUD_SUPPORT_REQUEST_JIRA_CREATION_STATUS =
