@@ -230,7 +230,7 @@ function updatePendingUserTable(isBasicPageLoad) {
         action: "getPendingUsers",
         tenantDomain: tenantDomain
     }, function(response) {
-        if(response.error == false){
+        if (response.error == false) {
             var result = response.result;
             var recordCount = 0;
             if (result !== undefined) {
@@ -251,7 +251,7 @@ function updatePendingUserTable(isBasicPageLoad) {
                 $('#pendingInvitationsMessage').show();
             }
             if (!isBasicPageLoad) {
-                if (recordCount == 0){
+                if (recordCount == 0) {
                     $('#pendingInvitations').hide();
                 } else {
                     createPendingUserTable(pendingUsersWithRoles);
