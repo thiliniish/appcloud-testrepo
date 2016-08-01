@@ -136,31 +136,17 @@ var log = new Log();
     } else if (action == "getPendingUsers") {
         mod = jagg.module("tenant");
         var tenantDomain = request.getParameter("tenantDomain");
-        var result;
+        var responseObj;
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
-            try {
-                result = mod.getPendingUsers(tenantDomain);
-                if (result != null) {
-                    print(result);
-                } else {
-                    log.error("Error while retrieving pending users of tenant " + tenantDomain);
-                    result = {};
-                    result.error = true;
-                    result.message = "Error while retrieving pending users of tenant " + tenantDomain;
-                    print(stringify(result));
-                }
-            } catch (e) {
-                log.error("Error while retrieving pending users of tenant " + tenantDomain);
-                result = {};
-                result.error = true;
-                result.message = "Error while retrieving pending users of tenant " + tenantDomain;
-                print(stringify(result));
+            responseObj = mod.getPendingUsers(tenantDomain);
+            if (responseObj != null) {
+                print(responseObj);
             }
         } else {
-            result = {};
-            result.error = true;
-            result.message = "You don't have permission to retrieve pending users";
-            print(stringify(result));
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to update invitations";
+            responseObj.statusCode = 401;
+            print(responseObj);
         }
     } else if (action == "getPendingUsersOfRole") {
         mod = jagg.module("tenant");

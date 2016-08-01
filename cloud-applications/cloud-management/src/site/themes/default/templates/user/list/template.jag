@@ -229,28 +229,34 @@ function updatePendingUserTable(isBasicPageLoad) {
     jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
         action: "getPendingUsers",
         tenantDomain: tenantDomain
-    }, function(result) {
-        var recordCount = 0;
-        if (result !== undefined) {
-            pendingUsersWithRoles = result;
-            recordCount = pendingUsersWithRoles.length;
-        }
-        if (recordCount > 0) {
-            if (recordCount === 1) {
-                $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big push_bottom_40">1 ' +
-                    'Pending ' +
-                    'Invitation</h2>');
-            } else {
-                $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big ' +
-                    'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
+    }, function(response) {
+        if(response.error == false){
+            var result = response.result;
+            var recordCount = 0;
+            if (result !== undefined) {
+                pendingUsersWithRoles = result;
+                recordCount = pendingUsersWithRoles.length;
             }
-        }
-        if (isBasicPageLoad && recordCount > 0) {
-            $('#invitationCount').text(recordCount);
-            $('#pendingInvitationsMessage').show();
-        }
-        if (!isBasicPageLoad) {
-            createPendingUserTable(pendingUsersWithRoles);
+            if (recordCount > 0) {
+                if (recordCount === 1) {
+                    $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big push_bottom_40">1 ' +
+                        'Pending Invitation</h2>');
+                } else {
+                    $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big ' +
+                        'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
+                }
+            }
+            if (isBasicPageLoad && recordCount > 0) {
+                $('#invitationCount').text(recordCount);
+                $('#pendingInvitationsMessage').show();
+            }
+            if (!isBasicPageLoad) {
+                if (recordCount == 0){
+                    $('#pendingInvitations').hide();
+                } else {
+                    createPendingUserTable(pendingUsersWithRoles);
+                }
+            }
         }
     }, function(jqXHR, textStatus, errorThrown) {
 
@@ -1179,12 +1185,15 @@ $('#revokeInvitation').click(function() {
                 action: "revokeInvitation",
                 email: email
             },
-            function(result) {
-                if (count == (length - 1)) {
-                    window.setTimeout(function() {
-                        pageNumberForInvitations = 1;
-                        updatePendingUserTable(false);
-                    }, 300);
+            function(response) {
+                var responseObj = JSON.parse(response);
+                if(responseObj.error == false) {
+                    if (count == (length - 1)) {
+                        window.setTimeout(function() {
+                            pageNumberForInvitations = 1;
+                            updatePendingUserTable(false);
+                        }, 300);
+                    }
                 }
             },
             function(jqXHR, textStatus, errorThrown) {
