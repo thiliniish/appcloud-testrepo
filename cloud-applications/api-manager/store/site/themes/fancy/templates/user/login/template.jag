@@ -143,11 +143,6 @@ if(isSelfSignupEnabled){%>
 				Go to <a href="<%=jagg.getAbsoluteUrl("/")%><%="?" + urlPrefix%>"><%=tenantDomain%><%=i18n.localize("apistoreDesc")%></a>
 
 
-		<%} else if ((tenant != null) && site.showPublicStoreURL && tenantDomains != null){%>
-
-			Go to <a href="<%=jagg.getAbsoluteUrl("/")%>"><%=i18n.localize("publicAPIStore")%></a>
-
-
 		<%}%>
 
 
