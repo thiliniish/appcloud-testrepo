@@ -631,6 +631,21 @@
                                                     <xs:element type="xs:string"
                                                                 name="productRatePlanId"
                                                                 maxOccurs="1" minOccurs="0"/>
+                                                    <xs:element type="xs:string"
+                                                                name="upgradeRatePlanId"
+                                                                maxOccurs="1" minOccurs="0"/>
+                                                    <xs:element type="xs:string"
+                                                                name="secondaryPaymentMethodId"
+                                                                maxOccurs="1" minOccurs="0"/>
+                                                    <xs:element type="xs:string"
+                                                                name="primaryPaymentMethodId"
+                                                                maxOccurs="1" minOccurs="0"/>
+                                                    <xs:element type="xs:string"
+                                                                name="accountId"
+                                                                maxOccurs="1" minOccurs="0"/>
+                                                    <xs:element type="xs:string"
+                                                                name="couponId"
+                                                                maxOccurs="1" minOccurs="0"/>
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
