@@ -72,7 +72,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
      */
     @Test(description = "This will check existence of username")
     public void checkUsernameExistenceTest() throws Exception {
-        Assert.assertTrue(loginStatus, "Tenant login failed.");
+        Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
         String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
         for (String userEmail : usersEmailArray) {
             Map<String, String> params = new HashMap<>();
@@ -179,7 +179,7 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
     public void updateMemberRoles() throws SQLException, IOException, JSONException {
         //test for only one user
         String userName = usersEmailArray[0].replace('@', '.').trim();
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "updateUserRoles");
         params.put("userName", userName);
         params.put("rolesToAdd", "");//no roles will be added since user has all the roles
