@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * This class is to test the billing components account information.
- * Test cases will cover getting view account info, get billing invoices,update contact info and view usage.
+ * Test cases will cover view account info, get billing invoices, update contact info and view payment details.
  */
 public class AccountInfoTestCase extends CloudIntegrationTest {
 
@@ -63,20 +63,21 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "View Account of the Billing enabled tenant")
+    @Test(description = "View Account information of the Billing enabled tenant")
     public void viewAccountInfo() throws Exception {
-        log.info("started running test case billing account information");
-        Assert.assertTrue(loginStatus, "Tenant login failed.");
+        log.info("Started running test case billing account information.");
+        Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
 
         billingAccountInfo = getAccountInfo();
-        Assert.assertEquals(billingAccountInfo.getString("success"), "true", "Value mismatch should be true.");
+        Assert.assertEquals(billingAccountInfo.getString(CloudIntegrationConstants.SUCCESS),
+                            CloudIntegrationConstants.TRUE, "Value mismatch should be true.");
     }
 
     private JSONObject getAccountInfo() throws IOException, JSONException {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "get-billing-account");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "get-billing-account");
         String accountInfoUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_ACCOUNT_INFO_URL_SFX;
-        Map result = HttpHandler.doPostHttps(accountInfoUrl, params, authenticatorClient.getSessionCookie());
+        Map result = HttpHandler.doPostHttps(accountInfoUrl, params, authenticatorClient.getSessionCookie(), false);
         Assert.assertNotNull(result, "User Should have a billing account");
         return new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
     }
@@ -86,9 +87,9 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "get invoices of the Billing enabled tenant", dependsOnMethods = { "viewAccountInfo" })
+    @Test(description = "Get invoices of the Billing enabled tenant", dependsOnMethods = { "viewAccountInfo" })
     public void viewInvoices() throws Exception {
-        log.info("started running test case invoice information");
+        log.info("Started running test case invoice information.");
         JSONArray invoiceArray = (JSONArray) billingAccountInfo.get("invoices");
         Assert.assertNotNull(invoiceArray, "Account dose not contain any invoices");
         for (int i = 0; i < invoiceArray.length(); i++) {
@@ -96,10 +97,10 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
             String invoiceId = invoiceArray.getJSONObject(i).get("id").toString();
             String invoiceNumber = invoiceArray.getJSONObject(i).get("invoiceNumber").toString();
 
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, String> params = new HashMap<>();
             params.put("id", invoiceId);
             String getInvoiceUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_INVOICE_URL_SFX;
-            Map result = HttpHandler.doPostHttps(getInvoiceUrl, params, authenticatorClient.getSessionCookie());
+            Map result = HttpHandler.doPostHttps(getInvoiceUrl, params, authenticatorClient.getSessionCookie(), false);
             Assert.assertNotNull(result, "User Should have a billing account");
             JSONObject invoiceObject = new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
             Assert.assertEquals(invoiceObject.getString("invoiceNumber"), invoiceNumber,
@@ -108,14 +109,15 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
     }
 
     /**
-     * Check if user contact details are properly updated in the zuora side
+     * Update the user contact details
      *
      * @throws Exception
      */
-    @Test(description = "get invoices of the Billing enabled tenant", dependsOnMethods = { "viewAccountInfo" })
+    @Test(description = "Update the contact information of the Billing enabled tenant", dependsOnMethods = {
+            "viewAccountInfo" })
     public void updateContactInfo() throws Exception {
-
-        String errorMessage = "Error updating the contact information ";
+        log.info("Started running test case update the contact information.");
+        String errorMessage = "Error updating the user contact information.";
         JSONObject newContactInfo = new JSONObject();
         newContactInfo.put("firstName", "firstName");
         newContactInfo.put("lastName", "lastName");
@@ -148,9 +150,9 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
     }
 
     private String invokeUpdateContactInfo(JSONObject contactInfo) throws Exception {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "createAccount");
-        params.put("responseFrom", "Edit_User_Info");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "createAccount");
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_RESPONSE_FROM, "Edit_User_Info");
         String organizationName =
                 CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_DOMAIN);
         params.put("orgName", organizationName);
@@ -166,20 +168,34 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
 
         String addAccountDetailsUrl =
                 cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_ACCOUNT_DETAILS_ADD_URL_SFX;
-        Map result = HttpHandler.doPostHttps(addAccountDetailsUrl, params, authenticatorClient.getSessionCookie());
+        Map result =
+                HttpHandler.doPostHttps(addAccountDetailsUrl, params, authenticatorClient.getSessionCookie(), false);
         return result.get(CloudIntegrationConstants.RESPONSE).toString();
     }
 
+    /**
+     * View payments details of the billing account
+     *
+     * @throws Exception
+     */
+    @Test(description = "View payments of the Billing enabled tenant", dependsOnMethods = { "viewAccountInfo" })
+    public void viewPayments() throws Exception {
+        log.info("Started running test case payments information.");
+        JSONArray paymentsArray = (JSONArray) billingAccountInfo.get("payments");
+        Assert.assertNotNull(paymentsArray, "Account dose not contains any payments.");
+        for (int i = 0; i < paymentsArray.length(); i++) {
+            Assert.assertNotNull(paymentsArray.getJSONObject(i).get("paidInvoices"),
+                                 "Account does not contains any paid invoices.");
+        }
+    }
+
     @AfterClass(alwaysRun = true)
-    public void unDeployService() throws Exception {
-        //reverting the changers
+    public void destroy() throws Exception {
+        // Reverting the changes
         if (billingAccountInfo != null) {
             String response = invokeUpdateContactInfo(billingAccountInfo.getJSONObject("billToContact"));
-            if (!response.equalsIgnoreCase("Your contact information is successfully added")) {
-                String msg = "Error has occurred when updating the billing contact Info ";
-                log.error(msg);
-                throw new Exception(msg);
-            }
+            String errorMsg = "Error occurred while updating the billing contact Info.";
+            Assert.assertEquals(response, "Your contact information is successfully added", errorMsg);
         }
         authenticatorClient.logout();
         super.cleanup();
