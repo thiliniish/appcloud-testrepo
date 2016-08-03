@@ -151,6 +151,48 @@ var getRolesOfCloudType = function getRolesOfCloudType(cloudType) {
     return cloudTypeRoles;
 };
 
+var getPendingUsers = function getPendingUsersOfRole(tenantDomain, role) {
+    try {
+        var queryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE_BY_TENANT_DOMAIN;
+        var parameters = [tenantDomain];
+        var results = jagg.module("database").executeQuery(queryString, parameters);
+    } catch (e) {
+        var message = "Error while retrieving pending users of tenant " + tenantDomain;
+        log.error(message);
+        log.error(e);
+        return {
+            error: true,
+            message: message,
+            statusCode: 500
+        };
+    }
+    var pendingUsers = [];
+    for (var i = 0; i < results.length; i++) {
+        var tmpEmail = results[i]["email"];
+        var tmpRoles = results[i]["roles"].split(',');
+        var pendingUser = {};
+        pendingUser.email = tmpEmail;
+        pendingUser.roles = [];
+        for (var k = 0; k < tmpRoles.length; k++) {
+            displayRole = jagg.module("util").getUserRoleDisplayName(tmpRoles[k]);
+            if (displayRole != null && displayRole != "") {
+                if (displayRole == cloudConfig.adminRoleDisplayName) {
+                    pendingUser.roles = [];
+                    pendingUser.roles.push(displayRole);
+                    break;
+                }
+                pendingUser.roles.push(displayRole);
+            }
+        }
+        pendingUsers.push(pendingUser);
+    }
+    return {
+        error: false,
+        result: pendingUsers,
+        statusCode: 200
+    };
+};
+
 //This method retrieves all the roles used in the cloud. (Specified in the cloud_mgt.json file)
 var getAllCloudRoles = function getAllCloudRoles() {
     var cloudTypeRoles;
@@ -185,7 +227,7 @@ var getPendingUsersOfRole = function getPendingUsersOfRole(tenantDomain, role) {
         var tmpRoles = results[i]["roles"].split(',');
         for (var j = 0; j < tmpRoles.length; j++) {
             if (tmpRoles[j] == role) {
-                pendingUser = {};
+                var pendingUser = {};
                 pendingUser.email = tmpEmail;
                 pendingUser.roleTypes = [];
                 for (var k = 0; k < tmpRoles.length; k++) {

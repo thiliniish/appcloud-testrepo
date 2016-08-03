@@ -586,6 +586,26 @@ var getUserRoleDisplayName = function(userRoleKey){
     return userRoleDisplayName;
 };
 
+var getRoleForGivenDisplayName = function(displayName) {
+    var cloudMgtJsonObject = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var subscriptionTypes = cloudMgtJsonObject.subscriptions.type;
+    var userRole = "";
+
+    //Merging clouds user roles
+    var cloudUserRoles = [];
+    for (var z = 0; z < subscriptionTypes.length; z++) {
+        cloudUserRoles = cloudUserRoles.concat(subscriptionTypes[z].roleTypes);
+    }
+
+    for (var i = 0; i < cloudUserRoles.length; i++) {
+        if (cloudUserRoles[i].displayRoles == displayName) {
+            userRole = cloudUserRoles[i].roleName;
+            break;
+        }
+    }
+    return userRole;
+};
+
 /**
  * Remove duplicate Strings in a given array and returns an array with distinct Strings
  * @param {Array} array of Strings

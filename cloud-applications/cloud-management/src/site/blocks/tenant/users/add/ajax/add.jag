@@ -238,9 +238,45 @@ var log = new Log("blocks.tenant.users.add.ajax.add.jag");
                 throw "Error while getting blocked subscriptions";
             }
         }
-
+    } else if (action == "updateUserInvitation") {
+        var email = request.getParameter("email");
+        var newRoles = request.getParameter("rolesToAdd");
+        var removeRoles = request.getParameter("rolesToDelete");
+        var tenantDomain = jagg.module("manager").getTenantDomain();
+        var responseObj = {};
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+            responseObj = mod.updateUserInvitation(email, newRoles, removeRoles);
+            if (responseObj != null) {
+                print(responseObj);
+            }
+        } else {
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to update invitations";
+            responseObj.statusCode = 401;
+            print(responseObj);
+        }
+    } else if (action == "revokeInvitation") {
+        var responseObj = {};
+        var email = request.getParameter("email");
+        var tenantDomain = jagg.module("manager").getTenantDomain();
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+            responseObj = mod.revokeUserInvitation(email);
+            if (responseObj != null) {
+                print(responseObj);
+            }
+        } else {
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to revoke invitations";
+            responseObj.statusCode = 401;
+            print(responseObj);
+        }
     } else {
-        throw new Error("No action specified");
+        log.error("No Action Specified");
+        var responseObj = {};
+        responseObj.error = true;
+        responseObj.statusCode = 400;
+        responseObj.message = "Unexpected error occurred";
+        print(responseObj);
     }
 
 }());
