@@ -1,7 +1,7 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
-var log = new Log();
+var log = new Log("site.blocks.user.change.ajax.user.jag");
 (function () {
 
     var action = request.getParameter("action");
@@ -14,8 +14,7 @@ var log = new Log();
         }
     }
 
-var mod, obj, result,
-mod = jagg.module("user/change"),
+var mod = jagg.module("user/change"),
 site = require("/site/conf/site.json");
 
 if (action == "changePassword") {
@@ -36,16 +35,8 @@ if (action == "changePassword") {
     var email = request.getParameter("email");
     var newPassword = request.getParameter("password");
     var confirmationKey = request.getParameter("confirmationKey");
-    try {
-        var result = mod.updatePasswordWithUserInput(username,email, newPassword,confirmationKey);
-        if (result != null) {
-            print(result);
-        } else {
-            throw "Error while resetting the password ";
-        }
-    } catch(e) {
-        throw "Error while resetting the password";
-    }
+    var result = mod.updatePasswordWithUserInput(username, email, newPassword, confirmationKey);
+    print(result);
 } else {
     throw new Error("No action specified");
 }
