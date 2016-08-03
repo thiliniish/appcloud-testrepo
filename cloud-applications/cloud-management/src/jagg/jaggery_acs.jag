@@ -45,7 +45,7 @@ include("/modules/database/sql.jag");
 
             if (isValidityPeriodEnabled) {
                 if (!timeStampSkewInSeconds || timeStampSkewInSeconds == null) {
-                    timeStampSkewInSeconds = "300";
+                    timeStampSkewInSeconds = TIME_STAMP_SKEW_IN_SECONDS;
                 }
                 ssoRelyingParty.setProperty("timestampSkewInSeconds", timeStampSkewInSeconds);
                 var isValidityPeriodValid = ssoRelyingParty.validateAssertionValidityPeriod(samlResponse);
