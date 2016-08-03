@@ -39,6 +39,23 @@ include("/modules/database/sql.jag");
                 return;
             }
 
+            // validate assertion validity period
+            var isValidityPeriodEnabled = Boolean(cloudConfig.SSORelyingParty.verifyAssertionValidityPeriod);
+            var timeStampSkewInSeconds = cloudConfig.SSORelyingParty.timestampSkewInSeconds;
+
+            if (isValidityPeriodEnabled) {
+                if (!timeStampSkewInSeconds || timeStampSkewInSeconds == null) {
+                    timeStampSkewInSeconds = "300";
+                }
+                ssoRelyingParty.setProperty("timestampSkewInSeconds", timeStampSkewInSeconds);
+                var isValidityPeriodValid = ssoRelyingParty.validateAssertionValidityPeriod(samlResponse);
+                if (!isValidityPeriodValid) {
+                    log.error("SAML response validity period verification failed.");
+                    response.sendRedirect("../site/pages/error-pages/401.html");
+                    return;
+                }
+            }
+
             // validating the audience restrictions
             var audienceRestrictionsEnabled = Boolean(cloudConfig.SSORelyingParty.audienceRestrictionsEnabled);
             if (audienceRestrictionsEnabled) {
@@ -86,6 +103,10 @@ include("/modules/database/sql.jag");
                     return;
                 }
             }
+
+            // generate new session id before following through - fix for session fixation
+            jagg.setUser(null);
+            sessionId = session.getId();
 
             samlResponse = samlResponse.replace('<?xml version="1.0" encoding="UTF-8"?>', "");
             session.put("SAML_TOKEN", samlResponse);
