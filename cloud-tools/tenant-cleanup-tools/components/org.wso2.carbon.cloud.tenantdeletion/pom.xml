@@ -30,8 +30,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.cloud.tenantdeletion</artifactId>
     <packaging>bundle</packaging>
-    <name>Cloud - Tenant deletion component</name>
-    <description>Tenant login record bundle</description>
+    <name>Cloud - Tenant Deletion Component</name>
+    <description>Automated components and bundle for tenant deletion automation</description>
 
     <dependencies>
         <dependency>
@@ -39,10 +39,90 @@
             <artifactId>org.wso2.carbon.user.core</artifactId>
             <version>${wso2carbon.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk16</artifactId>
+            <version>${bcprov-jdk16.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.registry.core</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.registry.api</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons.codec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons.logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.apimgt</groupId>
+            <artifactId>org.wso2.carbon.apimgt.impl</artifactId>
+            <version>${deletion.org.wso2.carbon.apimgt.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.apimgt</groupId>
+            <artifactId>org.wso2.carbon.apimgt.api</artifactId>
+            <version>${deletion.org.wso2.carbon.apimgt.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.base</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core.services</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.um.ws.api</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.7</version>
+        </dependency>
     </dependencies>
-
+    <properties>
+        <deletion.org.wso2.carbon.apimgt.api.version>5.0.3</deletion.org.wso2.carbon.apimgt.api.version>
+        <imp.pkg.version.carbon.apimgt>[1.2.0, 5.0.4)</imp.pkg.version.carbon.apimgt>
+    </properties>
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
@@ -50,6 +130,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.0.1</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -64,27 +145,47 @@
                         </Export-Package>
                         <Import-Package>
                             org.wso2.carbon.core; version="[4.2.0, 4.5.0)",
-                            org.xml.sax,
                             org.wso2.carbon.utils; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.user.core.tenant; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.user.core.service; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.user.core.listener; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.user.core.common; version="[4.2.0, 4.5.0)",
+                            org.wso2.carbon.user.core.ldap.*; version="[4.2.0, 4.5.0)",
+                            org.wso2.carbon.user.core.util; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.user.core; version="[4.2.0, 4.5.0)",
+                            org.wso2.carbon.core.clustering.api; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.user.api; version="${imp.pkg.version.carbon.user.api}",
                             org.wso2.carbon.context; version="[4.2.0, 4.5.0)",
-                            org.w3c.dom,
+                            org.wso2.carbon.base.*; version="1.0.0",
+                            org.wso2.carbon.registry.*; version="${imp.pkg.version.carbon.kernel.registry}",
                             org.osgi.service.component; version="${imp.pkg.version.osgi.service.component}",
                             org.osgi.framework; version="${imp.pkg.version.osgi.framework}",
                             org.apache.commons.logging; version="[1.1.1, 1.3.0)",
                             org.apache.axis2.context; version="1.6.1.wso2v10",
+                            org.apache.commons.lang; version="${imp.pkg.version.commons-lang}",
+                            org.apache.axis2.clustering; version="1.6.1.wso2v10",
+                            org.apache.axis2.engine; version="1.6.1.wso2v10",
+                            org.wso2.carbon.apimgt.impl; version="${imp.pkg.version.carbon.apimgt}";
+                            resolution:=optional,
+                            org.wso2.carbon.apimgt.*; version="${imp.pkg.version.carbon.apimgt}";resolution:=optional,
+                            org.wso2.carbon.governance.api.*; resolution:=optional,
+                            org.wso2.carbon.bpel.*; resolution:=optional,
+                            org.json.simple.*,
                             javax.xml.xpath,
                             javax.xml.parsers,
                             javax.xml.namespace,
                             javax.sql,
                             javax.naming,
+                            javax.net.ssl,
+                            javax.net,
+                            javax.crypto,
                             javax.xml.bind,
-                            javax.xml.bind.annotation
+                            org.wso2.carbon.ntask.common;resolution:=optional,
+                            org.xml.sax,
+                            org.w3c.dom,
+                            javax.xml.bind.*,
+                            javax.mail.internet; version="1.4.0",
+                            javax.mail; version="1.4.0"
                         </Import-Package>
                     </instructions>
                 </configuration>
