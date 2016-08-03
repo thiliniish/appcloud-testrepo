@@ -27,7 +27,7 @@
             <DisplayRole>false</DisplayRole>
         </Role>
         <Role name="subscriber">
-            <DisplayName>Subscriber</DisplayName>
+            <DisplayName>APICloudSubscriber</DisplayName>
             <Permission>
                 /permission/admin/login,
                 /permission/admin/manage/api/subscribe
@@ -35,11 +35,12 @@
             <DisplayRole>true</DisplayRole>
         </Role>
         <Role name="publisher">
-            <DisplayName>Publisher</DisplayName>
+            <DisplayName>APICloudPublisher</DisplayName>
             <Permission>
                 /permission/admin/login,
                 /permission/admin/manage/api/create,
                 /permission/admin/manage/api/publish,
+                /permission/admin/manage/resources/browse,
                 /_system/governance/apimgt:REGISTRY_GET,
                 /_system/governance/apimgt:REGISTRY_PUT,
                 /_system/governance/apimgt:REGISTRY_DELETE
@@ -58,6 +59,13 @@
                 event/topics:publish
             </Permission>
             <DisplayRole>false</DisplayRole>
+        </Role>
+        <Role name="appclouduser">
+            <DisplayName>AppCloudUser</DisplayName>
+            <Permission>
+                /permission/admin/manage/appCloudLogin
+            </Permission>
+            <DisplayRole>true</DisplayRole>
         </Role>
     </TenantRoles>
 </CloudMgt>

@@ -1,8 +1,10 @@
 <%
 jagg.block("subscriptions", {
     initialize:function (data) {
+    },
+
+    getOutputs: function (inputs) {
+        return inputs;
     }
-
-
 });
 %>

@@ -10,12 +10,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudmgtURI = cloudConfig.ServerUrls.cloudmgt.toString();
 var contactUsURL = cloudmgtURI + CLOUD_CONTACT_US_URI;
-var errorObj = {
-    error: true,
-    statusCode: 500,
-    redirectionURL: contactUsURL,
-    message: "Internal error. Please retry..."
-};
+var message;
 
 var loginStatus = jagg.isUserLoggedIn();
 if (loginStatus.error) {
@@ -88,8 +83,13 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
         }
         else {
 
-            errorObj.message = "Error occurred while getting the user list, Please contact WSO2 Cloud Team for help";
-            print(errorObj);
+            message = "Error occurred while getting the user list, Please contact WSO2 Cloud Team for help";
+            print({
+                      error: true,
+                      statusCode: 500,
+                      redirectionURL: contactUsURL,
+                      message: message
+                  });
         }
 
     } else if (action == "get-api-list-from-username") {
@@ -108,15 +108,25 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
             print(result);
         } else {
             log.error("Error occurred while getting the  api list for user - " + username );
-            errorObj.message = "Error occurred while getting the api list, Please contact WSO2 Cloud Team for help";
-            print(errorObj);
+            message = "Error occurred while getting the api list, Please contact WSO2 Cloud Team for help";
+            print({
+                      error: true,
+                      statusCode: 500,
+                      redirectionURL: contactUsURL,
+                      message: message
+                  });
         }
 
     } else {
-        log.error("No Action Specified");
+        message = "No Action Specified";
+        log.error(message);
         response.status = 400;
-        errorObj.message = "Unexpected error occurred";
-        print(errorObj);
+        print({
+                  error: true,
+                  statusCode: 400,
+                  redirectionURL: contactUsURL,
+                  message: message
+              });
     }
 
 }());

@@ -477,6 +477,31 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * @param tenantDomain    tenant domain
+     * @param userId          user id
+     * @param api             api name with version
+     * @param version         api version
+     * @param applicationName application name
+     * @param startDate       date range - start date
+     * @param endDate         date range - end date
+     * @param isMonthly       is monthly information requested
+     * @return JSON object of subscriber usage information
+     * @throws CloudMonetizationException
+     */
+    public JSONObject getSubscriberUsageInformationForGivenDateRange(String tenantDomain, String userId, String api,
+            String version, String applicationName, String startDate, String endDate, String isMonthly)
+            throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils
+                    .getSubscriberUsageInformationForGivenDateRange(tenantDomain, userId, api, version, applicationName,
+                            startDate, endDate, Boolean.parseBoolean(isMonthly));
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error occurred while retrieving subscriber usage information of tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
+    /**
      * Get APIs for a given user from API Stat tables.
      *
      * @param username

@@ -671,11 +671,14 @@
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
-                                        <xs:element name="accountExtension">
+                                        <xs:element name="accountExtensionRequest">
                                             <xs:complexType>
                                                 <xs:sequence>
                                                     <xs:element type="xs:string" name="emailSubject"/>
                                                     <xs:element type="xs:string" name="emailBody"/>
+                                                    <xs:element type="xs:string" name="extensionPeriod"/>
+                                                    <xs:element type="xs:string" name="trialUserStatus"/>
+                                                    <xs:element type="xs:string" name="subscriptionType"/>
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>

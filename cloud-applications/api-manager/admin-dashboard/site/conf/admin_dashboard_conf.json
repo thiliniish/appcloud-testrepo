@@ -1,0 +1,7 @@
+{
+  "isEmailUserNameEnabled" : false,
+  "ServerURLs": {
+    "cloudMgtURL": "https://local.cloudmgt.wso2.com:9444/cloudmgt/",
+    "publisherURL": "https://local.cloudmgt.wso2.com:9643/publisher/"
+  }
+}

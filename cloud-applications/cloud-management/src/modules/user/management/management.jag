@@ -49,12 +49,27 @@ var getUserRoles = function (username) {
     return userRoles;
 };
 
-//method to check if the user is only a subscriber for a tenant
+//method to check if the user has only the subscriber role from the cloud roles.
 var hasOnlySubscriberRole = function (username) {
     var result = false;
+
     //Get user roles
     var userRoles = getUserRoles(username);
-    if (hasUserRole(username,ROLE_SUBSCRIBER) && userRoles.length == 1) {
+    var cloudRoleCount = 0;
+    var allCloudRoles = jagg.module("tenant").getAllCloudRoles();
+    var hasSubscriberRole = hasUserRole(username, ROLE_SUBSCRIBER);
+    if (userRoles.length > 0 && allCloudRoles.length > 0) {
+        // Logic to check how many cloud roles user is having excluding any custom roles.
+        for (var i = 0; i < allCloudRoles.length; i++) {
+            for (var j = 0; j < userRoles.length; j++) {
+                if (allCloudRoles[i].roleName == userRoles[j]) {
+                    cloudRoleCount++;
+                }
+            }
+        }
+    }
+    //Logic to check if the only cloud role the user has is the subscriber role.
+    if (cloudRoleCount == 1 && hasSubscriberRole) {
         result = true;
     }
     return result;

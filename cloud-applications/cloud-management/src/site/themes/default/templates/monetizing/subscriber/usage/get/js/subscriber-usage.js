@@ -1,4 +1,5 @@
 var isYear = false;
+var isChartSelected = true;
 var userData = null;
 var selectedUser = null;
 var apiData = null;
@@ -108,8 +109,10 @@ $(document).ready(function () {
     });
     apiUsageApplicationList.on("change", function () {
         selectedApp = $(this).val();
-        loadDataToChartObjectForGivenTime(apiUsageChart, true);
+        displayDataForGivenTime();
     });
+    $("#datatable").hide();
+    loadTable();
     loadDataToChartObjectForGivenTime(apiUsageChart);
 });
 
@@ -197,8 +200,24 @@ $(".api-usage .btn-week").click(function (e) {
     startDate = endDate.addDays(-7);
     setSelectedDates(endDate, startDate);
     addDatesToCurrentAndSet(7, "days");
-    loadDataToChartObjectForGivenTime(apiUsageChart);
+    displayDataForGivenTime();
 
+});
+
+$(".api-usage .btn-data-table").click(function (e) {
+    highlightSelected(this);
+    $("#api-usage").hide();
+    $("#datatable").show();
+    isChartSelected = false;
+    displayDataForGivenTime();
+});
+
+$(".api-usage .btn-bar-chart").click(function (e) {
+    highlightSelected(this);
+    $("#datatable").hide();
+    $("#api-usage").show();
+    isChartSelected = true;
+    displayDataForGivenTime();
 });
 
 $(".api-usage .btn-month").click(function (e) {
@@ -208,7 +227,7 @@ $(".api-usage .btn-month").click(function (e) {
     startDate = endDate.addDays(-29);
     setSelectedDates(endDate, startDate);
     addDatesToCurrentAndSet(29, "days");
-    loadDataToChartObjectForGivenTime(apiUsageChart);
+    displayDataForGivenTime();
 });
 
 $(".api-usage .btn-year").click(function (e) {
@@ -218,7 +237,7 @@ $(".api-usage .btn-year").click(function (e) {
     startDate = endDate.addDays(-366);
     setSelectedDates(endDate, startDate);
     addDatesToCurrentAndSet(366, "days")
-    loadDataToChartObjectForGivenTime(apiUsageChart);
+    displayDataForGivenTime();
 });
 
 function highlightSelected(t) {
@@ -253,10 +272,51 @@ $(".btn-calender").on("apply.daterangepicker", function (ev, picker) {
     startDate = new Date(picker.startDate.format("YYYY-MM-DD")),
         endDate = new Date(picker.endDate.format("YYYY-MM-DD"));
     setSelectedDates(endDate, startDate);
-    loadDataToChartObjectForGivenTime(apiUsageChart);
+    isYear = false;
     highlightSelected(this);
+    displayDataForGivenTime();
 });
 
+function displayDataForGivenTime() {
+    if (isChartSelected) {
+        loadDataToChartObjectForGivenTime(apiUsageChart);
+    }
+    else {
+        loadDataToTableForGivenTime();
+    }
+}
+
+function loadDataToTableForGivenTime() {
+    var usageData = getUsageDetails();
+    var usageDataArray = [];
+    if (usageData === undefined || usageData == "" || usageData == null) {
+        $("#show-usage").hide();
+        $("#usageLabel").show();
+        if ($("#api-usage-ds-application").prop("disabled")) {
+            $("#usageLabelTxt").text("No subscribed apis available for the selected user");
+        } else {
+            $("#usageLabelTxt").text("No usage data available from " + selectedStartDate + " to " + selectedEndDate);
+        }
+    } else {
+        $("#usageLabelTxt").text("");
+        $("#usageLabel").hide();
+        $("#show-usage").show();
+        for (var i in usageData) {
+            var usageObj = {};
+            var date = usageData[i].Month.replace(/\b(\d{1})\b/g, "0$1") + "-" + usageData[i].Year;
+            if (usageData[i].Day != null) {
+                date = usageData[i].Day.replace(/\b(\d{1})\b/g, "0$1") + "-" + date;
+            }
+            usageObj.api = usageData[i].ApiVersion;
+            usageObj.application = usageData[i].ApplicationName;
+            usageObj.user = usageData[i].UserId.split('@')[0];
+            usageObj.count = usageData[i].TotalCount;
+            usageObj.date = date;
+            usageDataArray.push(usageObj);
+        }
+        reloadTable(usageDataArray);
+    }
+}
 
 function loadDataToChartObjectForGivenTime(chartObj) {
     getJsonData(function (response) {
@@ -267,13 +327,15 @@ function loadDataToChartObjectForGivenTime(chartObj) {
         if (usageObj === undefined || usageObj == "" || usageObj == null) {
             chartObj.unload();
             $("#show-usage").hide();
+            $("#usageLabel").show();
             if ($("#api-usage-ds-application").prop("disabled")) {
                 $("#usageLabelTxt").text("No subscribed apis available for the selected user");
             } else {
-                $("#usageLabelTxt").text("No usage data available for " + selectedStartDate + " - " + selectedEndDate);
+                $("#usageLabelTxt").text("No usage data available from " + selectedStartDate + " to " + selectedEndDate);
             }
         } else {
             $("#usageLabelTxt").text("");
+            $("#usageLabel").hide();
             $("#show-usage").show();
             var dateArr = getDates(new Date(selectedStartDate), new Date(selectedEndDate));
             var usageDateObj = {};
@@ -303,6 +365,35 @@ function loadDataToChartObjectForGivenTime(chartObj) {
         }
     })
 }
+function loadTable(data) {
+    $('#statTable').DataTable({
+        dom: 'Bflrtip',
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                title: 'WSO2-Api-Cloud-Subscriber-Usage-Report'
+            },
+            {
+                extend: 'pdfHtml5',
+                title: 'WSO2-Api-Cloud-Subscriber-Usage-Report'
+            }
+        ],
+        data: data,
+        columns: [
+            {"data": "user"},
+            {"data": "api"},
+            {"data": "application"},
+            {"data": "date"},
+            {"data": "count"}
+        ]
+    });
+};
+
+function reloadTable(data) {
+    $('#statTable').dataTable().fnClearTable();
+    $('#statTable').dataTable().fnAddData(data);
+    $('#statTable').DataTable().draw();
+};
 
 /**
  *
@@ -334,7 +425,8 @@ function getJsonData(callback) {
             "api": selectedApi,
             "applicationName": selectedApp,
             "fromDate": selectedStartDate,
-            "toDate": selectedEndDate
+            "toDate": selectedEndDate,
+            "type": "chart"
         },
         success: callback
     });
@@ -370,12 +462,36 @@ function getUserData() {
             result = jQuery.parseJSON(result);
             if (!result.error) {
                 users = result.subObj;
-
             }
         }
     });
     return users;
 };
+
+function getUsageDetails() {
+    var usageObj;
+    $.ajax({
+        url: "../blocks/monetizing/subscriber/usage/get/ajax/get.jag",
+        data: {
+            "action": "getSubscriberUsage",
+            "userId": selectedUser,
+            "api": selectedApi,
+            "applicationName": selectedApp,
+            "fromDate": selectedStartDate,
+            "toDate": selectedEndDate,
+            "type": "table",
+            "isMonthly": isYear
+        },
+        async: false,
+        success: function (result) {
+            result = jQuery.parseJSON(result);
+            if (!result.error) {
+                usageObj = result.usageObj;
+            }
+        }
+    });
+    return usageObj;
+}
 
 function setSelectedDates(endDate, startDate) {
     if ((endDate.getMonth() + 1) < 10) {

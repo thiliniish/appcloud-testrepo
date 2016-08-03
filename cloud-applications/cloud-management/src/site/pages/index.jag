@@ -1,18 +1,20 @@
 <%
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
-var log = new Log();
+var log = new Log("site.pages.index.jag");
 
 (function () {
-      
-	var userName = session.get("LOGGED_IN_USER");
+
+    var username = session.get("LOGGED_IN_USER");
     var sessionId = session.getId();
-    if(userName == null | userName == 'anonymous user') {
-	} else {
+    if(username == null | username == 'anonymous user') {
 
-	}
+    } else {
 
-   jagg.render({
+    }
+    var inputsObj = {};
+    inputsObj.username = username;
+    jagg.render({
         "name":"page/base",
         "inputs":{
             "title":"WSO2 Cloud Mgt",
@@ -24,7 +26,8 @@ var log = new Log();
                         "title":"Cloud Mgt",
                         "middle":[
                             {
-                            	"name":"subscriptions"
+                            	"name":"subscriptions",
+                            	"inputs": inputsObj
                             }
                         ]
                     }

@@ -2,6 +2,8 @@
   "isEmailUserNameEnabled" : false,
   "emailValidationPattern" : "/^([a-zA-Z0-9]+[a-zA-Z0-9._\\-\\+]*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,4})$/",
   "commonSubscription" : "Common",
+  "welcomeMsg" : "Welcome",
+  "disabledSubscriptionWarning": "Your Subscription is Disabled.\nPlease contact WSO2 Cloud team if you need any help.",
   "adminRole" : "admin",
   "adminRoleDisplayName" : "Admin",
   "internalRole" : "Internal/",
@@ -10,27 +12,15 @@
       {
         "id": "app_cloud",
         "name": "App Cloud",
+        "isBeta": true,
+        "logoClass": "fa",
+        "logo": "cubes",
+        "description": "Host your microservices and web applications in the Cloud.",
         "serviceType": "free",
         "roleTypes": [
           {
-            "roleName": "devops",
-            "displayRoles": "DevOps"
-          },
-          {
-            "roleName": "cxo",
-            "displayRoles": "CXO"
-          },
-          {
-            "roleName": "appowner",
-            "displayRoles": "Application Owner"
-          },
-          {
-            "roleName": "qa",
-            "displayRoles": "QA"
-          },
-          {
-            "roleName": "developer",
-            "displayRoles": "Developer"
+            "roleName": "appclouduser",
+            "displayRoles": "AppCloudUser"
           }
         ],
         "urls": {
@@ -41,15 +31,19 @@
       {
         "id": "api_cloud",
         "name": "API Cloud",
+        "isBeta":false,
+        "logoClass":"fw",
+        "logo": "api",
+        "description": "Turn your web services into managed APIs and provide access via the developer portal.",
         "serviceType": "commercial",
         "roleTypes": [
           {
             "roleName": "subscriber",
-            "displayRoles": "Subscriber"
+            "displayRoles": "APICloudSubscriber"
           },
           {
             "roleName": "publisher",
-            "displayRoles": "Publisher"
+            "displayRoles": "APICloudPublisher"
           }
         ],
         "urls": {
@@ -93,7 +87,10 @@
     "keyStoreName": "../../../../../../resources/security/wso2carbon.jks",
     "cookieRefreshInterval": 300000,
     "adminUser": "admin",
-    "adminPassword": "admin"
+    "adminPassword": "admin",
+    "responseSigningEnabled":true,
+    "assertionSigningEnabled":true,
+    "audienceRestrictionsEnabled":true
   },
   "registrationEmail": {
     "from": "WSO2 Cloud Team <cloud@wso2.com>",

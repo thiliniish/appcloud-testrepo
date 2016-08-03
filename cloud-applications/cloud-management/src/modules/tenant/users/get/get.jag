@@ -33,7 +33,7 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
         tmpUser.lastName = tmpLastName;
         var allRoles = "";
         for (var j = 0; j < tmpRoles.length; j++) {
-            var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
+            var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole") == "true";
             // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
             if (!enableDisplayRole || tmpRoles[j].indexOf(cloudConfig.internalRole) != -1) {
                 continue;
@@ -91,7 +91,7 @@ var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDom
         tmpUser.lastName = tmpLastName;
         tmpUser.roleTypes = [];
         for (var j = 0; j < tmpRoles.length; j++) {
-            var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole");
+            var enableDisplayRole = getProperty("TenantRoles.Role." + tmpRoles[j] + ".DisplayRole") == "true";
             // enableDisplayRole specifies whether or not to display a role ( Added parameter in cloud-mgt.xml )
             if (!enableDisplayRole || tmpRoles[j].indexOf(cloudConfig.internalRole) != -1) {
                 continue;
@@ -149,6 +149,23 @@ var getRolesOfCloudType = function getRolesOfCloudType(cloudType) {
         }
     }
     return cloudTypeRoles;
+};
+
+//This method retrieves all the roles used in the cloud. (Specified in the cloud_mgt.json file)
+var getAllCloudRoles = function getAllCloudRoles() {
+    var cloudTypeRoles;
+    var allCloudRolesArray = [];
+    for (var i = 0; i < subscriptionsType.length; i++) {
+        //gets the roles for respective cloud type
+        cloudTypeRoles = getRolesOfCloudType(subscriptionsType[i].id);
+        if (cloudTypeRoles.length > 0) {
+            // Adding the roles respective to each cloud type.
+            for (var j = 0; j < cloudTypeRoles.length; j++) {
+                allCloudRolesArray.push(cloudTypeRoles[j]);
+            }
+        }
+    }
+    return allCloudRolesArray;
 };
 
 var getPendingUsersOfRole = function getPendingUsersOfRole(tenantDomain, role) {
@@ -319,8 +336,11 @@ var getUserListOfRole = function (role) {
         var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
         var realm = realmService.getTenantUserRealm(tenantId);
         var userStoreManager = realm.getUserStoreManager();
-        var result = userStoreManager.getUserListOfRole(role);
-        return result;
+        var usersWithRole = userStoreManager.getUserListOfRole(role);
+        //Admin user can act as any role. Therefore, admins are also added to the result array
+        var adminUsers = userStoreManager.getUserListOfRole('admin');
+        var resultArray = jagg.module("util").getDistinctStringsInArray(usersWithRole.concat(adminUsers));
+        return resultArray;
     } catch (e) {
         log.error("Error occurred while getting users of role " + " " + role + " for tenant " + tenantDomain);
         log.error(e);

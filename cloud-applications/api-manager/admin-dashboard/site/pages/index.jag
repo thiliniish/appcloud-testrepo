@@ -26,9 +26,19 @@ middlePage="analytics-task";
 
 (function () {
     var user = jagg.getUser();
+    var log = new Log("site.pages.index.jag");
     if (!user) {
         response.sendRedirect(getRedirectPathForNonAuthenticatedUser());
         return;
+    } else {
+        //checking if user can access the admin dashboard
+        var isUserInAdminRoleResult = jagg.module("util").isUserInAdminRole();
+        if (!isUserInAdminRoleResult.error) {
+            if (!isUserInAdminRoleResult.isAdmin) {
+                log.error("user" + user.username + " not permitted since not a tenant admin.");
+                response.sendRedirect("site/pages/error-pages/401.jag");
+            }
+        }
     }
 
     jagg.render({

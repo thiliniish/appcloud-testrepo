@@ -342,10 +342,13 @@
                 <emailSubject>Need help with WSO2 Cloud</emailSubject>
                 <emailBody>Test Mail for Support Request</emailBody>
             </supportRequest>
-            <accountExtension>
+            <accountExtensionRequest>
                 <emailSubject>Trial Extension Request</emailSubject>
                 <emailBody>Test Mail for Trial Extension Request</emailBody>
-            </accountExtension>
+                <extensionPeriod>14</extensionPeriod>
+                <trialUserStatus>ACTIVE</trialUserStatus>
+                <subscriptionType>api_cloud</subscriptionType>
+            </accountExtensionRequest>
         </support>
     </cloudProperties>
 </automation>

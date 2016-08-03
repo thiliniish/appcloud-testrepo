@@ -1,102 +1,6 @@
 <% jagg.template("tenant/register/invite", function(inputs, outputs, jagg) { %>
-<%
-//var userName =  session.get("LOGGED_IN_USER");
-var log = new Log('site/theme/default/templates/tenant/register/invite/template.jag');
-//session.put("wso2carbon.admin.logged.in", userName);
 
-
-var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var otEmail = request.getParameter("email");
-var sourceToken = request.getParameter("tokenid");
-var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-
-%>
-
-<style>
-header {
-	display: none;
-}
-
-body#home {
-	background: none #292E38;
-}
-
-.sticky-wrapper {
-	position: relative;
-	height: auto !important;
-}
-
-.warning_message {
-	background-color: #ffffff;
-}
-
-.info_message .close_message {
-	position: absolute;
-	right: 13px;
-	top: 7px;
-}
-
-.info_message {
-	background-color: #ffffff;
-	width: 400px;
-}
-
-.txt-right {
-	text-align: right;
-}
-
-.email-resent-msg {
-     color: white;
-}
-
-#tenantDomain {
-	width: 87%;
-	margin-left: 7px;
-}
-
-#captchaImgDiv img {
-	width: 100%;
-	height: 39px;
-}
-
-#aPaaS,#iPaaS {
-	width: 20%;
-}
-
-#lblLoginID {
-	color: #888;
-	display: none;
-}
-
-#preAt {
-	margin-left: -3px;
-	margin-right: -3px;
-}
-
-section.start_content div.subs-cont {
-	margin-top: 20px;
-	margin-bottom: 30px;
-}
-
-#submitbtn {
-	background-color: #EB7067;
-	border: #EB7067;
-}
-#success-message{
-    display:none;
-}
-
-#more-options{
-    display:none;
-    width: 50%;
-    margin: 0 auto;
-    text-align:left;
-}
-
-
-</style>
-
-<!-- Google Tag Manager -->
+<!-- Google Tag Manager for Google Analytics-->
 <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PSTXMT"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -106,226 +10,77 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-PSTXMT');</script>
 <!-- End Google Tag Manager -->
 
-<script type="text/javascript">
-
-
-    function validateEmail(){
-        var isEmailValid=true;
-        var email = $("#email").val();
-        var patternForEmailValidation =/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    	var isEmailValid = patternForEmailValidation.test(email);
-    	if(email.indexOf("+") != -1) {
-    	    isEmailValid = false;
-    	}
-        if (isEmailValid) {
-            $('#email').val(email);
-        }
-        return isEmailValid;
-    }
-
-    $(document).ready(function( $){
-    
-        var otEmail = $("#otEmail").val();
-        if(otEmail != "null" ) {
-            $('#userForm').hide();
-           document.getElementById("email").value = otEmail;
-            doSubmit();
-        }
-        jQuery.validator.setDefaults({
-            errorElement:'span'
-        });
-        jQuery.validator.addMethod("emailValid", function(value, element) {
-            var isSuccess = false;
-            isSuccess = validateEmail(value);
-            return isSuccess;
-        }, "Please enter a valid email address. Please use only letters (a-z), numbers, and periods.");
-        $('#userForm').validate({
-            rules : {
-                email: {
-                  required: true,
-                   email: true
-                }
-            },
-            submitHandler: function(form) {
-                doSubmit();
-            }
-        });
-        $( "#resend-email" ).click(function( event ) {
-            event.preventDefault();
-            resendInvitationEmail();
-        });
-       $('#resent-success').hide();
-    });
-
-   $(function() {
-       $('#help-options').click(function() {
-           $('#more-options').show();
-           return false;
-       });
-   });
-
-	function disable() {
-		document.getElementById("spinner").style.display = '';
-		 var submitButton = document.getElementById('submitbtn');
-		 $('#submitbtn').css('background-color','#F9BFBB');
-		 submitButton.disabled = true;
-	}
-
-	function enable() {
-		document.getElementById("spinner").style.display = 'none';
-		 var submitButton = document.getElementById('submitbtn');
-		 $('#submitbtn').css('background-color','#428BCA');
-		//submitButton.disabled = false;
-	}
-
-function doSubmit() {
-    var email = $("#email").attr('value');
-    var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-    var token = $("#sourceToken").attr('value');
-    disable();
-    $('#resent-success').hide();
-    var isValidMail = validateEmail();
-    if (isValidMail) {
-        jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
-            action:"isExistingUser",
-            username:email
-        },
-        function (result) {
-            result = result.replace(/(\r\n|\n|\r)/gm,"");
-            if (result == "false") {
-                jagg.post("../blocks/tenant/register/invite/ajax/invite.jag", {
-                    action:"sendInvite",
-                    email:email,
-                    token: token
-                },
-                function (result) {
-                    $(".content-starter h1").text("Check Your Email");
-                        $(".content-starter h1").css('color','white');
-                        $("#email-sent-to").replaceWith("<br><h5> We have sent you the welcome email to <b>" + email + "</b>. Please click the link in the email to continue signing up.</h5>");
-                        $(".helper_text h5").css({'font-size':'20px', 'text-align':'left'});
-                        $("#helper_text").hide();
-                        $("#success-message").show();
-                        $(".content-section-wrapper").hide();
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({content:' Error Sending the registration email ', type:'error', cbk:function(){
-                        window.location.href = "index.jag";
-                        }
-                    });
-                    enable();
-                });
-            } else {
-                    jagg.message({content:'Looks like you have an account with wso2.com - So please just use the password that you have there to log in <br/>If you do not remember the password that you have at wso2.com - click  <a href="initiate.jag">here</a>  to reset and we will send you a new password.', type:'success', cbk:function(){
-                        window.location.href = "index.jag";
-                        }
-                    });
-                    enable();
-            }
-        },
-        function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:' Error Sending the registration email ', type:'error', cbk:function(){
-                window.location.href = "index.jag";
-                }
-            });
-            enable();
-        });
-    } else {
-        jagg.message({content:'Looks like you have given an invalid email Address - ' + email + " Email should be of length 3-30 in alphanumeric characters except '+'", type:'error',cbk:function(){
-            window.location.href = "index.jag";
-            }
-        });
-        enable();
-    }
-}
-
-function resendInvitationEmail() {
-  var email = $("#email").attr('value');
-
-    $.post("../blocks/tenant/register/invite/ajax/invite.jag", {
-        action:"reInvite",
-        email:email
-        },
-        function (result) {
-                $('#resend-mail').text("We have re-sent your email. Please check your inbox.");
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                $('#resend-mail').text("Error re-sending email.Please Please contact support.");
-            });
-            $('#resent-success').show();
-
-    return true;
-}
-
-function getUserEmail() {
-    cloudmgtURL = $("#cloudmgtURL").attr('value');
-    userEmail = document.getElementById('email').value;
-    var link = cloudmgtURL + "/site/pages/contact-us.jag?registration-help=true&email=" + userEmail;
-    document.getElementById('contact-us-link').setAttribute('href', link);
-
-    return true;
-}
-
-</script>
-
-
 <div class="container content-starter">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1>Sign Up to WSO2 Cloud</h1>
-			<div class="helper_text" id="helper_text">
-			    <p>The world's most comprehensive platform-as-a-service</p>
-		    </div>
-		    <div class="helper_text" id="success-message">
-                <p id="email-sent-to"></p>
-                <br><p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no typos and that the email didn’t get caught in your spam folder.</p>
-                <p><a href = "" id="help-options">Still haven't received the email after a few minutes?</a><p/>
-                <p><div id="more-options">
-                <ul>
-                <a href ="signup.jag" ><li><strong>Re-type the email address</strong></li></a>
-                <a href ="signup.jag" id = "resend-email"><li><strong>Resend the invitation</strong></li></a>
-                <a href ="index.jag" id ="contact-us-link" onclick = 'getUserEmail();'><li><strong>Contact support</strong></li></a>
-
-                </ul></div>   </p>
+   <div class="row">
+      <div class="col-lg-12">
+         <div id="signup_topic">
+            <h1>Sign Up to WSO2 Cloud</h1>
+         </div>
+         <div class="helper_text" id="helper_text">
+            <p>Please enter a valid email address to try WSO2 Cloud</p>
+         </div>
+         <div class="helper_text" id="success-message">
+            <h1>Check Your Email</h1>
+            <br>
+             <h5> We have sent you the welcome email to <b id="email-id"></b>. Please click the link in the email to
+             continue signing up.</h5>
+            <br>
+            <p>If the email does not reach the mailbox within a couple minutes, make sure that the email address has no
+            typos and that the email didn’t get caught in your spam folder.</p>
+            <p><a href = "" id="help-options">Still haven't received the email after a few minutes?</a></p>
+            <p>
+            <div id="more-options">
+               <ul>
+                  <a href ="signup.jag" >
+                     <li><strong>Re-type the email address</strong></li>
+                  </a>
+                  <a href ="signup.jag" id = "resend-email">
+                     <li><strong>Resend the invitation</strong></li>
+                  </a>
+                  <a href ="index.jag" id ="contact-us-link" onclick = 'getUserEmail();'>
+                     <li><strong>Contact support</strong></li>
+                  </a>
+               </ul>
             </div>
-		</div>
-
-	</div>
+            </p>
+         </div>
+      </div>
+   </div>
 </div>
+
 <% jagg.includeBlock("page/messages", null); %>
+
 <div class="container content-section-wrapper" id ="form_div">
-	<div class="row">
-		<div class="col-lg-12 content-section">
-			<form method='post' name="inputData" class='form-horizontal'
-				id='userForm' role="form">
-				<div class="form-group">
-					<label for="username" class="col-sm-2 control-label">Email </label>
-					<div class="col-sm-8">
-						<input type="text" id="email" name="email" class="required " />
-					</div>
-				</div>
-
-
-				<div class="form-group">
-				    <label for="empty" class="col-sm-2 control-label"></label>
-					<div class="col-sm-8">
-						<input id="submitbtn" type='submit' value='Try it free now'
-							class='btn btn-primary' />
-						<i class="fa fa-spinner fa-spin fa-3x" id="spinner" style="display:none; margin-left: 10px;"></i>
-					</div>
-				</div>
-
-				<input type="hidden" name="otEmail" id="otEmail"
-					value="<%=otEmail%>" /> <input type="hidden" name="imagePath"
-					id="imagePath" value="" />
-				<input type="hidden" name="sourceToken" id="sourceToken"
-					value="<%=sourceToken%>" /> <input type="hidden" name="imagePath"
-					id="imagePath" value="" />
-                <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
-			</form>
-		</div>
-	</div>
+   <div class="row">
+      <div class="col-lg-12 content-section">
+         <form method='post' name="inputData" class='form-horizontal'
+            id='userForm' role="form">
+            <div class="form-group">
+               <label for="username" class="col-sm-2 control-label">Email </label>
+               <div class="col-sm-8">
+                  <input type="text" id="email" name="email" class="required " />
+               </div>
+            </div>
+            <div class="form-group">
+               <label for="empty" class="col-sm-2 control-label"></label>
+               <div class="col-sm-8">
+                  <input id="submitbtn" type='submit' value='Try it free now'
+                     class='btn btn-primary' />
+                  <i class="fa fa-spinner fa-spin fa-3x" id="spinner" style="display:none; margin-left: 10px;"></i>
+               </div>
+            </div>
+            <input type="hidden" name="otEmail" id="otEmail"
+               value="<%=outputs.otEmail%>" /> <input type="hidden" name="imagePath"
+               id="imagePath" value="" />
+            <input type="hidden" name="sourceToken" id="sourceToken"
+               value="<%=outputs.sourceToken%>" /> <input type="hidden" name="imagePath"
+               id="imagePath" value="" />
+            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=outputs.cloudmgtURL%>"/>
+         </form>
+      </div>
+   </div>
 </div>
 <div id = "resent-success" class ="container content-starter email-resent-msg h5">
-    <p id = "resend-mail ">We have re-sent your email. Please check your inbox.</p>
+   <p id = "resend-mail">We have re-sent your email. Please check your inbox.</p>
 </div>
 <% }); %>

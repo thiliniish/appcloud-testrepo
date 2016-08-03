@@ -32,6 +32,10 @@
                                     </div>
                                     <div class="pull-right chart-controller">
                                         <div class="btn-toolbar" role="toolbar" aria-label="...">
+                                             <div class="btn-group" role="group" aria-label="...">
+                                                <button type="button" class="btn btn-bar-chart chart-controller-btn-selected"><i class="fa fa-bar-chart fa-2x"></i></button>
+                                                <button type="button" class="btn btn-data-table"><i class="fa fa-table fa-2x"></i></button>
+                                            </div>
                                             <div class="btn-group" role="group" aria-label="...">
                                                 <button type="button" class="btn btn-week"><p>1 Week</p></button>
                                                 <button type="button" class="btn btn-month chart-controller-btn-selected"><p>1 Month</p></button>
@@ -44,9 +48,24 @@
                             </div>
                             <div class="span6">
                                 <div class="box-content box-content-padding">
-                                    <div class="usageLabel"><p id="usageLabelTxt" name="usageLabelTxt"></p></div>
+                                    <div class="usageLabel" id="usageLabel"><p id="usageLabelTxt" name="usageLabelTxt"></p></div>
                                     <div id="show-usage">
                                         <div class="chart-container" id="api-usage"></div>
+                                        <div class="data-table-container">
+                                            <div class="datatable" id="datatable">
+                                                <table id="statTable" class="display" cellspacing="0" width="100%">
+                                                    <thead>
+                                                        <tr>
+                                                        <th>Subscriber</th>
+                                                        <th>API</th>
+                                                        <th>Application</th>
+                                                        <th>Date</th>
+                                                        <th>Number of requests</th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
