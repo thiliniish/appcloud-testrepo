@@ -59,6 +59,8 @@ public class APIDeleter {
 
     /**
      * Method to startDeletion APIs of given tenants.
+     *
+     * @param deletionLimit Number of tenants to be cleaned up in a single round
      */
     public void delete(String deletionLimit) {
         Map<String, Integer> tenantMap;
@@ -85,7 +87,8 @@ public class APIDeleter {
     /**
      * Deletion start method for the class.
      * Initializes the tenant flow and starts deleting the APIs
-     * @param tenantMap     Map of tenant Domain, tenant Id to be delete APIs
+     *
+     * @param tenantMap Map of tenant Domain, tenant Id to be delete APIs
      */
     private void startDeletion(Map<String, Integer> tenantMap) {
         LOG.info("Api deletion started for " + tenantMap.size() + " tenants.");
@@ -134,6 +137,7 @@ public class APIDeleter {
 
     /**
      * API Delete method for a specified Artifact for the tenant
+     *
      * @param artifact GenericArtifact element
      */
     private void deleteAPI(GenericArtifact artifact) {

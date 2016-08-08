@@ -38,6 +38,7 @@ public class DeletionConstants {
     public static final String FIELD = "Field";
     public static final String UM_EMAIL = "UM_EMAIL";
     public static final String DELETE = "delete";
+    public static final int COUNTER_VALUE = 1000;
 
     //Deletion Status
     public static final int DELETION_SUCCESS_STATUS = 1;
@@ -85,6 +86,9 @@ public class DeletionConstants {
     public static final String DELETION_TENANTS = "DELETION_TENANTS";
     public static final String DELETION_STATUS = "DELETION_STATUS";
     public static final String DELETION_EXCLUSION_TENANTS = "DELETION_EXCLUSION_TENANTS";
+
+    public static final String JAVA_NAMING_FACTORY_INITIAL_KEY = "java.naming.factory.initial";
+    public static final String JAVA_NAMING_FACTORY_INITIAL_VALUE = "org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory";
 
     private DeletionConstants() {
     }

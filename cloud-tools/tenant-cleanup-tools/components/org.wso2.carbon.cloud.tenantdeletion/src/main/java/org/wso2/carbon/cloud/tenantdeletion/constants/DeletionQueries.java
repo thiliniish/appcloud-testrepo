@@ -87,8 +87,11 @@ public class DeletionQueries {
             "SELECT STATUS FROM " + DELETION_STATUS + " WHERE TYPE = 'DELETION_LIMIT'";
 
     //BILLING_STATUS Table
-    public static final String QUERY_GET_PAID_TENANT_ID_LIST =
+    public static final String QUERY_GET_PAID_TENANT_DOMAIN_LIST =
             "SELECT TENANT_DOMAIN FROM BILLING_STATUS WHERE STATUS = 'ACTIVE' AND TYPE = 'PAID'";
+
+    public static final String QUERY_GET_PAID_TENANT =
+            "SELECT TENANT_DOMAIN FROM BILLING_STATUS WHERE STATUS = 'ACTIVE' AND TYPE = 'PAID' AND TENANT_DOMAIN = ?";
 
     //EXCLUSION Table
     public static final String QUERY_GET_EXCLUSION_TENANT_ID_LIST =

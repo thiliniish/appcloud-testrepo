@@ -715,6 +715,62 @@ public class DataAccessManager {
     }
 
     /**
+     * Retrieve the type specific deletion status before executing the deletion class
+     *
+     * @param type Required type to check the status
+     * @return List of type status
+     */
+    public List<Integer> getTypeDeletionStatus(String type) {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Integer> list = new ArrayList<>();
+        try {
+            String query = DeletionQueries.QUERY_GET_TYPE_DELETION_STATUS;
+            preparedStatement = DataConnectionManager.getInstance().getCloudMgtDbConnection().prepareStatement(query);
+            preparedStatement.setString(1, type);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                list.add(resultSet.getInt(DeletionConstants.STATUS));
+            }
+        } catch (SQLException e) {
+            LOG.error("SQL Exception occurred while executing query", e);
+        } finally {
+            closePreparedStatement(preparedStatement);
+            closeResultSet(resultSet);
+            DataConnectionManager.getInstance().closeDbConnection();
+        }
+        return list;
+    }
+
+    /**
+     * Retrieving tenant admin user email address for the specific tenant
+     *
+     * @param tenantDomain String tenant domain for the required tenant
+     * @return String email address of the tenant admin user
+     */
+    public String getTenantAdminEmail(String tenantDomain) {
+        String email = null;
+        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            String query = DeletionQueries.QUERY_GET_TENANT_ADMIN_EMAIL;
+            preparedStatement = DataConnectionManager.getInstance().getUserMgtDbConnection().prepareStatement(query);
+            preparedStatement.setString(1, tenantDomain);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                email = resultSet.getString(DeletionConstants.UM_EMAIL);
+            }
+        } catch (SQLException e) {
+            LOG.error("SQL Exception occurred while executing query", e);
+        } finally {
+            closeResultSet(resultSet);
+            closePreparedStatement(preparedStatement);
+            DataConnectionManager.getInstance().closeDbConnection();
+        }
+        return email;
+    }
+
+    /**
      * Closing resultSet
      *
      * @param resultSet result set
@@ -768,60 +824,5 @@ public class DataAccessManager {
         } catch (SQLException e) {
             LOG.error("Failed to close statement", e);
         }
-    }
-
-    /**
-     * Retrieve the type specific deletion status before executing the deletion class
-     *
-     * @param type  Required type to check the status
-     * @return      List of type status
-     */
-    public List<Integer> getTypeDeletionStatus(String type) {
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        List<Integer> list = new ArrayList<>();
-        try {
-            String query = DeletionQueries.QUERY_GET_TYPE_DELETION_STATUS;
-            preparedStatement = DataConnectionManager.getInstance().getCloudMgtDbConnection().prepareStatement(query);
-            preparedStatement.setString(1, type);
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                list.add(resultSet.getInt(DeletionConstants.STATUS));
-            }
-        } catch (SQLException e) {
-            LOG.error("SQL Exception occurred while executing query", e);
-        } finally {
-            closePreparedStatement(preparedStatement);
-            closeResultSet(resultSet);
-            DataConnectionManager.getInstance().closeDbConnection();
-        }
-        return list;
-    }
-
-    /**
-     * Retrieving tenant admin user email address for the specific tenant
-     * @param tenantDomain  String tenant domain for the required tenant
-     * @return              String email address of the tenant admin user
-     */
-    public String getTenantAdminEmail(String tenantDomain) {
-        String email = null;
-        ResultSet resultSet = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            String query = DeletionQueries.QUERY_GET_TENANT_ADMIN_EMAIL;
-            preparedStatement = DataConnectionManager.getInstance().getUserMgtDbConnection().prepareStatement(query);
-            preparedStatement.setString(1, tenantDomain);
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                email = resultSet.getString(DeletionConstants.UM_EMAIL);
-            }
-        } catch (SQLException e) {
-            LOG.error("SQL Exception occurred while executing query", e);
-        } finally {
-            closeResultSet(resultSet);
-            closePreparedStatement(preparedStatement);
-            DataConnectionManager.getInstance().closeDbConnection();
-        }
-        return email;
     }
 }
