@@ -32,7 +32,7 @@ public class FailureSummary {
     private Date date;
     private long startTime;
     private long endTime;
-    private long downTime;
+    private int downTime;
 
     public FailureSummary(String server, String taskName, int startID, Date date, long startTime) {
         this.server = server;
@@ -66,11 +66,11 @@ public class FailureSummary {
         return new Date(this.date.getTime());
     }
 
-    public long getDownTime() {
+    public int getDownTime() {
         return downTime;
     }
 
-    public void setDownTime(long downTime) {
+    public void setDownTime(int downTime) {
         this.downTime = downTime;
     }
 

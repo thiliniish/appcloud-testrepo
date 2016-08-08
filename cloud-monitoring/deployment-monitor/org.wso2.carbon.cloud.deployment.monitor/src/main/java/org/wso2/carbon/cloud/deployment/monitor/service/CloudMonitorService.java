@@ -22,7 +22,6 @@ import com.google.gson.JsonObject;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.StatusReportingDAOImpl;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.deployment.monitor.core.scheduler.ScheduleManager;
@@ -37,49 +36,76 @@ import javax.ws.rs.core.Response;
 /**
  * This service expose management actions of the Deployment Monitor
  */
-@Path("/monitor") @Produces({ "application/json" }) public class CloudMonitorService implements Microservice {
+@Path("/deployment-monitor")
+@Produces({ "application/json" })
+public class CloudMonitorService implements Microservice {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudMonitorService.class);
 
-    @POST @Path("/maintenance") public Response doMaintenanceAction(@QueryParam("action") String action,
-            @QueryParam("task") String task, @QueryParam("server") String server) {
+    private enum ACTION {
+        SCHEDULE,
+        UNSCHEDULE,
+        PAUSE,
+        RESUME
+    }
+
+    @POST
+    @Path("/schedule")
+    public Response schedule(@QueryParam("task") String task,
+            @QueryParam("server") String server) {
+        return doScheduling(CloudMonitorService.ACTION.SCHEDULE, task, server);
+    }
+
+    @POST
+    @Path("/unschedule")
+    public Response unschedule(@QueryParam("task") String task,
+            @QueryParam("server") String server) {
+        return doScheduling(CloudMonitorService.ACTION.UNSCHEDULE, task, server);
+    }
+
+    @POST @Path("/pause") public Response pause(@QueryParam("task") String task, @QueryParam("server") String server) {
+        return doScheduling(CloudMonitorService.ACTION.PAUSE, task, server);
+    }
+
+    @POST
+    @Path("/resume")
+    public Response resume(@QueryParam("task") String task,
+            @QueryParam("server") String server) {
+        return doScheduling(CloudMonitorService.ACTION.RESUME, task, server);
+    }
+
+    private Response doScheduling(CloudMonitorService.ACTION action, String task, String server) {
         ScheduleManager scheduleManager;
         boolean isSuccess = false;
+        JsonObject responseObj = new JsonObject();
+
         String responseMsg = null;
-        JsonObject jsonObject = new JsonObject();
-        //Checking the mandatory parameters
-        if (action == null) {
-            logger.warn("Action has not been specified.");
-            createErrorObject(jsonObject, 400, "Action name is not specified. "
-                    + "Please specify a action { schedule | unschedule | pause | resume }");
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonObject).build();
-        }
 
         if (server == null) {
-            logger.warn("Server name has not been specified");
-            createErrorObject(jsonObject, 400, "Please specify the server");
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonObject).build();
+            logger.warn("Server group name has not been specified.");
+            responseMsg = "Please specify the server group.";
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(responseMsg).build();
         }
 
-        logger.info("Action : " + action + ", Task : " + task + ", Server : " + server);
+
 
         try {
             scheduleManager = ScheduleManager.getInstance();
             //by task and server both
             if (task != null) {
+                logger.info("Performing Maintenance  Action : {}, Server : {}, Task : {}", action, server, task);
                 switch (action) {
 
-                case CloudMonitoringConstants.SCHEDULE:
+                case SCHEDULE:
                     isSuccess = scheduleManager.scheduleTaskForServer(task, server);
                     break;
-                case CloudMonitoringConstants.UNSCHEDULE:
-                    isSuccess = scheduleManager.unScheduleTaskForServer(task, server);
+                case UNSCHEDULE:
+                    isSuccess = scheduleManager.unscheduleTaskForServer(task, server);
                     break;
-                case CloudMonitoringConstants.PAUSE:
+                case PAUSE:
                     isSuccess = scheduleManager.pauseTaskForServer(task, server);
-
                     break;
-                case CloudMonitoringConstants.RESUME:
+                case RESUME:
                     isSuccess = scheduleManager.resumeTaskForServer(task, server);
                     break;
 
@@ -89,20 +115,21 @@ import javax.ws.rs.core.Response;
                             + "Please specify a action { schedule | unschedule | pause | resume }";
                     break;
                 }
-                //only by server
             } else {
+                logger.info("Performing Maintenance  Action : {}, Server :{}, Task: ALL", action, server);
+                //only by server
                 switch (action) {
 
-                case CloudMonitoringConstants.SCHEDULE:
+                case SCHEDULE:
                     isSuccess = scheduleManager.scheduleTasksOfServer(server);
                     break;
-                case CloudMonitoringConstants.UNSCHEDULE:
-                    isSuccess = scheduleManager.unScheduleTasksOfServer(server);
+                case UNSCHEDULE:
+                    isSuccess = scheduleManager.unscheduleTasksOfServer(server);
                     break;
-                case CloudMonitoringConstants.PAUSE:
+                case PAUSE:
                     isSuccess = scheduleManager.pauseTasksOfServer(server);
                     break;
-                case CloudMonitoringConstants.RESUME:
+                case RESUME:
                     isSuccess = scheduleManager.resumeTasksOfServer(server);
                     break;
 
@@ -115,32 +142,34 @@ import javax.ws.rs.core.Response;
             }
 
         } catch (SchedulerException e) {
-            logger.error("Error occurred while running the Scheduling Service {}", e);
-            createErrorObject(jsonObject, 500, "Error occurred while running the Scheduling Service");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonObject).build();
+            logger.error("Error occurred while running the maintenance task. ", e);
+            responseMsg = "Error occurred while running the maintenance task. " + e.getMessage();
         }
 
         if (isSuccess) {
             StatusReportingDAOImpl reportingDAO = new StatusReportingDAOImpl();
-            if (CloudMonitoringConstants.PAUSE.equals(action) || CloudMonitoringConstants.UNSCHEDULE.equals(action)) {
+            if (ACTION.PAUSE == action || ACTION.UNSCHEDULE == action) {
                 reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.MAINTENANCE);
                 reportingDAO.addMaintenanceSummary(server, task);
             } else {
                 reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.UP);
                 reportingDAO.updateMaintenanceSummary(server, task);
             }
-            jsonObject.addProperty("success", true);
-            jsonObject.addProperty("message", "Completed Action : " + action + " for Server : " + server);
-            return Response.status(Response.Status.OK).entity(jsonObject).build();
+            createResponseObject(responseObj, false, "Maintenance Task was successful");
+            return Response.status(Response.Status.OK).entity(responseObj).build();
         } else {
-            createErrorObject(jsonObject, 400, responseMsg);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonObject).build();
+            logger.error("Maintenance  Action : {}, Server {}: , Task : {} was failed", action, server, task);
+            if (responseMsg != null) {
+                createResponseObject(responseObj, true, responseMsg);
+            } else {
+                createResponseObject(responseObj, true, "Error occurred while running the maintenance task");
+            }
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseObj).build();
         }
     }
 
-    private void createErrorObject(JsonObject jsonObject, int code, String msg) {
-        jsonObject.addProperty("error", true);
-        jsonObject.addProperty("code", code);
+    private void createResponseObject(JsonObject jsonObject, boolean errorOccurred, String msg) {
+        jsonObject.addProperty("error", errorOccurred);
         jsonObject.addProperty("message", msg);
     }
 }

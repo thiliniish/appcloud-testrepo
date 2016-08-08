@@ -69,7 +69,7 @@ public class CloudDefaultCallBack implements OnResultCallback {
                 failureSummaryCache.clearCacheEntry(cacheKey);
 
                 long duration = currentTime - failureSummary.getStartTime();
-                failureSummary.setDownTime(duration);
+                failureSummary.setDownTime((int) duration);
                 failureSummary.setEndTime(currentTime);
                 reportingDAO.addFailureSummary(failureSummary);
 
@@ -110,7 +110,7 @@ public class CloudDefaultCallBack implements OnResultCallback {
                 FailureSummary failureSummary = failureSummaryCache.getCacheEntry(cacheKey);
                 failureSummary.setEndID(currentID);
                 long duration = currentTime - failureSummary.getStartTime();
-                failureSummary.setDownTime(duration);
+                failureSummary.setDownTime((int) duration);
                 failureSummaryCache.addToCache(cacheKey, failureSummary);
             } else {
                 FailureSummary failureSummary = new FailureSummary(runStatus.getServerGroupName(),
@@ -128,7 +128,9 @@ public class CloudDefaultCallBack implements OnResultCallback {
         }
         TaskConfig taskConfig = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
         if (taskConfig != null) {
-            boolean increaseFrequencyInFailure = (boolean) taskConfig.getTaskParams().get("increaseFrequencyInFailure");
+            boolean increaseFrequencyInFailure =
+                    taskConfig.getTaskParams().get("increaseFrequencyInFailure") != null && (boolean) taskConfig
+                            .getTaskParams().get("increaseFrequencyInFailure");
             if (increaseFrequencyInFailure) {
                 logger.info("Increasing scheduling frequency for Task : {} for Server : {}", runStatus.getTaskName(),
                         runStatus.getServerGroupName());

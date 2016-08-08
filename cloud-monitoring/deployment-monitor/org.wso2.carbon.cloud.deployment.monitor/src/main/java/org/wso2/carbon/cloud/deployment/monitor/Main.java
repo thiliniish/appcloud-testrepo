@@ -16,34 +16,18 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.deployment.monitor.utils;
+package org.wso2.carbon.cloud.deployment.monitor;
 
 /**
- * Exception
+ * Created by sumedha on 7/24/16.
  */
-public class CloudMonitoringException extends Exception {
+public class Main {
 
-    int errorCode = 500;
+    public static void main(String[] args) {
 
-    public CloudMonitoringException(String message) {
-        super(message);
-    }
+        double SecondsPerDay = 86400, Downtime = 0, uptime;
 
-    public CloudMonitoringException(String message, int errorCode) {
-        super(message);
-        this.errorCode = errorCode;
-    }
+        uptime = ( SecondsPerDay - Downtime) * 100 / SecondsPerDay;
 
-    public CloudMonitoringException(String message, Throwable e) {
-        super(message, e);
-    }
-
-    public CloudMonitoringException(String message, int errorCode, Throwable e) {
-        super(message, e);
-        this.errorCode = errorCode;
-    }
-
-    public int getErrorCode() {
-        return errorCode;
     }
 }

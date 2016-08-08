@@ -21,7 +21,8 @@ package org.wso2.carbon.cloud.deployment.monitor.status;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
-import org.wso2.carbon.cloud.deployment.monitor.utils.dao.UptimeInformationDAO;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
+import org.wso2.carbon.cloud.deployment.monitor.utils.dao.UptimeInformationDAOImpl;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 
 import java.text.SimpleDateFormat;
@@ -35,42 +36,31 @@ import java.util.Map;
 public class CurrentStatusRetriever {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMM yyyy, HH:mm:ss");
+    private UptimeInformationDAOImpl uptimeInformationDAO = new UptimeInformationDAOImpl();
 
-
-    public JsonObject getCurrentServerStatus(String server) {
-        UptimeInformationDAO uptimeInformationDAO = new UptimeInformationDAO();
+    public JsonObject getCurrentServerStatus(String server) throws CloudMonitoringException {
         List<CurrentTaskStatus> currentTaskStatuses = uptimeInformationDAO.getCurrentStatus(server);
-        JsonObject serverObj = new JsonObject();
-        if (currentTaskStatuses == null) {
-            createErrorObject(serverObj, 500, "Error occurred while getting the current status of the server");
-        } else if (currentTaskStatuses.isEmpty()) {
-            createErrorObject(serverObj, 404, "No Current Status records found for server");
+        new JsonObject();
+        if (currentTaskStatuses.isEmpty()) {
+            throw new CloudMonitoringException("No Current Status records found for server", 404);
         } else {
-            serverObj = createServerObject(server, currentTaskStatuses);
+            return createServerObject(server, currentTaskStatuses);
         }
-
-        return serverObj;
-
     }
 
-    public JsonObject getAllCurrentServerStatuses() {
-        UptimeInformationDAO uptimeInformationDAO = new UptimeInformationDAO();
+    public JsonArray getAllCurrentServerStatuses() throws CloudMonitoringException {
         Map<String, List<CurrentTaskStatus>> currentServerStatuses = uptimeInformationDAO.getAllCurrentStatuses();
 
-        JsonObject rootObject = new JsonObject();
-        if (currentServerStatuses == null) {
-            createErrorObject(rootObject, 500, "Error occurred while getting the current status of the server");
-        } else if (currentServerStatuses.isEmpty()) {
-            createErrorObject(rootObject, 404, "No Current Status records found for all servers");
+        if (currentServerStatuses.isEmpty()) {
+            throw new CloudMonitoringException("No Current Status records found for all servers", 404);
         } else {
             JsonArray servers = new JsonArray();
             for (Map.Entry<String, List<CurrentTaskStatus>> entry : currentServerStatuses.entrySet()) {
                 JsonObject serverObj = createServerObject(entry.getKey(), entry.getValue());
                 servers.add(serverObj);
             }
-            rootObject.add("servers", servers);
+            return  servers;
         }
-        return rootObject;
     }
 
     private JsonObject createServerObject(String server, List<CurrentTaskStatus> currentTaskStatuses) {
@@ -104,12 +94,6 @@ public class CurrentStatusRetriever {
         serverObj.addProperty("lastUpdated", sdf.format(lastUpdated));
         serverObj.add("tasks", tasks);
         return serverObj;
-    }
-
-    private void createErrorObject(JsonObject rootObject, int code, String msg) {
-        rootObject.addProperty("error", true);
-        rootObject.addProperty("code", code);
-        rootObject.addProperty("message", msg);
     }
 
 }

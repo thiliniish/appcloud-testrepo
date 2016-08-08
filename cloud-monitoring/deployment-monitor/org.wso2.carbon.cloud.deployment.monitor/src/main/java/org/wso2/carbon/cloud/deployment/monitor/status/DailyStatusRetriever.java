@@ -18,13 +18,13 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.status;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.wso2.carbon.cloud.deployment.monitor.utils.dao.UptimeInformationDAO;
-import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
+import org.wso2.carbon.cloud.deployment.monitor.utils.dao.UptimeInformationDAOImpl;
+import org.wso2.carbon.cloud.deployment.monitor.utils.dto.DailyServiceStatus;
 
-import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -33,27 +33,25 @@ import java.util.List;
  */
 public class DailyStatusRetriever {
 
-    public JsonObject getTodayFailures(String server) {
-        UptimeInformationDAO uptimeInformationDAO = new UptimeInformationDAO();
-        List<FailureSummary> failureSummaries = uptimeInformationDAO.getFailureSummaries(server, new Date());
-        JsonObject serverObj = new JsonObject();
-        if (failureSummaries == null) {
-            createErrorObject(serverObj, 500, "Error occurred while getting the current status of the server");
-        } else if (failureSummaries.isEmpty()) {
-            createErrorObject(serverObj, 404, "No Current Status records found for server");
+    private SimpleDateFormat sdf = new SimpleDateFormat("dd MMM");
+
+    public JsonArray getDailyStatuses(String service, Date from, Date to) throws CloudMonitoringException {
+        UptimeInformationDAOImpl uptimeInformationDAO = new UptimeInformationDAOImpl();
+        List<DailyServiceStatus> dailyServiceStatuses = uptimeInformationDAO.getDailyServiceStatuses(service, from, to);
+        if (dailyServiceStatuses.isEmpty()) {
+            throw new CloudMonitoringException("No Current Status records found for server", 404);
         } else {
-            Gson gson = new Gson();
-            String jsonArrayString = gson.toJson(failureSummaries);
-            JsonArray jsonArray = gson.fromJson(jsonArrayString, (Type) FailureSummary.class);
-            serverObj.add("failures", jsonArray);
+            JsonArray jsonArray = new JsonArray();
+            for (DailyServiceStatus dailyServiceStatus : dailyServiceStatuses) {
+                JsonObject object = new JsonObject();
+                object.addProperty("date", sdf.format(dailyServiceStatus.getDate()));
+                object.addProperty("status", dailyServiceStatus.getDailyServiceStatus());
+                object.addProperty("downtime", dailyServiceStatus.getServiceDowntime());
+                object.addProperty("uptimePercentage", dailyServiceStatus.getUptimePercentage());
+                jsonArray.add(object);
+            }
+            return jsonArray;
         }
-        return serverObj;
-
     }
 
-    private void createErrorObject(JsonObject rootObject, int code, String msg) {
-        rootObject.addProperty("error", true);
-        rootObject.addProperty("code", code);
-        rootObject.addProperty("message", msg);
-    }
 }

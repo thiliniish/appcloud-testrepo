@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.utils.dto;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.Date;
 
 /**
@@ -26,21 +28,30 @@ import java.util.Date;
 public class DailyServiceStatus {
     private String service;
     private Date date;
-    private int downtime;
+    private int serviceDowntime;
     private State state;
+    private double uptimePercentage;
 
     /**
      * Enum representing Live State
      */
     public enum State {
-        NORMAL, DISRUPTION, DOWN, NA
+        UP, DISRUPTIONS, DOWN, NA
     }
 
-    public DailyServiceStatus(String service, Date date, int downtime, State state) {
+    public DailyServiceStatus(String service, Date date, int serviceDowntime, State state) {
         this.service = service;
         this.date = new Date(date.getTime());
-        this.downtime = downtime;
+        this.serviceDowntime = serviceDowntime;
         this.state = state;
+
+        //Calculating Uptime percentage
+        DecimalFormat df = new DecimalFormat("#.##");
+        df.setRoundingMode(RoundingMode.DOWN);
+        double serviceUptimePerDay = 86400 - serviceDowntime;
+        String uptimeVal = df.format(serviceUptimePerDay * 100 / 86400);
+        this.uptimePercentage = Double.valueOf(uptimeVal);
+
     }
 
     public String getService() {
@@ -51,12 +62,16 @@ public class DailyServiceStatus {
         return new Date(date.getTime());
     }
 
-    public int getDowntime() {
-        return downtime;
+    public int getServiceDowntime() {
+        return serviceDowntime;
     }
 
     public String getDailyServiceStatus() {
         return state.name();
+    }
+
+    public double getUptimePercentage() {
+        return uptimePercentage;
     }
 }
 

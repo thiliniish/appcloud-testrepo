@@ -50,4 +50,13 @@ public class CloudMonitoringConstants {
     public static final String DISRUPTIONS = "DISRUPTIONS";
 
     public static final String UP = "UP";
+
+    /**
+     * Severity
+     */
+    public static final int SEVERITY_ONE = 1;
+
+    public static final int SEVERITY_TWO = 2;
+
+    public static final int SEVERITY_THREE = 3;
 }

@@ -21,6 +21,7 @@ package org.wso2.carbon.cloud.deployment.monitor.utils.dao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
+import org.wso2.carbon.cloud.deployment.monitor.utils.dto.DailyServiceStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureRecord;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.SuccessRecord;
@@ -239,6 +240,28 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         } finally {
             DatabaseManager.closeAllConnections(connection, selectStatement, resultSet);
             DatabaseManager.closeAllConnections(null, updateStatement, null);
+        }
+    }
+
+    public void addDailyServiceStatus(DailyServiceStatus dailyServiceStatus) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Adding Daily Service Status for server : {}", dailyServiceStatus.getService());
+        }
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = DatabaseManager.getConnection();
+            statement = connection.prepareStatement(QueryConstants.ADD_DAILY_SERVICE_STATUS);
+            statement.setString(1, dailyServiceStatus.getService());
+            statement.setDate(2, new Date(dailyServiceStatus.getDate().getTime()));
+            statement.setString(3, dailyServiceStatus.getDailyServiceStatus());
+            statement.setInt(4, dailyServiceStatus.getServiceDowntime());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("Error occurred while adding Daily Service Status for server : {}",
+                    dailyServiceStatus.getService(), e);
+        } finally {
+            DatabaseManager.closeAllConnections(connection, statement, null);
         }
     }
 }

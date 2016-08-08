@@ -26,10 +26,10 @@ public class QueryConstants {
     //StatusReporting
 
     public static final String ADD_SUCCESS_RECORD =
-            "INSERT INTO SUCCESS_RECORD " + "(TASK,SERVER,TIME) VALUES(?,?,?)";
+            "INSERT INTO SUCCESS_RECORD (TASK,SERVER,TIME) VALUES(?,?,?)";
 
     public static final String ADD_FAILURE_RECORD =
-            "INSERT INTO FAILURE_RECORD " + "(TASK,SERVER,TIME,ERROR) VALUES(?,?,?,?)";
+            "INSERT INTO FAILURE_RECORD (TASK,SERVER,TIME,ERROR) VALUES(?,?,?,?)";
 
     public static final String ADD_FAILURE_SUMMARY = "INSERT INTO FAILURE_SUMMARY "
             + "(TASK,SERVER,START_ID,END_ID,DATE,START_TIME,END_TIME,DOWN_TIME) VALUES(?,?,?,?,?,?,?,?)";
@@ -53,6 +53,9 @@ public class QueryConstants {
     public static final String UPDATE_MAINTENANCE_SUMMARY =
             "UPDATE MAINTENANCE_SUMMARY SET STATUS=?, END_TIME=?, DOWN_TIME=? WHERE ID=?";
 
+    public static final String ADD_DAILY_SERVICE_STATUS =
+            "INSERT INTO DAILY_SERVICE_STATUS (SERVICE,DATE,STATUS,DOWN_TIME) VALUES(?,?,?,?)";
+
     //UptimeInformation
 
     public static final String SELECT_CURRENT_TASK_STATUSES_OF_SERVER =
@@ -61,7 +64,10 @@ public class QueryConstants {
     public static final String SELECT_ALL_CURRENT_TASK_STATUSES =
             "SELECT * FROM CURRENT_TASK_STATUS ORDER BY SERVER, LAST_UPDATED DESC";
 
-    public static final String SELECT_FAILURE_SUMMARIES_OF_SERVER_FOR_DATE =
-            "SELECT * FROM FAILURE_SUMMARY WHERE SERVER=? AND DATE=?";
+    public static final String SELECT_FAILURE_SUMMARIES_OF_SERVER_IN_DATE_RANGE =
+            "SELECT * FROM FAILURE_SUMMARY WHERE SERVER=? AND DATE BETWEEN ? AND ?";
+
+    public static final String SELECT_DAILY_STATUSES_OF_SERVICE_IN_DATE_RANGE =
+            "SELECT * FROM DAILY_SERVICE_STATUS WHERE SERVICE=? AND DATE BETWEEN ? AND ? ORDER BY DATE";
 
 }
