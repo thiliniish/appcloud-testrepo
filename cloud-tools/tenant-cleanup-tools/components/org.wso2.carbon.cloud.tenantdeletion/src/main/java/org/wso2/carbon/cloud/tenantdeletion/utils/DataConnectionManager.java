@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,6 +20,9 @@ package org.wso2.carbon.cloud.tenantdeletion.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.tenantdeletion.conf.ConfigurationsType;
+import org.wso2.carbon.cloud.tenantdeletion.constants.DeletionConstants;
+import org.wso2.carbon.cloud.tenantdeletion.reader.ConfigReader;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -30,57 +33,99 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 
 /**
- * Class used to create database connection
+ * The class used to create conf database connection
  */
 public class DataConnectionManager {
-	private static final Log log = LogFactory.getLog(DataConnectionManager.class);
-	private static final DataConnectionManager instance = new DataConnectionManager();
-	private Connection connection;
+    private static final Log LOG = LogFactory.getLog(DataConnectionManager.class);
+    private static final DataConnectionManager instance = new DataConnectionManager();
+    private Connection connection;
 
-	/**
-	 * Returns database connection instance
-	 * @return Database Connection
-	 */
-	public static DataConnectionManager getInstance() {
-		return instance;
-	}
+    /**
+     * Returns database connection instance
+     *
+     * @return Database Connection
+     */
+    public static DataConnectionManager getInstance() {
+        return instance;
+    }
 
-	/**
-	 * Initializes MySQL database connection and returns MySQL database connection
-	 * @return Database connection
-	 */
-	public Connection getDbConnection() {
-		ConfigReader configReader = ConfigReader.getInstance();
-		String datasourceName = configReader.getConfiguration().getDatasources().getCarbonDatasource();
-		try {
-			Hashtable<String, String> environment = new Hashtable<String, String>();
-			environment.put("java.naming.factory.initial", "org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory");
-			Context initContext = new InitialContext(environment);
-			DataSource dataSource = (DataSource) initContext.lookup(datasourceName);
-			if (dataSource != null) {
-				connection = dataSource.getConnection();
-			} else {
-				String msg = "Cannot Find a data source with the name";
-				log.error(msg);
-			}
-		} catch (NamingException e) {
-			log.error("Naming Exception has occurred while initializing the context", e);
-		} catch (SQLException e) {
-			log.error("SQL Exception occurred while getting connection", e);
-		}
-		return connection;
-	}
+    /**
+     * Returns MySQL database connection for CLOUD_MGT Database
+     *
+     * @return Database connection
+     */
+    public Connection getCloudMgtDbConnection() {
+        return getDbConnection(DeletionConstants.CLOUD_MGT);
+    }
 
-	/**
-	 * Closing the connection
-	 */
-	public void closeDbConnection() {
-		if (connection != null) {
-			try {
-				connection.close();
-			} catch (SQLException e) {
-				log.error("SQL Exception occurred while Closing connection ", e);
-			}
-		}
-	}
+    /**
+     * Returns MySQL database connection for USER_MGT Database
+     *
+     * @return Database connection
+     */
+
+    public Connection getUserMgtDbConnection() {
+        return getDbConnection(DeletionConstants.USER_MGT);
+    }
+
+    /**
+     * Returns MySQL database connection
+     *
+     * @return Database connection
+     */
+
+    public Connection getDbConnection(String dataSource) {
+        String datasourceName;
+        ConfigReader configReader = ConfigReader.getInstance();
+        ConfigurationsType configuration = configReader.getConfiguration();
+        if (configuration != null) {
+            if (DeletionConstants.USER_MGT.equals(dataSource)) {
+                datasourceName = configuration.getDatasources().getUserMgtDatasource();
+            } else {
+                datasourceName = configuration.getDatasources().getCloudMgtDatasource();
+            }
+            lookUpDataSource(datasourceName);
+            return connection;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Initialize DataSource and set connection
+     *
+     * @param dataSourceName dataSource name
+     */
+    public void lookUpDataSource(String dataSourceName) {
+        try {
+            Hashtable<String, String> environment = new Hashtable<>();
+            environment.put(DeletionConstants.JAVA_NAMING_FACTORY_INITIAL_KEY,
+                            DeletionConstants.JAVA_NAMING_FACTORY_INITIAL_VALUE);
+            Context initContext = new InitialContext(environment);
+            DataSource dataSource = (DataSource) initContext.lookup(dataSourceName);
+            if (dataSource != null) {
+                connection = dataSource.getConnection();
+            } else {
+                String msg = "Cannot Find conf data source with the name";
+                LOG.error(msg);
+            }
+        } catch (NamingException e) {
+            LOG.error("Naming Exception has occurred while initializing the context", e);
+        } catch (SQLException e) {
+            LOG.error("SQL Exception occurred while getting connection", e);
+        }
+    }
+
+    /**
+     * Closing database connection
+     */
+    public void closeDbConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                LOG.error("SQL Exception occurred while Closing connection ", e);
+            }
+        }
+    }
 }

@@ -115,8 +115,8 @@ public class DataAccessManager {
                 preparedStatement.setInt(3, tenantID);
                 preparedStatement.addBatch();
                 counter++;
-                //It's executed every 1000 items because some JDBC drivers  may have conf limitation on batch length.
-                if (counter % 1000 == 0 || counter == deleteMap.size() - 1) {
+                //Default execution is 1000 items because some JDBC drivers  may have conf limitation on batch length.
+                if (counter % DeletionConstants.COUNTER_VALUE == 0 || counter == deleteMap.size() - 1) {
                     preparedStatement.executeBatch();
                 }
             }
@@ -259,8 +259,8 @@ public class DataAccessManager {
     /**
      * Returns the status of an account whether it is a paid account or not
      *
-     * @param tenantDomain  String tenantd domain parameter
-     * @return              Tenant paid account status
+     * @param tenantDomain String tenantd domain parameter
+     * @return Tenant paid account status
      */
     public boolean isPaidTenant(String tenantDomain) {
         boolean isPaid = false;
@@ -324,8 +324,8 @@ public class DataAccessManager {
                 preparedStatement.setInt(1, tenantId);
                 preparedStatement.addBatch();
                 counter++;
-                //It's executed every 1000 items because some JDBC drivers  may have conf limitation on batch length.
-                if (counter % 1000 == 0 || i == removeList.size() - 1) {
+                //Default execution is 1000 items because some JDBC drivers  may have conf limitation on batch length.
+                if (counter % DeletionConstants.COUNTER_VALUE == 0 || i == removeList.size() - 1) {
                     preparedStatement.executeBatch();
                 }
             }
@@ -353,8 +353,8 @@ public class DataAccessManager {
                 preparedStatement.setString(1, tenantDomain);
                 preparedStatement.addBatch();
                 counter++;
-                //It's executed every 1000 items because some JDBC drivers  may have conf limitation on batch length.
-                if (counter % 1000 == 0 || i == removeList.size() - 1) {
+                //Default execution is 1000 items because some JDBC drivers  may have conf limitation on batch length.
+                if (counter % DeletionConstants.COUNTER_VALUE == 0 || i == removeList.size() - 1) {
                     preparedStatement.executeBatch(); // Execute every 1000 items.
                 }
             }
@@ -770,6 +770,12 @@ public class DataAccessManager {
         }
     }
 
+    /**
+     * Retrieve the type specific deletion status before executing the deletion class
+     *
+     * @param type  Required type to check the status
+     * @return      List of type status
+     */
     public List<Integer> getTypeDeletionStatus(String type) {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -792,6 +798,11 @@ public class DataAccessManager {
         return list;
     }
 
+    /**
+     * Retrieving tenant admin user email address for the specific tenant
+     * @param tenantDomain  String tenant domain for the required tenant
+     * @return              String email address of the tenant admin user
+     */
     public String getTenantAdminEmail(String tenantDomain) {
         String email = null;
         ResultSet resultSet = null;
