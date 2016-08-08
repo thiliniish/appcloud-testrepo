@@ -133,6 +133,21 @@ var log = new Log();
             print(stringify(result));
         }
 
+    } else if (action == "getPendingUsers") {
+        mod = jagg.module("tenant");
+        var tenantDomain = request.getParameter("tenantDomain");
+        var responseObj;
+        if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+            responseObj = mod.getPendingUsers(tenantDomain);
+            if (responseObj != null) {
+                print(responseObj);
+            }
+        } else {
+            responseObj.error = true;
+            responseObj.message = "You don't have permission to update invitations";
+            responseObj.statusCode = 401;
+            print(responseObj);
+        }
     } else if (action == "getPendingUsersOfRole") {
         mod = jagg.module("tenant");
         var tenantDomain = request.getParameter("tenantDomain");

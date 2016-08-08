@@ -28,8 +28,14 @@ jagg.module("tenant", {
 	getUserRolesByCloudType: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserRolesByCloudType.apply(this, arguments);
 	},
+	getPendingUsers: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsers.apply(this, arguments);
+	},
 	getPendingUsersOfRole: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersOfRole.apply(this, arguments);
+	},
+	updateUserInvitation: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserInvitation.apply(this, arguments);
 	},
 	updateUserRoles: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRoles.apply(this, arguments);
@@ -90,6 +96,9 @@ jagg.module("tenant", {
 	},
 	getBlockedSubscriptions:function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").getBlockedSubscriptions.apply(this, arguments);
+	},
+	revokeUserInvitation: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").revokeUserInvitation.apply(this, arguments);
 	}
 
 });
