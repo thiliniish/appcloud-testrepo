@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="Configurations" type="ConfigurationsType"/>
+    <xs:complexType name="Deletion-OrderType">
+        <xs:sequence>
+            <xs:element type="DeleterType" name="Deleter" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="DeleterType">
+        <xs:sequence>
+            <xs:element name="Class">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="org.wso2.carbon.cloud.tenantdeletion.deleter.APIDeleter"/>
+                        <xs:enumeration value="org.wso2.carbon.cloud.tenantdeletion.deleter.APPDeleter"/>
+                        <xs:enumeration value="org.wso2.carbon.cloud.tenantdeletion.deleter.ConfigDataDeleter"/>
+                        <xs:enumeration value="org.wso2.carbon.cloud.tenantdeletion.deleter.GovernanceDataDeleter"/>
+                        <xs:enumeration value="org.wso2.carbon.cloud.tenantdeletion.deleter.CloudMgtDataDeleter"/>
+                        <xs:enumeration value="org.wso2.carbon.cloud.tenantdeletion.deleter.LDAPDataDeleter"/>
+                        <xs:enumeration value="org.wso2.carbon.cloud.tenantdeletion.deleter.UMDataDeleter"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Dependency">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value=""/>
+                        <xs:enumeration value="API"/>
+                        <xs:enumeration value="API,CONFIG_PUBSTORE,CONFIG_BPS,CONFIG_AS,CONFIG_IS,CONFIG_DAS"/>
+                        <xs:enumeration value="API,GOVERNANCE"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="ServerKey">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="PUBSTORE"/>
+                        <xs:enumeration value="AF"/>
+                        <xs:enumeration value="IS"/>
+                        <xs:enumeration value="CLOUD_MGT"/>
+                        <xs:enumeration value="AF,PUBSTORE,IS,AS,BPS,DAS"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="datasourcesType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="cloudMgt-datasource"/>
+            <xs:element type="xs:string" name="userMgt-datasource"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Email-PropertiesType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="port"/>
+            <xs:element type="xs:string" name="host"/>
+            <xs:element type="xs:string" name="user-name"/>
+            <xs:element type="xs:string" name="sender-email"/>
+            <xs:element type="xs:string" name="sender-password"/>
+            <xs:element type="xs:string" name="recipient-email"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="CloudMgt-QueriesType">
+        <xs:sequence>
+            <xs:element name="CloudMgt-Query" maxOccurs="unbounded" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="DELETE FROM ORGANIZATIONS WHERE tenantDomain = ?"/>
+                        <xs:enumeration value="DELETE FROM SUBSCRIPTIONS WHERE tenantDomain = ?"/>
+                        <xs:enumeration value="DELETE FROM TEMP_INVITEE WHERE tenantDomain = ?"/>
+                        <xs:enumeration value="DELETE FROM TENANT_USER_MAPPING WHERE tenantDomain = ?"/>
+                        <xs:enumeration value="DELETE FROM RIGHTWAVE_CLOUD_SUBSCRIPTION WHERE TENANT_DOMAIN = ?"/>
+                        <xs:enumeration value="DELETE FROM BILLING_ACCOUNT WHERE TENANT_DOMAIN = ?"/>
+                        <xs:enumeration value="DELETE FROM BILLING_STATUS WHERE TENANT_DOMAIN = ?"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ServerKeysType">
+        <xs:sequence>
+            <xs:element name="ServerKey" maxOccurs="unbounded" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="AM"/>
+                        <xs:enumeration value="AF"/>
+                        <xs:enumeration value="IS"/>
+                        <xs:enumeration value="GATEWAY"/>
+                        <xs:enumeration value="KEYMANAGER"/>
+                        <xs:enumeration value="CLOUDMGT"/>
+                        <xs:enumeration value="BPS"/>
+                        <xs:enumeration value="PUBSTORE"/>
+                        <xs:enumeration value="AS"/>
+                        <xs:enumeration value="DAS"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ConfigurationsType">
+        <xs:sequence>
+            <xs:element type="datasourcesType" name="datasources">
+                <xs:annotation>
+                    <xs:documentation>DataSources</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="Deletion-OrderType" name="Deletion-Order">
+                <xs:annotation>
+                    <xs:documentation>Deleters</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="ServerKeysType" name="ServerKeys">
+                <xs:annotation>
+                    <xs:documentation>Wso2 server keys</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="CloudMgt-QueriesType" name="CloudMgt-Queries">
+                <xs:annotation>
+                    <xs:documentation>Tenant deletion Cloud management Queries</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="Email-PropertiesType" name="Email-Properties">
+                <xs:annotation>
+                    <xs:documentation>Email Properties</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

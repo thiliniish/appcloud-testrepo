@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <Configurations>
     <!-- DataSources -->
@@ -51,10 +51,9 @@
         <ServerKey>PUBSTORE</ServerKey>
         <ServerKey>AF</ServerKey>
         <ServerKey>IS</ServerKey>
-        <ServerKey>Gateway</ServerKey>
-        <ServerKey>KeyManager</ServerKey>
+        <ServerKey>GATEWAY</ServerKey>
+        <ServerKey>KEYMANAGER</ServerKey>
         <ServerKey>BPS</ServerKey>
-        <ServerKey>BAM</ServerKey>
         <ServerKey>AS</ServerKey>
         <ServerKey>DAS</ServerKey>
     </ServerKeys>
