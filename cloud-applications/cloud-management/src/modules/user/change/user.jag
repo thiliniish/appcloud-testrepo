@@ -51,12 +51,11 @@ var updatePasswordWithUserInput = function (userName, email, newPassword, confir
     options["HTTPHeaders"] = [
         {name: "Cookie", value: modManager.getAdminCookie(IS_URL)}
     ];
-    var payload = '<updatePassword xmlns="http://services.mgt.identity.carbon.wso2.org">'+
-                    '<username>'+userName+'</username>'+
-                    '<confirmationCode>'+confirmationKey+'</confirmationCode>'+
-                    '<newPassword>'+jagg.module("util").escapeSpecialCharsXML(newPassword)+'</newPassword>'+
-                  '</updatePassword>';
-    var result = {};
+    var payload = '<updatePassword xmlns="http://services.mgt.identity.carbon.wso2.org">' +
+            '<username>' + userName + '</username>' +
+            '<confirmationCode>' + confirmationKey + '</confirmationCode>' +
+            '<newPassword>' + jagg.module("util").escapeSpecialCharsXML(newPassword) + '</newPassword>' +
+            '</updatePassword>';
     var response;
     try {
         var endPoint = IS_URL + "UserInformationRecoveryService";
@@ -68,19 +67,29 @@ var updatePasswordWithUserInput = function (userName, email, newPassword, confir
         var verified = entry.*::verified.text();
         if (verified == true) {
             jagg.module("util").changeOTUserPass(email, newPassword);
-            result.error = false;
-            result.message = "Password reset successful";
             log.info("Password reset is successful for the user [ " + userName + " ]");
-            return result;
+            return {
+                error: false,
+                status: 200,
+                message: "Password reset successful"
+            };
         } else {
             log.error(error);
-            result.error = true;
-            result.message = "Password reset un-successful";
-            return result;
+            return {
+                error: true,
+                status: 404,
+                message: "Password reset unsuccessful"
+            };
         }
     } catch (e) {
-        log.error("Error while updating password while resetting password \n" + e.message);
-        throw "Error while updating password while resetting password \n" + e.message;
+        var errorMsg = "Error while updating password while resetting password \n";
+        log.error(errorMsg);
+        log.error(e);
+        return {
+            error: true,
+            status: 404,
+            message: errorMsg
+        };
     }
 };
 

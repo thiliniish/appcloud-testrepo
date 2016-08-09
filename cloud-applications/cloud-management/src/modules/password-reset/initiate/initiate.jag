@@ -2,41 +2,46 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 var log = new Log("modules.user.initiate.initiate.jag");
+
 var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
-
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
 var IS_URL = cloudConfig.ServerUrls.identity.toString();
 var CLOUDMGT_URL = cloudConfig.ServerUrls.cloudmgt.toString();
-var senderEmail = cloudConfig.registrationEmail.username;
-var senderPort = parseInt(cloudConfig.registrationEmail.port);
-var senderPassword = cloudConfig.registrationEmail.password;
-var senderHost = cloudConfig.registrationEmail.host;
 var from = cloudConfig.registrationEmail.from;
 var subject = cloudConfig.passwordResetEmail.subject;
-var tls = cloudConfig.registrationEmail.tls.toString();
-
 var body = jagg.module("util").getObjFromFile("/site/conf/emails/password_reset_email_body.txt");
 
 var initiatePasswordReset = function (email) {
     try {
         var userName = modManager.getUserNameFromEmail(email);
-        log.info("Initiating password reset for [ "+userName+" ]");
+        log.info("Initiating password reset for [ " + userName + " ]");
         var verifyResult = verifyUser(userName);
-        var result = {};
+
         if (verifyResult.verified) {
-            result = sendRecoveryNotification(userName, verifyResult.confirmationKey);
+            var result = sendRecoveryNotification(userName, verifyResult.confirmationKey);
+            return {
+                error: false,
+                status: 200
+            };
         } else {
-            result.error = true;
-            result.message = verifyResult.error;
+            return {
+                error: true,
+                message: verifyResult.error,
+                status: 404
+            };
         }
-        return result;
     } catch (e) {
-        log.error("Error while initiating password reset for [ " + userName + " ] : " + e);
-        throw "Error while initiating password reset for [ " + userName + " ] : " + e;
+        var errorMsg = "Error while initiating password reset for [ " + userName + " ] ";
+        log.error(errorMsg);
+        log.error(e);
+        return {
+            error: true,
+            message: errorMsg,
+            status: 404
+        };
     }
 };
 
@@ -55,6 +60,7 @@ var verifyUser = function (userName) {
             '<username>' + userName + '</username>' +
             '</verifyUser>';
     var result = {};
+    result.verified = false;
     var response;
     try {
         var endPoint = IS_URL + "UserInformationRecoveryService";
@@ -69,27 +75,26 @@ var verifyUser = function (userName) {
             log.info("The user [ " + userName + " ] is successfully verified");
             result.verified = true;
             result.confirmationKey = String(key);
-            return result;
         } else {
-            result.verified = false;
             if (error.indexOf("18003") != -1) {
-                log.warn("Invalid user name given for verifying. User with user name [ " + userName + " ] does "+
-                        +"not exist");
+                log.warn("Invalid user name given for verifying. User with user name [ " + userName + " ] does "
+                        + "not exist");
                 result.error = "Invalid User name";
             } else {
-                log.warn("Password reset error - code [ "+error+" ]");
+                log.warn("Password reset error - code [ " + error + " ]");
                 result.error = error;
             }
-            return result;
         }
+        return result;
     } catch (e) {
-        log.error("Error while verifying user \n" + e);
-        throw "Error while verifying user \n" + e;
+        log.error("Error while verifying user \n");
+        log.error(e);
+        throw e;
     }
 };
 
 var sendRecoveryNotification = function (userName, key) {
-    log.info("Getting recovery notification data for user [ "+userName+" ]");
+    log.info("Getting recovery notification data for user [ " + userName + " ]");
     var ws = require('ws');
     var request = new ws.WSRequest();
     var options = new Array();
@@ -120,18 +125,14 @@ var sendRecoveryNotification = function (userName, key) {
             log.info("Recovery notification data retrieved successfully for the user [ " + userName
                     + " ] with email [ " + email + " ]");
             sendRecoveryEmail(notificationCode, userName, email);
-            result.error = false;
-            result.message = "Email sent successfully";
+            return "Email sent successfully";
         } else {
-            log.warn("Failed to retrieve recovery notification data for user [ " + userName + " ] due to : " +
-                    error);
-            result.error = true;
-            result.message = error;
+            throw "Failed to retrieve recovery notification data for user [ " + userName + " ] due to - " + error;
         }
-        return result;
     } catch (e) {
         log.error("Error while sending recovery notification \n" + e);
-        throw "Error while sending recovery notification \n" + e;
+        log.error(e);
+        throw e;
     }
 };
 
@@ -145,7 +146,8 @@ var sendRecoveryEmail = function (notificationCode, userName, emailAddress) {
         jagg.module("util").sendEmail(body, subject, emailAddress.toString());
         log.info("Email successfully sent to [ " + userInfo.email.toString() + " ]");
     } catch (e) {
-        log.error("Error while sending email \n" + e);
+        log.error("Error while sending email \n");
+        log.error(e);
         throw e;
     }
 };

@@ -42,18 +42,6 @@ function doSubmit() {
                     }
                 });
             }
-        },
-        function (jqXHR, textStatus, errorThrown) {
-            $('#userForm').hide();
-            $('#helper_text').hide();
-            jagg.message({
-                content: 'Error occurred while resetting your password. Please try again after few minutes.' +
-                ' If you still have issues, please contact us <a href="mailto:cloud@wso2.com">(cloud@wso2.com)</a>',
-                type: 'error',
-                cbk: function () {
-                    window.location.href = "index.jag";
-                }
-            });
         });
 }
 

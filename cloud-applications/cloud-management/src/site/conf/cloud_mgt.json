@@ -90,7 +90,9 @@
     "adminPassword": "admin",
     "responseSigningEnabled":true,
     "assertionSigningEnabled":true,
-    "audienceRestrictionsEnabled":true
+    "audienceRestrictionsEnabled":true,
+    "verifyAssertionValidityPeriod": "true",
+    "timestampSkewInSeconds": "300"
   },
   "registrationEmail": {
     "from": "WSO2 Cloud Team <cloud@wso2.com>",
