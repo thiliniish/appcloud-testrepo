@@ -108,8 +108,7 @@ public class APIDeleter {
                 //Get tenant's api artifacts from the registry
                 registry =
                         ServiceHolder.getInstance().getRegistryService().getGovernanceUserRegistry(adminName, tenantID);
-                GenericArtifactManager manager =
-                        new GenericArtifactManager(registry, DeletionConstants.LOWERCASEAPI);
+                GenericArtifactManager manager = new GenericArtifactManager(registry, DeletionConstants.LOWERCASEAPI);
 
                 GovernanceUtils.loadGovernanceArtifacts((UserRegistry) registry);
                 GenericArtifact[] artifacts = manager.getAllGenericArtifacts();

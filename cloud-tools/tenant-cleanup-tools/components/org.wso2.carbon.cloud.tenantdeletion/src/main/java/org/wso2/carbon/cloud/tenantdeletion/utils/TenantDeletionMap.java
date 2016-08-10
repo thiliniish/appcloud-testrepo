@@ -49,7 +49,7 @@ public class TenantDeletionMap {
     public Map<String, List<DeleteJob>> getServerMap() {
         Map<String, List<DeleteJob>> serverHashMap;
         serverHashMap = new HashMap<>();
-        ConfigReader configReader = ConfigReader.getInstance();
+        org.wso2.carbon.cloud.tenantdeletion.reader.ConfigReader configReader = ConfigReader.getInstance();
         List<DeleteJob> deleterObjList = configReader.getDeletionData();
         List<String> wso2ServerKeyList = configReader.getConfiguration().getServerKeys().getServerKey();
 
