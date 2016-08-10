@@ -32,16 +32,23 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.ldap.LDAPConnectionContext;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 
+import java.util.Map;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import java.util.Map;
 
+/**
+ * LDAP Data deletion class for tenants
+ */
 public class LDAPDataDeleter {
     private static final Log LOG = LogFactory.getLog(LDAPDataDeleter.class);
     private static DirContext dirContext;
     private static TenantMgtConfiguration tenantMgtConfig;
 
     public LDAPDataDeleter() {
+        setTenantMgtConfig();
+    }
+
+    public static void setTenantMgtConfig() {
         tenantMgtConfig = ServiceHolder.getInstance().getRealmService().getTenantMgtConfiguration();
         RealmConfiguration realmConfig = ServiceHolder.getInstance().getRealmService().
                 getBootstrapRealmConfiguration();
@@ -51,6 +58,27 @@ public class LDAPDataDeleter {
         } catch (UserStoreException e) {
             String msg = "Error occurred while connecting to the LDAP.";
             LOG.error(msg, e);
+        }
+    }
+
+    /**
+     * Delete tenant specific LDAP data
+     *
+     * @param dirContext
+     * @param dnOfOrganizationalContext
+     * @param dnOfGroupContext
+     */
+    public static void deleteTenantLDAPData(DirContext dirContext, String dnOfOrganizationalContext,
+                                            String dnOfGroupContext) {
+        LOG.info("Deleting Organizational Context : " + dnOfOrganizationalContext);
+        try {
+            while (dirContext.list(dnOfGroupContext).hasMore()) {
+                dirContext.unbind(dirContext.list(dnOfGroupContext).next().getNameInNamespace());
+            }
+            dirContext.unbind(dnOfGroupContext);
+            dirContext.unbind(dnOfOrganizationalContext);
+        } catch (NamingException e) {
+            LOG.error("Naming Exception", e);
         }
     }
 
@@ -114,27 +142,6 @@ public class LDAPDataDeleter {
                 DataAccessManager.getInstance().raiseDeletionFlag(DeletionConstants.LDAP, tenantDomain,
                                                                   DeletionConstants.DELETION_ERROR_STATUS);
             }
-        }
-    }
-
-    /**
-     * Delete tenant specific LDAP data
-     *
-     * @param dirContext
-     * @param dnOfOrganizationalContext
-     * @param dnOfGroupContext
-     */
-    public static void deleteTenantLDAPData(DirContext dirContext, String dnOfOrganizationalContext,
-                                            String dnOfGroupContext) {
-        LOG.info("Deleting Organizational Context : " + dnOfOrganizationalContext);
-        try {
-            while (dirContext.list(dnOfGroupContext).hasMore()) {
-                dirContext.unbind(dirContext.list(dnOfGroupContext).next().getNameInNamespace());
-            }
-            dirContext.unbind(dnOfGroupContext);
-            dirContext.unbind(dnOfOrganizationalContext);
-        } catch (NamingException e) {
-            LOG.error("Naming Exception", e);
         }
     }
 }

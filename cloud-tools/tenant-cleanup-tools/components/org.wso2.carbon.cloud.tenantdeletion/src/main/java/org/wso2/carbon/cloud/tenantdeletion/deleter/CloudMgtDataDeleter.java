@@ -33,6 +33,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class to delete Cloud Management Data for the tenants
+ */
 public class CloudMgtDataDeleter {
     private static final Log LOG = LogFactory.getLog(CloudMgtDataDeleter.class);
 
@@ -42,13 +45,14 @@ public class CloudMgtDataDeleter {
      * @param tenantDomain tenantDomain whose data should be deleted
      * @param connection   database connection object
      */
-    public static void deleteTenantCloudMgtData(String tenantDomain, Connection connection) {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING") public static void deleteTenantCloudMgtData(
+            String tenantDomain, Connection connection) {
         try {
             ConfigurationsType configuration = ConfigReader.getInstance().getConfiguration();
             //CloudMgt queries are stored in the Tenant-Deletion.xml
             List<String> cloudMgtQueryList = configuration.getCloudMgtQueries().getCloudMgtQuery();
             DataAccessManager dataAccessManager = new DataAccessManager();
-
             connection.setAutoCommit(false);
             for (String sqlQuery : cloudMgtQueryList) {
                 dataAccessManager.executeDeleteQuery(connection, sqlQuery, tenantDomain);

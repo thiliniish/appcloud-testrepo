@@ -41,7 +41,8 @@ import javax.xml.bind.annotation.XmlType;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "datasourcesType", propOrder = { "cloudMgtDatasource",
-                                                                                       "userMgtDatasource" }) public class DatasourcesType {
+                                                                                       "userMgtDatasource" }) public
+class DatasourcesType {
 
     @XmlElement(name = "cloudMgt-datasource", required = true) protected String cloudMgtDatasource;
 
@@ -68,16 +69,6 @@ import javax.xml.bind.annotation.XmlType;
     }
 
     /**
-     * Sets the value of the userMgtDatasource property.
-     *
-     * @param userMgtDatasource allowed object is
-     *                          {@link String }
-     */
-    public void setUserMgtDatasource(String userMgtDatasource) {
-        this.userMgtDatasource = userMgtDatasource;
-    }
-
-    /**
      * Gets the value of the userMgtDatasource property.
      *
      * @return possible object is
@@ -85,5 +76,15 @@ import javax.xml.bind.annotation.XmlType;
      */
     public String getUserMgtDatasource() {
         return userMgtDatasource;
+    }
+
+    /**
+     * Sets the value of the userMgtDatasource property.
+     *
+     * @param userMgtDatasource allowed object is
+     *                          {@link String }
+     */
+    public void setUserMgtDatasource(String userMgtDatasource) {
+        this.userMgtDatasource = userMgtDatasource;
     }
 }

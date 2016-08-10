@@ -26,7 +26,11 @@ import org.wso2.carbon.cloud.tenantdeletion.beans.DeletedTenant;
 import org.wso2.carbon.cloud.tenantdeletion.constants.DeletionConstants;
 import org.wso2.carbon.cloud.tenantdeletion.constants.DeletionQueries;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -345,7 +349,7 @@ public class DataAccessManager {
     public void removeTenantFromDeleteList(List<String> removeList) {
         PreparedStatement preparedStatement = null;
         try {
-            String query = DeletionQueries.QUERY_REMOVE_TENANTS_FROM_DELETE_LIST_WITH_DOMAIN_;
+            String query = DeletionQueries.QUERY_REMOVE_TENANTS_FROM_DELETE_LIST_WITH_DOMAIN;
             int counter = 0;
             preparedStatement = DataConnectionManager.getInstance().getCloudMgtDbConnection().prepareStatement(query);
             for (int i = 0; i < removeList.size(); i++) {
@@ -411,7 +415,9 @@ public class DataAccessManager {
      * @param tenantDomain   tenantDomain
      * @param deletionStatus deletion status (0,1,2)
      */
-    public void raiseDeletionFlag(String type, String tenantDomain, int deletionStatus) {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING") public void raiseDeletionFlag(
+            String type, String tenantDomain, int deletionStatus) {
         PreparedStatement preparedStatement = null;
         try {
             String columnName = new DeletionColumnEnum().verifyColumnName(type);
@@ -463,7 +469,10 @@ public class DataAccessManager {
      * @param type Deletion type
      * @return tenant id list
      */
-    public Map<String, Integer> getAllInactiveTenants(String type) {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING") public Map<String, Integer>
+    getAllInactiveTenants(
+            String type) {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         Map<String, Integer> tenantMap = new HashMap<>();
@@ -494,7 +503,9 @@ public class DataAccessManager {
      * @param type deletion type
      * @return tenant id list
      */
-    public Map<String, Integer> getInactiveTenants(String type, int deletionLimit) {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING") public Map<String, Integer> getInactiveTenants(
+            String type, int deletionLimit) {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         Map<String, Integer> tenantMap = new HashMap<>();
@@ -593,14 +604,14 @@ public class DataAccessManager {
                 tenantObj.setAppFlag(resultSet.getInt(DeletionConstants.APP));
                 tenantObj.setCloudMgtFlag(resultSet.getInt(DeletionConstants.CLOUD_MGT));
                 tenantObj.setUserMgtFlag(resultSet.getInt(DeletionConstants.USER_MGT));
-                tenantObj.setLDAPFlag(resultSet.getInt(DeletionConstants.LDAP));
-                tenantObj.setConfig_PUBSTORE(resultSet.getInt(DeletionConstants.CONFIG_PUBSTORE));
-                tenantObj.setConfig_BPS(resultSet.getInt(DeletionConstants.CONFIG_BPS));
-                tenantObj.setConfig_CLOUD_MGT(resultSet.getInt(DeletionConstants.CONFIG_CLOUD_MGT));
-                tenantObj.setConfig_IS(resultSet.getInt(DeletionConstants.CONFIG_IS));
-                tenantObj.setConfig_SS(resultSet.getInt(DeletionConstants.CONFIG_SS));
-                tenantObj.setConfig_DAS(resultSet.getInt(DeletionConstants.CONFIG_DAS));
-                tenantObj.setConfig_AF(resultSet.getInt(DeletionConstants.CONFIG_AF));
+                tenantObj.setLdapFlag(resultSet.getInt(DeletionConstants.LDAP));
+                tenantObj.setConfigPubstore(resultSet.getInt(DeletionConstants.CONFIG_PUBSTORE));
+                tenantObj.setConfigBps(resultSet.getInt(DeletionConstants.CONFIG_BPS));
+                tenantObj.setConfigCloudMgt(resultSet.getInt(DeletionConstants.CONFIG_CLOUD_MGT));
+                tenantObj.setConfigIs(resultSet.getInt(DeletionConstants.CONFIG_IS));
+                tenantObj.setConfigSs(resultSet.getInt(DeletionConstants.CONFIG_SS));
+                tenantObj.setConfigDas(resultSet.getInt(DeletionConstants.CONFIG_DAS));
+                tenantObj.setConfigAf(resultSet.getInt(DeletionConstants.CONFIG_AF));
                 tenantObj.setGovernanceFlag(resultSet.getInt(DeletionConstants.GOVERNANCE));
             }
         } catch (SQLException e) {
@@ -646,7 +657,9 @@ public class DataAccessManager {
      * @param query        mysql query
      * @param tenantDomain tenant domain of the tenant
      */
-    public void executeDeleteQuery(Connection conn, String query, String tenantDomain) {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING") public void executeDeleteQuery(
+            Connection conn, String query, String tenantDomain) {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = conn.prepareStatement(query);
@@ -667,7 +680,9 @@ public class DataAccessManager {
      * @param query    mysql connection
      * @param tenantId tenant id
      */
-    public void executeDeleteQuery(Connection conn, String query, int tenantId) {
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING") public void executeDeleteQuery(
+            Connection conn, String query, int tenantId) {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = conn.prepareStatement(query);
@@ -777,8 +792,9 @@ public class DataAccessManager {
      */
     public void closeResultSet(ResultSet resultSet) {
         try {
-            if (resultSet != null)
+            if (resultSet != null) {
                 resultSet.close();
+            }
         } catch (SQLException e) {
             LOG.error("Failed to close resultSet", e);
         }
@@ -791,8 +807,9 @@ public class DataAccessManager {
      */
     public void closePreparedStatement(PreparedStatement preparedStatement) {
         try {
-            if (preparedStatement != null)
+            if (preparedStatement != null) {
                 preparedStatement.close();
+            }
         } catch (SQLException e) {
             LOG.error("Failed to close preparedStatement", e);
         }
@@ -805,8 +822,9 @@ public class DataAccessManager {
      */
     public void closeStatement(Statement statement) {
         try {
-            if (statement != null)
+            if (statement != null) {
                 statement.close();
+            }
         } catch (SQLException e) {
             LOG.error("Failed to close statement", e);
         }
@@ -819,8 +837,9 @@ public class DataAccessManager {
      */
     public void closeConnection(Connection connection) {
         try {
-            if (connection != null)
+            if (connection != null) {
                 connection.close();
+            }
         } catch (SQLException e) {
             LOG.error("Failed to close statement", e);
         }

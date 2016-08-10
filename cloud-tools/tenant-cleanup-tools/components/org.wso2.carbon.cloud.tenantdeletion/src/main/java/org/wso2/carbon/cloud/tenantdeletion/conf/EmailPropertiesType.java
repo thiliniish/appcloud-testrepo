@@ -48,7 +48,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "Email-PropertiesType", propOrder = { "port", "host", "userName",
                                                                                             "senderEmail",
                                                                                             "senderPassword",
-                                                                                            "recipientEmail" }) public class EmailPropertiesType {
+                                                                                            "recipientEmail" })
+public class EmailPropertiesType {
     @XmlElement(required = true) protected String port;
     @XmlElement(required = true) protected String host;
     @XmlElement(name = "user-name", required = true) protected String userName;
@@ -157,16 +158,6 @@ import javax.xml.bind.annotation.XmlType;
     }
 
     /**
-     * Sets the value of username to authenticate host access
-     *
-     * @param value allowed object is
-     *              {@link String}
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
-
-    /**
      * Gets the value of authentication user name
      *
      * @return possible object is
@@ -174,6 +165,16 @@ import javax.xml.bind.annotation.XmlType;
      */
     public String getUserName() {
         return userName;
+    }
+
+    /**
+     * Sets the value of username to authenticate host access
+     *
+     * @param value allowed object is
+     *              {@link String}
+     */
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
 }

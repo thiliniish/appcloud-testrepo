@@ -24,13 +24,13 @@ import org.wso2.carbon.cloud.tenantdeletion.conf.ConfigurationsType;
 import org.wso2.carbon.cloud.tenantdeletion.constants.DeletionConstants;
 import org.wso2.carbon.cloud.tenantdeletion.reader.ConfigReader;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Hashtable;
 
 /**
  * The class used to create conf database connection

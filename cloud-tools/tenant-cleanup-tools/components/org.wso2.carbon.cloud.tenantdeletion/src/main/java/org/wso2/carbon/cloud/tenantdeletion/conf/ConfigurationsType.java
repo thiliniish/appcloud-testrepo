@@ -18,7 +18,11 @@
 
 package org.wso2.carbon.cloud.tenantdeletion.conf;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for ConfigurationsType complex type.
@@ -44,7 +48,8 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "ConfigurationsType", propOrder = { "datasources",
                                                                                           "deletionOrder", "serverKeys",
                                                                                           "cloudMgtQueries",
-                                                                                          "emailProperties" }) @XmlRootElement(name = "Configurations") public class ConfigurationsType {
+                                                                                          "emailProperties" })
+@XmlRootElement(name = "Configurations") public class ConfigurationsType {
 
     @XmlElement(required = true) protected DatasourcesType datasources;
     @XmlElement(name = "Deletion-Order", required = true) protected DeletionOrderType deletionOrder;
@@ -151,5 +156,4 @@ import javax.xml.bind.annotation.*;
     public void setEmailProperties(EmailPropertiesType value) {
         this.emailProperties = value;
     }
-
 }

@@ -24,10 +24,10 @@ import org.wso2.carbon.cloud.tenantdeletion.constants.DeletionConstants;
 import org.wso2.carbon.cloud.tenantdeletion.utils.conf.ConfigurationsType;
 import org.wso2.carbon.utils.CarbonUtils;
 
+import java.io.File;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import java.io.File;
 
 /**
  * Class to read xml configuration files (tenant_deletion.xml) using xpath
@@ -39,6 +39,22 @@ public class ConfigReader {
 
     private ConfigReader() {
         configuration = loadConfigurationConfig();
+    }
+
+    /**
+     * Returns cofig reader instance, if  instance is null creates an instance
+     *
+     * @return Config reader
+     */
+    public static ConfigReader getInstance() {
+        if (instance == null) {
+            synchronized (ConfigReader.class) {
+                if (instance == null) {
+                    instance = new ConfigReader();
+                }
+            }
+        }
+        return instance;
     }
 
     /**
@@ -58,8 +74,8 @@ public class ConfigReader {
     private ConfigurationsType loadConfigurationConfig() {
         ConfigurationsType configurationType = null;
         try {
-            String CARBON_HOME = CarbonUtils.getCarbonHome() + File.separator;
-            File inputFile = new File(CARBON_HOME + DeletionConstants.TENANT_DELETION_XML_FILE_PATH);
+            String carbonHome = CarbonUtils.getCarbonHome() + File.separator;
+            File inputFile = new File(carbonHome + DeletionConstants.TENANT_DELETION_XML_FILE_PATH);
 
             /* Un-marshaling Tenant Deletion configuration */
             JAXBContext cdmContext = JAXBContext.newInstance(ConfigurationsType.class);
@@ -69,21 +85,5 @@ public class ConfigReader {
             LOG.error("Error occurred while initializing Configuration config", e);
         }
         return configurationType;
-    }
-
-    /**
-     * Returns cofig reader instance, if  instance is null creates an instance
-     *
-     * @return Config reader
-     */
-    public static ConfigReader getInstance() {
-        if (instance == null) {
-            synchronized (ConfigReader.class) {
-                if (instance == null) {
-                    instance = new ConfigReader();
-                }
-            }
-        }
-        return instance;
     }
 }

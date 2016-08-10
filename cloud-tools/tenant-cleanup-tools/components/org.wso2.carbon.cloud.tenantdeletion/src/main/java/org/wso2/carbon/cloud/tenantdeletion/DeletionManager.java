@@ -77,7 +77,8 @@ public class DeletionManager {
             LOG.debug("Deletion process started");
         }
         UpdateTenants updateTenants = new UpdateTenants();
-        //Even if some tenants like "wso2con" doesn't log in frequently we can't delete them because we'll use this tenant during the Con
+        //Even if some tenants like "wso2con" doesn't log in frequently we can't delete them because we'll use this
+        // tenant during the Con
         updateTenants.removeExclusionListFromDeleteList();
         //Even if paid tenants don't log in frequently we can't delete them
         updateTenants.removePaidUsersFromDeleteList();

@@ -26,17 +26,17 @@ public class DeletedTenant {
     private String tenantDomain;
     private int appFlag;
     private int apiFlag;
-    private int config_PUBSTORE;
-    private int config_BPS;
-    private int config_CLOUD_MGT;
-    private int config_IS;
-    private int config_SS;
-    private int config_DAS;
-    private int config_AF;
+    private int configPubstore;
+    private int configBps;
+    private int configCloudMgt;
+    private int configIs;
+    private int configSs;
+    private int configDas;
+    private int configAf;
     private int governanceFlag;
     private int userMgtFlag;
     private int cloudMgtFlag;
-    private int LDAPFlag;
+    private int ldapFlag;
 
     public String getTenantDomain() {
         return tenantDomain;
@@ -62,60 +62,60 @@ public class DeletedTenant {
         this.apiFlag = apiFlag;
     }
 
-    public int getConfig_PUBSTORE() {
-        return config_PUBSTORE;
+    public int getConfigPubstore() {
+        return configPubstore;
     }
 
-    public void setConfig_PUBSTORE(int config_PUBSTORE) {
-        this.config_PUBSTORE = config_PUBSTORE;
+    public void setConfigPubstore(int configPubstore) {
+        this.configPubstore = configPubstore;
     }
 
-    public int getConfig_BPS() {
-        return config_BPS;
+    public int getConfigBps() {
+        return configBps;
     }
 
-    public void setConfig_BPS(int config_BPS) {
-        this.config_BPS = config_BPS;
+    public void setConfigBps(int configBps) {
+        this.configBps = configBps;
     }
 
-    public int getConfig_CLOUD_MGT() {
-        return config_CLOUD_MGT;
+    public int getConfigCloudMgt() {
+        return configCloudMgt;
     }
 
-    public void setConfig_CLOUD_MGT(int config_CLOUD_MGT) {
-        this.config_CLOUD_MGT = config_CLOUD_MGT;
+    public void setConfigCloudMgt(int configCloudMgt) {
+        this.configCloudMgt = configCloudMgt;
     }
 
-    public int getConfig_IS() {
-        return config_IS;
+    public int getConfigIs() {
+        return configIs;
     }
 
-    public void setConfig_IS(int config_IS) {
-        this.config_IS = config_IS;
+    public void setConfigIs(int configIs) {
+        this.configIs = configIs;
     }
 
-    public int getConfig_SS() {
-        return config_SS;
+    public int getConfigSs() {
+        return configSs;
     }
 
-    public void setConfig_SS(int config_SS) {
-        this.config_SS = config_SS;
+    public void setConfigSs(int configSs) {
+        this.configSs = configSs;
     }
 
-    public int getConfig_DAS() {
-        return config_DAS;
+    public int getConfigDas() {
+        return configDas;
     }
 
-    public void setConfig_DAS(int config_DAS) {
-        this.config_DAS = config_DAS;
+    public void setConfigDas(int configDas) {
+        this.configDas = configDas;
     }
 
-    public int getConfig_AF() {
-        return config_AF;
+    public int getConfigAf() {
+        return configAf;
     }
 
-    public void setConfig_AF(int config_AF) {
-        this.config_AF = config_AF;
+    public void setConfigAf(int configAf) {
+        this.configAf = configAf;
     }
 
     public int getGovernanceFlag() {
@@ -142,11 +142,11 @@ public class DeletedTenant {
         this.cloudMgtFlag = cloudMgtFlag;
     }
 
-    public int getLDAPFlag() {
-        return LDAPFlag;
+    public int getLdapFlag() {
+        return ldapFlag;
     }
 
-    public void setLDAPFlag(int LDAPFlag) {
-        this.LDAPFlag = LDAPFlag;
+    public void setLdapFlag(int ldapFlag) {
+        this.ldapFlag = ldapFlag;
     }
 }

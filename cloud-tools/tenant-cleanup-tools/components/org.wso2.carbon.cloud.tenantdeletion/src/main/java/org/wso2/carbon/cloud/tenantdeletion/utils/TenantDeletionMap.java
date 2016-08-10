@@ -55,7 +55,8 @@ public class TenantDeletionMap {
 
         for (String serverKey : wso2ServerKeyList) {
             List<DeleteJob> deleteJobList = new ArrayList<>();
-            //Get conf server key from the wso2ServerKeyList and find any matching deleterObject which contain that server
+            //Get conf server key from the wso2ServerKeyList and find any matching deleterObject which contain that
+            // server
             // key as the server key of the object
             for (DeleteJob deleterObject : deleterObjList) {
                 String[] deleteObjServerKeys = deleterObject.getServerKey().split(DeletionConstants.SEPARATOR);
@@ -104,8 +105,9 @@ public class TenantDeletionMap {
 
     /**
      * Check for deletion completed status for the specific type
-     * @param type  String required type to check
-     * @return      Boolean status of deletion
+     *
+     * @param type String required type to check
+     * @return Boolean status of deletion
      */
     public boolean checkDeletionCompleted(String type) {
         List<Integer> checkStatus = DataAccessManager.getInstance().getTypeDeletionStatus(type);

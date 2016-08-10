@@ -63,6 +63,7 @@ public class DeletionConstants {
 
     //Deletion Types
     public static final String API = "API";
+    public static final String LOWERCASEAPI = "api";
     public static final String APP = "APP";
     public static final String CLOUD_MGT = "CLOUD_MGT";
     public static final String LDAP = "LDAP";
@@ -88,9 +89,9 @@ public class DeletionConstants {
     public static final String DELETION_EXCLUSION_TENANTS = "DELETION_EXCLUSION_TENANTS";
 
     public static final String JAVA_NAMING_FACTORY_INITIAL_KEY = "java.naming.factory.initial";
-    public static final String JAVA_NAMING_FACTORY_INITIAL_VALUE = "org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory";
+    public static final String JAVA_NAMING_FACTORY_INITIAL_VALUE =
+            "org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory";
 
     private DeletionConstants() {
     }
-
 }

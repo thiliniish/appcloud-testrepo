@@ -42,5 +42,4 @@ public class DeletionColumnEnum {
         }
         return this.columnType;
     }
-
 }

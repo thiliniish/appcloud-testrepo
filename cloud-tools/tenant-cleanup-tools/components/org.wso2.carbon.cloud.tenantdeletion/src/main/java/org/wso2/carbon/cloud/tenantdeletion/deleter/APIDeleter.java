@@ -109,7 +109,7 @@ public class APIDeleter {
                 registry =
                         ServiceHolder.getInstance().getRegistryService().getGovernanceUserRegistry(adminName, tenantID);
                 GenericArtifactManager manager =
-                        new GenericArtifactManager(registry, DeletionConstants.API.toLowerCase());
+                        new GenericArtifactManager(registry, DeletionConstants.LOWERCASEAPI);
 
                 GovernanceUtils.loadGovernanceArtifacts((UserRegistry) registry);
                 GenericArtifact[] artifacts = manager.getAllGenericArtifacts();
@@ -177,10 +177,10 @@ public class APIDeleter {
             apiProvider.deleteAPI(api.getId());
             LOG.info("Deletion successful for api :" + apiId + " of tenant: " + tenantDomain + "[" + tenantID + "]");
 
-            /*
-              The program will continue if there is an exception. The reason is there can be corrupted tenants or apis
-	          which tend throw exceptions. The deletion process should not stop in such scenarios.
-            */
+            /**
+             * The program will continue if there is an exception. The reason is there can be corrupted tenants or
+             * apis which tend throw exceptions. The deletion process should not stop in such scenarios.
+             */
 
             //Sleep for the given nap time before starting next to avoid connection exhaustion.
             String napTime = System.getProperty(DeletionConstants.API_DELETION_NAP_TIME);
@@ -194,10 +194,6 @@ public class APIDeleter {
             setDeletionStatus(tenantDomain, DeletionConstants.DELETION_ERROR_STATUS);
         } catch (InterruptedException e) {
             LOG.error("Error while sleeping the thread  ", e);
-            setDeletionStatus(tenantDomain, DeletionConstants.DELETION_ERROR_STATUS);
-        } catch (Exception e) {
-            LOG.error("Unexpected error occurred while deleting apis of tenant: " + tenantDomain + "[" + tenantID +
-                      "]", e);
             setDeletionStatus(tenantDomain, DeletionConstants.DELETION_ERROR_STATUS);
         }
     }

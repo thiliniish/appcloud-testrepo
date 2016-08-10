@@ -30,79 +30,26 @@ import org.wso2.carbon.cloud.tenantdeletion.utils.TenantDeletionMap;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import javax.sql.DataSource;
 
+/**
+ * User Management Data deleter class for tenants
+ */
 public class UMDataDeleter {
     private static final Log LOG = LogFactory.getLog(UMDataDeleter.class);
     private static DataSource realmDataSource;
 
     public UMDataDeleter() {
+        setRealmDataSource();
+    }
+
+    public static void setRealmDataSource() {
         RealmConfiguration realmConfig = ServiceHolder.getInstance().getRealmService().
                 getBootstrapRealmConfiguration();
         realmDataSource = DatabaseUtil.getRealmDataSource(realmConfig);
-    }
-
-    /**
-     * Method to startDeletion User Manager Data for given tenants.
-     *
-     * @param deletionLimit Number of tenants to be cleaned up in a single round
-     */
-    public void delete(String deletionLimit) {
-        Map<String, Integer> tenantMap = null;
-        boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.USER_MGT);
-        //If deletion has been limited to specific number of tenants
-        if (!deletionCompleted) {
-            if (StringUtils.isNotEmpty(deletionLimit)) {
-                int limit = Integer.parseInt(deletionLimit);
-                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.USER_MGT, limit);
-            } else {
-                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.USER_MGT);
-            }
-            if (tenantMap != null && !tenantMap.isEmpty()) {
-                triggerDelete(tenantMap);
-                LOG.info("User Management data deletion completed for all the " + tenantMap.size() + " tenants.");
-            } else {
-                LOG.info("User Management data to be deleted");
-            }
-
-        } else {
-            LOG.info("User Management Data already Deleted");
-        }
-        //After completion UserMgt data deletion, Database flag updated to notify that UserMgt data deletion is over
-        DataAccessManager.getInstance().raiseDeletionFlag(DeletionConstants.USER_MGT);
-        //At last, UserMgt data will be deleted. Then this server will finish tenant deletion round
-        if (tenantMap != null && !tenantMap.isEmpty()) {
-            DeletionManager.getInstance().finishDeletionProcess(tenantMap);
-        } else {
-            DeletionManager.getInstance().finishDeletionWithoutEmail();
-        }
-    }
-
-    /**
-     * Deletion start method for the class.
-     * Runs the deletion queries on User Manager by calling deleteTenantUMData()
-     *
-     * @param tenantMap Map of tenant Domain, tenant Id to be delete APIs
-     */
-    public void triggerDelete(Map<String, Integer> tenantMap) {
-        for (Map.Entry<String, Integer> entry : tenantMap.entrySet()) {
-            String tenantDomain = entry.getKey();
-            try {
-                deleteTenantUMData(tenantMap.get(tenantDomain), realmDataSource.getConnection());
-                //Sets deletion flag to 1 for the tenant domain
-                DataAccessManager.getInstance().raiseDeletionFlag(DeletionConstants.USER_MGT, tenantDomain,
-                                                                  DeletionConstants.DELETION_SUCCESS_STATUS);
-            } catch (SQLException e) {
-                String msg = "Error while deleting user management data of tenant : " + tenantMap.get(tenantDomain);
-                LOG.error(msg, e);
-                //Sets deletion flag to 2 for the tenant domain
-                DataAccessManager.getInstance().raiseDeletionFlag(DeletionConstants.USER_MGT, tenantDomain,
-                                                                  DeletionConstants.DELETION_ERROR_STATUS);
-            }
-        }
     }
 
     /**
@@ -182,6 +129,66 @@ public class UMDataDeleter {
                 conn.close();
             } catch (SQLException e) {
                 LOG.error("SQL Exception occurred while Closing connection ", e);
+            }
+        }
+    }
+
+    /**
+     * Method to startDeletion User Manager Data for given tenants.
+     *
+     * @param deletionLimit Number of tenants to be cleaned up in a single round
+     */
+    public void delete(String deletionLimit) {
+        Map<String, Integer> tenantMap = null;
+        boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.USER_MGT);
+        //If deletion has been limited to specific number of tenants
+        if (!deletionCompleted) {
+            if (StringUtils.isNotEmpty(deletionLimit)) {
+                int limit = Integer.parseInt(deletionLimit);
+                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.USER_MGT, limit);
+            } else {
+                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.USER_MGT);
+            }
+            if (tenantMap != null && !tenantMap.isEmpty()) {
+                triggerDelete(tenantMap);
+                LOG.info("User Management data deletion completed for all the " + tenantMap.size() + " tenants.");
+            } else {
+                LOG.info("User Management data to be deleted");
+            }
+
+        } else {
+            LOG.info("User Management Data already Deleted");
+        }
+        //After completion UserMgt data deletion, Database flag updated to notify that UserMgt data deletion is over
+        DataAccessManager.getInstance().raiseDeletionFlag(DeletionConstants.USER_MGT);
+        //At last, UserMgt data will be deleted. Then this server will finish tenant deletion round
+        if (tenantMap != null && !tenantMap.isEmpty()) {
+            DeletionManager.getInstance().finishDeletionProcess(tenantMap);
+        } else {
+            DeletionManager.getInstance().finishDeletionWithoutEmail();
+        }
+    }
+
+    /**
+     * Deletion start method for the class.
+     * Runs the deletion queries on User Manager by calling deleteTenantUMData()
+     *
+     * @param tenantMap Map of tenant Domain, tenant Id to be delete APIs
+     */
+    public void triggerDelete(Map<String, Integer> tenantMap) {
+        for (Map.Entry<String, Integer> entry : tenantMap.entrySet()) {
+            String tenantDomain = entry.getKey();
+            try {
+                deleteTenantUMData(tenantMap.get(tenantDomain), realmDataSource.getConnection());
+                //Sets deletion flag to 1 for the tenant domain
+                DataAccessManager.getInstance().raiseDeletionFlag(DeletionConstants.USER_MGT, tenantDomain,
+                                                                  DeletionConstants.DELETION_SUCCESS_STATUS);
+            } catch (SQLException e) {
+                String msg = "Error while deleting user management data of tenant : " + tenantMap.get(tenantDomain);
+                LOG.error(msg, e);
+                //Sets deletion flag to 2 for the tenant domain
+                DataAccessManager.getInstance().raiseDeletionFlag(DeletionConstants.USER_MGT, tenantDomain,
+                                                                  DeletionConstants.DELETION_ERROR_STATUS);
             }
         }
     }

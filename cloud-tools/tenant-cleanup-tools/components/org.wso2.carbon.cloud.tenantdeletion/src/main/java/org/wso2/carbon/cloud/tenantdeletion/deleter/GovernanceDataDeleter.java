@@ -40,6 +40,10 @@ public class GovernanceDataDeleter extends RegistryDataDeleter {
     private static JDBCDataAccessManager govRegManager;
 
     public GovernanceDataDeleter() {
+        setGovRegManager();
+    }
+
+    public static void setGovRegManager() {
         try {
             govRegManager = (JDBCDataAccessManager) ServiceHolder.getInstance().getRegistryService().
                     getGovernanceUserRegistry().getRegistryContext().getDataAccessManager();

@@ -40,6 +40,10 @@ public class ConfigDataDeleter extends RegistryDataDeleter {
     private static JDBCDataAccessManager configRegManager;
 
     public ConfigDataDeleter() {
+        setConfigRegManager();
+    }
+
+    public static void setConfigRegManager() {
         try {
             configRegManager = (JDBCDataAccessManager) ServiceHolder.getInstance().getRegistryService().
                     getConfigUserRegistry().getRegistryContext().getDataAccessManager();
@@ -47,7 +51,6 @@ public class ConfigDataDeleter extends RegistryDataDeleter {
             String msg = "Error occurred while getting config registry access manager.";
             LOG.error(msg, e);
         }
-
     }
 
     /**

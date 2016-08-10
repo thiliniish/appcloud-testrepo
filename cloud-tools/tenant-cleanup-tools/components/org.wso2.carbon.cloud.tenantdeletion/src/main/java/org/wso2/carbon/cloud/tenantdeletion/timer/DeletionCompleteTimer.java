@@ -28,6 +28,9 @@ import org.wso2.carbon.cloud.tenantdeletion.utils.DataAccessManager;
 
 import java.util.TimerTask;
 
+/**
+ * Timer task to check whether the deletion is completed to reset the startFlagTimer
+ */
 public class DeletionCompleteTimer extends TimerTask {
     private static final Log LOG = LogFactory.getLog(DeletionCompleteTimer.class);
 

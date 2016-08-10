@@ -71,7 +71,8 @@ import javax.xml.bind.annotation.XmlType;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "DeleterType", propOrder = { "clazz", "dependency",
-                                                                                   "serverKey" }) public class DeleterType {
+                                                                                   "serverKey" }) public class
+        DeleterType {
 
     @XmlElement(name = "Class", required = true) protected String clazz;
     @XmlElement(name = "Dependency", required = true) protected String dependency;

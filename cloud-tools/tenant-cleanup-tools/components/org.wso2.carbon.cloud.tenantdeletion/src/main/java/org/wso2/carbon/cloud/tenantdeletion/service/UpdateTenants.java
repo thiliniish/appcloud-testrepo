@@ -27,14 +27,17 @@ import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 
-import javax.jws.WebMethod;
-import java.io.File;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.jws.WebMethod;
 
 /**
  * Represent Class for web services
@@ -105,29 +108,32 @@ public class UpdateTenants {
     }
 
     /**
-     * Prepares the email list the notification is to be sent and write it to a file
+     * Prepares the email list of the tenants which notification is to be sent and write it to a file
      *
-     * @param deleteMap tenant list to be noitified
+     * @param deleteMap tenant list to be notified
      */
     public void prepareEmailList(Map<Integer, String> deleteMap) {
         DataAccessManager dbHandler = new DataAccessManager();
         List<String> deleteTenantDomainList = dbHandler.getAllInactiveTenantDomainList();
-        PrintWriter printWriter = null;
+        BufferedWriter bufferedWriter = null;
+        StringBuilder stringBuilder = null;
         try {
-            printWriter = new PrintWriter(new File(DeletionConstants.TENANT_DELETION_CSV_EXPORT_FILE_PATH));
-        } catch (FileNotFoundException e) {
+            bufferedWriter = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(DeletionConstants.TENANT_DELETION_CSV_EXPORT_FILE_PATH),
+                                           "UTF-8"));
+            stringBuilder = new StringBuilder();
+            for (String tenantDomain : deleteTenantDomainList) {
+                stringBuilder.append(tenantDomain);
+                stringBuilder.append(DeletionConstants.SEPARATOR);
+                stringBuilder.append(dbHandler.getTenantAdminEmail(tenantDomain));
+                stringBuilder.append(DeletionConstants.NEW_LINE);
+            }
+            bufferedWriter.write(stringBuilder.toString());
+            bufferedWriter.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
             LOG.info("CSV file not found : ", e);
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String tenantDomain : deleteTenantDomainList) {
-            sb.append(tenantDomain);
-            sb.append(DeletionConstants.SEPARATOR);
-            sb.append(dbHandler.getTenantAdminEmail(tenantDomain));
-            sb.append(DeletionConstants.NEW_LINE);
-        }
-        if (printWriter != null) {
-            printWriter.write(sb.toString());
-            printWriter.close();
+        } catch (IOException e) {
+            LOG.info("IO Exception while writing to file : ", e);
         }
     }
 

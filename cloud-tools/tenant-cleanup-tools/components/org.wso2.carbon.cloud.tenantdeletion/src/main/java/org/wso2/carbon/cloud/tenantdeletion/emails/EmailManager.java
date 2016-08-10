@@ -29,11 +29,18 @@ import org.wso2.carbon.cloud.tenantdeletion.reader.FileContentReader;
 import org.wso2.carbon.cloud.tenantdeletion.utils.DataAccessManager;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.mail.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.File;
-import java.util.*;
 
 /**
  * The EmailSender class contains the configurations and sends the emails to the relevant users.
@@ -49,8 +56,8 @@ public class EmailManager {
      */
     public void configureDeletionErrorEmail(String errorMessage, DeleteJob deleteObject, String serverKey) {
         FileContentReader reader = new FileContentReader();
-        String CARBON_HOME = CarbonUtils.getCarbonHome() + File.separator;
-        String emailFile = CARBON_HOME + DeletionConstants.TENANT_DELETION_ERROR_EMAIL_FILE_PATH;
+        String carbonHome = CarbonUtils.getCarbonHome() + File.separator;
+        String emailFile = carbonHome + DeletionConstants.TENANT_DELETION_ERROR_EMAIL_FILE_PATH;
         ConfigReader configReader = ConfigReader.getInstance();
         String recipientEmail = configReader.getConfiguration().getEmailProperties().getRecipientEmail();
         String emailSubject = DeletionConstants.DELETION_ERROR_MAIL_SUBJECT;
@@ -69,8 +76,8 @@ public class EmailManager {
      */
     public void configureDeletionCompleteEmail(Map<String, Integer> deletedTenantMap) {
         FileContentReader reader = new FileContentReader();
-        String CARBON_HOME = CarbonUtils.getCarbonHome() + File.separator;
-        String emailFile = CARBON_HOME + DeletionConstants.TENANT_DELETION_COMPLETE_EMAIL_FILE_PATH;
+        String carbonHome = CarbonUtils.getCarbonHome() + File.separator;
+        String emailFile = carbonHome + DeletionConstants.TENANT_DELETION_COMPLETE_EMAIL_FILE_PATH;
         ConfigReader configReader = ConfigReader.getInstance();
         String recipientEmail = configReader.getConfiguration().getEmailProperties().getRecipientEmail();
         String emailSubject = DeletionConstants.DELETION_COMPLETE_MAIL_SUBJECT;
@@ -99,11 +106,7 @@ public class EmailManager {
         properties.put("mail.smtp.starttls.enable", "true");
         properties.put("mail.smtp.host", host);
         properties.put("mail.smtp.port", port);
-        Session session = Session.getInstance(properties, new Authenticator() {
-            @Override protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(userName, emailPassword);
-            }
-        });
+        Session session = Session.getInstance(properties, new MailAuthenticator(userName, emailPassword));
         try {
             //constructing the email message
             Message message = new MimeMessage(session);
@@ -173,35 +176,35 @@ public class EmailManager {
         //replaces email template with appropriate strings for each deleted tenants
         for (DeletedTenant tenant : deletedTenants) {
             String tenantDomain = tenant.getTenantDomain();
-            String APP = Integer.toString(tenant.getAppFlag());
-            String API = Integer.toString(tenant.getApiFlag());
-            String CONFIG_PUBSTORE = Integer.toString(tenant.getConfig_PUBSTORE());
-            String CONFIG_BPS = Integer.toString(tenant.getConfig_BPS());
-            String CONFIG_CLOUD_MGT = Integer.toString(tenant.getConfig_CLOUD_MGT());
-            String CONFIG_IS = Integer.toString(tenant.getConfig_IS());
-            String CONFIG_SS = Integer.toString(tenant.getConfig_SS());
-            String CONFIG_DAS = Integer.toString(tenant.getConfig_DAS());
-            String CONFIG_AF = Integer.toString(tenant.getConfig_AF());
-            String GOVERNANCE = Integer.toString(tenant.getGovernanceFlag());
-            String USER_M = Integer.toString(tenant.getUserMgtFlag());
-            String CLOUD_M = Integer.toString(tenant.getCloudMgtFlag());
-            String LDAP = Integer.toString(tenant.getLDAPFlag());
+            String app = Integer.toString(tenant.getAppFlag());
+            String api = Integer.toString(tenant.getApiFlag());
+            String configPubstore = Integer.toString(tenant.getConfigPubstore());
+            String configBps = Integer.toString(tenant.getConfigBps());
+            String configCloudMgt = Integer.toString(tenant.getConfigCloudMgt());
+            String configIs = Integer.toString(tenant.getConfigIs());
+            String configSs = Integer.toString(tenant.getConfigSs());
+            String configDas = Integer.toString(tenant.getConfigDas());
+            String configAf = Integer.toString(tenant.getConfigAf());
+            String governance = Integer.toString(tenant.getGovernanceFlag());
+            String userMgt = Integer.toString(tenant.getUserMgtFlag());
+            String cloudMgt = Integer.toString(tenant.getCloudMgtFlag());
+            String ldap = Integer.toString(tenant.getLdapFlag());
             //replace text
             if (tenantDomain != null) {
                 messageBody = messageBody.replaceAll("%%tenantDomain", tenantDomain);
-                messageBody = messageBody.replaceAll("%%APP", APP);
-                messageBody = messageBody.replaceAll("%%API", API);
-                messageBody = messageBody.replaceAll("%%CONFIG_PUBSTORE", CONFIG_PUBSTORE);
-                messageBody = messageBody.replaceAll("%%CONFIG_BPS", CONFIG_BPS);
-                messageBody = messageBody.replaceAll("%%CONFIG_CLOUD_MGT", CONFIG_CLOUD_MGT);
-                messageBody = messageBody.replaceAll("%%CONFIG_IS", CONFIG_IS);
-                messageBody = messageBody.replaceAll("%%CONFIG_SS", CONFIG_SS);
-                messageBody = messageBody.replaceAll("%%CONFIG_DAS", CONFIG_DAS);
-                messageBody = messageBody.replaceAll("%%CONFIG_AF", CONFIG_AF);
-                messageBody = messageBody.replaceAll("%%GOVERNANCE", GOVERNANCE);
-                messageBody = messageBody.replaceAll("%%USER_MGT", USER_M);
-                messageBody = messageBody.replaceAll("%%CLOUD_MGT", CLOUD_M);
-                messageBody = messageBody.replaceAll("%%LDAP", LDAP);
+                messageBody = messageBody.replaceAll("%%APP", app);
+                messageBody = messageBody.replaceAll("%%API", api);
+                messageBody = messageBody.replaceAll("%%CONFIG_PUBSTORE", configPubstore);
+                messageBody = messageBody.replaceAll("%%CONFIG_BPS", configBps);
+                messageBody = messageBody.replaceAll("%%CONFIG_CLOUD_MGT", configCloudMgt);
+                messageBody = messageBody.replaceAll("%%CONFIG_IS", configIs);
+                messageBody = messageBody.replaceAll("%%CONFIG_SS", configSs);
+                messageBody = messageBody.replaceAll("%%CONFIG_DAS", configDas);
+                messageBody = messageBody.replaceAll("%%CONFIG_AF", configAf);
+                messageBody = messageBody.replaceAll("%%GOVERNANCE", governance);
+                messageBody = messageBody.replaceAll("%%USER_MGT", userMgt);
+                messageBody = messageBody.replaceAll("%%CLOUD_MGT", cloudMgt);
+                messageBody = messageBody.replaceAll("%%LDAP", ldap);
             }
             String newRow =
                     "<tr>\n" + "<td align=\"center\";>%%tenantDomain</td>\n" + "<td align=\"center\";>%%APP</td>\n" +
@@ -216,9 +219,8 @@ public class EmailManager {
             // tenant
             if (count != deletedTenants.size()) {
                 messageBody = messageBody.replaceAll("%%nextRow", newRow);
-            }
-            //After replacing last tenant details %%nextRow tad will be removed
-            else if (count == deletedTenants.size()) {
+                //After replacing last tenant details %%nextRow tag will be removed
+            } else if (count == deletedTenants.size()) {
                 messageBody = messageBody.replaceAll("%%nextRow", "");
             }
             count++;

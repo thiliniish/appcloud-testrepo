@@ -21,7 +21,13 @@ package org.wso2.carbon.cloud.tenantdeletion.reader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.nio.charset.Charset;
 
 /**
  * This class reads the files needed for the workflow process.
@@ -30,6 +36,7 @@ import java.io.*;
 public class FileContentReader implements Serializable {
 
     private static final Log LOG = LogFactory.getLog(FileContentReader.class);
+    private static final long serialVersionUID = 1L;
 
     /**
      * This methods reads and returns the content of the file.
@@ -40,15 +47,17 @@ public class FileContentReader implements Serializable {
     public String fileReader(String fileName) {
 
         //variable to store the text that is being read
-        String fileContent = "";
+        StringBuilder fileContent = new StringBuilder();
         InputStreamReader inputStream = null;
+        BufferedReader reader = null;
         String errorMessage;
         try {
-            inputStream = new FileReader(fileName);
-            BufferedReader reader = new BufferedReader(inputStream);
+            inputStream = new InputStreamReader(new FileInputStream(fileName), Charset.defaultCharset());
+            reader = new BufferedReader(inputStream);
             String line;
             while ((line = reader.readLine()) != null) {
-                fileContent += line + "\r\n";
+                fileContent.append(line);
+                fileContent.append("\r\n");
             }
             reader.close();
         } catch (FileNotFoundException e) {
@@ -66,8 +75,16 @@ public class FileContentReader implements Serializable {
                     LOG.error(errorMessage, e);
                 }
             }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    errorMessage = "Error occurred while reading the file " + fileName;
+                    LOG.error(errorMessage, e);
+                }
+            }
         }
         //returning the file contents
-        return fileContent;
+        return fileContent.toString();
     }
 }
