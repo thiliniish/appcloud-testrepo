@@ -266,7 +266,7 @@ var addSelfSignupSubmissionToRightwave = function (email) {
         } else {
             log.error("The Rightwave API has not been enabled at the moment. Unable to send the self signup feature activation details to Rightwave for the user " + username);
         }
-    } catch(e) {
+    } catch (e) {
         log.error("An error occurred while adding the self signup feature activation details to Rightwave for the user " + username);
         log.error(e);
     }
