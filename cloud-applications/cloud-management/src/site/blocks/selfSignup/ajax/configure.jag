@@ -95,7 +95,7 @@ include("/jagg/constants.jag");
 
                 }
             } catch (e) {
-                message = "Error while uploading the files to the BPS server for the self sign up feature for the user " + username + "\n" + e.message;
+                message = "An error occurred while configuring the self sign up feature for the user " + username + "\n" + e.message;
                 log.error(message);
                 log.error(e);
                 result = {
