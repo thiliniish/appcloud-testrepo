@@ -114,7 +114,7 @@ public class CloudMgtDataDeleter {
         for (Map.Entry<String, Integer> entry : tenantMap.entrySet()) {
             String tenantDomain = entry.getKey();
             try {
-                Connection connection = DataConnectionManager.getInstance().getCloudMgtDbConnection();
+                Connection connection = DataConnectionManager.getCloudMgtDbConnection();
                 deleteTenantCloudMgtData(tenantDomain, connection);
                 //Sets deletion flag to 1 for the tenant domain
                 DataAccessManager.getInstance().raiseDeletionFlag(DeletionConstants.CLOUD_MGT, tenantDomain,
