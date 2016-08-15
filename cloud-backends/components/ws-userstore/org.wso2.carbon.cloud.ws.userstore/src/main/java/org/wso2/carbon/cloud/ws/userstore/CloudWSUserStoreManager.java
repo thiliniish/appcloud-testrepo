@@ -69,7 +69,9 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
     public CloudWSUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
                                    ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
                                    Integer tenantId) throws UserStoreException {
-        log.debug("Initializing CloudWSUserStoreManager for tenantId - [" + tenantId + "]");
+        if (log.isDebugEnabled()) {
+            log.debug("Initializing CloudWSUserStoreManager for tenantId - [" + tenantId + "]");
+        }
         this.realmConfig = realmConfig;
         this.tenantId = tenantId;
         this.userRealm = realm;
