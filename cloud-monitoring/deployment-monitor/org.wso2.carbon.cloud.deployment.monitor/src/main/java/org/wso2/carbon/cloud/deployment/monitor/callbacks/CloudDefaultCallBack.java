@@ -92,7 +92,7 @@ public class CloudDefaultCallBack implements OnResultCallback {
             //send notifications only if this is the fist time
             if (!cacheHit) {
                 String emailBody =
-                        runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + "is DOWN since : " + sdf
+                        runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + " is DOWN since : " + sdf
                                 .format(currentTime);
                 emailBody = emailBody + "<br/>" + "Reason : " + errorMsg;
                 EmailNotifications.getInstance().sendMail(failureMsg, emailBody);
