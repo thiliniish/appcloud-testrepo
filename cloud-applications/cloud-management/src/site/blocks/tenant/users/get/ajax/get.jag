@@ -136,17 +136,17 @@ var log = new Log();
     } else if (action == "getPendingUsers") {
         mod = jagg.module("tenant");
         var tenantDomain = request.getParameter("tenantDomain");
-        var responseObj;
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
-            responseObj = mod.getPendingUsers(tenantDomain);
+            var responseObj = mod.getPendingUsers(tenantDomain);
             if (responseObj != null) {
                 print(responseObj);
             }
         } else {
-            responseObj.error = true;
-            responseObj.message = "You don't have permission to update invitations";
-            responseObj.statusCode = 401;
-            print(responseObj);
+            print({
+                error: true,
+                statusCode: 401,
+                message: "You don't have permission to update invitations"
+            });
         }
     } else if (action == "getPendingUsersOfRole") {
         mod = jagg.module("tenant");
