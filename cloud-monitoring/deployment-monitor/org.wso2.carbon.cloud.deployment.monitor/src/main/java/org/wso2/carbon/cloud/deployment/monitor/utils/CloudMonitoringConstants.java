@@ -25,6 +25,8 @@ public class CloudMonitoringConstants {
 
     public static final String SIMPLE_DATE_FORMAT_WITH_TIME_ZONE = "yyyy-MM-dd hh:mm:ss a z";
 
+    public static final long THREAD_SLEEP_TIME = 5000;
+
     public static final String TRIGGER_TYPE = "triggerType";
 
     public static final String TRIGGER = "trigger";

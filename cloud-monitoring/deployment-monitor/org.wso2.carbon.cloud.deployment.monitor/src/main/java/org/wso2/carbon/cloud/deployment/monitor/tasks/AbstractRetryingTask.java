@@ -20,55 +20,37 @@ package org.wso2.carbon.cloud.deployment.monitor.tasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.deployment.monitor.api.RunStatus;
 import org.wso2.deployment.monitor.core.model.ServerGroup;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
  * Abstract Class for Cloud Tasks
  */
-public abstract class CloudTask {
+public abstract class AbstractRetryingTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(CloudTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractRetryingTask.class);
 
     private int counter = 0;
 
-    public RunStatus retryTask(ServerGroup serverGroup, Properties properties, String msg, String reason, Exception e) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(msg + " Retrying task...");
-        }
+    public abstract RunStatus runTask(ServerGroup serverGroup, Properties properties);
+
+    public RunStatus retryTask(ServerGroup serverGroup, Properties properties, String msg, RunStatus runStatus) {
+        logger.warn(msg + " Retrying task...");
         counter++;
         if (counter == 3) {
             counter = 0;
-            return handleErrors(msg, reason, e);
+            return runStatus;
         } else {
             try {
-                Thread.sleep(10000);
+                Thread.sleep(CloudMonitoringConstants.THREAD_SLEEP_TIME);
             } catch (InterruptedException ie) {
                 //Exception ignored
             }
             return runTask(serverGroup, properties);
         }
     }
-
-    public RunStatus handleErrors(String msg, String reason, Exception e) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(msg + " due to : " + reason);
-        }
-        RunStatus status = new RunStatus();
-        Map<String, Object> customReturnDetails;
-        status.setSuccess(false);
-        status.setMessage(msg);
-        customReturnDetails = new HashMap<>();
-        customReturnDetails.put("Reason", reason);
-        customReturnDetails.put("Exception", e);
-        status.setCustomTaskDetails(customReturnDetails);
-        return status;
-    }
-
-    public abstract RunStatus runTask(ServerGroup serverGroup, Properties properties);
 
 }
