@@ -30,20 +30,25 @@ var getWelcomeMsg = function (username) {
     return welcomeMsg;
 };
 
-var getSubscriptionInfo = function (types, domainName) {
+var getSubscriptionInfo = function (types, username) {
+    var modUserManagement = jagg.module("user/management");
     var subscriptionInfo = {};
+    var cloudType = DEFAULT_SUBSCRIPTION;
+    var roleTypes = [];
+    var isSubscribed = false;
     for (var i = 0; i < types.length; i++) {
         if (types[i].id != DEFAULT_SUBSCRIPTION) {
-            var columnName = types[i].id;
-            var queryString = SQL_QUERY_STRINGS.SELECT_FROM_SUBSCRIPTIONS;
-            var parameters = [columnName, domainName];
-            var registrationInfo = jagg.module("database").executeQuery(queryString, parameters);
-            if (registrationInfo.length > 0) {
-                subscriptionInfo[columnName] = registrationInfo[0][columnName];
-            } else {
-                subscriptionInfo[columnName] = "true";//as a fail proof, it is assumed that tenant has subscribed to all the available clouds.
-                log.error("Subscription details were not found for " + columnName + " of tenant " + domainName);
+            cloudType = types[i].id;
+            roleTypes = types[i].roleTypes;
+            for (var j = 0; j < roleTypes.length; j++) {
+                if (username != null) {
+                    if (modUserManagement.hasUserRole(username, roleTypes[j].roleName)) {
+                        isSubscribed = true;
+                        break;
+                    }
+                }
             }
+            subscriptionInfo[cloudType] = isSubscribed;
         }
     }
     return subscriptionInfo;
