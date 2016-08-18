@@ -17,20 +17,13 @@ var modRegistry = jagg.module("registry");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
+var message;
+var responseMessage = "";
+var account;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
 var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
 var contactUsURL = cloudmgtURL + CLOUD_CONTACT_US_URI;
-var errorObj = {
-    error: true,
-    statusCode: 500,
-    redirectionURL: contactUsURL,
-    message: "Internal error. Please retry..."
-};
-var successObj = {
-    error: false,
-    statusCode: 200
-};
-
+var data;
 
 var getSubscribersOfTenant = function () {
     var tenantDomain = modManager.getTenantDomain();
@@ -69,10 +62,12 @@ var getSubscribersOfTenant = function () {
                     }
                 }
                 subscribers.push(tmpSubscriber);
+                message = "Successfully retrieved the list of subscribers for the tenant " + tenantDomain;
             }
             return {
                 error: false,
                 subObj: subscribers,
+                message: message,
                 status: 200
             };
         } catch (e) {
@@ -155,9 +150,11 @@ var makeSubscriberAccountTest = function (subscriberString) {
                     //Send notification email
                     sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
                 }
-                log.info("Updating account to test for user: " + username + " of tenant: " + tenantDomain + " is successful.");
+                message = "Updating account to test for the user: " + username + " of tenant: " + tenantDomain + " is successful.";
+                log.info(message);
                 return {
                     error: false,
+                    message: message,
                     status: 200
                 };
             } else {
@@ -216,9 +213,11 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
                     updateMonetizationSubscriberTable(false, username, tenantDomain);
                     //Send notification email
                     sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_REMOVED_MAIL_TYPE);
-                    log.info("Removing test account status of user: " + username + " of tenant: " + tenantDomain + " is successful.");
+                    message = "Removing test account status of the user: " + username + " of tenant: " + tenantDomain + " is successful.";
+                    log.info(message);
                     return {
                         error: false,
+                        message: message,
                         status: 200
                     };
                 } else {
@@ -301,8 +300,10 @@ var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate
             else {
                 usageData.push(entry);
             }
+            message = "Successfully retrieved the usage data for the user " + userId + " of the tenant domain " + tenantDomain;
             return {
                 error: false,
+                message: message,
                 status: 200,
                 usageObj: usageData
             };
@@ -367,8 +368,10 @@ var getSubscribedApisOfUser = function (userId) {
                     apiNames.push(api);
                 }
             }
+            var msg = "Successfully retrieved the apis of user: " + userId;
             return {
                 error: false,
+                message: msg,
                 apiObj: apiNames,
                 status: 200
             };
@@ -433,8 +436,10 @@ var getApiApplicationsOfUser = function (userId, api) {
                     applicationArray.push(app);
                 }
             }
+            var msg = "Successfully retrieved the apps of the user: " + userId;
             return {
                 error: false,
+                message: msg,
                 appObj: applicationArray,
                 status: 200
             };
@@ -478,8 +483,10 @@ var getApimSubscriberIdsOfTenant = function () {
                 tmpSubscriber.text = tmpUser.email;
                 subscribersArray.push(tmpSubscriber);
             }
+            var msg = "Successfully retrieved the subscribers of the tenant: " + tenantDomain;
             return {
                 error: false,
+                message: msg,
                 subObj: subscribersArray,
                 status: 200
             };
@@ -519,8 +526,10 @@ var isMonetizationEnabled = function (tenantDomain) {
     try {
         var monetizationStatus = monetizationService.isMonetizationEnabled(tenantDomain);
         session.put("monetizationEnabled", monetizationStatus);
+        var msg = "Successfully checked the monetization status for tenant: " + tenantDomain;
         return {
             error: false,
+            message: msg,
             status: 200,
             monetizationEnabled: monetizationStatus
         };
@@ -582,13 +591,24 @@ var getSubscriptions = function (accountNumber) {
     try {
         var parameters = [accountNumber, accountNumber];
         var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS;
-        successObj.data = modDb.executeQuery(queryString, parameters);
-        return successObj;
+        data = modDb.executeQuery(queryString, parameters);
+        message = "Successfully retrieved the subscription information for the accountId - " + accountNumber;
+        return {
+            error: false,
+            mesage: message,
+            statusCode: 200,
+            data: data
+        };
     } catch (e) {
         log.error("Error while getting the subscription information for accountId - " + accountNumber + ":");
         log.error(e);
-        errorObj.message = "Error occurred while getting the subscription information, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error occurred while getting the subscription information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
@@ -602,14 +622,24 @@ var getAccountIdFromUserName = function (username) {
         if (result.length > 0) {
             accountNumber = result[0].ACCOUNT_NUMBER;
         }
-        successObj.data = accountNumber;
-        return successObj;
+        message = "Successfully retrieved the account id from the username - " + username
+        return {
+            error: false,
+            message: message,
+            statusCode: 200,
+            data: accountNumber
+        };
     } catch (e) {
         log.error("Error while getting the account id from the username - " + username + " :");
         log.error(e);
-        errorObj.message = "Error while getting the account id from the username - " + username +
+        message = "Error while getting the account id from the username - " + username +
                 ", Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
@@ -629,13 +659,23 @@ var getApiListFromAccountId = function (accountId) {
             };
             apiWithVersion.push(data);
         }
-        successObj.data = apiWithVersion;
-        return successObj;
+        message = "Successfully retrieved the API list from account id - " + accountId
+        return {
+            error: false,
+            message: message,
+            statusCode: 200,
+            data: apiWithVersion
+        };
     } catch (e) {
         log.error("Error while getting the API list from account id - " + accountId + ":");
         log.error(e);
-        errorObj.message = "Error while getting the API list, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error while getting the API list, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 var getOrdedInvoices = function (accountId, invoiceId) {
@@ -656,39 +696,69 @@ var getOrdedInvoices = function (accountId, invoiceId) {
         }
         result.invoiceItems = orderedInvoiceList;
         result.subscriptionData = subscriptionDetails;
-        successObj.data = result;
-        return successObj;
+        message = "Successfully retreived the invoice data for the accountId [" + accountId + "] :";
+        return {
+            error: false,
+            message: message,
+            statusCode: 200,
+            data: result
+        };
     } catch (e) {
         log.error("Error while getting the invoice data for accountId [" + accountId + "] :");
         log.error(e);
-        errorObj.message = "Error occurred while getting the invoice information, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error occurred while getting the invoice information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
 var getBillingAccountSummary = function (subscribersAccountId) {
     try {
         var summary = billingService.getAccountSummary(subscribersAccountId);
-        successObj.data = summary;
-        return successObj;
+        message = "Successfully retrieved the Billing data for the accountId [" + subscribersAccountId + "] :"
+        return {
+            error: false,
+            message: message,
+            statusCode: 200,
+            data: summary
+        };
     } catch (e) {
         log.error("Error while getting the Billing data for accountId [" + subscribersAccountId + "] :");
         log.error(e);
-        errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
 var getBillingPaymentInfo = function (subscribersAccountId) {
     try {
         var summary = billingService.getPayments(subscribersAccountId);
-        successObj.data = summary;
-        return successObj;
+        message = "Successfully retrieved the Billing data for accountId [" + subscribersAccountId + "] :"
+        return {
+            error: false,
+            message: message,
+            statusCode: 200,
+            data: summary
+        };
     } catch (e) {
         log.error("Error while getting the Billing data for accountId [" + subscribersAccountId + "] :");
         log.error(e);
-        errorObj.message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
-        return errorObj;
+        message = "Error occurred while getting the Billing information, Please contact WSO2 Cloud Team for help";
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
@@ -729,6 +799,8 @@ var enableMonetization = function (tenantPassword) {
                 var isProductCreated =
                         billingService.enableMonetization(tenantDomain, tenantPassword, tenantDisplayName);
                 if (isProductCreated) {
+                    responseMessage = "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                    throw responseMessage;
                     var cloudType = productIdFromServiceId.api_cloud;
                     // Add status to MONETIZATION_STATUS table
                     var addMonetizationStatus = addStatusToMonetizationStatusTable(tenantDomain, API_CLOUD);
@@ -766,36 +838,51 @@ var enableMonetization = function (tenantPassword) {
                             account: "paid"
                         };
                     } else {
-                        throw "Add status to monetization_status table failed for user: " + username + " of tenant: " +
-                        tenantDomain + ".";
+                        responseMessage = "Add status to monetization_status table failed for user: " + username + " of tenant: " +
+                                       tenantDomain + ".";
+                        throw responseMessage;
                     }
                 } else {
-                    throw "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                    responseMessage = "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                    throw responseMessage;
                 }
-            } else {
-                throw "Validation failed. User " + username + " is having an " + BILLING_STARTER_PLAN + " account.";
+            }  else {
+                message = "Validation failed. User " + username + " is having a " + BILLING_STARTER_PLAN + " account.";
+                log.error(message);
+                responseMessage = "You are subscribed to " + BILLING_STARTER_PLAN + " Plan. In order to enable Monetization please " +
+                                  "upgrade your account to at-least '" + MONETIZATION_STARTER_PLAN + "' plan.";
+                return {
+                    error: true,
+                    invalidPlanError: true,
+                    message: responseMessage,
+                    status: 426,
+                    redirectionURL: contactUsURL,
+                    account: BILLING_STARTER_PLAN
+                };
             }
         } else {
-            throw "Validation failed. User " + username + " is having an free account.";
+            message = "Validation failed. User " + username + " is having a free account.";
+            log.error(message);
+            account = "Free";
+            responseMessage = "You are having a free account. In order to enable Monetization please upgrade your account to " +
+                              "at-least 'Getting Traction' plan.";
+            return {
+                error: true,
+                invalidPlanError: true,
+                message: responseMessage,
+                status: 426,
+                redirectionURL: contactUsURL,
+                account: account
+            };
         }
     } catch (e) {
-        var msg, account = "";
-        if (!isPaidAccount) {
-            msg = "You are having an free account. In order to enable Monetization please upgrade your account to " +
-            "at-least 'Getting Traction' plan.";
-            account = "Free";
-        } else if (paymentPlanName != null && BILLING_STARTER_PLAN == paymentPlanName) {
-            msg = "You are subscribed to " + BILLING_STARTER_PLAN + " Plan. In order to enable Monetization please " +
-            "upgrade your account to at-least '" + MONETIZATION_STARTER_PLAN + "' plan.";
-            account = BILLING_STARTER_PLAN;
-        } else {
-            msg = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
-        }
-        log.error(msg);
+        account = "";
+        var displayMessage = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(displayMessage);
         log.error(e);
         return {
             error: true,
-            message: msg,
+            message: displayMessage,
             status: 500,
             redirectionURL: contactUsURL,
             account: account
@@ -889,14 +976,25 @@ var getNumberOfProductPlansForTenant = function (tenantDomain) {
         var queryString = SQL_QUERY_STRINGS.SELECT_NUMBER_OF_MONETIZATION_PRODUCT_PLANS_FOR_TENANT;
         var parameters = [tenantDomain, productName];
         var result = modDb.executeQuery(queryString, parameters);
-        successObj.data = result[0]["PRODUCT_PLAN_COUNT"];
-        return successObj;
+        data = result[0]["PRODUCT_PLAN_COUNT"];
+        var message = "Successfully retrieved the number of product plans for the tenant: " + tenantDomain;
+        return {
+            error: false,
+            message: message,
+            statusCode: 200,
+            data: data
+        };
     } catch (e) {
         var message = "Error while getting the number of product plans for the tenant: " + tenantDomain;
         log.error(message);
         log.error(e);
-        errorObj.message = message;
-        return errorObj;
+        message = message;
+        return {
+            error: true,
+            statusCode: 500,
+            redirectionURL: contactUsURL,
+            message: message
+        };
     }
 };
 
@@ -940,8 +1038,10 @@ var getProductPlans = function () {
             }
             planList.push(tmpPlanList);
         }
+        var msg = "Successfully retrieved the product plan list at the moment. Please contact WSO2 Cloud Team for help.";
         return {
             error: false,
+            message: msg,
             status: 200,
             data: planList
         };
@@ -962,14 +1062,16 @@ var addProductPlans = function (planName, planDescription, pricing, overageCharg
         var addProductPlansResult = JSON.parse(billingService.createProductRatePlan(tenantDomain, planName, pricing, overageCharge, planDescription));
         if (addProductPlansResult.id != null) {
             addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlansResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
+            var msg = "Successfully added the product rate plan: " + planName + " for the tenant " + tenantDomain;
             return {
                 error: false,
                 status: 200,
+                message: msg,
                 redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
             };
         } else {
             var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
-            log.error("Error occured while adding the product plans for tenant: " + tenantDomain);
+            log.error("Error occurred while adding the product plans for tenant: " + tenantDomain);
             return {
                 error: true,
                 redirectionURL: contactUsURL,
@@ -995,8 +1097,10 @@ var getTiersOfTenant = function () {
     try {
         var tenantDomain = modManager.getTenantDomain();
         var tiersList = JSON.parse(monetizationService.getTiers(tenantDomain));
+        var msg = "Successfully retrieved the product plan list at the tenant " +tenantDomain;
         return {
             error: false,
+            message: msg,
             status: 200,
             data: tiersList
         };

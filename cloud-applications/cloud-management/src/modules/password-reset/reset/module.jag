@@ -1,9 +1,0 @@
-<%
-jagg.module("password-reset/reset", {
-
-    verifyPasswordResetConfirmationCode: function () {
-        return jagg.require(jagg.getModulesDir() + "password-reset/reset/reset.jag").verifyPasswordResetConfirmationCode.apply(this, arguments);
-    }
-
-});
-%>

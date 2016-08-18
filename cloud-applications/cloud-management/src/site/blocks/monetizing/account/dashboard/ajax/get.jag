@@ -6,6 +6,9 @@ var carbon = require('carbon');
 var server = carbon.server;
 var mod = jagg.module("monetizing");
 var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var cloudmgtURI = cloudConfig.ServerUrls.cloudmgt.toString();
+var contactUsURL = cloudmgtURI + CLOUD_CONTACT_US_URI;
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 var user = jagg.getUser();
 var tenantDomain = multiTenantUtils.getTenantDomain(user)
@@ -43,10 +46,15 @@ if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMon
         var result = mod.getNumberOfProductPlansForTenant(tenantDomain);
         print(result);
     } else {
-        log.error("No Action Specified");
+        var message = "No Action Specified";
+        log.error(message);
         response.status = 400;
-        errorObj.message = "Unexpected error occurred";
-        print(errorObj);
+        print({
+                  error: true,
+                  statusCode: 400,
+                  redirectionURL: contactUsURL,
+                  message: message
+              });
     }
 
 }());

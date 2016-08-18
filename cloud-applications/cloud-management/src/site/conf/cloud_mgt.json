@@ -87,7 +87,12 @@
     "keyStoreName": "../../../../../../resources/security/wso2carbon.jks",
     "cookieRefreshInterval": 300000,
     "adminUser": "admin",
-    "adminPassword": "admin"
+    "adminPassword": "admin",
+    "responseSigningEnabled":true,
+    "assertionSigningEnabled":true,
+    "audienceRestrictionsEnabled":true,
+    "verifyAssertionValidityPeriod": "true",
+    "timestampSkewInSeconds": "300"
   },
   "registrationEmail": {
     "from": "WSO2 Cloud Team <cloud@wso2.com>",

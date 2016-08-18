@@ -63,6 +63,155 @@ var updateUserRoles = function (userName,addRoles,removeRols) {
     }
 };
 
+var updateUserInvitation = function (email, addRoles, removeRoles) {
+    var tenantDomain = modManager.getTenantDomain();
+    var message;
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+        //Get the existing roles in the invitation
+        var queryStringForRoles = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
+        var parameters = [tenantDomain, email];
+        var existingRoles = jagg.module("database").executeQuery(queryStringForRoles, parameters);
+        var currentRoles = [];
+        var role = '';
+
+        var tmpRoles = existingRoles[0]["roles"].split(',');
+        for (var k = 0; k < tmpRoles.length; k++) {
+            currentRoles.push(tmpRoles[k]);
+        }
+        //Get roles to be added and deleted into arrays
+        var roles = [];
+        var paramAddRoles, paramRemoveRoles;
+        paramAddRoles = addRoles.split(",");
+        paramRemoveRoles = removeRoles.split(",");
+        if ((paramAddRoles.length == 0) || (paramAddRoles[0].length == 0)) {
+            paramAddRoles = null;
+        } else {
+            for (var i = 0; i < paramAddRoles.length; i++) {
+                role = jagg.module("util").getRoleForGivenDisplayName(paramAddRoles[i]);
+                paramAddRoles[i] = role;
+            }
+        }
+        if ((paramRemoveRoles.length == 0) || (paramRemoveRoles[0].length == 0)) {
+            paramRemoveRoles = null;
+        } else {
+            for (var i = 0; i < paramRemoveRoles.length; i++) {
+                role = jagg.module("util").getRoleForGivenDisplayName(paramRemoveRoles[i]);
+                paramRemoveRoles[i] = role;
+            }
+        }
+        //If there are no roles to be updated
+        if (paramAddRoles == null && paramRemoveRoles == null) {
+            message = "No roles were selected to be added to or removed from invitation to " + email;
+            if (log.isDebugEnabled()) {
+                log.debug(message);
+            }
+            return {
+                error: false,
+                result: true,
+                message: message,
+                statusCode: 200
+            };
+        } else {
+            if (paramAddRoles != null) {
+                for (var i = 0; i < paramAddRoles.length; i++) {
+                    roles.push(paramAddRoles[i]);
+                }
+            }
+            if (currentRoles != null) {
+                var roleIndex = 0;
+                var removeRoleIndex = 0;
+                for (roleIndex = 0; roleIndex < currentRoles.length; roleIndex++) {
+                    //Add all current roles to the role list if there are no roles to remove
+                    if (paramRemoveRoles == null) {
+                        roles.push(currentRoles[roleIndex]);
+                    } else {
+                        for (removeRoleIndex = 0; removeRoleIndex < paramRemoveRoles.length; removeRoleIndex++) {
+                            if (currentRoles[roleIndex] == paramRemoveRoles[removeRoleIndex]) {
+                                break;
+                            }
+                        }
+                        if (removeRoleIndex < paramRemoveRoles.length) {
+                            //Do not add the role if it is a role to be removed
+                            continue;
+                        } else {
+                            roles.push(currentRoles[roleIndex]);
+                        }
+                    }
+                }
+            }
+            try {
+                var queryString = SQL_QUERY_STRINGS.UPDATE_TEMP_INVITEE;
+                parameters = [roles, tenantDomain, email];
+                var results = jagg.module("database").executeQuery(queryString, parameters);
+                //Resend invitation email
+                resendInvite(email);
+                return {
+                    error: false,
+                    result: results,
+                    message: "User Invitation resent to " + email,
+                    statusCode: 200
+                };
+            } catch (e) {
+                message = "Error while updating user invitation to " + email + " to tenant " + tenantDomain;
+                log.error(message);
+                log.error(e);
+                return {
+                    error: true,
+                    message: message,
+                    statusCode: 500
+                };
+            }
+        }
+    } else {
+        message = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+        log.error(message);
+        return {
+            error: true,
+            message: message,
+            statusCode: 401
+        };
+    }
+};
+
+var revokeUserInvitation = function (email) {
+    var tenantDomain = modManager.getTenantDomain();
+    var user = jagg.getUser();
+    var message;
+    if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
+        try {
+            var queryString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE_REVOKE_INVITATION;
+            var parameters = [tenantDomain, email];
+            var results = jagg.module("database").executeQuery(queryString, parameters);
+            message = "Member Invitation for " + email + " for the tenant " + tenantDomain + " has been revoked by "
+                    + user;
+            log.info(message);
+            return {
+                error: false,
+                result: results,
+                message: message,
+                statusCode: 200
+            };
+        } catch (e) {
+            message = "Error while revoking user invitation to " + email + " to tenant " + tenantDomain;
+            log.error(message);
+            log.error(e);
+            return {
+                error: true,
+                message: message,
+                statusCode: 500
+            };
+        }
+    } else {
+        var msg = "User " + String(session.get("LOGGED_IN_USER")) + " is not allowed to perform action";
+        log.error(msg);
+        return {
+            error: true,
+            message: msg,
+            statusCode: 401
+        };
+    }
+};
+
 var deleteUserFromTenant = function (userName){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
@@ -114,7 +263,7 @@ var sendInvite = function (email, tenant, roles, message) {
         }
     }
     var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
-    parameters = [tenant, email, uuid, roles, uuid, roles];
+    parameters = [tenant, email, uuid, roles, 0, uuid, roles, 0];
     var results = jagg.module("database").executeQuery(queryString, parameters);
 
     log.info("Successfully added the user by email [ " + email + " ] to TEMP_INVITEE");
