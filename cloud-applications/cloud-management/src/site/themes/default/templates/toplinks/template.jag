@@ -141,17 +141,13 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
                             if(subscriptionInfo[clouds[cloud].id]){
                         %>
                         <a class="cloud-block" href="<%=url%>" target="<%=target%>">
+                        <%  } else { %>
+                        <a class="cloud-block" target="<%=target%>">
+                        <%  } %>
                             <i class="<%=icon%>" ></i>
                             <div class="cloud-name"> <%=cloud%></div>
                         </a>
-                        <%
-                            } else { %>
-                        <a class="cloud-block-invert" target="<%=target%>">
-                            <i class="<%=icon%>" ></i>
-                            <div class="cloud-name"> <%=cloud%></div>
-                        </a>
-                        <%  }
-                        }
+                     <% }
                         %>
                         <div class="clearfix"> </div><!-- to make seperate -->
                     </div>
