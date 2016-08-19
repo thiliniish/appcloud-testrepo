@@ -33,7 +33,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon.devops</groupId>
+            <groupId>org.wso2.carbon.devops.monitor</groupId>
             <artifactId>deployment-monitor-core</artifactId>
             <version>${deployment.monitore.core.version}</version>
             <scope>provided</scope>
