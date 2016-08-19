@@ -138,7 +138,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
                             var icon = clouds[cloud].icon;
                             var url = clouds[cloud].url;
                             var target = clouds[cloud].target;
-                            if(subscriptionInfo[clouds[cloud].id]){
+                            if (subscriptionInfo[clouds[cloud].id]) {
                         %>
                         <a class="cloud-block" href="<%=url%>" target="<%=target%>">
                         <%  } else { %>
