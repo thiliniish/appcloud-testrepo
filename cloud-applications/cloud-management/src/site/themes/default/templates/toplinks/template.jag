@@ -33,7 +33,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
             || (requestURI.indexOf("contact-us.jag") != -1 && request.getParameter("registration-help") != null)) {
         //do not display the top link bar for the above pages
     }
-    else if(username != null ){
+    else if (username != null) {
 %>
 
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
