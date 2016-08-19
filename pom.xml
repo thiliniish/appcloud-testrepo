@@ -157,9 +157,10 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven.assemblyplugin.version}</version>
                 </plugin>
-<!--                <plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven.checkstyleplugin.version}</version>
                     <executions>
                         <execution>
                             <id>validate</id>
@@ -175,6 +176,8 @@
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                <!--Exclude sources-->
+                                <!--<excludes>${maven.checkstyleplugin.excludes}</excludes>-->
                             </configuration>
                             <goals>
                                 <goal>check</goal>
@@ -185,11 +188,14 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>findbugs-maven-plugin</artifactId>
+                    <version>${maven.findbugsplugin.version}</version>
                     <configuration>
                         <effort>Max</effort>
                         <threshold>Low</threshold>
                         <xmlOutput>true</xmlOutput>
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                        <!--Exclude sources-->
+                        <!--<excludeFilterFile>${mavan.findbugsplugin.exclude.file}</excludeFilterFile>-->
                     </configuration>
                     <executions>
                         <execution>
@@ -201,11 +207,6 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>2.4</version>
-                </plugin>-->
             </plugins>
         </pluginManagement>
     </build>
@@ -217,8 +218,8 @@
         <maven.bundleplugin.version>2.5.3</maven.bundleplugin.version>
         <maven.sourceplugin.version>2.1.2</maven.sourceplugin.version>
         <maven.assemblyplugin.version>2.4</maven.assemblyplugin.version>
-        <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
-        <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
+        <maven.checkstyleplugin.version>2.17</maven.checkstyleplugin.version>
+        <maven.findbugsplugin.version>3.0.4</maven.findbugsplugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
         <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
 
