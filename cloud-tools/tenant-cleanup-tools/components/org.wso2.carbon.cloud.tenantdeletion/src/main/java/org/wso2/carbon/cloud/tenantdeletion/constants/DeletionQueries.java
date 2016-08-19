@@ -58,7 +58,7 @@ public class DeletionQueries {
     public static final String QUERY_GET_DELETED_TENANT_FLAGS =
             "SELECT * FROM " + DELETION_TENANTS + " WHERE TENANT_DOMAIN= ?";
     public static final String QUERY_GET_ALL_DELETE_TENANTS =
-            "SELECT TENANT_ID, TENANT_DOMAIN FROM " + DELETION_TENANTS + " WHERE %columnName = 0";
+            "SELECT TENANT_ID, TENANT_DOMAIN FROM " + DELETION_TENANTS + " WHERE %%columnName = 0";
     public static final String QUERY_GET_DELETE_TENANTS =
             "SELECT TENANT_ID, TENANT_DOMAIN FROM " + DELETION_TENANTS + " WHERE %%columnName = 0 LIMIT ?";
     public static final String QUERY_GET_DELETION_COLUMN_NAMES = "SHOW COLUMNS FROM " + DELETION_TENANTS;

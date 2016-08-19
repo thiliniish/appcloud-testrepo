@@ -287,7 +287,7 @@ public class DataAccessManager {
             connection = DataConnectionManager.getCloudMgtDbConnection();
             statement = connection.prepareStatement(query);
             statement.setString(1, tenantDomain);
-            resultSet = statement.executeQuery(query);
+            resultSet = statement.executeQuery();
             isPaid = resultSet.next();
         } catch (TenantDeletionException | SQLException e) {
             LOG.error("Error while executing the query", e);
