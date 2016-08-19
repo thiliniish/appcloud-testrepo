@@ -51,12 +51,16 @@ public class CloudDefaultCallBack implements OnResultCallback {
 
     @Override public void callback(RunStatus runStatus) {
         long currentTime = System.currentTimeMillis();
-        FailureSummaryCache failureSummaryCache = FailureSummaryCache.getInstance();
+
         StatusReportingDAOImpl reportingDAO = new StatusReportingDAOImpl();
+
+        FailureSummaryCache failureSummaryCache = FailureSummaryCache.getInstance();
         String cacheKey = runStatus.getServerGroupName() + ":" + runStatus.getTaskName();
+
         if (runStatus.isSuccess()) {
             String successMsg = "[Task Successful] " + runStatus.getServerGroupName() + " : " + runStatus.getTaskName();
             logger.info(successMsg);
+
             SuccessRecord successRecord = new SuccessRecord(runStatus.getTaskName(), runStatus.getServerGroupName(),
                     currentTime);
             CurrentTaskStatus currentTaskStatus = new CurrentTaskStatus(runStatus.getServerGroupName(),
@@ -64,6 +68,7 @@ public class CloudDefaultCallBack implements OnResultCallback {
             reportingDAO.addSuccessRecord(successRecord);
             reportingDAO.updateCurrentTaskStatus(currentTaskStatus);
 
+            //If there was a failure before
             if (failureSummaryCache.getCacheEntry(cacheKey) != null) {
                 FailureSummary failureSummary = failureSummaryCache.getCacheEntry(cacheKey);
                 failureSummaryCache.clearCacheEntry(cacheKey);
@@ -73,6 +78,7 @@ public class CloudDefaultCallBack implements OnResultCallback {
                 failureSummary.setEndTime(currentTime);
                 reportingDAO.addFailureSummary(failureSummary);
 
+                //Reset the scheduling
                 resetSchedule(runStatus, cacheKey);
 
                 String emailBody =

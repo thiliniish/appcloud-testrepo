@@ -24,13 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.StatusReportingDAOImpl;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
+import org.wso2.deployment.monitor.core.TaskUtils;
+import org.wso2.deployment.monitor.core.model.ServerGroup;
 import org.wso2.deployment.monitor.core.scheduler.ScheduleManager;
 import org.wso2.msf4j.Microservice;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 /**
@@ -49,28 +51,26 @@ public class CloudMonitorService implements Microservice {
         RESUME
     }
 
-    @POST
-    @Path("/schedule")
-    public Response schedule(@QueryParam("task") String task,
-            @QueryParam("server") String server) {
+    @POST @Path("/schedule")
+    public Response schedule(@FormParam("task") String task,
+            @FormParam("server") String server) {
         return doScheduling(CloudMonitorService.ACTION.SCHEDULE, task, server);
     }
 
-    @POST
-    @Path("/unschedule")
-    public Response unschedule(@QueryParam("task") String task,
-            @QueryParam("server") String server) {
+    @POST @Path("/unschedule")
+    public Response unschedule(@FormParam("task") String task,
+            @FormParam("server") String server) {
         return doScheduling(CloudMonitorService.ACTION.UNSCHEDULE, task, server);
     }
 
-    @POST @Path("/pause") public Response pause(@QueryParam("task") String task, @QueryParam("server") String server) {
+    @POST @Path("/pause")
+    public Response pause(@FormParam("task") String task, @FormParam("server") String server) {
         return doScheduling(CloudMonitorService.ACTION.PAUSE, task, server);
     }
 
-    @POST
-    @Path("/resume")
-    public Response resume(@QueryParam("task") String task,
-            @QueryParam("server") String server) {
+    @POST @Path("/resume")
+    public Response resume(@FormParam("task") String task,
+            @FormParam("server") String server) {
         return doScheduling(CloudMonitorService.ACTION.RESUME, task, server);
     }
 
@@ -84,13 +84,13 @@ public class CloudMonitorService implements Microservice {
         if (server == null) {
             logger.warn("Server group name has not been specified.");
             responseMsg = "Please specify the server group.";
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(responseMsg).build();
+            createResponseObject(responseObj, true, responseMsg);
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(responseObj).build();
         }
-
-
 
         try {
             scheduleManager = ScheduleManager.getInstance();
+
             //by task and server both
             if (task != null) {
                 logger.info("Performing Maintenance  Action : {}, Server : {}, Task : {}", action, server, task);
@@ -159,15 +159,18 @@ public class CloudMonitorService implements Microservice {
             return Response.status(Response.Status.OK).entity(responseObj).build();
         } else {
             logger.error("Maintenance  Action : {}, Server {}: , Task : {} was failed", action, server, task);
-            if (responseMsg != null) {
-                createResponseObject(responseObj, true, responseMsg);
-            } else {
-                createResponseObject(responseObj, true, "Error occurred while running the maintenance task");
-            }
+            createResponseObject(responseObj, true, responseMsg);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseObj).build();
         }
     }
 
+    /**
+     * Creates the response JSON object in the standard format
+     *
+     * @param jsonObject    json object to be returned
+     * @param errorOccurred false if an error occurred
+     * @param msg           the message to be added to response object
+     */
     private void createResponseObject(JsonObject jsonObject, boolean errorOccurred, String msg) {
         jsonObject.addProperty("error", errorOccurred);
         jsonObject.addProperty("message", msg);
