@@ -32,6 +32,7 @@ import java.util.Set;
  * Class to read configurations from Appfactory components
  */
 public class AppFactoryConfigurationReader extends ScriptableObject {
+    private static final long serialVersionUID = 1L;
     private static final String hostObjectName = "AppFactoryConfigurationReader";
 
     public static Scriptable jsConstructor(Context cx, Object[] args, Function ctorObj, boolean inNewExpr)
