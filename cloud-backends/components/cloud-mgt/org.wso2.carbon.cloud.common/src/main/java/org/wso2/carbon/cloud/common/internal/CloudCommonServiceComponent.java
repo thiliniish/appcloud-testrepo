@@ -50,8 +50,8 @@ public class CloudCommonServiceComponent {
         CloudMgtConfiguration configuration;
         try {
             String fileLocation = CarbonUtils.getCarbonConfigDirPath() +
-                    File.separator + CloudMgtConstants.CONFIG_FOLDER +
-                    File.separator + CloudMgtConstants.CONFIG_FILE_NAME;
+                                  File.separator + CloudMgtConstants.CONFIG_FOLDER +
+                                  File.separator + CloudMgtConstants.CONFIG_FILE_NAME;
             configuration = new CloudMgtConfigurationBuilder(fileLocation).buildCloudMgtConfiguration();
             bundleContext.registerService(CloudMgtConfiguration.class.getName(), configuration, null);
             if (log.isDebugEnabled()) {
@@ -76,16 +76,14 @@ public class CloudCommonServiceComponent {
         ServiceHolder.setRealmService(null);
     }
 
-    protected void setSecretCallbackHandlerService(
-            SecretCallbackHandlerService secretCallbackHandlerService) {
+    protected void setSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
         if (log.isDebugEnabled()) {
             log.debug("SecretCallbackHandlerService acquired");
         }
         ServiceHolder.setSecretCallbackHandlerService(secretCallbackHandlerService);
     }
 
-    protected void unsetSecretCallbackHandlerService(
-            SecretCallbackHandlerService secretCallbackHandlerService) {
+    protected void unsetSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
         ServiceHolder.setSecretCallbackHandlerService(null);
     }
 }
