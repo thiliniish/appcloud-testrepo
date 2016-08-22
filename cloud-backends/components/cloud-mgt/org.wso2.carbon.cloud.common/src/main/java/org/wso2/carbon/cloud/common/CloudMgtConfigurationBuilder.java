@@ -28,13 +28,18 @@ import org.wso2.carbon.securevault.SecretManagerInitializer;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Configuration builder used to build cloud-mgt.xml file
@@ -57,7 +62,7 @@ public class CloudMgtConfigurationBuilder {
             this.configFile = cloudConfigFile;
         } else {
             String msg = "The provided file " + cloudConfigFile.getAbsolutePath() + " does not " +
-                    "exist ";
+                         "exist ";
             log.error(msg);
             throw new CloudMgtException(msg);
         }
@@ -82,9 +87,8 @@ public class CloudMgtConfigurationBuilder {
         secretResolver = SecretResolverFactory.create(cloudElement, true);
 
         if (!CloudMgtConstants.CONFIG_NAMESPACE.equals(cloudElement.getNamespace().getNamespaceURI())) {
-            String message =
-                    "Cloud namespace is invalid. Expected [" + CloudMgtConstants.CONFIG_NAMESPACE +
-                            "], received [" + cloudElement.getNamespace() + "]";
+            String message = "Cloud namespace is invalid. Expected [" + CloudMgtConstants.CONFIG_NAMESPACE +
+                             "], received [" + cloudElement.getNamespace() + "]";
             log.error(message);
             throw new CloudMgtException(message);
         }
@@ -145,8 +149,7 @@ public class CloudMgtConfigurationBuilder {
         return configXMLFile;
     }
 
-    private void readChildElements(OMElement serverConfig, Stack<String> nameStack, Map<String,
-            String> configuration) {
+    private void readChildElements(OMElement serverConfig, Stack<String> nameStack, Map<String, String> configuration) {
         for (Iterator childElements = serverConfig.getChildElements(); childElements.hasNext(); ) {
             OMElement element = (OMElement) childElements.next();
             nameStack.push(element.getLocalName());
@@ -210,7 +213,7 @@ public class CloudMgtConfigurationBuilder {
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
         while (indexOfStartingChars < text.indexOf("${") && (indexOfStartingChars = text.indexOf("${")) != -1 &&
-                (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a property used?
+               (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a property used?
 
             // Get the system property name
             String sysProp = text.substring(indexOfStartingChars + 2, indexOfClosingBrace);
@@ -235,7 +238,7 @@ public class CloudMgtConfigurationBuilder {
 
     private boolean isProtectedToken(String key) {
         return secretResolver != null && secretResolver.isInitialized() &&
-                secretResolver.isTokenProtected("Carbon." + key);
+               secretResolver.isTokenProtected("Carbon." + key);
     }
 
     private String getProtectedValue(String key) {
@@ -266,9 +269,8 @@ public class CloudMgtConfigurationBuilder {
     }
 
     private void secureVaultResolve(OMElement element) {
-        String secretAliasAttr =
-                element.getAttributeValue(new QName(CloudMgtConstants.SECURE_VAULT_NS,
-                        CloudMgtConstants.SECRET_ALIAS_ATTR_NAME));
+        String secretAliasAttr = element.getAttributeValue(
+                new QName(CloudMgtConstants.SECURE_VAULT_NS, CloudMgtConstants.SECRET_ALIAS_ATTR_NAME));
         if (secretAliasAttr != null) {
             element.setText(loadFromSecureVault(secretAliasAttr));
         }
@@ -277,8 +279,7 @@ public class CloudMgtConfigurationBuilder {
     public synchronized String loadFromSecureVault(String alias) {
         if (secretResolver == null) {
             secretResolver = SecretResolverFactory.create((OMElement) null, false);
-            secretResolver.init(ServiceHolder.getSecretCallbackHandlerService()
-                    .getSecretCallbackHandler());
+            secretResolver.init(ServiceHolder.getSecretCallbackHandlerService().getSecretCallbackHandler());
         }
         return secretResolver.resolve(alias);
     }

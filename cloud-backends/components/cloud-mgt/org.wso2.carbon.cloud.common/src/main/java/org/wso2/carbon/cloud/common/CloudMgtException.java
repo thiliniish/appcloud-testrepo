@@ -18,7 +18,10 @@
 
 package org.wso2.carbon.cloud.common;
 
-public class CloudMgtException extends Exception{
+/**
+ * Custom Cloud Management Exception class used to wrap exceptions
+ */
+public class CloudMgtException extends Exception {
     public CloudMgtException() {
     }
 
