@@ -21,6 +21,9 @@ package org.wso2.carbon.cloud.common.internal;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 import org.wso2.carbon.user.core.service.RealmService;
 
+/**
+ * Holder Class for Service used within the service components
+ */
 public class ServiceHolder {
     private static RealmService realmService;
     private static SecretCallbackHandlerService secretCallbackHandlerService;

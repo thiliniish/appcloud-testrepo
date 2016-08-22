@@ -49,7 +49,7 @@ public class CloudMgtConfiguration {
         return value.get(0);
     }
 
-    public Map<String,List<String>> getAllProperties(){
+    public Map<String, List<String>> getAllProperties() {
         return configuration;
     }
 }
