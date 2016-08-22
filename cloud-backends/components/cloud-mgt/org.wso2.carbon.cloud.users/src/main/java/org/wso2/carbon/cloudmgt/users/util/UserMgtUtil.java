@@ -1,12 +1,12 @@
 /*
  * Copyright 2005-2011 WSO2, Inc. (http://wso2.com)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,10 +15,6 @@
  */
 
 package org.wso2.carbon.cloudmgt.users.util;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,16 +28,23 @@ import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Class conatining utility methods for User Management
+ */
 public class UserMgtUtil {
+    public static String emailClaimUri = "http://wso2.org/claims/emailaddress";
+    public static String firstNameClaimUri = "http://wso2.org/claims/givenname";
+    public static String lastNameClaimUri = "http://wso2.org/claims/lastname";
+    public static String adminUserName;
+    public static String everyOneRoleName;
     private static RealmService realmService;
     private static AppFactoryConfiguration configuration;
     private static RegistryService registryService;
     private static ConfigurationContextService configurationContextService;
-    public static String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
-    public static String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
-    public static String LAST_NAME_CLAIM_URI = "http://wso2.org/claims/lastname";
-     public static String adminUserName;
-    public static String everyOneRoleName;
 
     public static RealmService getRealmService() {
         return realmService;
@@ -54,9 +57,9 @@ public class UserMgtUtil {
     }
 
     public static AppFactoryConfiguration getConfiguration() throws UserManagementException {
-    	if (configuration == null) {
-    		configuration = AppFactoryConfigReader.getAppfactoryConfiguration();
-    	}
+        if (configuration == null) {
+            configuration = AppFactoryConfigReader.getAppfactoryConfiguration();
+        }
         return configuration;
     }
 
@@ -72,38 +75,33 @@ public class UserMgtUtil {
         UserMgtUtil.registryService = registryService;
     }
 
+    public static ConfigurationContextService getConfigurationContextService() {
+        return configurationContextService;
+    }
+
     public static void setConfigurationContextService(ConfigurationContextService configurationContextService) {
         UserMgtUtil.configurationContextService = configurationContextService;
     }
 
-    public static ConfigurationContextService getConfigurationContextService() {
-        return configurationContextService;
-    }
-    
     public static String getAdminPassword() throws UserManagementException {
-		return getConfiguration().getFirstProperty(CloudConstants.SERVER_ADMIN_PASSWORD);
-	}
+        return getConfiguration().getFirstProperty(CloudConstants.SERVER_ADMIN_PASSWORD);
+    }
 
     public static String getAdminUsername() throws UserManagementException {
-		return getConfiguration().getFirstProperty(CloudConstants.SERVER_ADMIN_NAME);
-	}
+        return getConfiguration().getFirstProperty(CloudConstants.SERVER_ADMIN_NAME);
+    }
 
     public static UserInfoBean getUserInfoBean(String userName, int tenantId) throws UserManagementException {
         try {
-            UserRealm realm =
-                              UserMgtUtil.getRealmService()
-                                                     .getTenantUserRealm(tenantId);
-            String[] claims = { EMAIL_CLAIM_URI, FIRST_NAME_CLAIM_URI, LAST_NAME_CLAIM_URI };
+            UserRealm realm = UserMgtUtil.getRealmService().getTenantUserRealm(tenantId);
+            String[] claims = { emailClaimUri, firstNameClaimUri, lastNameClaimUri };
             UserStoreManager userStoreManager = realm.getUserStoreManager();
             if (userStoreManager.isExistingUser(userName)) {
-                java.util.Map<String, String> userClaims =
-                                                           userStoreManager.getUserClaimValues(userName,
-                                                                                               claims,
-                                                                                               null);
+                java.util.Map<String, String> userClaims = userStoreManager.getUserClaimValues(userName, claims, null);
 
-                String firstName = userClaims.get(FIRST_NAME_CLAIM_URI);
-                String lastName = userClaims.get(LAST_NAME_CLAIM_URI);
-                String email = userClaims.get(EMAIL_CLAIM_URI);
+                String firstName = userClaims.get(firstNameClaimUri);
+                String lastName = userClaims.get(lastNameClaimUri);
+                String email = userClaims.get(emailClaimUri);
                 StringBuilder displayNameBuilder = new StringBuilder();
 
                 // Display name is constructed by concatenating first name and
@@ -117,8 +115,7 @@ public class UserMgtUtil {
                     displayNameBuilder.append(' ').append(lastName);
                 }
 
-                return new UserInfoBean(userName, firstName, lastName, email,
-                                        displayNameBuilder.toString(),
+                return new UserInfoBean(userName, firstName, lastName, email, displayNameBuilder.toString(),
                                         filterDefaultUserRoles(userStoreManager.getRoleListOfUser(userName)));
             } else {
                 String msg = "No user found with the name " + userName;
@@ -135,15 +132,15 @@ public class UserMgtUtil {
 
     /**
      * Filter out default role list,appRole,everyone role from given role array
+     *
      * @param roleListOfUser - given role array
      * @return - filtered array of roles
-     * @throws UserManagementException 
+     * @throws UserManagementException
      */
     public static String[] filterDefaultUserRoles(String[] roleListOfUser) throws UserManagementException {
         List<String> roleList = new ArrayList<String>(Arrays.asList(roleListOfUser));
         ArrayList<String> roles = new ArrayList<String>();
-        String[] defaultUserRoles =getConfiguration()
-                                       .getProperties(CloudConstants.TENANT_ROLES_DEFAULT_USER_ROLE);
+        String[] defaultUserRoles = getConfiguration().getProperties(CloudConstants.TENANT_ROLES_DEFAULT_USER_ROLE);
         // remove default role list
         roleList.removeAll(new ArrayList<String>(Arrays.asList(defaultUserRoles)));
         for (String role : roleList) {
@@ -161,14 +158,12 @@ public class UserMgtUtil {
 
     /**
      * Removes admin and everyone role from the set of roles
-     * 
+     *
      * @param roles
      * @return
      */
     public static String[] removeEveryoneRoles(String[] roles) {
-        String everyOneRoleName =
-                                  getRealmService().getBootstrapRealmConfiguration()
-                                                   .getEveryOneRoleName();
+        String everyOneRoleName = getRealmService().getBootstrapRealmConfiguration().getEveryOneRoleName();
         return (String[]) ArrayUtils.removeElement(roles, everyOneRoleName);
     }
 
