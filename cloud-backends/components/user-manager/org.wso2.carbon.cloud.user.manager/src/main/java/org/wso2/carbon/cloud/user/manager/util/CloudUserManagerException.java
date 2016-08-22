@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.cloud.user.manager.util;
 
+/**
+ * {@link CloudUserManagerException}
+ */
 public class CloudUserManagerException extends Exception {
 
     private static final long serialVersionUID = -8122785505033077527L;
