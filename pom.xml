@@ -14,15 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cloud</artifactId>
     <groupId>org.wso2.carbon.cloud</groupId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>WSO2 Cloud - Aggregator Pom</name>
-  
+
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
@@ -38,9 +39,9 @@
         <module>cloud-integration</module>
         <module>cloud-tools</module>
     </modules>
-     
+
     <repositories>
-       <repository>
+        <repository>
             <id>wso2-nexus</id>
             <name>WSO2 internal Repository</name>
             <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
@@ -157,9 +158,10 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven.assemblyplugin.version}</version>
                 </plugin>
-<!--                <plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven.checkstyleplugin.version}</version>
                     <executions>
                         <execution>
                             <id>validate</id>
@@ -175,6 +177,8 @@
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                <!--Exclude sources-->
+                                <!--<excludes>${maven.checkstyleplugin.excludes}</excludes>-->
                             </configuration>
                             <goals>
                                 <goal>check</goal>
@@ -185,11 +189,14 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>findbugs-maven-plugin</artifactId>
+                    <version>${maven.findbugsplugin.version}</version>
                     <configuration>
                         <effort>Max</effort>
                         <threshold>Low</threshold>
                         <xmlOutput>true</xmlOutput>
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                        <!--Exclude sources-->
+                        <!--<excludeFilterFile>${mavan.findbugsplugin.exclude.file}</excludeFilterFile>-->
                     </configuration>
                     <executions>
                         <execution>
@@ -201,11 +208,6 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>2.4</version>
-                </plugin>-->
             </plugins>
         </pluginManagement>
     </build>
@@ -217,8 +219,8 @@
         <maven.bundleplugin.version>2.5.3</maven.bundleplugin.version>
         <maven.sourceplugin.version>2.1.2</maven.sourceplugin.version>
         <maven.assemblyplugin.version>2.4</maven.assemblyplugin.version>
-        <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
-        <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
+        <maven.checkstyleplugin.version>2.17</maven.checkstyleplugin.version>
+        <maven.findbugsplugin.version>3.0.4</maven.findbugsplugin.version>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
         <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
 
@@ -228,7 +230,7 @@
         <wso2carbon.version.422>4.2.2</wso2carbon.version.422>
         <carbon.analytics.common.version>5.0.6</carbon.analytics.common.version>
         <orbit.version.json>2.0.0.wso2v1</orbit.version.json>
-        <orbit.version.json-simple>1.1.wso2v1</orbit.version.json-simple>      
+        <orbit.version.json-simple>1.1.wso2v1</orbit.version.json-simple>
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.source>1.6</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -269,7 +271,7 @@
         <apache.axis2.wso2.version>1.6.1.wso2v10</apache.axis2.wso2.version>
         <slf4j.version>1.7.6</slf4j.version>
         <slf4j-simple.version>1.6.4</slf4j-simple.version>
-        <smslib.version>3.5.2</smslib.version> 
+        <smslib.version>3.5.2</smslib.version>
         <quartz.version>2.1.7</quartz.version>
         <mysql.connector.version>5.1.26</mysql.connector.version>
         <gitblit.version>1.2.0</gitblit.version>
@@ -320,5 +322,5 @@
         <imp.pkg.version.javax.activation>[0.0.0, 0.1.0)</imp.pkg.version.javax.activation>
         <imp.pkg.version.codehaus.jackson>[0.0.0, 0.1.0)</imp.pkg.version.codehaus.jackson>
         <imp.pkg.version.hazelcast>[3.0.1, 3.1.0)</imp.pkg.version.hazelcast>
-      </properties>
+    </properties>
 </project>
