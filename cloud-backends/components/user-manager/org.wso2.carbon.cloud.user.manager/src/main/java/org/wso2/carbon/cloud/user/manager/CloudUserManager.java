@@ -53,7 +53,7 @@ public class CloudUserManager {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            tenantInfoList = new ArrayList<TenantInfoBean>();
+            tenantInfoList = new ArrayList<>();
             connection = CloudDatabaseManager.getConnection();
             preparedStatement = connection.prepareStatement(CloudUserManagerConstants.GET_TENANT_INFORMATION_QUERY);
             preparedStatement.setString(1, loggedInUser);
@@ -66,11 +66,7 @@ public class CloudUserManager {
                 tenantInfo.setTenantDisplayName(tenantDisplayName);
                 tenantInfoList.add(tenantInfo);
             }
-        } catch (SQLException e) {
-            String msg = "Error occurred while getting the tenant information of user : " + loggedInUser;
-            log.error(msg, e);
-            throw new CloudUserManagerException(msg);
-        } catch (CloudUserManagerException e) {
+        } catch (SQLException | CloudUserManagerException e) {
             String msg = "Error occurred while getting the tenant information of user : " + loggedInUser;
             log.error(msg, e);
             throw new CloudUserManagerException(msg);
