@@ -45,19 +45,19 @@ public class UserInfoBean {
         this.displayName = displayName;
         String everyOneRoleName = UserMgtUtil.getRealmService().getBootstrapRealmConfiguration().getEveryOneRoleName();
         if (ArrayUtils.contains(roles, everyOneRoleName)) {
-            this.roles = (String[]) ArrayUtils.removeElement(roles.clone(), everyOneRoleName);
+            this.roles = (String[]) ArrayUtils.removeElement(roles, everyOneRoleName);
         } else {
-            this.roles = roles.clone();
+            this.roles = roles;
         }
 
     }
 
     public String[] getRoles() {
-        return roles.clone();
+        return roles;
     }
 
     public void setRoles(String[] roles) {
-        this.roles = roles.clone();
+        this.roles = roles;
     }
 
     public String getUserName() {
