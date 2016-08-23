@@ -56,16 +56,20 @@ public class DBConnector {
             preparedStatement.setString(1, tenantDomain);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                String tenantStatus = resultSet.getString(1);
-                //resultSet.close();
-                return tenantStatus;
+                return resultSet.getString(1);
             }
         } catch (SQLException e) {
             String message = "Error while accessing database. Query - " + query + e.getErrorCode();
             log.error(message, e);
             throw new SQLException(message, e);
         } finally {
-            closeAllConnections(connection, preparedStatement, resultSet);
+            try {
+                closeAllConnections(connection, preparedStatement, resultSet);
+            } catch (SQLException e) {
+                String message = "Error while closing all connections for database";
+                log.error(message, e);
+                throw new SQLException(message, e);
+            }
         }
         return null;
 
@@ -91,8 +95,8 @@ public class DBConnector {
             conn = ds.getConnection();
         } catch (SQLException e) {
             String message =
-                    "Error while connecting to data Source " + APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE +
-                            " , " + e.getErrorCode();
+                    "Error while connecting to data Source " +
+                            APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE + " , " + e.getErrorCode();
             log.error(message, e);
             throw new SQLException(message, e);
         } finally {
@@ -105,7 +109,7 @@ public class DBConnector {
     /**
      * Close
      *
-     * @param connection
+     * @param connection Connection
      * @throws SQLException
      */
     private void closeConnection(Connection connection) throws SQLException {
@@ -123,22 +127,22 @@ public class DBConnector {
     /**
      * Closes a Database {@link Connection}, {@link PreparedStatement} and {@link ResultSet}
      *
-     * @param connection
-     * @param preparedStatement
-     * @param resultSet
+     * @param connection Connection
+     * @param preparedStatement PreparedStatement
+     * @param resultSet ResultSet
      * @throws SQLException
      */
     public void closeAllConnections(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet)
             throws SQLException {
-        closeConnection(connection);
         closeResultSet(resultSet);
         closeStatement(preparedStatement);
+        closeConnection(connection);
     }
 
     /**
      * Close ResultSet
      *
-     * @param resultSet
+     * @param resultSet ResultSet
      * @throws SQLException
      */
     private void closeResultSet(ResultSet resultSet) throws SQLException {
@@ -156,7 +160,7 @@ public class DBConnector {
     /**
      * Close PreparedStatement
      *
-     * @param preparedStatement
+     * @param preparedStatement PreparedStatement
      * @throws SQLException
      */
     private void closeStatement(PreparedStatement preparedStatement) throws SQLException {

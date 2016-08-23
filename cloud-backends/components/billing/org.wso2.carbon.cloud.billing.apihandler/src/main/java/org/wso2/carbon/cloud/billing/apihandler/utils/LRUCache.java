@@ -18,13 +18,14 @@
 package org.wso2.carbon.cloud.billing.apihandler.utils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * API handler to block api invocation after the tenant deactivate from API Cloud
  * LRU cache mechanism which will keep the cashed tenant IDs of the disable tenants.
  */
 public class LRUCache {
-    private HashMap<String, DoubleLinkedListNode> map = new HashMap<String, DoubleLinkedListNode>();
+    private Map<String, DoubleLinkedListNode> map = new HashMap<>();
     private DoubleLinkedListNode head;
     private DoubleLinkedListNode end;
     private int capacity;

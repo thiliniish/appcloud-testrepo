@@ -47,8 +47,8 @@ import javax.naming.NamingException;
 public class APIInvocationRestrictHandler extends AbstractHandler {
 
     private static final Log log = LogFactory.getLog(APIInvocationRestrictHandler.class);
-    Boolean isValidAccount = false;
-    DBConnector dbConnection = null;
+    private Boolean isValidAccount = false;
+    private DBConnector dbConnection = null;
     private static LRUCache lruCache = new LRUCache(APIInvocationRestrictHandlerConstants.CASH_SIZE);
 
     public boolean handleRequest(MessageContext messageContext) {

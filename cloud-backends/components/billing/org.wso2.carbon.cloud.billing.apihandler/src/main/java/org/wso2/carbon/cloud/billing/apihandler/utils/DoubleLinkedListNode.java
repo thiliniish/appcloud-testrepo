@@ -28,7 +28,7 @@ public class DoubleLinkedListNode {
 
     /**
      * Constructor
-     * @param key
+     * @param key String
      */
     public DoubleLinkedListNode(String key) {
         this.key = key;
