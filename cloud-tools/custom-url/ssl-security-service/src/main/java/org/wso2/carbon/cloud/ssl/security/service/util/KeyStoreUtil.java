@@ -25,77 +25,84 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.*;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
+/**
+ * Key store util class to manage key store
+ */
 public class KeyStoreUtil {
-	private static final String KEYSTORE_INSTANCE = "JCEKS";
-	private static Log log = LogFactory.getLog(KeyStoreUtil.class);
-	private static Key key;
+    private static final String KEYSTORE_INSTANCE = "JCEKS";
+    private static Log log = LogFactory.getLog(KeyStoreUtil.class);
+    private static Key key;
 
-	private KeyStoreUtil() {
-	}
+    private KeyStoreUtil() {
+    }
 
-	/**
-	 * Get key from the given key-store.
-	 *
-	 * @param keyStoreLocation Location of key-store
-	 * @param keyStorePass     Password of the key-store
-	 * @param alias            Alias name of key-store
-	 * @param keyPass          Password of key
-	 * @throws IOException
-	 * @throws KeyStoreException
-	 * @throws CertificateException
-	 * @throws NoSuchAlgorithmException
-	 * @throws UnrecoverableKeyException
-	 */
-	public static void getKeyFromStore(final String keyStoreLocation, final String keyStorePass, final String alias,
-	                                   final String keyPass)
-			throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException,
-			       UnrecoverableKeyException {
-		InputStream keyStoreStream = null;
+    /**
+     * Get key from the given key-store.
+     *
+     * @param keyStoreLocation Location of key-store
+     * @param keyStorePass     Password of the key-store
+     * @param alias            Alias name of key-store
+     * @param keyPass          Password of key
+     * @throws IOException
+     * @throws KeyStoreException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws UnrecoverableKeyException
+     */
+    public static void getKeyFromStore(final String keyStoreLocation, final String keyStorePass, final String alias,
+                                       final String keyPass)
+            throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException,
+                   UnrecoverableKeyException {
+        InputStream keyStoreStream = null;
 
-		try {
-			keyStoreStream = new FileInputStream(keyStoreLocation);
-			KeyStore keystore = KeyStore.getInstance(KEYSTORE_INSTANCE);
+        try {
+            keyStoreStream = new FileInputStream(keyStoreLocation);
+            KeyStore keystore = KeyStore.getInstance(KEYSTORE_INSTANCE);
 
-			keystore.load(keyStoreStream, keyStorePass.toCharArray());
+            keystore.load(keyStoreStream, keyStorePass.toCharArray());
 
-			key = keystore.getKey(alias, keyPass.toCharArray());
+            key = keystore.getKey(alias, keyPass.toCharArray());
 
-		} catch (FileNotFoundException e) {
-			String errorMessage = "Key store file cannot be located in " + keyStoreLocation;
-			log.error(errorMessage, e);
-			throw new FileNotFoundException(errorMessage);
-		} catch (KeyStoreException | IOException e) {
-			String errorMessage = "Error occurred while loading the key-store";
-			log.error(errorMessage, e);
-			throw e;
-		} catch (NoSuchAlgorithmException e) {
-			String errorMessage = "Specified algorithm is not supported in this environment." +
-			                      " Provided algorithm is : " + KEYSTORE_INSTANCE;
-			log.error(errorMessage, e);
-			throw new NoSuchAlgorithmException(errorMessage);
-		} catch (CertificateException e) {
-			String errorMessage = "Error occurred while loading the key-store.";
-			log.error(errorMessage, e);
-			throw new CertificateException(errorMessage);
-		} catch (UnrecoverableKeyException e) {
-			String errorMessage = "Error when obtaining the key from the key-store.";
-			log.error(errorMessage, e);
-			throw new UnrecoverableKeyException(errorMessage);
-		} finally {
-			if (keyStoreStream != null) {
-				keyStoreStream.close();
-			}
-		}
-	}
+        } catch (FileNotFoundException e) {
+            String errorMessage = "Key store file cannot be located in " + keyStoreLocation;
+            log.error(errorMessage, e);
+            throw new FileNotFoundException(errorMessage);
+        } catch (KeyStoreException | IOException e) {
+            String errorMessage = "Error occurred while loading the key-store";
+            log.error(errorMessage, e);
+            throw e;
+        } catch (NoSuchAlgorithmException e) {
+            String errorMessage = "Specified algorithm is not supported in this environment." +
+                                  " Provided algorithm is : " + KEYSTORE_INSTANCE;
+            log.error(errorMessage, e);
+            throw new NoSuchAlgorithmException(errorMessage);
+        } catch (CertificateException e) {
+            String errorMessage = "Error occurred while loading the key-store.";
+            log.error(errorMessage, e);
+            throw new CertificateException(errorMessage);
+        } catch (UnrecoverableKeyException e) {
+            String errorMessage = "Error when obtaining the key from the key-store.";
+            log.error(errorMessage, e);
+            throw new UnrecoverableKeyException(errorMessage);
+        } finally {
+            if (keyStoreStream != null) {
+                keyStoreStream.close();
+            }
+        }
+    }
 
-	public static Key getKey() {
-		if (key != null) {
-			return key;
-		} else {
-			return null;
-		}
-	}
+    public static Key getKey() {
+        if (key != null) {
+            return key;
+        } else {
+            return null;
+        }
+    }
 }

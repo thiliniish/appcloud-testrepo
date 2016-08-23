@@ -29,6 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Class used to read configuration file
+ */
 public class ConfigReader {
     private static final Log log = LogFactory.getLog(ConfigReader.class);
     private Map<String, String> configProperties = new HashMap<String, String>();
