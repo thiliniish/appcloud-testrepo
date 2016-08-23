@@ -18,11 +18,18 @@
 
 package org.wso2.carbon.cloud.billing.apihandler.utils;
 
+/**
+ * Class for DoubleLinkedListNode
+ */
 public class DoubleLinkedListNode {
     public String key;
     public DoubleLinkedListNode pre;
     public DoubleLinkedListNode next;
 
+    /**
+     * Constructor
+     * @param key
+     */
     public DoubleLinkedListNode(String key) {
         this.key = key;
     }
