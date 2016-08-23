@@ -30,14 +30,14 @@ import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 
+import java.util.Map;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
-import java.text.MessageFormat;
-import java.util.Map;
 
 /**
  * This class is the tenant manager for any external LDAP and based on the "ou" partitioning
@@ -46,7 +46,7 @@ import java.util.Map;
 public class CloudTenantManager extends CommonHybridLDAPTenantManager {
 
     private static final Log LOGGER = LogFactory.getLog(CloudTenantManager.class);
-    private LDAPConnectionContext ldapConnectionSource;
+    private LDAPConnectionContext ldapConnectionSource = null;
     private TenantMgtConfiguration tenantMgtConfig = null;
     private RealmConfiguration realmConfig = null;
 
@@ -59,11 +59,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         if (realmConfig == null) {
             throw new UserStoreException("Tenant Manager can not function without a bootstrap realm config");
         }
-
-        if (ldapConnectionSource == null) {
-            ldapConnectionSource = new LDAPConnectionContext(realmConfig);
-        }
-
+        ldapConnectionSource = new LDAPConnectionContext(realmConfig);
     }
 
     public CloudTenantManager(DataSource dataSource, String superTenantDomain) {
@@ -101,13 +97,17 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         //create group store
         createOrganizationalSubContext(dnOfOrganizationalContext, LDAPConstants.GROUP_CONTEXT_NAME, initialDirContext);
 
-        if (("false").equals(realmConfig.getAddAdmin())) {
+        // This is introduced in CARBON-15187 and because of that Email is set as null for admin user. To resolve this
+        // We need to apply the patch from IDENTITY-2949
+        // See https://wso2.org/jira/browse/CARBON-15187 and https://wso2.org/jira/browse/IDENTITY-2949
+        if (("true").equals(realmConfig.getAddAdmin())) {
             //create admin entry
             String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().
                     get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
             //************ Cloud Specific Implementation ******************
             //eg: ou=users, dc=wso2,dc=com
-//            String dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME + "," + partitionDN;
+//            String dnOfUserContext = orgSubContextAttribute + "="
+//                    + LDAPConstants.USER_CONTEXT_NAME + "," + partitionDN;
             String dnOfUserContext = orgSubContextAttribute + "=user" + "," + partitionDN;
             //*************************************************************
             String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
@@ -165,7 +165,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
             }
         } catch (UserStoreException e) {
             String msg = "Error occurred while checking existence of user : " + convertedUserName;
-            throw new UserStoreException(msg,e);
+            throw new UserStoreException(msg, e);
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -176,7 +176,6 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
     }
 
     /**
-     *
      * @param userName          userName
      * @param initialDirContext initialDirContext
      * @return name
@@ -187,29 +186,8 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
         String searchBase;
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
         userSearchFilter = userSearchFilter.replace("?", userName);
-        String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-        if (userDNPattern != null && userDNPattern.trim().length() > 0) {
-            if (userDNPattern.contains("#")) {
-                String[] patterns = userDNPattern.split("#");
-                for (String pattern : patterns) {
-                    searchBase = MessageFormat.format(pattern, userName);
-                    String userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter,
-                            initialDirContext);
-                    // check in another DN pattern
-                    if (userDN != null) {
-                        return userDN;
-                    }
-                }
-                return null;
-            } else {
-                searchBase = MessageFormat.format(userDNPattern, userName);
-            }
-        } else {
-            searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-        }
-
+        searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         return getNameInSpaceForUserName(userName, searchBase, userSearchFilter, initialDirContext);
-
     }
 
     /**
@@ -261,7 +239,7 @@ public class CloudTenantManager extends CommonHybridLDAPTenantManager {
     public String doConvert(String userName) {
         StringBuilder convertedUser = new StringBuilder(userName);
         if (userName.contains("@")) {
-            int index = userName.indexOf("@");
+            int index = userName.indexOf('@');
             convertedUser.setCharAt(index, '.');
         }
         return convertedUser.toString();
