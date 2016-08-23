@@ -64,10 +64,20 @@ var log = new Log("blocks.tenant.users.add.ajax.add.jag");
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
             try {
                 var result = mod.deleteUserFromTenant(userName);
-                if (result != null) {
-                    responseObj.error = false;
-                    responseObj.message = result;
-                    print(stringify(responseObj));
+                if (result != null && result) {
+                    response.status = 200;
+                    print({
+                        error: false,
+                        message: "Successfully deleted the user " + userName + " from the tenant " + tenantDomain,
+                        status: 200
+                    });
+                } else {
+                    response.status = 500;
+                    print({
+                        error: false,
+                        message: "An error occurred while deleting the user " + userName + " from the tenant " + tenantDomain,
+                        status: 500
+                    });
                 }
             } catch (e) {
                 throw "Error while removing user " + userName;
@@ -215,6 +225,32 @@ var log = new Log("blocks.tenant.users.add.ajax.add.jag");
         var result = mod.importInvitedUserAndGetDirectURL(confirmationKey, password, firstName, lastName);
         print(result);
 
+    } else if (action == "addUserToTenant") {
+        var username = jagg.getUser();
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var isTenantAdmin = jagg.module("user/management").hasUserRole(username, cloudConfig.adminRole);
+        if (isTenantAdmin) {
+            var userEmail = request.getParameter("userEmail");
+            var password = request.getParameter("password");
+            var firstName = request.getParameter("firstName");
+            var lastName = request.getParameter("lastName");
+            var roles = request.getParameter("roles");
+            var inputValidationResult = mod.validateInputFields(userEmail, password, firstName, lastName, roles);
+            if (inputValidationResult.error) {
+                response.status = inputValidationResult.status;
+                print(inputValidationResult);
+            } else {
+                var importUserResponse = mod.importUserToTenant(userEmail, password, firstName, lastName, roles);
+                response.status = importUserResponse.status;
+                print(importUserResponse);
+            }
+        } else {
+            print({
+                      error: true,
+                      message: "The user " + username + " is not authorized to perform this task. You need to be a tenant admin to add users",
+                      status: 401
+                  });
+        }
     } else if (action == "changePassword") {
         var newPassword = request.getParameter("newPassword");
         var oldPassword = request.getParameter("oldPassword");
