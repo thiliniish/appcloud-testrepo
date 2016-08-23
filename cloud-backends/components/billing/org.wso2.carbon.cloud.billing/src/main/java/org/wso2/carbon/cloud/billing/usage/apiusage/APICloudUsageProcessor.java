@@ -32,21 +32,35 @@ import org.wso2.carbon.cloud.billing.usage.UsageProcessor;
 import org.wso2.carbon.cloud.billing.usage.UsageProcessorContext;
 import org.wso2.carbon.cloud.billing.usage.apiusage.utils.APIUsageProcessorUtil;
 
+import java.util.Iterator;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.util.Iterator;
 
+/**
+ * Class to process API Cloud Usage
+ */
 public class APICloudUsageProcessor implements UsageProcessor {
 
-    private static String amendmentsUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-            .getCloudBillingServiceUri() + BillingConstants.DS_API_URI_AMENDMENTS;
+    private static String amendmentsUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri()
+                    + BillingConstants.DS_API_URI_AMENDMENTS;
     private BillingRequestProcessor billingRequestProcessor;
 
+    /**
+     * Constructor
+     */
     public APICloudUsageProcessor() {
         this.billingRequestProcessor = BillingRequestProcessorFactory.getInstance()
                 .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
     }
 
+    /**
+     * Process and retrieve tenant usage from APIM
+     *
+     * @param context
+     * @return
+     * @throws CloudBillingException
+     */
     public AccountUsage[] process(UsageProcessorContext context) throws CloudBillingException {
         if (StringUtils.isNotBlank(context.getAccountId())) {
             String startDate = context.getStartDate();
@@ -61,6 +75,15 @@ public class APICloudUsageProcessor implements UsageProcessor {
         }
     }
 
+    /**
+     * Checks whether an account has amendments
+     *
+     * @param accountId
+     * @param startDate
+     * @param endDate
+     * @return
+     * @throws CloudBillingException
+     */
     private boolean hasAmendments(String accountId, String startDate, String endDate) throws CloudBillingException {
         String response;
         try {
@@ -82,9 +105,16 @@ public class APICloudUsageProcessor implements UsageProcessor {
         }
     }
 
+    /**
+     * Retrieve amendments for payment plans
+     *
+     * @param accountId
+     * @return
+     * @throws CloudBillingException
+     */
     private String getAmendmentForPaymentPlans(String accountId) throws CloudBillingException {
-        NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("ACCOUNT_NUMBER", accountId),
-                new NameValuePair("SUBSCRIPTION", BillingConstants.API_CLOUD_SUBSCRIPTION_ID)};
+        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("ACCOUNT_NUMBER", accountId),
+                new NameValuePair("SUBSCRIPTION", BillingConstants.API_CLOUD_SUBSCRIPTION_ID) };
         return billingRequestProcessor.doGet(amendmentsUrl, null, nameValuePairs);
     }
 }

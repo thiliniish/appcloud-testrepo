@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.commons.fileProcessor;
+package org.wso2.carbon.cloud.billing.commons.fileprocessor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,10 +24,11 @@ import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 /**
  * This class is used to read the content of files passed.
@@ -53,10 +54,11 @@ public class FileContentReader {
         //variable to store the text that is being read
         String fileContent = "";
         InputStreamReader inputStream = null;
-
+        BufferedReader reader = null;
         try {
-            inputStream = new FileReader(fileName);
-            BufferedReader reader = new BufferedReader(inputStream);
+            inputStream = new InputStreamReader(new FileInputStream(fileName),
+                    Charset.forName(BillingConstants.ENCODING));
+            reader = new BufferedReader(inputStream);
             StringBuilder stringBuilder = new StringBuilder();
             String line = reader.readLine();
             while (line != null) {
@@ -65,7 +67,6 @@ public class FileContentReader {
                 line = reader.readLine();
             }
             fileContent = stringBuilder.toString();
-            reader.close();
         } catch (FileNotFoundException e) {
             errorMessage = "The file " + fileName + " could not be located";
             LOGGER.error(errorMessage);
@@ -75,15 +76,16 @@ public class FileContentReader {
             LOGGER.error(errorMessage);
             throw new CloudBillingException(errorMessage, e);
         } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    errorMessage = "Error occurred while closing the file input stream for the file " + fileName;
-                    LOGGER.error(errorMessage);
-                    throw new CloudBillingException(errorMessage, e);
+            try {
+                if (reader != null) {
+                    reader.close();
                 }
+            } catch (IOException e) {
+                errorMessage = "Error occurred while closing the buffered reader for the file " + fileName;
+                LOGGER.error(errorMessage);
+                throw new CloudBillingException(errorMessage, e);
             }
+
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("returning the " + fileName + " file contents");

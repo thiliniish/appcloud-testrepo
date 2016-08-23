@@ -20,9 +20,9 @@ package org.wso2.carbon.cloud.billing.commons.config;
 
 import org.wso2.carbon.utils.CarbonUtils;
 
+import java.io.File;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.io.File;
 
 /**
  * Config element that represent the SSORelyingParty xml object

@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.billing.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.TaskManager;
 import org.wso2.carbon.ntask.core.service.TaskService;
@@ -27,7 +28,6 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 
 /**
  * Represent the data holder for the service component
@@ -164,16 +164,16 @@ public class ServiceDataHolder {
      *
      * @param outputEventAdapterService Output EventAdapter Service reference
      */
-    public void setOutputEventAdapterService(OutputEventAdapterService outputEventAdapterService){
+    public void setOutputEventAdapterService(OutputEventAdapterService outputEventAdapterService) {
         this.outputEventAdapterService = outputEventAdapterService;
     }
 
     /**
      * Get Output EventAdapter Service reference
      *
-     * @return  Output EventAdapter Service reference
+     * @return Output EventAdapter Service reference
      */
-    public OutputEventAdapterService getOutputEventAdapterService(){
+    public OutputEventAdapterService getOutputEventAdapterService() {
         return this.outputEventAdapterService;
     }
 }

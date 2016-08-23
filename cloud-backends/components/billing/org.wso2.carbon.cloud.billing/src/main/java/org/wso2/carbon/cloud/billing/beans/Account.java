@@ -56,11 +56,11 @@ public class Account {
         this.tenantDomain = tenantDomain;
     }
 
-    public String getUserName() {
+    public String getAccountUsername() {
         return userName;
     }
 
-    public void setUserName(String userName) {
+    public void setAccountUsername(String userName) {
         this.userName = userName;
     }
 
