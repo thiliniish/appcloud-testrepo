@@ -56,12 +56,7 @@ public class CloudUserEmailCache {
     private boolean isCacheNull(Cache<String, String> cache) {
         if (cache == null) {
             if (LOGGER.isDebugEnabled()) {
-                StackTraceElement[] elements = Thread.currentThread().getStackTrace();
-                String traceString = "";
-                for (int i = 1; i < elements.length; ++i) {
-                    traceString += elements[i] + System.getProperty("line.separator");
-                }
-                LOGGER.debug("USER_EMAIL_CACHE doesn't exist in CacheManager : \n" + traceString);
+                LOGGER.debug("USER_EMAIL_CACHE doesn't exist in CacheManager : " + USER_EMAIL_CACHE_MANAGER);
             }
             return true;
         }
