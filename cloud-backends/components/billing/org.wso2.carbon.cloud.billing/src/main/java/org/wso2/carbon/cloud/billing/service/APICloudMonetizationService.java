@@ -50,28 +50,29 @@ public class APICloudMonetizationService {
      *
      * @param username     username of the subscriber
      * @param tenantDomain tenant domain
-     * @return {
-     * "Subscribers": {
-     * "Subscriber": {
-     * "Tenant": "chargerhellcat"
-     * "Username": "kaiphaes.fakeinbox.com"
-     * "TestAccount": "false"
-     * "AccountNumber": "A00000622"
-     * }
-     * }
+     * @return
+     * {
+     *      "Subscribers": {
+     *          "Subscriber": {
+     *              "Tenant": "chargerhellcat"
+     *              "Username": "kaiphaes.fakeinbox.com"
+     *              "TestAccount": "false"
+     *              "AccountNumber": "A00000622"
+     *          }
+     *      }
      * }
      * <p>
      * if AccountNumber is null then
      * <p/>
      * {
-     * "Subscribers": {
-     * "Subscriber": {
-     * "Tenant": "chargerhellcat"
-     * "Username": "kaiphaes.fakeinbox.com"
-     * "TestAccount": "false"
-     * "AccountNumber": {"@nil": "true"}
-     * }
-     * }
+     *      "Subscribers": {
+     *          "Subscriber": {
+     *              "Tenant": "chargerhellcat"
+     *              "Username": "kaiphaes.fakeinbox.com"
+     *              "TestAccount": "false"
+     *              "AccountNumber": {"@nil": "true"}
+     *          }
+     *      }
      * }
      * @throws CloudMonetizationException
      */
@@ -284,31 +285,31 @@ public class APICloudMonetizationService {
      * @return cancel subscription status
      * In success
      * {
-     * "success": true,
-     * "subscriptionId": "2c92c0fb51b054350151b382f3635c6f",
-     * "cancelledDate": "2013-07-01",
-     * "totalDeltaMrr": 0,
-     * "totalDeltaTcv": null
+     *  "success": true,
+     *  "subscriptionId": "2c92c0fb51b054350151b382f3635c6f",
+     *  "cancelledDate": "2013-07-01",
+     *  "totalDeltaMrr": 0,
+     *  "totalDeltaTcv": null
      * }
      * <p>
      * failure
      * <p>
      * {
-     * "success": false,
-     * "processId": "2E185B5582D256E7",
-     * "reasons": [
-     * {
-     * "code": 53200020,
-     * "message": "Only activated subscription can be cancelled."
-     * }
-     * ]
+     *  "success": false,
+     *  "processId": "2E185B5582D256E7",
+     *  "reasons": [
+     *      {
+     *          "code": 53200020,
+     *          "message": "Only activated subscription can be cancelled."
+     *      }
+     *  ]
      * }
      * <p>
      * When subscription data not available on databases
      * it would be
      * <p>
      * {
-     * "subscriptionInfoNotAvailable":true
+     *  "subscriptionInfoNotAvailable":true
      * }
      * @throws CloudMonetizationException
      */
@@ -330,28 +331,28 @@ public class APICloudMonetizationService {
      * @param appName       application name
      * @return {
      * "removedSubscriptions": [
-     * {
-     * "AccountNumber": "A00000657",
-     * "ApiName": "CalculatorAPI",
-     * "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
-     * "ApiVersion": "1.0",
-     * "AppName": "TESTAAA1",
-     * "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
-     * "StartDate": "2016-01-06T14:37:30.000+05:30",
-     * "SubscriptionNumber": "A-S00000699"
-     * },
-     * {
-     * "AccountNumber": "A00000657",
-     * "ApiName": "PhoneVerify",
-     * "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
-     * "ApiVersion": "1.0.0",
-     * "AppName": "TESTAAA1",
-     * "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
-     * "StartDate": "2016-01-06T14:43:38.000+05:30",
-     * "SubscriptionNumber": "A-S00000700"
-     * }
-     * ],
-     * "success": true
+     *      {
+     *          "AccountNumber": "A00000657",
+     *          "ApiName": "CalculatorAPI",
+     *          "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
+     *          "ApiVersion": "1.0",
+     *          "AppName": "TESTAAA1",
+     *          "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *          "StartDate": "2016-01-06T14:37:30.000+05:30",
+     *          "SubscriptionNumber": "A-S00000699"
+     *      },
+     *      {
+     *          "AccountNumber": "A00000657",
+     *          "ApiName": "PhoneVerify",
+     *          "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
+     *          "ApiVersion": "1.0.0",
+     *          "AppName": "TESTAAA1",
+     *          "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *          "StartDate": "2016-01-06T14:43:38.000+05:30",
+     *          "SubscriptionNumber": "A-S00000700"
+     *      }
+     *  ],
+     *  "success": true
      * }
      * <p>
      * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
@@ -541,20 +542,20 @@ public class APICloudMonetizationService {
      * @param tenantDomain tenant
      * @return rate plan information in json
      * [
-     * {
-     * "MaxDailyUsage": "10000",
-     * "MonthlyRental": "5000.0",
-     * "OverUsageUnits": "1000",
-     * "OverUsageUnitsPrice": "5.0",
-     * "RatePlanName": "Gold"
-     * },
-     * {
-     * "MaxDailyUsage": "10000",
-     * "MonthlyRental": "7000.0",
-     * "OverUsageUnits": "1000",
-     * "OverUsageUnitsPrice": "5.0",
-     * "RatePlanName": "Platinum"
-     * }
+     *  {
+     *      "MaxDailyUsage": "10000",
+     *      "MonthlyRental": "5000.0",
+     *      "OverUsageUnits": "1000",
+     *      "OverUsageUnitsPrice": "5.0",
+     *      "RatePlanName": "Gold"
+     *  },
+     *  {
+     *      "MaxDailyUsage": "10000",
+     *      "MonthlyRental": "7000.0",
+     *      "OverUsageUnits": "1000",
+     *      "OverUsageUnitsPrice": "5.0",
+     *      "RatePlanName": "Platinum"
+     *  }
      * ]
      * @throws CloudMonetizationException
      */

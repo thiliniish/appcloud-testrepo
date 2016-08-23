@@ -203,20 +203,20 @@ public final class BillingConstants {
             + "communicationprofileid, createddate, invoicetemplateid, parentid, status, defaultpaymentmethodid FROM "
             + "account ";
     public static final String QUERY_ZUORA_ACCOUNT_BY_NAME = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE name = '?'";
-    public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE accountnumber " +
-            "= '?'";
+    public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO = ZUORA_ACCOUNT_QUERY_PREFIX +
+            "WHERE accountnumber = '?'";
 
     /*DS Service utility constants*/
     public static final String DS_NAMESPACE_URI = "http://ws.wso2.org/dataservice";
     public static final String DS_REQUEST_STATUS = "REQUEST_STATUS";
     public static final String DS_REQUEST_STATUS_SUCCESS = "SUCCESSFUL";
     public static final String QUERY_ZUORA_PRODUCT_BY_NAME = "SELECT id, Name, SKU FROM product WHERE Name = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME = "SELECT id, Name FROM ProductRatePlan WHERE Name ="
-            + " '?' and ProductId = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_BY_NAME = "SELECT id, Name FROM ProductRatePlanCharge"
-            + " WHERE Name = '?' and ProductRatePlanId = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_TIER = "select id from ProductRatePlanChargeTier "
-            + "where ProductRatePlanChargeId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME
+            = "SELECT id, Name FROM ProductRatePlan WHERE Name ='?' and ProductId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_BY_NAME =
+            "SELECT id, Name FROM ProductRatePlanCharge WHERE Name = '?' and ProductRatePlanId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_TIER =
+            "select id from ProductRatePlanChargeTier where ProductRatePlanChargeId = '?'";
 
     /*Data service API v1 URIs*/
     public static final String DS_API_URI_REQUEST_COUNT = "/requestcount";
@@ -244,8 +244,8 @@ public final class BillingConstants {
     public static final String ZUORA_REST_API_URI_PAYMENT_INFO = "/rest/v1/transactions/payments/accounts/"
             + "{account-key}";
     public static final String ZUORA_REST_API_URI_PRODUCTS = "/rest/v1/catalog/products";
-    public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS = "/rest/v1/payment-methods/"
-            + "credit-cards/accounts";
+    public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS =
+            "/rest/v1/payment-methods/credit-cards/accounts";
 
     /*data service param names*/
     public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";
