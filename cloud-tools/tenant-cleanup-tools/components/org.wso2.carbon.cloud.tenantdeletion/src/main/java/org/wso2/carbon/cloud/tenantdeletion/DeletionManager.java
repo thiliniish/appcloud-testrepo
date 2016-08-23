@@ -54,7 +54,6 @@ public class DeletionManager {
      * Creates Deletion Manager Instance
      */
     private DeletionManager() {
-
     }
 
     /**
@@ -86,7 +85,9 @@ public class DeletionManager {
         serverKey = ServerConfiguration.getInstance().getFirstProperty(DeletionConstants.SERVER_KEY);
         Map<String, List<DeleteJob>> serverHashMap = TenantDeletionMap.getInstance().getServerMap();
         if (serverHashMap.isEmpty()) {
-            LOG.debug("Server map is empty.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Server map is empty.");
+            }
         }
         if (serverHashMap.containsKey(serverKey)) {
             //Gets delete objects from the map
@@ -130,7 +131,7 @@ public class DeletionManager {
             }
             for (int i = 0; i < dependencyTypes.length; i++) {
                 if (dependencyTypes[i].isEmpty()) {
-                    String errorMessage = "Error in Tenant_Deletion.xml. Dependency tags contain null values (,,)";
+                    String errorMessage = "Error in Tenant_Deletion.xml. Dependency tags contain no values";
                     LOG.error(errorMessage);
                     sendErrorEmail(deleteEntity, errorMessage, serverKey);
                     continue;

@@ -107,11 +107,12 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>1.4.7</version>
+            <version>${deletion.javax.mail.version}</version>
         </dependency>
     </dependencies>
     <properties>
         <deletion.org.wso2.carbon.apimgt.api.version>5.0.3</deletion.org.wso2.carbon.apimgt.api.version>
+        <deletion.javax.mail.version>1.4.7</deletion.javax.mail.version>
         <imp.pkg.version.carbon.apimgt>[1.2.0, 5.0.4)</imp.pkg.version.carbon.apimgt>
     </properties>
     <build>
