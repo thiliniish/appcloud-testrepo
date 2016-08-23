@@ -19,20 +19,24 @@ package org.wso2.carbon.cloud.nginx.vhost.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.nginx.vhost.NginxVhostConstants;
 import sun.misc.BASE64Decoder;
 
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 
+/**
+ * Class to handle AESCipher and decryption
+ */
 public class AESCipher {
     private static final String ALGORITHM_AES256 = "AES/CBC/PKCS5Padding";
 
@@ -62,7 +66,7 @@ public class AESCipher {
             byte[] encryptedTextBytes = new BASE64Decoder().decodeBuffer(message);
             byte[] decryptedTextBytes = cipher.doFinal(encryptedTextBytes);
 
-            return new String(decryptedTextBytes);
+            return new String(decryptedTextBytes, NginxVhostConstants.DEFAULT_ENCODING);
         } catch (IllegalBlockSizeException e) {
             String errorMessage = "Error occurred when decrypting the encrypted text. Provided encrypted text " +
                                   "does not match the block size of the cipher. : " + e.getMessage();

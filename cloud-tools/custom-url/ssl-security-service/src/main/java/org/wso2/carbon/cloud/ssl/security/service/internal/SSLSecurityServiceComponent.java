@@ -39,40 +39,40 @@ import java.security.cert.CertificateException;
  */
 public class SSLSecurityServiceComponent {
 
-	private static Log log = LogFactory.getLog(SSLSecurityServiceComponent.class);
-	private ServiceRegistration sslFileAnalyzerService;
-	private ServiceRegistration sslFileEncryptorService;
+    private static Log log = LogFactory.getLog(SSLSecurityServiceComponent.class);
+    private ServiceRegistration sslFileAnalyzerService;
+    private ServiceRegistration sslFileEncryptorService;
 
-	protected void activate(ComponentContext context) {
-		BundleContext bundleContext = context.getBundleContext();
-		try {
-			ConfigReader configReader = new ConfigReader();
-			String keyStoreLocation = configReader.getProperty("keyStore.location");
-			String keyStorePassword = configReader.getProperty("keyStore.password");
-			String alias = configReader.getProperty("keyStore.alias");
-			String keyPass = configReader.getProperty("keyStore.keyPass");
-			KeyStoreUtil.getKeyFromStore(keyStoreLocation, keyStorePassword, alias, keyPass);
+    protected void activate(ComponentContext context) {
+        BundleContext bundleContext = context.getBundleContext();
+        try {
+            ConfigReader configReader = new ConfigReader();
+            String keyStoreLocation = configReader.getProperty("keyStore.location");
+            String keyStorePassword = configReader.getProperty("keyStore.password");
+            String alias = configReader.getProperty("keyStore.alias");
+            String keyPass = configReader.getProperty("keyStore.keyPass");
+            KeyStoreUtil.getKeyFromStore(keyStoreLocation, keyStorePassword, alias, keyPass);
 
-			sslFileAnalyzerService =
-					bundleContext.registerService(SSLFileAnalyzer.class.getName(), new SSLFileAnalyzer(), null);
-			sslFileEncryptorService = bundleContext
-					.registerService(SSLFileEncryptService.class.getName(), new SSLFileEncryptService(), null);
-		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | UnrecoverableKeyException |
-				IOException e) {
-			String errorMessage = "Error occurred when obtaining key from keystore.";
-			log.error(errorMessage, e);
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("Activating SSL Security Service component");
-		}
-	}
+            sslFileAnalyzerService =
+                    bundleContext.registerService(SSLFileAnalyzer.class.getName(), new SSLFileAnalyzer(), null);
+            sslFileEncryptorService = bundleContext
+                    .registerService(SSLFileEncryptService.class.getName(), new SSLFileEncryptService(), null);
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | UnrecoverableKeyException |
+                IOException e) {
+            String errorMessage = "Error occurred when obtaining key from keystore.";
+            log.error(errorMessage, e);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Activating SSL Security Service component");
+        }
+    }
 
-	protected void deactivate() {
-		sslFileAnalyzerService.unregister();
-		sslFileEncryptorService.unregister();
-		if (log.isDebugEnabled()) {
-			log.debug("Deactivating SSL Security Service component");
-		}
-	}
+    protected void deactivate() {
+        sslFileAnalyzerService.unregister();
+        sslFileEncryptorService.unregister();
+        if (log.isDebugEnabled()) {
+            log.debug("Deactivating SSL Security Service component");
+        }
+    }
 
 }

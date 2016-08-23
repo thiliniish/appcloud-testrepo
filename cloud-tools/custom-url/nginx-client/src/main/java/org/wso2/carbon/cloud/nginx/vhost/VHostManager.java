@@ -33,15 +33,24 @@ import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.*;
-import java.security.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 /**
  * VHost Manager is used manages vhost configuration of nginx
@@ -75,7 +84,7 @@ public class VHostManager {
      * @param sslFilePath        SSL certificate file path
      * @param privateKeyFilePath private key file path
      * @param template           template file content
-     * @return
+     * @return VHostEntry bean object
      */
     public VHostEntry buildVhostEntry(String cloudType, String tenantDomain, String customUrl, String sslFilePath,
                                       String privateKeyFilePath, String template) {
@@ -103,11 +112,10 @@ public class VHostManager {
             log.error(errorMessage);
             throw new FileNotFoundException(errorMessage);
         }
-        FileWriter fileWriter = null;
         BufferedWriter bufferedWriter = null;
         try {
-            fileWriter = new FileWriter(file.getAbsoluteFile(), true);
-            bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file.getAbsoluteFile()),
+                                                                       NginxVhostConstants.DEFAULT_ENCODING));
             bufferedWriter.write(template);
         } catch (IOException e) {
             String errorMessage = "Error thrown when writing contents to VHOST file.";
@@ -116,9 +124,6 @@ public class VHostManager {
         } finally {
             if (bufferedWriter != null) {
                 bufferedWriter.close();
-            }
-            if (fileWriter != null) {
-                fileWriter.close();
             }
         }
         log.info("Updated Nginx config file ");
@@ -132,25 +137,27 @@ public class VHostManager {
      * @throws IOException
      */
     public void addHostToNginxConfig(List<VHostEntry> vHostEntriesList, String filePath) throws IOException {
+        StringBuilder stringStack = new StringBuilder();
+        File configFile = new File(filePath);
 
-        String templateStack = "";
         for (VHostEntry vhostEntry : vHostEntriesList) {
             if (vhostEntry.getCloudName().equals(NginxVhostConstants.API_CLOUD_TYPE)) {
-                templateStack += buildVHostConfig(vhostEntry);
+                stringStack.append(buildVHostConfig(vhostEntry));
             }
         }
-
-        File configFile = new File(filePath);
         if (!configFile.exists()) {
-            log.info("Creating a new Nginx Configuration file for VHost as the file does not exist");
-            configFile.createNewFile();
+            if (configFile.createNewFile()) {
+                log.info("Creating a new Nginx Configuration file for VHost successful");
+            } else {
+                log.error("Creating a new Nginx Configuration file for VHost failed");
+            }
         }
-        FileWriter fileWriter = null;
         BufferedWriter bufferedWriter = null;
         try {
-            fileWriter = new FileWriter(configFile.getAbsoluteFile(), true);
-            bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write(templateStack);
+            bufferedWriter = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(configFile.getAbsoluteFile()),
+                                           NginxVhostConstants.DEFAULT_ENCODING));
+            bufferedWriter.write(stringStack.toString());
         } catch (IOException e) {
             String errorMessage = "Error occurred while writing the configuration file";
             log.error(errorMessage, e);
@@ -158,9 +165,6 @@ public class VHostManager {
         } finally {
             if (bufferedWriter != null) {
                 bufferedWriter.close();
-            }
-            if (fileWriter != null) {
-                fileWriter.close();
             }
         }
         log.info("Updated Nginx config file for all the tenants");
@@ -188,13 +192,11 @@ public class VHostManager {
             template = template.replace("${ssl_certificate_path}", sslCertificatePath);
             template = template.replace("${ssl_key_path}", sslKeyFilePath);
         }
-
         return template;
     }
 
     protected void removeHostMapping(String domainName, String cloudType, String node) throws IOException {
         String matchingKeyword = "## Tenant Domain: " + domainName + "".trim();
-        FileWriter fileWriter = null;
         BufferedWriter bufferedWriter = null;
         File file = null;
 
@@ -210,7 +212,8 @@ public class VHostManager {
             for (String configFileLocation : configFileLocations) {
                 try {
                     file = new File(configFileLocation);
-                    String fileContent = new Scanner(file).useDelimiter("//z").next();
+                    String fileContent =
+                            new Scanner(file, NginxVhostConstants.DEFAULT_ENCODING).useDelimiter("//z").next();
 
                     if (fileContent.trim().contains(matchingKeyword)) {
                         String endOfMatchingContent = "##@";
@@ -220,8 +223,9 @@ public class VHostManager {
                         String preContent = fileContent.substring(0, index1);
                         String postContent = fileContent.substring(index2 + 3, fileContent.length());
 
-                        fileWriter = new FileWriter(file.getPath());
-                        bufferedWriter = new BufferedWriter(fileWriter);
+                        bufferedWriter = new BufferedWriter(
+                                new OutputStreamWriter(new FileOutputStream(file.getAbsoluteFile()),
+                                                       NginxVhostConstants.DEFAULT_ENCODING));
 
                         bufferedWriter.write("");
                         bufferedWriter.write(preContent.concat(postContent));
@@ -237,10 +241,6 @@ public class VHostManager {
                 } finally {
                     if (bufferedWriter != null) {
                         bufferedWriter.close();
-                    }
-
-                    if (fileWriter != null) {
-                        fileWriter.close();
                     }
                 }
             }
@@ -288,9 +288,9 @@ public class VHostManager {
         RegistryManager registryManager = new RegistryManager(configReader, NginxVhostConstants.AXIS2_CONF_FILE_PATH);
         SSLFileHandler sslFileHandler = new SSLFileHandler(registryManager, configReader);
 
-        List<VHostEntry> apiGatewayHosts = new ArrayList<VHostEntry>();
-        List<VHostEntry> apiStoreHosts = new ArrayList<VHostEntry>();
-        List<VHostEntry> apiHttpsGatewayHosts = new ArrayList<VHostEntry>();
+        List<VHostEntry> apiGatewayHosts = new ArrayList<>();
+        List<VHostEntry> apiStoreHosts = new ArrayList<>();
+        List<VHostEntry> apiHttpsGatewayHosts = new ArrayList<>();
 
         try {
 
@@ -317,7 +317,7 @@ public class VHostManager {
                         Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                         byte[] r = (byte[]) resource.getContent();
                         try {
-                            JSONObject jsonObject = new JSONObject(new String(r));
+                            JSONObject jsonObject = new JSONObject(new String(r, NginxVhostConstants.DEFAULT_ENCODING));
                             if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudName)) {
 
                                 //Defining store virtual hosts
