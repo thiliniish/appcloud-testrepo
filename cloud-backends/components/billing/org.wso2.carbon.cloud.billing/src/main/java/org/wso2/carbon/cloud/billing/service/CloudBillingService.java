@@ -56,6 +56,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -912,17 +913,17 @@ public class CloudBillingService extends AbstractAdmin {
 
         // Get the resource content
         try {
-            String content = new String((byte[]) tenantConfResource.getContent(), Charset.forName(BillingConstants
-                    .ENCODING));
+            String content = new String((byte[]) tenantConfResource.getContent(), BillingConstants.ENCODING);
             JsonObject jsonRegistryObject = (JsonObject) new JsonParser().parse(content);
             jsonRegistryObject.addProperty("EnableMonetization", true);
-            tenantConfResource.setContent(jsonRegistryObject.toString().getBytes(Charset.forName(BillingConstants.
-                    ENCODING)));
+            tenantConfResource.setContent(jsonRegistryObject.toString().getBytes(BillingConstants.ENCODING));
             return CloudBillingUtils.putRegistryResource(tenantDomain, tenantConfUrl, tenantConfResource,
                     BillingConstants.CONFIG_REGISTRY);
 
         } catch (RegistryException e) {
             throw new CloudBillingException("Error occurred while updating the monetization status in registry ", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error occurred during encoding bytes ", e);
         }
     }
 

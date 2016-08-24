@@ -50,7 +50,6 @@ import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -256,8 +255,7 @@ public final class APICloudMonetizationUtils {
             Resource tiersXmlResource = CloudBillingUtils
                     .getRegistryResource(tenantDomain, MonetizationConstants.TIERS_XML_URL);
             if (tiersXmlResource != null) {
-                String content = new String((byte[]) tiersXmlResource.getContent(),
-                        Charset.forName(BillingConstants.ENCODING));
+                String content = new String((byte[]) tiersXmlResource.getContent(), BillingConstants.ENCODING);
                 List<String> freeTiers = new ArrayList<>();
                 OMElement element = AXIOMUtil.stringToOM(content);
                 OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
@@ -290,7 +288,7 @@ public final class APICloudMonetizationUtils {
                 throw new CloudMonetizationException(
                         "tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
             }
-        } catch (CloudBillingException | RegistryException | XMLStreamException e) {
+        } catch (CloudBillingException | RegistryException | XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException(
                     "Error occurred while getting free tiers of tenant: " + tenantDomain + ".", e);
         }
@@ -309,8 +307,7 @@ public final class APICloudMonetizationUtils {
                     .getRegistryResource(tenantDomain, MonetizationConstants.TIERS_XML_URL);
             if (tiersXmlResource != null) {
                 // Get the content of the tiers.xml
-                String content = new String((byte[]) tiersXmlResource.getContent(), Charset.forName(BillingConstants
-                        .ENCODING));
+                String content = new String((byte[]) tiersXmlResource.getContent(), BillingConstants.ENCODING);
                 JSONArray throttlingTiersList = new JSONArray();
                 OMElement element = AXIOMUtil.stringToOM(content);
                 OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
@@ -329,7 +326,7 @@ public final class APICloudMonetizationUtils {
                 throw new CloudMonetizationException(
                         "Registry tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
             }
-        } catch (CloudBillingException | RegistryException | XMLStreamException e) {
+        } catch (CloudBillingException | RegistryException | XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException("Error occurred while getting tiers of tenant: " + tenantDomain + ".",
                     e);
         }
@@ -347,8 +344,7 @@ public final class APICloudMonetizationUtils {
             Resource tiersXmlResource = CloudBillingUtils
                     .getRegistryResource(tenantDomain, MonetizationConstants.TIERS_XML_URL);
             if (tiersXmlResource != null) {
-                String content = new String((byte[]) tiersXmlResource.getContent(),
-                        Charset.forName(BillingConstants.ENCODING));
+                String content = new String((byte[]) tiersXmlResource.getContent(), BillingConstants.ENCODING);
                 JsonArray tierArray = new JsonArray();
                 OMElement element = AXIOMUtil.stringToOM(content);
                 OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
@@ -389,7 +385,7 @@ public final class APICloudMonetizationUtils {
                 throw new CloudMonetizationException(
                         "tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
             }
-        } catch (CloudBillingException | RegistryException | XMLStreamException e) {
+        } catch (CloudBillingException | RegistryException | XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudMonetizationException("Error occurred while getting tiers of tenant: " + tenantDomain + ".",
                     e);
         }

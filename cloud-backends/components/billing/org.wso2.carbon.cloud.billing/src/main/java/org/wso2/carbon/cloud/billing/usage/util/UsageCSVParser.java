@@ -26,7 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,8 +49,7 @@ public class UsageCSVParser {
     public static void writeCSVData(Usage[] usage, String filePath) throws CloudBillingException {
         CSVWriter csvWriter;
         try {
-            Writer writer = new OutputStreamWriter(new FileOutputStream(filePath),
-                    Charset.forName(BillingConstants.ENCODING));
+            Writer writer = new OutputStreamWriter(new FileOutputStream(filePath), BillingConstants.ENCODING);
             csvWriter = new CSVWriter(writer, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
             List<String[]> data = toStringArray(usage);
             csvWriter.writeAll(data);

@@ -59,13 +59,13 @@ public final class BillingConstants {
     public static final String DESCRIPTION = "DESCRIPTION";
 
     public static final String USAGE_UPLOADER_TASK_NAME = "usageUploader";
-    public static final String USAGE_UPLOADER_TASK_CLASS_NAME =
-            "org.wso2.carbon.cloud.billing.usage.scheduler" + ".UsageUploaderTask";
+    public static final String USAGE_UPLOADER_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.usage.scheduler"
+                                                                        + ".UsageUploaderTask";
     public static final String USAGE_UPLOADER_TASK_TENANT_ID_KEY = "__TENANT_ID_PROP__";
 
     public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
-    public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME =
-            "org.wso2.carbon.cloud.billing.subscription.tasks" + ".BillingDbUpdateTask";
+    public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks"
+                                                                           + ".BillingDbUpdateTask";
     public static final String PENDING_DISABLES_URL_KEY = "__PENDING_DISABLES__";
     public static final String DISABLE_TENANT_URL_KEY = "__DISABLE_TENANT__";
     public static final String UPDATE_SUBSCRIPTION_STATUS_URL_KEY = "__UPDATE_SUBSCRIPTION_STATUS__";
@@ -199,7 +199,7 @@ public final class BillingConstants {
     public static final String RATEPLAN_CHARGE_NAME_OVERUSAGE = "Over usage fee";
 
     /* Zuora queries */
-    private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid, "
+    private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid,  "
                                                                      + "communicationprofileid, createddate, "
                                                                      + "invoicetemplateid, parentid, status, "
                                                                      + "defaultpaymentmethodid FROM account ";
@@ -239,14 +239,14 @@ public final class BillingConstants {
     public static final String ZUORA_REST_API_URI_RATE_PLANS = "/rest/v1/subscriptions/accounts/{account-key}";
     public static final String ZUORA_REST_API_URI_ACCOUNTS = "/rest/v1/accounts";
     public static final String ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION =
-            "/rest/v1/subscriptions/{subscription-key}/" + "cancel";
+            "/rest/v1/subscriptions/{subscription-key}/cancel";
     public static final String ZUORA_REST_API_URI_SUBSCRIPTIONS = "/rest/v1/subscriptions";
     public static final String ZUORA_REST_API_URI_PAYMENT_METHODS = "/rest/v1/payment-methods/credit-cards";
     public static final String ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD = "/rest/v1/payment-methods";
     public static final String ZUORA_REST_API_URI_INVOICE_INFO =
-            "/rest/v1/transactions/invoices/accounts/" + "{account-key}";
+            "/rest/v1/transactions/invoices/accounts/{account-key}";
     public static final String ZUORA_REST_API_URI_PAYMENT_INFO =
-            "/rest/v1/transactions/payments/accounts/" + "{account-key}";
+            "/rest/v1/transactions/payments/accounts/{account-key}";
     public static final String ZUORA_REST_API_URI_PRODUCTS = "/rest/v1/catalog/products";
     public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS =
             "/rest/v1/payment-methods/credit-cards/accounts";

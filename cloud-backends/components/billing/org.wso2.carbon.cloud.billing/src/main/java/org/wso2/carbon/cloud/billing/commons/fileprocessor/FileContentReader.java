@@ -28,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 
 /**
  * This class is used to read the content of files passed.
@@ -56,8 +55,7 @@ public class FileContentReader {
         InputStreamReader inputStream = null;
         BufferedReader reader = null;
         try {
-            inputStream = new InputStreamReader(new FileInputStream(fileName),
-                    Charset.forName(BillingConstants.ENCODING));
+            inputStream = new InputStreamReader(new FileInputStream(fileName), BillingConstants.ENCODING);
             reader = new BufferedReader(inputStream);
             StringBuilder stringBuilder = new StringBuilder();
             String line = reader.readLine();
