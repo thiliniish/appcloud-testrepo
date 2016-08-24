@@ -514,7 +514,6 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
         log.info("Updating the roles [ " + assignedRoles + " ] for the user [ " + username + " ] of the tenant [ " +
                 "" + tenantDomain + " ]");
-
     } catch (e) {
         log.error("Error while importing [ " + username + " ] to the tenant [ " + tenantDomain + " ]");
         log.error(e);
@@ -606,7 +605,7 @@ var importUserToTenant = function (email, defaultPassword, firstName, lastName, 
                 log.info("The invited new user [ " + username + " ] joined the tenant [ " + tenantDomain + " ]");
             }
             //update the newly assigned roles of the user
-            var isUserOfTenant = false;
+            var hasDefaultRole = false;
             var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
             var realm = realmService.getTenantUserRealm(tenantId);
             var userStoreManager = realm.getUserStoreManager();
@@ -614,13 +613,12 @@ var importUserToTenant = function (email, defaultPassword, firstName, lastName, 
 
             for (var i = 0; i < userRoles.length; i++) {
                 if (userRoles[i] == CLOUD_DEFAULT_ROLE) {
-                    isUserOfTenant = true;
+                    hasDefaultRole = true;
                     break;
                 }
             }
             //Need to add default role for users who exists already but not a member of tenant; hence adding default role here
-            if (!isUserOfTenant) {
-                //Need to add default role for users who exists already but not a member of tenant; hence adding default role here
+            if (!hasDefaultRole) {
                 assignedRoles.push(CLOUD_DEFAULT_ROLE);
             }
             server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
