@@ -36,7 +36,9 @@ public class APIInvocationRestrictHandlerConstants {
     //database connection constants
     public static final String CLOUD_DATASOURCE = "jdbc/cloud_mgt";
     public static final String SQL_SELECT_STATUS_FROM_BILLING_STATUS = "SELECT STATUS FROM BILLING_STATUS WHERE "
-            + "TENANT_DOMAIN =(?) AND SUBSCRIPTION LIKE 'api_cloud' AND TYPE LIKE 'PAID';";
+                                                                               + "TENANT_DOMAIN =(?) AND SUBSCRIPTION"
+                                                                               + " LIKE 'api_cloud' AND TYPE LIKE "
+                                                                               + "'PAID';";
 
     public static final String BILLING_INVOCATION_RESTRICTED_STATUS = "DISABLED";
 }
