@@ -59,14 +59,14 @@ public class DBConnector {
                 return resultSet.getString(1);
             }
         } catch (SQLException e) {
-            String message = "Error while accessing database. Query - " + query + e.getErrorCode();
+            String message = "Error while accessing database. Query - " + query + " , " + e.getErrorCode();
             log.error(message, e);
             throw new SQLException(message, e);
         } finally {
             try {
                 closeAllConnections(connection, preparedStatement, resultSet);
             } catch (SQLException e) {
-                String message = "Error while closing all connections for database";
+                String message = "Error while closing all connections for database, " + e.getErrorCode();
                 log.error(message, e);
                 throw new SQLException(message, e);
             }
@@ -90,13 +90,12 @@ public class DBConnector {
 
         //getting the cloud-mgt data source connection
         DataSource ds = (DataSource) privilegedCarbonContext.getJNDIContext()
-                .lookup(APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE);
+                                             .lookup(APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE);
         try {
             conn = ds.getConnection();
         } catch (SQLException e) {
-            String message =
-                    "Error while connecting to data Source " +
-                            APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE + " , " + e.getErrorCode();
+            String message = "Error while connecting to data Source " +
+                                     APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE + " , " + e.getErrorCode();
             log.error(message, e);
             throw new SQLException(message, e);
         } finally {
@@ -127,9 +126,9 @@ public class DBConnector {
     /**
      * Closes a Database {@link Connection}, {@link PreparedStatement} and {@link ResultSet}
      *
-     * @param connection Connection
+     * @param connection        Connection
      * @param preparedStatement PreparedStatement
-     * @param resultSet ResultSet
+     * @param resultSet         ResultSet
      * @throws SQLException
      */
     public void closeAllConnections(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet)
