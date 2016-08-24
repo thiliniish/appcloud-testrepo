@@ -58,9 +58,9 @@ var log = new Log("blocks.tenant.users.add.ajax.add.jag");
         }
 
     } else if (action == "deleteUserFromTenant") {
-        var adminUser = jagg.getUser();
+        var loggedInUser = jagg.getUser();
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-        var isTenantAdmin = jagg.module("user/management").hasUserRole(adminUser, cloudConfig.adminRole);
+        var isTenantAdmin = jagg.module("user/management").hasUserRole(loggedInUser, cloudConfig.adminRole);
         var userName = request.getParameter("userName");
         var responseObj = {};
         var tenantDomain = jagg.module("manager").getTenantDomain();
