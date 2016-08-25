@@ -514,7 +514,6 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
         log.info("Updating the roles [ " + assignedRoles + " ] for the user [ " + username + " ] of the tenant [ " +
                 "" + tenantDomain + " ]");
-
     } catch (e) {
         log.error("Error while importing [ " + username + " ] to the tenant [ " + tenantDomain + " ]");
         log.error(e);
@@ -545,6 +544,138 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         throw e;
     }
     return roles;
+};
+
+//This method validates the input fields of the add user API for adding users.
+var validateInputFields = function (userEmail, password, firstName, lastName, roles) {
+    var utilModule = jagg.module("util");
+    var userEmailValidationResult = utilModule.validateEmail(userEmail);
+    var passwordValidationResult = utilModule.validatePassword(password);
+    var firstNameValidationResult = utilModule.validateNameString(firstName);
+    var lastNameValidationResult = utilModule.validateNameString(lastName);
+    var userRolesValidationResult = utilModule.validateUserRoles(roles);
+
+    if (userEmailValidationResult == null || userEmailValidationResult.error) {
+        return userEmailValidationResult;
+    } else if (passwordValidationResult == null || passwordValidationResult.error) {
+        return passwordValidationResult;
+    } else if (firstNameValidationResult == null || firstNameValidationResult.error) {
+        return firstNameValidationResult;
+    } else if (lastNameValidationResult == null || lastNameValidationResult.error) {
+        return lastNameValidationResult;
+    } else if (userRolesValidationResult == null || userRolesValidationResult.error) {
+        return userRolesValidationResult;
+    } else {
+        return {
+            error: false,
+            message: "All provided values are valid to proceed with the user addition",
+            status: 200
+        };
+    }
+};
+
+//Method used to add users to the organization using the add user API.
+var importUserToTenant = function (email, defaultPassword, firstName, lastName, roles) {
+    var isUserOfTenant = false;
+    var tenantDomain = modManager.getTenantDomain();
+    var username = modManager.getUserNameFromEmail(email);
+    var isTenantUserResult = jagg.module("tenant").isUserOfTenant(tenantDomain, email);
+    var isTenantUser = isTenantUserResult.isExists;
+    if (!isTenantUser) {
+        try {
+            var isUserExist = modManager.isExistingUser(username);
+            var tenantManager = multitenancy.getTenantManager();
+            var tenantId = tenantManager.getTenantId(tenantDomain);
+            var context = multitenancy.getPrivilegedCarbonContext();
+
+            var assignedRoles = roles.split(",");
+            var tenantManager = multitenancy.getTenantManager();
+            var tenantId = tenantManager.getTenantId(tenantDomain);
+            var context = multitenancy.getPrivilegedCarbonContext();
+
+            //start tenant flow
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantId);
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+
+            //if its a new user add to OT, and assign to the tenant.
+            if (!isUserExist) {
+                server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(username, defaultPassword, email, firstName, lastName);
+                jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
+                log.info("The invited new user [ " + username + " ] joined the tenant [ " + tenantDomain + " ]");
+            }
+            //update the newly assigned roles of the user
+            var hasDefaultRole = false;
+            var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+            var realm = realmService.getTenantUserRealm(tenantId);
+            var userStoreManager = realm.getUserStoreManager();
+            var userRoles = userStoreManager.getRoleListOfUser(username);
+
+            for (var i = 0; i < userRoles.length; i++) {
+                if (userRoles[i] == CLOUD_DEFAULT_ROLE) {
+                    hasDefaultRole = true;
+                    break;
+                }
+            }
+            //Need to add default role for users who exists already but not a member of tenant; hence adding default role here
+            if (!hasDefaultRole) {
+                assignedRoles.push(CLOUD_DEFAULT_ROLE);
+            }
+            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
+            log.info("Updating the roles [ " + assignedRoles + " ] for the user [ " + username + " ] of the tenant [ " +
+                     "" + tenantDomain + " ]");
+        } catch (e) {
+            var message = "Error while importing [ " + username + " ] to the tenant [ " + tenantDomain + " ]";
+            log.error(message);
+            log.error(e);
+            var responseObj = {
+                error: true,
+                message: message,
+                success: false,
+                status: 500
+            };
+        } finally {
+            //stop tenant flow
+            context.endTenantFlow();
+        }
+
+        try {
+            //Adding to TENANT_USER_MAPPING
+            log.info("Adding user [ " + username + " ] and tenant [ " + tenantDomain + " ] in to TENANT_USER_MAPPING");
+            var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
+            var parameters = [username, tenantDomain];
+            jagg.module("database").executeQuery(queryString, parameters);
+            var message = "Successfully added the user " + email + " to the tenant " + tenantDomain;
+            log.info("Tenant user mapping added successfully for [ " + username + " ] and tenant [" + tenantDomain + "]");
+
+            var responseObj = {
+                error: false,
+                message: message,
+                success: true,
+                status: 200
+            };
+        } catch (e) {
+            var message = "Error while adding tenant user mapping for user [ " + username + " ] with tenant domain [ " +
+                          tenantDomain + " ] ";
+            log.error(message);
+            log.error(e);
+            var responseObj = {
+                error: true,
+                message: message,
+                success: false,
+                status: 500
+            };
+        }
+    } else {
+        var message = "The user " + email + " already belongs to the tenant " + tenantDomain;
+        var responseObj = {
+            error: true,
+            message: message,
+            success: false,
+            status: 405
+        };
+    }
+    return responseObj;
 };
 
 var changePassword=function(oldPassword,newPassword){

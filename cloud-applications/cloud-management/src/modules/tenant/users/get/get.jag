@@ -67,6 +67,38 @@ var getUsersofTenant = function getUsersofTenant(tenantDomain) {
     return resultUsers;
 };
 
+//Method to check if the user belongs to the given tenant.
+var isUserOfTenant = function isUserOfTenant (tenantDomain, userEmail) {
+    var message;
+    try {
+        var allTenantUsers = getUsersofTenant(tenantDomain);
+        var result = false;
+        for (var i in allTenantUsers) {
+            var userEmails = allTenantUsers[i];
+            if (userEmails.email == userEmail) {
+                result = true;
+            }
+        }
+        message = "Successfully checked if the user "+ userEmail +" is already present in the tenant domain "+tenantDomain;
+        return {
+            error: false,
+            message: message,
+            isExists: result,
+            status: 200
+        };
+    } catch (e) {
+        message = "An error occurred while checking if the user " + userEmail + " is already present in the tenant domain " + tenantDomain;
+        log.error(message);
+        log.error(e);
+        return {
+            error: true,
+            message: message,
+            isExists: false,
+            status: 500
+        };
+    }
+};
+
 var getUsersOfTenantByCloudType = function getUsersOfTenantByCloudType(tenantDomain, cloudType) {
     var users = getUserArrayFromService(tenantDomain);
     var cloudTypeRoles = getRolesOfCloudType(cloudType);
