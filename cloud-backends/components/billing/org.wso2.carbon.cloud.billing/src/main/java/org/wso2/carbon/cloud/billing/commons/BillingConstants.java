@@ -19,7 +19,7 @@
 package org.wso2.carbon.cloud.billing.commons;
 
 /**
- * Final Class for billing constants
+ * Class for billing constants
  */
 public final class BillingConstants {
 

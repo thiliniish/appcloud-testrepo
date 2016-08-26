@@ -28,7 +28,7 @@ public class Account {
     private String tenantId;
     private String accountId;
     private String tenantDomain;
-    private String userName;
+    private String username;
     private String startDate;
     private String endDate;
 
@@ -56,12 +56,12 @@ public class Account {
         this.tenantDomain = tenantDomain;
     }
 
-    public String getAccountUsername() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAccountUsername(String userName) {
-        this.userName = userName;
+    public void setUsername(String userName) {
+        this.username = userName;
     }
 
     public String getStartDate() {
