@@ -38,7 +38,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         inputsObj.isUserAvail = session.get("isUserAvail");
     } else {
         inputsObj.confirmationKey = null;
-        log.error("Required parameter values are not available for the account registration");
+        log.warn("Required parameter values are not available for the account registration");
     }
 
     jagg.render({
