@@ -155,7 +155,7 @@ public final class CloudBillingUtils {
     /**
      * Return custom protocol with added protocol versions for a scheme
      *
-     * @param scheme                  scheme
+     * @param scheme              scheme
      * @param enabledProtocolVersions protocol versions
      * @return modified protocol
      */
@@ -181,7 +181,7 @@ public final class CloudBillingUtils {
      * Adding a governance registry resource in a given location of a given tenant
      *
      * @param tenantDomain tenant domain
-     * @param resourceUrl  resource url
+     * @param resourceUrl resource url
      * @return boolean
      * @throws CloudBillingException
      */

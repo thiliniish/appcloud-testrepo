@@ -645,30 +645,31 @@ public final class APICloudMonetizationUtils {
      *
      * @param accountNumber account number
      * @param appName       application name
-     * @return {
-     * "removedSubscriptions": [
+     * @return
      * {
-     *  "AccountNumber": "A00000657",
-     *  "ApiName": "CalculatorAPI",
-     *  "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
-     *  "ApiVersion": "1.0",
-     *  "AppName": "TESTAAA1",
-     *  "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
-     *  "StartDate": "2016-01-06T14:37:30.000+05:30",
-     *  "SubscriptionNumber": "A-S00000699"
-     * },
-     * {
-     *  "AccountNumber": "A00000657",
-     *  "ApiName": "PhoneVerify",
-     *  "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
-     *  "ApiVersion": "1.0.0",
-     *  "AppName": "TESTAAA1",
-     *  "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
-     *  "StartDate": "2016-01-06T14:43:38.000+05:30",
-     *  "SubscriptionNumber": "A-S00000700"
-     * }
-     * ],
-     * "success": true
+     *  "removedSubscriptions": [
+     *      {
+     *          "AccountNumber": "A00000657",
+     *          "ApiName": "CalculatorAPI",
+     *          "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
+     *          "ApiVersion": "1.0",
+     *          "AppName": "TESTAAA1",
+     *          "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *          "StartDate": "2016-01-06T14:37:30.000+05:30",
+     *          "SubscriptionNumber": "A-S00000699"
+     *      },
+     *      {
+     *          "AccountNumber": "A00000657",
+     *          "ApiName": "PhoneVerify",
+     *          "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
+     *          "ApiVersion": "1.0.0",
+     *          "AppName": "TESTAAA1",
+     *          "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *          "StartDate": "2016-01-06T14:43:38.000+05:30",
+     *          "SubscriptionNumber": "A-S00000700"
+     *      }
+     *  ],
+     *  "success": true
      * }
      * <p>
      * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
