@@ -64,8 +64,7 @@ public class APIInvocationRestrictHandler extends AbstractHandler {
                 log.info("Tenant data is not available in cash");
                 dbConnection = new DBConnector();
                 tenantStatus = dbConnection.getTenantStatus(tenantName);
-                if (tenantStatus != null && tenantStatus
-                        .equals(APIInvocationRestrictHandlerConstants.BILLING_INVOCATION_RESTRICTED_STATUS)) {
+                if (APIInvocationRestrictHandlerConstants.BILLING_INVOCATION_RESTRICTED_STATUS.equals(tenantStatus)) {
                     log.info("Adding tenant data to cash");
                     lruCache.set(tenantName);
                     log.warn("Account is disabled for tenant " + tenantName);
