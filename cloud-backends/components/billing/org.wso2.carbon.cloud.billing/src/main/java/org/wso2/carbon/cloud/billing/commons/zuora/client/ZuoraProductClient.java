@@ -76,36 +76,36 @@ public class ZuoraProductClient extends ZuoraClient {
      * @param productInfo product information json object
      * @return result JsonObject
      * {
-     * "errors": null,
-     * "errorsSpecified": false,
-     * "id": {
-     * "id": "2c92c0f9501d4f330150464f02ef0312"
-     * },
-     * "idSpecified": true,
-     * "success": true,
-     * "successSpecified": true
+     *  "errors": null,
+     *  "errorsSpecified": false,
+     *  "id": {
+     *      "id": "2c92c0f9501d4f330150464f02ef0312"
+     *  },
+     *  "idSpecified": true,
+     *  "success": true,
+     *  "successSpecified": true
      * }
      * <p/>
      * or
      * <p/>
      * {
-     * "errors": [
-     * {
-     * "code": {
-     * "value": "UNEXPECTED_ERROR"
-     * },
-     * "codeSpecified": true,
-     * "field": null,
-     * "fieldSpecified": false,
-     * "message": "There was an unexpected problem with the call.",
-     * "messageSpecified": true
-     * }
-     * ],
-     * "errorsSpecified": true,
-     * "id": null,
-     * "idSpecified": false,
-     * "success": false,
-     * "successSpecified": true
+     *  "errors": [
+     *      {
+     *          "code": {
+     *              "value": "UNEXPECTED_ERROR"
+     *          },
+     *          "codeSpecified": true,
+     *          "field": null,
+     *          "fieldSpecified": false,
+     *          "message": "There was an unexpected problem with the call.",
+     *          "messageSpecified": true
+     *      }
+     *  ],
+     *  "errorsSpecified": true,
+     *  "id": null,
+     *  "idSpecified": false,
+     *  "success": false,
+     *  "successSpecified": true
      * }
      * @throws org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException
      */
@@ -291,14 +291,14 @@ public class ZuoraProductClient extends ZuoraClient {
      * @param productName product name
      * @return result JsonObject
      * {
-     * "errors": null,
-     * "errorsSpecified": false,
-     * "id": {
-     * "id": "2c92c0f8501d4405015046de02cf0542"
-     * },
-     * "idSpecified": true,
-     * "success": true,
-     * "successSpecified": true
+     *  "errors": null,
+     *  "errorsSpecified": false,
+     *  "id": {
+     *      "id": "2c92c0f8501d4405015046de02cf0542"
+     *  },
+     *  "idSpecified": true,
+     *  "success": true,
+     *  "successSpecified": true
      * }
      * @throws org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException
      */
