@@ -488,31 +488,31 @@ public final class APICloudMonetizationUtils {
      * @param apiVersion    api version
      * @return in success
      * {
-     * "success": true,
-     * "subscriptionId": "2c92c0fb51b054350151b382f3635c6f",
-     * "cancelledDate": "2013-07-01",
-     * "totalDeltaMrr": 0,
-     * "totalDeltaTcv": null
+     *  "success": true,
+     *  "subscriptionId": "2c92c0fb51b054350151b382f3635c6f",
+     *  "cancelledDate": "2013-07-01",
+     *  "totalDeltaMrr": 0,
+     *  "totalDeltaTcv": null
      * }
      * <p>
      * failure
      * <p>
      * {
-     * "success": false,
-     * "processId": "2E185B5582D256E7",
-     * "reasons": [
-     * {
-     * "code": 53200020,
-     * "message": "Only activated subscription can be cancelled."
-     * }
-     * ]
+     *  "success": false,
+     *  "processId": "2E185B5582D256E7",
+     *  "reasons": [
+     *      {
+     *          "code": 53200020,
+     *          "message": "Only activated subscription can be cancelled."
+     *      }
+     *  ]
      * }
      * <p>
      * When subscription data not available on databases
      * it would be
      * <p>
      * {
-     * "subscriptionInfoNotAvailable":true
+     *  "subscriptionInfoNotAvailable":true
      * }
      * @throws CloudMonetizationException
      */
@@ -648,24 +648,24 @@ public final class APICloudMonetizationUtils {
      * @return {
      * "removedSubscriptions": [
      * {
-     * "AccountNumber": "A00000657",
-     * "ApiName": "CalculatorAPI",
-     * "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
-     * "ApiVersion": "1.0",
-     * "AppName": "TESTAAA1",
-     * "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
-     * "StartDate": "2016-01-06T14:37:30.000+05:30",
-     * "SubscriptionNumber": "A-S00000699"
+     *  "AccountNumber": "A00000657",
+     *  "ApiName": "CalculatorAPI",
+     *  "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
+     *  "ApiVersion": "1.0",
+     *  "AppName": "TESTAAA1",
+     *  "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *  "StartDate": "2016-01-06T14:37:30.000+05:30",
+     *  "SubscriptionNumber": "A-S00000699"
      * },
      * {
-     * "AccountNumber": "A00000657",
-     * "ApiName": "PhoneVerify",
-     * "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
-     * "ApiVersion": "1.0.0",
-     * "AppName": "TESTAAA1",
-     * "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
-     * "StartDate": "2016-01-06T14:43:38.000+05:30",
-     * "SubscriptionNumber": "A-S00000700"
+     *  "AccountNumber": "A00000657",
+     *  "ApiName": "PhoneVerify",
+     *  "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
+     *  "ApiVersion": "1.0.0",
+     *  "AppName": "TESTAAA1",
+     *  "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *  "StartDate": "2016-01-06T14:43:38.000+05:30",
+     *  "SubscriptionNumber": "A-S00000700"
      * }
      * ],
      * "success": true
@@ -744,24 +744,24 @@ public final class APICloudMonetizationUtils {
      * @param subscriptionObj subscription details
      * @return in success
      * {
-     * "success": true,
-     * "subscriptionId": "2c92c0fb51b054350151b382f3635c6f",
-     * "cancelledDate": "2013-07-01",
-     * "totalDeltaMrr": 0,
-     * "totalDeltaTcv": null
+     *  "success": true,
+     *  "subscriptionId": "2c92c0fb51b054350151b382f3635c6f",
+     *  "cancelledDate": "2013-07-01",
+     *  "totalDeltaMrr": 0,
+     *  "totalDeltaTcv": null
      * }
      * <p>
      * failure
      * <p>
      * {
-     * "success": false,
-     * "processId": "2E185B5582D256E7",
-     * "reasons": [
-     * {
-     * "code": 53200020,
-     * "message": "Only activated subscription can be cancelled."
-     * }
-     * ]
+     *  "success": false,
+     *  "processId": "2E185B5582D256E7",
+     *  "reasons": [
+     *      {
+     *          "code": 53200020,
+     *          "message": "Only activated subscription can be cancelled."
+     *      }
+     *  ]
      * }
      * @throws CloudMonetizationException
      */

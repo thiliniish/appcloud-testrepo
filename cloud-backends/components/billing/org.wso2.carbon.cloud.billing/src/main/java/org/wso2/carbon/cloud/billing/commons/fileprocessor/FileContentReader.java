@@ -78,9 +78,12 @@ public class FileContentReader {
                 if (reader != null) {
                     reader.close();
                 }
+                if (inputStream != null) {
+                    inputStream.close();
+                }
             } catch (IOException e) {
                 errorMessage = "Error occurred while closing the buffered reader for the file " + fileName;
-                LOGGER.error(errorMessage);
+                LOGGER.warn(errorMessage);
                 throw new CloudBillingException(errorMessage, e);
             }
 
