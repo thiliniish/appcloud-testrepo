@@ -38,6 +38,7 @@
 
     billing.initBillingInfo(logoObj.url);
     var isTrailExpired = billing.isTrailExpired();
+    var isTrialAccount = billing.isTrialAccount();
     var subscription = billing.getSubscription();
     var accountContent = billing.getAccountContent();
 
@@ -82,6 +83,8 @@
     });
 </script>
 
+<link rel="stylesheet" href="site/themes/wso2/libs/font-awesome-4.6.3/css/font-awesome.min.css">
+
 <header class="header header-default">
     <div class="container-fluid">
         <div class="pull-left brand float-remove-xs text-center-xs">
@@ -113,12 +116,28 @@
         %>
             <li class="visible-inline-block">
                 <a href="<%=url%>" target="<%=target%>" title="<%=attr%>">
+
+        <%
+                    if (attr == "Support" && isTrialAccount) {
+        %>
+                    <span class="icon fw-stack fw-lg" style="color: #ff8c27;">
+                        <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
+                    </span>
+                    <span class="hidden-xs" style="color: #ff8c27;">
+                        <%=attr%>
+                    </span>
+        <%
+                    } else {
+        %>
                     <span class="icon fw-stack fw-lg">
                         <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
                     </span>
                     <span class="hidden-xs">
                         <%=attr%>
                     </span>
+        <%
+                    }
+        %>
                 </a>
             </li>
         <%
@@ -129,22 +148,27 @@
                     if ( attr == "Account") {
         %>
                 <a href="#" target="<%=target%>" class="dropdown" data-toggle="dropdown" title="<%=attr%>">
+        <%
+                        if( accountContent != "Account" ) {
+        %>
+                    <span class="icon fw-stack fw-lg" style="color: red">
+                        <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
+                    </span>
+                    <span class="hidden-xs" style="color: red">
+                        <%=accountContent%>
+                    </span>
+        <%
+                        } else {
+        %>
                     <span class="icon fw-stack fw-lg">
                         <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
                     </span>
                     <span class="hidden-xs">
-        <%
-                        if( accountContent != "Account" ) {
-        %>
-                        <font color="red"><%=accountContent%></font>
-        <%
-                        } else {
-        %>
                         <%=accountContent%>
+                    </span>
         <%
                         }
         %>
-                    </span>
                     <span class="caret"></span>
                 </a>
         <%

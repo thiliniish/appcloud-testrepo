@@ -43,11 +43,16 @@
 
         var log = new Log("jagg/cloud/billing");
         var isExpired;
+        var isTrial = true;
         var accountContent;
         var subscription = "api_cloud";
 
         var isTrailExpired = function (){
             return isExpired;
+        };
+
+        var isTrialAccount = function (){
+            return isTrial;
         };
 
         var getAccountContent = function (){
@@ -76,7 +81,6 @@
             var db = new Database("cloud_mgt");
             var sqlDateFormatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             var results = db.query(queryString);
-            var isTrial;
             db.close();
             var addDays = function (date, days){
                 var cal = Packages.java.util.Calendar.getInstance();
@@ -135,6 +139,7 @@
 
         return {
             isTrailExpired:isTrailExpired,
+            isTrialAccount:isTrialAccount,
             getAccountContent:getAccountContent,
             getSubscription:getSubscription,
             initBillingInfo:initBillingInfo
