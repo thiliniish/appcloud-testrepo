@@ -866,36 +866,23 @@ function addCloudSubmissionToRightwave(email, domain, type) {
     var modProfile = jagg.module("user/profile");
     var claims = modProfile.getProfile();
     var tokenId = jagg.module("util").getLeadSourceToken(type);
-    var jsonData;
+    var data;
     var URL;
     if (claims.firstname != "undefined" && claims.lastname != "undefined") {
         var firstName = claims.firstname;
         var lastName = claims.lastname;
-        jsonData = {
-            "email" : email,
-            "cloudtype" : type,
-            "firstlogin" : "1",
-            "expiryts" : ""+expDate+"",
-            "firstname" : ""+firstName+"",
-            "lastname" : ""+lastName+"",
-            "tokenid" : tokenId
-        };
+        data = "email=" + email + "&first_name=" + firstName + "&last_name=" + lastName + "&expiry_date" + expDate +
+        "&first_login=1";
+
     } else {
-        jsonData = {
-            "email" : email,
-            "cloudtype" : type,
-            "firstlogin" : "1",
-            "expiryts" : ""+expDate+"",
-            "tokenid" : tokenId
-        };
+        data = "email=" + email + "&expiry_date" + expDate + "&first_login=1";
     }
     if ("API".equals(type)) {
-        URL = cloudConfig.RightWaveAddUserApi.apiCloudSubmission;
+        URL = cloudConfig.PardotAddUserApi.apiCloudSubmission;
     } else if ("APP".equals(type)) {
-        URL = cloudConfig.RightWaveAddUserApi.appCloudSubmission;
+        URL = cloudConfig.PardotAddUserApi.appCloudSubmission;
     }
-    var data = "json=" + JSON.stringify(jsonData);
-    var result = post(URL, data, {'Content-Type': 'application/json'}, 'text');
+    var result = post(URL, data, {}, 'text');
     return result;
 }
 
