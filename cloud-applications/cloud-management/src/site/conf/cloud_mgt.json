@@ -178,7 +178,9 @@
     "enable_PardotAddUserApi": "false",
     "cloudSignup": "https://go.pardot.com/l/142131/2016-07-27/24cz89",
     "apiCloudSubmission": "https://go.pardot.com/l/142131/2016-07-27/24cz9r",
-    "appCloudSubmission": "https://go.pardot.com/l/142131/2016-08-31/28rjf7"
+    "appCloudSubmission": "https://go.pardot.com/l/142131/2016-08-31/28rjf7",
+    "apiCloudTrialExtension": "https://go.pardot.com/l/142131/2016-09-01/292fhm",
+    "appCloudTrialExtension": "https://go.pardot.com/l/142131/2016-09-01/292fhw"
   },
   "supportContact": {
     "to": "cloudpreview-noreply@wso2.com"
