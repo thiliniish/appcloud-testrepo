@@ -1,4 +1,4 @@
-`<% jagg.template("item-manage", function(inputs, outputs, jagg) {
+<% jagg.template("item-manage", function(inputs, outputs, jagg) {
 
     var api = outputs.api;
     var createPermitted = outputs.isCreatePermitted;
@@ -319,7 +319,7 @@
 
 
                                             <hr />
-                                            <div class="form-group" id="subscription_tiers">
+                                            <div class="form-group" id="subscription-tiers">
                                         	    <label class="control-label col-sm-3" for="tiertier">
                                                     <%=i18n.localize("Subscription Tiers")%>:
                                                     <span class="requiredAstrix">*</span>
@@ -338,7 +338,7 @@
                                                         %>
                                                         <label class="tier_checkbox_label checkbox add-padding-bottom-1x">
                                                                 <input type="checkbox" class="tier_check" name="tier" value="<%= encode.forHtmlAttribute(String(tiers[i].tierName))%>" <%if(isSelected){%>checked<%}%>>
-                                                                <span class="helper" id="<%= encode.forHtmlAttribute(String(tiers[i].tierName))%>"><strong><%= encode.forHtml(String(tiers[i].tierDisplayName)) %></strong> : <%= encode.forHtml(String(tiers[i].tierDescription)) %></span>
+                                                                <span class="helper"><strong><%= encode.forHtml(String(tiers[i].tierDisplayName)) %></strong> : <%= encode.forHtml(String(tiers[i].tierDescription)) %></span>
                                                         </label>
                                                         <%
                                                         }

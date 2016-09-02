@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 var item_listing_with_worldbank_script_data = [
     {
         'click #listing-title': 'Welcome to WSO2 API Cloud. In this tutorial, we will lead you through' +
@@ -7,14 +25,14 @@ var item_listing_with_worldbank_script_data = [
         'showSkip' : false
     },
     {
-        'click #menu-api-add': 'Click "Add" to get started.',
+        'click #top-menu-api-add': 'Click "Add" to get started.',
         'showSkip' : false
     }
 ];
 
 var item_listing_with_apis_script_data = [
     {
-        'click #menu-api-add': 'Welcome to WSO2 API Cloud. In this tutorial, we will lead you through' +
+        'click #top-menu-api-add': 'Welcome to WSO2 API Cloud. In this tutorial, we will lead you through' +
         ' publishing and invoking an API based on World Bank\'s country statistics data. Click "Add" ' +
         'to get started',
         'showSkip' : false
@@ -30,7 +48,7 @@ var item_listing_script_data = [
         'showSkip' : false
     },
     {
-        'click #btnAddNewApi': 'Click New API to get started.',
+        'click #btn-add-new-api': 'Click New API to get started.',
         'showSkip' : false
     }
 ];
@@ -41,6 +59,8 @@ var item_add_script_data = [
         event: 'click',
         description: 'Let\'s create an API from scratch. Select the Design new API option.',
         shape: 'circle',
+        'radius': 15,
+        'bottom':2,
         'showSkip' : false
     },
     {
@@ -144,7 +164,7 @@ var item_implement_script_data = [
         'showSkip' : false
     },
     {
-        'key #endpoint_input': 'Provide an existing backend service URL for World ' +
+        'key #endpoint-input': 'Provide an existing backend service URL for World ' +
         'Bank data in our example, type: http://api.worldbank.org and press Tab',
         'keyCode': 9,
         'showSkip' : false
@@ -159,14 +179,15 @@ var item_implement_script_data = [
 
 var item_info_script_data = [
     {
-        'click #goToStore': 'Click the Go to API Store link to open the API in your default API Store.'
+        'click #goToStore': 'Click the Go to API Store link to open the API in your default API Store.',
+        'showSkip' : false
     }
 
 ];
 
 var item_manage_script_data = [
     {
-        'click #subscription_tiers': 'Let\'s select usage tiers or subscription plans that you offer to subscribers. ' +
+        'click #subscription-tiers': 'Let\'s select usage tiers or subscription plans that you offer to subscribers. ' +
         'Select Gold from the Subscription Tiers.',
         'showSkip' : false
     },
