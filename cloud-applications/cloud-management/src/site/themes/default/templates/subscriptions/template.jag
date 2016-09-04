@@ -11,6 +11,7 @@
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
         var modUserManagement = jagg.module("user/management");
 
+        var domainName = jagg.module("manager").getTenantDomain(userName);
         //Check if user has admin role
         var hasAdminRole = modUserManagement.hasUserRole(username, ROLE_ADMIN);
         //Check if user has publisher role
@@ -22,11 +23,10 @@
             var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
             if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
                 var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
-                var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType);
+                var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType, domainName);
             }
         }
         var types = cloudConfig.subscriptions.type;
-        var domainName = jagg.module("manager").getTenantDomain(userName);
         var disabledSubscriptionWarning = cloudConfig.disabledSubscriptionWarning;
         var subscriptionInfo = getSubscriptionInfo(types, username);
         var billingTypeInfo = getBillingTypeInfo(types, domainName);

@@ -265,46 +265,43 @@ var updateContactInfo = function (accountData, organizationName) {
     }
 };
 
-var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
+var notifyRightwaveForUnfinishedUpgrades = function (cType, domainName) {
 
-    var isEnable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+    var isEnable = cloudConfig.PardotAddUserApi.enable_PardotAddUserApi;
 
     if (isEnable.toString() == "true") {
         var modEvents = jagg.module("events");
         var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
-        var tokenId = jagg.module("util").getLeadSourceToken("upgrade");
         var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-        log.debug("Sending notification to rightwave for unfinished upgrades for "+email);
-        var jsonData = {
-            "email" : email,
-            "cloudtype" : type,
-            "upgrade" : "0",
-            "tokenid" : tokenId
-        };
-        var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
-        var data = "json=" + JSON.stringify(jsonData);
-        var result = post(URL, data, {
-            'Content-Type': 'application/json'}, 'text');
-            var msg = JSON.parse(result['data']);
-            var actionString = "Rightwave-" + type + "-Upgrade:";
-            var page = "Rightwave";
-            var item = type;
-            var events = [];
-            if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                actionString =  actionString + "Success";
-                session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
-                log.info("Rightwave api call Cloud Upgrade is success for " + email);
-            } else {
-                actionString =  actionString + "Failed";
-                log.error("Rightwave api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
-            }
-            var event = {};
-            event.item = item;
-            event.timestamp = new Date().getTime();
-            event.pageName = page;
-            event.action = actionString;
-            events[events.length] = event;
-            modEvents.publishUserActivity(events, jagg.getUser(), email);
+        log.debug("Sending notification to pardot for unfinished upgrades for " + email);
+        var URL;;
+        if ("API".equals(type)) {
+            URL = cloudConfig.PardotAddUserApi.apiCloudUpgradeStart;
+        } else if ("APP".equals(type)) {
+            URL = cloudConfig.PardotAddUserApi.appCloudUpgradeStart;
+        }
+        var data = "email=" + email + "&domain_name=" + domainName + "&upgrade_status=0";
+        var result = post(URL, data, {}, 'text');
+        var msg = JSON.parse(result['data']);
+        var actionString = "Pardot-" + type + "-Upgrade:";
+        var page = "Pardot";
+        var item = type;
+        var events = [];
+        if (msg.message == PARDOT_SUBMISSION_SUCCESS) {
+            actionString = actionString + "Success";
+            session.put("IS_DATA_SENT_TO_PARDOT_UNFINISHED_UPGRADE", "false");
+            log.info("Pardot api call Cloud Upgrade is success for " + email);
+        } else {
+            actionString = actionString + "Failed";
+            log.error("Pardot api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+        }
+        var event = {};
+        event.item = item;
+        event.timestamp = new Date().getTime();
+        event.pageName = page;
+        event.action = actionString;
+        events[events.length] = event;
+        modEvents.publishUserActivity(events, jagg.getUser(), email);
     }
 };
 
@@ -375,24 +372,24 @@ var createAccount = function (accountData, metaData, organizationName) {
                         }
                         jagg.module("util").sendBillingAccountCreationEmail(tenantDisplayName, subscriptionName, planName, effectiveDate);
                         jagg.module("util").sendBillingAccountCreationNotification(tenantDisplayName, subscriptionName, planName, effectiveDate);
-                        //Rightwave
-                        var isEnable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+                        //Pardot
+                        var isEnable = cloudConfig.PardotAddUserApi.enable_PardotAddUserApi;
 
                         if (isEnable.toString() == "true") {
                             var modEvents = jagg.module("events");
                             var type = metaData.serviceId.toUpperCase();
                             type = type.substring(0, type.indexOf("_"));
                             var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-                            var tokenId = jagg.module("util").getLeadSourceToken("upgrade");
-                            var jsonData = {
-                                "email" : email,
-                                "cloudtype" : type,
-                                "upgrade" : "1",
-                                "tokenid" : tokenId
-                            };
-                            var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
-                            var data = "json=" + JSON.stringify(jsonData);
-                            var result = post(URL, data, {'Content-Type': 'application/json'}, 'text');
+
+                            var URL;;
+                            if ("API".equals(type)) {
+                                URL = cloudConfig.PardotAddUserApi.apiCloudUpgradeStart;
+                            } else if ("APP".equals(type)) {
+                                URL = cloudConfig.PardotAddUserApi.appCloudUpgradeStart;
+                            }
+                            var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
+                            var result = post(URL, data, {}, 'text');
+
                             var msg = JSON.parse(result['data']);
                             var actionString = "Rightwave-" + type + "-Upgrade:";
                             var page = "Rightwave";
