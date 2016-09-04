@@ -1,0 +1,273 @@
+<%
+    jagg.template("toplinks", function(inputs, outputs, jagg) {
+    include("/jagg/cloud.jag");
+%>
+<%
+
+    var log = new Log("site/themes/wso2/templates/toplinks/template.jag");
+
+    var user = jagg.getUser();
+    var isTenantAdmin = user.isTenantAdmin;
+
+    toplinks.readTopLinks();
+    var logoObj = toplinks.getLogoJson();
+    var mainMenu = toplinks.getMainMenuJson();
+    var userMenu = toplinks.getUserMenuJson();
+
+    var urlPrefix;
+    var urlPostfix;
+    var storeUrl;
+    if (tenantDomain!='null') {
+        urlPrefix="?tenant="+ encode.forUriComponent(tenantDomain);
+        urlPostfix="&tenant="+ encode.forUriComponent(tenantDomain);
+    } else {
+        urlPrefix='';
+        urlPostfix='';
+    }
+
+    if (jagg.getShowStoreURL()) {
+        storeUrl = jagg.module("manager").getAPIStoreURL().url;
+        var MultitenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+        tenantDomain =MultitenantUtils.getTenantDomain(jagg.getUser().username);
+
+        if (tenantDomain == undefined) {
+            tenantDomain = 'carbon.super';
+        }
+        storeUrl = storeUrl + "?tenant=" + tenantDomain;
+    }
+
+    billing.initBillingInfo(logoObj.url);
+    var isTrailExpired = billing.isTrailExpired();
+    var isTrialAccount = billing.isTrialAccount();
+    var subscription = billing.getSubscription();
+    var accountContent = billing.getAccountContent();
+
+%>
+<script type="text/javascript">
+    $(document).ready(function($){
+        var cloudMgtPath = "<%=logoObj.url%>";
+        var subscription = "<%=subscription%>";
+
+        if (<%=isTrailExpired%>) {
+            if (<%=isTenantAdmin%>) {
+                jagg.messageDisplay({
+                    content:"Was it a successful trial? Your trial unfortunately expired, " +
+                     "however it is really easy to upgrade to a paid plan and keep using WSO2 API Cloud.",
+                    title:"Trial Expired" ,
+                    buttons:[
+                        {
+                            name:"Upgrade Now",
+                            cssClass:"btn btn-primary",
+                            cbk:function() {
+                                window.location.href = cloudMgtPath + "/site/pages/payment-plans.jag?cloud-type="
+                                    + subscription;
+                            }},
+                        {
+                            name:"Request Extension",
+                            cssClass:"btn",
+                            cbk:function() {
+                                window.location.href = cloudMgtPath + "/site/pages/contact-us.jag?cloud-type="
+                                    + subscription + "&request-extension=true";
+                            }
+                        }
+                    ]
+                });
+            }else{
+                jagg.messageDisplay({
+                    content:"Unfortunately your trial period is expired, " +
+                     "Please contact organization administrator for more details.",
+                    title:"Trial Expired"
+                });
+            }
+        }
+    });
+</script>
+
+<link rel="stylesheet" href="site/themes/wso2/libs/font-awesome-4.6.3/css/font-awesome.min.css">
+
+<header class="header header-default">
+    <div class="container-fluid">
+        <div class="pull-left brand float-remove-xs text-center-xs">
+            <a href="<%=logoObj.url%>" title="<%=logoObj.name%>">
+                <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("libs/theme-wso2_1.0/images/logo-inverse.svg"))%>"
+                        alt="<%=logoObj.name%>" class="logo">
+                <h1><%=logoObj.name%></h1>
+            </a>
+        </div>
+        <ul class="nav navbar-right float-remove-xs text-center-xs">
+        <%
+            for (var attr in mainMenu) {
+                var isAdminOnly = mainMenu[attr].isAdminOnly;
+                if (isAdminOnly) {
+                    if (!isTenantAdmin) {
+                        continue;
+                    }
+                }
+                var dropDowns = mainMenu[attr].dropDown;
+                var icon = mainMenu[attr].icon;
+                var url = mainMenu[attr].url;
+                var target = mainMenu[attr].target;
+                if(attr == "Domain"){
+                    attr = user.tenantDisplayName;
+                }
+
+                <!-- For Menu items without drop downs -->
+                if(dropDowns == "false"){
+        %>
+            <li class="visible-inline-block">
+                <a href="<%=url%>" target="<%=target%>" title="<%=attr%>">
+
+        <%
+                    if (attr == "Support" && isTrialAccount) {
+        %>
+                    <span class="icon fw-stack fw-lg" style="color: #ff8c27;">
+                        <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
+                    </span>
+                    <span class="hidden-xs" style="color: #ff8c27;">
+                        <%=attr%>
+                    </span>
+        <%
+                    } else {
+        %>
+                    <span class="icon fw-stack fw-lg">
+                        <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
+                    </span>
+                    <span class="hidden-xs">
+                        <%=attr%>
+                    </span>
+        <%
+                    }
+        %>
+                </a>
+            </li>
+        <%
+                } else {                      <!-- For Menu items with drop downs -->
+        %>
+            <li class="visible-inline-block">
+        <%
+                    if ( attr == "Account") {
+        %>
+                <a href="#" target="<%=target%>" class="dropdown" data-toggle="dropdown" title="<%=attr%>">
+        <%
+                        if( accountContent != "Account" ) {
+        %>
+                    <span class="icon fw-stack fw-lg" style="color: red">
+                        <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
+                    </span>
+                    <span class="hidden-xs" style="color: red">
+                        <%=accountContent%>
+                    </span>
+        <%
+                        } else {
+        %>
+                    <span class="icon fw-stack fw-lg">
+                        <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
+                    </span>
+                    <span class="hidden-xs">
+                        <%=accountContent%>
+                    </span>
+        <%
+                        }
+        %>
+                    <span class="caret"></span>
+                </a>
+        <%
+                    } else {
+        %>
+                <a href="#" target="<%=target%>" class="dropdown" data-toggle="dropdown" title="<%=attr%>">
+                    <span class="icon fw-stack fw-lg">
+                        <i class="<%=icon%> fw-stack-1x" title="<%=attr%>"></i>
+                    </span>
+                    <span class="hidden-xs">
+                        <%=attr%>
+                    </span>
+                    <span class="caret"></span>
+                </a>
+        <%
+                    }
+        %>
+                <ul class="dropdown-menu dropdown-menu-right float-remove-xs position-static-xs text-center-xs remove-margin-xs slideInDown" role="menu">
+        <%
+                    for (var dropsDown in dropDowns) {
+                        var dropDownUrl = dropDowns[dropsDown].url;
+                        var dropDownIcon = dropDowns[dropsDown].icon;
+                        var dropDownTarget = dropDowns[dropsDown].target;
+        %>
+                    <li>
+                        <a title="<%=dropsDown%>" href="<%=dropDownUrl%>" target="<%=dropDownTarget%>">
+                            <i class="<%=dropDownIcon%>" title="<%=dropsDown%>"></i> <%=dropsDown%>
+                        </a>
+                    </li>
+        <%
+                    }
+        %>
+                </ul>
+            </li>
+        <%
+                }
+            }
+        %>
+
+        <%
+            if (jagg.getShowStoreURL()) {
+        %>
+            <li class="visible-inline-block">
+            <!--Links to Access APIStore-->
+                <a href="<%=storeUrl%>"  target="_blank" title="<%=i18n.localize("Go to APIStore")%>">
+                    <span class="icon fw-stack fw-lg">
+                        <i class="fw fw-circle-outline fw-stack-2x"></i>
+                        <i class="fw fw-store fw-stack-1x"></i>
+                    </span>
+                    <span class="hidden-xs">
+                        Go to <%=i18n.localize("Go to APIStore")%>
+                    </span>
+                </a>
+            </li>
+        <%
+            }
+        %>
+            <li class="visible-inline-block">
+                <a href="#" class="dropdown" data-toggle="dropdown" title="user">
+                    <span class="icon fw-stack fw-lg">
+                        <i class="fw fw-circle-outline fw-stack-2x" title="User"></i>
+                        <i class="fw fw-user fw-stack-1x" title="User"></i>
+                    </span>
+                    <span class="hidden-xs">
+        <%
+            if (user.email != null) {
+        %>
+                        <%=user.email%>
+        <%
+            } else if (user != null) {
+        %>
+                        <%=user.username%>
+        <%
+            }
+        %>
+                    </span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right float-remove-xs position-static-xs text-center-xs remove-margin-xs slideInDown" role="menu">
+        <%
+            var userDropDowns = userMenu.dropDown;
+            for (var dropDown in userDropDowns) {
+                var icon = userDropDowns[dropDown].icon;
+                var url = userDropDowns[dropDown].url;
+        %>
+                    <li>
+                        <a title="<%=dropDown%>" href="<%=url%>">
+                            <i class="<%=icon%>" title="<%=dropDown%>"></i> <%=dropDown%>
+                        </a>
+                    </li>
+        <%
+            }
+        %>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<%
+});
+%>
