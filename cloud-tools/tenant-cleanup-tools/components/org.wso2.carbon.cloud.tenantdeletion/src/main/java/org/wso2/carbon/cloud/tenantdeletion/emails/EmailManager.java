@@ -54,7 +54,7 @@ public class EmailManager {
      * @param errorMessage error message
      * @param deleteObject delete object
      */
-    public void configureDeletionErrorEmail(String errorMessage, DeleteJob deleteObject, String serverKey) {
+    public void sendDeletionErrorEmail(String errorMessage, DeleteJob deleteObject, String serverKey) {
         FileContentReader reader = new FileContentReader();
         String carbonHome = CarbonUtils.getCarbonHome() + File.separator;
         String emailFile = carbonHome + DeletionConstants.TENANT_DELETION_ERROR_EMAIL_FILE_PATH;

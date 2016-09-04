@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.tenantdeletion.deleter;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.tenantdeletion.DeletionManager;
@@ -116,7 +115,7 @@ public class UMDataDeleter {
             DataAccessManager.getInstance().executeDeleteQuery(conn, deleteTenantSql, tenantId);
 
             conn.commit();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             try {
                 conn.rollback();
             } catch (SQLException e1) {
@@ -138,14 +137,14 @@ public class UMDataDeleter {
      *
      * @param deletionLimit Number of tenants to be cleaned up in a single round
      */
-    public void delete(String deletionLimit) {
+    public void delete(int deletionLimit) {
         Map<String, Integer> tenantMap = null;
         boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.USER_MGT);
         //If deletion has been limited to specific number of tenants
         if (!deletionCompleted) {
-            if (StringUtils.isNotEmpty(deletionLimit)) {
-                int limit = Integer.parseInt(deletionLimit);
-                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.USER_MGT, limit);
+            if (deletionLimit != 0) {
+                tenantMap =
+                        TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.USER_MGT, deletionLimit);
             } else {
                 tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.USER_MGT);
             }

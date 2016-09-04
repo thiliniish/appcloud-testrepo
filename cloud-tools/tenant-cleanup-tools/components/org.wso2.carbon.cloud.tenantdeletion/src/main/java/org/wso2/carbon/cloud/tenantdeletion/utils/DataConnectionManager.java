@@ -63,6 +63,11 @@ public class DataConnectionManager {
         return getConnection(DeletionConstants.USER_MGT);
     }
 
+    /**
+     * @param dataSourceType
+     * @return
+     * @throws TenantDeletionException
+     */
     private static Connection getConnection(String dataSourceType) throws TenantDeletionException {
         synchronized (DataConnectionManager.class) {
             String datasourceName;
@@ -77,7 +82,7 @@ public class DataConnectionManager {
                 dataSource = new HashMap<>();
                 setDataSource(dataSourceType, datasourceName);
             }
-            if (!dataSource.containsKey(dataSourceType) | dataSource.isEmpty()) {
+            if (!dataSource.containsKey(dataSourceType) || dataSource.isEmpty()) {
                 setDataSource(dataSourceType, datasourceName);
             }
             try {
@@ -93,8 +98,8 @@ public class DataConnectionManager {
     /**
      * Sets datasources in to the DataSource Map type
      *
-     * @param dataSourceType    Type of Data source
-     * @param dataSourceName    data source jndi name
+     * @param dataSourceType Type of Data source
+     * @param dataSourceName data source jndi name
      */
     private static void setDataSource(String dataSourceType, String dataSourceName) {
         try {

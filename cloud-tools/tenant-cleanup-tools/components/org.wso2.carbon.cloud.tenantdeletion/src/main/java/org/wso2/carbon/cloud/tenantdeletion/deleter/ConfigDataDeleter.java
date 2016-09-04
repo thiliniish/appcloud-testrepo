@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.tenantdeletion.deleter;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -58,16 +57,15 @@ public class ConfigDataDeleter extends RegistryDataDeleter {
      *
      * @param deletionLimit Number of tenants to be cleaned up in a single round
      */
-    public void delete(String deletionLimit) {
+    public void delete(int deletionLimit) {
         Map<String, Integer> tenantMap;
         String serverKey = ServerConfiguration.getInstance().getFirstProperty(DeletionConstants.SERVER_KEY);
         String deletionFlagName = DeletionConstants.CONFIG + DeletionConstants.UNDERSCORE_SYMBOL + serverKey;
         boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(deletionFlagName);
         if (!deletionCompleted) {
             //If deletion has been limited to specific number of tenants
-            if (StringUtils.isNotEmpty(deletionLimit)) {
-                int limit = Integer.parseInt(deletionLimit);
-                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(deletionFlagName, limit);
+            if (deletionLimit != 0) {
+                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(deletionFlagName, deletionLimit);
             } else {
                 tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(deletionFlagName);
             }

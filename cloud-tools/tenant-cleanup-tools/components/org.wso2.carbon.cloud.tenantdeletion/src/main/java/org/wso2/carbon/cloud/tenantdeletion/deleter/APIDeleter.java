@@ -55,20 +55,19 @@ public class APIDeleter {
     private static final Log LOG = LogFactory.getLog(APIDeleter.class);
     private Registry registry;
     private String tenantDomain;
-    private int tenantID;
+    private int tenantId;
 
     /**
      * Method to startDeletion APIs of given tenants.
      *
      * @param deletionLimit Number of tenants to be cleaned up in a single round
      */
-    public void delete(String deletionLimit) {
+    public void delete(int deletionLimit) {
         Map<String, Integer> tenantMap;
         boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.API);
         if (!deletionCompleted) {
-            if (StringUtils.isNotEmpty(deletionLimit)) {
-                int limit = Integer.parseInt(deletionLimit);
-                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.API, limit);
+            if (deletionLimit != 0) {
+                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.API, deletionLimit);
             } else {
                 tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.API);
             }
@@ -95,25 +94,25 @@ public class APIDeleter {
 
         for (Map.Entry<String, Integer> entry : tenantMap.entrySet()) {
             tenantDomain = entry.getKey();
-            tenantID = entry.getValue();
-            LOG.info("Api deletion started for tenant: " + tenantDomain + "[" + tenantID + "]");
+            tenantId = entry.getValue();
+            LOG.info("Api deletion started for tenant: " + tenantDomain + "[" + tenantId + "]");
             try {
                 //Start conf new tenant flow
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantID);
-                String adminName = ServiceHolder.getInstance().getRealmService().getTenantUserRealm(tenantID)
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
+                String adminName = ServiceHolder.getInstance().getRealmService().getTenantUserRealm(tenantId)
                                                 .getRealmConfiguration().getAdminUserName();
-                ServiceHolder.getInstance().getTenantRegLoader().loadTenantRegistry(tenantID);
+                ServiceHolder.getInstance().getTenantRegLoader().loadTenantRegistry(tenantId);
                 //Get tenant's api artifacts from the registry
                 registry =
-                        ServiceHolder.getInstance().getRegistryService().getGovernanceUserRegistry(adminName, tenantID);
+                        ServiceHolder.getInstance().getRegistryService().getGovernanceUserRegistry(adminName, tenantId);
                 GenericArtifactManager manager = new GenericArtifactManager(registry, DeletionConstants.LOWERCASEAPI);
 
                 GovernanceUtils.loadGovernanceArtifacts((UserRegistry) registry);
                 GenericArtifact[] artifacts = manager.getAllGenericArtifacts();
                 if (!registry.resourceExists(APIConstants.API_ROOT_LOCATION) || ArrayUtils.isEmpty(artifacts)) {
-                    LOG.info("No apis are available for tenant: " + tenantDomain + "[" + tenantID + "]");
+                    LOG.info("No apis are available for tenant: " + tenantDomain + "[" + tenantId + "]");
                     setDeletionStatus(tenantDomain, DeletionConstants.DELETION_SUCCESS_STATUS);
                     continue;
                 }
@@ -121,12 +120,9 @@ public class APIDeleter {
                     deleteAPI(artifact);
                 }
                 setDeletionStatus(tenantDomain, DeletionConstants.DELETION_SUCCESS_STATUS);
-                LOG.info("Tenant API Deletion is completed for  tenant: " + tenantDomain + "[" + tenantID + "]");
+                LOG.info("Tenant API Deletion is completed for  tenant: " + tenantDomain + "[" + tenantId + "]");
             } catch (RegistryException | UserStoreException e) {
                 LOG.error("Error while getting artifacts for  " + tenantDomain, e);
-                setDeletionStatus(tenantDomain, DeletionConstants.DELETION_ERROR_STATUS);
-            } catch (Exception e) {
-                LOG.error(e);
                 setDeletionStatus(tenantDomain, DeletionConstants.DELETION_ERROR_STATUS);
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
@@ -148,13 +144,13 @@ public class APIDeleter {
             APIProvider apiProvider = APIManagerFactory.getInstance().getAPIProvider(providerName);
             LOG.info(
                     "Api provider " + providerName + " is retrieved for " + apiId + "of tenant: " + tenantDomain + "[" +
-                    tenantID + "]");
+                    tenantId + "]");
             Set<Subscriber> subscribers = apiProvider.getSubscribersOfAPI(api.getId());
             //Remove subscriptions if there are any.
             if (!subscribers.isEmpty()) {
                 for (Subscriber subscriber : subscribers) {
                     LOG.info("Subscription deletion started for " + apiId + "of tenant: " + tenantDomain +
-                             "[" + tenantID + "]");
+                             "[" + tenantId + "]");
                     Set<SubscribedAPI> subscribedAPIs =
                             APIManagerFactory.getInstance().getAPIConsumer(providerName).getSubscribedAPIs(subscriber);
                     for (SubscribedAPI subscribedAPI : subscribedAPIs) {
@@ -166,15 +162,15 @@ public class APIDeleter {
                         }
                     }
                     LOG.info("Subscription deletion completed for " + apiId + "of tenant: " + tenantDomain + "[" +
-                             tenantID + "]");
+                             tenantId + "]");
                 }
             } else {
-                LOG.info("No subscriptions for " + apiId + "of tenant: " + tenantDomain + "[" + tenantID +
+                LOG.info("No subscriptions for " + apiId + "of tenant: " + tenantDomain + "[" + tenantId +
                          "]");
             }
             //Delete the api after subscriptions and applications are deleted.
             apiProvider.deleteAPI(api.getId());
-            LOG.info("Deletion successful for api :" + apiId + " of tenant: " + tenantDomain + "[" + tenantID + "]");
+            LOG.info("Deletion successful for api :" + apiId + " of tenant: " + tenantDomain + "[" + tenantId + "]");
 
             /**
              * The program will continue if there is an exception. The reason is there can be corrupted tenants or
@@ -189,7 +185,7 @@ public class APIDeleter {
                 Thread.sleep(DeletionConstants.NAP_TIME);
             }
         } catch (APIManagementException e) {
-            LOG.error("Error while deleting apis of tenant: " + tenantDomain + "[" + tenantID + "]", e);
+            LOG.error("Error while deleting apis of tenant: " + tenantDomain + "[" + tenantId + "]", e);
             setDeletionStatus(tenantDomain, DeletionConstants.DELETION_ERROR_STATUS);
         } catch (InterruptedException e) {
             LOG.error("Error while sleeping the thread  ", e);

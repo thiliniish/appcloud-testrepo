@@ -101,8 +101,6 @@ public class RegistryDataDeleter {
             }
             String errorMsg = "An error occurred while deleting registry data for tenant: " + tenantId;
             LOG.error(errorMsg, e);
-        } catch (Exception e) {
-            LOG.error("SQL Exception occurred while executing queries ", e);
         } finally {
             try {
                 conn.close();

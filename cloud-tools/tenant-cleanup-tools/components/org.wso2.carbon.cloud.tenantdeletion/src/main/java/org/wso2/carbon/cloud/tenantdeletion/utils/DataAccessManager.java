@@ -77,8 +77,8 @@ public class DataAccessManager {
         } catch (TenantDeletionException | SQLException e) {
             LOG.error("SQL Exception occurred while executing query", e);
         } finally {
-            closeConnection(connection);
             closePreparedStatement(preparedStatement);
+            closeConnection(connection);
         }
     }
 
@@ -189,8 +189,8 @@ public class DataAccessManager {
         } catch (TenantDeletionException | SQLException e) {
             LOG.error("Error while executing the query", e);
         } finally {
-            closeResultSet(resultSet);
             closeStatement(statement);
+            closeResultSet(resultSet);
             closeConnection(connection);
         }
         return list;
@@ -292,8 +292,8 @@ public class DataAccessManager {
         } catch (TenantDeletionException | SQLException e) {
             LOG.error("Error while executing the query", e);
         } finally {
-            closeResultSet(resultSet);
             closePreparedStatement(statement);
+            closeResultSet(resultSet);
             closeConnection(connection);
         }
         return isPaid;
@@ -418,9 +418,8 @@ public class DataAccessManager {
             } catch (TenantDeletionException | SQLException e) {
                 LOG.error("SQL Exception occurred while executing query", e);
             } finally {
-                closeConnection(connection);
-                closePreparedStatement(preparedStatement);
                 closeResultSet(resultSet);
+                closePreparedStatement(preparedStatement);
                 closeConnection(connection);
             }
         }
@@ -515,8 +514,8 @@ public class DataAccessManager {
         } catch (TenantDeletionException | SQLException e) {
             LOG.error("SQL Exception occurred while executing query", e);
         } finally {
-            closePreparedStatement(preparedStatement);
             closeResultSet(resultSet);
+            closePreparedStatement(preparedStatement);
             closeConnection(connection);
         }
         return tenantMap;
@@ -552,8 +551,8 @@ public class DataAccessManager {
         } catch (TenantDeletionException | SQLException e) {
             LOG.error("SQL Exception occurred while executing query", e);
         } finally {
-            closePreparedStatement(preparedStatement);
             closeResultSet(resultSet);
+            closePreparedStatement(preparedStatement);
             closeConnection(connection);
         }
         return tenantMap;
@@ -755,8 +754,8 @@ public class DataAccessManager {
         } catch (TenantDeletionException | SQLException e) {
             LOG.error("SQL Exception occurred while executing query", e);
         } finally {
-            closePreparedStatement(preparedStatement);
             closeResultSet(resultSet);
+            closePreparedStatement(preparedStatement);
             closeConnection(connection);
         }
         return limit;
@@ -785,8 +784,8 @@ public class DataAccessManager {
         } catch (TenantDeletionException | SQLException e) {
             LOG.error("SQL Exception occurred while executing query", e);
         } finally {
-            closePreparedStatement(preparedStatement);
             closeResultSet(resultSet);
+            closePreparedStatement(preparedStatement);
             closeConnection(connection);
         }
         return list;
@@ -820,6 +819,27 @@ public class DataAccessManager {
             closeConnection(connection);
         }
         return email;
+    }
+
+    /**
+     * bulk commit for cloud management data deletion
+     *
+     * @param connection   java sql connection to perform commit
+     * @param queries      List of queries to be executed
+     * @param tenantDomain tenant domain to be perfom the queries on
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING") public void bulkCommmit(
+            Connection connection, List<String> queries, String tenantDomain) {
+        try {
+            connection.setAutoCommit(false);
+            for (String sqlQuery : queries) {
+                executeDeleteQuery(connection, sqlQuery, tenantDomain);
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            LOG.error("Failed to close resultSet", e);
+        }
     }
 
     /**

@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.tenantdeletion.deleter;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.tenantdeletion.conf.ConfigurationsType;
@@ -29,7 +28,6 @@ import org.wso2.carbon.cloud.tenantdeletion.utils.DataConnectionManager;
 import org.wso2.carbon.cloud.tenantdeletion.utils.TenantDeletionMap;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -48,33 +46,11 @@ public class CloudMgtDataDeleter {
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
             "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING") public static void deleteTenantCloudMgtData(
             String tenantDomain, Connection connection) {
-        try {
-            ConfigurationsType configuration = ConfigReader.getInstance().getConfiguration();
-            //CloudMgt queries are stored in the Tenant-Deletion.xml
-            List<String> cloudMgtQueryList = configuration.getCloudMgtQueries().getCloudMgtQuery();
-            DataAccessManager dataAccessManager = new DataAccessManager();
-            connection.setAutoCommit(false);
-            for (String sqlQuery : cloudMgtQueryList) {
-                dataAccessManager.executeDeleteQuery(connection, sqlQuery, tenantDomain);
-            }
-            connection.commit();
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException e1) {
-                LOG.error("SQL Exception occurred due to rollback", e1);
-            }
-            String errorMsg = "An error occurred while deleting registry data for tenant:" + tenantDomain;
-            LOG.error(errorMsg, e);
-        } catch (Exception e) {
-            LOG.error("SQL Exception occurred while executing queries", e);
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                LOG.error("SQL Exception occurred while Closing connection", e);
-            }
-        }
+        ConfigurationsType configuration = ConfigReader.getInstance().getConfiguration();
+        //CloudMgt queries are stored in the Tenant-Deletion.xml
+        List<String> cloudMgtQueryList = configuration.getCloudMgtQueries().getCloudMgtQuery();
+        DataAccessManager dataAccessManager = new DataAccessManager();
+        dataAccessManager.bulkCommmit(connection, cloudMgtQueryList, tenantDomain);
     }
 
     /**
@@ -82,13 +58,13 @@ public class CloudMgtDataDeleter {
      *
      * @param deletionLimit Number of tenants to be cleaned up in a single round
      */
-    public void delete(String deletionLimit) {
+    public void delete(int deletionLimit) {
         Map<String, Integer> tenantMap;
         boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.CLOUD_MGT);
         if (!deletionCompleted) {
-            if (StringUtils.isNotEmpty(deletionLimit)) {
-                int limit = Integer.parseInt(deletionLimit);
-                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.CLOUD_MGT, limit);
+            if (deletionLimit != 0) {
+                tenantMap = TenantDeletionMap.getInstance()
+                                             .getInactiveTenantMap(DeletionConstants.CLOUD_MGT, deletionLimit);
             } else {
                 tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.CLOUD_MGT);
             }

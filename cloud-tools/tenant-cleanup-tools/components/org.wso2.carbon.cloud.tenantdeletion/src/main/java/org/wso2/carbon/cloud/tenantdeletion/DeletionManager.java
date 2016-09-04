@@ -47,8 +47,8 @@ public class DeletionManager {
     private static final DeletionManager instance = new DeletionManager();
     private Timer timer;
     private List<DeleteJob> deleteObjectList;
-    private String deletionLimit;
     private String serverKey;
+    private int deletionLimit;
 
     /**
      * Creates Deletion Manager Instance
@@ -168,10 +168,7 @@ public class DeletionManager {
             Object obj = aClass.newInstance();
             Method method = aClass.getDeclaredMethod(DeletionConstants.DELETE, String.class);
             DataAccessManager dataAccessManager = DataAccessManager.getInstance();
-            int limit = dataAccessManager.getDeletionLimit();
-            if (limit != 0) {
-                deletionLimit = Integer.toString(limit);
-            }
+            deletionLimit = dataAccessManager.getDeletionLimit();
             method.invoke(obj, deletionLimit);
         } catch (InstantiationException | IllegalAccessException e) {
             LOG.error("Error occurred while initiating object", e);
@@ -241,7 +238,7 @@ public class DeletionManager {
      */
     public void sendErrorEmail(DeleteJob deleteObject, String error, String serverKey) {
         EmailManager emailManager = new EmailManager();
-        emailManager.configureDeletionErrorEmail(error, deleteObject, serverKey);
+        emailManager.sendDeletionErrorEmail(error, deleteObject, serverKey);
     }
 
     /**

@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.tenantdeletion.deleter;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.tenantdeletion.constants.DeletionConstants;
@@ -87,14 +86,13 @@ public class LDAPDataDeleter {
      *
      * @param deletionLimit Number of tenants to be cleaned up in a single round
      */
-    public void delete(String deletionLimit) {
+    public void delete(int deletionLimit) {
         Map<String, Integer> tenantMap;
         boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.LDAP);
         if (!deletionCompleted) {
             //If deletion has been limited to specific number of tenants
-            if (StringUtils.isNotEmpty(deletionLimit)) {
-                int limit = Integer.parseInt(deletionLimit);
-                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.LDAP, limit);
+            if (deletionLimit != 0) {
+                tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.LDAP, deletionLimit);
             } else {
                 tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.LDAP);
             }
