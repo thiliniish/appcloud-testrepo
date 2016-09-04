@@ -173,7 +173,7 @@
                 <div class="form-group">
                     <label for="subject1" class="col-sm-2 control-label">Description</label>
                     <div class="col-sm-8">
-                        <textarea rows="10" id="body"  class="licence_text" placeholder="Description" name="comment" style="width:90%"></textarea>
+                        <textarea rows="10" id="body"  class="licence_text" placeholder="Give the details here" name="comment" style="width:90%"></textarea>
                     </div>
                 </div>
 
