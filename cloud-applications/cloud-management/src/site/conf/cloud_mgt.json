@@ -163,17 +163,6 @@
     "add_url": "add_url",
     "edit_pwd_url": "edit_pwd_url"
   },
-  "RightWaveAddUserApi": {
-    "enable_RightWaveAddUserApi": "false",
-    "cloudSignup": "http://sbox.rw001.com/wso2test/srv/api/cloudsignup",
-    "apiCloudSubmission": "http://connect.wso2.com/wso2/srv/api/cldsbmtapi",
-    "appCloudSubmission": "http://connect.wso2.com/wso2/srv/api/cldsbmtapp",
-    "trialExtension": "http://sbox.rw001.com/wso2test/srv/api/cldtrialext",
-    "cloudUpgrade": "http://sbox.rw001.com/wso2test/srv/api/cldupgrade",
-    "signupLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/wso2cloud_api_signup",
-    "upgradeLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/WSO2-cloud-upgrade",
-    "selfSignupSubmission":"http://connect.wso2.com/wso2/srv/api/cloud2016"
-  },
   "PardotAddUserApi":{
     "enable_PardotAddUserApi": "false",
     "cloudSignup": "https://go.pardot.com/l/142131/2016-07-27/24cz89",

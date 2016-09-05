@@ -272,6 +272,7 @@ var notifyPardotForUnfinishedUpgrades = function (cType, domainName) {
     if (isEnable.toString() == "true") {
         var modEvents = jagg.module("events");
         var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
+        //<TODO>Get lead source token from Pardot</TODO>
         var email = String(session.get("LOGGED_IN_USER_EMAIL"));
         log.debug("Sending notification to pardot for unfinished upgrades for " + email);
         var URL;
@@ -287,7 +288,7 @@ var notifyPardotForUnfinishedUpgrades = function (cType, domainName) {
         var page = "Pardot";
         var item = type;
         var events = [];
-        if (msg == PARDOT_SUBMISSION_SUCCESS) {
+        if (msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
             actionString = actionString + "Success";
             session.put("IS_DATA_SENT_TO_PARDOT_UNFINISHED_UPGRADE", "false");
             log.info("Pardot api call Cloud Upgrade is success for " + email);
@@ -380,8 +381,7 @@ var createAccount = function (accountData, metaData, organizationName) {
                             var type = metaData.serviceId.toUpperCase();
                             type = type.substring(0, type.indexOf("_"));
                             var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-
-                            var URL;;
+                            var URL;
                             if ("API".equals(type)) {
                                 URL = cloudConfig.PardotAddUserApi.apiCloudUpgradeComplete;
                             } else if ("APP".equals(type)) {
@@ -389,13 +389,12 @@ var createAccount = function (accountData, metaData, organizationName) {
                             }
                             var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
                             var result = post(URL, data, {}, 'text');
-
                             var msg = result['data'];
                             var actionString = "Pardot-" + type + "-Upgrade:";
                             var page = "Pardot";
                             var item = type;
                             var events = [];
-                            if(msg == PARDOT_SUBMISSION_SUCCESS) {
+                            if(msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
                                 actionString =  actionString + "Success";
                                 log.info("Pardot api call Cloud Upgrade is success for " + email);
                             } else {
@@ -1026,26 +1025,25 @@ var extendTrial = function (serviceId, customerRequest) {
                                 URL = cloudConfig.PardotAddUserApi.appCloudTrialExtension;
                             }
                             var result = post(URL, data, {}, 'text');
-
-                                var msg = result['data'];
-                                var actionString = "Pardot-" + type + "-trialextension:";
-                                var page = "Pardot";
-                                var item = type;
-                                var events = [];
-                                if(msg == PARDOT_SUBMISSION_SUCCESS) {
-                                    actionString =  actionString + "Success";
-                                    log.info("Pardot api call Trial Extension is success for " + email);
-                                } else {
-                                    actionString =  actionString + "Failed";
-                                    log.error("Pardot api call failed for the user " + jagg.getUser() + " " + msg);
-                                }
-                                var event = {};
-                                event.item = item;
-                                event.timestamp = new Date().getTime();
-                                event.pageName = page;
-                                event.action = actionString;
-                                events[events.length] = event;
-                                modEvents.publishUserActivity(events,jagg.getUser(),tenantDomain);
+                            var msg = result['data'];
+                            var actionString = "Pardot-" + type + "-trialextension:";
+                            var page = "Pardot";
+                            var item = type;
+                            var events = [];
+                            if(msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
+                                actionString =  actionString + "Success";
+                                log.info("Pardot api call Trial Extension is success for " + email);
+                            } else {
+                                actionString =  actionString + "Failed";
+                                log.error("Pardot api call failed for the user " + jagg.getUser() + " " + msg);
+                            }
+                            var event = {};
+                            event.item = item;
+                            event.timestamp = new Date().getTime();
+                            event.pageName = page;
+                            event.action = actionString;
+                            events[events.length] = event;
+                            modEvents.publishUserActivity(events,jagg.getUser(),tenantDomain);
                         }
                         return true;
                     } catch (e) {
