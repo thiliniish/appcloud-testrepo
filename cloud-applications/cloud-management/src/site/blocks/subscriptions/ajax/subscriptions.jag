@@ -67,7 +67,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
             } else {
                 var rwResponse = billing.addCloudSubmissionToPardot(userEmail, domainName, type);
                 var msg = rwResponse['data'];
-                    if (msg != null && msg.message == PARDOT_SUBMISSION_SUCCESS) {
+                    if (msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
                         queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
                         parameters = [type, domainName, 1, userEmail];
                         modDb.executeQuery(queryString, parameters);

@@ -20,7 +20,7 @@
             if (log.isDebugEnabled()) {
                 log.debug("The user " + username + ", has an admin or publisher role.");
             }
-            var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
+            var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_PARDOT_UNFINISHED_UPGRADE");
             if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
                 var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
                 var subscribedCloudURL = jagg.module("billing").notifyPardotForUnfinishedUpgrades(cType, domainName);

@@ -271,8 +271,8 @@ var sendInvite = function (email, tenant, roles, message) {
     sendEmail(email, link, displayName, roles, message);
     var modEvents = jagg.module("events");
     var type = "CloudMgt";
-    var actionString = "Rightwave-" + type + "-cloudsignup{Invite}:Success";
-    var page = "Rightwave";
+    var actionString = "Pardot-" + type + "-cloudsignup{Invite}:Success";
+    var page = "Pardot";
     var events = [];
     var event = {};
     event.item = type;

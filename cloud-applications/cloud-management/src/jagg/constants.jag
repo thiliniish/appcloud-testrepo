@@ -164,7 +164,6 @@ var MYSQL_MIN_DATETIME_STRING = "1000-01-01 00:00:00";
 var ZUORA_DATE_FORMAT = "yyyy-MM-dd";
 var PARDOT_DATE_FORMAT = "yyyy-MM-dd";
 var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
-var RIGHTWAVE_SUBMISSION_SUCCESS = "Data Submitted Successfully";
 var PARDOT_SUBMISSION_SUCCESS = "Cannot find success page to redirect to. Please use your browser back button.<br\\>";
 var RIGHTWAVE_RESPONSE_TYPE = "text";
 
