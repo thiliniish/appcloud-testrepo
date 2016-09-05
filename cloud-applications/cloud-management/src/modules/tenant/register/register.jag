@@ -441,8 +441,7 @@ var sendInvite = function (email, token) {
             var data = "email=" + email;
             var result = post(URL, data, {}, 'text');
             var type = "CloudMgt";
-            //<TODO>Check with the response from rightwave</TODO>
-            var msg = JSON.parse(result['data']);
+            var msg = result['data'];
             var actionString = "Pardot-" + type + "-cloudsignup:";
             var page = "Pardot";
             var item = type;

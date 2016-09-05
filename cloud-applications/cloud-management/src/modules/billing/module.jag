@@ -54,8 +54,8 @@ jagg.module("billing", {
     getCouponProductRatePlanId: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCouponProductRatePlanId.apply(this, arguments);
     },
-    addCloudSubmissionToRightwave: function () {
-        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").addCloudSubmissionToRightwave.apply(this, arguments);
+    addCloudSubmissionToPardot: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").addCloudSubmissionToPardot.apply(this, arguments);
     },
     getBillingInvoiceData: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getBillingInvoiceData.apply(this, arguments);
@@ -72,8 +72,8 @@ jagg.module("billing", {
     isPlanUpgrade: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isPlanUpgrade.apply(this, arguments);
     },
-    notifyRightwaveForUnfinishedUpgrades: function () {
-        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").notifyRightwaveForUnfinishedUpgrades.apply(this, arguments);
+    notifyPardotForUnfinishedUpgrades: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").notifyPardotForUnfinishedUpgrades.apply(this, arguments);
     },
     getCloudURL: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCloudURL.apply(this, arguments);

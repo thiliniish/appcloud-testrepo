@@ -23,7 +23,7 @@
             var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE");
             if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
                 var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
-                var subscribedCloudURL = jagg.module("billing").notifyRightwaveForUnfinishedUpgrades(cType, domainName);
+                var subscribedCloudURL = jagg.module("billing").notifyPardotForUnfinishedUpgrades(cType, domainName);
             }
         }
         var types = cloudConfig.subscriptions.type;
@@ -76,7 +76,7 @@
                                                             redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
                                                             >Go</button>
                                                     <%  } else {
-                                                            log.info("Not adding store invitee user " + username + " to rightwave"); %>
+                                                            log.info("Not adding store invitee user " + username + " to pardot"); %>
                                                             <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
                                                             onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"
                                                             <%=buttonStatus%> >Go</button>
@@ -91,7 +91,7 @@
                                                             redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
                                                             >Go</button>
                                                     <%  } else {
-                                                            log.info("Not adding store invitee user " + username + " to rightwave");
+                                                            log.info("Not adding store invitee user " + username + " to pardot");
                                                     %>
                                                             <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
                                                             onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"

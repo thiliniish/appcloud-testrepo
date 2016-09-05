@@ -265,7 +265,7 @@ var updateContactInfo = function (accountData, organizationName) {
     }
 };
 
-var notifyRightwaveForUnfinishedUpgrades = function (cType, domainName) {
+var notifyPardotForUnfinishedUpgrades = function (cType, domainName) {
 
     var isEnable = cloudConfig.PardotAddUserApi.enable_PardotAddUserApi;
 
@@ -274,7 +274,7 @@ var notifyRightwaveForUnfinishedUpgrades = function (cType, domainName) {
         var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
         var email = String(session.get("LOGGED_IN_USER_EMAIL"));
         log.debug("Sending notification to pardot for unfinished upgrades for " + email);
-        var URL;;
+        var URL;
         if ("API".equals(type)) {
             URL = cloudConfig.PardotAddUserApi.apiCloudUpgradeStart;
         } else if ("APP".equals(type)) {
@@ -282,12 +282,12 @@ var notifyRightwaveForUnfinishedUpgrades = function (cType, domainName) {
         }
         var data = "email=" + email + "&domain_name=" + domainName + "&upgrade_status=0";
         var result = post(URL, data, {}, 'text');
-        var msg = JSON.parse(result['data']);
+        var msg = result['data'];
         var actionString = "Pardot-" + type + "-Upgrade:";
         var page = "Pardot";
         var item = type;
         var events = [];
-        if (msg.message == PARDOT_SUBMISSION_SUCCESS) {
+        if (msg == PARDOT_SUBMISSION_SUCCESS) {
             actionString = actionString + "Success";
             session.put("IS_DATA_SENT_TO_PARDOT_UNFINISHED_UPGRADE", "false");
             log.info("Pardot api call Cloud Upgrade is success for " + email);
@@ -383,24 +383,24 @@ var createAccount = function (accountData, metaData, organizationName) {
 
                             var URL;;
                             if ("API".equals(type)) {
-                                URL = cloudConfig.PardotAddUserApi.apiCloudUpgradeStart;
+                                URL = cloudConfig.PardotAddUserApi.apiCloudUpgradeComplete;
                             } else if ("APP".equals(type)) {
-                                URL = cloudConfig.PardotAddUserApi.appCloudUpgradeStart;
+                                URL = cloudConfig.PardotAddUserApi.appCloudUpgradeComplete;
                             }
                             var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
                             var result = post(URL, data, {}, 'text');
 
-                            var msg = JSON.parse(result['data']);
-                            var actionString = "Rightwave-" + type + "-Upgrade:";
-                            var page = "Rightwave";
+                            var msg = result['data'];
+                            var actionString = "Pardot-" + type + "-Upgrade:";
+                            var page = "Pardot";
                             var item = type;
                             var events = [];
-                            if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                            if(msg == PARDOT_SUBMISSION_SUCCESS) {
                                 actionString =  actionString + "Success";
-                                log.info("Rightwave api call Cloud Upgrade is success for " + email);
+                                log.info("Pardot api call Cloud Upgrade is success for " + email);
                             } else {
                                 actionString =  actionString + "Failed";
-                                log.error("Rightwave api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+                                log.error("Pardot api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
                             }
                             var event = {};
                             event.item = item;
@@ -854,15 +854,15 @@ var getCurrentRatePlan = function (serviceId) {
 	}
 };
 
-function addCloudSubmissionToRightwave(email, domain, type) {
+function addCloudSubmissionToPardot(email, domain, type) {
     var extensionStartDate = new Packages.java.util.Date();
     var extendedEndDate = addDays(extensionStartDate,  parseInt(JSON.parse(billingService.getConfigInJson()).trialPeriod));
-    var sqlDateFormat = dateTimeFormatter(RIGHTWAVE_DATE_FORMAT);
+    var sqlDateFormat = dateTimeFormatter(PARDOT_DATE_FORMAT);
     var expDate = sqlDateFormat.format(extendedEndDate);
     var type = type.substring(0, type.indexOf("_"));
     var modProfile = jagg.module("user/profile");
     var claims = modProfile.getProfile();
-    var tokenId = jagg.module("util").getLeadSourceToken(type);
+    //<TODO> get Lead source token
     var data;
     var URL;
     if (claims.firstname != "undefined" && claims.lastname != "undefined") {
@@ -1027,12 +1027,12 @@ var extendTrial = function (serviceId, customerRequest) {
                             }
                             var result = post(URL, data, {}, 'text');
 
-                                var msg = JSON.parse(result['data']);
+                                var msg = result['data'];
                                 var actionString = "Pardot-" + type + "-trialextension:";
                                 var page = "Pardot";
                                 var item = type;
                                 var events = [];
-                                if(msg.message == PARDOT_SUBMISSION_SUCCESS) {
+                                if(msg == PARDOT_SUBMISSION_SUCCESS) {
                                     actionString =  actionString + "Success";
                                     log.info("Pardot api call Trial Extension is success for " + email);
                                 } else {

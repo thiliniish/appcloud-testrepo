@@ -43,17 +43,17 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                 if (cloudSubscription == 1) {
                     //already added to right wave ignore
                 } else {
-                    var rwResponse = billing.addCloudSubmissionToRightwave(userEmail, domainName, type);
-                    var msg = JSON.parse(rwResponse['data']);
-                        if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                    var rwResponse = billing.addCloudSubmissionToPardot(userEmail, domainName, type);
+                    var msg = rwResponse['data'];
+                        if (msg != null && msg.message == PARDOT_SUBMISSION_SUCCESS) {
                             queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
                             parameters = [type, 1, domainName, userEmail];
                             modDb.executeQuery(queryString, parameters);
                             actionString = actionString + "Success";
-                            log.info("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
+                            log.info("Rightwave api call UPDATE PARDOT CLOUD SUBSCRIPTION is success for " + userEmail);
                         } else {
                             actionString = actionString + "Failed";
-                            log.error("Rightwave api call UPDATE RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
+                            log.error("Rightwave api call UPDATE PARDOT CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
                         }
                     var event = {};
                     event.item = item;
@@ -65,17 +65,17 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                     modEvents.publishUserActivity(events, jagg.getUser(), domainName);
                 }
             } else {
-                var rwResponse = billing.addCloudSubmissionToRightwave(userEmail, domainName, type);
-                var msg = JSON.parse(rwResponse['data']);
-                    if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                var rwResponse = billing.addCloudSubmissionToPardot(userEmail, domainName, type);
+                var msg = rwResponse['data'];
+                    if (msg != null && msg.message == PARDOT_SUBMISSION_SUCCESS) {
                         queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
                         parameters = [type, domainName, 1, userEmail];
                         modDb.executeQuery(queryString, parameters);
                         actionString = actionString + "Success";
-                        log.info("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION is success for " + userEmail);
+                        log.info("Rightwave api call INSERT PARDOT CLOUD SUBSCRIPTION is success for " + userEmail);
                     } else {
                         actionString = actionString + "Failed";
-                        log.error("Rightwave api call INSERT RIGHTWAVE CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
+                        log.error("Rightwave api call INSERT PARDOT CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
                     }
                 var event = {};
                 event.item = item;
