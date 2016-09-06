@@ -162,6 +162,7 @@ var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 var MYSQL_MAX_DATETIME_STRING = "9999-12-31 12:59:59";
 var MYSQL_MIN_DATETIME_STRING = "1000-01-01 00:00:00";
 var ZUORA_DATE_FORMAT = "yyyy-MM-dd";
+var MAIL_CAMPAIGN = "Pardot";
 var PARDOT_DATE_FORMAT = "yyyy-MM-dd";
 var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
 var MAIL_CAMPAIGN_SUBMISSION_SUCCESS = "Cannot find success page to redirect to. Please use your browser back button.<br\\>";

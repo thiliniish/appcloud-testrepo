@@ -76,7 +76,7 @@
                                                             redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
                                                             >Go</button>
                                                     <%  } else {
-                                                            log.info("Not adding store invitee user " + username + " to MailCampaign"); %>
+                                                            log.info("Not adding store invitee user " + username + " to " + MAIL_CAMPAIGN); %>
                                                             <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
                                                             onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"
                                                             <%=buttonStatus%> >Go</button>
@@ -91,7 +91,7 @@
                                                             redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
                                                             >Go</button>
                                                     <%  } else {
-                                                            log.info("Not adding store invitee user " + username + " to MailCampaign");
+                                                            log.info("Not adding store invitee user " + username + " to " + MAIL_CAMPAIGN);
                                                     %>
                                                             <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
                                                             onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"

@@ -441,16 +441,16 @@ var sendInvite = function (email, token) {
             var result = post(URL, data, {}, 'text');
             var type = "CloudMgt";
             var msg = result['data'];
-            var actionString = "MailCampaign-" + type + "-cloudsignup:";
-            var page = "MailCampaign";
+            var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsignup:";
+            var page = MAIL_CAMPAIGN;
             var item = type;
             var events = [];
             if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                 actionString = actionString + "Success";
-                log.info("MailCampaign cloud signup api call success for the user [ " + email + " ]");
+                log.info(MAIL_CAMPAIGN + " cloud signup api call success for the user [ " + email + " ]");
             } else {
                 actionString = actionString + "Failed";
-                log.error("MailCampaign cloud signup api call failed for the user [ " + email + " ] : " + msg);
+                log.error(MAIL_CAMPAIGN + " cloud signup api call failed for the user [ " + email + " ] : " + msg);
             }
             var event = {};
             event.item = item;

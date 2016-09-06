@@ -34,8 +34,8 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
             var queryString = SQL_QUERY_STRINGS.SELECT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
             var parameters = [type, domainName, userEmail];
             var result = modDb.executeQuery(queryString, parameters);
-            var actionString = "MailCampaign-" + type + "-cloudsubmission:";
-            var page = "MailCampaign";
+            var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsubmission:";
+            var page = MAIL_CAMPAIGN;
             var item = type;
             var events = [];
             if (result[0] != null && result[0] != "undefined") {
@@ -50,10 +50,10 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                             parameters = [type, 1, domainName, userEmail];
                             modDb.executeQuery(queryString, parameters);
                             actionString = actionString + "Success";
-                            log.info("MailCampaign api call UPDATE MAIL_CAMPAIGN CLOUD SUBSCRIPTION is success for " + userEmail);
+                            log.info(MAIL_CAMPAIGN + " api call UPDATE MAIL_CAMPAIGN CLOUD SUBSCRIPTION is success for " + userEmail);
                         } else {
                             actionString = actionString + "Failed";
-                            log.error("MailCampaign api call UPDATE MAIL_CAMPAIGN CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
+                            log.error(MAIL_CAMPAIGN + " api call UPDATE MAIL_CAMPAIGN CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
                         }
                     var event = {};
                     event.item = item;
@@ -72,10 +72,10 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                         parameters = [type, domainName, 1, userEmail];
                         modDb.executeQuery(queryString, parameters);
                         actionString = actionString + "Success";
-                        log.info("MailCampaign api call INSERT MAIL_CAMPAIGN CLOUD SUBSCRIPTION is success for " + userEmail);
+                        log.info(MAIL_CAMPAIGN + " api call INSERT MAIL_CAMPAIGN CLOUD SUBSCRIPTION is success for " + userEmail);
                     } else {
                         actionString = actionString + "Failed";
-                        log.error("MailCampaign api call INSERT MAIL_CAMPAIGN CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
+                        log.error(MAIL_CAMPAIGN + " api call INSERT MAIL_CAMPAIGN CLOUD SUBSCRIPTION failed for the user " + jagg.getUser() + " " + msg);
                     }
                 var event = {};
                 event.item = item;
@@ -87,7 +87,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
             }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("MailCampaign is not enabled");
+                log.debug(MAIL_CAMPAIGN + " is not enabled");
             }
             print(true);
         }

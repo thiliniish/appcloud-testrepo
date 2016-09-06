@@ -272,9 +272,9 @@ var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
     if (isEnable.toString() == "true") {
         var modEvents = jagg.module("events");
         var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
-        //<TODO>Get lead source token from MailCampaign</TODO>
+        //<TODO>Get lead source token from Pardot</TODO>
         var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-        log.debug("Sending notification to MailCampaign for unfinished upgrades for " + email);
+        log.debug("Sending notification to " + MAIL_CAMPAIGN + " for unfinished upgrades for " + email);
         var URL;
         if ("API".equals(type)) {
             URL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeStart;
@@ -284,17 +284,17 @@ var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
         var data = "email=" + email + "&domain_name=" + domainName + "&upgrade_status=0";
         var result = post(URL, data, {}, 'text');
         var msg = result['data'];
-        var actionString = "MailCampaign-" + type + "-Upgrade:";
-        var page = "MailCampaign";
+        var actionString = MAIL_CAMPAIGN + "-" + type + "-Upgrade:";
+        var page = MAIL_CAMPAIGN;
         var item = type;
         var events = [];
         if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
             actionString = actionString + "Success";
             session.put("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE", "false");
-            log.info("MailCampaign api call Cloud Upgrade is success for " + email);
+            log.info(MAIL_CAMPAIGN + " api call Cloud Upgrade is success for " + email);
         } else {
             actionString = actionString + "Failed";
-            log.error("MailCampaign api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+            log.error(MAIL_CAMPAIGN + " api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
         }
         var event = {};
         event.item = item;
@@ -390,16 +390,16 @@ var createAccount = function (accountData, metaData, organizationName) {
                             var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
                             var result = post(URL, data, {}, 'text');
                             var msg = result['data'];
-                            var actionString = "MailCampaign-" + type + "-Upgrade:";
-                            var page = "MailCampaign";
+                            var actionString = MAIL_CAMPAIGN + "-" + type + "-Upgrade:";
+                            var page = MAIL_CAMPAIGN;
                             var item = type;
                             var events = [];
                             if(MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                                 actionString =  actionString + "Success";
-                                log.info("MailCampaign api call Cloud Upgrade is success for " + email);
+                                log.info(MAIL_CAMPAIGN + " api call Cloud Upgrade is success for " + email);
                             } else {
                                 actionString =  actionString + "Failed";
-                                log.error("MailCampaign api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+                                log.error(MAIL_CAMPAIGN + " api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
                             }
                             var event = {};
                             event.item = item;
@@ -1026,16 +1026,16 @@ var extendTrial = function (serviceId, customerRequest) {
                             }
                             var result = post(URL, data, {}, 'text');
                             var msg = result['data'];
-                            var actionString = "MailCampaign-" + type + "-trialextension:";
-                            var page = "MailCampaign";
+                            var actionString = MAIL_CAMPAIGN + "-" + type + "-trialextension:";
+                            var page = MAIL_CAMPAIGN;
                             var item = type;
                             var events = [];
                             if(MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                                 actionString =  actionString + "Success";
-                                log.info("MailCampaign api call Trial Extension is success for " + email);
+                                log.info(MAIL_CAMPAIGN + " api call Trial Extension is success for " + email);
                             } else {
                                 actionString =  actionString + "Failed";
-                                log.error("MailCampaign api call failed for the user " + jagg.getUser() + " " + msg);
+                                log.error(MAIL_CAMPAIGN + " api call failed for the user " + jagg.getUser() + " " + msg);
                             }
                             var event = {};
                             event.item = item;
