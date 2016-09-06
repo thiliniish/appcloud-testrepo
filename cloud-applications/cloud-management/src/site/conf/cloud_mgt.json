@@ -163,8 +163,8 @@
     "add_url": "add_url",
     "edit_pwd_url": "edit_pwd_url"
   },
-  "PardotAddUserApi":{
-    "enable_PardotAddUserApi": "false",
+  "MailCampaignAddUserApi":{
+    "enable_MailCampaignAddUserApi": "false",
     "cloudSignup": "https://go.pardot.com/l/142131/2016-07-27/24cz89",
     "apiCloudSubmission": "https://go.pardot.com/l/142131/2016-07-27/24cz9r",
     "appCloudSubmission": "https://go.pardot.com/l/142131/2016-08-31/28rjf7",

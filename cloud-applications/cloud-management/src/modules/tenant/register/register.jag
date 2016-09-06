@@ -431,26 +431,26 @@ var sendInvite = function (email, token) {
     }
     //<TODO> getting lead source capturing token
 
-    //adding signed up user to Pardot
-    var isEnable = cloudConfig.PardotAddUserApi.enable_PardotAddUserApi;
+    //adding signed up user to MailCampaign
+    var isEnable = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
     if (isEnable.toString() == "true") {
         setTimeout(function () {
             var modEvents = jagg.module("events");
-            var URL = cloudConfig.PardotAddUserApi.cloudSignup;
+            var URL = cloudConfig.MailCampaignAddUserApi.cloudSignup;
             var data = "email=" + email;
             var result = post(URL, data, {}, 'text');
             var type = "CloudMgt";
             var msg = result['data'];
-            var actionString = "Pardot-" + type + "-cloudsignup:";
-            var page = "Pardot";
+            var actionString = "MailCampaign-" + type + "-cloudsignup:";
+            var page = "MailCampaign";
             var item = type;
             var events = [];
-            if (PARDOT_SUBMISSION_SUCCESS.equals(msg)) {
+            if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                 actionString = actionString + "Success";
-                log.info("Pardot cloud signup api call success for the user [ " + email + " ]");
+                log.info("MailCampaign cloud signup api call success for the user [ " + email + " ]");
             } else {
                 actionString = actionString + "Failed";
-                log.error("Pardot cloud signup api call failed for the user [ " + email + " ] : " + msg);
+                log.error("MailCampaign cloud signup api call failed for the user [ " + email + " ] : " + msg);
             }
             var event = {};
             event.item = item;

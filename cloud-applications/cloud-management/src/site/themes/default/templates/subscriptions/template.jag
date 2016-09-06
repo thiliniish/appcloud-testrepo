@@ -20,10 +20,10 @@
             if (log.isDebugEnabled()) {
                 log.debug("The user " + username + ", has an admin or publisher role.");
             }
-            var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_PARDOT_UNFINISHED_UPGRADE");
+            var isUnfinishedUpgrade = session.get("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE");
             if (isUnfinishedUpgrade != null && isUnfinishedUpgrade != "false") {
                 var cType = isUnfinishedUpgrade.substring(isUnfinishedUpgrade.indexOf(":") + 1, isUnfinishedUpgrade.length);
-                var subscribedCloudURL = jagg.module("billing").notifyPardotForUnfinishedUpgrades(cType, domainName);
+                var subscribedCloudURL = jagg.module("billing").notifyMailCampaignForUnfinishedUpgrades(cType, domainName);
             }
         }
         var types = cloudConfig.subscriptions.type;
@@ -76,7 +76,7 @@
                                                             redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
                                                             >Go</button>
                                                     <%  } else {
-                                                            log.info("Not adding store invitee user " + username + " to pardot"); %>
+                                                            log.info("Not adding store invitee user " + username + " to MailCampaign"); %>
                                                             <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
                                                             onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"
                                                             <%=buttonStatus%> >Go</button>
@@ -91,7 +91,7 @@
                                                             redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
                                                             >Go</button>
                                                     <%  } else {
-                                                            log.info("Not adding store invitee user " + username + " to pardot");
+                                                            log.info("Not adding store invitee user " + username + " to MailCampaign");
                                                     %>
                                                             <button type="button" class="cu-btn cu-btn-md cu-btn-orange"
                                                             onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');"

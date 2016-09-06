@@ -127,7 +127,7 @@ if (isBillingEnabled) {
 	var serviceId = session.get("SERVICE_ID");
 	var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
 	var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
-	session.put("IS_DATA_SENT_TO_PARDOT_UNFINISHED_UPGRADE", "true:" + serviceId);
+	session.put("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE", "true:" + serviceId);
 	var currRatePlanId = null;
 	var currRatePlan = null;
 	var accounts = null;
