@@ -23,10 +23,10 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
     var modDb = jagg.module("database");
     var modEvents = jagg.module("events");
     var billing = jagg.module("billing");
-    var isEnable = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+    var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
     if (action == "addCloudUserSubscription") {
-        if(isEnable.toString() == "true") {
+        if(isEnabled.toString() == "true") {
             var domainName = request.getParameter("domain");
             var type = request.getParameter("type");
             type = type.toUpperCase();
