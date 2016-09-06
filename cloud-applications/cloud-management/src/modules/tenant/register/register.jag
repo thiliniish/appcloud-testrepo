@@ -432,8 +432,8 @@ var sendInvite = function (email, token) {
     //<TODO> getting lead source capturing token
 
     //adding signed up user to MailCampaign
-    var isEnable = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
-    if (isEnable.toString() == "true") {
+    var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+    if (isEnabled == true) {
         setTimeout(function () {
             var modEvents = jagg.module("events");
             var URL = cloudConfig.MailCampaignAddUserApi.cloudSignup;

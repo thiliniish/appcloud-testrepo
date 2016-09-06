@@ -233,42 +233,32 @@ var constructSignupConfigFile = function (username, userPassword) {
 };
 
 /**
- *This method will send a call to Rightwave once a user configure the self signup feature for API Cloud.
+ *This method will send a call to the mail campaign once a user configure the self signup feature for API Cloud.
  *Through this process an email will be sent to the user to notify that the feature has been activated after 15 mins.
  **/
-//<TODO>Needs to be modified for Pardot</TODO>
-var addSelfSignupSubmissionToRightwave = function (email) {
-    var jsonData;
+var addSelfSignupSubmissionToMailCampaign = function (email) {
     var username = jagg.getUser();
     try {
-        var URL = cloudConfig.RightWaveAddUserApi.selfSignupSubmission;
-        var isRightwaveAPIEnabled = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
-        if (isRightwaveAPIEnabled.toString() == "true") {
+        var URL = cloudConfig.MailCampaignAddUserApi.selfSignupSubmission;
+        var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+        if (isEnabled == true) {
             if (email != "" && email != null) {
-                jsonData = {
-                    "email": email
-                };
-                var data = "json=" + JSON.stringify(jsonData);
-                var result = post(URL, data, {'Content-Type': 'application/json'}, RIGHTWAVE_RESPONSE_TYPE);
-                var response = JSON.parse(result['data']);
-                if (response != null) {
-                    var responseMessage = response.message;
-                    if (responseMessage != null && responseMessage == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                        log.info("API Cloud self signup feature activation for the user " + username + "was submitted successfully to Rightwave ");
-                    } else {
-                        log.error("An error occurred while submitting the self-signup feature activation for the user " + username + "to Rightwave. \n Error received from Rightwave :" + responseMessage);
-                    }
+                var data = "email=" + email;
+                var result = post(URL, data, {}, 'text');
+                var response = result['data'];
+                if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(response)) {
+                    log.info("API Cloud self signup feature activation for the user " + username + " was submitted successfully to " + MAIL_CAMPAIGN);
                 } else {
-                    log.error("The response received from Rightwave was NULL when adding the self signup feature activation details for the user " + username);
+                    log.error("An error occurred while submitting the self-signup feature activation for the user " + username + "to " + MAIL_CAMPAIGN + ". \n Error received from " + MAIL_CAMPAIGN + " :" + response);
                 }
             } else {
-                log.error("Error while adding the self signup feature activation details to Rightwave since the user email was unavailable for the user " + username);
+                log.error("Error while adding the self signup feature activation details to " + MAIL_CAMPAIGN + " since the user email was unavailable for the user " + username);
             }
         } else {
-            log.error("The Rightwave API has not been enabled at the moment. Unable to send the self signup feature activation details to Rightwave for the user " + username);
+            log.error("The " + MAIL_CAMPAIGN + " API has not been enabled at the moment. Unable to send the self signup feature activation details to " + MAIL_CAMPAIGN + " for the user " + username);
         }
     } catch (e) {
-        log.error("An error occurred while adding the self signup feature activation details to Rightwave for the user " + username);
+        log.error("An error occurred while adding the self signup feature activation details to " + MAIL_CAMPAIGN + " for the user" + username);
         log.error(e);
     }
 };

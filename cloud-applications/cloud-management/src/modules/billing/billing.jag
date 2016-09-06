@@ -267,9 +267,9 @@ var updateContactInfo = function (accountData, organizationName) {
 
 var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
 
-    var isEnable = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+    var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
-    if (isEnable.toString() == "true") {
+    if (isEnabled == true) {
         var modEvents = jagg.module("events");
         var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
         //<TODO>Get lead source token from Pardot</TODO>
@@ -291,10 +291,11 @@ var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
         if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
             actionString = actionString + "Success";
             session.put("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE", "false");
-            log.info(MAIL_CAMPAIGN + " api call Cloud Upgrade is success for " + email);
+            log.info(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Start' is successful for " + email);
         } else {
             actionString = actionString + "Failed";
-            log.error(MAIL_CAMPAIGN + " api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+            log.error(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Start' failed for the user " + jagg.getUser() + " " +
+                    msg);
         }
         var event = {};
         event.item = item;
@@ -374,9 +375,9 @@ var createAccount = function (accountData, metaData, organizationName) {
                         jagg.module("util").sendBillingAccountCreationEmail(tenantDisplayName, subscriptionName, planName, effectiveDate);
                         jagg.module("util").sendBillingAccountCreationNotification(tenantDisplayName, subscriptionName, planName, effectiveDate);
                         //Add Cloud upgrade completion to MailCampaign
-                        var isEnable = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+                        var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
-                        if (isEnable.toString() == "true") {
+                        if (isEnabled == true) {
                             var modEvents = jagg.module("events");
                             var type = metaData.serviceId.toUpperCase();
                             type = type.substring(0, type.indexOf("_"));
@@ -396,10 +397,11 @@ var createAccount = function (accountData, metaData, organizationName) {
                             var events = [];
                             if(MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                                 actionString =  actionString + "Success";
-                                log.info(MAIL_CAMPAIGN + " api call Cloud Upgrade is success for " + email);
+                                log.info(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' is successful for " +
+                                        email);
                             } else {
                                 actionString =  actionString + "Failed";
-                                log.error(MAIL_CAMPAIGN + " api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+                                log.error(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' failed for the user " + jagg.getUser() + " " + msg);
                             }
                             var event = {};
                             event.item = item;
@@ -1011,8 +1013,8 @@ var extendTrial = function (serviceId, customerRequest) {
                     try {
                         jagg.module("util").sendBillingTrialExtendedMailToUser(tenantDisplayName, serviceId, extendedEndDate);
                         jagg.module("util").sendBillingTrialExtendedNotification(tenantDisplayName, serviceId, extendedEndDate, customerRequest);
-                        var isEnable = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
-                        if(isEnable.toString() == "true") {
+                        var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+                        if(isEnabled == true) {
                             var modEvents = jagg.module("events");
                             var type = serviceId.toUpperCase();
                             type = type.substring(0, type.indexOf("_"));
