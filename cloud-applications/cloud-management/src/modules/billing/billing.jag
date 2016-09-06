@@ -291,10 +291,10 @@ var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
         if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
             actionString = actionString + "Success";
             session.put("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE", "false");
-            log.info(MAIL_CAMPAIGN + " api call Cloud Upgrade is success for " + email);
+            log.info(MAIL_CAMPAIGN + " api call Cloud Upgrade start is success for " + email);
         } else {
             actionString = actionString + "Failed";
-            log.error(MAIL_CAMPAIGN + " api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+            log.error(MAIL_CAMPAIGN + " api call Cloud Upgrade start failed for the user " + jagg.getUser() + " " + msg);
         }
         var event = {};
         event.item = item;
@@ -396,10 +396,10 @@ var createAccount = function (accountData, metaData, organizationName) {
                             var events = [];
                             if(MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                                 actionString =  actionString + "Success";
-                                log.info(MAIL_CAMPAIGN + " api call Cloud Upgrade is success for " + email);
+                                log.info(MAIL_CAMPAIGN + " api call Cloud Upgrade complete is success for " + email);
                             } else {
                                 actionString =  actionString + "Failed";
-                                log.error(MAIL_CAMPAIGN + " api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+                                log.error(MAIL_CAMPAIGN + " api call Cloud Upgrade complete failed for the user " + jagg.getUser() + " " + msg);
                             }
                             var event = {};
                             event.item = item;
