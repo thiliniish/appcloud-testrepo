@@ -241,7 +241,7 @@ var addSelfSignupSubmissionToMailCampaign = function (email) {
     try {
         var URL = cloudConfig.MailCampaignAddUserApi.selfSignupSubmission;
         var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
-        if (isEnabled.toString() == "true") {
+        if (isEnabled == true) {
             if (email != "" && email != null) {
                 var data = "email=" + email;
                 var result = post(URL, data, {}, 'text');

@@ -26,7 +26,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
     var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
     if (action == "addCloudUserSubscription") {
-        if(isEnabled.toString() == "true") {
+        if(isEnabled == true) {
             var domainName = request.getParameter("domain");
             var type = request.getParameter("type");
             type = type.toUpperCase();

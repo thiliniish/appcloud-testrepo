@@ -269,7 +269,7 @@ var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
 
     var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
-    if (isEnabled.toString() == "true") {
+    if (isEnabled == true) {
         var modEvents = jagg.module("events");
         var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
         //<TODO>Get lead source token from Pardot</TODO>
@@ -377,7 +377,7 @@ var createAccount = function (accountData, metaData, organizationName) {
                         //Add Cloud upgrade completion to MailCampaign
                         var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
-                        if (isEnabled.toString() == "true") {
+                        if (isEnabled == true) {
                             var modEvents = jagg.module("events");
                             var type = metaData.serviceId.toUpperCase();
                             type = type.substring(0, type.indexOf("_"));
@@ -1014,7 +1014,7 @@ var extendTrial = function (serviceId, customerRequest) {
                         jagg.module("util").sendBillingTrialExtendedMailToUser(tenantDisplayName, serviceId, extendedEndDate);
                         jagg.module("util").sendBillingTrialExtendedNotification(tenantDisplayName, serviceId, extendedEndDate, customerRequest);
                         var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
-                        if(isEnabled.toString() == "true") {
+                        if(isEnabled == true) {
                             var modEvents = jagg.module("events");
                             var type = serviceId.toUpperCase();
                             type = type.substring(0, type.indexOf("_"));
