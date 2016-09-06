@@ -74,9 +74,8 @@ include("/jagg/constants.jag");
                     }
                     message = "Completed the uploading process for the user " + username;
 
-                    //Adding the submission to Rightwave to trigger the feature activation email to the user after 15 mins.
-                    //<TODO>Needs to be enabled when API provided for MailCampaign</TODO>
-                    //jagg.module("selfSignup").addSelfSignupSubmissionToRightwave(tenantEmail);
+                    //Adding the submission to Mail Campaign to trigger the feature activation email to the user after 15 mins.
+                    jagg.module("selfSignup").addSelfSignupSubmissionToMailCampaign(tenantEmail);
                     log.info(message);
                     result = {
                         error: false,
