@@ -236,6 +236,7 @@ var constructSignupConfigFile = function (username, userPassword) {
  *This method will send a call to Rightwave once a user configure the self signup feature for API Cloud.
  *Through this process an email will be sent to the user to notify that the feature has been activated after 15 mins.
  **/
+//<TODO>Needs to be modified for Pardot</TODO>
 var addSelfSignupSubmissionToRightwave = function (email) {
     var jsonData;
     var username = jagg.getUser();

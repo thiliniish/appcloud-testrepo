@@ -449,6 +449,7 @@ function addUserToOT (email, pass, firstName, lastName) {
 	}
 };
 
+//<TODO>Needs to be modified for Pardot</TODO>
 function getLeadSourceToken (campaign) {
     var tokenId = null;
     try {
@@ -508,29 +509,6 @@ function changeOTUserPass (email,pass) {
 	}
 
 };
-
-function addUserToRightWave (email) {
-	try {
-        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
-		var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
-		var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
-        var data={
-            "Email" : email,
-            "TemplateFormName" : "reg",
-            "TemplateFormID" : "WSO2-cloud-signup",
-            "FormID" : "cust\\euser\\webform\\cloud-signup_template2.fdf"
-        };
-		if(is_enable.toString() == "true") {
-            var result = post(URL,data,{'Content-Type': 'application/x-www-form-urlencoded'}, 'text');
-		}
-        log.info("Response from RightWave: \n" +result);
-	} catch (e){
-		log.error(e)
-	}
-};
-
-
 
 function escapeSpecialChars (str) {
 	return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {

@@ -148,7 +148,6 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
         server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName, "ADD");
         try {
             jagg.module("util").addUserToOT(email, adminPassword, firstName, lastName);
-            //jagg.module("util").addUserToRightWave(email);
         } catch (e) {
             log.error("Error while registering organization [ " + organizationDomain + " ] Email [ " + email + "]");
             log.error(e);
@@ -416,7 +415,6 @@ var storeTempRegistration = function (email, uuid, isInvitee) {
 
 var sendInvite = function (email, token) {
     log.info("Sending the sign up email for user [ " + email + " ]");
-    var tokenId;
     var uuid = jagg.module("util").generateUUId();
     var link = targetEpr + "?confirmation=" + uuid;
     try {
@@ -431,36 +429,28 @@ var sendInvite = function (email, token) {
             status: 500
         };
     }
-    //getting lead source capturing token
-    if (token != null && token != '') {
-        tokenId = token;
-    } else {
-        tokenId = jagg.module("util").getLeadSourceToken("signUp");
-    }
-    //adding selfsign user to rightwave
-    var isEnable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+    //<TODO> getting lead source capturing token
+
+    //adding signed up user to MailCampaign
+    var isEnable = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
     if (isEnable.toString() == "true") {
         setTimeout(function () {
             var modEvents = jagg.module("events");
-            var jsonData = {
-                "email": email,
-                "tokenid": tokenId
-            };
-            var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
-            var data = "json=" + JSON.stringify(jsonData);
-            var result = post(URL, data, {'Content-Type': 'application/json'}, 'text');
+            var URL = cloudConfig.MailCampaignAddUserApi.cloudSignup;
+            var data = "email=" + email;
+            var result = post(URL, data, {}, 'text');
             var type = "CloudMgt";
-            var msg = JSON.parse(result['data']);
-            var actionString = "Rightwave-" + type + "-cloudsignup:";
-            var page = "Rightwave";
+            var msg = result['data'];
+            var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsignup:";
+            var page = MAIL_CAMPAIGN;
             var item = type;
             var events = [];
-            if (msg != null && msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+            if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                 actionString = actionString + "Success";
-                log.info("Rightwave cloud signup api call success for the user [ " + email + " ]");
+                log.info(MAIL_CAMPAIGN + " cloud signup api call success for the user [ " + email + " ]");
             } else {
                 actionString = actionString + "Failed";
-                log.error("Rightwave cloud signup api call failed for the user [ " + email + " ] : " + msg);
+                log.error(MAIL_CAMPAIGN + " cloud signup api call failed for the user [ " + email + " ] : " + msg);
             }
             var event = {};
             event.item = item;
