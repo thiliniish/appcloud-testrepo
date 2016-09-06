@@ -288,7 +288,7 @@ var notifyPardotForUnfinishedUpgrades = function (cType, domainName) {
         var page = "Pardot";
         var item = type;
         var events = [];
-        if (msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
+        if (PARDOT_SUBMISSION_SUCCESS.equals(msg)) {
             actionString = actionString + "Success";
             session.put("IS_DATA_SENT_TO_PARDOT_UNFINISHED_UPGRADE", "false");
             log.info("Pardot api call Cloud Upgrade is success for " + email);
@@ -373,7 +373,7 @@ var createAccount = function (accountData, metaData, organizationName) {
                         }
                         jagg.module("util").sendBillingAccountCreationEmail(tenantDisplayName, subscriptionName, planName, effectiveDate);
                         jagg.module("util").sendBillingAccountCreationNotification(tenantDisplayName, subscriptionName, planName, effectiveDate);
-                        //Pardot
+                        //Add Cloud upgrade completion to Pardot
                         var isEnable = cloudConfig.PardotAddUserApi.enable_PardotAddUserApi;
 
                         if (isEnable.toString() == "true") {
@@ -394,7 +394,7 @@ var createAccount = function (accountData, metaData, organizationName) {
                             var page = "Pardot";
                             var item = type;
                             var events = [];
-                            if(msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
+                            if(PARDOT_SUBMISSION_SUCCESS.equals(msg)) {
                                 actionString =  actionString + "Success";
                                 log.info("Pardot api call Cloud Upgrade is success for " + email);
                             } else {
@@ -1030,7 +1030,7 @@ var extendTrial = function (serviceId, customerRequest) {
                             var page = "Pardot";
                             var item = type;
                             var events = [];
-                            if(msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
+                            if(PARDOT_SUBMISSION_SUCCESS.equals(msg)) {
                                 actionString =  actionString + "Success";
                                 log.info("Pardot api call Trial Extension is success for " + email);
                             } else {

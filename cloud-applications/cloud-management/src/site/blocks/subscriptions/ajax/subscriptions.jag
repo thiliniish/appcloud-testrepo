@@ -45,7 +45,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                 } else {
                     var pardotResponse = billing.addCloudSubmissionToPardot(userEmail, domainName, type);
                     var msg = pardotResponse['data'];
-                        if (msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
+                        if (PARDOT_SUBMISSION_SUCCESS.equals(msg)) {
                             queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
                             parameters = [type, 1, domainName, userEmail];
                             modDb.executeQuery(queryString, parameters);
@@ -67,7 +67,7 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
             } else {
                 var pardotResponse = billing.addCloudSubmissionToPardot(userEmail, domainName, type);
                 var msg = pardotResponse['data'];
-                    if (msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
+                    if (PARDOT_SUBMISSION_SUCCESS.equals(msg)) {
                         queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
                         parameters = [type, domainName, 1, userEmail];
                         modDb.executeQuery(queryString, parameters);

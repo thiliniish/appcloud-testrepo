@@ -445,7 +445,7 @@ var sendInvite = function (email, token) {
             var page = "Pardot";
             var item = type;
             var events = [];
-            if (msg != null && msg == PARDOT_SUBMISSION_SUCCESS) {
+            if (PARDOT_SUBMISSION_SUCCESS.equals(msg)) {
                 actionString = actionString + "Success";
                 log.info("Pardot cloud signup api call success for the user [ " + email + " ]");
             } else {
