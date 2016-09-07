@@ -40,12 +40,15 @@ var getSubscriptionInfo = function (types, username) {
         if (types[i].id != DEFAULT_SUBSCRIPTION) {
             cloudType = types[i].id;
             roleTypes = types[i].roleTypes;
-            for (var j = 0; j < roleTypes.length; j++) {
-                if (username != null) {
-                    if (modUserManagement.hasUserRole(username, roleTypes[j].roleName) || modUserManagement
-                                    .hasUserRole(username, ROLE_ADMIN)) {
-                        isSubscribed = true;
-                        break;
+            if (username != null) {
+                if (modUserManagement.hasUserRole(username, ROLE_ADMIN)) {
+                    isSubscribed = true;
+                } else {
+                    for (var j = 0; j < roleTypes.length; j++) {
+                        if (modUserManagement.hasUserRole(username, roleTypes[j].roleName)) {
+                            isSubscribed = true;
+                            break;
+                        }
                     }
                 }
             }
