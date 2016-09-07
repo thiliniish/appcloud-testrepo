@@ -111,7 +111,7 @@
 			} else {
 				payload.type = 'initial';
 				var storePayload = {};
-				storePayload.customUrl = defaultStoreURL + "/store/?tenant=" + tenantDomain;
+				storePayload.customUrl = defaultStoreURL + "/store";
 				var gatewayPayload = {};
 				gatewayPayload.customUrl = customUrl;
 				payload.store = storePayload;
@@ -120,7 +120,7 @@
 		} else {
 			var currentMapping = this.getCurrentUserMapping(tenantDomain,'api-cloud');
 			if (node == 'store') {
-				if (currentMapping.store.customUrl == (defaultStoreURL + "/store/?tenant=" + tenantDomain)) {
+				if (currentMapping.store.customUrl == (defaultStoreURL + "/store")) {
 					payload.type = 'initial';
 				} else {
 					payload.type = 'update';
