@@ -43,7 +43,7 @@
 
         var log = new Log("jagg/cloud/billing");
         var isExpired;
-        var isTrial = true;
+        var isTrial;
         var accountContent;
         var subscription = "api_cloud";
 
