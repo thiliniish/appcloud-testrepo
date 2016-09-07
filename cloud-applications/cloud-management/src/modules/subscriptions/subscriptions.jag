@@ -42,7 +42,8 @@ var getSubscriptionInfo = function (types, username) {
             roleTypes = types[i].roleTypes;
             for (var j = 0; j < roleTypes.length; j++) {
                 if (username != null) {
-                    if (modUserManagement.hasUserRole(username, roleTypes[j].roleName)) {
+                    if (modUserManagement.hasUserRole(username, roleTypes[j].roleName) || modUserManagement
+                                    .hasUserRole(username, ROLE_ADMIN)) {
                         isSubscribed = true;
                         break;
                     }
