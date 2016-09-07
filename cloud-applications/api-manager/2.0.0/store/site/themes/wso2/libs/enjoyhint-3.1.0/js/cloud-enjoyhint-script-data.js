@@ -6,7 +6,8 @@ function getApiName() {
 
 var login_apistore_script_data = [
     {
-        'click #login-link': 'First of all lets login to API Cloud.'
+        'click .need-login': 'First of all lets login to API Cloud.',
+        'showSkip' : false
     }
 ];
 
