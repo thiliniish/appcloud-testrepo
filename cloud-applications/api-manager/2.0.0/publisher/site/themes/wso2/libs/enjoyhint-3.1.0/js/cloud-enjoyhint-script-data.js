@@ -25,7 +25,7 @@ var item_listing_with_worldbank_script_data = [
         'showSkip' : false
     },
     {
-        'click #top-menu-api-add': 'Click "Add" to get started.',
+        'click #top-menu-api-add': 'Click "ADD NEW API" to get started.',
         'showSkip' : false
     }
 ];
