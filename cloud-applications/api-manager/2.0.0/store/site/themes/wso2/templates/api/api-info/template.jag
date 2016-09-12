@@ -361,7 +361,6 @@ $(window).load(function(){
 
     if (isEnjoyHintEnabled()) {
         var loginUser = '<%=outputs.user%>';
-        alert(loginUser);
         if (loginUser === 'null') {
             runEnjoyHintScript(enjoyhint_instance_login_apistore, login_apistore_script_data);
         } else {
