@@ -79,6 +79,9 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
         return adaptedPlan;
     }
 
+    /**
+     * Static class for AdaptedPlan
+     */
     public static class AdaptedPlan {
 
         @XmlElement(name = "Id")

@@ -25,8 +25,6 @@ import org.wso2.carbon.cloud.billing.internal.CloudBillingServiceComponent;
 import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterConfiguration;
 import org.wso2.carbon.event.output.adapter.core.exception.OutputEventAdapterException;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -36,6 +34,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 /**
  * This class uses the email output event adapter to send email notifications.
@@ -84,8 +84,8 @@ public class EmailNotifications extends Observable {
                 }
             }
         } catch (InterruptedException ie) {
-            LOGGER.error("An error occurred when shutting down and awaiting the termination of the existing tasks. " +
-                         "Error received :", ie);
+            LOGGER.error("An error occurred when shutting down and awaiting the termination of the existing tasks. "
+                    + "Error received :", ie);
             // (Re-)Cancel if current thread also interrupted
             executorService.shutdownNow();
             // Preserve interrupt status
@@ -126,14 +126,15 @@ public class EmailNotifications extends Observable {
      * @param msgFormat Output Event Adapter message format
      * @return OutputEventAdapterConfiguration instance for given configuration
      */
-    private static OutputEventAdapterConfiguration createOutputEventAdapterConfiguration(
-            String name, String type, String msgFormat) {
-        if (outputEventAdapterConfiguration == null) {
-            outputEventAdapterConfiguration =
-                    new OutputEventAdapterConfiguration();
-            outputEventAdapterConfiguration.setName(name);
-            outputEventAdapterConfiguration.setType(type);
-            outputEventAdapterConfiguration.setMessageFormat(msgFormat);
+    private static OutputEventAdapterConfiguration createOutputEventAdapterConfiguration(String name, String type,
+            String msgFormat) {
+        synchronized (EmailNotifications.class) {
+            if (outputEventAdapterConfiguration == null) {
+                outputEventAdapterConfiguration = new OutputEventAdapterConfiguration();
+                outputEventAdapterConfiguration.setName(name);
+                outputEventAdapterConfiguration.setType(type);
+                outputEventAdapterConfiguration.setMessageFormat(msgFormat);
+            }
         }
         return outputEventAdapterConfiguration;
     }
@@ -143,19 +144,16 @@ public class EmailNotifications extends Observable {
      * the file output-event-adapters.xml needs to be added to the repository/conf folder of the product.
      */
     protected static void createEmailAdapter() {
-        outputEventAdapterConfiguration =
-                createOutputEventAdapterConfiguration(emailAdapterName,
-                                                      BillingConstants.RENDERING_TYPE_EMAIL,
-                                                      BillingConstants.EMAIL_MESSAGE_FORMAT);
+        outputEventAdapterConfiguration = createOutputEventAdapterConfiguration(emailAdapterName,
+                BillingConstants.RENDERING_TYPE_EMAIL, BillingConstants.EMAIL_MESSAGE_FORMAT);
         while (!isEmailAdapterCreated()) {
             try {
-                CloudBillingServiceComponent.getOutputEventAdapterService().create(
-                        outputEventAdapterConfiguration);
+                CloudBillingServiceComponent.getOutputEventAdapterService().create(outputEventAdapterConfiguration);
                 LOGGER.info("The email adapter " + emailAdapterName + " created Successfully");
                 emailAdapterCreatedResult = true;
             } catch (OutputEventAdapterException e) {
                 LOGGER.error("Unable to create the Output Event Adapter : " + emailAdapterName +
-                             ". Error received :", e);
+                        ". Error received :", e);
             }
             setEmailAdapterCreated(emailAdapterCreatedResult);
         }
@@ -193,8 +191,7 @@ public class EmailNotifications extends Observable {
         /**
          * {@inheritDoc}
          */
-        @Override
-        public void update(Observable o, Object arg) {
+        @Override public void update(Observable o, Object arg) {
             while (!mailQueue.isEmpty()) {
                 Map email = mailQueue.poll();
                 MailSender mailSender = new MailSender(mailSenderErrorObserver, email);
@@ -218,18 +215,16 @@ public class EmailNotifications extends Observable {
         /**
          * {@inheritDoc}
          */
-        @Override
-        public void update(Observable o, Object arg) {
+        @Override public void update(Observable o, Object arg) {
             if (arg instanceof Map) {
                 Map email = (Map) arg;
                 failedEmailQueue.add(email);
             } else if (arg instanceof Boolean && (Boolean) arg) {
                 while (!failedEmailQueue.isEmpty()) {
                     Map email = failedEmailQueue.poll();
-                    EmailNotifications.getInstance().sendMail(email.get(MESSAGE_BODY).toString(),
-                                                              email.get(MESSAGE_SUBJECT).toString(),
-                                                              email.get(MESSAGE_RECEIVER).toString(),
-                                                              email.get(MESSAGE_TYPE).toString());
+                    EmailNotifications.getInstance()
+                            .sendMail(email.get(MESSAGE_BODY).toString(), email.get(MESSAGE_SUBJECT).toString(),
+                                    email.get(MESSAGE_RECEIVER).toString(), email.get(MESSAGE_TYPE).toString());
                 }
             } else {
                 LOGGER.error("No argument specified. ");
@@ -240,7 +235,7 @@ public class EmailNotifications extends Observable {
     /**
      * Mail sending thread
      */
-    protected class MailSender extends Observable implements Runnable {
+    protected static class MailSender extends Observable implements Runnable {
 
         private Map email;
 
@@ -252,13 +247,10 @@ public class EmailNotifications extends Observable {
         /**
          * {@inheritDoc}
          */
-        @Override
-        public void run() {
+        @Override public void run() {
             Map<String, String> dynamicPropertiesForEmail = new HashMap<String, String>();
-            dynamicPropertiesForEmail
-                    .put(MESSAGE_RECEIVER, email.get(MESSAGE_RECEIVER).toString());
-            dynamicPropertiesForEmail
-                    .put(MESSAGE_SUBJECT, email.get(MESSAGE_SUBJECT).toString());
+            dynamicPropertiesForEmail.put(MESSAGE_RECEIVER, email.get(MESSAGE_RECEIVER).toString());
+            dynamicPropertiesForEmail.put(MESSAGE_SUBJECT, email.get(MESSAGE_SUBJECT).toString());
             dynamicPropertiesForEmail.put(MESSAGE_TYPE, email.get(MESSAGE_TYPE).toString());
 
             //Making sure that the email adapter has been created before sending the emails.
@@ -272,29 +264,26 @@ public class EmailNotifications extends Observable {
 
                 if (isEmailAdapterCreated()) {
                     CloudBillingServiceComponent.getOutputEventAdapterService()
-                                                .publish(emailAdapterName,
-                                                         dynamicPropertiesForEmail,
-                                                         email.get(MESSAGE_BODY).toString());
+                            .publish(emailAdapterName, dynamicPropertiesForEmail, email.get(MESSAGE_BODY).toString());
                     setChanged();
                     notifyObservers(true);
                 } else {
                     setChanged();
                     notifyObservers(email);
                     LOGGER.error("Error while sending the email notification to: " +
-                                 email.get(MESSAGE_RECEIVER).toString() +
-                                 " under subject: " + email.get(MESSAGE_SUBJECT).toString() +
-                                 ". Email is added " +
-                                 "back to the queue since email adapter has not been created");
+                            email.get(MESSAGE_RECEIVER).toString() +
+                            " under subject: " + email.get(MESSAGE_SUBJECT).toString() +
+                            ". Email is added " +
+                            "back to the queue since email adapter has not been created");
                 }
             } catch (Exception e) {
                 //Catching the generic exception here to avoid throwing exceptions while executing this sub task
                 setChanged();
                 notifyObservers(email);
                 LOGGER.error("Error while sending the email notification to: " +
-                             email.get(MESSAGE_RECEIVER).toString
-                                     () + " under subject: " +
-                             email.get(MESSAGE_SUBJECT).toString() + ". Email is added " +
-                             "back to the queue. once the error is fixed it will try again ", e);
+                        email.get(MESSAGE_RECEIVER).toString() + " under subject: " +
+                        email.get(MESSAGE_SUBJECT).toString() + ". Email is added " +
+                        "back to the queue. once the error is fixed it will try again ", e);
             }
         }
     }
