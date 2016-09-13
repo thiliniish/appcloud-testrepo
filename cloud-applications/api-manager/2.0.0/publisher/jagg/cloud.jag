@@ -5,6 +5,7 @@
         var logo;
         var mainMenu;
         var userMenu;
+        var expandMenu;
 
         var readTopLinks = function () {
             var file = new File("/site/conf/toplink-menu.json");
@@ -15,6 +16,7 @@
             logo = jsonObj.Logo;
             mainMenu = jsonObj.Main;
             userMenu = jsonObj.User;
+            expandMenu = jsonObj.Expand;
         };
 
         var getLogoJson = function (){
@@ -29,11 +31,16 @@
             return userMenu;
         };
 
+        var getExpandMenuJson = function (){
+            return expandMenu;
+        };
+
         return {
             readTopLinks:readTopLinks,
             getLogoJson:getLogoJson,
             getMainMenuJson:getMainMenuJson,
-            getUserMenuJson:getUserMenuJson
+            getUserMenuJson:getUserMenuJson,
+            getExpandMenuJson:getExpandMenuJson
         };
 
     }());
