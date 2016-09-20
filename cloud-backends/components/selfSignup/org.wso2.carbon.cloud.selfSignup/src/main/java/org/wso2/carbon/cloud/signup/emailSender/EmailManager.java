@@ -31,6 +31,15 @@ import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.BodyPart;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.activation.DataHandler;
+import javax.activation.MailcapCommandMap;
+import javax.activation.CommandMap;
+
 import java.io.File;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -93,6 +102,7 @@ public class EmailManager implements Serializable {
             properties.put("mail.smtp.host", host);
             properties.put("mail.smtp.port", port);
             //properties.put("mail.smtp.from", InternetAddress.parse(senderEmail));
+            log.info(messageBody);
 
             log.info("adding the properties");
             Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
@@ -103,13 +113,36 @@ public class EmailManager implements Serializable {
                 }
             });
 
-            //constructing the email message
             Message message = new MimeMessage(session);
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recepient));
             message.setSubject(subject);
-            message.setContent(messageBody, "text/html");
-            message.setReplyTo(InternetAddress.parse(senderEmail));
             message.setFrom(new InternetAddress(fromEmailAddress, senderEmailSignature));
+            message.setReplyTo(InternetAddress.parse(senderEmail));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recepient));
+
+            //
+            // This HTML mail have to 2 part, the BODY and the embedded image
+            //
+            MimeMultipart multipart = new MimeMultipart("related");
+
+            // first part  (the html)
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setContent(messageBody, "text/html");
+            // add it
+            multipart.addBodyPart(messageBodyPart);
+
+            // second part (the image)
+            messageBodyPart = new MimeBodyPart();
+            DataSource fds = new FileDataSource
+                                     ("/home/dilhasha/sheniCloud/wso2am-1.10.0/repository/tenants/40/customizations/customLogo.png");
+            messageBodyPart.setDataHandler(new DataHandler(fds));
+            messageBodyPart.setHeader("Content-ID","<header>");
+            messageBodyPart.setHeader("Content-Type", "image/png");
+            // add it
+            multipart.addBodyPart(messageBodyPart);
+
+            // put everything together
+            message.setContent(multipart);
+
             //Checking if the email contents is empty or not
             if (" ".equalsIgnoreCase(messageBody)) {
                 errorMessage = "Error sending email to " + signedUpUser + " for the tenant " +
@@ -117,10 +150,11 @@ public class EmailManager implements Serializable {
                 log.error(errorMessage);
                 throw new WorkflowException(errorMessage);
             } else {
+                //Added to load the latest javax.mail.Message class
+                Thread.currentThread().setContextClassLoader(javax.mail.Message.class.getClassLoader());
                 message.saveChanges();
                 Transport.send(message);
             }
-
         }
 
         //will handle a wrongly formatted addresses
