@@ -25,9 +25,9 @@
             //is equal to 1  and check the assertion validity period and check audience restrictions
             var isResponseValid = ssoRelyingParty.validateSAMLResponseSchema(samlResponse);
             if (!Boolean(isResponseValid)) {
-                log.error("SAML response schema verification is failed.");
-                response.sendRedirect("../site/pages/error-pages/401.html");
-                return;
+                 log.error("SAML response schema verification is failed.");
+                 response.sendRedirect("../site/pages/error-pages/401.html");
+                 return;
             }
 
             var fullUserName = ssoRelyingParty.getSAMLResponseNameId(samlResponse);
@@ -48,9 +48,9 @@
             // validating the signature
             if(site.ssoConfiguration.responseSigningEnabled === 'true'){
 
-                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName) {
-                    jagg.module("manager").loadTenantRegistry(String(domainName));
-                }
+                    if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName) {
+                        jagg.module("manager").loadTenantRegistry(String(domainName));
+                    }
                 var isSignatureValid = ssoRelyingParty.validateSignature(samlResponse);
                 if (!Boolean(isSignatureValid)) {
                     log.error("SAML response signature is verification failed.");
@@ -61,16 +61,16 @@
 
             // validating the saml assertion signature
             if(site.ssoConfiguration.assertionSigningEnabled === 'true'){
-                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName) {
-                    jagg.module("manager").loadTenantRegistry(String(domainName));
-                }
-                var isAssertionSignatureValid = ssoRelyingParty.validateAssertionSignature(samlResponse);
-                if (!Boolean(isAssertionSignatureValid)) {
-                    log.error("SAML assertion signature is verification failed.");
-                    response.sendRedirect("../site/pages/error-pages/401.html");
-                    return;
-                }
-            }
+               if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName) {
+                   jagg.module("manager").loadTenantRegistry(String(domainName));
+               }
+               var isAssertionSignatureValid = ssoRelyingParty.validateAssertionSignature(samlResponse);
+               if (!Boolean(isAssertionSignatureValid)) {
+               log.error("SAML assertion signature is verification failed.");
+               response.sendRedirect("../site/pages/error-pages/401.html");
+               return;
+               }
+               }
 
             ssoRelyingParty.setSessionAuthenticated(sessionId, samlResponse, session);
             ssoRelyingParty.addSession(session);
@@ -173,13 +173,13 @@
             var isCreatePermitted = api.hasCreatePermission();
             var isPublishPermitted = api.hasPublishPermission();
             var showStoreURL=api.showStoreURL();
-            var hasTierPermission = api.hasManageTierPermission();
+	        var hasTierPermission = api.hasManageTierPermission();
             jagg.setCreatePermitted(isCreatePermitted);
             jagg.setPublishPermitted(isPublishPermitted);
             jagg.setManageTierPermitted(hasTierPermission);
             var showURL=false;
             if(showStoreURL){
-                showURL=showStoreURL.permitted;
+            showURL=showStoreURL.permitted;
             }
             jagg.setShowStoreURL(showURL);
             if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName) {

@@ -187,7 +187,7 @@
                                 cookie: jagg.getUser().cookie
                             });
 
-                            log.info("API publisher Logged in User [ User : " + jagg.getUser().username +
+                            log.info("API Store Logged in User [ User : " + jagg.getUser().username +
                                     ", Full Name : " + jagg.getUser().fullName +
                                     ", Email : " + jagg.getUser().email +
                                     ", Tenant : " + jagg.getUser().tenantDomain +
