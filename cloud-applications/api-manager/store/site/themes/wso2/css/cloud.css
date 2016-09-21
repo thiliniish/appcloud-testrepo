@@ -1,0 +1,8 @@
+footer {
+    min-height: 20px;
+}
+
+footer > .container > p, footer > .container-fluid > p {
+    line-height: 20px;
+    font-size: 10px;
+}
