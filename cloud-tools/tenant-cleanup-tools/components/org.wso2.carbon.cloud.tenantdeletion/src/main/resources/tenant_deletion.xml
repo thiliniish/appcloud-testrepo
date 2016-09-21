@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configurations>
+    <!-- DataSources -->
+    <datasources>
+        <cloudMgt-datasource>jdbc/cloud_mgt</cloudMgt-datasource>
+        <userMgt-datasource>jdbc/userstore</userMgt-datasource>
+    </datasources>
+
+    <!-- Deleters -->
+    <Deletion-Order>
+        <Deleter>
+            <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.APIDeleter</Class>
+            <Dependency></Dependency>
+            <ServerKey>PUBSTORE</ServerKey>
+        </Deleter>
+        <Deleter>
+            <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.APPDeleter</Class>
+            <Dependency>API</Dependency>
+            <ServerKey>AF</ServerKey>
+        </Deleter>
+        <Deleter>
+            <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.ConfigDataDeleter</Class>
+            <Dependency>API</Dependency>
+            <ServerKey>AF,PUBSTORE,IS,AS,BPS,DAS</ServerKey>
+        </Deleter>
+        <Deleter>
+            <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.GovernanceDataDeleter</Class>
+            <Dependency>API,CONFIG_PUBSTORE,CONFIG_BPS,CONFIG_AS,CONFIG_IS,CONFIG_DAS</Dependency>
+            <ServerKey>PUBSTORE</ServerKey>
+        </Deleter>
+        <Deleter>
+            <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.CloudMgtDataDeleter</Class>
+            <Dependency>API,GOVERNANCE</Dependency>
+            <ServerKey>PUBSTORE</ServerKey>
+        </Deleter>
+        <Deleter>
+            <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.LDAPDataDeleter</Class>
+            <Dependency>API,GOVERNANCE</Dependency>
+            <ServerKey>PUBSTORE</ServerKey>
+        </Deleter>
+        <Deleter>
+            <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.UMDataDeleter</Class>
+            <Dependency>API,GOVERNANCE</Dependency>
+            <ServerKey>PUBSTORE</ServerKey>
+        </Deleter>
+    </Deletion-Order>
+
+    <!-- Wso2 server keys -->
+    <ServerKeys>
+        <ServerKey>PUBSTORE</ServerKey>
+        <ServerKey>AF</ServerKey>
+        <ServerKey>IS</ServerKey>
+        <ServerKey>GATEWAY</ServerKey>
+        <ServerKey>KEYMANAGER</ServerKey>
+        <ServerKey>BPS</ServerKey>
+        <ServerKey>AS</ServerKey>
+        <ServerKey>DAS</ServerKey>
+    </ServerKeys>
+
+    <!-- Tenant deletion Cloud management Queries -->
+    <CloudMgt-Queries>
+        <CloudMgt-Query>DELETE FROM ORGANIZATIONS WHERE tenantDomain = ?</CloudMgt-Query>
+        <CloudMgt-Query>DELETE FROM SUBSCRIPTIONS WHERE tenantDomain = ?</CloudMgt-Query>
+        <CloudMgt-Query>DELETE FROM TEMP_INVITEE WHERE tenantDomain = ?</CloudMgt-Query>
+        <CloudMgt-Query>DELETE FROM TENANT_USER_MAPPING WHERE tenantDomain = ?</CloudMgt-Query>
+        <CloudMgt-Query>DELETE FROM RIGHTWAVE_CLOUD_SUBSCRIPTION WHERE TENANT_DOMAIN = ?</CloudMgt-Query>
+        <CloudMgt-Query>DELETE FROM BILLING_ACCOUNT WHERE TENANT_DOMAIN = ?</CloudMgt-Query>
+        <CloudMgt-Query>DELETE FROM BILLING_STATUS WHERE TENANT_DOMAIN = ?</CloudMgt-Query>
+    </CloudMgt-Queries>
+
+    <!-- Email Properties -->
+    <Email-Properties>
+        <port>587</port>
+        <host>smtp.gmail.com</host>
+        <user-name>*</user-name>
+        <sender-email>*</sender-email>
+        <sender-password>*</sender-password>
+        <recipient-email>*</recipient-email>
+    </Email-Properties>
+
+</Configurations>
+
