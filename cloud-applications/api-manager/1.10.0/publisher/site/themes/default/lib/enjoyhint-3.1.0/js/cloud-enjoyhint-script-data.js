@@ -150,7 +150,7 @@ var item_manage_script_data = [
         'click .btn-group': 'Let\'s select usage tiers or subscription plans that you offer to subscribers.'
     },
     {
-        'click .checkbox:eq(0)': 'Select Gold from the Tier Availability dropdown list.'
+        'click .checkbox:eq(1)': 'Select Gold from the Tier Availability dropdown list.'
     },
     {
         'click #publish_api': 'Click Save & Publish to publish the API in the API Store.'

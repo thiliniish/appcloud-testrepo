@@ -1,4 +1,4 @@
-<% jagg.template("item-design", function(inputs, outputs, jagg) {
+<% jagg.template("item-design", function(inputs, outputs, jagg) { 
     var api = outputs.api;
     var site = require("/site/conf/site.json");
     var enableRestrictByRoles = site.enableRestrictByRoles;

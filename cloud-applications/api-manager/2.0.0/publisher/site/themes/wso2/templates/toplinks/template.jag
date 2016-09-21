@@ -13,6 +13,7 @@
     var logoObj = toplinks.getLogoJson();
     var mainMenu = toplinks.getMainMenuJson();
     var userMenu = toplinks.getUserMenuJson();
+    var expandMenu = toplinks.getExpandMenuJson();
 
     var urlPrefix;
     var urlPostfix;
@@ -82,8 +83,6 @@
         }
     });
 </script>
-
-<link rel="stylesheet" href="site/themes/wso2/libs/font-awesome-4.6.3/css/font-awesome.min.css">
 
 <header class="header header-default">
     <div class="container-fluid">
@@ -253,9 +252,10 @@
             for (var dropDown in userDropDowns) {
                 var icon = userDropDowns[dropDown].icon;
                 var url = userDropDowns[dropDown].url;
+                var target = userDropDowns[dropDown].target;
         %>
                     <li>
-                        <a title="<%=dropDown%>" href="<%=url%>">
+                        <a title="<%=dropDown%>" href="<%=url%>" target="<%=target%>">
                             <i class="<%=icon%>" title="<%=dropDown%>"></i> <%=dropDown%>
                         </a>
                     </li>
@@ -264,8 +264,61 @@
         %>
                 </ul>
             </li>
+            <li class="visible-inline-block cloud-menu hidden-xs">
+                <a href="#" id="cloud-menu-popover" >
+                    <span class="icon fw-stack fw-lg">
+                        <i class="fw fw-tiles fw-stack-1x" data-toggle="popover" data-placement="bottom"></i>
+                    </span>
+                    <span class="hidden-xs">
+
+                    </span>
+                </a>
+            </li>
         </ul>
     </div>
+
+    <!-- BOF cloud popover menu content -->
+    <div class="cloud-menu-content hide">
+        <div id="popover-head" class="hide">Navigate to Cloud</div>
+        <div id="popover-content" class="hide">
+            <div class="cloud-apps">
+    <%
+        var clouds = expandMenu.Clouds;
+        for (var cloud in clouds) {
+            var cloudUrl = clouds[cloud].url;
+            var cloudIcon = clouds[cloud].icon;
+            var cloudTarget = clouds[cloud].target;
+
+    %>
+                <a href="<%=cloudUrl%>" target="<%=cloudTarget%>" class="cloud-block add-padding-top-3x">
+                    <i class="<%=cloudIcon%>"></i>
+                    <div class="cloud-name"><%=cloud%></div>
+                </a>
+    <%
+        }
+
+    %>
+                <div class="clearfix"></div><!-- to make seperate -->
+            </div>
+            <div class="cloud-actions">
+                <h3>Manage your cloud</h3>
+    <%
+        var actions = expandMenu.Actions;
+        for (var action in actions) {
+            var actionUrl = actions[action].url;
+            var actionIcon = actions[action].icon;
+            var actionTarget = actions[action].target;
+    %>
+                <a href="<%=actionUrl%>" target="<%=actionTarget%>" class="cloud-block-invert add-padding-top-3x">
+                    <i class="<%=actionIcon%>"></i>
+                    <div class="cloud-name"><%=action%></div>
+                </a>
+    <%
+        }
+    %>
+            </div>
+        </div>
+   </div><!--/.nav-collapse -->
 </header>
 
 <%
