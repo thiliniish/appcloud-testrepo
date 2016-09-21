@@ -108,9 +108,7 @@ public class EmailManager implements Serializable {
 
             Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(
-                                                             emailAddress,
-                                                             emailPassword);
+                    return new PasswordAuthentication(emailAddress, emailPassword);
                 }
             });
 
@@ -128,8 +126,8 @@ public class EmailManager implements Serializable {
             }
             //Checking if the email contents is empty or not
             if (" ".equalsIgnoreCase(messageBody)) {
-                errorMessage = "Error sending email to " + signedUpUser + " for the tenant " +
-                                       tenantDomain + ". Email content is empty";
+                errorMessage = "Error sending email to " + signedUpUser + " for the tenant " + tenantDomain +
+                                       ". Email content is empty";
                 log.error(errorMessage);
                 throw new WorkflowException(errorMessage);
             } else {
