@@ -203,10 +203,10 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
             //configuring the properties and content needed for the email sent to the tenant
             emailManager
-                    .configureTenantEmail(tenantDomain, fromEmailAddress, tenantEmail, userEmail);
+                    .sendTenantEmail(tenantDomain, fromEmailAddress, tenantEmail, userEmail);
 
             //configuring the properties and content needed for the email sent to the user regarding the status of the approval.
-            emailManager.configureUserNotificationEmail(tenantDomain, getContactEmail(),
+            emailManager.sendUserNotificationEmail(tenantDomain, getContactEmail(),
                                                         getFromAddress(), userEmail);
             super.execute(workflowDTO);
 
@@ -338,13 +338,13 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
                 LOGGER.info("Sign Up Request has been approved for the user " + userEmail);
 
-                emailManager.configureApprovalStatusEmail(tenantDomain, getContactEmail(),
+                emailManager.sendApprovalStatusEmail(tenantDomain, getContactEmail(),
                                                           getFromAddress(), userEmail,
                                                           SignUpWorkflowConstants.TENANT_APPROVAL_EMAIL_PATH,
                                                           "approved");
             } else {
 
-                emailManager.configureApprovalStatusEmail(tenantDomain, getContactEmail(),
+                emailManager.sendApprovalStatusEmail(tenantDomain, getContactEmail(),
                                                           getFromAddress(), userEmail,
                                                           SignUpWorkflowConstants.TENANT_REJECTION_EMAIL_PATH,
                                                           "rejected");
