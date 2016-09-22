@@ -34,5 +34,4 @@ public class SignUpWorkflowConstants {
     public static final String CONTENT_ID = "Content-ID";
     public static final String CONTENT_TYPE = "Content-Type";
 
-
 }

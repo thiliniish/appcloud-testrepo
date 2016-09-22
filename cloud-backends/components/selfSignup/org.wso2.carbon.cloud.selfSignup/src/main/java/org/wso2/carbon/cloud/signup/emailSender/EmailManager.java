@@ -230,7 +230,7 @@ public class EmailManager implements Serializable {
      * This method configures the needed parameters to configure the email to be sent to the user informing about the
      * status of the signup request
      *
-     * @param tenantDomain is the tenant domain to which the user signed up
+     * @param tenantDomain         is the tenant domain to which the user signed up
      * @param tenantContactEmail   is the contact email for tenant
      * @param tenantEmailSignarure is the signature of tenant
      * @param userEmail            is the email of the user to whom the email needs to be sent.
@@ -260,7 +260,7 @@ public class EmailManager implements Serializable {
      * This method configures the needed parameters to configure the email sent to the user if the signup request was
      * approved/rejected
      *
-     * @param tenantDomain is the tenant domain to which the user signed up
+     * @param tenantDomain         is the tenant domain to which the user signed up
      * @param tenantContactEmail   is the contact email for tenant
      * @param tenantEmailSignarure is the signature of tenant
      * @param userEmail            is the email of the user to whom the email needs to be sent.
@@ -298,9 +298,7 @@ public class EmailManager implements Serializable {
     }
 
     /**
-     *
-     *
-     * @param tenantDomain is the tenant domain to which the user signed up
+     * @param tenantDomain     is the tenant domain to which the user signed up
      * @param fromEmailAddress is the user who is sending the email
      * @param tenantEmail      is the email address of the tenant to whom the email needs to be sent to
      * @param user             is the user who has sent the sign up request
