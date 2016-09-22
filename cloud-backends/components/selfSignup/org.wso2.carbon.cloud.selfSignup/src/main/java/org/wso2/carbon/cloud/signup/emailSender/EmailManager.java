@@ -205,7 +205,7 @@ public class EmailManager implements Serializable {
      * @param user             is the name of the user who signed up to the tenant
      * @throws WorkflowExceptionreplaceValuesOfEmailContent
      */
-    public void configureTenantEmail(String tenantDomain, String fromEmailAddress,
+    public void sendTenantEmail(String tenantDomain, String fromEmailAddress,
                                      String tenantEmail, String user)
             throws WorkflowException {
         try {
@@ -250,7 +250,7 @@ public class EmailManager implements Serializable {
      * @param userEmail            is the email of the user to whom the email needs to be sent.
      * @throws WorkflowException
      */
-    public void configureUserNotificationEmail(String tenantDomain, String tenantContactEmail,
+    public void sendUserNotificationEmail(String tenantDomain, String tenantContactEmail,
                                                String tenantEmailSignarure, String userEmail)
             throws WorkflowException {
         try {
@@ -296,7 +296,7 @@ public class EmailManager implements Serializable {
      * @param status
      * @throws WorkflowException
      */
-    public void configureApprovalStatusEmail(String tenantDomain, String tenantContactEmail,
+    public void sendApprovalStatusEmail(String tenantDomain, String tenantContactEmail,
                                              String tenantEmailSignarure, String userEmail,
                                              String emailFile, String status)
             throws WorkflowException {
@@ -337,7 +337,7 @@ public class EmailManager implements Serializable {
 
     }
 
-    public void configureTenantNotificationEmail(String tenantDomain, String fromEmailAddress,
+    public void sendTenantNotificationEmail(String tenantDomain, String fromEmailAddress,
                                                  String tenantEmail,
                                                  String user)
             throws WorkflowException {
