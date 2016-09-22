@@ -430,13 +430,15 @@ public class EmailManager implements Serializable {
      */
     private void setEmailFilesBaseDirectory() {
         int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId(true);
-        emailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "repository" +
+        String customizedEmailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "repository" +
                                                    File.separator + "tenants" + File.separator +
                                                    tenantId + File.separator + "customizations" + File.separator +
                                                    "emailTemplates";
-        File file = new File(emailFilesBaseDirectory);
+        File file = new File(customizedEmailFilesBaseDirectory);
         //The directory exists only if the emails are customized
-        if (!file.isDirectory()) {
+        if (file.isDirectory()) {
+            emailFilesBaseDirectory = customizedEmailFilesBaseDirectory + File.separator;
+        } else {
             //If emails are not customized set the base directory to default location
             emailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "resources" +
                                               File.separator + "signUpConfig" + File.separator +
