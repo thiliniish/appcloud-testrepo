@@ -31,5 +31,8 @@ public class SignUpWorkflowConstants {
     public static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     public static final String DEFAULT_ENCODING = "UTF-8";
     public static final String CUSTOMIZED = "customized_";
+    public static final String CONTENT_ID = "Content-ID";
+    public static final String CONTENT_TYPE = "Content-Type";
+
 
 }
