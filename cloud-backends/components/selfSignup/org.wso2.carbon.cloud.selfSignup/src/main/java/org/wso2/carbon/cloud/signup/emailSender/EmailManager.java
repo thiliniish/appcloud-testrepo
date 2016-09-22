@@ -213,6 +213,7 @@ public class EmailManager implements Serializable {
                                    .retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
             fromSignature =
                     ConfigFileReader.retrieveConfigAttribute("emailProperties", "fromSignature");
+            setEmailFilesBaseDirectory();
             boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.TENANT_EMAIL_PATH);
             setEmailMessage(SignUpWorkflowConstants.TENANT_EMAIL_PATH, isCustomized);
             sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized);
@@ -241,6 +242,7 @@ public class EmailManager implements Serializable {
         try {
             emailSubject =
                     ConfigFileReader.retrieveConfigAttribute("EmailSubjects", "USER_EMAIL_SUBJECT");
+            setEmailFilesBaseDirectory();
             boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.USER_EMAIL_PATH);
             setEmailMessage(SignUpWorkflowConstants.USER_EMAIL_PATH, isCustomized);
             sendEmail(userEmail, tenantContactEmail, tenantEmailSignarure, emailSubject,
@@ -280,8 +282,9 @@ public class EmailManager implements Serializable {
                 emailSubject = ConfigFileReader.retrieveConfigAttribute("EmailSubjects",
                                                                         "SIGNUP_REQUEST_REJECTION_EMAIL");
             }
+            setEmailFilesBaseDirectory();
             boolean isCustomized = isCustomizedEmail(emailFile);
-            setEmailMessage(emailFile,isCustomized);
+            setEmailMessage(emailFile, isCustomized);
             sendEmail(userEmail, tenantContactEmail, tenantEmailSignarure, emailSubject, emailMessage, isCustomized);
             log.info("Email sent to user " + userEmail + " of the tenant " + tenantDomain +
                              " regarding the sign up approval");
@@ -309,6 +312,7 @@ public class EmailManager implements Serializable {
         try {
             emailSubject = ConfigFileReader.retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
             fromSignature = ConfigFileReader.retrieveConfigAttribute("emailProperties", "fromSignature");
+            setEmailFilesBaseDirectory();
             boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.TENANT_NOTIFICATION_EMAIL_PATH);
             setEmailMessage(SignUpWorkflowConstants.TENANT_NOTIFICATION_EMAIL_PATH, isCustomized);
             sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized);
@@ -404,7 +408,6 @@ public class EmailManager implements Serializable {
      * @throws WorkflowException
      */
     private void setEmailMessage(String emailPath, boolean isCustomized) throws WorkflowException {
-        setEmailFilesBaseDirectory();
         if (isCustomized) {
             String customEmailPath = emailFilesBaseDirectory + SignUpWorkflowConstants.CUSTOMIZED + emailPath;
             emailMessage = replaceValuesOfEmailContent(reader.fileReader(customEmailPath));
