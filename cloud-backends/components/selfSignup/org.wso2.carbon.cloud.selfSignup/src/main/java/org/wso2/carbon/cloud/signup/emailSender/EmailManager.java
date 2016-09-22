@@ -119,7 +119,7 @@ public class EmailManager implements Serializable {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recepient));
 
             if (isCustomized) {
-                MimeMultipart multipart = getCustomizedMessage(messageBody);
+                MimeMultipart multipart = getCustomizedImage(messageBody);
                 message.setContent(multipart);
             } else {
                 message.setContent(messageBody, "text/html");
@@ -169,7 +169,7 @@ public class EmailManager implements Serializable {
      * @return MimeMultipart with embedded image
      * @throws MessagingException
      */
-    private MimeMultipart getCustomizedMessage(String messageBody) throws MessagingException {
+    private MimeMultipart getCustomizedImage(String messageBody) throws MessagingException {
         // This HTML mail has to 2 parts, the BODY and the embedded image
         MimeMultipart multipart = new MimeMultipart("related");
 
