@@ -181,8 +181,6 @@ public class EmailManager implements Serializable {
         // add it
         multipart.addBodyPart(messageBodyPart);
 
-        // second part (the image)
-        messageBodyPart = new MimeBodyPart();
         try {
             //Get image path specific to tenant
             TenantManager tenantManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantManager();
@@ -193,6 +191,8 @@ public class EmailManager implements Serializable {
                                        "emailTemplates" +
                                        File.separator + "customLogo";
             DataSource fds = new FileDataSource(imagePath);
+            // second part (the image)
+            messageBodyPart = new MimeBodyPart();
             messageBodyPart.setDataHandler(new DataHandler(fds));
             messageBodyPart.setHeader(SignUpWorkflowConstants.CONTENT_ID, "<header>");
             messageBodyPart.setHeader(SignUpWorkflowConstants.CONTENT_TYPE, "image/png");
