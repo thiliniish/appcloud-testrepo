@@ -397,7 +397,6 @@ public class EmailManager implements Serializable {
         try {
             TenantManager tenantManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantManager();
             int tenantId = tenantManager.getTenantId(tenantDomain);
-            log.info("The tenant id is " + tenantId);
             String customizedEmailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "repository" +
                                                                File.separator + "tenants" + File.separator +
                                                                tenantId + File.separator + "customizations" +
@@ -406,7 +405,6 @@ public class EmailManager implements Serializable {
             File file = new File(customizedEmailFilesBaseDirectory);
             //The directory exists only if the emails are customized
             if (file.isDirectory()) {
-                log.info("customizated folder exists");
                 emailFilesBaseDirectory = customizedEmailFilesBaseDirectory + File.separator;
             } else {
                 //If emails are not customized set the base directory to default location
