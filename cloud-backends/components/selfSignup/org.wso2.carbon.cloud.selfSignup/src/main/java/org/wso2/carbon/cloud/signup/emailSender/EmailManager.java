@@ -76,7 +76,7 @@ public class EmailManager implements Serializable {
      *
      * @param recepient            is the user who will be receiving the email
      * @param senderEmail          is the user who is sending the email
-     * @param senderEmailSignature
+     * @param senderEmailSignature is the sender's signature
      * @param subject              is the subject of the email
      * @param messageBody          is the content being sent in the email
      * @param isCustomized         indicates whether sending a customized email or not
@@ -165,7 +165,7 @@ public class EmailManager implements Serializable {
     /**
      * Returns a customized message with an embedded image
      *
-     * @param messageBody
+     * @param messageBody is the message to be sent in email
      * @return MimeMultipart with embedded image
      * @throws MessagingException
      */
@@ -199,7 +199,7 @@ public class EmailManager implements Serializable {
     /**
      * This method configures the needed parameters to configure the email to be sent to the tenant.
      *
-     * @param tenantDomain
+     * @param tenantDomain     is the teant domain to which user is signing up
      * @param fromEmailAddress is the user who is sending the email
      * @param tenantEmail      is the email address of the tenant to whom the email needs to be sent to
      * @param user             is the name of the user who signed up to the tenant
@@ -213,8 +213,9 @@ public class EmailManager implements Serializable {
                                    .retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
             fromSignature =
                     ConfigFileReader.retrieveConfigAttribute("emailProperties", "fromSignature");
-            boolean isCustomizedEmail = setEmailMessage(SignUpWorkflowConstants.TENANT_EMAIL_PATH);
-            sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomizedEmail);
+            setEmailMessage(SignUpWorkflowConstants.TENANT_EMAIL_PATH);
+            boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.TENANT_EMAIL_PATH);
+            sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized);
             log.info("Sent email to notify the tenant " + tenantEmail + " of the user " + user +
                              " sign up to the tenant domain " + tenantDomain);
         } catch (WorkflowException e) {
@@ -229,9 +230,9 @@ public class EmailManager implements Serializable {
      * This method configures the needed parameters to configure the email to be sent to the user informing about the
      * status of the signup request
      *
-     * @param tenantDomain         is the tenant domain to which the user sighned up to
+     * @param tenantDomain is the tenant domain to which the user signed up
      * @param tenantContactEmail   is the contact email for tenant
-     * @param tenantEmailSignarure
+     * @param tenantEmailSignarure is the signature of tenant
      * @param userEmail            is the email of the user to whom the email needs to be sent.
      * @throws WorkflowException
      */
@@ -240,9 +241,10 @@ public class EmailManager implements Serializable {
         try {
             emailSubject =
                     ConfigFileReader.retrieveConfigAttribute("EmailSubjects", "USER_EMAIL_SUBJECT");
-            boolean isCustomizedEmail = setEmailMessage(SignUpWorkflowConstants.USER_EMAIL_PATH);
+            setEmailMessage(SignUpWorkflowConstants.USER_EMAIL_PATH);
+            boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.USER_EMAIL_PATH);
             sendEmail(userEmail, tenantContactEmail, tenantEmailSignarure, emailSubject,
-                      emailMessage, isCustomizedEmail);
+                      emailMessage, isCustomized);
             log.info("Sent email to notify the user " + userEmail +
                              " of the sign up status for the tenant " + tenantDomain);
         } catch (WorkflowException e) {
@@ -258,12 +260,12 @@ public class EmailManager implements Serializable {
      * This method configures the needed parameters to configure the email sent to the user if the signup request was
      * approved/rejected
      *
-     * @param tenantDomain
-     * @param tenantContactEmail
-     * @param tenantEmailSignarure
-     * @param userEmail
-     * @param emailFile
-     * @param status
+     * @param tenantDomain is the tenant domain to which the user signed up
+     * @param tenantContactEmail   is the contact email for tenant
+     * @param tenantEmailSignarure is the signature of tenant
+     * @param userEmail            is the email of the user to whom the email needs to be sent.
+     * @param emailFile            is the name of the file which includes the email
+     * @param status               is the status of the approval of signup
      * @throws WorkflowException
      */
     public void sendApprovalStatusEmail(String tenantDomain, String tenantContactEmail,
@@ -278,9 +280,9 @@ public class EmailManager implements Serializable {
                 emailSubject = ConfigFileReader.retrieveConfigAttribute("EmailSubjects",
                                                                         "SIGNUP_REQUEST_REJECTION_EMAIL");
             }
-            boolean isCustomizedEmail = setEmailMessage(emailFile);
-            sendEmail(userEmail, tenantContactEmail, tenantEmailSignarure, emailSubject,
-                      emailMessage, isCustomizedEmail);
+            setEmailMessage(emailFile);
+            boolean isCustomized = isCustomizedEmail(emailFile);
+            sendEmail(userEmail, tenantContactEmail, tenantEmailSignarure, emailSubject, emailMessage, isCustomized);
             log.info("Email sent to user " + userEmail + " of the tenant " + tenantDomain +
                              " regarding the sign up approval");
 
@@ -295,13 +297,23 @@ public class EmailManager implements Serializable {
 
     }
 
+    /**
+     *
+     *
+     * @param tenantDomain is the tenant domain to which the user signed up
+     * @param fromEmailAddress is the user who is sending the email
+     * @param tenantEmail      is the email address of the tenant to whom the email needs to be sent to
+     * @param user             is the user who has sent the sign up request
+     * @throws WorkflowException
+     */
     public void sendTenantNotificationEmail(String tenantDomain, String fromEmailAddress, String tenantEmail,
                                             String user) throws WorkflowException {
         try {
             emailSubject = ConfigFileReader.retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
             fromSignature = ConfigFileReader.retrieveConfigAttribute("emailProperties", "fromSignature");
-            boolean isCustomizedEmail = setEmailMessage(SignUpWorkflowConstants.TENANT_NOTIFICATION_EMAIL_PATH);
-            sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomizedEmail);
+            setEmailMessage(SignUpWorkflowConstants.TENANT_NOTIFICATION_EMAIL_PATH);
+            boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.TENANT_NOTIFICATION_EMAIL_PATH);
+            sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized);
             log.info("Sent email to notify the tenant " + tenantEmail + " of the user " + user +
                              " sign up to the tenant domain " + tenantDomain);
         } catch (WorkflowException e) {
@@ -391,20 +403,30 @@ public class EmailManager implements Serializable {
      * This method sets the email message and returns a flag indicating whether the email is customized
      *
      * @param emailPath is the path to email template
-     * @return boolean flag isCustomizedEmail
+     * @throws WorkflowException
      */
-    private boolean setEmailMessage(String emailPath) throws WorkflowException {
+    private void setEmailMessage(String emailPath) throws WorkflowException {
         setEmailFilesBaseDirectory();
-        String customEmailPath = emailFilesBaseDirectory + SignUpWorkflowConstants.CUSTOMIZED + emailPath;
-        File customEmailFile = new File(customEmailPath);
-        boolean isCustomizedEmail = customEmailFile.exists();
-        if (isCustomizedEmail) {
+        boolean isCustomized = isCustomizedEmail(emailPath);
+        if (isCustomized) {
+            String customEmailPath = emailFilesBaseDirectory + SignUpWorkflowConstants.CUSTOMIZED + emailPath;
             emailMessage = replaceValuesOfEmailContent(reader.fileReader(customEmailPath));
         } else {
             emailFile = emailFilesBaseDirectory + emailPath;
             emailMessage = replaceValuesOfEmailContent(reader.fileReader(emailFile));
         }
-        return isCustomizedEmail;
+    }
+
+    /**
+     * This method returns a flag indicating whether the email is customized
+     *
+     * @param emailPath is the path to email template
+     * @return boolean indicating whether email is customized
+     */
+    private boolean isCustomizedEmail(String emailPath) {
+        String customEmailPath = emailFilesBaseDirectory + SignUpWorkflowConstants.CUSTOMIZED + emailPath;
+        File customEmailFile = new File(customEmailPath);
+        return customEmailFile.exists();
     }
 
 }
