@@ -426,37 +426,17 @@ public class EmailManager implements Serializable {
     }
 
     /**
-     * This method checks if the emails are customized for the given tenant id
-     *
-     * @param tenantId
-     * @return
-     */
-    private boolean checkIfCustomizedLocation(int tenantId) {
-        boolean isCustomized = false;
-        String customEmailFilesDirectory = CarbonUtils.getCarbonHome() + File.separator + "repository" +
-                                                   File.separator + "tenants" + File.separator +
-                                                   tenantId + File.separator + "customizations" + File.separator +
-                                                   "emailTemplates";
-        File file = new File(customEmailFilesDirectory);
-        if (file.isDirectory()) {
-            isCustomized = true;
-        }
-        return isCustomized;
-    }
-
-    /**
      * Sets the base directory for the email files
      */
     private void setEmailFilesBaseDirectory() {
         int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId(true);
-        boolean isCustomizedLocation = checkIfCustomizedLocation(tenantId);
-
-        if (isCustomizedLocation) {
-            emailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "repository" +
-                                              File.separator + "tenants" + File.separator +
-                                              tenantId + File.separator + "customizations" + File.separator +
-                                              "emailTemplates" + File.separator;
-        } else {
+        emailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "repository" +
+                                                   File.separator + "tenants" + File.separator +
+                                                   tenantId + File.separator + "customizations" + File.separator +
+                                                   "emailTemplates";
+        File file = new File(emailFilesBaseDirectory);
+        //The directory exists only if the emails are customized
+        if (!file.isDirectory()) {
             //If emails are not customized set the base directory to default location
             emailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "resources" +
                                               File.separator + "signUpConfig" + File.separator +
