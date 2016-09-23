@@ -247,7 +247,11 @@ function updatePendingUserTable(isBasicPageLoad) {
                 }
             }
             if (isBasicPageLoad && recordCount > 0) {
-                $('#invitationCount').text(recordCount);
+                if (recordCount == 1){
+                    $('#invitationCount').text(recordCount + " invitation is pending... ");
+                } else{
+                    $('#invitationCount').text(recordCount + " invitations are pending... ");
+                }
                 $('#pendingInvitationsMessage').show();
             }
             if (!isBasicPageLoad) {
@@ -1302,9 +1306,7 @@ $('#revokeInvitation').click(function() {
                <div class="alert alert-info alert-pending" role="alert">
                   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                   <span class="alert-content">
-                  <i class="fa fa-check-circle-o"></i> <strong> <span id="invitationCount"></span>
-                  invitations are pending..
-                  .</strong> <a class="click_to_expand" href="#" onclick="createPendingUserTable
+                  <i class="fa fa-check-circle-o"></i> <strong id="invitationCount"></strong> <a class="click_to_expand" href="#" onclick="createPendingUserTable
                      (pendingUsersWithRoles);">Click here to view</a>
                   </span>
                </div>
