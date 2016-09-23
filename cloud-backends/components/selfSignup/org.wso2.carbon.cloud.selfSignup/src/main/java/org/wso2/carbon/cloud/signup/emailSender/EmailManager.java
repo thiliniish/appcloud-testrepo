@@ -20,9 +20,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 import org.wso2.carbon.cloud.signup.configReader.ConfigFileReader;
 import org.wso2.carbon.cloud.signup.constants.SignUpWorkflowConstants;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.cloud.signup.internal.ServiceReferenceHolder;
+import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.cloud.signup.fileReader.FileContentReader;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -83,7 +85,7 @@ public class EmailManager implements Serializable {
      * @throws WorkflowException
      */
     public void sendEmail(String recepient, String senderEmail, String senderEmailSignature,
-                          String subject, String messageBody, boolean isCustomized)
+                          String subject, String messageBody, boolean isCustomized, String tenantDomain)
             throws WorkflowException {
 
         //Retrieving the mail properties
@@ -119,7 +121,7 @@ public class EmailManager implements Serializable {
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recepient));
 
             if (isCustomized) {
-                MimeMultipart multipart = getCustomizedImage(messageBody);
+                MimeMultipart multipart = getCustomizedImage(messageBody, tenantDomain);
                 message.setContent(multipart);
             } else {
                 message.setContent(messageBody, "text/html");
@@ -169,7 +171,7 @@ public class EmailManager implements Serializable {
      * @return MimeMultipart with embedded image
      * @throws MessagingException
      */
-    private MimeMultipart getCustomizedImage(String messageBody) throws MessagingException {
+    private MimeMultipart getCustomizedImage(String messageBody, String tenantDomain) throws MessagingException {
         // This HTML mail has to 2 parts, the BODY and the embedded image
         MimeMultipart multipart = new MimeMultipart("related");
 
@@ -179,20 +181,26 @@ public class EmailManager implements Serializable {
         // add it
         multipart.addBodyPart(messageBodyPart);
 
-        // second part (the image)
-        messageBodyPart = new MimeBodyPart();
-        //Get image path specific to tenant
-        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId(true);
-        String imagePath = CarbonUtils.getCarbonHome() + File.separator + "repository" +
-                                   File.separator + "tenants" + File.separator +
-                                   tenantId + File.separator + "customizations" + File.separator + "emailTemplates" +
-                                   File.separator + "customLogo";
-        DataSource fds = new FileDataSource(imagePath);
-        messageBodyPart.setDataHandler(new DataHandler(fds));
-        messageBodyPart.setHeader(SignUpWorkflowConstants.CONTENT_ID, "<header>");
-        messageBodyPart.setHeader(SignUpWorkflowConstants.CONTENT_TYPE, "image/png");
-        // add it
-        multipart.addBodyPart(messageBodyPart);
+        try {
+            //Get image path specific to tenant
+            TenantManager tenantManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantManager();
+            int tenantId = tenantManager.getTenantId(tenantDomain);
+            String imagePath = CarbonUtils.getCarbonHome() + File.separator + "repository" +
+                                       File.separator + "tenants" + File.separator +
+                                       tenantId + File.separator + "customizations" + File.separator +
+                                       "emailTemplates" +
+                                       File.separator + "customLogo";
+            DataSource fds = new FileDataSource(imagePath);
+            // second part (the image)
+            messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setDataHandler(new DataHandler(fds));
+            messageBodyPart.setHeader(SignUpWorkflowConstants.CONTENT_ID, "<header>");
+            messageBodyPart.setHeader(SignUpWorkflowConstants.CONTENT_TYPE, "image/png");
+            // add it
+            multipart.addBodyPart(messageBodyPart);
+        } catch (UserStoreException e) {
+            log.error("Unable to get the customized email for tenant domain " + tenantDomain);
+        }
         return multipart;
     }
 
@@ -213,10 +221,11 @@ public class EmailManager implements Serializable {
                                    .retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
             fromSignature =
                     ConfigFileReader.retrieveConfigAttribute("emailProperties", "fromSignature");
-            setEmailFilesBaseDirectory();
+            setEmailFilesBaseDirectory(tenantDomain);
             boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.TENANT_EMAIL_PATH);
             setEmailMessage(SignUpWorkflowConstants.TENANT_EMAIL_PATH, isCustomized);
-            sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized);
+            sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized,
+                      tenantDomain);
             log.info("Sent email to notify the tenant " + tenantEmail + " of the user " + user +
                              " sign up to the tenant domain " + tenantDomain);
         } catch (WorkflowException e) {
@@ -242,11 +251,11 @@ public class EmailManager implements Serializable {
         try {
             emailSubject =
                     ConfigFileReader.retrieveConfigAttribute("EmailSubjects", "USER_EMAIL_SUBJECT");
-            setEmailFilesBaseDirectory();
+            setEmailFilesBaseDirectory(tenantDomain);
             boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.USER_EMAIL_PATH);
             setEmailMessage(SignUpWorkflowConstants.USER_EMAIL_PATH, isCustomized);
             sendEmail(userEmail, tenantContactEmail, tenantEmailSignarure, emailSubject,
-                      emailMessage, isCustomized);
+                      emailMessage, isCustomized, tenantDomain);
             log.info("Sent email to notify the user " + userEmail +
                              " of the sign up status for the tenant " + tenantDomain);
         } catch (WorkflowException e) {
@@ -282,10 +291,11 @@ public class EmailManager implements Serializable {
                 emailSubject = ConfigFileReader.retrieveConfigAttribute("EmailSubjects",
                                                                         "SIGNUP_REQUEST_REJECTION_EMAIL");
             }
-            setEmailFilesBaseDirectory();
+            setEmailFilesBaseDirectory(tenantDomain);
             boolean isCustomized = isCustomizedEmail(emailFile);
             setEmailMessage(emailFile, isCustomized);
-            sendEmail(userEmail, tenantContactEmail, tenantEmailSignarure, emailSubject, emailMessage, isCustomized);
+            sendEmail(userEmail, tenantContactEmail, tenantEmailSignarure, emailSubject, emailMessage, isCustomized,
+                      tenantDomain);
             log.info("Email sent to user " + userEmail + " of the tenant " + tenantDomain +
                              " regarding the sign up approval");
 
@@ -312,10 +322,11 @@ public class EmailManager implements Serializable {
         try {
             emailSubject = ConfigFileReader.retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
             fromSignature = ConfigFileReader.retrieveConfigAttribute("emailProperties", "fromSignature");
-            setEmailFilesBaseDirectory();
+            setEmailFilesBaseDirectory(tenantDomain);
             boolean isCustomized = isCustomizedEmail(SignUpWorkflowConstants.TENANT_NOTIFICATION_EMAIL_PATH);
             setEmailMessage(SignUpWorkflowConstants.TENANT_NOTIFICATION_EMAIL_PATH, isCustomized);
-            sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized);
+            sendEmail(tenantEmail, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized,
+                      tenantDomain);
             log.info("Sent email to notify the tenant " + tenantEmail + " of the user " + user +
                              " sign up to the tenant domain " + tenantDomain);
         } catch (WorkflowException e) {
@@ -382,19 +393,28 @@ public class EmailManager implements Serializable {
     /**
      * Sets the base directory for the email files
      */
-    private void setEmailFilesBaseDirectory() {
-        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId(true);
-        String customizedEmailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "repository" +
-                                                           File.separator + "tenants" + File.separator +
-                                                           tenantId + File.separator + "customizations" +
-                                                           File.separator +
-                                                           "emailTemplates";
-        File file = new File(customizedEmailFilesBaseDirectory);
-        //The directory exists only if the emails are customized
-        if (file.isDirectory()) {
-            emailFilesBaseDirectory = customizedEmailFilesBaseDirectory + File.separator;
-        } else {
-            //If emails are not customized set the base directory to default location
+    private void setEmailFilesBaseDirectory(String tenantDomain) {
+        try {
+            TenantManager tenantManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantManager();
+            int tenantId = tenantManager.getTenantId(tenantDomain);
+            String customizedEmailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "repository" +
+                                                               File.separator + "tenants" + File.separator +
+                                                               tenantId + File.separator + "customizations" +
+                                                               File.separator +
+                                                               "emailTemplates";
+            File file = new File(customizedEmailFilesBaseDirectory);
+            //The directory exists only if the emails are customized
+            if (file.isDirectory()) {
+                emailFilesBaseDirectory = customizedEmailFilesBaseDirectory + File.separator;
+            } else {
+                //If emails are not customized set the base directory to default location
+                emailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "resources" +
+                                                  File.separator + "signUpConfig" + File.separator +
+                                                  "emailFiles" + File.separator;
+            }
+        } catch (UserStoreException e) {
+            log.error("Unable to check whether emails are customized for tenant domain " + tenantDomain);
+            //Set the email file base directory to default location
             emailFilesBaseDirectory = CarbonUtils.getCarbonHome() + File.separator + "resources" +
                                               File.separator + "signUpConfig" + File.separator +
                                               "emailFiles" + File.separator;
