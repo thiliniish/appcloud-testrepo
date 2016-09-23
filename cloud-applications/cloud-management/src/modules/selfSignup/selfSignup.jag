@@ -63,7 +63,7 @@ var checkSignupConfiguredInRegistry = function (username) {
 
 //Method to write the tenant specific information to the registry files.
 var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, username,
-                                      tenantDomain, approvalStatus) {
+                                      tenantDomain, notifyAllAdmins, approvalStatus) {
     var message = "Error while populating the registry files for the user " + username;
     var registryUpdateResult = "error";
     var result = {
@@ -90,7 +90,8 @@ var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, u
             selfSignUpClass = selfSignUpApprovalClass;
         }
 
-        var workflowFileBodyResult = constructWorkflowExtensionFile(fromAddress, contactEmail, userPassword, username, selfSignUpClass);
+        var workflowFileBodyResult = constructWorkflowExtensionFile(fromAddress, contactEmail, userPassword,
+                username, notifyAllAdmins, selfSignUpClass);
         var workflowConfigMediaType = cloudConfig.selfSignUpProperties.configFileMediaTypes.workflowConfig;
         if(!workflowFileBodyResult.error) {
             var workflowFileAddedToRegistry = registryModule.updateRegistryFile(workflowFileRegPath, workflowFileBodyResult.fileContent, workflowConfigMediaType, tenantDomain, username);
@@ -123,7 +124,7 @@ var populateRegistryFiles = function (fromAddress, contactEmail, userPassword, u
 };
 
 //Method that constructs the tenant specific workflow extension file for the self signup feature
-var constructWorkflowExtensionFile = function (fromAddress, contactEmail, userPassword, username,
+var constructWorkflowExtensionFile = function (fromAddress, contactEmail, userPassword, username, notifyAllAdmins,
                                                selfSignUpClass) {
     var message = "Error while constructing the workflow extension file for the tenant " + username;
     var workflowExtensionFileContent = "";
@@ -151,6 +152,7 @@ var constructWorkflowExtensionFile = function (fromAddress, contactEmail, userPa
             signupProperties.fromAddress = fromAddress;
             signupProperties.contactEmail = contactEmail;
             signupProperties.callbackURL = callbackURL;
+            signupProperties.notifyAllAdmins = notifyAllAdmins;
 
             //Removing any previous configurations done for the self signup feature.
             if (workflowExtensionFileContent.UserSignUp.Property.toString() != "") {

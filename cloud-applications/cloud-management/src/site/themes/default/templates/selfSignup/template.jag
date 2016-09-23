@@ -13,7 +13,7 @@
         jagg.includeBlock("page/messages", null);
         %>
 
-  <script type="text/javascript">
+<script type="text/javascript" xmlns="http://www.w3.org/1999/html">
      function doSubmit() {
             var username = $("#username").attr('value');
             var publisherUrl = $("#publisherUrl").attr('value');
@@ -275,6 +275,15 @@
                <div class="col-sm-8">
                   <input type="text" name="contactEmail" id="contactEmail" placeholder="Your contact email address" value="" class="required"/>
                   </br>Subscribers will use this email to contact you
+               </div>
+            </div>
+            <div class="form-group">
+               <label for="notifyAllAdmins" class="col-sm-2 control-label">Notification Options:</label>
+               <div class="col-sm-8">
+               </br>
+                  <input type="checkbox" name="notifyAllAdmins" id="notifyAllAdmins" placeholder="Send
+                  notifications to all admins of this organization"
+                  value="" class="required"/> Send notifications to all admins of this organization
                </div>
             </div>
            <p>

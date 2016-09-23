@@ -61,6 +61,7 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
     private String uuid;
     private String userEmail;
     private String fromEmailAddress;
+    private boolean notifyAllAdmins;
 
     //creating common instances of classes
     EmailManager emailManager;
@@ -409,6 +410,14 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
     public void setContactEmail(String contactEmail) {
         this.contactEmail = contactEmail;
+    }
+
+    public boolean isNotifyAllAdmins() {
+        return notifyAllAdmins;
+    }
+
+    public void setNotifyAllAdmins(boolean notifyAllAdmins) {
+        this.notifyAllAdmins = notifyAllAdmins;
     }
 
 }
