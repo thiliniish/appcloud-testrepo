@@ -17,7 +17,6 @@
 
     <packaging>bundle</packaging>
 
-
     <repositories>
         <repository>
             <id>wso2-nexus</id>
@@ -96,7 +95,6 @@
             <version>1.6.2</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
@@ -108,19 +106,6 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
             <version>4.2.0</version>
             <scope>provided</scope>
-        </dependency>
-
-
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>javax.mail-api</artifactId>
-            <version>1.5.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
         </dependency>
 
         <dependency>
@@ -145,6 +130,7 @@
                         <Private-Package>org.wso2.carbon.cloud.signup.internal</Private-Package>
                         <Import-Package>
                             org.wso2.carbon.user.core.*; version="[4.4.1, 4.5.0)",
+                            org.wso2.carbon.user.api.*; version="1.0.1",
                             org.wso2.carbon.utils.multitenancy; version="4.4.3",
                             org.wso2.carbon.utils; version="4.4.3",
                             org.wso2.carbon.stratos.common.beans; version="4.4.8",
@@ -166,6 +152,7 @@
                             org.apache.axis2; version="1.6.1.wso2v16",
                             org.apache.axiom.om.util; version="1.2.11.wso2v9",
                             org.apache.axiom.om; version="1.2.11.wso2v9",
+                            javax.activation; version="${imp.pkg.version.javax.activation}",
                             javax.xml.stream; version="1.0.1",
                             javax.sql; version="0.0.0",
                             javax.naming; version="0.0.0",

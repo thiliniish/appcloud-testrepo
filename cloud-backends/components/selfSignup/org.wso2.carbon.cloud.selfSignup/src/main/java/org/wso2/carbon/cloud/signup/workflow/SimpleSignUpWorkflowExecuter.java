@@ -132,7 +132,7 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
                                                     getUserEmail());
 
             emailManager
-                    .configureTenantNotificationEmail(tenantDomain, fromEmailAddress, tenantEmail,
+                    .sendTenantNotificationEmail(tenantDomain, fromEmailAddress, tenantEmail,
                                                       userEmail);
 
             LOGGER.info("Workflow execution completed for the tenant domain " + tenantDomain +
@@ -260,7 +260,7 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
             LOGGER.info("Sign Up Request has been approved for the user " + userEmail);
 
             emailManager
-                    .configureApprovalStatusEmail(tenantDomain, getContactEmail(), getFromAddress(),
+                    .sendApprovalStatusEmail(tenantDomain, getContactEmail(), getFromAddress(),
                                                   userEmail,
                                                   SignUpWorkflowConstants.TENANT_APPROVAL_EMAIL_PATH,
                                                   "approved");
