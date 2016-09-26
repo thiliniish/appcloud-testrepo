@@ -134,7 +134,7 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
             emailManager
                     .sendTenantNotificationEmail(tenantDomain, fromEmailAddress, tenantEmail,
-                                                      userEmail);
+                                                      userEmail, notifyAllAdmins);
 
             LOGGER.info("Workflow execution completed for the tenant domain " + tenantDomain +
                         " for the user " + userEmail);

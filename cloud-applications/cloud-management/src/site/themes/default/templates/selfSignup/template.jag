@@ -21,6 +21,7 @@
             var userPassword = $("#password").attr('value');
             var fromAddress= $("#fromAddress").attr('value');
             var contactEmail = $("#contactEmail").attr('value');
+            var notifyAllAdmins = $("notifyAllAdmins").is(':checked');
             var signupType = $('input[name="signupType"]:checked').val();
             document.getElementById("spinner").style.display = '';
             disableFormAttributes();
@@ -31,6 +32,7 @@
                       userPassword:userPassword,
                       fromAddress:fromAddress,
                       contactEmail:contactEmail,
+                      notifyAllAdmins:notifyAllAdmins,
                       signupType:signupType
                   },
                   function (result) {

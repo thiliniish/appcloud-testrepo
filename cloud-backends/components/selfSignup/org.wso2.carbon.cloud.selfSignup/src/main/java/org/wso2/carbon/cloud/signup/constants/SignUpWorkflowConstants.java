@@ -33,5 +33,5 @@ public class SignUpWorkflowConstants {
     public static final String CUSTOMIZED = "customized_";
     public static final String CONTENT_ID = "Content-ID";
     public static final String CONTENT_TYPE = "Content-Type";
-
+    public static final String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
 }

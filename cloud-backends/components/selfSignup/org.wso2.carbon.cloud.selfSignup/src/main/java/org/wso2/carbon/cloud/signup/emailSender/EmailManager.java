@@ -25,6 +25,7 @@ import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.cloud.signup.fileReader.FileContentReader;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.api.UserStoreManager;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -49,6 +50,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.List;
+import java.util.ArrayList;
+
 
 /**
  * The EmailSender class contains the configurations and sends the emails to the relevant users.
@@ -211,11 +215,12 @@ public class EmailManager implements Serializable {
      * @param fromEmailAddress is the user who is sending the email
      * @param tenantEmail      is the email address of the tenant to whom the email needs to be sent to
      * @param user             is the name of the user who signed up to the tenant
+     * @param notifyAllAdmins  is the flag indicating whether or not to inform admin users
      * @throws WorkflowExceptionreplaceValuesOfEmailContent
      */
     public void sendTenantEmail(String tenantDomain, String fromEmailAddress,
-                                String tenantEmail, String user)
-            throws WorkflowException {
+                                String tenantEmail, String user, boolean notifyAllAdmins)
+            throws WorkflowException{
         try {
             emailSubject = ConfigFileReader
                                    .retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
@@ -228,12 +233,30 @@ public class EmailManager implements Serializable {
                       tenantDomain);
             log.info("Sent email to notify the tenant " + tenantEmail + " of the user " + user +
                              " sign up to the tenant domain " + tenantDomain);
+            if (notifyAllAdmins) {
+                List<String> adminUserEmails = getAdminUsersofTenant(tenantDomain);
+                for(int i=0;i<adminUserEmails.size(); i++){
+                    String emailAddress = adminUserEmails.get(i);
+                    if(emailAddress!= null && !emailAddress.equals(tenantEmail)) {
+                        sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage,
+                                  isCustomized,
+                                  tenantDomain);
+                        log.info("Sent email to notify the admin user "+ emailAddress+ " of the user " + user +
+                                         " sign up to the tenant domain " + tenantDomain);
+                    }
+                }
+            }
         } catch (WorkflowException e) {
             errorMessage = "Could not configure the email for the tenant " + tenantDomain +
                                    "for the self signed up user " + signedUpUser;
             log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
-        }
+        } catch (UserStoreException e) {
+        errorMessage = "Error occurred while getting admin users of the tenant " + tenantDomain +
+                               "for the self signed up user " + signedUpUser;
+        log.error(errorMessage, e);
+        throw new WorkflowException(errorMessage, e);
+    }
     }
 
     /**
@@ -315,10 +338,11 @@ public class EmailManager implements Serializable {
      * @param fromEmailAddress is the user who is sending the email
      * @param tenantEmail      is the email address of the tenant to whom the email needs to be sent to
      * @param user             is the user who has sent the sign up request
+     * @param notifyAllAdmins  is the flag indicating whether or not to inform admin users
      * @throws WorkflowException
      */
     public void sendTenantNotificationEmail(String tenantDomain, String fromEmailAddress, String tenantEmail,
-                                            String user) throws WorkflowException {
+                                            String user, boolean notifyAllAdmins) throws WorkflowException {
         try {
             emailSubject = ConfigFileReader.retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
             fromSignature = ConfigFileReader.retrieveConfigAttribute("emailProperties", "fromSignature");
@@ -329,8 +353,25 @@ public class EmailManager implements Serializable {
                       tenantDomain);
             log.info("Sent email to notify the tenant " + tenantEmail + " of the user " + user +
                              " sign up to the tenant domain " + tenantDomain);
+            if (notifyAllAdmins) {
+                List<String> adminUserEmails = getAdminUsersofTenant(tenantDomain);
+                for(int i=0;i<adminUserEmails.size(); i++){
+                    String emailAddress = adminUserEmails.get(i);
+                    if(emailAddress!= null && !emailAddress.equals(tenantEmail)) {
+                        sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized,
+                                  tenantDomain);
+                        log.info("Sent email to notify the admin user "+ emailAddress+ " of the user " + user +
+                                         " sign up to the tenant domain " + tenantDomain);
+                    }
+                }
+            }
         } catch (WorkflowException e) {
             errorMessage = "Could not configure the email for the tenant " + tenantDomain +
+                                   "for the self signed up user " + signedUpUser;
+            log.error(errorMessage, e);
+            throw new WorkflowException(errorMessage, e);
+        } catch (UserStoreException e) {
+            errorMessage = "Error occurred while getting admin users of the tenant " + tenantDomain +
                                    "for the self signed up user " + signedUpUser;
             log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
@@ -447,6 +488,26 @@ public class EmailManager implements Serializable {
         String customEmailPath = emailFilesBaseDirectory + SignUpWorkflowConstants.CUSTOMIZED + emailPath;
         File customEmailFile = new File(customEmailPath);
         return customEmailFile.exists();
+    }
+
+    public List<String> getAdminUsersofTenant(String tenantDomain) throws UserStoreException {
+        TenantManager tenantManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantManager();
+        int tenantId = tenantManager.getTenantId(tenantDomain);
+        List<String> adminUserEmails = new ArrayList<String> ();
+
+        UserStoreManager userStoreManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantUserRealm(
+                tenantId).getUserStoreManager();
+        String[] users = userStoreManager.getUserListOfRole("admin");
+        for (String user : users) {
+            log.info("user: " + user);
+            String[] claims = { SignUpWorkflowConstants.EMAIL_CLAIM_URI };
+            if (userStoreManager.isExistingUser(user)) {
+                Map<String, String> userClaims = userStoreManager.getUserClaimValues(user, claims, null);
+                String email = userClaims.get(SignUpWorkflowConstants.EMAIL_CLAIM_URI);
+                adminUserEmails.add(email);
+            }
+        }
+        return adminUserEmails;
     }
 
 }

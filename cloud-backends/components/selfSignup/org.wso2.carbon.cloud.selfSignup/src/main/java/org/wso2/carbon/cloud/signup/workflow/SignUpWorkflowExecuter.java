@@ -91,6 +91,9 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
         //initializing the Util class
         utilObject = new Util();
+
+        //set default value of notifyAllAdmins to false
+        this.notifyAllAdmins = false;
     }
 
     /**
@@ -205,7 +208,7 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
             //configuring the properties and content needed for the email sent to the tenant
             emailManager
-                    .sendTenantEmail(tenantDomain, fromEmailAddress, tenantEmail, userEmail);
+                    .sendTenantEmail(tenantDomain, fromEmailAddress, tenantEmail, userEmail, notifyAllAdmins);
 
             //configuring the properties and content needed for the email sent to the user regarding the status of the approval.
             emailManager.sendUserNotificationEmail(tenantDomain, getContactEmail(),
