@@ -75,6 +75,8 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
         //Instantiating the Util class
         utilObject = new Util();
+        //set default value of notifyAllAdmins to false
+        this.notifyAllAdmins = false;
     }
 
     /**

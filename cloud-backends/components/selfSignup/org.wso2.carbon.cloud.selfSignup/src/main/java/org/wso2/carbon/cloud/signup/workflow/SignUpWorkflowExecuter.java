@@ -78,7 +78,6 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
     private String fromEmailAddress;
 
     private boolean notifyAllAdmins;
-
     //creating common instances of classes
     EmailManager emailManager;
     Util utilObject;
@@ -91,7 +90,6 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
         //initializing the Util class
         utilObject = new Util();
-
         //set default value of notifyAllAdmins to false
         this.notifyAllAdmins = false;
     }

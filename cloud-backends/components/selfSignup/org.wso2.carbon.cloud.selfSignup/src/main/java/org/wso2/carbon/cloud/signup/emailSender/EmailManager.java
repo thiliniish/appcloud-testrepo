@@ -53,7 +53,6 @@ import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 
-
 /**
  * The EmailSender class contains the configurations and sends the emails to the relevant users.
  */
@@ -220,7 +219,7 @@ public class EmailManager implements Serializable {
      */
     public void sendTenantEmail(String tenantDomain, String fromEmailAddress,
                                 String tenantEmail, String user, boolean notifyAllAdmins)
-            throws WorkflowException{
+            throws WorkflowException {
         try {
             emailSubject = ConfigFileReader
                                    .retrieveConfigAttribute("EmailSubjects", "TENANT_EMAIL_SUBJECT");
@@ -235,13 +234,13 @@ public class EmailManager implements Serializable {
                              " sign up to the tenant domain " + tenantDomain);
             if (notifyAllAdmins) {
                 List<String> adminUserEmails = getAdminUsersofTenant(tenantDomain);
-                for(int i=0;i<adminUserEmails.size(); i++){
+                for (int i = 0; i < adminUserEmails.size(); i++) {
                     String emailAddress = adminUserEmails.get(i);
-                    if(emailAddress!= null && !emailAddress.equals(tenantEmail)) {
+                    if (emailAddress != null && !emailAddress.equals(tenantEmail)) {
                         sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage,
                                   isCustomized,
                                   tenantDomain);
-                        log.info("Sent email to notify the admin user "+ emailAddress+ " of the user " + user +
+                        log.info("Sent email to notify the admin user " + emailAddress + " of the user " + user +
                                          " sign up to the tenant domain " + tenantDomain);
                     }
                 }
@@ -252,11 +251,11 @@ public class EmailManager implements Serializable {
             log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
         } catch (UserStoreException e) {
-        errorMessage = "Error occurred while getting admin users of the tenant " + tenantDomain +
-                               "for the self signed up user " + signedUpUser;
-        log.error(errorMessage, e);
-        throw new WorkflowException(errorMessage, e);
-    }
+            errorMessage = "Error occurred while getting admin users of the tenant " + tenantDomain +
+                                   "for the self signed up user " + signedUpUser;
+            log.error(errorMessage, e);
+            throw new WorkflowException(errorMessage, e);
+        }
     }
 
     /**
@@ -355,12 +354,13 @@ public class EmailManager implements Serializable {
                              " sign up to the tenant domain " + tenantDomain);
             if (notifyAllAdmins) {
                 List<String> adminUserEmails = getAdminUsersofTenant(tenantDomain);
-                for(int i=0;i<adminUserEmails.size(); i++){
+                for (int i = 0; i < adminUserEmails.size(); i++) {
                     String emailAddress = adminUserEmails.get(i);
-                    if(emailAddress!= null && !emailAddress.equals(tenantEmail)) {
-                        sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage, isCustomized,
+                    if (emailAddress != null && !emailAddress.equals(tenantEmail)) {
+                        sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage,
+                                  isCustomized,
                                   tenantDomain);
-                        log.info("Sent email to notify the admin user "+ emailAddress+ " of the user " + user +
+                        log.info("Sent email to notify the admin user " + emailAddress + " of the user " + user +
                                          " sign up to the tenant domain " + tenantDomain);
                     }
                 }
@@ -493,7 +493,7 @@ public class EmailManager implements Serializable {
     public List<String> getAdminUsersofTenant(String tenantDomain) throws UserStoreException {
         TenantManager tenantManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantManager();
         int tenantId = tenantManager.getTenantId(tenantDomain);
-        List<String> adminUserEmails = new ArrayList<String> ();
+        List<String> adminUserEmails = new ArrayList<String>();
 
         UserStoreManager userStoreManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantUserRealm(
                 tenantId).getUserStoreManager();
