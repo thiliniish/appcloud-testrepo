@@ -92,6 +92,7 @@
             $('#password').attr('disabled',true);
             $('#fromAddress').attr('disabled',true);
             $('#contactEmail').attr('disabled',true);
+            $('input[name="notifyAllAdmins"]').attr("disabled",true);
             $('input[name="signupType"]').attr("disabled",true);
         }
 
@@ -282,9 +283,7 @@
             <div class="form-group">
                <label for="notifyAllAdmins" class="col-sm-2 control-label">Notification options:</label>
                <div class="col-sm-8" style="padding-top: 6px">
-                  <input type="checkbox" name="notifyAllAdmins" id="notifyAllAdmins" placeholder="Send
-                  notifications to all admins of this organization"
-                  value="" class="required"/> Send notifications to all admins
+                  <input type="checkbox" name="notifyAllAdmins" id="notifyAllAdmins" > Send notifications to all admins
                </div>
             </div>
            <p>

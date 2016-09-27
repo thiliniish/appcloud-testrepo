@@ -16,9 +16,6 @@ include("/jagg/constants.jag");
     var userPassword = request.getParameter("userPassword");
     var contactEmail = request.getParameter("contactEmail");
     var notifyAllAdmins = request.getParameter("notifyAllAdmins");
-    if(notifyAllAdmins == "") {
-        notifyAllAdmins = false;
-    }
     var signupType = request.getParameter("signupType");
     var site = require("/site/conf/site.json");
     var log = new Log("site.blocks.selfSignup.ajax.configure.jag");
