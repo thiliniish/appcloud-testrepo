@@ -820,7 +820,7 @@ var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
 			}
 		}
 	}
-	return currentPlanLevel < newPlanLevel;
+	return currentPlanLevel <= newPlanLevel;
 };
 
 /*
