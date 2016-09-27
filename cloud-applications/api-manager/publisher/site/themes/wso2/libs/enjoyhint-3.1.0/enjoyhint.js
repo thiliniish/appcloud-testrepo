@@ -387,6 +387,18 @@ var EnjoyHint = function (_options) {
                     localStorage.setItem("interactiveTutorialEnabled", false);
                     that.hide();
                     that.options.onSkipClick();
+                    // Show deploy sample button when closing the tutorial
+                    $('#deploy_sample1').show();
+                });
+
+                // close tutorial for escape key press
+                $(document).keyup(function(e) {
+                    if (e.keyCode == 27) { // escape key maps to keycode `27`
+                        localStorage.setItem("interactiveTutorialEnabled", false);
+                        that.hide();
+                        that.options.onSkipClick();
+                        $('#deploy_sample1').show();
+                    }
                 });
 
                 that.$canvas.mousedown(function (e) {

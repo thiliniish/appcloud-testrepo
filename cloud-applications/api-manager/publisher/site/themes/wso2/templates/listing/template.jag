@@ -2,6 +2,9 @@
 <%
     <!--Add Enjoyhint configs-->
     include("enjoyhint-config-links.jag");
+    include("/jagg/cloud.jag");
+    var isTrailExpired = billing.isTrailExpired();
+
 %>
     <div id="listing">
         <div id="listing-title" class="page-header">
@@ -48,15 +51,43 @@
 
        }
 
+        var isTrailExpired = <%=isTrailExpired%>;
+        var intervalId;
+        function runTutorialHints() {
+            intervalId = setInterval(function() {
+                runEnjoyHint_tutorial_Script()
+            }, 1000);
+        }
+
+        function runEnjoyHint_tutorial_Script() {
+            if (isEnjoyHintEnabled()) {
+                if (!isTrailExpired) {
+                    stopTrialExpiredMessageHint();
+                    runEnjoyHintScript(enjoyhint_instance, item_listing_script_data);
+                }
+            }
+        }
+
+        function stopTrialExpiredMessageHint() {
+            clearInterval(intervalId);
+        }
+
        var apis = <%=outputs.apis%>;
+
        if (null != apis) {
-        // Get the api count
-        var apiCount = apis.length;
+            // Get the api count
+            var apiCount = apis.length;
             // Check whether no APIs exists
             if (apiCount == 0) {
                 localStorage.setItem("interactiveTutorialEnabled", true);
                 if (isEnjoyHintEnabled()) {
-                    runEnjoyHintScript(enjoyhint_instance, item_listing_script_data);
+                    $('#deploy_sample1').hide();
+                    if (isTrailExpired) {
+                        runEnjoyHintScript(enjoyhint_instance, trial_expired_script_data);
+                        runTutorialHints();
+                    } else {
+                        runEnjoyHintScript(enjoyhint_instance, item_listing_script_data);
+                    }
                 }
             } else if (apiCount > 0) {
                 // Check whether the user enabled the tutorial by clicking Documentation sub-menu
@@ -75,7 +106,12 @@
                         if (apiName.toLowerCase() === "worldbank") {
                             localStorage.setItem("worldBankApiExist", true);
                             if (isEnjoyHintEnabled()) {
-                                runEnjoyHintScript(enjoyhint_instance, item_listing_with_worldbank_script_data);
+                                if (isTrailExpired) {
+                                    runEnjoyHintScript(enjoyhint_instance, trial_expired_script_data);
+                                    runTutorialHints();
+                                } else {
+                                    runEnjoyHintScript(enjoyhint_instance, item_listing_with_worldbank_script_data);
+                                }
                                 break;
                             }
                         }
@@ -84,12 +120,17 @@
                     var worldBankApiExist = localStorage.getItem("worldBankApiExist");
                     if (null != worldBankApiExist && worldBankApiExist === "false") {
                         if (isEnjoyHintEnabled()) {
-                            runEnjoyHintScript(enjoyhint_instance, item_listing_with_apis_script_data);
+                            if (isTrailExpired) {
+                                runEnjoyHintScript(enjoyhint_instance, trial_expired_script_data);
+                                runTutorialHints();
+                            } else {
+                                runEnjoyHintScript(enjoyhint_instance, item_listing_with_apis_script_data);
+                            }
                         }
                     }
                 }
             }
-        }
+       }
 
        });
 
