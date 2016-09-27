@@ -280,12 +280,11 @@
                </div>
             </div>
             <div class="form-group">
-               <label for="notifyAllAdmins" class="col-sm-2 control-label">Notification Options:</label>
-               <div class="col-sm-8">
-               </br>
+               <label for="notifyAllAdmins" class="col-sm-2 control-label">Notification options:</label>
+               <div class="col-sm-8" style="padding-top: 6px">
                   <input type="checkbox" name="notifyAllAdmins" id="notifyAllAdmins" placeholder="Send
                   notifications to all admins of this organization"
-                  value="" class="required"/> Send notifications to all admins of this organization
+                  value="" class="required"/> Send notifications to all admins
                </div>
             </div>
            <p>
@@ -294,8 +293,7 @@
             </br>
             <div class="form-group">
                <label for="signupType" class="col-sm-2 control-label">Approval process:</label>
-               <div class="col-sm-8">
-                  </br>
+               <div class="col-sm-8" style="padding-top: 6px">
                   <input type="radio" name="signupType" id="signupApproved" value="approved" checked="checked" /> Send sign-up requests to me for approval </br>
                   <input type="radio" name="signupType" id="signupNotApproved" value="notApproved" /> Automatically approve new members on their request
                </div>
