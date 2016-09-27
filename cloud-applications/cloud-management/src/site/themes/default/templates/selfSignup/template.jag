@@ -13,7 +13,7 @@
         jagg.includeBlock("page/messages", null);
         %>
 
- <script type="text/javascript" >
+  <script type="text/javascript">
      function doSubmit() {
             var username = $("#username").attr('value');
             var publisherUrl = $("#publisherUrl").attr('value');
