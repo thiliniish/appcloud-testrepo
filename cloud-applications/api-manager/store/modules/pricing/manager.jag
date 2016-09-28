@@ -505,98 +505,10 @@ var getRatePlanInfo = function (tenantDomain, workflowRefData) {
     }
 };
 
-var getUsage = function (api, appName, startDate, endDate) {
-    var username = jagg.getUser().username;
-    var tenantDomain = multiTenantUtils.getTenantDomain(username);
-    if (api != null) {
-        var values = api.split(":v");
-        var apiName = values[0];
-        var version = (apiName == DEAULT_API_NAME) ? "*" : values[1];
-        var apiName = (apiName == DEAULT_API_NAME) ? "*" : apiName;
-        var appName = (appName == DEAULT_APP_NAME) ? "*" : appName;
-        try {
-            var usageData = JSON.parse(apiMonService.getTenantMonetizationUsageDataForGivenDateRange(tenantDomain,
-                    username, apiName, version, appName, startDate, endDate));
-            return {
-                error: false,
-                message: usageData,
-                statusCode: 200
-            };
-        } catch (e) {
-            log.error("Error while getting the usage for : " + tenantDomain);
-            log.error(e);
-            return errorObj;
-        }
-    } else {
-        var msg = "API name cannot be null when retrieving the usage";
-        return {
-            error: true,
-            message: msg,
-            statusCode: 500
-        };
-    }
-};
-
-var getAPIs = function () {
-    var username = jagg.getUser().username;
-    try {
-        var apiData = JSON.parse(apiMonService.getUserAPIs(username));
-        var apis = [];
-        apis.push(DEAULT_API_NAME);
-        // if there are multiple entries data services will return an array of entries
-        if (apiData.Entries.Entry instanceof Array) {
-            for (var x = 0; x < apis.Entries.Entry.length; x++) {
-                apis.push(apiData.Entries.Entry[x].ApiVersion);
-            }
-        } else {
-            //it will return an entry object without an array
-            apis.push(apiData.Entries.Entry.ApiVersion);
-        }
-
-        return {
-            error: false,
-            message: apis,
-            statusCode: 200
-        };
-    } catch (e) {
-        log.error("Error while getting the apis for : " + username);
-        log.error(e);
-        return errorObj;
-    }
-};
-
-var getApplications = function (api) {
-    var username = jagg.getUser().username;
-    try {
-        var appData;
-        appData = JSON.parse(apiMonService.getUserAPIApplications(username, api));
-        var apps = [];
-        apps.push(DEAULT_APP_NAME);
-        // if there are multiple entries data services will return an array of entries
-        if (appData.Entries.Entry instanceof Array) {
-            for (var x = 0; x < appData.Entries.Entry.length; x++) {
-                apps.push(appData.Entries.Entry[x].applicationName);
-            }
-        } else {
-            apps.push(appData.Entries.Entry.applicationName);
-        }
-        return {
-            error: false,
-            message: apps,
-            statusCode: 200
-        };
-    } catch (e) {
-        log.error("Error while getting the apis for : " + username);
-        log.error(e);
-        return errorObj;
-    }
-};
-
 var getAllProductPlansForTenant = function (tenantDomain) {
     try {
-        var result = apiMonService.getTiers(tenantDomain);
-        var tierList = JSON.parse(result);
-
+        var result = apiMonService.getTiersOfTenant(tenantDomain);
+        var tierList = JSON.parse(result)["list"];
         var result = apiMonService.getRatePlansInfo(tenantDomain);
         if (log.isDebugEnabled()) {
             log.debug("getAllProductPlansForTenant : " + stringify(result));
@@ -604,10 +516,8 @@ var getAllProductPlansForTenant = function (tenantDomain) {
         var ratePlanList = JSON.parse(result);
         for (var index in ratePlanList){
             for (var tiersIndex in tierList) {
-                if(tierList[tiersIndex].tierName == ratePlanList[index].RatePlanName) {
-                    ratePlanList[index].RequestCount = tierList[tiersIndex].maximumCount;
-                    var seconds = (parseInt(tierList[tiersIndex].unitTime)/ 1000).toFixed(0);
-                    ratePlanList[index].UnitTime =  seconds;
+                if(tierList[tiersIndex].policyName == ratePlanList[index].RatePlanName) {
+                    ratePlanList[index].defaultLimit = tierList[tiersIndex].defaultLimit;
                     break;
                 }
             }
