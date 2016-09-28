@@ -389,6 +389,15 @@ var EnjoyHint = function (_options) {
                     that.options.onSkipClick();
                 });
 
+                // close tutorial for escape key press
+                $(document).keyup(function(e) {
+                    if (e.keyCode == 27) { // escape key maps to keycode `27`
+                        localStorage.setItem("interactiveTutorialEnabled", false);
+                        that.hide();
+                        that.options.onSkipClick();
+                    }
+                });
+
                 that.$canvas.mousedown(function (e) {
                     $('canvas').css({left: '4000px'});
 

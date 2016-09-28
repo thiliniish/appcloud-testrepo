@@ -16,6 +16,13 @@
  * under the License.
  */
 
+var trial_expired_script_data = [
+    {
+        'click .modal-content': 'Your trial unfortunately expired. Please upgrade to a paid plan or request extension.',
+        'showSkip' : false
+    }
+];
+
 var item_listing_with_worldbank_script_data = [
     {
         'click #listing-title': 'Welcome to WSO2 API Cloud. In this tutorial, we will lead you through' +
