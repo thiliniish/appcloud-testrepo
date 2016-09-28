@@ -1,0 +1,58 @@
+<% jagg.template("pricing/menu-info", function (inputs, outputs, jagg) {
+    var results;
+    if (!outputs.error) {
+        results = outputs.result;
+    }
+%>
+<div class="title-section">
+   <h2>Pricing</h2>
+</div>
+<div class="page-content">
+<p>You have to choose a billing plan when subscribing to a commercial api in the api-store. Following are the available plans for you.</p>
+
+<div class="inner-wrapper">
+	<div class="right-pane">
+		<div class="row store-pricing-menu">
+			<div>
+				<% for (i = 0; i < results.length; i++) { %>
+				<div class="tiny selected">
+					<div class="pricing-table-header-tiny">
+						<h3 id="plan-name"><%=results[i].RatePlanName%></h3>
+						<div class="price">
+							<span class="col-md-2">$</span>
+							<h2 class="col-md-0" id="plan-rental"><%=results[i].MonthlyRental%></h2>
+							<div class="col-md-12">
+								<p>per month</p>
+							</div>
+							<div class="clearfix"></div>
+						</div>
+					</div>
+					<div class="pricing-table-features">
+						<p id="plan-api-calls-day"><%=results[i].MaxDailyUsage%> API calls per day </p>
+						<p id="plan-calls-above-plan">Calls above plan
+							$<%=results[i].OverUsageUnitsPrice%>/<%=results[i].OverUsageUnits%></p>
+						<% var limitInfo = results[i]["defaultLimit"];
+							if (limitInfo != null) {
+								if(limitInfo.type == 'RequestCountLimit'){ %>
+									<p id="plan-api-calls-day">Allows <%=limitInfo.requestCount%>
+							         request(s) per <%=limitInfo.unitTime%> <%=limitInfo.timeUnit%>(s)</p>
+
+						<%		} else if(limitInfo.type == 'BandwidthLimit'){ %>
+										<p id="plan-api-calls-day">Allows <%=limitInfo.dataAmount%>
+							             <%=limitInfo.dataUnit%>(s) per <%=limitInfo.unitTime%> <%=limitInfo.timeUnit%>(s)</p>
+						<%		}%>
+						<% } %>
+					</div>
+				</div>
+				<% } %>
+			</div>
+		</div>
+	</div>
+	<div class="clearfix"></div>
+	<div id="push"></div>
+</div>
+</div>
+
+
+<%
+}); %>
