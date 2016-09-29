@@ -32,7 +32,7 @@
     <version>1.0.0</version>
     <name>Cloud Monitoring</name>
     <modules>
-        <module>heartbeat-monitor</module>
+        <!--<module>heartbeat-monitor</module>-->
     </modules>
 </project>
 
