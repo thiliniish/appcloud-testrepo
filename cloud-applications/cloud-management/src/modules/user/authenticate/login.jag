@@ -33,7 +33,6 @@ function login(userName, password){
 
         if (result.indexOf("false") === -1 && result.indexOf("faultstring") === -1) {
             jagg.setUser(userName);
-            createTenantInfoObject();
             var cookie = (xhr.getAllResponseHeaders());
             var cookieString = cookie.split(";")[0].split(":")[1];
             if(cookieString!=null){
@@ -43,7 +42,8 @@ function login(userName, password){
             finalResult.message="User successfully logged in";
             finalResult.username=userName;
             finalResult.cookie=cookieString;
-            var tenantDomain = modManager.getTenantDomain();
+            var tenantDomain = modManager.getTenantDomain(userName);
+            createTenantInfoObject();
             session.put("LOGGED_IN_USER",userName);
             session.put("LOGGED_IN_USER_EMAIL", jagg.module("manager").getEmailOfUser(userName));
             session.put("LOGGED_IN_USER_TENANT_DOMAIN", tenantDomain);

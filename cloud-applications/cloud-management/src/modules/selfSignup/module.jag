@@ -13,8 +13,8 @@ jagg.module("selfSignup", {
     constructSignupConfigFile: function () {
         return jagg.require(jagg.getModulesDir() + "selfSignup/selfSignup.jag").constructSignupConfigFile.apply(this, arguments);
     },
-    addSelfSignupSubmissionToRightwave: function () {
-        return jagg.require(jagg.getModulesDir() + "selfSignup/selfSignup.jag").addSelfSignupSubmissionToRightwave.apply(this, arguments);
+    addSelfSignupSubmissionToMailCampaign: function () {
+        return jagg.require(jagg.getModulesDir() + "selfSignup/selfSignup.jag").addSelfSignupSubmissionToMailCampaign.apply(this, arguments);
     }
 });
 %>

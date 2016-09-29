@@ -30,4 +30,9 @@
     <modules>
         <module>user-manager/org.wso2.carbon.cloud.user.manager.stub</module>
     </modules>
+
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
+    </properties>
 </project>
