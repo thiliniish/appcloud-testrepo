@@ -82,7 +82,7 @@
 	                    <% if (!isMonetizationEnabledObj.error && isMonetizationEnabledObj.monetizationEnabled){ %>
 	                            <li class="red"><a title="Manage Account" href="<%= jagg.urlTenanted("/site/pages/pricing/account-summary.jag")%>" class="<%= "link-myAcc" + (user ? "" : " need-login") %>"><i class="fw fw-document icon"></i><span class="left-menu-item"><%= i18n.localize("Manage Account")%></span></a></li>
 	                    <%} %>
-	                    <%} else if (inputs.pagePath == "pricing/account/info" || inputs.pagePath == "pricing/account/invoice" || inputs.pagePath == "pricing/payment-method/info" || inputs.pagePath == "pricing/payment-method/add" || inputs.pagePath == "pricing/account/update" || inputs.pagePath == "pricing/payment-confirm") { %>
+	                    <%} else if (inputs.pagePath == "pricing/account/info" || inputs.pagePath == "pricing/account/invoice" || inputs.pagePath == "pricing/payment-method/info" || inputs.pagePath == "pricing/payment-method/add" || inputs.pagePath == "pricing/account/update" || inputs.pagePath == "pricing/payment-confirm" || inputs.pagePath == "pricing/account/create") { %>
                            <% if (!isMonetizationEnabledObj.error && isMonetizationEnabledObj.monetizationEnabled){  %>
                            	     <li class="red active"><a title="Manage Account" href="<%= jagg.urlTenanted("/site/pages/pricing/account-summary.jag")%>" class="<%= "link-myAcc" + (user ? "" : " need-login") %>"><i class="fw fw-document icon"></i><span class="left-menu-item"><%= i18n.localize("Manage Account")%></span></a></li>
 	                      <%} %>
