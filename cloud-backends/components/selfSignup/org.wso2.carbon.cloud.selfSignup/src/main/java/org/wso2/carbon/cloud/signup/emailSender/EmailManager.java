@@ -133,7 +133,6 @@ public class EmailManager implements Serializable {
             if (" ".equalsIgnoreCase(messageBody)) {
                 errorMessage = "Error sending email to " + signedUpUser + " for the tenant " + tenantDomain +
                                        ". Email content is empty";
-                log.error(errorMessage);
                 throw new WorkflowException(errorMessage);
             } else {
                 ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
@@ -150,19 +149,16 @@ public class EmailManager implements Serializable {
             errorMessage =
                     "Error in the recipient " + recepient + " address for the tenant domain " +
                             tenantDomain;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
 
         } catch (MessagingException e) {
             errorMessage =
                     "Error sending email to " + recepient + " of the tenant domain " + tenantDomain;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
         } catch (UnsupportedEncodingException e) {
             errorMessage =
                     "Error in parsing the from address for the tenant domain " +
                             tenantDomain;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
         }
     }
@@ -247,12 +243,10 @@ public class EmailManager implements Serializable {
         } catch (WorkflowException e) {
             errorMessage = "Could not configure the email for the tenant " + tenantDomain +
                                    "for the self signed up user " + signedUpUser;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
         } catch (UserStoreException e) {
             errorMessage = "Error occurred while getting admin users of the tenant " + tenantDomain +
                                    "for the self signed up user " + signedUpUser;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
         }
     }
@@ -283,7 +277,6 @@ public class EmailManager implements Serializable {
             errorMessage =
                     "Could not configure the email for the user " + userEmail + " of the tenant " +
                             tenantDomain;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
         }
     }
@@ -324,7 +317,6 @@ public class EmailManager implements Serializable {
             errorMessage =
                     "Could not configure the email for the user " + userEmail + " of the tenant " +
                             tenantDomain;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
 
         }
@@ -366,12 +358,10 @@ public class EmailManager implements Serializable {
         } catch (WorkflowException e) {
             errorMessage = "Could not configure the email for the tenant " + tenantDomain +
                                    "for the self signed up user " + signedUpUser;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
         } catch (UserStoreException e) {
             errorMessage = "Error occurred while getting admin users of the tenant " + tenantDomain +
                                    "for the self signed up user " + signedUpUser;
-            log.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
         }
     }
