@@ -9,11 +9,20 @@ jagg.module("util", {
     escapeSpecialCharsXML: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").escapeSpecialCharsXML.apply(this, arguments);
     },
+    validateEmail: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").validateEmail.apply(this, arguments);
+    },
+    validatePassword: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").validatePassword.apply(this, arguments);
+    },
+    validateUserRoles: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").validateUserRoles.apply(this, arguments);
+    },
+    validateNameString: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").validateNameString.apply(this, arguments);
+    },
      addUserToOT: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").addUserToOT.apply(this, arguments);
-    },
-    addUserToRightWave: function () {
-        return jagg.require(jagg.getModulesDir() + "util/util.jag").addUserToRightWave.apply(this, arguments);
     },
     changeOTUserPass: function () {
             return jagg.require(jagg.getModulesDir() + "util/util.jag").changeOTUserPass.apply(this, arguments);
