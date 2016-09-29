@@ -234,8 +234,7 @@ public class EmailManager implements Serializable {
                              " sign up to the tenant domain " + tenantDomain);
             if (notifyAllAdmins) {
                 List<String> adminUserEmails = getAdminUsersofTenant(tenantDomain);
-                for (int i = 0; i < adminUserEmails.size(); i++) {
-                    String emailAddress = adminUserEmails.get(i);
+                for (String emailAddress : adminUserEmails) {
                     if (emailAddress != null && !emailAddress.equals(tenantEmail)) {
                         sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage,
                                   isCustomized,
@@ -354,8 +353,7 @@ public class EmailManager implements Serializable {
                              " sign up to the tenant domain " + tenantDomain);
             if (notifyAllAdmins) {
                 List<String> adminUserEmails = getAdminUsersofTenant(tenantDomain);
-                for (int i = 0; i < adminUserEmails.size(); i++) {
-                    String emailAddress = adminUserEmails.get(i);
+                for (String emailAddress : adminUserEmails) {
                     if (emailAddress != null && !emailAddress.equals(tenantEmail)) {
                         sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage,
                                   isCustomized,
@@ -499,7 +497,6 @@ public class EmailManager implements Serializable {
                 tenantId).getUserStoreManager();
         String[] users = userStoreManager.getUserListOfRole("admin");
         for (String user : users) {
-            log.info("user: " + user);
             String[] claims = { SignUpWorkflowConstants.EMAIL_CLAIM_URI };
             if (userStoreManager.isExistingUser(user)) {
                 Map<String, String> userClaims = userStoreManager.getUserClaimValues(user, claims, null);
