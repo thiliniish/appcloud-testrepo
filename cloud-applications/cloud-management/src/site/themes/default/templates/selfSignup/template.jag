@@ -286,6 +286,7 @@
                   <input type="checkbox" name="notifyAllAdmins" id="notifyAllAdmins" > Send notifications to all admins
                </div>
             </div>
+            </br>
            <p>
            <h3>The following parameters are required when configuring the sign-up process</h3>
             </p>
