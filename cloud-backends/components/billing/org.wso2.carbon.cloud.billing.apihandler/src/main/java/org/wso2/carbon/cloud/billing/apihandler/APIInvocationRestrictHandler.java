@@ -35,9 +35,9 @@ import org.wso2.carbon.apimgt.gateway.handlers.Utils;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.cloud.billing.apihandler.utils.LRUCache;
 
-import javax.naming.NamingException;
 import java.sql.SQLException;
 import java.util.Map;
+import javax.naming.NamingException;
 
 /**
  * API handler to block api invocation after the tenant deactivate from API Cloud
@@ -47,8 +47,8 @@ import java.util.Map;
 public class APIInvocationRestrictHandler extends AbstractHandler {
 
     private static final Log log = LogFactory.getLog(APIInvocationRestrictHandler.class);
-    Boolean isValidAccount = false;
-    DBConnector dbConnection = null;
+    private Boolean isValidAccount = false;
+    private DBConnector dbConnection = null;
     private static LRUCache lruCache = new LRUCache(APIInvocationRestrictHandlerConstants.CASH_SIZE);
 
     public boolean handleRequest(MessageContext messageContext) {
@@ -60,11 +60,11 @@ public class APIInvocationRestrictHandler extends AbstractHandler {
         String tenantStatus = lruCache.get(tenantName);
         //checking the user account validity for API call
         try {
-            if(tenantStatus == null) {
+            if (tenantStatus == null) {
                 log.info("Tenant data is not available in cash");
                 dbConnection = new DBConnector();
                 tenantStatus = dbConnection.getTenantStatus(tenantName);
-                if(tenantStatus != null && tenantStatus.equals(APIInvocationRestrictHandlerConstants.BILLING_INVOCATION_RESTRICTED_STATUS)){
+                if (APIInvocationRestrictHandlerConstants.BILLING_INVOCATION_RESTRICTED_STATUS.equals(tenantStatus)) {
                     log.info("Adding tenant data to cash");
                     lruCache.set(tenantName);
                     log.warn("Account is disabled for tenant " + tenantName);
@@ -78,7 +78,7 @@ public class APIInvocationRestrictHandler extends AbstractHandler {
                 return false;
             }
 
-        }  catch (NamingException e) {
+        } catch (NamingException e) {
             log.error("Error while checking user account validity - " + tenantName + " " + e.getMessage(), e);
         } catch (SQLException e) {
             log.error("Error while checking user account Status - " + tenantName + " " + e.getMessage(), e);
@@ -105,7 +105,8 @@ public class APIInvocationRestrictHandler extends AbstractHandler {
     }
 
     private void inactiveTenantInvocationOut(MessageContext messageContext) {
-        messageContext.setProperty(SynapseConstants.ERROR_DETAIL, APIInvocationRestrictHandlerConstants.BILLING_OUT_ERROR_CODE_NAME);
+        messageContext.setProperty(SynapseConstants.ERROR_DETAIL,
+                APIInvocationRestrictHandlerConstants.BILLING_OUT_ERROR_CODE_NAME);
         messageContext.setProperty(SynapseConstants.ERROR_MESSAGE, APIInvocationRestrictHandlerConstants.ERROR_MESSAGE);
         org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext) messageContext).
                 getAxis2MessageContext();
@@ -123,7 +124,8 @@ public class APIInvocationRestrictHandler extends AbstractHandler {
 
         if (Utils.isCORSEnabled()) {
             /* For CORS support adding required headers to the fault response */
-            Map<String, String> headers = (Map) axis2MC.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
+            Map<String, String> headers = (Map) axis2MC
+                    .getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
             headers.put(APIConstants.CORSHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                     Utils.getAllowedOrigin(headers.get(APIInvocationRestrictHandlerConstants.CORS_HEADERS_ORIGIN)));
             headers.put(APIConstants.CORSHeaders.ACCESS_CONTROL_ALLOW_METHODS, Utils.getAllowedMethods());
@@ -152,5 +154,5 @@ public class APIInvocationRestrictHandler extends AbstractHandler {
         return payload;
     }
 
-
 }
+

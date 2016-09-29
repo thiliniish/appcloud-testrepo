@@ -106,6 +106,9 @@ public final class BillingRequestProcessorFactory {
         }
     }
 
+    /**
+     * Enum for Processor types
+     */
     public enum ProcessorType {
         DATA_SERVICE, ZUORA, ZUORA_RSA
     }

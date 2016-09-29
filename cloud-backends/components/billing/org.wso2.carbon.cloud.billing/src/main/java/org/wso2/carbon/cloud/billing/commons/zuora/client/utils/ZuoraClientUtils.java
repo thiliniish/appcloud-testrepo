@@ -22,6 +22,7 @@ import com.zuora.api.AmendRequest;
 import com.zuora.api.AmendResult;
 import com.zuora.api.CallOptions;
 import com.zuora.api.DeleteResult;
+import com.zuora.api.Error;
 import com.zuora.api.ErrorCode;
 import com.zuora.api.ID;
 import com.zuora.api.LoginResult;
@@ -38,7 +39,7 @@ import com.zuora.api.wso2.stub.LoginFault;
 import com.zuora.api.wso2.stub.MalformedQueryFault;
 import com.zuora.api.wso2.stub.UnexpectedErrorFault;
 import com.zuora.api.wso2.stub.ZuoraServiceStub;
-import com.zuora.api.Error;
+
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.databinding.ADBBean;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -139,15 +140,15 @@ public class ZuoraClientUtils {
             throws CloudBillingZuoraException, RemoteException, InvalidTypeFault, UnexpectedErrorFault {
         SaveResult[] response;
         try {
-            response = zuoraServiceStub.create(new ZObject[]{obj}, this.callOptions, getSessionHeader());
+            response = zuoraServiceStub.create(new ZObject[] { obj }, this.callOptions, getSessionHeader());
         } catch (UnexpectedErrorFault unexpectedErrorFault) {
             checkInvalidSessionError(unexpectedErrorFault);
-            response = zuoraServiceStub.create(new ZObject[]{obj}, this.callOptions, getSessionHeader());
+            response = zuoraServiceStub.create(new ZObject[] { obj }, this.callOptions, getSessionHeader());
         }
         SaveResult result = (SaveResult) getValidatedResponse(response);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Create result success: " + result.getSuccess() + ". Errors specified: "
-                         + result.isErrorsSpecified());
+            LOGGER.debug("Create result success: " + result.getSuccess() + ". Errors specified: " + result
+                    .isErrorsSpecified());
         }
         return result;
     }
@@ -167,15 +168,15 @@ public class ZuoraClientUtils {
             throws RemoteException, InvalidTypeFault, CloudBillingZuoraException, UnexpectedErrorFault {
         SaveResult[] response;
         try {
-            response = zuoraServiceStub.update(new ZObject[]{obj}, getSessionHeader());
+            response = zuoraServiceStub.update(new ZObject[] { obj }, getSessionHeader());
         } catch (UnexpectedErrorFault unexpectedErrorFault) {
             checkInvalidSessionError(unexpectedErrorFault);
-            response = zuoraServiceStub.update(new ZObject[]{obj}, getSessionHeader());
+            response = zuoraServiceStub.update(new ZObject[] { obj }, getSessionHeader());
         }
         SaveResult result = (SaveResult) getValidatedResponse(response);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Update result success: " + result.getSuccess() + ". Errors specified: "
-                         + result.isErrorsSpecified());
+            LOGGER.debug("Update result success: " + result.getSuccess() + ". Errors specified: " + result
+                    .isErrorsSpecified());
         }
         return result;
     }
@@ -195,11 +196,11 @@ public class ZuoraClientUtils {
      */
     public DeleteResult delete(String type, ID id)
             throws RemoteException, InvalidValueFault, InvalidTypeFault, CloudBillingZuoraException,
-                   UnexpectedErrorFault {
-        DeleteResult result = (DeleteResult) getValidatedResponse(delete(type, new ID[]{id}));
+            UnexpectedErrorFault {
+        DeleteResult result = (DeleteResult) getValidatedResponse(delete(type, new ID[] { id }));
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Delete result success: " + result.getSuccess() + ". Errors specified: "
-                         + result.isErrorsSpecified());
+            LOGGER.debug("Delete result success: " + result.getSuccess() + ". Errors specified: " + result
+                    .isErrorsSpecified());
         }
         return result;
     }
@@ -208,7 +209,7 @@ public class ZuoraClientUtils {
      * Delete Zuora object for Type and ID.
      * {@link "https://knowledgecenter.zuora.com/BC_Developers/SOAP_API/E_SOAP_API_Calls/delete_call"}
      *
-     * @param ids   the ID
+     * @param ids  the ID
      * @param type the type
      * @return DeleteResult
      * @throws RemoteException
@@ -244,16 +245,16 @@ public class ZuoraClientUtils {
             throws UnexpectedErrorFault, RemoteException, CloudBillingZuoraException {
         AmendResult[] results;
         try {
-            results = zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
+            results = zuoraServiceStub.amend(new AmendRequest[] { amendRequest }, getSessionHeader());
         } catch (UnexpectedErrorFault unexpectedErrorFault) {
             checkInvalidSessionError(unexpectedErrorFault);
-            results = zuoraServiceStub.amend(new AmendRequest[]{amendRequest}, getSessionHeader());
+            results = zuoraServiceStub.amend(new AmendRequest[] { amendRequest }, getSessionHeader());
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Amend results status for each amend request, in order");
             for (AmendResult result : results) {
-                LOGGER.debug("Amend result success: " + result.getSuccess() + ". Errors specified: "
-                             + result.isErrorsSpecified());
+                LOGGER.debug("Amend result success: " + result.getSuccess() + ". Errors specified: " + result
+                        .isErrorsSpecified());
             }
         }
         return results;
@@ -275,7 +276,7 @@ public class ZuoraClientUtils {
      */
     public QueryResult query(String queryString, QueryOptions options)
             throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
-                   UnexpectedErrorFault {
+            UnexpectedErrorFault {
         QueryResult queryResult;
         try {
             queryResult = zuoraServiceStub.query(queryString, options, getSessionHeader());
@@ -305,7 +306,7 @@ public class ZuoraClientUtils {
      */
     public QueryResult queryMore(String queryString, QueryOptions options, QueryLocator queryLocator)
             throws CloudBillingZuoraException, RemoteException, InvalidQueryLocatorFault, MalformedQueryFault,
-                   UnexpectedErrorFault {
+            UnexpectedErrorFault {
         QueryResult queryResult;
         try {
             queryResult = zuoraServiceStub.queryMore(queryLocator, options, getSessionHeader());
@@ -370,9 +371,11 @@ public class ZuoraClientUtils {
      * Set zuora specific ssl protocols for http client
      */
     private void zuoraSSLEnabledProtocols() {
-        String sslEnabledProtocols = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getEnabledProtocols();
+        String sslEnabledProtocols = BillingConfigUtils.getBillingConfiguration().getZuoraConfig()
+                .getEnabledProtocols();
         Protocol customHttps = CloudBillingUtils.getCustomProtocol(BillingConstants.HTTPS_SCHEME, sslEnabledProtocols);
-        zuoraServiceStub._getServiceClient().getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, customHttps);
+        zuoraServiceStub._getServiceClient().getOptions()
+                .setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, customHttps);
     }
 
     /**
@@ -396,8 +399,7 @@ public class ZuoraClientUtils {
         if (errors != null) {
             for (Error error : errors) {
                 resultString.append("\tError Code: ").append(error.getCode().toString()).append("\n\tError Message: ")
-                            .append(
-                                    error.getMessage());
+                        .append(error.getMessage());
             }
         }
         return resultString.toString();
