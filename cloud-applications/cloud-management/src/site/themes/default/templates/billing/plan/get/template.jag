@@ -268,7 +268,7 @@ if (isBillingEnabled) {
 
             if (isBillingEnabled) {
                 for(var i = 0; i < paymentPlans.length; i++) {
-                    if (paymentPlans[i].visibility == true) {
+                    if (paymentPlans[i].visibility) {
                         var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
                         var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
                         var maxUsageStr = numFormat.format(maxUsageAmmount);
