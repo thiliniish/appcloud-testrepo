@@ -49,7 +49,6 @@
     </dependencies>
 
 
-
     <build>
         <finalName>cloud-domain-mapper-${project.version}</finalName>
         <plugins>

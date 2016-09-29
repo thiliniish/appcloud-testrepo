@@ -48,12 +48,15 @@ public class APICloudUsageManager {
 
     private static final Log LOGGER = LogFactory.getLog(APICloudUsageManager.class);
 
-    private static String dailyUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-            .getCloudBillingServiceUri() + BillingConstants.DS_API_URI_REQUEST_COUNT;
-    private static String usageForTenantUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-            .getCloudBillingServiceUri() + BillingConstants.DS_API_URI_USAGE;
-    private static String dailyMonetizationUsageUrl = BillingConfigUtils.getBillingConfiguration().getDSConfig()
-            .getApiCloudMonetizationServiceUri() + MonetizationConstants.DS_API_URI_MON_APIC_DAILY_USAGE;
+    private static String dailyUsageUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri()
+                    + BillingConstants.DS_API_URI_REQUEST_COUNT;
+    private static String usageForTenantUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri()
+                    + BillingConstants.DS_API_URI_USAGE;
+    private static String dailyMonetizationUsageUrl =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getApiCloudMonetizationServiceUri()
+                    + MonetizationConstants.DS_API_URI_MON_APIC_DAILY_USAGE;
 
     private BillingRequestProcessor dsBRProcessor;
     private BillingRequestProcessor zuoraBRProcessor;
@@ -61,8 +64,10 @@ public class APICloudUsageManager {
     public APICloudUsageManager() {
         BillingRequestProcessorFactory processorFactory = BillingRequestProcessorFactory.getInstance();
 
-        dsBRProcessor = processorFactory.getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
-        zuoraBRProcessor = processorFactory.getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA);
+        dsBRProcessor = processorFactory
+                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+        zuoraBRProcessor = processorFactory
+                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA);
     }
 
     private String getDailyUsage(String usageUrl) throws CloudBillingException {
@@ -71,10 +76,10 @@ public class APICloudUsageManager {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
-        NameValuePair[] nameValuePairs = new NameValuePair[]{
+        NameValuePair[] nameValuePairs = new NameValuePair[] {
                 new NameValuePair("year", String.valueOf(cal.get(Calendar.YEAR))),
                 new NameValuePair("month", String.valueOf((cal.get(Calendar.MONTH) + 1))),
-                new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)))};
+                new NameValuePair("day", String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) };
 
         return dsBRProcessor.doGet(usageUrl, null, nameValuePairs);
     }
@@ -83,18 +88,18 @@ public class APICloudUsageManager {
         Date currentDate = new Date();
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
-        NameValuePair[] nameValuePairs = new NameValuePair[]{
+        NameValuePair[] nameValuePairs = new NameValuePair[] {
                 new NameValuePair("YEAR", String.valueOf(cal.get(Calendar.YEAR))),
                 new NameValuePair("MONTH", String.valueOf((cal.get(Calendar.MONTH) + 1))),
-                new NameValuePair("DAY", String.valueOf(cal.get(Calendar.DAY_OF_MONTH)))};
+                new NameValuePair("DAY", String.valueOf(cal.get(Calendar.DAY_OF_MONTH))) };
 
         return dsBRProcessor.doGet(usageUrl, null, nameValuePairs);
     }
 
     private String getUsageForTenant(String tenantDomain, String startDate, String endDate)
             throws CloudBillingException {
-        NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("apiPublisher", "%@" + tenantDomain),
-                new NameValuePair("startDate", startDate), new NameValuePair("endDate", endDate)};
+        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("apiPublisher", "%@" + tenantDomain),
+                new NameValuePair("startDate", startDate), new NameValuePair("endDate", endDate) };
         return dsBRProcessor.doGet(usageForTenantUrl, null, nameValuePairs);
     }
 
@@ -105,8 +110,8 @@ public class APICloudUsageManager {
         String response = getDailyUsage(dailyUsageUrl);
         String responseForMonetizationUsage = getDailyUsageForMonetization(dailyMonetizationUsageUrl);
         Usage[] usageList = APIUsageProcessorUtil.getDailyUsageDataForApiM(response);
-        Usage[] monetizationEnabledUsageList =
-                APIUsageProcessorUtil.getDailyUsageDataForPaidSubscribers(responseForMonetizationUsage);
+        Usage[] monetizationEnabledUsageList = APIUsageProcessorUtil
+                .getDailyUsageDataForPaidSubscribers(responseForMonetizationUsage);
 
         uploadDailyAPIUsageToZuora(usageList);
         uploadDailyAPIUsageToZuora(monetizationEnabledUsageList);
@@ -134,13 +139,13 @@ public class APICloudUsageManager {
             //Sending the Email to Cloud Team for verify on the error occurred
             EmailNotifications.getInstance().sendMail(messageBody, subject,
                     BillingConfigUtils.getBillingConfiguration().getUtilsConfig().getNotifications()
-                            .getEmailNotification().getSender(),BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
+                            .getEmailNotification().getSender(), BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
             throw new CloudBillingException("Error occurred while uploading daily usage", e);
         }
     }
 
     public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName, String startDate,
-                                                              String endDate) throws CloudBillingException {
+            String endDate) throws CloudBillingException {
         // get accountId from tenant
         String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
         String response = getUsageForTenant(tenantDomain, startDate, endDate);

@@ -34,7 +34,6 @@ import java.util.Map;
  * org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager is used as the tenant manager
  * which supports any external ldap server.
  */
-
 public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
 
     @Override
@@ -44,7 +43,7 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
         try {
             RealmConfiguration ldapRealmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
             //remove non-tenant specific info from tenant-specific user-mgt.xml before persisting.
-            removePropertiesFromTenantRealmConfig(ldapRealmConfig);
+            removePropertiesFromCloudTenantRealmConfig(ldapRealmConfig);
 
             ldapRealmConfig.setAdminPassword(UserCoreUtil.getDummyPassword());
             ldapRealmConfig.setAdminUserName(tenantInfo.getAdminName());
@@ -66,9 +65,9 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
             String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties()
                     .get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
             //************ Cloud Specific Implementation ******************
-//            String userContextRDN = orgSubContextAttribute + "=" +
-//                    LDAPConstants.USER_CONTEXT_NAME;
-            String userContextRDN = orgSubContextAttribute + "=user" ;
+            //            String userContextRDN = orgSubContextAttribute + "=" +
+            //                    LDAPConstants.USER_CONTEXT_NAME;
+            String userContextRDN = orgSubContextAttribute + "=user";
             //eg: ou=users,dc=cloud, dc=com
             String userSearchBase = userContextRDN + "," + partitionDN;
             //*************************************************************
@@ -138,7 +137,7 @@ public class CloudRealmConfigBuilder extends CommonLDAPRealmConfigBuilder {
         }
     }
 
-    private void removePropertiesFromTenantRealmConfig(RealmConfiguration tenantRealmConfiguration) {
+    private void removePropertiesFromCloudTenantRealmConfig(RealmConfiguration tenantRealmConfiguration) {
         //remove sensitive information from realm properties before persisting
         // tenant specific user-mgt.xml
         tenantRealmConfiguration.getRealmProperties().clear();
