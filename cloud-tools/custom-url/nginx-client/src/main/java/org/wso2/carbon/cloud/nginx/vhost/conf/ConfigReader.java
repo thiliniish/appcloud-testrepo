@@ -49,6 +49,7 @@ public class ConfigReader {
 
     /**
      * Initialize Configuration reader
+     *
      * @throws IOException
      */
     private void init() throws IOException {

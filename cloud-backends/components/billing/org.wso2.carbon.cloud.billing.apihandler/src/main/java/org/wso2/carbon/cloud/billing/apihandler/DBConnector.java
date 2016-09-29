@@ -23,12 +23,12 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 /**
  * API handler to block api invocation after the tenant deactivate from API Cloud
@@ -40,6 +40,7 @@ public class DBConnector {
 
     /**
      * Accessing the status of the tenant
+     *
      * @param tenantDomain String
      * @return String
      * @throws NamingException
@@ -48,23 +49,27 @@ public class DBConnector {
     public String getTenantStatus(String tenantDomain) throws NamingException, SQLException {
         Connection connection = getDataSourceConnection();
         String query = APIInvocationRestrictHandlerConstants.SQL_SELECT_STATUS_FROM_BILLING_STATUS;
-        PreparedStatement preparedStatement ;
-        ResultSet resultSet;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
         try {
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, tenantDomain);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                String tenantStatus = resultSet.getString(1);
-                resultSet.close();
-                return tenantStatus;
+                return resultSet.getString(1);
             }
         } catch (SQLException e) {
-            String message = "Error while accessing database. Query - "+ query + e.getErrorCode();
-            log.error(message , e);
-            throw new SQLException(message,e);
+            String message = "Error while accessing database. Query - " + query + " , " + e.getErrorCode();
+            log.error(message, e);
+            throw new SQLException(message, e);
         } finally {
-            closeConnection(connection);
+            try {
+                closeAllConnections(connection, preparedStatement, resultSet);
+            } catch (SQLException e) {
+                String message = "Error while closing all connections for database, " + e.getErrorCode();
+                log.error(message, e);
+                throw new SQLException(message, e);
+            }
         }
         return null;
 
@@ -84,14 +89,15 @@ public class DBConnector {
         privilegedCarbonContext.setTenantDomain(tenantDomain);
 
         //getting the cloud-mgt data source connection
-        DataSource ds = (DataSource) privilegedCarbonContext.getJNDIContext().lookup(APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE);
+        DataSource ds = (DataSource) privilegedCarbonContext.getJNDIContext()
+                                             .lookup(APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE);
         try {
             conn = ds.getConnection();
         } catch (SQLException e) {
-            String message = "Error while connecting to data Source "+ APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE +
-                    " , "+ e.getErrorCode();
-            log.error(message , e);
-            throw new SQLException(message,e);
+            String message = "Error while connecting to data Source " +
+                                     APIInvocationRestrictHandlerConstants.CLOUD_DATASOURCE + " , " + e.getErrorCode();
+            log.error(message, e);
+            throw new SQLException(message, e);
         } finally {
             //Ending the tenant flow
             PrivilegedCarbonContext.endTenantFlow();
@@ -99,17 +105,73 @@ public class DBConnector {
         return conn;
     }
 
-    public void closeConnection(Connection connection) throws SQLException {
+    /**
+     * Close
+     *
+     * @param connection Connection
+     * @throws SQLException
+     */
+    private void closeConnection(Connection connection) throws SQLException {
         try {
             connection.close();
 
         } catch (SQLException e) {
-            String message = "Error while closing the database connection - "+ e.getErrorCode();
-            log.error(message , e);
-            throw new SQLException(message,e);
+            String message = "Error while closing the database connection - " + e.getErrorCode();
+            log.error(message, e);
+            throw new SQLException(message, e);
         }
 
     }
 
+    /**
+     * Closes a Database {@link Connection}, {@link PreparedStatement} and {@link ResultSet}
+     *
+     * @param connection        Connection
+     * @param preparedStatement PreparedStatement
+     * @param resultSet         ResultSet
+     * @throws SQLException
+     */
+    public void closeAllConnections(Connection connection, PreparedStatement preparedStatement, ResultSet resultSet)
+            throws SQLException {
+        closeResultSet(resultSet);
+        closeStatement(preparedStatement);
+        closeConnection(connection);
+    }
+
+    /**
+     * Close ResultSet
+     *
+     * @param resultSet ResultSet
+     * @throws SQLException
+     */
+    private void closeResultSet(ResultSet resultSet) throws SQLException {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                String message = "Error occurred while closing the result set.";
+                log.error(message, e);
+                throw new SQLException(message, e);
+            }
+        }
+    }
+
+    /**
+     * Close PreparedStatement
+     *
+     * @param preparedStatement PreparedStatement
+     * @throws SQLException
+     */
+    private void closeStatement(PreparedStatement preparedStatement) throws SQLException {
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                String message = "Error occurred while closing the prepared statement.";
+                log.error(message, e);
+                throw new SQLException(message, e);
+            }
+        }
+    }
 
 }

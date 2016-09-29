@@ -25,44 +25,56 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.*;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
+/**
+ * Util Class to manage Key stores
+ */
 public class KeyStoreUtil {
-	private static final String KEY_STORE_ALGORITHM = "JCEKS";
-	private static Log log = LogFactory.getLog(KeyStoreUtil.class);
+    private static final String KEY_STORE_ALGORITHM = "JCEKS";
+    private static Log log = LogFactory.getLog(KeyStoreUtil.class);
 
-	private KeyStoreUtil() {
-	}
+    private KeyStoreUtil() {
+    }
 
-	public static Key getKeyFromStore(final String keyStoreLocation, final String keystorePass, final String alias,
-	                                  final String keyPass)
-			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException,
-			       UnrecoverableKeyException {
-		try {
-			InputStream keyStoreStream = new FileInputStream(keyStoreLocation);
-			KeyStore keystore = KeyStore.getInstance(KEY_STORE_ALGORITHM);
+    public static Key getKeyFromStore(final String keyStoreLocation, final String keystorePass, final String alias,
+                                      final String keyPass)
+            throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException,
+                   UnrecoverableKeyException {
+        InputStream keyStoreStream = null;
+        try {
+            keyStoreStream = new FileInputStream(keyStoreLocation);
+            KeyStore keystore = KeyStore.getInstance(KEY_STORE_ALGORITHM);
 
-			keystore.load(keyStoreStream, keystorePass.toCharArray());
+            keystore.load(keyStoreStream, keystorePass.toCharArray());
 
-			return keystore.getKey(alias, keyPass.toCharArray());
-		} catch (FileNotFoundException e) {
-			String errorMessage = "KeyStore file cannot be located in " + keyStoreLocation;
-			log.error(errorMessage, e);
-			throw new FileNotFoundException(errorMessage);
-		} catch (NoSuchAlgorithmException e) {
-			String errorMessage = "Provided algorithm is not supported in current environment. Provided algorithm is " +
-			                      KEY_STORE_ALGORITHM;
-			log.error(errorMessage, e);
-			throw new NoSuchAlgorithmException(errorMessage);
-		} catch (IOException | CertificateException | KeyStoreException e) {
-			String errorMessage = "Error occurred when getting key from the keystore.";
-			log.error(errorMessage, e);
-			throw e;
-		} catch (UnrecoverableKeyException e) {
-			String errorMessage = "Key cannot be recovered from keystore located in " + keyStoreLocation;
-			log.error(errorMessage, e);
-			throw new UnrecoverableKeyException(errorMessage);
-		}
-	}
+            return keystore.getKey(alias, keyPass.toCharArray());
+        } catch (FileNotFoundException e) {
+            String errorMessage = "KeyStore file cannot be located in " + keyStoreLocation;
+            log.error(errorMessage, e);
+            throw new FileNotFoundException(errorMessage);
+        } catch (NoSuchAlgorithmException e) {
+            String errorMessage = "Provided algorithm is not supported in current environment. Provided algorithm is " +
+                                  KEY_STORE_ALGORITHM;
+            log.error(errorMessage, e);
+            throw new NoSuchAlgorithmException(errorMessage);
+        } catch (IOException | CertificateException | KeyStoreException e) {
+            String errorMessage = "Error occurred when getting key from the keystore.";
+            log.error(errorMessage, e);
+            throw e;
+        } catch (UnrecoverableKeyException e) {
+            String errorMessage = "Key cannot be recovered from keystore located in " + keyStoreLocation;
+            log.error(errorMessage, e);
+            throw new UnrecoverableKeyException(errorMessage);
+        } finally {
+            if (keyStoreStream != null) {
+                keyStoreStream.close();
+            }
+        }
+    }
 }

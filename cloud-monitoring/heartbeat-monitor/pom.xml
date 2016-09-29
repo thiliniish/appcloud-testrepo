@@ -114,8 +114,10 @@
         <module>org.wso2.cloud.heartbeat.monitor</module>
         <module>org.wso2.cloud.heartbeat.monitor.ui</module>
     </modules>
-    <properties>
 
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
     </properties>
 
 

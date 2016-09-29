@@ -30,9 +30,9 @@ import org.wso2.carbon.user.core.service.RealmService;
 /**
  * @scr.component name="cloud.user.store.manager.component" immediate=true
  * @scr.reference name="realm.service"
- * interface="org.wso2.carbon.user.core.service.RealmService"
- * cardinality="1..1" policy="dynamic" bind="setRealmService"
- * unbind="unsetRealmService"
+ *                interface="org.wso2.carbon.user.core.service.RealmService"
+ *                cardinality="1..1" policy="dynamic" bind="setRealmService"
+ *                unbind="unsetRealmService"
  */
 public class CloudUserStoreComponent {
     private static final Log LOGGER = LogFactory.getLog(CloudUserStoreComponent.class);
@@ -42,10 +42,12 @@ public class CloudUserStoreComponent {
 
     protected void activate(ComponentContext context) {
         UserStoreManager cloudUserStoreManager = new CloudUserStoreManager();
-        cloudUserStore = context.getBundleContext().registerService(UserStoreManager.class.getName(), cloudUserStoreManager, null);
+        cloudUserStore = context.getBundleContext()
+                .registerService(UserStoreManager.class.getName(), cloudUserStoreManager, null);
 
         UserStoreManager wSO2CloudUserStoreManager = new WSO2CloudUserStoreManager();
-        wso2CloudUserStore = context.getBundleContext().registerService(UserStoreManager.class.getName(), wSO2CloudUserStoreManager, null);
+        wso2CloudUserStore = context.getBundleContext()
+                .registerService(UserStoreManager.class.getName(), wSO2CloudUserStoreManager, null);
 
         LOGGER.info("CloudUserStoreComponent bundle activated successfully.");
     }

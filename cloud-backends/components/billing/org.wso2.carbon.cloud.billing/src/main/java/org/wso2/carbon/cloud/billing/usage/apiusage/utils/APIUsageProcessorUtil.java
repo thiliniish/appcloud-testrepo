@@ -31,8 +31,6 @@ import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,8 +38,17 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+
+/**
+ * Util class to process API Usage
+ */
 public class APIUsageProcessorUtil {
 
+    /**
+     * Private constructor
+     */
     private APIUsageProcessorUtil() {
     }
 
@@ -124,13 +131,21 @@ public class APIUsageProcessorUtil {
         for (Object ratePlan : ratePlans) {
             JSONObject jsonObject = (JSONObject) ratePlan;
             String ratePlanName = ((JSONObject) ratePlan).get(BillingConstants.RATE_PLAN_NAME).toString();
-            if (ratePlanName != null && !ratePlanName.contains(BillingConstants.COUPON_HEADER)) {
+            if (!ratePlanName.contains(BillingConstants.COUPON_HEADER)) {
                 return (String) jsonObject.get(BillingConstants.PRODUCT_RATE_PLAN_ID);
             }
         }
         return null;
     }
 
+    /**
+     * Calculates usage charges
+     *
+     * @param maxUsage
+     * @param currUsage
+     * @param rate
+     * @return
+     */
     public static float calculateCharge(int maxUsage, int currUsage, String rate) {
         // calculate overUsage
         int overUsage = currUsage - maxUsage;
@@ -146,6 +161,14 @@ public class APIUsageProcessorUtil {
         return dailyPriceRate * ratePrice;
     }
 
+    /**
+     * Retrieve rate plan id given the date
+     *
+     * @param response
+     * @param currDate
+     * @return
+     * @throws CloudBillingException
+     */
     private static String getRatePlanIdForDate(String response, String currDate) throws CloudBillingException {
         OMElement elements;
 
@@ -180,6 +203,13 @@ public class APIUsageProcessorUtil {
         return null;
     }
 
+    /**
+     * Get tenant usage from APIM
+     *
+     * @param response
+     * @return
+     * @throws CloudBillingException
+     */
     public static AccountUsage[] getTenantUsageFromAPIM(String response) throws CloudBillingException {
         OMElement elements;
         try {
@@ -218,6 +248,13 @@ public class APIUsageProcessorUtil {
 
     }
 
+    /**
+     * Get Usage for APIM
+     *
+     * @param usageEle
+     * @return
+     * @throws CloudBillingException
+     */
     private static Usage getUsageForApiM(OMElement usageEle) throws CloudBillingException {
         Usage usage = new Usage();
         usage.setUom(BillingConstants.UNIT_OF_MEASURE); // TODO get it from the
@@ -235,6 +272,13 @@ public class APIUsageProcessorUtil {
         return usage;
     }
 
+    /**
+     * Get daily usage data from APIM
+     *
+     * @param response
+     * @return
+     * @throws CloudBillingException
+     */
     public static Usage[] getDailyUsageDataForApiM(String response) throws CloudBillingException {
         try {
             OMElement elements = AXIOMUtil.stringToOM(response);
@@ -268,6 +312,16 @@ public class APIUsageProcessorUtil {
         }
     }
 
+    /**
+     * Calculate over usage
+     *
+     * @param usage
+     * @param accountId
+     * @param productName
+     * @return
+     * @throws CloudBillingException
+     * @throws XMLStreamException
+     */
     private static int calculateOverUsage(int usage, String accountId, String productName)
             throws CloudBillingException, XMLStreamException {
 
@@ -286,6 +340,13 @@ public class APIUsageProcessorUtil {
         }
     }
 
+    /**
+     * Get daily usage data for paid customers
+     *
+     * @param response
+     * @return
+     * @throws CloudBillingException
+     */
     public static Usage[] getDailyUsageDataForPaidSubscribers(String response) throws CloudBillingException {
         try {
             OMElement elements = AXIOMUtil.stringToOM(response);
@@ -337,14 +398,24 @@ public class APIUsageProcessorUtil {
         }
     }
 
+    /**
+     * Get usage data for paid subscribers
+     *
+     * @param usageEle
+     * @return
+     * @throws CloudBillingException
+     */
     private static Usage getUsageForPaidSubscribers(OMElement usageEle) throws CloudBillingException {
         Usage usage = new Usage();
         usage.setUom(MonetizationConstants.UNIT_OF_MEASURE_DISPLAY_NAME);
-        String date = ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.MONTH)).next()).getText() +
-                      "/" +
-                      ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.DAY)).next()).getText() +
-                      "/" +
-                      ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.YEAR)).next()).getText();
+        String date =
+                ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.MONTH)).next()).getText() +
+                        "/" +
+                        ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.DAY)).next())
+                                .getText() +
+                        "/" +
+                        ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.YEAR)).next())
+                                .getText();
         usage.setDescription("Usage Data");
         usage.setStartDate(date);
         usage.setEndDate(date);

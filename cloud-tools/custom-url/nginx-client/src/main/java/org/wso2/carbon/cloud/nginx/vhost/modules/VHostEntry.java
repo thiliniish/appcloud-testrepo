@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.cloud.nginx.vhost.modules;
 
-import java.util.ArrayList;
-
 /**
  * VHost bean class
  */
@@ -29,7 +27,6 @@ public class VHostEntry {
     private String securityCertificateFilePath;
     private String securityCertificateKeyFilePath;
     private String template;
-
 
     public String getTenantDomain() {
         return tenantDomain;

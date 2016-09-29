@@ -57,7 +57,6 @@ public class CloudTenantCreationListenerComponent {
         }
     }
 
-
     protected void setRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
             log.debug("RealmService acquired");

@@ -35,10 +35,6 @@ import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.processor.ZuoraBillingRequestProcessor;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
@@ -50,6 +46,10 @@ import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.util.Date;
 import java.util.StringTokenizer;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 /**
  * HPM utility to generate and validate signature
@@ -79,6 +79,7 @@ public class ZuoraHPMUtils {
 
     private static BillingRequestProcessor zuoraApi = BillingRequestProcessorFactory.getInstance()
             .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA_RSA);
+
     private ZuoraHPMUtils() {
     }
 
@@ -128,7 +129,8 @@ public class ZuoraHPMUtils {
         try {
             Cipher encryptor = Cipher.getInstance(RSA_ENCRYPT_DECRYPT_FUNCTION);
             encryptor.init(Cipher.DECRYPT_MODE, publicKeyObject);
-            String decryptedSignature = new String(encryptor.doFinal(decoded), Charset.forName(BillingConstants.ENCODING));
+            String decryptedSignature = new String(encryptor.doFinal(decoded),
+                    Charset.forName(BillingConstants.ENCODING));
 
             // Validate signature.
             if (StringUtils.isBlank(decryptedSignature)) {
@@ -142,9 +144,9 @@ public class ZuoraHPMUtils {
             String timestampSignature = st.nextToken();
             String pageIdSignature = st.nextToken();
 
-            if (StringUtils.isBlank(urlSignature) || StringUtils.isBlank(tenantIdSignature) || StringUtils.isBlank
-                    (tokenSignature) || StringUtils.isBlank(timestampSignature) || StringUtils.isBlank
-                    (pageIdSignature)) {
+            if (StringUtils.isBlank(urlSignature) || StringUtils.isBlank(tenantIdSignature) || StringUtils
+                    .isBlank(tokenSignature) || StringUtils.isBlank(timestampSignature) || StringUtils
+                    .isBlank(pageIdSignature)) {
                 throw new CloudBillingSecurityException("Signature is not complete.");
             }
 
@@ -173,7 +175,8 @@ public class ZuoraHPMUtils {
         try {
             Security.addProvider(new BouncyCastleProvider());
             MessageDigest mda = MessageDigest.getInstance(mdAlgorithm, BOUNCY_CASTLE_PROVIDER);
-            byte[] encodedData = Base64.encodeBase64(mda.digest(data.getBytes(Charset.forName(BillingConstants.ENCODING))));
+            byte[] encodedData = Base64
+                    .encodeBase64(mda.digest(data.getBytes(Charset.forName(BillingConstants.ENCODING))));
 
             if (encodedData != null) {
                 return new String(encodedData, Charset.forName(BillingConstants.ENCODING));
@@ -201,7 +204,8 @@ public class ZuoraHPMUtils {
             MessageDigest mda = MessageDigest.getInstance(mdAlgorithm, BOUNCY_CASTLE_PROVIDER);
             byte[] digestData = mda.digest(data.getBytes(Charset.forName(BillingConstants.ENCODING)));
 
-            return MessageDigest.isEqual(digestData, Base64.decodeBase64(hash.getBytes(Charset.forName(BillingConstants.ENCODING))));
+            return MessageDigest.isEqual(digestData,
+                    Base64.decodeBase64(hash.getBytes(Charset.forName(BillingConstants.ENCODING))));
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new CloudBillingSecurityException("Error while validating hash.", e);
         }
@@ -213,8 +217,8 @@ public class ZuoraHPMUtils {
      * @throws IOException
      */
     private static void generatePublicKeyObject() throws IOException {
-        PEMReader pemReader = new PEMReader(new StringReader("-----BEGIN PUBLIC KEY-----\n"
-                                                             + publicKeyString + "\n-----END PUBLIC KEY-----"));
+        PEMReader pemReader = new PEMReader(
+                new StringReader("-----BEGIN PUBLIC KEY-----\n" + publicKeyString + "\n-----END PUBLIC KEY-----"));
         publicKeyObject = (Key) pemReader.readObject();
         pemReader.close();
     }
@@ -249,10 +253,12 @@ public class ZuoraHPMUtils {
      */
     private static JSONObject generateSignature(String pageId) throws CloudBillingException {
         try {
-            String response = zuoraApi.doPost(endPoint, BillingConstants.HTTP_TYPE_APPLICATION_JSON, buildJsonRequest(pageId));
+            String response = zuoraApi
+                    .doPost(endPoint, BillingConstants.HTTP_TYPE_APPLICATION_JSON, buildJsonRequest(pageId));
             JSONObject result = new JSONObject(response);
             if (!result.getBoolean(BillingConstants.ZUORA_RESPONSE_SUCCESS)) {
-                throw new CloudBillingException("Fail to generate signature. The reason is " + result.getString("reasons"));
+                throw new CloudBillingException(
+                        "Fail to generate signature. The reason is " + result.getString("reasons"));
             }
             return result;
         } catch (JSONException e) {
