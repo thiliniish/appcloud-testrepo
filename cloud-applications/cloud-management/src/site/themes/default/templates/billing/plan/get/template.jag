@@ -293,10 +293,10 @@ if (isBillingEnabled) {
                         <p><%=maxUsageStr%></p>
                         <p><%=paymentPlans[i].overUsage%></p>
                         <p><%if (paymentPlans[i].name == BILLING_STARTER_PLAN) {
-                    %>No<%
-                } else {
-                    %>Yes<%
-                }%>
+                            %>No<%
+                        } else {
+                            %>Yes<%
+                        }%>
                    </p>
                     </div>
                     <div class="pricing-table-signup-tiny">
