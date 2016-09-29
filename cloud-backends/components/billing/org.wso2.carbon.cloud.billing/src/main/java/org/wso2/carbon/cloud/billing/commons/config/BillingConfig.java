@@ -30,6 +30,7 @@ public class BillingConfig {
     private DataServiceConfig dsConfig;
     private ZuoraConfig zuoraConfig;
     private SSOConfig ssoConfig;
+    private APIMRestConfig apimRestConfig;
     private UtilsConfig utilsConfig;
     private int trialPeriod;
     private boolean billingEnabled;
@@ -47,6 +48,15 @@ public class BillingConfig {
     @XmlElement(name = "DataServiceAPI", nillable = false, required = true)
     public DataServiceConfig getDSConfig() {
         return dsConfig;
+    }
+
+    @XmlElement(name = "APIMRestAPI", nillable = false, required = true)
+    public APIMRestConfig getAPIMRestConfig() {
+        return apimRestConfig;
+    }
+
+    public void setAPIMRestConfig(APIMRestConfig apimRestConfig) {
+        this.apimRestConfig = apimRestConfig;
     }
 
     public void setDSConfig(DataServiceConfig dsConfig) {
