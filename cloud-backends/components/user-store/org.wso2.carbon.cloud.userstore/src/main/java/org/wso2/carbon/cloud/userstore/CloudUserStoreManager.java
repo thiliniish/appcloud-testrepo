@@ -93,21 +93,22 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
 
         // change filter to matching with regular expression any number of
         // characters.
+        String modifiedSearchFilter = searchFilter;
         if (searchFilter.contains("*")) {
-            searchFilter = searchFilter.replace("*", ".*");
+            modifiedSearchFilter = searchFilter.replace("*", ".*");
         }
 
         // unlimited user search
         if (maxItemLimit == -1) {
             for (String user : users) {
                 // if all users are matched(*)
-                if ("*".equals(searchFilter)) {
+                if ("*".equals(modifiedSearchFilter)) {
                     resultedUsers.addAll(users);
                     break;
                 }
 
                 // add users only if they matching with search filter
-                if (user.matches(searchFilter)) {
+                if (user.matches(modifiedSearchFilter)) {
                     resultedUsers.add(user);
                 }
             }
@@ -119,7 +120,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
                     break;
                 }
                 // add users only if they matching with search filter
-                if (user.matches(searchFilter)) {
+                if (user.matches(modifiedSearchFilter)) {
                     resultedUsers.add(user);
                     currentUserCount++;
                 }

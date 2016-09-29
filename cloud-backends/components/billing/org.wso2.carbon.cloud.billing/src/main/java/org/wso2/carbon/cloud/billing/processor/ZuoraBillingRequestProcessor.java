@@ -21,11 +21,11 @@ package org.wso2.carbon.cloud.billing.processor;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
@@ -35,6 +35,8 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.config.HttpClientConfig;
 import org.wso2.carbon.cloud.billing.commons.config.ZuoraConfig;
@@ -52,6 +54,8 @@ import java.io.UnsupportedEncodingException;
  */
 public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcessor {
 
+    private static final Log LOGGER = LogFactory.getLog(ZuoraBillingRequestProcessor.class);
+
     private static ZuoraConfig zuoraConfig = BillingConfigUtils.getBillingConfiguration().getZuoraConfig();
 
     public ZuoraBillingRequestProcessor(HttpClientConfig httpClientConfig) {
@@ -64,11 +68,10 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * @param httpClientConfig http client configuration
      * @return http client
      */
-    @Override
-    protected HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
+    @Override protected HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
         HttpClient client = super.initHttpClient(httpClientConfig);
-        String sslEnabledProtocols = BillingConfigUtils.getBillingConfiguration()
-                .getZuoraConfig().getEnabledProtocols();
+        String sslEnabledProtocols = BillingConfigUtils.getBillingConfiguration().getZuoraConfig()
+                .getEnabledProtocols();
         Protocol customHttps = CloudBillingUtils.getCustomProtocol(BillingConstants.HTTPS_SCHEME, sslEnabledProtocols);
         client.getHostConfiguration().setHost(httpClientConfig.getHostname(), httpClientConfig.getPort(), customHttps);
         return client;
@@ -81,11 +84,12 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * @param acceptType Accept header
      * @throws CloudBillingException
      */
-    @Override
-    public void doUpload(String url, String acceptType, File file) throws CloudBillingException {
+    @Override public void doUpload(String url, String acceptType, File file) throws CloudBillingException {
         PostMethod post = new PostMethod(url);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
+                acceptType;
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         addAccessKeyHeaders(post);
         //Initializing the multipart contents used by the usage file uploader functionality.
@@ -95,11 +99,16 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
         } catch (FileNotFoundException e) {
             throw new CloudBillingException("Error occurred while reading usage data", e);
         }
-        RequestEntity uploadReqEntity = new MultipartRequestEntity(new Part[]{part}, new HttpClientParams());
+        RequestEntity uploadReqEntity = new MultipartRequestEntity(new Part[] { part }, new HttpClientParams());
         post.setRequestEntity(uploadReqEntity);
         ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), post, DEFAULT_CONNECTION_RETRIES);
         //removing the file after successful upload
-        file.delete();
+        boolean isSuccessful = file.delete();
+        if (LOGGER.isDebugEnabled()) {
+            if (isSuccessful) {
+                LOGGER.debug("The file was removed successfully after upload.");
+            }
+        }
     }
 
     /**
@@ -111,13 +120,15 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * @return response
      * @throws CloudBillingException
      */
-    @Override
-    public String doGet(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    @Override public String doGet(String url, String acceptType, NameValuePair[] nameValuePairs)
+            throws CloudBillingException {
         GetMethod get = new GetMethod(url);
 
         addAccessKeyHeaders(get);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
+                acceptType;
         get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
 
         // for a GET call, chase redirects
@@ -137,12 +148,13 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * @return response
      * @throws CloudBillingException
      */
-    @Override
-    public String doPost(String url, String acceptType, String jsonPayload) throws CloudBillingException {
+    @Override public String doPost(String url, String acceptType, String jsonPayload) throws CloudBillingException {
 
         PostMethod post = new PostMethod(url);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
+                acceptType;
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
 
         addAccessKeyHeaders(post);
@@ -159,8 +171,8 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * @return response
      * @throws CloudBillingException
      */
-    @Override
-    public String doPost(String url, String acceptType, NameValuePair[] keyValuePair) throws CloudBillingException {
+    @Override public String doPost(String url, String acceptType, NameValuePair[] keyValuePair)
+            throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by Zuora Billing Request Processor");
     }
 
@@ -173,8 +185,8 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * @return response
      * @throws CloudBillingException
      */
-    @Override
-    public String doPut(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    @Override public String doPut(String url, String acceptType, NameValuePair[] nameValuePairs)
+            throws CloudBillingException {
         throw new UnsupportedOperationException(
                 "PUT method with name value pairs is not supported by Zuora Billing Request Processor");
     }
@@ -188,12 +200,13 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * @return response
      * @throws CloudBillingException
      */
-    @Override
-    public String doPut(String url, String acceptType, String jsonPayload) throws CloudBillingException {
+    @Override public String doPut(String url, String acceptType, String jsonPayload) throws CloudBillingException {
 
         PutMethod put = new PutMethod(url);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
+                acceptType;
         put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         addAccessKeyHeaders(put);
         setJsonPayload(put, jsonPayload);
@@ -203,17 +216,18 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
     /**
      * Zuora delete request
      *
-     * @param url         Request URL to doDelete
-     * @param acceptType  Accept header which needs to be passed for request header
+     * @param url        Request URL to doDelete
+     * @param acceptType Accept header which needs to be passed for request header
      * @return response
      * @throws CloudBillingException
      */
-    @Override
-    public String doDelete(String url, String acceptType) throws CloudBillingException {
+    @Override public String doDelete(String url, String acceptType) throws CloudBillingException {
 
         DeleteMethod delete = new DeleteMethod(url);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
+                acceptType;
         delete.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
 
         addAccessKeyHeaders(delete);
@@ -229,12 +243,11 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
      * @return response
      * @throws CloudBillingException
      */
-    @Override
-    public String doDelete(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    @Override public String doDelete(String url, String acceptType, NameValuePair[] nameValuePairs)
+            throws CloudBillingException {
         throw new UnsupportedOperationException(
                 "DELETE method with name value pairs is not supported by Zuora Billing Request Processor");
     }
-
 
     /**
      * Setting the json payload of EntityEnclosingMethods

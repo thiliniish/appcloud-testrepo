@@ -17,6 +17,9 @@
  */
 package org.wso2.carbon.cloud.nginx.vhost;
 
+/**
+ * Constants for Nginx related configuration creation
+ */
 public class NginxVhostConstants {
 
     public static final String LOG4J_PROPERTY_PATH = "resources/log4j.properties";
@@ -40,4 +43,5 @@ public class NginxVhostConstants {
     public static final String HTTPS_API_GATEWAY_TEMPLATE_NAME = "https-api-gateway-template";
     public static final String CERTIFICATE_FILE = "cert";
     public static final String KEY_FILE = "key";
+    public static final String DEFAULT_ENCODING = "UTF-8";
 }

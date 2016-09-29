@@ -21,10 +21,12 @@ package org.wso2.carbon.cloud.tenant.creation.listener.internal;
 import org.wso2.carbon.cloud.common.CloudMgtConfiguration;
 import org.wso2.carbon.user.core.service.RealmService;
 
+/**
+ * Holder Class for Service used within the service components
+ */
 public class ServiceHolder {
     private static CloudMgtConfiguration cloudConfiguration;
     private static RealmService realmService;
-
 
     public static CloudMgtConfiguration getCloudConfiguration() {
         return cloudConfiguration;

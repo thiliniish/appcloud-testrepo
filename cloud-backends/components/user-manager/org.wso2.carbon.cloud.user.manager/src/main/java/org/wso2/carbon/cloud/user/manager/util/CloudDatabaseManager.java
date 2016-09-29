@@ -21,15 +21,20 @@ package org.wso2.carbon.cloud.user.manager.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
+
+/**
+ * Data base manager for CloudMgt data source
+ */
 public class CloudDatabaseManager {
     private static final Log log = LogFactory.getLog(CloudDatabaseManager.class);
 

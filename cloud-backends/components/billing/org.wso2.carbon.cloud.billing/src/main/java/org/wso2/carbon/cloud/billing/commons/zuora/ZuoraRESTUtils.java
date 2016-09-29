@@ -55,8 +55,8 @@ public class ZuoraRESTUtils {
         subscriptionPlanInfoObj = new JsonObject();
         subscriptionPlanInfoObj.addProperty("autoRenew", true);
         subscriptionPlanInfoObj.addProperty("invoiceCollect", true);
-        subscriptionPlanInfoObj.addProperty("termType", BillingConfigUtils.getBillingConfiguration()
-                .getZuoraConfig().getTermType());
+        subscriptionPlanInfoObj
+                .addProperty("termType", BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getTermType());
     }
 
     private ZuoraRESTUtils() {
@@ -95,8 +95,8 @@ public class ZuoraRESTUtils {
      * @return product rate plans subscribed (including if any coupons)
      * @throws CloudBillingException
      */
-    public static String[] getProductRatePlanIdForAccount(String productName,
-                                                          String accountId) throws CloudBillingException {
+    public static String[] getProductRatePlanIdForAccount(String productName, String accountId)
+            throws CloudBillingException {
         // getting subscriptions elements
         List<String> ratePlansList = new ArrayList<String>();
         String response = getAccountSummary(accountId);
@@ -111,8 +111,8 @@ public class ZuoraRESTUtils {
             JSONArray ratePlans = (JSONArray) ((JSONObject) subscriptions.get(0)).get(BillingConstants.RATE_PLANS);
             for (Object ratePlan : ratePlans) {
                 if (((JSONObject) ratePlan).get(BillingConstants.PRODUCT_NAME).equals(productName)) {
-                    String productRatePlanId =
-                            (String) ((JSONObject) ratePlan).get(BillingConstants.PRODUCT_RATE_PLAN_ID);
+                    String productRatePlanId = (String) ((JSONObject) ratePlan)
+                            .get(BillingConstants.PRODUCT_RATE_PLAN_ID);
                     ratePlansList.add(productRatePlanId);
 
                 }
@@ -212,8 +212,8 @@ public class ZuoraRESTUtils {
      * @return Json array of rate plans
      * @throws CloudBillingException
      */
-    @SuppressWarnings("unchecked")
-    public static JSONArray getCurrentRatePlan(String productName, String accountId) throws CloudBillingException {
+    @SuppressWarnings("unchecked") public static JSONArray getCurrentRatePlan(String productName, String accountId)
+            throws CloudBillingException {
         String response;
         JSONArray currentRatePlanList = new JSONArray();
         JSONArray starterRatePlanList = new JSONArray();
@@ -230,8 +230,7 @@ public class ZuoraRESTUtils {
             //if adding a rate plan when cre
             for (Object ratePlan : ratePlans) {
                 if (((JSONObject) ratePlan).get(BillingConstants.PRODUCT_NAME).equals(productName)) {
-                    String lastChangeType =
-                            (String) ((JSONObject) ratePlan).get(BillingConstants.LAST_CHANGE_TYPE);
+                    String lastChangeType = (String) ((JSONObject) ratePlan).get(BillingConstants.LAST_CHANGE_TYPE);
                     if ((lastChangeType != null) && (lastChangeType.equals(BillingConstants.AMENDEMENT_ADD_TYPE))) {
                         currentRatePlanList.add(ratePlan);
                     }
@@ -254,7 +253,7 @@ public class ZuoraRESTUtils {
      * This is the description we maintain in billing.xml
      * Zuora sends the response in multiple pages. Iteratively get the product list of each page. Zuora api request
      * contains a parameter named nextPage which contains the request URL for the next page.
-     *
+     * <p>
      * Below is a Sample response message with a nextPage value from zuora
      * { [
      * ...
@@ -302,7 +301,7 @@ public class ZuoraRESTUtils {
                     JSONArray products = ((JSONArray) productJsonObject.get(BillingConstants.PRODUCTS));
                     for (Object product : products) {
                         String zuoraProductName = ((JSONObject) product).get(BillingConstants.NAME).toString();
-                        if (zuoraProductName != null && zuoraProductName.equals(productName)) {
+                        if (zuoraProductName.equals(productName)) {
                             ratePlanList = (JSONArray) ((JSONObject) product).get(BillingConstants.PRODUCT_RATE_PLANS);
                         }
                     }
@@ -320,8 +319,9 @@ public class ZuoraRESTUtils {
                                 serviceUrlHost = zuoraConfig.getHttpClientConfig().getHostname();
                             }
                             // Removing the redundant service URL host value from the nextPage
-                            requestUrl = nextPage.replaceAll(BillingConstants.HTTPS + serviceUrlHost,
-                                                             BillingConstants.EMPTY_STRING).trim();
+                            requestUrl = nextPage
+                                    .replaceAll(BillingConstants.HTTPS + serviceUrlHost, BillingConstants.EMPTY_STRING)
+                                    .trim();
                         } else {
                             return null;
                         }
@@ -345,9 +345,8 @@ public class ZuoraRESTUtils {
      * @return json string of subscriptions
      * @throws CloudBillingException
      */
-    @SuppressWarnings("unchecked")
-    public static JSONArray getActiveSubscriptionIdsForAccountId(String accountId, String productName)
-            throws CloudBillingException {
+    @SuppressWarnings("unchecked") public static JSONArray getActiveSubscriptionIdsForAccountId(String accountId,
+            String productName) throws CloudBillingException {
         String response = getAccountSummary(accountId);
         JSONArray subscriptions = getSubscriptions(accountId, response);
         JSONArray subscriptionIdList = new JSONArray();
@@ -374,10 +373,11 @@ public class ZuoraRESTUtils {
      * @return success Json string
      * @throws CloudBillingException
      */
-    public static String cancelSubscription(String subscriptionNumber, String subscriptionInfoJson) throws
-            CloudBillingException {
+    public static String cancelSubscription(String subscriptionNumber, String subscriptionInfoJson)
+            throws CloudBillingException {
         return zuoraApi.doPut(BillingConstants.ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION
-                .replace(BillingConstants.SUBSCRIPTION_KEY_PARAM, subscriptionNumber.trim()), null, subscriptionInfoJson);
+                        .replace(BillingConstants.SUBSCRIPTION_KEY_PARAM, subscriptionNumber.trim()), null,
+                subscriptionInfoJson);
     }
 
     /**
@@ -401,8 +401,7 @@ public class ZuoraRESTUtils {
      * @return success Json string
      * @throws CloudBillingException
      */
-    public static String createAccount(String accountInfoJson)
-            throws CloudBillingException {
+    public static String createAccount(String accountInfoJson) throws CloudBillingException {
         // Zuora api request URL
         String requestUrl = BillingConstants.ZUORA_REST_API_URI_ACCOUNTS;
         return zuoraApi.doPost(requestUrl, null, accountInfoJson);
@@ -477,11 +476,11 @@ public class ZuoraRESTUtils {
         return zuoraApi.doPut(requestUrl, null, paymentMethodInfoJson);
     }
 
-    public static String createSubscription(String accountNumber, String ratePlanId, Date planEffectiveDate) throws
-            CloudBillingException {
+    public static String createSubscription(String accountNumber, String ratePlanId, Date planEffectiveDate)
+            throws CloudBillingException {
         subscriptionPlanInfoObj.addProperty(BillingConstants.ACCOUNT_KEY, accountNumber);
-        subscriptionPlanInfoObj.addProperty(BillingConstants.CONTRACT_EFFECTIVE_DATE, new SimpleDateFormat(BillingConstants
-                .DATE_FORMAT).format(planEffectiveDate));
+        subscriptionPlanInfoObj.addProperty(BillingConstants.CONTRACT_EFFECTIVE_DATE,
+                new SimpleDateFormat(BillingConstants.DATE_FORMAT).format(planEffectiveDate));
 
         JsonObject ratePlan = new JsonObject();
         ratePlan.addProperty(BillingConstants.PRODUCT_RATE_PLAN_ID, ratePlanId);
@@ -489,19 +488,20 @@ public class ZuoraRESTUtils {
         ratePlans.add(ratePlan);
         subscriptionPlanInfoObj.add(BillingConstants.SUBSCRIBED_TO_RATE_PLANS, ratePlans);
 
-        return zuoraApi.doPost(BillingConstants.ZUORA_REST_API_URI_SUBSCRIPTIONS, null, subscriptionPlanInfoObj.toString());
+        return zuoraApi
+                .doPost(BillingConstants.ZUORA_REST_API_URI_SUBSCRIPTIONS, null, subscriptionPlanInfoObj.toString());
     }
 
     /**
      * Get product rate plan object from zuora for rate plan name and product name
      *
-     * @param productName product name
+     * @param productName  product name
      * @param ratePlanName rate plan name
      * @return Json object of product rate plan for given product rate plan name
      * @throws CloudBillingException
      */
-    public static JSONObject getProductRatePlanObject(String productName, String ratePlanName) throws
-            CloudBillingException {
+    public static JSONObject getProductRatePlanObject(String productName, String ratePlanName)
+            throws CloudBillingException {
         try {
             JSONArray productPlans = getProductRatePlans(productName);
             for (Object productPlan : productPlans) {

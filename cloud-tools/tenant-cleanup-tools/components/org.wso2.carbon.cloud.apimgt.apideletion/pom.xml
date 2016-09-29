@@ -144,6 +144,8 @@
 
     <properties>
         <imp.pkg.version.carbon.apimgt>[1.2.0, 1.2.5)</imp.pkg.version.carbon.apimgt>
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
     </properties>
 
 </project>

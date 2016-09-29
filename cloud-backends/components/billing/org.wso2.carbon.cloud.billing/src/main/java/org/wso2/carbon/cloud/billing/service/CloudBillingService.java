@@ -23,25 +23,24 @@ import com.google.gson.JsonParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.json.simple.JSONObject;
 import org.wso2.carbon.cloud.billing.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.commons.config.DataServiceConfig;
 import org.wso2.carbon.cloud.billing.commons.config.Plan;
-import org.wso2.carbon.cloud.billing.commons.fileProcessor.FileContentReader;
+import org.wso2.carbon.cloud.billing.commons.fileprocessor.FileContentReader;
 import org.wso2.carbon.cloud.billing.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.ZuoraRESTUtils;
 import org.wso2.carbon.cloud.billing.commons.zuora.security.ZuoraHPMUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.exceptions.CloudBillingZuoraException;
 import org.wso2.carbon.cloud.billing.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.utils.APICloudMonetizationUtils;
 import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
@@ -53,16 +52,21 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * Represents cloud billing related services.
@@ -279,11 +283,10 @@ public class CloudBillingService extends AbstractAdmin {
      * @throws CloudBillingException
      */
     public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName, String startDate,
-                                                              String endDate) throws CloudBillingException {
+            String endDate) throws CloudBillingException {
         try {
             return CloudBillingServiceUtils
-                    .getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate,
-                                                         endDate);
+                    .getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
         } catch (CloudBillingException ex) {
             LOGGER.error("Error occurred while retrieving usage data of tenant: " + tenantDomain + "for product: " +
                     productName, ex);
@@ -336,7 +339,8 @@ public class CloudBillingService extends AbstractAdmin {
         try {
             String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
             return (accountId != null && !accountId.isEmpty()) ?
-                    ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) : null;
+                    ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) :
+                    null;
         } catch (CloudBillingException ex) {
             LOGGER.error("Error occurred while retrieving the current rate plan of the tenant: " + tenantDomain + " " +
                     "for subscription: " + productName, ex);
@@ -431,7 +435,7 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * Get product rate plan object from zuora for rate plan name
      *
-     * @param productName product name
+     * @param productName  product name
      * @param ratePlanName rate plan name
      * @return Json object of product rate plan for given product rate plan name
      * @throws CloudBillingException
@@ -477,36 +481,36 @@ public class CloudBillingService extends AbstractAdmin {
      * @param parentAccountNo parent account no
      * @return json object in String
      * {
-     *    "errors": null,
-     *    "errorsSpecified": false,
-     *    "id": {
-     *        "id": "2c92c0fb5133f6380151439c0980718d"
-     *    },
-     *   "idSpecified": true,
-     *    "success": true,
-     *    "successSpecified": true
+     *  "errors": null,
+     *  "errorsSpecified": false,
+     *  "id": {
+     *      "id": "2c92c0fb5133f6380151439c0980718d"
+     *  },
+     *  "idSpecified": true,
+     *  "success": true,
+     *  "successSpecified": true
      * }
      * <p/>
      * or
      * <p/>
      * {
-     *    "errors": [
-     *        {
-     *            "code": {
-     *                "value": "INVALID_VALUE"
-     *            },
-     *            "codeSpecified": true,
-     *            "field": null,
-     *            "fieldSpecified": false,
-     *            "message": "The account number T-1444288585567 is invalid.",
-     *            "messageSpecified": true
-     *        }
-     *    ],
-     *    "errorsSpecified": true,
-     *    "id": null,
-     *    "idSpecified": false,
-     *    "success": false,
-     *    "successSpecified": true
+     *  "errors": [
+     *      {
+     *          "code": {
+     *              "value": "INVALID_VALUE"
+     *          },
+     *          "codeSpecified": true,
+     *          "field": null,
+     *          "fieldSpecified": false,
+     *          "message": "The account number T-1444288585567 is invalid.",
+     *          "messageSpecified": true
+     *      }
+     *  ],
+     *  "errorsSpecified": true,
+     *  "id": null,
+     *  "idSpecified": false,
+     *  "success": false,
+     *  "successSpecified": true
      * }
      * @throws CloudBillingException
      */
@@ -526,59 +530,59 @@ public class CloudBillingService extends AbstractAdmin {
      * @param tenantDomain    tenant domain
      * @param accountInfoJson child account information in json
      * {
-     *     "autoPay": true,
-     *     "billToContact": {
-     *         "address1": "1967",
-     *         "address2": "",
-     *         "city": "Seattle",
-     *         "country": "US",
-     *         "firstName": "Chevy",
-     *         "lastName": "Impala",
-     *         "state": "WA",
-     *         "workEmail": "rajith.siri.wardana@gmail.com",
-     *         "zipCode": "98057"
-     *     },
-     *     "currency": "USD",
-     *     "hpmCreditCardPaymentMethodId": "2c92c0f8516cc1a501517aea10e138f2",
-     *     "invoiceCollect": true,
-     *     "invoiceTargetDate": "2015-12-07",
-     *     "name": "Chevy Impala",
-     *     "subscription": {
-     *         "autoRenew": true,
-     *         "contractEffectiveDate": "2015-12-07",
-     *         "subscribeToRatePlans": [
-     *             {
-     *                 "productRatePlanId": "2c92c0f84b0795b8014b0b1ac63e6713"
-     *             }
-     *         ],
-     *         "termType": "EVERGREEN"
-     *     }
+     *      "autoPay": true,
+     *      "billToContact": {
+     *          "address1": "1967",
+     *          "address2": "",
+     *          "city": "Seattle",
+     *          "country": "US",
+     *          "firstName": "Chevy",
+     *          "lastName": "Impala",
+     *          "state": "WA",
+     *          "workEmail": "rajith.siri.wardana@gmail.com",
+     *          "zipCode": "98057"
+     *      },
+     *      "currency": "USD",
+     *      "hpmCreditCardPaymentMethodId": "2c92c0f8516cc1a501517aea10e138f2",
+     *      "invoiceCollect": true,
+     *      "invoiceTargetDate": "2015-12-07",
+     *      "name": "Chevy Impala",
+     *      "subscription": {
+     *             "autoRenew": true,
+     *             "contractEffectiveDate": "2015-12-07",
+     *             "subscribeToRatePlans": [
+     *                  {
+     *                      "productRatePlanId": "2c92c0f84b0795b8014b0b1ac63e6713"
+     *                  }
+     *              ],
+     *              "termType": "EVERGREEN"
+     *      }
      * }
      * @return Json string as follows
      * {
-     *     "addParentResponse": {
-     *         "errors": null,
-     *         "errorsSpecified": false,
-     *         "id": {
-     *             "id": "2c92c0fa516cc1fc01517c125eae08c7"
-     *         },
-     *         "idSpecified": true,
-     *         "success": true,
-     *         "successSpecified": true
-     *     },
-     *     "createChildResponse": {
-     *         "accountId": "2c92c0fa516cc1fc01517c125eae08c7",
-     *         "accountNumber": "A00000579",
-     *         "contractedMrr": 700.0,
-     *         "invoiceId": "2c92c0fa516cc1fc01517c125fab08db",
-     *         "paidAmount": 700.0,
-     *         "paymentId": "2c92c0fa516cc1fc01517c125ff308e5",
-     *         "paymentMethodId": "2c92c0f9516ccc6c01517c11f35051ec",
-     *         "subscriptionId": "2c92c0fa516cc1fc01517c125f0008d2",
-     *         "subscriptionNumber": "A-S00000588",
-     *         "success": true,
-     *         "totalContractedValue": null
-     *     }
+     *  "addParentResponse": {
+     *      "errors": null,
+     *      "errorsSpecified": false,
+     *      "id": {
+     *          "id": "2c92c0fa516cc1fc01517c125eae08c7"
+     *      },
+     *      "idSpecified": true,
+     *      "success": true,
+     *      "successSpecified": true
+     *  },
+     *  "createChildResponse": {
+     *      "accountId": "2c92c0fa516cc1fc01517c125eae08c7",
+     *      "accountNumber": "A00000579",
+     *      "contractedMrr": 700.0,
+     *      "invoiceId": "2c92c0fa516cc1fc01517c125fab08db",
+     *      "paidAmount": 700.0,
+     *      "paymentId": "2c92c0fa516cc1fc01517c125ff308e5",
+     *      "paymentMethodId": "2c92c0f9516ccc6c01517c11f35051ec",
+     *      "subscriptionId": "2c92c0fa516cc1fc01517c125f0008d2",
+     *      "subscriptionNumber": "A-S00000588",
+     *      "success": true,
+     *      "totalContractedValue": null
+     *  }
      * }
      * @throws CloudBillingException
      */
@@ -598,14 +602,14 @@ public class CloudBillingService extends AbstractAdmin {
      * @param accountName account name
      * @return success json string
      * {
-     *     "errors": null,
-     *     "errorsSpecified": false,
-     *     "id": {
-     *         "id": "2c92c0f8501d4405015046de02cf0542"
-     *     },
-     *     "idSpecified": true,
-     *     "success": true,
-     *     "successSpecified": true
+     *  "errors": null,
+     *  "errorsSpecified": false,
+     *  "id": {
+     *      "id": "2c92c0f8501d4405015046de02cf0542"
+     *  },
+     *  "idSpecified": true,
+     *  "success": true,
+     *  "successSpecified": true
      * }
      * @throws CloudBillingZuoraException
      */
@@ -627,7 +631,8 @@ public class CloudBillingService extends AbstractAdmin {
      * @return
      * @throws CloudBillingException
      */
-    public String cancelSubscription(String subscriptionNumber, String subscriptionInfoJson) throws CloudBillingException {
+    public String cancelSubscription(String subscriptionNumber, String subscriptionInfoJson)
+            throws CloudBillingException {
         try {
             return ZuoraRESTUtils.cancelSubscription(subscriptionNumber, subscriptionInfoJson);
         } catch (CloudBillingException ex) {
@@ -643,8 +648,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @param subject  email subject
      * @param msgBody  email body
      */
-    public void sendEmailNotification(String receiver, String subject, String msgBody,
-                                      String contentType) {
+    public void sendEmailNotification(String receiver, String subject, String msgBody, String contentType) {
         EmailNotifications.getInstance().sendMail(msgBody, subject, receiver, contentType);
     }
 
@@ -667,16 +671,12 @@ public class CloudBillingService extends AbstractAdmin {
      * @return status of product creation
      * @throws CloudBillingException
      */
-    public boolean enableMonetization(String tenantDomain, String tenantPassword,
-                                      String tenantDisplayName)
+    public boolean enableMonetization(String tenantDomain, String tenantPassword, String tenantDisplayName)
             throws CloudBillingException {
         boolean status = false;
-        String testAccountCreationEmailFileName =
-                MonetizationConstants.TEST_ACCOUNT_CREATION_EMAIL_FILE_NAME;
-        String testAccountDeletionEmailFileName =
-                MonetizationConstants.TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME;
-        String subscriptionNotificationEmailFileName =
-                MonetizationConstants.SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME;
+        String testAccountCreationEmailFileName = MonetizationConstants.TEST_ACCOUNT_CREATION_EMAIL_FILE_NAME;
+        String testAccountDeletionEmailFileName = MonetizationConstants.TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME;
+        String subscriptionNotificationEmailFileName = MonetizationConstants.SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME;
         String textContentType = BillingConstants.TEXT_PLAIN_CONTENT_TYPE;
         // Create the zuora Product
         boolean createProductStatus = createProduct(tenantDomain);
@@ -684,23 +684,19 @@ public class CloudBillingService extends AbstractAdmin {
             //   Add subscriptionCreation element to workflowExtension.xml in registry
             status = true;
             if (!updateWorkFlow(tenantPassword, tenantDisplayName, tenantDomain)) {
-                LOGGER.error(
-                        "Registry WorkflowExtension.xml update failed while enabling Monetization.");
+                LOGGER.error("Registry WorkflowExtension.xml update failed while enabling Monetization.");
             }
-            if (!createEmailFileInRegsitry(tenantDomain, subscriptionNotificationEmailFileName,
-                                           textContentType)) {
+            if (!createEmailFileInRegsitry(tenantDomain, subscriptionNotificationEmailFileName, textContentType)) {
                 LOGGER.error("Creating the registry file " + subscriptionNotificationEmailFileName +
-                             " failed.");
+                        " failed.");
             }
-            if (!createEmailFileInRegsitry(tenantDomain, testAccountCreationEmailFileName,
-                                           textContentType)) {
+            if (!createEmailFileInRegsitry(tenantDomain, testAccountCreationEmailFileName, textContentType)) {
                 LOGGER.error("Creating the registry file " + testAccountCreationEmailFileName +
-                             " failed.");
+                        " failed.");
             }
-            if (!createEmailFileInRegsitry(tenantDomain, testAccountDeletionEmailFileName,
-                                           textContentType)) {
+            if (!createEmailFileInRegsitry(tenantDomain, testAccountDeletionEmailFileName, textContentType)) {
                 LOGGER.error("Creating the registry file " + testAccountDeletionEmailFileName +
-                             " failed.");
+                        " failed.");
             }
         }
         return status;
@@ -714,15 +710,16 @@ public class CloudBillingService extends AbstractAdmin {
      * @return status of the update
      * @throws CloudBillingException
      */
-    public boolean updateWorkFlow(String tenantPassword, String tenantUsername, String tenantDomain) throws CloudBillingException {
+    public boolean updateWorkFlow(String tenantPassword, String tenantUsername, String tenantDomain)
+            throws CloudBillingException {
         try {
             // Get the workflow resource url
             String workflowUrl = MonetizationConstants.WORKFLOW_EXTENSION_URL;
-            Resource workflowResource = CloudBillingUtils
-                    .getRegistryResource(tenantDomain, workflowUrl);
+            Resource workflowResource = CloudBillingUtils.getRegistryResource(tenantDomain, workflowUrl);
 
             // Get the resource content
-            String content = new String((byte[]) workflowResource.getContent());
+            String content = new String((byte[]) workflowResource.getContent(),
+                    Charset.forName(BillingConstants.ENCODING));
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             InputSource inputSource = new InputSource();
@@ -742,18 +739,18 @@ public class CloudBillingService extends AbstractAdmin {
             Element subscriptionCreation = doc.createElement(MonetizationConstants.TAG_SUSCRIPTION_CREATION);
             // Set the Attribute executor
             subscriptionCreation.setAttribute(MonetizationConstants.ATTRIBUTE_EXECUTOR,
-                                              MonetizationConstants.SUBSCRIPTION_CREATION_EXECUTOR);
+                    MonetizationConstants.SUBSCRIPTION_CREATION_EXECUTOR);
             // Add ServiceUrl Property tag
             Element propertyServiceUrl = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
-            propertyServiceUrl
-                    .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_SERVICE_END_POINT);
+            propertyServiceUrl.setAttribute(MonetizationConstants.ATTRIBUTE_NAME,
+                    MonetizationConstants.PROPERTY_SERVICE_END_POINT);
             // Get ServiceUrl from config files
             BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
             DataServiceConfig dataServiceConfig = billingConfig.getDSConfig();
             String serviceUrlHost = dataServiceConfig.getHttpClientConfig().getHostname();
             int serviceUrlPort = dataServiceConfig.getHttpClientConfig().getPort();
             String serviceURL = BillingConstants.HTTPS + serviceUrlHost + BillingConstants.COLON + serviceUrlPort +
-                                MonetizationConstants.PROPERTY_MONETIZATION_SERVICE_VALUE;
+                    MonetizationConstants.PROPERTY_MONETIZATION_SERVICE_VALUE;
             propertyServiceUrl.setTextContent(serviceURL);
             subscriptionCreation.appendChild(propertyServiceUrl);
             // Add Username Property tag
@@ -778,9 +775,10 @@ public class CloudBillingService extends AbstractAdmin {
             transformer.transform(source, result);
             content = result.getWriter().toString();
             // Update the workflow resource
-            workflowResource.setContent(content.getBytes());
+            workflowResource.setContent(content.getBytes(Charset.forName(BillingConstants.ENCODING)));
             return CloudBillingUtils.putRegistryResource(tenantDomain, workflowUrl, workflowResource);
-        } catch (RegistryException | ParserConfigurationException | SAXException | IOException | TransformerException e) {
+        } catch (RegistryException | ParserConfigurationException | SAXException | IOException |
+                TransformerException e) {
             throw new CloudBillingException("Error occurred while updating the Registry workflowExtensionContent ", e);
         }
     }
@@ -795,23 +793,18 @@ public class CloudBillingService extends AbstractAdmin {
      * @return the status of the file creation in the tenant space.
      * @throws CloudBillingException
      */
-    private boolean createEmailFileInRegsitry(String tenantDomain, String emailFileName,
-                                              String emailContentType)
+    private boolean createEmailFileInRegsitry(String tenantDomain, String emailFileName, String emailContentType)
             throws CloudBillingException {
         FileContentReader fileContentReader = new FileContentReader();
         String fileBasePath = CarbonUtils.getCarbonHome() + File.separator +
-                              MonetizationConstants.EMAIl_RESOURCES_FOLDER + File.separator;
+                MonetizationConstants.EMAIL_RESOURCES_FOLDER + File.separator;
         String emailFilePath = fileBasePath + emailFileName;
         String registryPath = MonetizationConstants.EMAIL_FILE_BASE_URL + emailFileName;
 
         try {
-            String emailContent =
-                    fileContentReader.fileReader(emailFilePath);
-            return CloudBillingUtils.createRegistryResource(tenantDomain,
-                                                            registryPath,
-                                                            emailContent,
-                                                            emailContentType,
-                                                            BillingConstants.GOVERNANCE_REGISTRY);
+            String emailContent = fileContentReader.fileReader(emailFilePath);
+            return CloudBillingUtils.createRegistryResource(tenantDomain, registryPath, emailContent, emailContentType,
+                    BillingConstants.GOVERNANCE_REGISTRY);
         } catch (Exception e) {
             throw new CloudBillingException(
                     "Error occurred while creating the registry file " + emailFileName + " error: ", e);
@@ -838,15 +831,14 @@ public class CloudBillingService extends AbstractAdmin {
      * @throws CloudBillingException
      */
     public JsonObject createProductRatePlan(String tenantDomain, String ratePlanName, String price,
-                                            String overageCharge, String description)
-            throws CloudBillingException {
+            String overageCharge, String description) throws CloudBillingException {
         try {
-            return CloudBillingServiceUtils.createProductRatePlan(tenantDomain, ratePlanName, price, overageCharge,
-                                                                  description);
+            return CloudBillingServiceUtils
+                    .createProductRatePlan(tenantDomain, ratePlanName, price, overageCharge, description);
         } catch (CloudBillingException e) {
             throw new CloudBillingException(
                     "Error occurred while creating the ProductRatePlan : " + ratePlanName + " for the tenant : " +
-                    tenantDomain, e);
+                            tenantDomain, e);
         }
     }
 
@@ -856,7 +848,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @param tenantDomain tenant domain
      * @return JSONArray of throttling tiers
      * {
-     *     Gold, Silver, Bronze ......
+     * Gold, Silver, Bronze ......
      * }
      * @throws CloudMonetizationException
      */
@@ -916,19 +908,22 @@ public class CloudBillingService extends AbstractAdmin {
 
         // Get the tenant-conf resource url
         String tenantConfUrl = MonetizationConstants.TENANT_CONF_URL;
-        Resource tenantConfResource =
-                CloudBillingUtils.getRegistryResource(tenantDomain, tenantConfUrl, BillingConstants.CONFIG_REGISTRY);
+        Resource tenantConfResource = CloudBillingUtils
+                .getRegistryResource(tenantDomain, tenantConfUrl, BillingConstants.CONFIG_REGISTRY);
 
         // Get the resource content
         try {
-            String content = new String((byte[]) tenantConfResource.getContent());
-            JsonObject jsonRegistryObject  = (JsonObject) new JsonParser().parse(content);
+            String content = new String((byte[]) tenantConfResource.getContent(), BillingConstants.ENCODING);
+            JsonObject jsonRegistryObject = (JsonObject) new JsonParser().parse(content);
             jsonRegistryObject.addProperty("EnableMonetization", true);
-            tenantConfResource.setContent(jsonRegistryObject.toString().getBytes());
-            return CloudBillingUtils.putRegistryResource(tenantDomain,tenantConfUrl,tenantConfResource,BillingConstants.CONFIG_REGISTRY);
+            tenantConfResource.setContent(jsonRegistryObject.toString().getBytes(BillingConstants.ENCODING));
+            return CloudBillingUtils.putRegistryResource(tenantDomain, tenantConfUrl, tenantConfResource,
+                    BillingConstants.CONFIG_REGISTRY);
 
         } catch (RegistryException e) {
             throw new CloudBillingException("Error occurred while updating the monetization status in registry ", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error occurred during encoding bytes ", e);
         }
     }
 
@@ -941,8 +936,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @throws CloudBillingException
      */
     public JsonObject updateProductRatePlan(String tenantDomain, String ratePlanName, String recurringCharge,
-                                            String overageCharge, String description)
-            throws CloudBillingException {
+            String overageCharge, String description) throws CloudBillingException {
         try {
             return CloudBillingServiceUtils
                     .updateProductRatePlan(tenantDomain, ratePlanName, recurringCharge, overageCharge, description);

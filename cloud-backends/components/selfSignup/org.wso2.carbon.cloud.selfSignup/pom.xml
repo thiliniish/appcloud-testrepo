@@ -127,4 +127,9 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
+    </properties>
 </project>
