@@ -20,6 +20,9 @@
 
 package org.wso2.carbon.cloud.nginx.vhost.util;
 
+/**
+ * Custom Exception wrapper for Domain Mapper Component
+ */
 public class DomainMapperException extends Exception {
 
     public DomainMapperException() {
@@ -27,5 +30,9 @@ public class DomainMapperException extends Exception {
 
     public DomainMapperException(String message) {
         super(message);
+    }
+
+    public DomainMapperException(Exception ex) {
+        super(ex);
     }
 }

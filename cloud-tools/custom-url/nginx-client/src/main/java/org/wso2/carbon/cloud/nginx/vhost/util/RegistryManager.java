@@ -27,16 +27,19 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.ws.client.registry.WSRegistryServiceClient;
 
+/**
+ * Class used to manage registry resources which are related to custom URL
+ */
 public class RegistryManager {
 
+    private static final String TRUST_STORE_PASSWORD = "wso2carbon";
+    private static final String TRUST_STORE_TYPE = "JKS";
     private static Log log = LogFactory.getLog(RegistryManager.class);
     private String username;
     private String password;
     private String serverUrl;
     private String axis2Conf;
     private Registry registry;
-    private final static String TRUST_STORE_PASSWORD = "wso2carbon";
-    private final static String TRUST_STORE_TYPE = "JKS";
 
     public RegistryManager(ConfigReader configReader, String axis2Conf) throws AxisFault, RegistryException {
         log.info("Initializing Registry Manager.");
@@ -62,8 +65,8 @@ public class RegistryManager {
             System.setProperty("javax.net.ssl.trustStore", NginxVhostConstants.TRUST_STORE_LOCATION);
             System.setProperty("javax.net.ssl.trustStorePassword", TRUST_STORE_PASSWORD);
             System.setProperty("javax.net.ssl.trustStoreType", TRUST_STORE_TYPE);
-            ConfigurationContext configContext = ConfigurationContextFactory.
-                    createConfigurationContextFromFileSystem(axis2Conf);
+            ConfigurationContext configContext =
+                    ConfigurationContextFactory.createConfigurationContextFromFileSystem(axis2Conf);
             registry = new WSRegistryServiceClient(serverUrl, username, password, configContext);
         } catch (AxisFault ex) {
             String errorMessage = "Error thrown when creating configuration context for registry";
@@ -99,6 +102,5 @@ public class RegistryManager {
             throw new RegistryException(errorMessage, ex);
         }
     }
-
 
 }

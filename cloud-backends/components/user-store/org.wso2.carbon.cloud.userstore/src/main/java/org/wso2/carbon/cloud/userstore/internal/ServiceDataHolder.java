@@ -20,6 +20,9 @@ package org.wso2.carbon.cloud.userstore.internal;
 
 import org.wso2.carbon.user.core.service.RealmService;
 
+/**
+ * This is Service Data holding class for the component
+ */
 public class ServiceDataHolder {
     private static final ServiceDataHolder SERVICE_DATA_HOLDER = new ServiceDataHolder();
     private RealmService realmService;

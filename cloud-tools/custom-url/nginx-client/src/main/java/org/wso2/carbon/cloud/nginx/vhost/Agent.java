@@ -26,14 +26,21 @@ import org.wso2.carbon.cloud.nginx.vhost.conf.ConfigReader;
 import org.wso2.carbon.cloud.nginx.vhost.util.TemplateManager;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.jms.JMSException;
-import java.io.IOException;
-import java.security.*;
-import java.security.cert.CertificateException;
 
+/**
+ * Main class to run the Domain Mapper
+ */
 public class Agent {
     private static final String SETUP_MODE = "-Dsetup";
     private static Log log = LogFactory.getLog(Agent.class);
@@ -50,7 +57,7 @@ public class Agent {
             VHostManager vHostManager = new VHostManager(configReader, templateManager);
 
             if (args.length > 0 && SETUP_MODE.equals(args[0])) {
-                    vHostManager.restoreVirtualHosts();
+                vHostManager.restoreVirtualHosts();
             }
 
             new MessageBrokerConsumer(vHostManager, templateManager, configReader);

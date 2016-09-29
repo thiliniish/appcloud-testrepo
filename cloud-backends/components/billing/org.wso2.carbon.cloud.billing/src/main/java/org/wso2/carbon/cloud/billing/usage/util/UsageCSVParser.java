@@ -22,8 +22,10 @@ import org.wso2.carbon.cloud.billing.beans.usage.Usage;
 import org.wso2.carbon.cloud.billing.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,8 +49,8 @@ public class UsageCSVParser {
     public static void writeCSVData(Usage[] usage, String filePath) throws CloudBillingException {
         CSVWriter csvWriter;
         try {
-            csvWriter =
-                    new CSVWriter(new FileWriter(filePath), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
+            Writer writer = new OutputStreamWriter(new FileOutputStream(filePath), BillingConstants.ENCODING);
+            csvWriter = new CSVWriter(writer, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
             List<String[]> data = toStringArray(usage);
             csvWriter.writeAll(data);
             csvWriter.close();
@@ -67,13 +69,13 @@ public class UsageCSVParser {
     private static List<String[]> toStringArray(Usage[] usage) {
         List<String[]> records = new ArrayList<String[]>();
         //add header record
-        records.add(new String[]{BillingConstants.ACCOUNT_ID, BillingConstants.UOM, BillingConstants.QTY,
-                                 BillingConstants.STARTDATE, BillingConstants.ENDDATE, BillingConstants.SUBSCRIPTION_ID,
-                                 BillingConstants.CHARGE_ID, BillingConstants.DESCRIPTION});
+        records.add(new String[] { BillingConstants.ACCOUNT_ID, BillingConstants.UOM, BillingConstants.QTY,
+                BillingConstants.STARTDATE, BillingConstants.ENDDATE, BillingConstants.SUBSCRIPTION_ID,
+                BillingConstants.CHARGE_ID, BillingConstants.DESCRIPTION });
         //add usage records
         for (Usage u : usage) {
-            records.add(new String[]{u.getAccountId(), u.getUom(), String.valueOf(u.getQty()), u.getStartDate(),
-                                     u.getEndDate(), u.getSubscriptionId(), u.getChargeId(), u.getDescription()});
+            records.add(new String[] { u.getAccountId(), u.getUom(), String.valueOf(u.getQty()), u.getStartDate(),
+                    u.getEndDate(), u.getSubscriptionId(), u.getChargeId(), u.getDescription() });
         }
         return records;
     }

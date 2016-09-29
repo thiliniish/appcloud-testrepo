@@ -21,6 +21,9 @@ import org.wso2.carbon.user.core.Permission;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Bean Class to carry role information of a specific user
+ */
 public class RoleBean {
     private String roleName;
     private List<String> users;

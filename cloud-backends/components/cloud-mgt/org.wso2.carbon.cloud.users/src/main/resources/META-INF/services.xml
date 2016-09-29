@@ -15,7 +15,7 @@
   ~      limitations under the License.
   -->
 <serviceGroup>
-     <service name="UserManagementService" scope="transportsession">
+    <service name="UserManagementService" scope="transportsession">
         <transports>
             <transport>https</transport>
         </transports>
@@ -24,9 +24,9 @@
         </parameter>
         <parameter name="adminService" locked="true">true</parameter>
         <parameter name="hiddenService" locked="true">true</parameter>
-	<!--parameter name="AuthorizationAction" locked="false">/permission/admin/appfactory/usermgt/invite</parameter-->
+        <!--parameter name="AuthorizationAction" locked="false">/permission/admin/appfactory/usermgt/invite</parameter-->
         <operation name="getUserInfo">
-                <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
         </operation>
     </service>
 </serviceGroup>

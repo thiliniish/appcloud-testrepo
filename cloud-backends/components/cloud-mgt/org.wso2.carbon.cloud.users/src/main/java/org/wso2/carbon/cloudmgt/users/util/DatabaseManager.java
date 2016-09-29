@@ -21,15 +21,18 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloudmgt.common.CloudConstants;
 import org.wso2.carbon.cloudmgt.users.service.UserManagementException;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
+/**
+ * Database Management Class to lookup datasources, get tenant display names and deleting users from user mappings
+ */
 public class DatabaseManager {
     private static Log log = LogFactory.getLog(DatabaseManager.class);
     private DataSource dataSource;
@@ -44,9 +47,9 @@ public class DatabaseManager {
             environment.put(CloudConstants.JAVA_NAMING_FACTORY_INITIAL, CloudConstants.CARBON_JAVA_URL_CONTEXT_FACTORY);
             Context initContext = new InitialContext(environment);
             DataSource dataSource = (DataSource) initContext.lookup(dataSourceName);
-            if(dataSource != null){
+            if (dataSource != null) {
                 return dataSource;
-            }else {
+            } else {
                 String msg = "Cannot Find a data source with the name";
                 log.error(msg);
                 throw new UserManagementException(msg);
@@ -61,7 +64,8 @@ public class DatabaseManager {
         PreparedStatement preparedStatement = null;
         try {
             conn = dataSource.getConnection();
-            preparedStatement = conn.prepareStatement("DELETE FROM TENANT_USER_MAPPING WHERE userName=? AND tenantDomain=?");
+            preparedStatement =
+                    conn.prepareStatement("DELETE FROM TENANT_USER_MAPPING WHERE userName=? AND tenantDomain=?");
             preparedStatement.setString(1, user);
             preparedStatement.setString(2, tenantDomain);
             preparedStatement.execute();
@@ -93,8 +97,8 @@ public class DatabaseManager {
         String tenantDisplayName = "";
         try {
             conn = dataSource.getConnection();
-            preparedStatement = conn.prepareStatement(
-                    CloudConstants.SELECT_TENANT_DISPLAY_NAME_FOR_TENANT_DOMAIN_QUERY);
+            preparedStatement =
+                    conn.prepareStatement(CloudConstants.SELECT_TENANT_DISPLAY_NAME_FOR_TENANT_DOMAIN_QUERY);
             preparedStatement.setString(1, tenantDomain);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {

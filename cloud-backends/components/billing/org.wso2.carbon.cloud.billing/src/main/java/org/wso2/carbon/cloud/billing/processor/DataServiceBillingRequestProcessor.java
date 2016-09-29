@@ -40,10 +40,10 @@ import org.wso2.carbon.cloud.billing.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 
-import javax.xml.bind.DatatypeConverter;
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import javax.xml.bind.DatatypeConverter;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Represent the request api processor for data services
@@ -83,8 +83,8 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         String userName = dataServiceConfig.getUser();
         String password = dataServiceConfig.getPassword();
         try {
-            return "Basic " +
-                    DatatypeConverter.printBase64Binary((userName + ":" + password).getBytes(BillingConstants.ENCODING));
+            return "Basic " + DatatypeConverter
+                    .printBase64Binary((userName + ":" + password).getBytes(BillingConstants.ENCODING));
         } catch (UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while initializing encoding basic auth header", e);
         }
@@ -104,7 +104,9 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         setTrustStoreParams();
         GetMethod get = new GetMethod(url);
         // default accept response body in XML
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_XML : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_XML :
+                acceptType;
         get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         get.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
         get.addRequestHeader(BillingConstants.HTTP_FOLLOW_REDIRECT, "true");
@@ -154,7 +156,9 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         setTrustStoreParams();
         PostMethod post = new PostMethod(url);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
+                acceptType;
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         post.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
         post.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
@@ -191,7 +195,9 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         setTrustStoreParams();
         PutMethod put = new PutMethod(url);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
+                acceptType;
         put.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         put.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);
         put.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
@@ -216,7 +222,9 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         setTrustStoreParams();
         DeleteMethod delete = new DeleteMethod(url);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
+        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
+                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
+                acceptType;
         delete.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         delete.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
         delete.addRequestHeader(BillingConstants.HTTP_REQ_HEADER_AUTHZ, basicAuthHeader);

@@ -32,48 +32,55 @@ import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
- *@scr.component name="org.wso2.carbon.cloudmgt.user"
- *                immediate="true"
+ * @scr.component name="org.wso2.carbon.cloudmgt.user"
+ * immediate="true"
  * @scr.reference name="user.realmservice.default"
- *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic" 
- *                bind="setRealmService"
- *                unbind="unsetRealmService"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setRealmService"
+ * unbind="unsetRealmService"
  * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setRegistryService"
- *                unbind="unsetRegistryService"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setRegistryService"
+ * unbind="unsetRegistryService"
  * @scr.reference name="configuration.context.service"
- *                interface="org.wso2.carbon.utils.ConfigurationContextService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setConfigurationContextService"
- *                unbind="unsetConfigurationContextService"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  */
 public class CloudUserMgtServiceComponent {
     private static Log log = LogFactory.getLog(CloudUserMgtServiceComponent.class);
 
     protected void activate(ComponentContext context) {
         log.info("CloudUserMgtServiceComponent activated successfully.");
-        context.getBundleContext().registerService(UserManagementService.class.getName(), new UserManagementService(), null);
+        context.getBundleContext()
+               .registerService(UserManagementService.class.getName(), new UserManagementService(), null);
 
         log.info("About to register API-M authorization listeners");
         // Register authorization listeners to authorize API-M related registry when new roles are added.
-        AuthorizationUtils.addAuthorizeRoleListener(CloudConstants.AM_CREATOR_APIMGT_EXECUTION_ID,
-                                                    RegistryUtils.getAbsolutePath(RegistryContext.getBaseInstance(),
-                                                                                  RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-                                                                                  CloudConstants.API_APPLICATION_DATA_LOCATION),
+        AuthorizationUtils.addAuthorizeRoleListener(CloudConstants.AM_CREATOR_APIMGT_EXECUTION_ID, RegistryUtils
+                                                            .getAbsolutePath(RegistryContext.getBaseInstance(),
+                                                                             RegistryConstants
+                                                                                     .GOVERNANCE_REGISTRY_BASE_PATH +
+                                                                             CloudConstants
+                                                                                     .API_APPLICATION_DATA_LOCATION),
                                                     CloudConstants.Permissions.API_CREATE,
                                                     UserMgtConstants.EXECUTE_ACTION, null);
-        AuthorizationUtils.addAuthorizeRoleListener(CloudConstants.AM_CREATOR_GOVERNANCE_EXECUTION_ID,
-                                                    RegistryUtils.getAbsolutePath(RegistryContext.getBaseInstance(),
-                                                                                  RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH + "/trunk"),
+        AuthorizationUtils.addAuthorizeRoleListener(CloudConstants.AM_CREATOR_GOVERNANCE_EXECUTION_ID, RegistryUtils
+                                                            .getAbsolutePath(RegistryContext.getBaseInstance(),
+                                                                             RegistryConstants
+                                                                                     .GOVERNANCE_REGISTRY_BASE_PATH +
+                                                                             "/trunk"),
                                                     CloudConstants.Permissions.API_CREATE,
                                                     UserMgtConstants.EXECUTE_ACTION, null);
-        AuthorizationUtils.addAuthorizeRoleListener(CloudConstants.AM_PUBLISHER_APIMGT_EXECUTION_ID,
-                                                    RegistryUtils.getAbsolutePath(RegistryContext.getBaseInstance(),
-                                                                                  RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-                                                                                  CloudConstants.API_APPLICATION_DATA_LOCATION),
+        AuthorizationUtils.addAuthorizeRoleListener(CloudConstants.AM_PUBLISHER_APIMGT_EXECUTION_ID, RegistryUtils
+                                                            .getAbsolutePath(RegistryContext.getBaseInstance(),
+                                                                             RegistryConstants
+                                                                                     .GOVERNANCE_REGISTRY_BASE_PATH +
+                                                                             CloudConstants
+                                                                                     .API_APPLICATION_DATA_LOCATION),
                                                     CloudConstants.Permissions.API_PUBLISH,
                                                     UserMgtConstants.EXECUTE_ACTION, null);
         log.info("API-M authorization listeners registered successfully");
@@ -85,8 +92,6 @@ public class CloudUserMgtServiceComponent {
             log.debug("DefaultRolesCreatorServiceComponent Service  bundle is deactivated ");
         }
     }
-    
-   
 
     protected void setRealmService(RealmService realmService) {
         UserMgtUtil.setRealmService(realmService);
@@ -102,15 +107,17 @@ public class CloudUserMgtServiceComponent {
         }
         UserMgtUtil.setRegistryService(registryService);
     }
-    
+
     protected void unsetRegistryService(RegistryService registryService) {
         UserMgtUtil.setRegistryService(null);
     }
-    protected void setConfigurationContextService(ConfigurationContextService configurationContextService){
+
+    protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
         UserMgtUtil.setConfigurationContextService(configurationContextService);
     }
-    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService){
+
+    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
         UserMgtUtil.setConfigurationContextService(null);
     }
-  
+
 }
