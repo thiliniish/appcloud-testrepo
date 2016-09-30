@@ -36,6 +36,15 @@
             <MaxTotalConnections>50</MaxTotalConnections>
         </HttpClientConfig>
     </DataServiceAPI>
+    <APIMRestAPI>
+        <APIMRestServiceURI>/api/am</APIMRestServiceURI>
+        <HttpClientConfig>
+            <Hostname>localhost</Hostname>
+            <Port>9453</Port>
+            <MaxConnectionsPerHost>50</MaxConnectionsPerHost>
+            <MaxTotalConnections>50</MaxTotalConnections>
+        </HttpClientConfig>
+    </APIMRestAPI>
     <!--Global Trial period in days-->
     <TrialPeriod>14</TrialPeriod>
     <Zoura>

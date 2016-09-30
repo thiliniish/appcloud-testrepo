@@ -53,8 +53,10 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -66,6 +68,7 @@ public final class APICloudMonetizationUtils {
 
     /*Database http request processor*/
     private static BillingRequestProcessor dsBRProcessor;
+    private static BillingRequestProcessor apimRestRequestProcessor;
 
     /*Data service URIs*/
     private static String subscribersUri;
@@ -84,11 +87,17 @@ public final class APICloudMonetizationUtils {
     private static String apiSubscriptionRemovalUri;
     private static String usageInformationUri;
 
+    /*APIM Rest API URIs*/
+    private static String tiersOfTenantUri;
+
     static {
         dsBRProcessor = BillingRequestProcessorFactory.getInstance()
                 .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+        apimRestRequestProcessor = BillingRequestProcessorFactory.getInstance()
+                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.APIM_REST);
         String apiCloudMonUri = BillingConfigUtils.getBillingConfiguration().getDSConfig()
                 .getApiCloudMonetizationServiceUri();
+        String apimRestUri = BillingConfigUtils.getBillingConfiguration().getAPIMRestConfig().getAPIMRestServiceUri();
 
         subscribersUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIBER);
         apiSubscriptionUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_UPDATE_API_SUBSCRIPTION);
@@ -106,6 +115,7 @@ public final class APICloudMonetizationUtils {
         ratePlanInfoUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APIC_RATE_PLANS);
         apiSubscriptionRemovalUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_REMOVE_API_SUBSCRIPTION);
         usageInformationUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE_INFORMATION);
+        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_THROTLING_TIERS);
     }
 
     private APICloudMonetizationUtils() {
@@ -336,62 +346,26 @@ public final class APICloudMonetizationUtils {
      * Retrieve the list of tiers of a given tenant
      *
      * @param tenantDomain
-     * @return json object array of tiers
+     * @return json string of tiers
      * @throws CloudMonetizationException
      */
-    public static JsonArray getTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
+
+    public static String getTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
         try {
-            Resource tiersXmlResource = CloudBillingUtils
-                    .getRegistryResource(tenantDomain, MonetizationConstants.TIERS_XML_URL);
-            if (tiersXmlResource != null) {
-                String content = new String((byte[]) tiersXmlResource.getContent(), BillingConstants.ENCODING);
-                JsonArray tierArray = new JsonArray();
-                OMElement element = AXIOMUtil.stringToOM(content);
-                OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
-                Iterator policies = assertion.getChildrenWithName(MonetizationConstants.POLICY_ELEMENT);
-                while (policies.hasNext()) {
-                    OMElement policy = (OMElement) policies.next();
-                    OMElement id = policy.getFirstChildWithName(MonetizationConstants.THROTTLE_ID_ELEMENT);
-                    String tierName = id.getText();
-                    if (MonetizationConstants.UNAUTHENTICATED.equalsIgnoreCase(tierName)) {
-                        continue;
-                    }
-                    OMElement tier = policy.getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
-                            .getFirstChildWithName(MonetizationConstants.THROTTLE_CONTROL_ELEMENT)
-                            .getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT);
-                    if (tier != null) {
-                        OMElement maximumCount = tier
-                                .getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_MAXIMUM_COUNT_ELEMENT);
-                        OMElement unitTime = tier
-                                .getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_UNIT_TIME_ELEMENT);
-                        OMElement attributes = tier.getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
-                                .getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_ELEMENT);
-                        JsonObject tierObject = new JsonObject();
-                        if (attributes != null) {
-                            OMElement billingPlan = attributes.getFirstChildWithName(
-                                    MonetizationConstants.THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT);
-                            if (billingPlan != null) {
-                                tierObject.addProperty(MonetizationConstants.BILLING_PLAN, billingPlan.getText());
-                            }
-                        }
-                        tierObject.addProperty(MonetizationConstants.TIER_NAME, tierName);
-                        tierObject.addProperty(MonetizationConstants.MAXIMUM_COUNT, maximumCount.getText());
-                        tierObject.addProperty(MonetizationConstants.UNIT_TIME, unitTime.getText());
-                        tierArray.add(tierObject);
-                    }
-                }
-                return tierArray;
-            } else {
-                throw new CloudMonetizationException(
-                        "tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
-            }
-        } catch (CloudBillingException | RegistryException | XMLStreamException | UnsupportedEncodingException e) {
-            throw new CloudMonetizationException("Error occurred while getting tiers of tenant: " + tenantDomain + ".",
-                    e);
+            Map<String, String> customHeaders = new HashMap<String, String>();
+            customHeaders.put(BillingConstants.HTTP_REQ_HEADER_X_WSO2_TENANT, tenantDomain);
+            return apimRestRequestProcessor
+                    .doGet(tiersOfTenantUri, BillingConstants.HTTP_TYPE_APPLICATION_JSON, customHeaders, null);
+        } catch (CloudBillingException e) {
+            throw new CloudMonetizationException(
+                    "Error occurred while calling the APIM Store Rest API for retrieving throttling tiers of tenant: "
+                            + tenantDomain, e);
         }
     }
 
     /**
+     * Add subscription information for child account
+     *
      * @param tenantDomain  tenant domain
      * @param accountNumber account number
      * @param apiDataObj    api data json object
@@ -974,5 +948,4 @@ public final class APICloudMonetizationUtils {
             throw new CloudMonetizationException("Error while retrieving rate plans for tenant: " + tenantDomain, e);
         }
     }
-
 }
