@@ -47,8 +47,7 @@ var getAccountId = function () {
             var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
             if (typeof accountNumber == 'object') {
                 return null;
-            }
-            else {
+            } else {
                 return accountNumber;
             }
         } else {
