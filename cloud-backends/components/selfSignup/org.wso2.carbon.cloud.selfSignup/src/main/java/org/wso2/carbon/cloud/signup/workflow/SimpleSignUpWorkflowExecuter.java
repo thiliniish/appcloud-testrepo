@@ -61,6 +61,7 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
     private String uuid;
     private String userEmail;
     private String fromEmailAddress;
+    private boolean notifyAllAdmins;
 
     //creating common instances of classes
     EmailManager emailManager;
@@ -74,6 +75,8 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
         //Instantiating the Util class
         utilObject = new Util();
+        //set default value of notifyAllAdmins to false
+        this.notifyAllAdmins = false;
     }
 
     /**
@@ -133,7 +136,7 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
             emailManager
                     .sendTenantNotificationEmail(tenantDomain, fromEmailAddress, tenantEmail,
-                                                      userEmail);
+                                                      userEmail, notifyAllAdmins);
 
             LOGGER.info("Workflow execution completed for the tenant domain " + tenantDomain +
                         " for the user " + userEmail);
@@ -409,6 +412,14 @@ public class SimpleSignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
 
     public void setContactEmail(String contactEmail) {
         this.contactEmail = contactEmail;
+    }
+
+    public boolean isNotifyAllAdmins() {
+        return notifyAllAdmins;
+    }
+
+    public void setNotifyAllAdmins(boolean notifyAllAdmins) {
+        this.notifyAllAdmins = notifyAllAdmins;
     }
 
 }
