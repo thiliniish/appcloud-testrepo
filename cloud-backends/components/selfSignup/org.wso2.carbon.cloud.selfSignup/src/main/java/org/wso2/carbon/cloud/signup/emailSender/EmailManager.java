@@ -80,7 +80,7 @@ public class EmailManager implements Serializable {
      * This method sends the email to the user.
      *
      * @param recepient            the user who will be receiving the email
-     * @param senderEmail          the user who sending the email
+     * @param senderEmail          the user who is sending the email
      * @param senderEmailSignature the sender's signature
      * @param subject              the subject of the email
      * @param messageBody          the content being sent in the email
