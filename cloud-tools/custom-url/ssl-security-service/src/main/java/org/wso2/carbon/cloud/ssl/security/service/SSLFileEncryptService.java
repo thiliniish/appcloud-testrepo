@@ -25,72 +25,76 @@ import org.wso2.carbon.cloud.ssl.security.service.util.AESCipher;
 import org.wso2.carbon.cloud.ssl.security.service.util.KeyStoreUtil;
 import org.wso2.carbon.core.AbstractAdmin;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
+/**
+ * Admin Service to Encrypt SSLFiles with the given algorithm
+ */
 public class SSLFileEncryptService extends AbstractAdmin {
 
-	private static Log log = LogFactory.getLog(SSLFileEncryptService.class);
-	private Key key = null;
-	private AESCipher aesCipher = null;
+    private static Log log = LogFactory.getLog(SSLFileEncryptService.class);
+    private Key key = null;
+    private AESCipher aesCipher = null;
 
-	/**
-	 * Initialize the  File encryption service
-	 *
-	 * @throws NoSuchAlgorithmException
-	 * @throws NoSuchPaddingException
-	 */
-	public void init() throws NoSuchAlgorithmException, NoSuchPaddingException {
-		this.key = KeyStoreUtil.getKey();
-		try {
-			aesCipher = new AESCipher(key);
-		} catch (NoSuchAlgorithmException ex) {
-			String errorMessage = "Error occurred when initializing SSLFileEncryptService.";
-			log.error(errorMessage, ex);
-			throw new NoSuchAlgorithmException(errorMessage);
-		} catch (NoSuchPaddingException ex) {
-			String errorMessage = "Error occurred when initializing SSLFileEncryptService.";
-			log.error(errorMessage, ex);
-			throw new NoSuchPaddingException(errorMessage);
-		}
-	}
+    /**
+     * Initialize the  File encryption service
+     *
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     */
+    public void init() throws NoSuchAlgorithmException, NoSuchPaddingException {
+        this.key = KeyStoreUtil.getKey();
+        try {
+            aesCipher = new AESCipher(key);
+        } catch (NoSuchAlgorithmException ex) {
+            String errorMessage = "Error occurred when initializing SSLFileEncryptService.";
+            log.error(errorMessage, ex);
+            throw new NoSuchAlgorithmException(errorMessage);
+        } catch (NoSuchPaddingException ex) {
+            String errorMessage = "Error occurred when initializing SSLFileEncryptService.";
+            log.error(errorMessage, ex);
+            throw new NoSuchPaddingException(errorMessage);
+        }
+    }
 
-	/**
-	 * This method will encrypt the provide string value
-	 *
-	 * @param message text that needed to be encrypt
-	 * @return Encrypted Text
-	 * @throws InvalidAlgorithmParameterException
-	 * @throws InvalidKeyException
-	 * @throws UnsupportedEncodingException
-	 * @throws IllegalBlockSizeException
-	 * @throws BadPaddingException
-	 */
-	public String encryptData(String message)
-			throws InvalidAlgorithmParameterException, InvalidKeyException, UnsupportedEncodingException,
-			       IllegalBlockSizeException, BadPaddingException {
-		try {
-			return aesCipher.getEncryptedMessage(message);
-		} catch (InvalidAlgorithmParameterException | InvalidKeyException |
-				UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException ex) {
-			String errorMessage = "Error occurred when decrypting ssl files.";
-			log.error(errorMessage, ex);
-			throw ex;
-		}
-	}
+    /**
+     * This method will encrypt the provide string value
+     *
+     * @param message text that needed to be encrypt
+     * @return Encrypted Text
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws UnsupportedEncodingException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     */
+    public String encryptData(String message)
+            throws InvalidAlgorithmParameterException, InvalidKeyException, UnsupportedEncodingException,
+                   IllegalBlockSizeException, BadPaddingException {
+        try {
+            return aesCipher.getEncryptedMessage(message);
+        } catch (InvalidAlgorithmParameterException | InvalidKeyException |
+                UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException ex) {
+            String errorMessage = "Error occurred when decrypting ssl files.";
+            log.error(errorMessage, ex);
+            throw ex;
+        }
+    }
 
-	/**
-	 * Get the indexing vector(IV) that used to encrypt
-	 *
-	 * @return String representation of indexing vector
-	 */
-	public String getIndexingVector() {
-		return new String(new Base64().encode(aesCipher.getIv()));
-	}
+    /**
+     * Get the indexing vector(IV) that used to encrypt
+     *
+     * @return String representation of indexing vector
+     */
+    public String getIndexingVector() throws UnsupportedEncodingException {
+        return new String(new Base64().encode(aesCipher.getIv()), StandardCharsets.UTF_8);
+    }
 }

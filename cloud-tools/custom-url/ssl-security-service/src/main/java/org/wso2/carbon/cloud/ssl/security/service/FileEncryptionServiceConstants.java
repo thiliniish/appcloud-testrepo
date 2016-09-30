@@ -17,6 +17,9 @@
  */
 package org.wso2.carbon.cloud.ssl.security.service;
 
+/**
+ * Constants for File Encryption
+ */
 public class FileEncryptionServiceConstants {
 
     public static final String AES256_ALGORITHM = "AES/CBC/PKCS5Padding";
@@ -24,6 +27,6 @@ public class FileEncryptionServiceConstants {
     public static final String ENCODING_MECHANISM = "UTF-8";
     public static final String CERTIFICATE_ALGORITHM = "X.509";
     public static final String KEY_ENCRYPTION_ALGORITHM = "RSA";
-    public static final String KEY_STORE_CONFIG_FILE = System.getProperty("user.dir") + "/repository/conf/cloud/file-encrypt-config.properties";
-
+    public static final String KEY_STORE_CONFIG_FILE =
+            System.getProperty("user.dir") + "/repository/conf/cloud/file-encrypt-config.properties";
 }

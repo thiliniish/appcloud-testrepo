@@ -32,11 +32,12 @@ import org.wso2.carbon.cloud.billing.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.ntask.core.Task;
 import org.wso2.carbon.user.api.UserStoreException;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.net.HttpURLConnection;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Billing databases update scheduler task. This will update the pending disable state
@@ -73,7 +74,8 @@ public class BillingDbUpdateTask implements Task {
     @Override
     public void execute() {
         try {
-            String response = requestProcessor.doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY), null, null);
+            String response = requestProcessor
+                    .doGet(properties.get(BillingConstants.PENDING_DISABLES_URL_KEY), null, null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
             Iterator<?> entries = elements.getChildrenWithName(new QName(BillingConstants.ENTRY));

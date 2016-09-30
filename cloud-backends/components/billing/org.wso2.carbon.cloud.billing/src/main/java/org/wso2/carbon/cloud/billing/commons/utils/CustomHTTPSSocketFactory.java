@@ -22,10 +22,10 @@ import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 
-import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import javax.net.ssl.SSLSocket;
 
 /**
  * Custom protocol factory which enables specifically mentioned ssl protocols versions
