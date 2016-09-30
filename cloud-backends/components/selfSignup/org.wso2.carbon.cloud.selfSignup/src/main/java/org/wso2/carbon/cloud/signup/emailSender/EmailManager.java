@@ -79,11 +79,11 @@ public class EmailManager implements Serializable {
     /**
      * This method sends the email to the user.
      *
-     * @param recepient            is the user who will be receiving the email
-     * @param senderEmail          is the user who is sending the email
-     * @param senderEmailSignature is the sender's signature
-     * @param subject              is the subject of the email
-     * @param messageBody          is the content being sent in the email
+     * @param recepient            the user who will be receiving the email
+     * @param senderEmail          the user who sending the email
+     * @param senderEmailSignature the sender's signature
+     * @param subject              the subject of the email
+     * @param messageBody          the content being sent in the email
      * @param isCustomized         indicates whether sending a customized email or not
      * @throws WorkflowException
      */
@@ -166,7 +166,7 @@ public class EmailManager implements Serializable {
     /**
      * Returns a customized message with an embedded image
      *
-     * @param messageBody is the message to be sent in email
+     * @param messageBody the message to be sent in email
      * @return MimeMultipart with embedded image
      * @throws MessagingException
      */
@@ -206,11 +206,11 @@ public class EmailManager implements Serializable {
     /**
      * This method configures the needed parameters to configure the email to be sent to the tenant.
      *
-     * @param tenantDomain     is the teant domain to which user is signing up
-     * @param fromEmailAddress is the user who is sending the email
-     * @param tenantEmail      is the email address of the tenant to whom the email needs to be sent to
-     * @param user             is the name of the user who signed up to the tenant
-     * @param notifyAllAdmins  is the flag indicating whether or not to inform admin users
+     * @param tenantDomain     the teant domain to which user is signing up
+     * @param fromEmailAddress the user who is sending the email
+     * @param tenantEmail      the email address of the tenant to whom the email needs to be sent to
+     * @param user             the name of the user who signed up to the tenant
+     * @param notifyAllAdmins  the flag indicating whether or not to inform admin users
      * @throws WorkflowExceptionreplaceValuesOfEmailContent
      */
     public void sendTenantEmail(String tenantDomain, String fromEmailAddress,
@@ -233,8 +233,7 @@ public class EmailManager implements Serializable {
                 for (String emailAddress : adminUserEmails) {
                     if (emailAddress != null && !emailAddress.equals(tenantEmail)) {
                         sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage,
-                                  isCustomized,
-                                  tenantDomain);
+                                  isCustomized, tenantDomain);
                         log.info("Sent email to notify the admin user " + emailAddress + " of the user " + user +
                                          " sign up to the tenant domain " + tenantDomain);
                     }
@@ -255,10 +254,10 @@ public class EmailManager implements Serializable {
      * This method configures the needed parameters to configure the email to be sent to the user informing about the
      * status of the signup request
      *
-     * @param tenantDomain         is the tenant domain to which the user signed up
-     * @param tenantContactEmail   is the contact email for tenant
-     * @param tenantEmailSignarure is the signature of tenant
-     * @param userEmail            is the email of the user to whom the email needs to be sent.
+     * @param tenantDomain         the tenant domain to which the user signed up
+     * @param tenantContactEmail   the contact email for tenant
+     * @param tenantEmailSignarure the signature of tenant
+     * @param userEmail            the email of the user to whom the email needs to be sent.
      * @throws WorkflowException
      */
     public void sendUserNotificationEmail(String tenantDomain, String tenantContactEmail, String tenantEmailSignarure,
@@ -285,12 +284,12 @@ public class EmailManager implements Serializable {
      * This method configures the needed parameters to configure the email sent to the user if the signup request was
      * approved/rejected
      *
-     * @param tenantDomain         is the tenant domain to which the user signed up
-     * @param tenantContactEmail   is the contact email for tenant
-     * @param tenantEmailSignarure is the signature of tenant
-     * @param userEmail            is the email of the user to whom the email needs to be sent.
-     * @param emailFile            is the name of the file which includes the email
-     * @param status               is the status of the approval of signup
+     * @param tenantDomain         the tenant domain to which the user signed up
+     * @param tenantContactEmail   the contact email for tenant
+     * @param tenantEmailSignarure the signature of tenant
+     * @param userEmail            the email of the user to whom the email needs to be sent.
+     * @param emailFile            the name of the file which includes the email
+     * @param status               the status of the approval of signup
      * @throws WorkflowException
      */
     public void sendApprovalStatusEmail(String tenantDomain, String tenantContactEmail,
@@ -324,11 +323,11 @@ public class EmailManager implements Serializable {
     }
 
     /**
-     * @param tenantDomain     is the tenant domain to which the user signed up
-     * @param fromEmailAddress is the user who is sending the email
-     * @param tenantEmail      is the email address of the tenant to whom the email needs to be sent to
-     * @param user             is the user who has sent the sign up request
-     * @param notifyAllAdmins  is the flag indicating whether or not to inform admin users
+     * @param tenantDomain     the tenant domain to which the user signed up
+     * @param fromEmailAddress the user who is sending the email
+     * @param tenantEmail      the email address of the tenant to whom the email needs to be sent to
+     * @param user             the user who has sent the sign up request
+     * @param notifyAllAdmins  the flag indicating whether or not to inform admin users
      * @throws WorkflowException
      */
     public void sendTenantNotificationEmail(String tenantDomain, String fromEmailAddress, String tenantEmail,
@@ -348,8 +347,7 @@ public class EmailManager implements Serializable {
                 for (String emailAddress : adminUserEmails) {
                     if (emailAddress != null && !emailAddress.equals(tenantEmail)) {
                         sendEmail(emailAddress, fromEmailAddress, fromSignature, emailSubject, emailMessage,
-                                  isCustomized,
-                                  tenantDomain);
+                                  isCustomized, tenantDomain);
                         log.info("Sent email to notify the admin user " + emailAddress + " of the user " + user +
                                          " sign up to the tenant domain " + tenantDomain);
                     }
@@ -369,12 +367,12 @@ public class EmailManager implements Serializable {
     /**
      * Populates the map with the key value pairs needed to replace the placeholders for the emails
      *
-     * @param contactAddress     is the tenant's contact address
-     * @param cloudmgtLink       is the link of the cloud mgt verificaiton
-     * @param tenantDomain       is the domain of the tenant of the sign up flow
-     * @param fromAddress        is the from address of the tenant
-     * @param adminDashboardLink is the link of the admin dashboard in the API manager
-     * @param user               is the user who signed up to the tenant
+     * @param contactAddress     the tenant's contact address
+     * @param cloudmgtLink       the link of the cloud mgt verificaiton
+     * @param tenantDomain       the domain of the tenant of the sign up flow
+     * @param fromAddress        the from address of the tenant
+     * @param adminDashboardLink the link of the admin dashboard in the API manager
+     * @param user               the user who signed up to the tenant
      */
     public void setEmailProperyKeyValueMap(String contactAddress, String cloudmgtLink,
                                            String tenantDomain, String fromAddress,
@@ -402,7 +400,7 @@ public class EmailManager implements Serializable {
     /**
      * This method replaces the placeholders in the email content.
      *
-     * @param textToReplace is the email content containing the placeholders
+     * @param textToReplace the email content containing the placeholders
      * @return the replaced email content
      */
     private static String replaceValuesOfEmailContent(String textToReplace) {
@@ -453,7 +451,7 @@ public class EmailManager implements Serializable {
     /**
      * This method sets the email message and returns a flag indicating whether the email is customized
      *
-     * @param emailPath is the path to email template
+     * @param emailPath the path to email template
      * @throws WorkflowException
      */
     private void setEmailMessage(String emailPath, boolean isCustomized) throws WorkflowException {
@@ -469,7 +467,7 @@ public class EmailManager implements Serializable {
     /**
      * This method returns a flag indicating whether the email is customized
      *
-     * @param emailPath is the path to email template
+     * @param emailPath the path to email template
      * @return boolean indicating whether email is customized
      */
     private boolean isCustomizedEmail(String emailPath) {
@@ -478,6 +476,13 @@ public class EmailManager implements Serializable {
         return customEmailFile.exists();
     }
 
+    /**
+     * Get a list of email addresses of the admins of given tenant domain
+     *
+     * @param tenantDomain the domain of the tenant of the sign up flow
+     * @return List of Strings
+     * @throws UserStoreException
+     */
     public List<String> getAdminUsersofTenant(String tenantDomain) throws UserStoreException {
         TenantManager tenantManager = ServiceReferenceHolder.getInstance().getRealmService().getTenantManager();
         int tenantId = tenantManager.getTenantId(tenantDomain);
@@ -496,6 +501,5 @@ public class EmailManager implements Serializable {
         }
         return adminUserEmails;
     }
-
 }
 
