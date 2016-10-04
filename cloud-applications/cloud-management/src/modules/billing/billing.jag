@@ -210,7 +210,8 @@ var getRatePlans = function (serviceId) {
 				"maxAccounts"       : item.getMaxAccounts(),
 				"monthlyRental"       : item.getMonthlyRental(),
 				"overUsage"       : item.getOverUsage(),
-                "premiumLevel" : item.getPremiumLevel()
+				"premiumLevel" : item.getPremiumLevel(),
+				"visibility"   : item.isVisible()
 			});
 		}
 		return subscriptionJson;
@@ -819,7 +820,7 @@ var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
 			}
 		}
 	}
-	return currentPlanLevel < newPlanLevel;
+	return currentPlanLevel <= newPlanLevel;
 };
 
 /*

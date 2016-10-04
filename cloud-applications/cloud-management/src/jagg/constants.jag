@@ -12,6 +12,8 @@ var DEFAULT_SUBSCRIPTION_NAME = "Common";
 
 var SUBSCRIPTION_API_CLOUD = "api_cloud";
 var SUBSCRIPTION_APP_CLOUD = "app_cloud";
+var API_CLOUD_TYPE = "api-cloud";
+var HTTPS = "https://";
 
 // property keys of registry 'application' resource
 var APPLICATION_KEY = "applicationKey";
