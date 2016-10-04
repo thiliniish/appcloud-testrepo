@@ -22,14 +22,12 @@
 <div class="container content-starter">
 <div class="row">
   <div class="col-lg-12">
-     <h1>Congratulations on joining WSO2 Cloud!</h1>
+     <h1>Thanks for joining WSO2 Cloud!</h1>
      <div class="helper_text" id="helper_text">
         <%
     if (outputs.isInvitee || outputs.isUserAvail) {%>
             <p>
-               Hope you are excited and anxious to start using WSO2 Cloud as we
-               are to see you here !!! <br /> We just need one last bit of
-               information.
+               We are excited to see you here!  <br /> We need one last bit of information to complete your signup.
             </p>
             <%
     } else {%>
