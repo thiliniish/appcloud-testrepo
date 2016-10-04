@@ -799,8 +799,6 @@ var enableMonetization = function (tenantPassword) {
                 var isProductCreated =
                         billingService.enableMonetization(tenantDomain, tenantPassword, tenantDisplayName);
                 if (isProductCreated) {
-                    responseMessage = "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
-                    throw responseMessage;
                     var cloudType = productIdFromServiceId.api_cloud;
                     // Add status to MONETIZATION_STATUS table
                     var addMonetizationStatus = addStatusToMonetizationStatusTable(tenantDomain, API_CLOUD);

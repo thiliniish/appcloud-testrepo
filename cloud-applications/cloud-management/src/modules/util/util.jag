@@ -298,6 +298,129 @@ var getInviteeDirectUrl = function(userRoles) {
 	return url;
 };
 
+//Method which validates the email.
+function validateEmail (email) {
+    if (email != null && email != "") {
+        var emailValidationResult = EMAIL_VALIDATION_REGEX.test(email);
+        if (email.indexOf("+") != -1 || !emailValidationResult) {
+            return {
+                error: true,
+                message: "The email " + email + " is not valid. Please provide a valid email address and try again",
+                status: 500
+            };
+        } else {
+            return {
+                error: false,
+                message: "The email " + email + " is valid",
+                status: 200
+            };
+        }
+    } else {
+        return {
+            error: true,
+            message: "Please provide a value for the userEmail and try again",
+            status: 500
+        };
+    }
+}
+
+//Method which validates the name string.
+function validateNameString (value) {
+    if (value != null && value != "") {
+        var nameValidationResult = NAME_FIELD_VALIDATION_REGEX.test(value);
+        if (nameValidationResult) {
+            return {
+                error: false,
+                message: "The provided name field value is valid",
+                status: 200
+            };
+        } else {
+            return {
+                error: true,
+                message: "The provided name field value is invalid, Please provide only alphanumeric characters and try again",
+                status: 500
+            };
+        }
+    } else {
+        return {
+            error: true,
+            message: "Please provide a value for the name fields and try again",
+            status: 500
+        };
+    }
+}
+
+//Method which validates if the provided user roles are valid cloud user roles.
+function validateUserRoles (userRoles) {
+    var userRolesArray = [];
+    if (userRoles != null && userRoles != "") {
+        if (userRoles.indexOf(',') > -1) {
+            userRolesArray = userRoles.split(',');
+        } else {
+            userRolesArray.push(userRoles);
+        }
+        var roleCount = userRolesArray.length;
+        var cloudValidRoleCount = 0;
+        var allCloudRoles = jagg.module("tenant").getAllCloudRoles();
+
+        if (userRolesArray.length > 0 && allCloudRoles.length > 0) {
+            // Logic to if the provided roles are valid cloud roles
+            for (var i = 0; i < allCloudRoles.length; i++) {
+                for (var j = 0; j < userRolesArray.length; j++) {
+                    if (allCloudRoles[i].roleName == userRolesArray[j]) {
+                        cloudValidRoleCount++;
+                    }
+                }
+            }
+        }
+
+        if (cloudValidRoleCount == roleCount) {
+            return {
+                error: false,
+                message: "All provided roles are valid",
+                status: 200
+            };
+        } else {
+            return {
+                error: true,
+                message: "Provided roles are not valid, Please make sure the provided roles are valid roles of the cloud and try again",
+                status: 500
+            };
+        }
+    } else {
+        return {
+            error: true,
+            message: "Please provide a value for the user roles field and try again",
+            status: 500
+        };
+    }
+}
+
+//Validates if the provided password meets the requirements of the WSO2 Cloud.
+function validatePassword (password) {
+    if (password != null && password != "") {
+        var passwordValidationResult = (PASSWORD_CHARACTER_TYPE_VALIDATION_REGEX.test(password) && PASSWORD_STRENGTH_VALIDATION_REGEX.test(password));
+        if (passwordValidationResult) {
+            return {
+                error: false,
+                message: "The provided password is valid",
+                status: 200
+            };
+        } else {
+            return {
+                error: true,
+                message: "The provided password does not meet the basic requirements, Please try again with a valid password",
+                status: 500
+            };
+        }
+    } else {
+        return {
+            error: true,
+            message: "Please provide a value for the password field and try again",
+            status: 500
+        };
+    }
+}
 
 function addUserToOT (email, pass, firstName, lastName) {
 	try {
@@ -326,6 +449,7 @@ function addUserToOT (email, pass, firstName, lastName) {
 	}
 };
 
+//<TODO>Needs to be modified for Pardot</TODO>
 function getLeadSourceToken (campaign) {
     var tokenId = null;
     try {
@@ -385,29 +509,6 @@ function changeOTUserPass (email,pass) {
 	}
 
 };
-
-function addUserToRightWave (email) {
-	try {
-        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
-		var URL = cloudConfig.RightWaveAddUserApi.cloudSignup;
-		var is_enable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
-        var data={
-            "Email" : email,
-            "TemplateFormName" : "reg",
-            "TemplateFormID" : "WSO2-cloud-signup",
-            "FormID" : "cust\\euser\\webform\\cloud-signup_template2.fdf"
-        };
-		if(is_enable.toString() == "true") {
-            var result = post(URL,data,{'Content-Type': 'application/x-www-form-urlencoded'}, 'text');
-		}
-        log.info("Response from RightWave: \n" +result);
-	} catch (e){
-		log.error(e)
-	}
-};
-
-
 
 function escapeSpecialChars (str) {
 	return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {

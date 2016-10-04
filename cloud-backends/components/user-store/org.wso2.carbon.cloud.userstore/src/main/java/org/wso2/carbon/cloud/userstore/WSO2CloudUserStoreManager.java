@@ -28,9 +28,10 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.naming.directory.BasicAttributes;
 import java.util.Date;
 import java.util.Map;
+
+import javax.naming.directory.BasicAttributes;
 
 /**
  * Custom LDAP based user store implementation for wso2 cloud this class is used to replace the '@' symbol.
@@ -69,17 +70,6 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
         super.doAddUser(doConvert(userName), credential, roleList, claims, profileName, requirePasswordChange);
-    }
-
-    /**
-     * We convert back to email because we use EmailUserNameEnabled=true, if the email is null we ignore the check
-     * since this check is already performed in AbstractUserStoreManager
-     */
-    @Override
-    protected void doAddUserValidityChecks(String userName, Object credential) throws UserStoreException {
-        if (doConvertUserNameToEmail(userName) != null) {
-            super.doAddUserValidityChecks(doConvertUserNameToEmail(userName), credential);
-        }
     }
 
     @Override
@@ -291,7 +281,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     private String doConvert(String userName) {
         StringBuilder convertedUser = new StringBuilder(userName);
         if (userName.contains("@")) {
-            int index = userName.indexOf("@");
+            int index = userName.indexOf('@');
             convertedUser.setCharAt(index, '.');
             cloudUserEmailCache.addToCache(convertedUser.toString(), userName);
         }

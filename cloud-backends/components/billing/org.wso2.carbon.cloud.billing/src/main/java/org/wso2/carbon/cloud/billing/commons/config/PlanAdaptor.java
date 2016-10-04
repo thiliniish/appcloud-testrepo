@@ -45,6 +45,7 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
             plan.overUsage = adaptedPlan.overUsage;
             plan.monthlyRental = adaptedPlan.monthlyRental;
             plan.premiumLevel = adaptedPlan.premiumLevel;
+            plan.visibility = adaptedPlan.visibility;
             return plan;
         } else {
             throw new CloudBillingException("Error while un-marshalling");
@@ -79,6 +80,9 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
         return adaptedPlan;
     }
 
+    /**
+     * Static class for AdaptedPlan
+     */
     public static class AdaptedPlan {
 
         @XmlElement(name = "Id")
@@ -101,5 +105,8 @@ public class PlanAdaptor extends XmlAdapter<PlanAdaptor.AdaptedPlan, Plan> {
 
         @XmlElement(name = "PremiumLevel")
         public int premiumLevel;
+
+        @XmlElement(name = "Visibility")
+        public boolean visibility;
     }
 }

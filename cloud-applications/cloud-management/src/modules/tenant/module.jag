@@ -13,6 +13,9 @@ jagg.module("tenant", {
 	getUsersOfTenantByCloudType: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersOfTenantByCloudType.apply(this, arguments);
 	},
+	isUserOfTenant: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").isUserOfTenant.apply(this, arguments);
+	},
 	getRolesOfCloudType: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getRolesOfCloudType.apply(this, arguments);
 	},
@@ -99,7 +102,12 @@ jagg.module("tenant", {
 	},
 	revokeUserInvitation: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").revokeUserInvitation.apply(this, arguments);
+	},
+	importUserToTenant: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").importUserToTenant.apply(this, arguments);
+	},
+	validateInputFields: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").validateInputFields.apply(this, arguments);
 	}
-
 });
 %>

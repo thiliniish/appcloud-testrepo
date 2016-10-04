@@ -127,7 +127,7 @@ if (isBillingEnabled) {
 	var serviceId = session.get("SERVICE_ID");
 	var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
 	var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
-	session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "true:" + serviceId);
+	session.put("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE", "true:" + serviceId);
 	var currRatePlanId = null;
 	var currRatePlan = null;
 	var accounts = null;
@@ -268,64 +268,66 @@ if (isBillingEnabled) {
 
             if (isBillingEnabled) {
                 for(var i = 0; i < paymentPlans.length; i++) {
-                    var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
-                    var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
-                    var maxUsageStr = numFormat.format(maxUsageAmmount);
-                    var monthlyRentalAmount = new Packages.java.math.BigDecimal(monthlyRental);
-                    var rental = numFormat.format(monthlyRentalAmount);
-                    if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currRatePlanId == null) {%>
-                        <div class="tiny selected">
-                <%  } else { %>
-                        <div class="tiny">
-                <%  } %>
+                    if (paymentPlans[i].visibility) {
+                        var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
+                        var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
+                        var maxUsageStr = numFormat.format(maxUsageAmmount);
+                        var monthlyRentalAmount = new Packages.java.math.BigDecimal(monthlyRental);
+                        var rental = numFormat.format(monthlyRentalAmount);
+                        if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currRatePlanId == null) {%>
+                            <div class="tiny selected">
+                    <%  } else { %>
+                            <div class="tiny">
+                    <%  } %>
 
-                <div class="pricing-table-header-tiny">
-                    <h3><%=paymentPlans[i].name%></h3>
-                    <div class="price">
-                    	<h2 class="col-md-10"><span>$</span><%=rental%></h2>
-                    	<p class="col-md-2">per<br>month</p>
-                    	<br class="c-both" />
+                    <div class="pricing-table-header-tiny">
+                        <h3><%=paymentPlans[i].name%></h3>
+                        <div class="price">
+                            <h2 class="col-md-10"><span>$</span><%=rental%></h2>
+                            <p class="col-md-2">per<br>month</p>
+                            <br class="c-both" />
+                        </div>
                     </div>
-                </div>
-                <div class="pricing-table-features">
-                    <p><%=paymentPlans[i].maxAccounts%></p>
-                    <p><%=maxUsageStr%></p>
-                    <p><%=paymentPlans[i].overUsage%></p>
-                    <p><%if (paymentPlans[i].name == BILLING_STARTER_PLAN) {
-				%>No<%
-			} else {
-				%>Yes<%
-			}%>
- 	           </p>
-                </div>
-                <div class="pricing-table-signup-tiny">
-	        <%
-                var spinner = "spinner_"+paymentPlans[i].id;
-                var selectbtn = "selectbtn_"+paymentPlans[i].id;
-                if (currRatePlanId == paymentPlans[i].id) {
-                %>
+                        <div class="pricing-table-features">
+                        <p><%=paymentPlans[i].maxAccounts%></p>
+                        <p><%=maxUsageStr%></p>
+                        <p><%=paymentPlans[i].overUsage%></p>
+                        <p><%if (paymentPlans[i].name == BILLING_STARTER_PLAN) {
+                            %>No<%
+                        } else {
+                            %>Yes<%
+                        }%>
+                   </p>
+                    </div>
+                    <div class="pricing-table-signup-tiny">
+                <%
+                    var spinner = "spinner_"+paymentPlans[i].id;
+                    var selectbtn = "selectbtn_"+paymentPlans[i].id;
+                    if (currRatePlanId == paymentPlans[i].id) {
+                    %>
 
                     <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
                     <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
-                	<%
+                    <%
                 } else {
-			var paymentPlanName = paymentPlans[i].name.toUpperCase();
-			if (isMonetizationEnabled && paymentPlans[i].name == BILLING_STARTER_PLAN) {%>
-				<p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" disabled>Select</button>
-		        	<i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
-		        	</p>
-		        <%} else {%>
-                        	<p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" >Select</button>
-			       	<i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
-			       	</p>
-			<%}
-		}
-            %>
-                </div>
-			</div>
+                    var paymentPlanName = paymentPlans[i].name.toUpperCase();
+                    if (isMonetizationEnabled && paymentPlans[i].name == BILLING_STARTER_PLAN) {%>
+                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" disabled>Select</button>
+                    <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
+                    </p>
+                    <%} else {%>
+                            <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" >Select</button>
+                            <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
+                            </p>
+                    <%}
+                }
+                %>
+                    </div>
 
-			 <% } %><%if(!isFromChangePlan) { %> <button id="goToCloudType" type="button" class="btn btn-default btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
-			 <% }%>
+                 <% }
+                } if(!isFromChangePlan) { %> <button id="goToCloudType" type="button" class="btn btn-default
+			 btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
+            <% }%>
             <input type="hidden" name="secretKey" id="secretKey" value=""/>
             <input type="hidden" name="imagePath" id="imagePath" value=""/>
             <input type="hidden" name="isFromChangePlan" id="isFromChangePlan" value="true"/>

@@ -31,6 +31,7 @@ import org.wso2.carbon.cloud.billing.service.APICloudMonetizationService;
 import org.wso2.carbon.cloud.billing.service.CloudBillingService;
 import org.wso2.carbon.cloud.billing.subscription.tasks.BillingDbUpdateScheduler;
 import org.wso2.carbon.cloud.billing.usage.scheduler.UsageUploadScheduler;
+import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.service.TaskService;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -38,7 +39,6 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 
 /**
  * @scr.component name="org.wso2.carbon.cloud.billing"

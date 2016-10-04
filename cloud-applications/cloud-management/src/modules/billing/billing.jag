@@ -210,7 +210,8 @@ var getRatePlans = function (serviceId) {
 				"maxAccounts"       : item.getMaxAccounts(),
 				"monthlyRental"       : item.getMonthlyRental(),
 				"overUsage"       : item.getOverUsage(),
-                "premiumLevel" : item.getPremiumLevel()
+				"premiumLevel" : item.getPremiumLevel(),
+				"visibility"   : item.isVisible()
 			});
 		}
 		return subscriptionJson;
@@ -265,46 +266,45 @@ var updateContactInfo = function (accountData, organizationName) {
     }
 };
 
-var notifyRightwaveForUnfinishedUpgrades  = function (cType) {
+var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
 
-    var isEnable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+    var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
-    if (isEnable.toString() == "true") {
+    if (isEnabled == true) {
         var modEvents = jagg.module("events");
         var type = cType.substring(0, cType.indexOf("_")).toUpperCase();
-        var tokenId = jagg.module("util").getLeadSourceToken("upgrade");
+        //<TODO>Get lead source token from Pardot</TODO>
         var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-        log.debug("Sending notification to rightwave for unfinished upgrades for "+email);
-        var jsonData = {
-            "email" : email,
-            "cloudtype" : type,
-            "upgrade" : "0",
-            "tokenid" : tokenId
-        };
-        var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
-        var data = "json=" + JSON.stringify(jsonData);
-        var result = post(URL, data, {
-            'Content-Type': 'application/json'}, 'text');
-            var msg = JSON.parse(result['data']);
-            var actionString = "Rightwave-" + type + "-Upgrade:";
-            var page = "Rightwave";
-            var item = type;
-            var events = [];
-            if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                actionString =  actionString + "Success";
-                session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
-                log.info("Rightwave api call Cloud Upgrade is success for " + email);
-            } else {
-                actionString =  actionString + "Failed";
-                log.error("Rightwave api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
-            }
-            var event = {};
-            event.item = item;
-            event.timestamp = new Date().getTime();
-            event.pageName = page;
-            event.action = actionString;
-            events[events.length] = event;
-            modEvents.publishUserActivity(events, jagg.getUser(), email);
+        log.debug("Sending notification to " + MAIL_CAMPAIGN + " for unfinished upgrades for " + email);
+        var URL;
+        if ("API".equals(type)) {
+            URL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeStart;
+        } else if ("APP".equals(type)) {
+            URL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeStart;
+        }
+        var data = "email=" + email + "&domain_name=" + domainName + "&upgrade_status=0";
+        var result = post(URL, data, {}, 'text');
+        var msg = result['data'];
+        var actionString = MAIL_CAMPAIGN + "-" + type + "-Upgrade:";
+        var page = MAIL_CAMPAIGN;
+        var item = type;
+        var events = [];
+        if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
+            actionString = actionString + "Success";
+            session.put("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE", "false");
+            log.info(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Start' is successful for " + email);
+        } else {
+            actionString = actionString + "Failed";
+            log.error(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Start' failed for the user " + jagg.getUser() + " " +
+                    msg);
+        }
+        var event = {};
+        event.item = item;
+        event.timestamp = new Date().getTime();
+        event.pageName = page;
+        event.action = actionString;
+        events[events.length] = event;
+        modEvents.publishUserActivity(events, jagg.getUser(), email);
     }
 };
 
@@ -375,35 +375,34 @@ var createAccount = function (accountData, metaData, organizationName) {
                         }
                         jagg.module("util").sendBillingAccountCreationEmail(tenantDisplayName, subscriptionName, planName, effectiveDate);
                         jagg.module("util").sendBillingAccountCreationNotification(tenantDisplayName, subscriptionName, planName, effectiveDate);
-                        //Rightwave
-                        var isEnable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
+                        //Add Cloud upgrade completion to MailCampaign
+                        var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
-                        if (isEnable.toString() == "true") {
+                        if (isEnabled == true) {
                             var modEvents = jagg.module("events");
                             var type = metaData.serviceId.toUpperCase();
                             type = type.substring(0, type.indexOf("_"));
                             var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-                            var tokenId = jagg.module("util").getLeadSourceToken("upgrade");
-                            var jsonData = {
-                                "email" : email,
-                                "cloudtype" : type,
-                                "upgrade" : "1",
-                                "tokenid" : tokenId
-                            };
-                            var URL = cloudConfig.RightWaveAddUserApi.cloudUpgrade;
-                            var data = "json=" + JSON.stringify(jsonData);
-                            var result = post(URL, data, {'Content-Type': 'application/json'}, 'text');
-                            var msg = JSON.parse(result['data']);
-                            var actionString = "Rightwave-" + type + "-Upgrade:";
-                            var page = "Rightwave";
+                            var URL;
+                            if ("API".equals(type)) {
+                                URL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeComplete;
+                            } else if ("APP".equals(type)) {
+                                URL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeComplete;
+                            }
+                            var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
+                            var result = post(URL, data, {}, 'text');
+                            var msg = result['data'];
+                            var actionString = MAIL_CAMPAIGN + "-" + type + "-Upgrade:";
+                            var page = MAIL_CAMPAIGN;
                             var item = type;
                             var events = [];
-                            if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
+                            if(MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                                 actionString =  actionString + "Success";
-                                log.info("Rightwave api call Cloud Upgrade is success for " + email);
+                                log.info(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' is successful for " +
+                                        email);
                             } else {
                                 actionString =  actionString + "Failed";
-                                log.error("Rightwave api call Cloud Upgrade failed for the user " + jagg.getUser() + " " + msg);
+                                log.error(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' failed for the user " + jagg.getUser() + " " + msg);
                             }
                             var event = {};
                             event.item = item;
@@ -821,7 +820,7 @@ var isPlanUpgrade = function (ratePlans, currentRatePlan, newRatePlan) {
 			}
 		}
 	}
-	return currentPlanLevel < newPlanLevel;
+	return currentPlanLevel <= newPlanLevel;
 };
 
 /*
@@ -857,45 +856,32 @@ var getCurrentRatePlan = function (serviceId) {
 	}
 };
 
-function addCloudSubmissionToRightwave(email, domain, type) {
+function addCloudSubmissionToMailCampaign(email, domain, type) {
     var extensionStartDate = new Packages.java.util.Date();
     var extendedEndDate = addDays(extensionStartDate,  parseInt(JSON.parse(billingService.getConfigInJson()).trialPeriod));
-    var sqlDateFormat = dateTimeFormatter(RIGHTWAVE_DATE_FORMAT);
+    var sqlDateFormat = dateTimeFormatter(PARDOT_DATE_FORMAT);
     var expDate = sqlDateFormat.format(extendedEndDate);
     var type = type.substring(0, type.indexOf("_"));
     var modProfile = jagg.module("user/profile");
     var claims = modProfile.getProfile();
-    var tokenId = jagg.module("util").getLeadSourceToken(type);
-    var jsonData;
+    //<TODO> get Lead source token
+    var data;
     var URL;
     if (claims.firstname != "undefined" && claims.lastname != "undefined") {
         var firstName = claims.firstname;
         var lastName = claims.lastname;
-        jsonData = {
-            "email" : email,
-            "cloudtype" : type,
-            "firstlogin" : "1",
-            "expiryts" : ""+expDate+"",
-            "firstname" : ""+firstName+"",
-            "lastname" : ""+lastName+"",
-            "tokenid" : tokenId
-        };
+        data = "email=" + email + "&first_name=" + firstName + "&last_name=" + lastName + "&expiry_date" + expDate +
+        "&first_login=1";
+
     } else {
-        jsonData = {
-            "email" : email,
-            "cloudtype" : type,
-            "firstlogin" : "1",
-            "expiryts" : ""+expDate+"",
-            "tokenid" : tokenId
-        };
+        data = "email=" + email + "&expiry_date" + expDate + "&first_login=1";
     }
     if ("API".equals(type)) {
-        URL = cloudConfig.RightWaveAddUserApi.apiCloudSubmission;
+        URL = cloudConfig.MailCampaignAddUserApi.apiCloudSubmission;
     } else if ("APP".equals(type)) {
-        URL = cloudConfig.RightWaveAddUserApi.appCloudSubmission;
+        URL = cloudConfig.MailCampaignAddUserApi.appCloudSubmission;
     }
-    var data = "json=" + JSON.stringify(jsonData);
-    var result = post(URL, data, {'Content-Type': 'application/json'}, 'text');
+    var result = post(URL, data, {}, 'text');
     return result;
 }
 
@@ -1028,40 +1014,39 @@ var extendTrial = function (serviceId, customerRequest) {
                     try {
                         jagg.module("util").sendBillingTrialExtendedMailToUser(tenantDisplayName, serviceId, extendedEndDate);
                         jagg.module("util").sendBillingTrialExtendedNotification(tenantDisplayName, serviceId, extendedEndDate, customerRequest);
-                        var isEnable = cloudConfig.RightWaveAddUserApi.enable_RightWaveAddUserApi;
-                        if(isEnable.toString() == "true") {
+                        var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+                        if(isEnabled == true) {
                             var modEvents = jagg.module("events");
                             var type = serviceId.toUpperCase();
                             type = type.substring(0, type.indexOf("_"));
                             var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-                            var jsonData = {
-                                "email" : email,
-                                "cloudtype" : type,
-                                "expiryts": ""+ sqlDateFormat.format(extendedEndDate)+""
-                            };
-                            var URL = cloudConfig.RightWaveAddUserApi.trialExtension;
-                            var data = "json=" + JSON.stringify(jsonData);
-                            var result = post(URL, data, {
-                                'Content-Type': 'application/json'}, 'text');
-                                var msg = JSON.parse(result['data']);
-                                var actionString = "Rightwave-" + type + "-trialextension:";
-                                var page = "Rightwave";
-                                var item = type;
-                                var events = [];
-                                if(msg.message == RIGHTWAVE_SUBMISSION_SUCCESS) {
-                                    actionString =  actionString + "Success";
-                                    log.info("Rightwave api call Trial Extension is success for " + email);
-                                } else {
-                                    actionString =  actionString + "Failed";
-                                    log.error("Rightwave api call failed for the user " + jagg.getUser() + " " + msg);
-                                }
-                                var event = {};
-                                event.item = item;
-                                event.timestamp = new Date().getTime();
-                                event.pageName = page;
-                                event.action = actionString;
-                                events[events.length] = event;
-                                modEvents.publishUserActivity(events,jagg.getUser(),tenantDomain);
+                            var data = "email=" + email + "&expiry_date=" + sqlDateFormat.format(extendedEndDate);
+                            var URL;
+                            if ("API".equals(type)) {
+                                URL = cloudConfig.MailCampaignAddUserApi.apiCloudTrialExtension;
+                            } else if ("APP".equals(type)) {
+                                URL = cloudConfig.MailCampaignAddUserApi.appCloudTrialExtension;
+                            }
+                            var result = post(URL, data, {}, 'text');
+                            var msg = result['data'];
+                            var actionString = MAIL_CAMPAIGN + "-" + type + "-trialextension:";
+                            var page = MAIL_CAMPAIGN;
+                            var item = type;
+                            var events = [];
+                            if(MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
+                                actionString =  actionString + "Success";
+                                log.info(MAIL_CAMPAIGN + " api call Trial Extension is success for " + email);
+                            } else {
+                                actionString =  actionString + "Failed";
+                                log.error(MAIL_CAMPAIGN + " api call failed for the user " + jagg.getUser() + " " + msg);
+                            }
+                            var event = {};
+                            event.item = item;
+                            event.timestamp = new Date().getTime();
+                            event.pageName = page;
+                            event.action = actionString;
+                            events[events.length] = event;
+                            modEvents.publishUserActivity(events,jagg.getUser(),tenantDomain);
                         }
                         return true;
                     } catch (e) {

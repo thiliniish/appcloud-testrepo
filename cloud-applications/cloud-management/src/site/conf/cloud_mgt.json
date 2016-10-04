@@ -163,16 +163,18 @@
     "add_url": "add_url",
     "edit_pwd_url": "edit_pwd_url"
   },
-  "RightWaveAddUserApi": {
-    "enable_RightWaveAddUserApi": "false",
-    "cloudSignup": "http://sbox.rw001.com/wso2test/srv/api/cloudsignup",
-    "apiCloudSubmission": "http://connect.wso2.com/wso2/srv/api/cldsbmtapi",
-    "appCloudSubmission": "http://connect.wso2.com/wso2/srv/api/cldsbmtapp",
-    "trialExtension": "http://sbox.rw001.com/wso2test/srv/api/cldtrialext",
-    "cloudUpgrade": "http://sbox.rw001.com/wso2test/srv/api/cldupgrade",
-    "signupLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/wso2cloud_api_signup",
-    "upgradeLeadSource": "http://connect.wso2.com/wso2/getformdata/reg/WSO2-cloud-upgrade",
-    "selfSignupSubmission":"http://connect.wso2.com/wso2/srv/api/cloud2016"
+  "MailCampaignAddUserApi":{
+    "enable_MailCampaignAddUserApi": false,
+    "cloudSignup": "https://go.pardot.com/l/142131/2016-07-27/24cz89",
+    "apiCloudSubmission": "https://go.pardot.com/l/142131/2016-07-27/24cz9r",
+    "appCloudSubmission": "https://go.pardot.com/l/142131/2016-08-31/28rjf7",
+    "apiCloudTrialExtension": "https://go.pardot.com/l/142131/2016-09-01/292fhm",
+    "appCloudTrialExtension": "https://go.pardot.com/l/142131/2016-09-01/292fhw",
+    "apiCloudUpgradeStart": "https://go.pardot.com/l/142131/2016-08-31/28v7n7",
+    "apiCloudUpgradeComplete": "https://go.pardot.com/l/142131/2016-08-31/28v7n9",
+    "appCloudUpgradeStart": "https://go.pardot.com/l/142131/2016-09-01/292kf3",
+    "appCloudUpgradeComplete": "https://go.pardot.com/l/142131/2016-09-01/292kf5",
+    "selfSignupSubmission": "https://go.pardot.com/l/142131/2016-09-06/29vpc5"
   },
   "supportContact": {
     "to": "cloudpreview-noreply@wso2.com"

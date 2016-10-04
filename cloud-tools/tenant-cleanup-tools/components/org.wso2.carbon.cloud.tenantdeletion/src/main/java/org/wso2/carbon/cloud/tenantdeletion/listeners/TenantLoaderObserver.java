@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,14 +19,9 @@
 package org.wso2.carbon.cloud.tenantdeletion.listeners;
 
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.tenantdeletion.constants.DeletionConstants;
 import org.wso2.carbon.cloud.tenantdeletion.utils.DataAccessManager;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 
 import java.text.SimpleDateFormat;
@@ -38,35 +33,31 @@ import java.util.Date;
  */
 public class TenantLoaderObserver implements Axis2ConfigurationContextObserver {
 
-	private static Log log = LogFactory.getLog(Axis2ConfigurationContextObserver.class);
+    /**
+     * Records data to the database when tenant loading occurs.
+     * Before adding the record to database it checks whether the tenant is a paid account holder
+     *
+     * @param context Configuration context
+     */
+    @Override public void createdConfigurationContext(ConfigurationContext context) {
+        DataAccessManager dbAccessor = new DataAccessManager();
+        Date currentTime = Calendar.getInstance().getTime();
+        SimpleDateFormat date = new SimpleDateFormat(DeletionConstants.DATE_FORMAT);
+        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId(true);
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain(true);
 
-	/**
-	 * records data to the database when a user loading happens
-	 * @param context Configuration context
-	 */
-	@Override
-	public void createdConfigurationContext(ConfigurationContext context) {
-		DataAccessManager dbAccessor = new DataAccessManager();
-		Date currentTime = Calendar.getInstance().getTime();
-		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
-		int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId(true);
-		String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain(true);
+        dbAccessor.insertCloudOperationInfo(tenantId, tenantDomain, date.format(currentTime));
+    }
 
-		dbAccessor.updateUserLogin(tenantId, tenantDomain, date.format(currentTime));
-	}
+    @Override public void creatingConfigurationContext(int context) {
+        //method from interface
+    }
 
-	@Override
-	public void creatingConfigurationContext(int context) {
-		//method from interface
-	}
+    @Override public void terminatedConfigurationContext(ConfigurationContext context) {
+        //method from interface
+    }
 
-	@Override
-	public void terminatedConfigurationContext(ConfigurationContext context) {
-		//method from interface
-	}
-
-	@Override
-	public void terminatingConfigurationContext(ConfigurationContext context) {
-		//method from interface
-	}
+    @Override public void terminatingConfigurationContext(ConfigurationContext context) {
+        //method from interface
+    }
 }

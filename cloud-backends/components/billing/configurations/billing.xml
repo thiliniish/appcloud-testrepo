@@ -78,6 +78,7 @@
                     <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$100</MonthlyRental>
                     <PremiumLevel>1</PremiumLevel>
+                    <Visibility>true</Visibility>
                 </Plan>
                 <Plan>
                     <Id>2c92c0f949ac00850149b856d515537b</Id>
@@ -87,6 +88,7 @@
                     <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$250</MonthlyRental>
                     <PremiumLevel>2</PremiumLevel>
+                    <Visibility>true</Visibility>
                 </Plan>
                 <Plan>
                     <Id>2c92c0f84b0795b8014b0b1ac63e6713</Id>
@@ -96,6 +98,7 @@
                     <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$100</MonthlyRental>
                     <PremiumLevel>3</PremiumLevel>
+                    <Visibility>true</Visibility>
                 </Plan>
                 <Plan>
                     <Id>2c92c0f84b079582014b0b2412bc143a</Id>
@@ -105,6 +108,7 @@
                     <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$250</MonthlyRental>
                     <PremiumLevel>4</PremiumLevel>
+                    <Visibility>true</Visibility>
                 </Plan>
                 <Plan>
                     <Id>2c92c0f949ac00800149b8333c0502b8</Id>
@@ -114,6 +118,27 @@
                     <OverUsage>$5/1000</OverUsage>
                     <MonthlyRental>$100</MonthlyRental>
                     <PremiumLevel>5</PremiumLevel>
+                    <Visibility>true</Visibility>
+                </Plan>
+                <Plan>
+                    <Id>2c92c0f949ac00830149b83db24f1b77</Id>
+                    <Name>Starter 2015</Name>
+                    <MaxDailyUsage>500</MaxDailyUsage>
+                    <MaxAccounts>10</MaxAccounts>
+                    <OverUsage>$5/1000</OverUsage>
+                    <MonthlyRental>$100</MonthlyRental>
+                    <PremiumLevel>1</PremiumLevel>
+                    <Visibility>false</Visibility>
+                </Plan>
+                <Plan>
+                    <Id>2c92c0f949ac00850149b856d515537b</Id>
+                    <Name>Getting Traction 2015</Name>
+                    <MaxDailyUsage>100000</MaxDailyUsage>
+                    <MaxAccounts>100</MaxAccounts>
+                    <OverUsage>$5/1000</OverUsage>
+                    <MonthlyRental>$250</MonthlyRental>
+                    <PremiumLevel>2</PremiumLevel>
+                    <Visibility>false</Visibility>
                 </Plan>
             </Subscription>
         </Subscriptions>

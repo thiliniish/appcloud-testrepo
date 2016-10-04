@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.cloud.billing.commons;
 
+/**
+ * Class for billing constants
+ */
 public final class BillingConstants {
 
     public static final String HTTPS_SCHEME = "https";
@@ -56,13 +59,13 @@ public final class BillingConstants {
     public static final String DESCRIPTION = "DESCRIPTION";
 
     public static final String USAGE_UPLOADER_TASK_NAME = "usageUploader";
-    public static final String USAGE_UPLOADER_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.usage.scheduler" +
-            ".UsageUploaderTask";
+    public static final String USAGE_UPLOADER_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.usage.scheduler"
+                                                                        + ".UsageUploaderTask";
     public static final String USAGE_UPLOADER_TASK_TENANT_ID_KEY = "__TENANT_ID_PROP__";
 
     public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
-    public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks" +
-            ".BillingDbUpdateTask";
+    public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks"
+                                                                           + ".BillingDbUpdateTask";
     public static final String PENDING_DISABLES_URL_KEY = "__PENDING_DISABLES__";
     public static final String DISABLE_TENANT_URL_KEY = "__DISABLE_TENANT__";
     public static final String UPDATE_SUBSCRIPTION_STATUS_URL_KEY = "__UPDATE_SUBSCRIPTION_STATUS__";
@@ -92,7 +95,6 @@ public final class BillingConstants {
     public static final String RENDERING_TYPE_EMAIL = "email";
     public static final String EMAIL_ADAPTER_NAME = "cloudEmailAdapter";
     public static final int DEFAULT_TIMEOUT_VALUE = 60;
-
 
     /*Media types*/
     public static final String HTTP_TYPE_APPLICATION_URL_ENCODED = "application/x-www-form-urlencoded";
@@ -148,10 +150,8 @@ public final class BillingConstants {
     public static final String ACCOUNT_NUMBER_QUERY_PARAM = "ACCOUNT_NUMBER";
     public static final String TYPE_QUERY_PARAM = "TYPE";
 
-
     public static final String STATUS_QUERY_PARAM = "STATUS";
     public static final String CLOUD_TYPE_QUERY_PARAM = "CLOUD_TYPE";
-
 
     public static final String UNIT_OF_MEASURE = "100K Overage Daily API Calls";
 
@@ -171,7 +171,7 @@ public final class BillingConstants {
     public static final String PRODUCT_CATEGORY = "Base Products";
     public static final String EFFECTIVE_END_DATE = "12/12/2100";
     public static final String EFFECTIVE_DATE_FORMAT = "MM/DD/YYYY";
-    public static final int PRODUCT_COMMISSION_DEFAUlT_VALUE = 15;
+    public static final int PRODUCT_COMMISSION_DEFAULT_VALUE = 15;
 
     /* json object attribute labels */
     public static final String JSON_OBJ_PRODUCT_NAME = "localName";
@@ -199,23 +199,28 @@ public final class BillingConstants {
     public static final String RATEPLAN_CHARGE_NAME_OVERUSAGE = "Over usage fee";
 
     /* Zuora queries */
-    private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid, " +
-            "communicationprofileid, createddate, invoicetemplateid, parentid, status, defaultpaymentmethodid FROM account ";
+    private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid,  "
+                                                                     + "communicationprofileid, createddate, "
+                                                                     + "invoicetemplateid, parentid, status, "
+                                                                     + "defaultpaymentmethodid FROM account ";
     public static final String QUERY_ZUORA_ACCOUNT_BY_NAME = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE name = '?'";
-    public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE accountnumber " +
-            "= '?'";
+    public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO =
+            ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE accountnumber = '?'";
 
     /*DS Service utility constants*/
     public static final String DS_NAMESPACE_URI = "http://ws.wso2.org/dataservice";
     public static final String DS_REQUEST_STATUS = "REQUEST_STATUS";
     public static final String DS_REQUEST_STATUS_SUCCESS = "SUCCESSFUL";
     public static final String QUERY_ZUORA_PRODUCT_BY_NAME = "SELECT id, Name, SKU FROM product WHERE Name = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME =
-            "SELECT id, Name FROM ProductRatePlan WHERE Name = '?' and ProductId = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_BY_NAME =
-            "SELECT id, Name FROM ProductRatePlanCharge WHERE Name = '?' and ProductRatePlanId = '?'";
-    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_TIER =
-            "select id from ProductRatePlanChargeTier where ProductRatePlanChargeId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_BY_NAME = "SELECT id, Name FROM ProductRatePlan WHERE Name"
+                                                                             + " ='?' and ProductId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_BY_NAME = "SELECT id, Name FROM "
+                                                                                    + "ProductRatePlanCharge WHERE "
+                                                                                    + "Name = '?' and "
+                                                                                    + "ProductRatePlanId = '?'";
+    public static final String QUERY_ZUORA_PRODUCTRATEPLAN_CHARGE_TIER = "select id from ProductRatePlanChargeTier "
+                                                                                 + "where ProductRatePlanChargeId = "
+                                                                                 + "'?'";
 
     /*Data service API v1 URIs*/
     public static final String DS_API_URI_REQUEST_COUNT = "/requestcount";
@@ -233,14 +238,18 @@ public final class BillingConstants {
     public static final String ZUORA_REST_API_URI_ACCOUNT_SUMMARY = "/rest/v1/accounts/{account-key}/summary";
     public static final String ZUORA_REST_API_URI_RATE_PLANS = "/rest/v1/subscriptions/accounts/{account-key}";
     public static final String ZUORA_REST_API_URI_ACCOUNTS = "/rest/v1/accounts";
-    public static final String ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION = "/rest/v1/subscriptions/{subscription-key}/cancel";
+    public static final String ZUORA_REST_API_URI_CANCEL_SUBSCRIPTION =
+            "/rest/v1/subscriptions/{subscription-key}/cancel";
     public static final String ZUORA_REST_API_URI_SUBSCRIPTIONS = "/rest/v1/subscriptions";
     public static final String ZUORA_REST_API_URI_PAYMENT_METHODS = "/rest/v1/payment-methods/credit-cards";
     public static final String ZUORA_REST_API_URI_REMOVE_PAYMENT_METHOD = "/rest/v1/payment-methods";
-    public static final String ZUORA_REST_API_URI_INVOICE_INFO = "/rest/v1/transactions/invoices/accounts/{account-key}";
-    public static final String ZUORA_REST_API_URI_PAYMENT_INFO = "/rest/v1/transactions/payments/accounts/{account-key}";
+    public static final String ZUORA_REST_API_URI_INVOICE_INFO =
+            "/rest/v1/transactions/invoices/accounts/{account-key}";
+    public static final String ZUORA_REST_API_URI_PAYMENT_INFO =
+            "/rest/v1/transactions/payments/accounts/{account-key}";
     public static final String ZUORA_REST_API_URI_PRODUCTS = "/rest/v1/catalog/products";
-    public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS = "/rest/v1/payment-methods/credit-cards/accounts";
+    public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS =
+            "/rest/v1/payment-methods/credit-cards/accounts";
 
     /*data service param names*/
     public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";
@@ -256,7 +265,6 @@ public final class BillingConstants {
     public static final String ZUORA_PRODUCT = "Product";
     public static final String ZUORA_SUBSCRIPTION_STATUS = "status";
     public static final String SUBSCRIPTION_STATUS_ACTIVE = "Active";
-
 
     //Zuora communication & invoice template child account suffix
     public static final String ZUORA_TEMPLATE_ACCOUNT_SUFFIX = "__TEMPLATE__";
@@ -280,9 +288,15 @@ public final class BillingConstants {
     public static final String EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED = "successSpecified";
     public static final String EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED = "errorsSpecified";
 
+    /**
+     * Private constructor
+     */
     private BillingConstants() {
     }
 
+    /**
+     * SecureValueProperties class
+     */
     public static final class SecureValueProperties {
         public static final String SECRET_ALIAS_ATTRIBUTE_NAME_WITH_NAMESPACE = "secretAlias";
         public static final String SECURE_VAULT_NS = "http://org.wso2.securevault/configuration";
