@@ -21,6 +21,7 @@
             var userPassword = $("#password").attr('value');
             var fromAddress= $("#fromAddress").attr('value');
             var contactEmail = $("#contactEmail").attr('value');
+            var notifyAllAdmins = document.getElementById('notifyAllAdmins').checked;
             var signupType = $('input[name="signupType"]:checked').val();
             document.getElementById("spinner").style.display = '';
             disableFormAttributes();
@@ -31,6 +32,7 @@
                       userPassword:userPassword,
                       fromAddress:fromAddress,
                       contactEmail:contactEmail,
+                      notifyAllAdmins:notifyAllAdmins,
                       signupType:signupType
                   },
                   function (result) {
@@ -90,6 +92,7 @@
             $('#password').attr('disabled',true);
             $('#fromAddress').attr('disabled',true);
             $('#contactEmail').attr('disabled',true);
+            $('input[name="notifyAllAdmins"]').attr("disabled",true);
             $('input[name="signupType"]').attr("disabled",true);
         }
 
@@ -277,16 +280,25 @@
                   </br>Subscribers will use this email to contact you
                </div>
             </div>
+            <div class="form-group">
+               <label for="notifyAllAdmins" class="col-sm-2 control-label">Notification options:</label>
+               <div class="col-sm-8" style="padding-top: 7px">
+                  <input type="checkbox" style="vertical-align:top;" name="notifyAllAdmins" id="notifyAllAdmins" >
+                   Send notifications to all admins
+               </div>
+            </div>
+            </br>
            <p>
            <h3>The following parameters are required when configuring the sign-up process</h3>
             </p>
             </br>
             <div class="form-group">
                <label for="signupType" class="col-sm-2 control-label">Approval process:</label>
-               <div class="col-sm-8">
-                  </br>
-                  <input type="radio" name="signupType" id="signupApproved" value="approved" checked="checked" /> Send sign-up requests to me for approval </br>
-                  <input type="radio" name="signupType" id="signupNotApproved" value="notApproved" /> Automatically approve new members on their request
+               <div class="col-sm-8" style="padding-top: 7px">
+                  <input type="radio" style="vertical-align:top;" name="signupType" id="signupApproved"
+                  value="approved" checked="checked" /> Send sign-up requests to me for approval </br>
+                  <input type="radio" style="vertical-align:top;" name="signupType" id="signupNotApproved"
+                  value="notApproved" /> Automatically approve new members on their request
                </div>
             </div>
              <div class="form-group" style="padding-top: 10px">

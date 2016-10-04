@@ -15,6 +15,7 @@ include("/jagg/constants.jag");
     var fromAddress = request.getParameter("fromAddress");
     var userPassword = request.getParameter("userPassword");
     var contactEmail = request.getParameter("contactEmail");
+    var notifyAllAdmins = request.getParameter("notifyAllAdmins");
     var signupType = request.getParameter("signupType");
     var site = require("/site/conf/site.json");
     var log = new Log("site.blocks.selfSignup.ajax.configure.jag");
@@ -60,9 +61,9 @@ include("/jagg/constants.jag");
                     //Sending an email to the cloud team to inform the enabling of the self sign up feature of the tenant's API Store.
                     tenantEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
                     var tenantDomain = jagg.module("manager").getTenantDomain();
-
                     //populating the registry files needed for the self sign-up workflow.
-                    var statusResult = jagg.module("selfSignup").populateRegistryFiles(fromAddress, contactEmail, userPassword, username, tenantDomain, signupType);
+                    var statusResult = jagg.module("selfSignup").populateRegistryFiles(fromAddress, contactEmail,
+                            userPassword, username, tenantDomain, notifyAllAdmins, signupType);
                     var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
                     body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
                     var subject = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.subject;
