@@ -139,6 +139,11 @@ include("/modules/database/sql.jag");
             var modUserManagement = jagg.module("user/management");
             var isOnlySubscribedUser = modUserManagement.hasOnlySubscriberRole(session.get("LOGGED_IN_USER"));
             if (isOnlySubscribedUser) {
+                //Get registry mapping
+                var currentMapping = jagg.module("customurl").getCurrentUserMapping(tenantDomain, API_CLOUD_TYPE);
+                if (currentMapping != null && currentMapping.store.customUrl != storeUrl) {
+                    storeUrl = HTTPS + currentMapping.store.customUrl;
+                }
                 response.sendRedirect(storeUrl);
             } else {
                 var firstNameCheckList = firstName == "$1" || firstName == "undefined" || firstName == undefined || firstName == "";
