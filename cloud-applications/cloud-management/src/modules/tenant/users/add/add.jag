@@ -216,6 +216,7 @@ var deleteUserFromTenant = function (userName){
     var tenantDomain=modManager.getTenantDomain() ;
     if(jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)){
         userName = modManager.getUserNameFromEmail(userName);
+        var email = jagg.module('manager').getEmailOfUser(userName);
         var isSuccess = "false";
         var context=multitenancy.getPrivilegedCarbonContext();
         var tenantManager= multitenancy.getTenantManager();
@@ -223,8 +224,20 @@ var deleteUserFromTenant = function (userName){
             context.startTenantFlow();
             context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            isSuccess = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService')
+            var isTenantUser = jagg.module("tenant").isUserOfTenant(tenantDomain, email);
+            if (isTenantUser.isExists) {
+                log.info("Removing user " + userName + " from tenant " + tenantDomain);
+                isSuccess = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService')
                         .removeUserFromTenant(userName);
+            } else {
+                var msg = "Error while removing non-existing user " + email + " in the tenant " + tenantDomain;
+                log.error(msg);
+                return {
+                    error: true,
+                    message: msg,
+                    statusCode: 500
+                };
+            }
         }catch (e){
             log.error(e);
         }finally{
