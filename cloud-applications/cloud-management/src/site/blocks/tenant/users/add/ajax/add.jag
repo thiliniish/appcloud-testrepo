@@ -67,7 +67,11 @@ var log = new Log("blocks.tenant.users.add.ajax.add.jag");
         if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain) && isTenantAdmin) {
             try {
                 var result = mod.deleteUserFromTenant(userName);
-                if (result != null && result) {
+                if (result.error != null && result.error && result.statusCode != null){
+                    response.status = result.statusCode;
+                    print (result);
+                }
+                else if (result != null && result) {
                     response.status = 200;
                     print({
                         error: false,
