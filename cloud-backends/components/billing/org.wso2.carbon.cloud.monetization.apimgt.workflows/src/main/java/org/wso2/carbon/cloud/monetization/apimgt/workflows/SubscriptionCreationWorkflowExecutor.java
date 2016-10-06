@@ -287,8 +287,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             LOGGER.debug("Subscription Creation [Complete] Workflow Invoked. Workflow ID : " + workflowDTO
                     .getExternalWorkflowReference() + "Workflow State : " + workflowDTO.getStatus());
         }
-        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
-
+        ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         try {
             switch (workflowDTO.getStatus()) {
                 case APPROVED:
