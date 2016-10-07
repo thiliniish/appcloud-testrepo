@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.cloud.billing.vendor.stripe.exceptions;
 
-import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.vendor.commons.BillingVendorConstants;
 
 /**
  * Cloud billing vendor related exceptions which are thrown from clients
@@ -29,12 +29,12 @@ public class CloudBillingVendorException extends CloudBillingException {
 
     public CloudBillingVendorException(String s) {
         super(s);
-        this.errorCode = BillingConstants.EMPTY_STRING;
+        this.errorCode = BillingVendorConstants.EMPTY_STRING;
     }
 
     public CloudBillingVendorException(String s, Throwable throwable) {
         super(s, throwable);
-        this.errorCode = BillingConstants.EMPTY_STRING;
+        this.errorCode = BillingVendorConstants.EMPTY_STRING;
     }
 
     public CloudBillingVendorException(String s, String errorCode, Throwable throwable) {

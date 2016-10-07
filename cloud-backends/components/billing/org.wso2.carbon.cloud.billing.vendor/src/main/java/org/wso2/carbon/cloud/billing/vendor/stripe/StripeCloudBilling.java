@@ -590,6 +590,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         }
     }
 
+
     /**
      * Retrieve the publishable key
      *
