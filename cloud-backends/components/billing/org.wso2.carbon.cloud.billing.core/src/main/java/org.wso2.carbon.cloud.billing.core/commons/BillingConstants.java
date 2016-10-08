@@ -26,7 +26,7 @@ public final class BillingConstants {
     public static final String HTTPS_SCHEME = "https";
 
     public static final String CLOUD_CONFIG_FOLDER = "cloud";
-    public static final String CONFIG_FILE_NAME = "billing.core.xml";
+    public static final String CONFIG_FILE_NAME = "billing-core.xml";
     public static final String BILLING_VENDOR_CONFIG_FILE_NAME = "billing.vendor.xml";
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/billing";
     public static final String EMPTY_STRING = "";
