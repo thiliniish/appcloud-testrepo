@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.cloud.billing.core.commons.utils;
+package org.wso2.carbon.cloud.billing.vendor.commons.utils;
 
 import org.apache.axiom.om.OMElement;
 import org.w3c.dom.Attr;
@@ -25,30 +25,28 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfig;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.core.internal.ServiceDataHolder;
+import org.wso2.carbon.cloud.billing.vendor.commons.config.BillingVendorConfig;
+import org.wso2.carbon.cloud.billing.vendor.internal.CloudBillingVenderComponent;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
-import java.io.File;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
+import java.io.File;
 
 /**
  * Billing configuration utility class
  */
-public class BillingConfigUtils {
+public class BillingVenderConfigUtils {
     private static SecretResolver secretResolver;
-    private static volatile BillingConfig billingConfig;
-    /*private static volatile BillingVendorConfig billingVendorConfig;*/
+    private static volatile BillingVendorConfig billingVendorConfig;
 
-    private BillingConfigUtils() {
+    private BillingVenderConfigUtils() {
     }
 
     /**
@@ -56,15 +54,15 @@ public class BillingConfigUtils {
      *
      * @return Billing config
      */
-    public static BillingConfig getBillingConfiguration() {
-        if (billingConfig == null) {
-            synchronized (BillingConfigUtils.class) {
-                if (billingConfig == null) {
-                    billingConfig = loadBillingConfig();
+    public static BillingVendorConfig getBillingVenderConfiguration() {
+        if (billingVendorConfig == null) {
+            synchronized (BillingVenderConfigUtils.class) {
+                if (billingVendorConfig == null) {
+                    billingVendorConfig = loadBillingVenderConfig();
                 }
             }
         }
-        return billingConfig;
+        return billingVendorConfig;
     }
 
     /**
@@ -91,19 +89,19 @@ public class BillingConfigUtils {
      *
      * @return Billing config
      */
-    private static BillingConfig loadBillingConfig() {
+    private static BillingVendorConfig loadBillingVenderConfig() {
         try {
             String configLocation = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                                    BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
-                                    BillingConstants.CONFIG_FILE_NAME;
-            File billingConfig = new File(configLocation);
-            Document doc = convertToDocument(billingConfig);
-            secureResolveDocument(doc);
+                    BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
+                    BillingConstants.BILLING_VENDOR_CONFIG_FILE_NAME;
+            File billingVenderConfig = new File(configLocation);
+            Document doc = convertToDocument(billingVenderConfig);
+//            secureResolveDocument(doc);
 
             /* Un-marshaling Billing Management configuration */
-            JAXBContext cdmContext = JAXBContext.newInstance(BillingConfig.class);
+            JAXBContext cdmContext = JAXBContext.newInstance(BillingVendorConfig.class);
             Unmarshaller unmarshaller = cdmContext.createUnmarshaller();
-            return (BillingConfig) unmarshaller.unmarshal(doc);
+            return (BillingVendorConfig) unmarshaller.unmarshal(doc);
         } catch (CloudBillingException | JAXBException e) {
             throw new IllegalArgumentException("Error occurred while initializing Billing config", e);
         }
@@ -155,9 +153,10 @@ public class BillingConfigUtils {
         if (secretResolver == null) {
             secretResolver = SecretResolverFactory.create((OMElement) null, false);
             secretResolver.init(
-                    ServiceDataHolder.getInstance().getSecretCallbackHandlerService().getSecretCallbackHandler());
+                    CloudBillingVenderComponent.getSecretCallbackHandlerService().getSecretCallbackHandler());
         }
         return secretResolver.resolve(alias);
     }
+
 
 }

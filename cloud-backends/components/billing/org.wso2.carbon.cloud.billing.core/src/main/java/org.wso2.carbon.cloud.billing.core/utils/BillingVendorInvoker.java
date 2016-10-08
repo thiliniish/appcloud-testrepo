@@ -51,17 +51,33 @@ public class BillingVendorInvoker {
             synchronized (BillingVendorInvoker.class) {
                 if (billingVendorClass == null || billingVendorClassInstance == null) {
                     try {
-                        //Class vendorClass = Class.forName(billingVendorClassName);
-                        //LOGGER.info("-------------------------------- vendor cls : " + vendorClass.getClass());
-                        billingVendorClass = Class.forName(billingVendorClassName);
-                        //billingVendorClass.cast(vendorClass.getClass());
-                        LOGGER.info("-------------------------------- billingVendorClass cls : " +
-                                           billingVendorClass.getClass());
-	                    billingVendorClassInstance =  billingVendorClass.newInstance();
+                        Class<?> taskClass = Class.forName(billingVendorClassName);
+                        Constructor[] constructors = taskClass.getDeclaredConstructors();
+                        Constructor constructor = null;
+                        for (Constructor tempConstructor : constructors) {
+                            constructor = tempConstructor;
+                            if (constructor.getGenericParameterTypes().length == 0) {
+                                break;
+                            }
+                        }
+                        if (constructor != null) {
+                            billingVendorClassInstance = constructor.newInstance();
+                        } else {
+                            LOGGER.error("Error occurred while starting the service : " + billingVendorClassName
+                                    + " Constructor was not found.");
+                        }
+
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                        LOGGER.error(e);
                         throw new CloudBillingException(
-                                "Error while loading cloud billing vendor class : " + billingVendorClassName + ". " +
-                                e);
+                                "Error while loading cloud billing vendor class : " + billingVendorClassName + ". "
+                                        + e);
+                    } catch (InvocationTargetException e) {
+                        LOGGER.error(e.getTargetException());
+                        LOGGER.error(e.getTargetException().getCause().getMessage());
+                        throw new CloudBillingException(
+                                "Error while loading cloud billing vendor class : " + billingVendorClassName + ". "
+                                        + e);
                     }
                 }
             }

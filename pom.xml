@@ -38,6 +38,7 @@
         <module>cloud-monitoring</module>
         <module>cloud-integration</module>
         <module>cloud-tools</module>
+        <module>cloud-backends/orbit</module>
     </modules>
 
     <repositories>
@@ -177,7 +178,6 @@
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                                <skip>true</skip>
                                 <!--Exclude sources-->
                                 <!--<excludes>${maven.checkstyleplugin.excludes}</excludes>-->
                             </configuration>
@@ -196,7 +196,6 @@
                         <threshold>Low</threshold>
                         <xmlOutput>true</xmlOutput>
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
-                        <skip>true</skip>
                         <!--Exclude sources-->
                         <!--<excludeFilterFile>${mavan.findbugsplugin.exclude.file}</excludeFilterFile>-->
                     </configuration>

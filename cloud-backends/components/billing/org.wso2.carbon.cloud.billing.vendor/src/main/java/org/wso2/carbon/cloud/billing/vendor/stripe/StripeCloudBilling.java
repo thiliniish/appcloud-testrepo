@@ -31,8 +31,10 @@ import com.stripe.model.ExternalAccount;
 import com.stripe.model.Invoice;
 import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
-import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingConfigUtils;
+import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVenderConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 
 import java.util.HashMap;
@@ -51,8 +53,10 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     private Map<String, Object> monetizationAccountParams = new HashMap<>();
     private static Gson gsonObj = new Gson();
 
+    private static final Log LOGGER = LogFactory.getLog(StripeCloudBilling.class);
+
     public StripeCloudBilling() {
-        setApiKey(BillingConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey());
+        setApiKey(BillingVenderConfigUtils.getBillingVenderConfiguration().getAuthenticationApiKeys().getSecretKey());
     }
 
     public StripeCloudBilling(String secretApiKey) {
@@ -597,7 +601,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      * @return json publishable key
      */
     public String getPublishableKey() throws CloudBillingVendorException {
-        return BillingConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getPublishableKey();
+        return BillingVenderConfigUtils.getBillingVenderConfiguration().getAuthenticationApiKeys().getPublishableKey();
     }
 
     /**
