@@ -29,7 +29,6 @@ import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotificatio
 import org.wso2.carbon.cloud.billing.core.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService;
 import org.wso2.carbon.cloud.billing.core.service.CloudBillingService;
-import org.wso2.carbon.cloud.billing.vendor.stripe.StripeCloudBilling;
 import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.service.TaskService;
@@ -116,6 +115,7 @@ public class CloudBillingServiceComponent {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Cloud billing  bundle is activated");
             }
+            LOGGER.info("########## Cloud billing Core bundle is activated ##################");
         } catch (Exception e) {
             LOGGER.error("Failed to activate the Cloud Billing service.", e);
         }
@@ -308,26 +308,5 @@ public class CloudBillingServiceComponent {
             LOGGER.error("Error in registering usage upload tas task type: " + e.getMessage(), e);
         }
     }
-
-	/**
-	 * Initialize the Cloud billing vendor Service dependency
-	 *
-	 * @param cloudBillingVendorService cloud billing vendor Service reference
-	 */
-	protected void setBillingVendorService(StripeCloudBilling cloudBillingVendorService) {
-		ServiceDataHolder.getInstance().setCloudBillingVendorService(cloudBillingVendorService);
-	}
-
-	/**
-	 * De-reference the Cloud billing vendor Service dependency.
-	 *
-	 * @param cloudBillingVendorService cloud billing vendor Service reference
-	 */
-	protected void unsetBillingVendorService(StripeCloudBilling cloudBillingVendorService) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Unset the Cloud billing vendor service.");
-		}
-		ServiceDataHolder.getInstance().setCloudBillingVendorService(null);
-	}
 
 }

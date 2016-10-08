@@ -77,15 +77,6 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     }
 
     /**
-     * Retrieve the billing vendor configuration document
-     *
-     * @return Billing Vendor configuration doc
-     */
-    public static Document getBillingVendorConfigDocument() {
-        return BillingConfigUtils.getBillingVendorConfigDocument();
-    }
-
-    /**
      * Retrieve payment rate plans associated with a service subscription id
      *
      * @param serviceSubscriptionId subscriptionId (api_cloud/app_cloud)
