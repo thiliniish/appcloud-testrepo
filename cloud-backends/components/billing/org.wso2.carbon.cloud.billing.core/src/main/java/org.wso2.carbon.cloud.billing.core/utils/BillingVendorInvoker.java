@@ -82,7 +82,7 @@ public class BillingVendorInvoker {
                 }
             }
         }
-        return (CloudBillingServiceProvider)billingVendorClassInstance;
+        return (CloudBillingServiceProvider) billingVendorClassInstance;
     }
 
     /**

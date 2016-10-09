@@ -24,5 +24,6 @@ package org.wso2.carbon.cloud.billing.vendor.commons;
 public final class BillingVendorConstants {
 
     public static final String EMPTY_STRING = "";
+    public static final String ACTIVE_RESPONSE = "active";
 
 }

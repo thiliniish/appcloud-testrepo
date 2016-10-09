@@ -215,4 +215,31 @@ public interface CloudBillingServiceProvider {
      */
     public String getInvoiceDetails(String invoiceId) throws CloudBillingException;
 
+
+    /**
+     * Get current plan subscribed to a service
+     *
+     * @param customerId  customer id
+     * @return current active rate plan
+     * @throws CloudBillingException
+     */
+    public String getCurrentRatePlan(String customerId) throws CloudBillingException;
+
+    /**
+     * Get customer coupons
+     *
+     * @param customerId customer id
+     * @return current coupons
+     * @throws CloudBillingException
+     */
+    public String getCustomerCoupons(String customerId) throws CloudBillingException;
+
+    /**
+     * Get a specific coupon details
+     *
+     * @param couponID coupon id
+     * @return coupon data
+     * @throws CloudBillingException
+     */
+    public String retrieveCouponInfo(String couponID) throws CloudBillingException;
 }
