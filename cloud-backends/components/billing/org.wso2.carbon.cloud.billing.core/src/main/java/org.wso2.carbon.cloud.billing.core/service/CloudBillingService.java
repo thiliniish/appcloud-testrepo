@@ -234,6 +234,55 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     }
 
     /**
+     * Get current plan subscribed to a service
+     *
+     * @param customerId customer id
+     * @return current active rate plan
+     * @throws CloudBillingException
+     */
+    @Override public String getCurrentRatePlan(String customerId) throws CloudBillingException {
+        try {
+            return init().getCurrentRatePlan(customerId);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the current rate plan of the customer : " + customerId, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Get customer coupons
+     *
+     * @param customerId customer id
+     * @return current coupons
+     * @throws CloudBillingException
+     */
+    @Override public String getCustomerCoupons(String customerId) throws CloudBillingException {
+        try {
+            return init().getCustomerCoupons(customerId);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the coupons of the customer : " + customerId, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Get a specific coupon details
+     *
+     * @param couponID coupon id
+     * @return coupon data
+     * @throws CloudBillingException
+     */
+    @Override public String retrieveCouponInfo(String couponID) throws CloudBillingException {
+        try {
+            return init().retrieveCouponInfo(couponID);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the coupons information of the coupon : " + couponID,
+                         ex);
+            throw ex;
+        }
+    }
+
+    /**
      * Create a subscription
      *
      * @param subscriptionInfoJson subscription details. This includes customer id and the product rate-plan id

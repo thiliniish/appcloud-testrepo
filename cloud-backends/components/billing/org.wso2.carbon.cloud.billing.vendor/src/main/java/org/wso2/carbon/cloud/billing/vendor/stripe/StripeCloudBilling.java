@@ -26,7 +26,9 @@ import com.stripe.exception.AuthenticationException;
 import com.stripe.exception.CardException;
 import com.stripe.exception.InvalidRequestException;
 import com.stripe.model.Account;
+import com.stripe.model.Coupon;
 import com.stripe.model.Customer;
+import com.stripe.model.CustomerSubscriptionCollection;
 import com.stripe.model.ExternalAccount;
 import com.stripe.model.Invoice;
 import com.stripe.model.Plan;
@@ -34,6 +36,8 @@ import com.stripe.model.Subscription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
+import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.vendor.commons.BillingVendorConstants;
 import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVenderConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 
@@ -594,6 +598,64 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         }
     }
 
+    /**
+     * Get current plan subscribed to a service
+     *
+     * @param customerId customer id
+     * @return current active rate plan
+     */
+    @Override public String getCurrentRatePlan(String customerId) throws CloudBillingVendorException {
+        try {
+            Customer customer = Customer.retrieve(customerId);
+            CustomerSubscriptionCollection subscriptionCollection = customer.getSubscriptions();
+            for (int i = 0; i < subscriptionCollection.getData().size(); i++) {
+                if (customer.getSubscriptions().getData().get(i).getStatus().equals(BillingVendorConstants
+                                                                                            .ACTIVE_RESPONSE)) {
+                    return validateResponseString(customer.getSubscriptions().getData().get(i).getPlan().getId()
+                                                          .toString());
+                }
+            }
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            throw new CloudBillingVendorException(
+                    "Error while retrieving current rate plan for customer : " + customerId, ex);
+        }
+        return null;
+    }
+
+    /**
+     * Get customer coupons
+     *
+     * @param customerId customer id
+     * @return current coupons
+     * @throws CloudBillingVendorException
+     */
+    @Override public String getCustomerCoupons(String customerId) throws CloudBillingVendorException {
+        try {
+            return validateResponseString(Customer.retrieve(customerId).getDiscount().toString());
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            throw new CloudBillingVendorException(
+                    "Error occurred while retrieving the coupons of the customer : " + customerId, ex);
+        }
+    }
+
+    /**
+     * Get a specific coupon details
+     *
+     * @param couponID coupon id
+     * @return coupon data
+     * @throws CloudBillingException
+     */
+    @Override public String retrieveCouponInfo(String couponID) throws CloudBillingException {
+        try {
+            return validateResponseString(Coupon.retrieve(couponID).toString());
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            throw new CloudBillingVendorException(
+                    "Error occurred while retrieving the coupons information of the coupon : " + couponID, ex);
+        }
+    }
 
     /**
      * Retrieve the publishable key

@@ -328,27 +328,6 @@ public class CloudBillingService extends AbstractAdmin {
     }
 
     /**
-     * Get current plan subscribed to a service
-     *
-     * @param tenantDomain tenant domain
-     * @param productName  subscribed service
-     * @return current rate plan list (this is a list because it contains coupon plans as well)
-     * @throws CloudBillingException
-     */
-    public JSONArray getCurrentRatePlan(String tenantDomain, String productName) throws CloudBillingException {
-        try {
-            String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
-            return (accountId != null && !accountId.isEmpty()) ?
-                    ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) :
-                    null;
-        } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while retrieving the current rate plan of the tenant: " + tenantDomain + " " +
-                    "for subscription: " + productName, ex);
-            throw ex;
-        }
-    }
-
-    /**
      * Prepare access parameters required for client to query iframe
      *
      * @return json string of parameters
