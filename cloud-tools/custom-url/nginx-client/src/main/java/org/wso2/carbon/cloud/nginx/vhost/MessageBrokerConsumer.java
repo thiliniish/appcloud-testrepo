@@ -128,7 +128,7 @@ public class MessageBrokerConsumer implements MessageListener {
     @Override public void onMessage(Message message) {
         if (message instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message;
-
+            String filePath;
             try {
                 RegistryManager registryManager =
                         new RegistryManager(configReader, NginxVhostConstants.AXIS2_CONF_FILE_PATH);
@@ -165,8 +165,11 @@ public class MessageBrokerConsumer implements MessageListener {
                                                                              securityCertificate.getAbsolutePath(),
                                                                              securityPrivateKey.getAbsolutePath(),
                                                                              template);
-                        vHostManager.addHostToNginxConfig(storeEntry,
-                                                          configReader.getProperty("nginx.api.store.config.path"));
+                        filePath = configReader.getProperty("nginx.api.store.config.path") +
+                                           NginxVhostConstants.FILE_SEPERATOR +
+                                           tenantDomain + NginxVhostConstants.FILE_SEPERATOR +
+                                           NginxVhostConstants.STORE_CUSTOM_CONFIG;
+                        vHostManager.addHostToNginxConfig(storeEntry, filePath);
                     } else if (GATEWAY.equals(node)) {
                         //Creating gateway
                         template = templateManager.getTemplate(NginxVhostConstants.HTTP_API_GATEWAY_TEMPLATE_NAME);
@@ -182,10 +185,17 @@ public class MessageBrokerConsumer implements MessageListener {
                                                                                             .getAbsolutePath(),
                                                                                     template);
 
-                        vHostManager.addHostToNginxConfig(gatewayEntry,
-                                                          configReader.getProperty("nginx.api.gateway.config.path"));
-                        vHostManager.addHostToNginxConfig(gatewayHttpsEntry, configReader
-                                .getProperty("nginx.api.gateway.https.config.path"));
+                        filePath = configReader.getProperty("nginx.api.gateway.config.path") +
+                                           NginxVhostConstants.FILE_SEPERATOR +
+                                           tenantDomain + NginxVhostConstants.FILE_SEPERATOR +
+                                           NginxVhostConstants.GATEWAY_CUSTOM_CONFIG;
+                        vHostManager.addHostToNginxConfig(gatewayEntry, filePath);
+
+                        filePath = configReader.getProperty("nginx.api.gateway.https.config.path") +
+                                           NginxVhostConstants.FILE_SEPERATOR +
+                                           tenantDomain + NginxVhostConstants.FILE_SEPERATOR +
+                                           NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG;
+                        vHostManager.addHostToNginxConfig(gatewayHttpsEntry, filePath);
                     }
 
                     vHostManager.restartNginX();
