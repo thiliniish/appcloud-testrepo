@@ -134,7 +134,7 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
      * @throws APIManagementException
      */
     private boolean isAnActiveSubscription(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws APIManagementException {
-        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
+        ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         APIIdentifier apiIdentifier = new APIIdentifier(subscriptionWorkflowDTO.getApiProvider(),
                 subscriptionWorkflowDTO.getApiName(), subscriptionWorkflowDTO.getApiVersion());
         int applicationId = apiMgtDAO.getApplicationId(subscriptionWorkflowDTO.getApplicationName(),
@@ -266,7 +266,7 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
      */
     @Override
     public WorkflowResponse complete(WorkflowDTO workflowDTO) throws WorkflowException {
-        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
+        ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         SubscriptionWorkflowDTO subWorkflowDTO;
         if (workflowDTO instanceof SubscriptionWorkflowDTO) {
             subWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
@@ -283,7 +283,7 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
 
             conn = APIMgtDBUtil.getConnection();
             conn.setAutoCommit(false);
-            apiMgtDAO.removeSubscription(identifier, applicationIdID, conn);
+            apiMgtDAO.removeSubscription(identifier, applicationIdID);
             conn.commit();
         } catch (APIManagementException e) {
             errorMsg = "Could not complete subscription deletion workflow for api: " + subWorkflowDTO.getApiName();

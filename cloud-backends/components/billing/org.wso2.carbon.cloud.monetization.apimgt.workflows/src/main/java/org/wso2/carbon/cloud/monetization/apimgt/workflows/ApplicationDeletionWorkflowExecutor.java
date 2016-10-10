@@ -144,7 +144,7 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
     private WorkflowResponse removeSuccessRemovals(JsonObject resultObj, ApplicationWorkflowDTO workflowDTO) throws WorkflowException {
         Connection conn;
         String errorMsg;
-        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
+        ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
 
         JsonArray removedSubscriptions = resultObj.getAsJsonArray(CustomWorkFlowConstants.REMOVED_SUBSCRIPTIONS);
 
@@ -171,7 +171,7 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
             int applicationIdID = workflowDTO.getApplication().getId();
 
             try {
-                apiMgtDAO.removeSubscription(identifier, applicationIdID, conn);
+                apiMgtDAO.removeSubscription(identifier, applicationIdID);
             } catch (APIManagementException e) {
                 errorMsg = "Could not complete subscription deletion for Application: " + workflowDTO.getApplication()
                         .getName() + ". Subscriber: " + workflowDTO.getUserName() + ", ApiName: " + apiName + ", " +
@@ -249,7 +249,7 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
 
         Subscriber subscriber = new Subscriber(applicationWorkflowDTO.getUserName() + "@" + applicationWorkflowDTO.getTenantDomain());
         try {
-            subscribedAPISet = new ApiMgtDAO()
+            subscribedAPISet = ApiMgtDAO.getInstance()
                     .getSubscribedAPIs(subscriber, applicationWorkflowDTO.getApplication().getName(), null);
 
             //If 0 subscribed apis
@@ -308,7 +308,7 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
      */
     @Override
     public WorkflowResponse complete(WorkflowDTO workflowDTO) throws WorkflowException {
-        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
+        ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         ApplicationWorkflowDTO applicationWorkflowDTO = (ApplicationWorkflowDTO) workflowDTO;
         Application application = applicationWorkflowDTO.getApplication();
         Connection conn = null;
@@ -316,7 +316,7 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
         try {
             conn = APIMgtDBUtil.getConnection();
             conn.setAutoCommit(false);
-            apiMgtDAO.deleteApplication(application, conn);
+            apiMgtDAO.deleteApplication(application);
             conn.commit();
         } catch (APIManagementException e) {
             if (e.getMessage() == null) {
