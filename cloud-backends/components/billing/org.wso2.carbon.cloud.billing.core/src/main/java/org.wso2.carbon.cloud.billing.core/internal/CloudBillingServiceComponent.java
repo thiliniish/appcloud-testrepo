@@ -24,9 +24,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfig;
+import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfigManager;
+import org.wso2.carbon.cloud.billing.core.commons.config.model.BillingConfig;
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
-import org.wso2.carbon.cloud.billing.core.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService;
 import org.wso2.carbon.cloud.billing.core.service.CloudBillingService;
 import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
@@ -267,8 +267,9 @@ public class CloudBillingServiceComponent {
      * Activate scheduled tasks if billing enabled
      */
     private void activateScheduledTasks() {
-        BillingConfig configuration = BillingConfigUtils.getBillingConfiguration();
-        if (configuration.isBillingEnabled() && configuration.isMgtModeEnabled()) {
+        BillingConfig configuration = BillingConfigManager.getBillingConfiguration();
+        // TODO: 10/8/16 need to check for each cloud and schedule tasks
+        if (configuration.getCloudTypeById("api_cloud").isBillingEnabled() && configuration.isMgtModeEnabled()) {
 
            /* boolean enableDailyUsageUpload = configuration.getZuoraConfig().getUsageConfig().isEnableUsageUploading();
 
@@ -290,7 +291,7 @@ public class CloudBillingServiceComponent {
             }*/
 
             registerUsageUploaderTask();
-        } else if (!configuration.isBillingEnabled()) {
+        } else if (!configuration.getCloudTypeById("api_cloud").isBillingEnabled()) {
             LOGGER.warn("Billing disabled. billing related scheduler tasks will not get initialized");
         } else {
             LOGGER.info("Billing component mgt mode disabled");

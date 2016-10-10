@@ -27,11 +27,11 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
-import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfig;
-import org.wso2.carbon.cloud.billing.core.commons.config.DataServiceConfig;
-import org.wso2.carbon.cloud.billing.core.commons.config.Plan;
+import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfigManager;
+import org.wso2.carbon.cloud.billing.core.commons.config.model.BillingConfig;
+import org.wso2.carbon.cloud.billing.core.commons.config.model.DataServiceConfig;
+import org.wso2.carbon.cloud.billing.core.commons.config.model.Plan;
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
-import org.wso2.carbon.cloud.billing.core.commons.utils.BillingConfigUtils;
 import org.wso2.carbon.cloud.billing.core.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.utils.BillingVendorInvoker;
@@ -550,23 +550,25 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         return CloudBillingServiceUtils.validateRatePlanId(serviceId, productRatePlanId);
     }
 
-    /**
-     * Validate service id
-     *
-     * @param serviceId service Id
-     * @return success boolean
-     */
-    public boolean validateServiceId(String serviceId) {
-        return CloudBillingServiceUtils.validateServiceId(serviceId);
-    }
+    //// TODO: 10/8/16 Verify this method
+//    /**
+//     * Validate service id
+//     *
+//     * @param serviceId service Id
+//     * @return success boolean
+//     */
+//    public boolean validateServiceId(String serviceId) {
+//        return CloudBillingServiceUtils.validateServiceId(serviceId);
+//    }
 
     /**
      * Method to get that the billing functionality enable/disable status
      *
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
      * @return billing enable/disable status
      */
-    public boolean isBillingEnabled() {
-        return CloudBillingServiceUtils.isBillingEnabled();
+    public boolean isBillingEnabled(String cloudId) {
+        return CloudBillingServiceUtils.isBillingEnabled(cloudId);
     }
 
     /**
@@ -688,8 +690,8 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
                     .setAttribute(MonetizationConstants.ATTRIBUTE_NAME,
                                   MonetizationConstants.PROPERTY_SERVICE_END_POINT);
             // Get ServiceUrl from config files
-            BillingConfig billingConfig = BillingConfigUtils.getBillingConfiguration();
-            DataServiceConfig dataServiceConfig = billingConfig.getDSConfig();
+            BillingConfig billingConfig = BillingConfigManager.getBillingConfiguration();
+            DataServiceConfig dataServiceConfig = billingConfig.getDataServiceConfig();
             String serviceUrlHost = dataServiceConfig.getHttpClientConfig().getHostname();
             int serviceUrlPort = dataServiceConfig.getHttpClientConfig().getPort();
             String serviceURL = BillingConstants.HTTPS + serviceUrlHost + BillingConstants.COLON + serviceUrlPort +

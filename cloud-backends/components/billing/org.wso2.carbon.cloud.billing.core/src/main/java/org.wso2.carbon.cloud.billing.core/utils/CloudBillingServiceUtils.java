@@ -24,10 +24,10 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.core.commons.config.Plan;
-import org.wso2.carbon.cloud.billing.core.commons.config.Subscription;
+import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfigManager;
+import org.wso2.carbon.cloud.billing.core.commons.config.model.CloudType;
+import org.wso2.carbon.cloud.billing.core.commons.config.model.Plan;
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
-import org.wso2.carbon.cloud.billing.core.commons.utils.BillingConfigUtils;
 
 import java.io.IOException;
 
@@ -52,7 +52,7 @@ public final class CloudBillingServiceUtils {
             synchronized (CloudBillingServiceUtils.class) {
                 if (configObj == null) {
                     Gson gson = new Gson();
-                    configObj = gson.toJson(BillingConfigUtils.getBillingConfiguration());
+                    configObj = gson.toJson(BillingConfigManager.getBillingConfiguration());
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Configuration read to json is successfully completed.");
                     }
@@ -65,18 +65,12 @@ public final class CloudBillingServiceUtils {
     /**
      * Get plans for Id
      *
-     * @param subscriptionId subscription id(ex:api_cloud)
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
      * @return rate plans in billing.xml
      */
-    public static Plan[] getSubscriptions(String subscriptionId) {
-        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getSubscriptions();
-        Plan[] plans = null;
-        for (Subscription subscription : subscriptions) {
-            if (subscriptionId.equalsIgnoreCase(subscription.getId())) {
-                plans = subscription.getPlans();
-            }
-        }
-        return plans;
+    public static Plan[] getSubscriptions(String cloudId) {
+        CloudType cloudType = BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId);
+        return cloudType.getSubscription().getPlans();
     }
 
     /**
@@ -85,7 +79,7 @@ public final class CloudBillingServiceUtils {
      * @return Billing Vendor service class name
      */
     public static String getBillingVendorServiceUtilClass() {
-        return BillingConfigUtils.getBillingConfiguration().getBillingVendorClass();
+        return BillingConfigManager.getBillingConfiguration().getBillingVendorClass();
     }
 
     /**
@@ -105,29 +99,29 @@ public final class CloudBillingServiceUtils {
         return false;
     }
 
-    /**
-     * Validate service Id
-     *
-     * @param serviceId service id
-     * @return validation boolean
-     */
-    public static boolean validateServiceId(String serviceId) {
-        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getSubscriptions();
-        for (Subscription subscription : subscriptions) {
-            if (serviceId.equals(subscription.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    /**
+//     * Validate service Id
+//     *
+//     * @param cloudId service id
+//     * @return validation boolean
+//     */
+//    public static boolean validateServiceId(String cloudId) {
+//        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getSubscriptions();
+//        for (Subscription subscription : subscriptions) {
+//            if (cloudId.equals(subscription.getId())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * Method to get that the billing functionality enable/disable status
-     *
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
      * @return billing enable/disable status
      */
-    public static boolean isBillingEnabled() {
-        return BillingConfigUtils.getBillingConfiguration().isBillingEnabled();
+    public static boolean isBillingEnabled(String cloudId) {
+        return BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId).isBillingEnabled();
     }
 
     /**
@@ -139,7 +133,7 @@ public final class CloudBillingServiceUtils {
      */
     public static void sendNotificationToCloud(String messageBody, String messageSubject) {
         String receiver =
-                BillingConfigUtils.getBillingConfiguration().getUtilsConfig().getNotifications().getEmailNotification()
+                BillingConfigManager.getBillingConfiguration().getNotificationsConfig().getEmailNotification()
                                   .getSender();
         EmailNotifications.getInstance().sendMail(messageBody, messageSubject, receiver,
                                                   BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
