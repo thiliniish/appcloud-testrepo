@@ -535,8 +535,8 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      *
      * @return the result string object
      */
-    public String callVendorNoArgsUtilMethod(String methodName) throws CloudBillingException {
-        return (String) BillingVendorInvoker.invokeMethod(methodName);
+    public String callVendorNoArgsUtilMethod(String methodName, String params) throws CloudBillingException {
+        return (String) BillingVendorInvoker.invokeMethod(methodName, params);
     }
 
     /**
