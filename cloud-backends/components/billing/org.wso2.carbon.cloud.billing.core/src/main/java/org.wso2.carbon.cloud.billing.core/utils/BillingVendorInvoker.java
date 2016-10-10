@@ -123,15 +123,24 @@ public class BillingVendorInvoker {
      * @return billing vendor util method response Json string object
      * @throws org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException
      */
-    public static Object invokeMethod(String method) throws CloudBillingException {
+    public static Object invokeMethod(String method, String params) throws CloudBillingException {
         loadBillingVendor();
         //no parameter
         Class noparams[] = { };
+        //String parameter
+        Class[] paramString = new Class[1];
+        paramString[0] = String.class;
         //call the billing vendor class method
         try {
-            Method billingVendorMethod = billingVendorClass.getDeclaredMethod(method, noparams);
-            billingVendorClassInstance = billingVendorClass.newInstance();
-            return billingVendorMethod.invoke(billingVendorClassInstance);
+            if (params == null) {
+                Method billingVendorMethod = billingVendorClass.getDeclaredMethod(method, noparams);
+                billingVendorClassInstance = billingVendorClass.newInstance();
+                return billingVendorMethod.invoke(billingVendorClassInstance);
+            } else {
+                Method billingVendorMethod = billingVendorClass.getDeclaredMethod(method, paramString);
+                billingVendorClassInstance = billingVendorClass.newInstance();
+                return billingVendorMethod.invoke(billingVendorClassInstance, params);
+            }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException
                 e) {
             throw new CloudBillingException("Error while invoking cloud billing vendor method : " + method + ". " + e

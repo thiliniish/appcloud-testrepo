@@ -611,8 +611,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             for (int i = 0; i < subscriptionCollection.getData().size(); i++) {
                 if (customer.getSubscriptions().getData().get(i).getStatus().equals(BillingVendorConstants
                                                                                             .ACTIVE_RESPONSE)) {
-                    return validateResponseString(customer.getSubscriptions().getData().get(i).getPlan().getId()
-                                                          .toString());
+                    return customer.getSubscriptions().getData().get(i).getPlan().getId().toString();
                 }
             }
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
