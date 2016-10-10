@@ -21,11 +21,12 @@ package org.wso2.carbon.cloud.billing.core.commons.config.model;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Subscription specific rate plan holding element
@@ -49,7 +50,7 @@ public class Subscription {
     }
 
     public Plan[] getPlans() {
-        return plans;
+        return plans.clone();
     }
 
     public Plan getPlanByID(String id) {

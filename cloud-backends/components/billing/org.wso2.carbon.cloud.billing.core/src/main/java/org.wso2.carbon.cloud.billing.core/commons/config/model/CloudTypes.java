@@ -21,10 +21,11 @@ package org.wso2.carbon.cloud.billing.core.commons.config.model;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represent a collection of {@link CloudType}
@@ -40,7 +41,7 @@ public class CloudTypes {
     private static final Log LOGGER = LogFactory.getLog(CloudTypes.class);
 
     public CloudType[] getAllCloudTypes() {
-        return cloudTypes;
+        return cloudTypes.clone();
     }
 
     /**
