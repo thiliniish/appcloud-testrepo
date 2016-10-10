@@ -21,12 +21,13 @@ package org.wso2.carbon.cloud.billing.core.commons.config.model;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Plan
