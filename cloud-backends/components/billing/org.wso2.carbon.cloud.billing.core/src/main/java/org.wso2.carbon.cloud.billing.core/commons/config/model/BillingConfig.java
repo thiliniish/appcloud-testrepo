@@ -36,6 +36,9 @@ public class BillingConfig {
     @XmlElement(name = "DataServiceAPI", nillable = false, required = true)
     private DataServiceConfig dataServiceConfig;
 
+    @XmlElement(name = "APIMRestAPI", nillable = false, required = true)
+    private APIMRestAPIConfig apimRestAPIConfig;
+
     @XmlElement(name = "Security", nillable = true, required = false)
     private SecurityConfig securityConfig;
 
@@ -55,6 +58,10 @@ public class BillingConfig {
 
     public DataServiceConfig getDataServiceConfig() {
         return dataServiceConfig;
+    }
+
+    public APIMRestAPIConfig getApimRestAPIConfig() {
+        return apimRestAPIConfig;
     }
 
     public SecurityConfig getSecurityConfig() {

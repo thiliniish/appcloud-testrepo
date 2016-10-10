@@ -40,6 +40,16 @@
         </HttpClientConfig>
     </DataServiceAPI>
 
+    <APIMRestAPI>
+        <RestServiceURI>/api/am</RestServiceURI>
+        <HttpClientConfig>
+            <Hostname>localhost</Hostname>
+            <Port>9453</Port>
+            <MaxConnectionsPerHost>50</MaxConnectionsPerHost>
+            <MaxTotalConnections>50</MaxTotalConnections>
+        </HttpClientConfig>
+    </APIMRestAPI>
+
     <!--TODO This should be removable -->
     <Security>
         <TrustStore>
