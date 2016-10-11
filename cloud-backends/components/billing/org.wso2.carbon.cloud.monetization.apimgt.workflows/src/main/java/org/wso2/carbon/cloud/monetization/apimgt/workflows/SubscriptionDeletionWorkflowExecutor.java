@@ -209,8 +209,8 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
                         ("subscriptionInfoNotAvailable").getAsBoolean()) {
                     return deleteApiSubscription(subscriptionWorkflowDTO);
                 }
-                if (resultObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS) != null && resultObj.get
-                        (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
+                if (resultObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS) != null && resultObj.get
+                        (CustomWorkFlowConstants.RESPONSE_SUCCESS).getAsBoolean()) {
                     if (resultObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) == null || !resultObj.get
                             (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
                         LOGGER.warn("Zuora subscription has been removed successfully. But Monetization database " +

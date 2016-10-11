@@ -18,6 +18,8 @@
 package org.wso2.carbon.cloud.billing.vendor.stripe;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.stripe.Stripe;
 import com.stripe.exception.APIConnectionException;
@@ -69,10 +71,15 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
 
     /**
      * Set the authentication secret API key
-     * @param secretApiKey secret api key
+     * @param customerId customer id for which there is a separate API key (i.e Monetization customers account)
      */
-    private static void setApiKey(String secretApiKey) {
-        Stripe.apiKey = secretApiKey;
+    private static void setApiKey(String customerId) {
+        Stripe.apiKey = getSecreatKey(customerId);
+    }
+
+    // TODO: 10/11/16 Get the SecreatAPI Key from the Database
+    private static String getSecreatKey(String customerId) {
+        return "sk_test_BKvOXCL9A6xZnhR8zTP15rqM";
     }
 
     /**
@@ -356,21 +363,34 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      * Cancel subscription by the subscription id
      *
      * @param subscriptionId       subscription id
-     * @param subscriptionInfoJson subscription information in json
-     *                             {
-     *                             "at_period_end": "true"
-     *                             }
+     * @param subscriptionInfoJson this is not required for Stripe
      * @return success jason string
      */
-    @Override public String cancelSubscription(String subscriptionId, String subscriptionInfoJson)
+    @Override
+    public String cancelSubscription(String subscriptionId, String subscriptionInfoJson)
             throws CloudBillingVendorException {
         try {
             Subscription subscription = Subscription.retrieve(subscriptionId);
             subscriptionParams.clear();
-            subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
-            return validateResponseString(subscription.cancel(subscriptionParams).toString());
-        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
-                APIException ex) {
+            //We cancel the subscription at the end of currently subscribed time period
+            subscriptionParams.put(BillingVendorConstants.AT_PERIOD_END, true);
+            subscription = subscription.cancel(subscriptionParams);
+
+            JsonObject subscriptionJsonObj = new JsonParser().parse(validateResponseString(subscription.toString()))
+                    .getAsJsonObject();
+
+            JsonObject response = new JsonObject();
+            if (subscription.getCancelAtPeriodEnd()) {
+                response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+                response.add(BillingVendorConstants.RESPONSE_DATA, subscriptionJsonObj);
+            } else {
+                response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+                response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE,
+                        "Subscription cancellation was not successful");
+                response.add(BillingVendorConstants.RESPONSE_DATA, subscriptionJsonObj);
+            } return response.toString();
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException
+                | APIException ex) {
             throw new CloudBillingVendorException("Error while cancelling subscription : ", ex);
         }
     }

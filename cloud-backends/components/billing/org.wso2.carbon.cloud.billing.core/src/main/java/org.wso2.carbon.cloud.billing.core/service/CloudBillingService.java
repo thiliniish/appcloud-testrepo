@@ -522,16 +522,6 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     }
 
     /**
-     * Load and return the billing vendor instance for monetization
-     * Here we have to pass parameters to billing vendor for monetization
-     *
-     * @return billing vendor for monetization
-     */
-    public CloudBillingServiceProvider init(String consArg) throws CloudBillingException {
-        return BillingVendorInvoker.loadBillingVendorForMonetization(consArg);
-    }
-
-    /**
      * Invoke cloud billing vendor method with no argument
      *
      * @return the result string object

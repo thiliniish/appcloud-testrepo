@@ -26,4 +26,9 @@ public final class BillingVendorConstants {
     public static final String EMPTY_STRING = "";
     public static final String ACTIVE_RESPONSE = "active";
 
+    public static final String RESPONSE_SUCCESS = "success";
+    public static final String RESPONSE_DATA = "data";
+    public static final String RESPONSE_MESSAGE = "message";
+
+    public static final String AT_PERIOD_END = "at_period_end";
 }
