@@ -29,7 +29,7 @@
         <parameter name="hiddenService" locked="true">true</parameter>
         <parameter name="AuthorizationAction" locked="true">/permission/admin/billing</parameter>
     </service>
-    <service name="APICloudMonetizationService2" scope="transportsession">
+    <service name="APICloudMonetizationService" scope="transportsession">
         <transports>
             <transport>https</transport>
         </transports>

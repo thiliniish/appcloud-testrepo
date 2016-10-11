@@ -168,6 +168,10 @@ public final class MonetizationConstants {
     public static final String GROUP_USAGE_BY_MONTH = "year,month";
     public static final String GROUP_USAGE_BY_DAY = "year,month,day";
 
+    //This is used for JSON responses
+    public static final String RESPONSE_SUCCESS = "success";
+    public static final String RESPONSE_DATA = "data";
+
     private MonetizationConstants() {
     }
 }

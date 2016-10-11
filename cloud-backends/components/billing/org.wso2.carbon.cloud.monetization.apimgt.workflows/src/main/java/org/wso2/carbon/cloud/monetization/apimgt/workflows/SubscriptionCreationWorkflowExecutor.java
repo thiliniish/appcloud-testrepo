@@ -225,9 +225,9 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             if (responseObj == null) {
                 throw new WorkflowException("Could not complete workflow. Subscription creation failure.");
             }
-            if (responseObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS) != null &&
+            if (responseObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS) != null &&
                     responseObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj.get
-                    (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean() && responseObj.get
+                    (CustomWorkFlowConstants.RESPONSE_SUCCESS).getAsBoolean() && responseObj.get
                     (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
                 subscriptionWorkflowDTO.setStatus(APPROVED);
                 complete(subscriptionWorkflowDTO);

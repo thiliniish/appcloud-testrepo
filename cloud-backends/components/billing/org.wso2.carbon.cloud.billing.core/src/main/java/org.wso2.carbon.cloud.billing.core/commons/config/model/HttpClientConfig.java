@@ -39,6 +39,16 @@ public class HttpClientConfig {
     @XmlElement(name = "MaxTotalConnections", nillable = false, required = true)
     private int maxTotalConnections;
 
+    public HttpClientConfig() {
+    }
+
+    public HttpClientConfig(String hostname, int port, int maxConnectionsPerHost, int maxTotalConnections) {
+        this.hostname = hostname;
+        this.port = port;
+        this.maxConnectionsPerHost = maxConnectionsPerHost;
+        this.maxTotalConnections = maxTotalConnections;
+    }
+
     public String getHostname() {
         return hostname;
     }
