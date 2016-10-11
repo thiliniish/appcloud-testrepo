@@ -192,6 +192,7 @@
 		<div class="col-lg-12 content-section">
 			<form method='post' name="inputData" class='form-horizontal'
 				id='userForm' action="javascript:doSubmit()" role="form">
+		        <p>This password change will affect all the WSO2 applications that you log into with this email address.</p>
 				<div class="form-group">
 					<label for="inputEmail3" class="col-sm-2 control-label">Current
 						Password</label>
@@ -250,7 +251,7 @@
 						<a  id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/index.jag'">Cancel</a>
 					  	<i class="fa fa-spinner fa-spin fa-4x" id="spinner" class="spinner" style="display:none; margin-left: 10px;"></i>
 					</div>
-					
+
 				</div>
 
 				<input type="hidden" name="secretKey" id="secretKey" value="" /> <input

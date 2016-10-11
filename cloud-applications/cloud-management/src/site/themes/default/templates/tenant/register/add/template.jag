@@ -22,19 +22,17 @@
 <div class="container content-starter">
 <div class="row">
   <div class="col-lg-12">
-     <h1>Congratulations on joining WSO2 Cloud!</h1>
+     <h1>Thanks for joining WSO2 Cloud!</h1>
      <div class="helper_text" id="helper_text">
         <%
-    if (!outputs.isInvitee) {%>
+    if (outputs.isInvitee || outputs.isUserAvail) {%>
             <p>
-               For the completion of your account, please create a password and fill out the remaining profile
-               information.
+               We are excited to see you here!  <br /> We need one last bit of information to complete your signup.
             </p>
             <%
     } else {%>
             <p>
-               Hope you are excited and anxious to start using WSO2 Cloud as we
-               are to see you here !!! <br /> We just need one last bit of
+               For the completion of your account, please create a password and fill out the remaining profile
                information.
             </p>
             <%
@@ -52,8 +50,12 @@
             <!--Request Tenant Password-->
             <div class="form-group">
                <label for="password" class="control-label">
-                  <h5>Create password for <%=outputs.email%>
-                  </h5>
+               <% if (!outputs.isUserAvail) { %>
+                  <h5>Create password for <%=outputs.email%></h5>
+                  <% } else { %>
+                  <h5>Enter the password for your <a href="http://wso2.com/">wso2.com</a> user account <%=outputs
+            .email%></h5>
+                  <% } %>
                </label>
                <%
     if (!outputs.isUserAvail) { %>
