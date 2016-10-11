@@ -128,7 +128,6 @@ public class MessageBrokerConsumer implements MessageListener {
     @Override public void onMessage(Message message) {
         if (message instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message;
-            String filePath;
             try {
                 RegistryManager registryManager =
                         new RegistryManager(configReader, NginxVhostConstants.AXIS2_CONF_FILE_PATH);
@@ -157,7 +156,7 @@ public class MessageBrokerConsumer implements MessageListener {
                     String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
                     String customUrl = jsonObject.getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL);
                     String template;
-
+                    String filePath = configReader.getProperty("nginx.api.config.path") + tenantDomain;
                     //Creating store
                     if (STORE.equals(node)) {
                         template = templateManager.getTemplate(NginxVhostConstants.API_STORE_TEMPLATE_NAME);
@@ -165,11 +164,8 @@ public class MessageBrokerConsumer implements MessageListener {
                                                                              securityCertificate.getAbsolutePath(),
                                                                              securityPrivateKey.getAbsolutePath(),
                                                                              template);
-                        filePath = configReader.getProperty("nginx.api.store.config.path") +
-                                           NginxVhostConstants.FILE_SEPERATOR +
-                                           tenantDomain + NginxVhostConstants.FILE_SEPERATOR +
-                                           NginxVhostConstants.STORE_CUSTOM_CONFIG;
-                        vHostManager.addHostToNginxConfig(storeEntry, filePath);
+                        vHostManager.addHostToNginxConfig(storeEntry, filePath +
+                                                                              NginxVhostConstants.STORE_CUSTOM_CONFIG);
                     } else if (GATEWAY.equals(node)) {
                         //Creating gateway
                         template = templateManager.getTemplate(NginxVhostConstants.HTTP_API_GATEWAY_TEMPLATE_NAME);
@@ -184,20 +180,11 @@ public class MessageBrokerConsumer implements MessageListener {
                                                                                     securityPrivateKey
                                                                                             .getAbsolutePath(),
                                                                                     template);
-
-                        filePath = configReader.getProperty("nginx.api.gateway.config.path") +
-                                           NginxVhostConstants.FILE_SEPERATOR +
-                                           tenantDomain + NginxVhostConstants.FILE_SEPERATOR +
-                                           NginxVhostConstants.GATEWAY_CUSTOM_CONFIG;
-                        vHostManager.addHostToNginxConfig(gatewayEntry, filePath);
-
-                        filePath = configReader.getProperty("nginx.api.gateway.https.config.path") +
-                                           NginxVhostConstants.FILE_SEPERATOR +
-                                           tenantDomain + NginxVhostConstants.FILE_SEPERATOR +
-                                           NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG;
-                        vHostManager.addHostToNginxConfig(gatewayHttpsEntry, filePath);
+                        vHostManager.addHostToNginxConfig(gatewayEntry,
+                                                          filePath + NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
+                        vHostManager.addHostToNginxConfig(gatewayHttpsEntry,
+                                                          filePath + NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
                     }
-
                     vHostManager.restartNginX();
 
                 }
