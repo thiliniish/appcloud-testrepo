@@ -288,7 +288,6 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                     .getExternalWorkflowReference() + "Workflow State : " + workflowDTO.getStatus());
         }
         ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
-
         try {
             switch (workflowDTO.getStatus()) {
                 case APPROVED:

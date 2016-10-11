@@ -273,7 +273,6 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
         } else {
             throw new WorkflowException(ERROR_MSG + " WorkflowDTO doesn't match the required type");
         }
-        Connection conn = null;
         String errorMsg;
 
         try {
@@ -281,31 +280,10 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
                     subWorkflowDTO.getApiName(), subWorkflowDTO.getApiVersion());
             int applicationIdID = apiMgtDAO.getApplicationId(subWorkflowDTO.getApplicationName(), subWorkflowDTO.getSubscriber());
 
-            conn = APIMgtDBUtil.getConnection();
-            conn.setAutoCommit(false);
             apiMgtDAO.removeSubscription(identifier, applicationIdID);
-            conn.commit();
         } catch (APIManagementException e) {
             errorMsg = "Could not complete subscription deletion workflow for api: " + subWorkflowDTO.getApiName();
             throw new WorkflowException(errorMsg, e);
-        } catch (SQLException e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    LOGGER.error("Failed to rollback remove subscription ", ex);
-                }
-            }
-            errorMsg = "Couldn't remove subscription entry for api: " + subWorkflowDTO.getApiName();
-            throw new WorkflowException(errorMsg, e);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.error("Couldn't close database connection for subscription deletion workflow", e);
-            }
         }
         return new GeneralWorkflowResponse();
     }
