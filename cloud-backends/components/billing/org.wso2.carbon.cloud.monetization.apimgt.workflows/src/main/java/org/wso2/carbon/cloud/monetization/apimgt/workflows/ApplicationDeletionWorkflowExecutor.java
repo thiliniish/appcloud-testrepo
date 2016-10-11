@@ -142,7 +142,6 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
      * @throws WorkflowException
      */
     private WorkflowResponse removeSuccessRemovals(JsonObject resultObj, ApplicationWorkflowDTO workflowDTO) throws WorkflowException {
-        Connection conn;
         String errorMsg;
         ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
 
@@ -150,15 +149,6 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
 
         if (removedSubscriptions.size() == 0) {
             return new GeneralWorkflowResponse();
-        }
-
-        try {
-            conn = APIMgtDBUtil.getConnection();
-            conn.setAutoCommit(false);
-        } catch (SQLException e) {
-            errorMsg = "Couldn't complete application deletion workflow. database connection failure. Subscriber: " +
-                    workflowDTO.getUserName() + ", Application name: " + workflowDTO.getApplication().getName();
-            throw new WorkflowException(errorMsg, e);
         }
         for (JsonElement subscription : removedSubscriptions) {
             JsonObject subscriptionObj = subscription.getAsJsonObject();
@@ -179,28 +169,6 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
                 throw new WorkflowException(errorMsg, e);
             }
         }
-
-        try {
-            conn.commit();
-        } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException ex) {
-                LOGGER.error("Failed to rollback remove subscription ", ex);
-            }
-            errorMsg = "Couldn't remove subscription entry for Application: " + workflowDTO.getApplication()
-                    .getName() + ". Subscriber: " + workflowDTO.getUserName() + ", Subscriptions: " +
-                    removedSubscriptions.toString();
-            throw new WorkflowException(errorMsg, e);
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                LOGGER.error("Couldn't close database connection for subscription deletion in Application " +
-                        "deletion  workflow", e);
-            }
-        }
-
         return new GeneralWorkflowResponse();
     }
 
@@ -311,13 +279,9 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
         ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         ApplicationWorkflowDTO applicationWorkflowDTO = (ApplicationWorkflowDTO) workflowDTO;
         Application application = applicationWorkflowDTO.getApplication();
-        Connection conn = null;
         String errorMsg;
         try {
-            conn = APIMgtDBUtil.getConnection();
-            conn.setAutoCommit(false);
             apiMgtDAO.deleteApplication(application);
-            conn.commit();
         } catch (APIManagementException e) {
             if (e.getMessage() == null) {
                 errorMsg = "Couldn't complete simple application deletion workflow for application: " + application
@@ -326,24 +290,6 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
                 errorMsg = e.getMessage();
             }
             throw new WorkflowException(errorMsg, e);
-        } catch (SQLException e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    LOGGER.error("Failed to rollback remove application ", ex);
-                }
-            }
-            errorMsg = "Couldn't remove application entry for application: " + application.getName();
-            throw new WorkflowException(errorMsg, e);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.error("Couldn't close database connection of delete application workflow", e);
-            }
         }
         return new GeneralWorkflowResponse();
     }

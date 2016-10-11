@@ -323,7 +323,7 @@ if (isBillingEnabled) {
                 }
                 %>
                     </div>
-
+                </div>
                  <% }
                 } if(!isFromChangePlan) { %> <button id="goToCloudType" type="button" class="btn btn-default
 			 btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
