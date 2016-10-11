@@ -164,8 +164,8 @@ public class MessageBrokerConsumer implements MessageListener {
                                                                              securityCertificate.getAbsolutePath(),
                                                                              securityPrivateKey.getAbsolutePath(),
                                                                              template);
-                        vHostManager.addHostToNginxConfig(storeEntry, filePath +
-                                                                              NginxVhostConstants.STORE_CUSTOM_CONFIG);
+                        vHostManager.addHostToNginxConfig(storeEntry,
+                                                          filePath + NginxVhostConstants.STORE_CUSTOM_CONFIG);
                     } else if (GATEWAY.equals(node)) {
                         //Creating gateway
                         template = templateManager.getTemplate(NginxVhostConstants.HTTP_API_GATEWAY_TEMPLATE_NAME);

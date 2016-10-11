@@ -229,9 +229,8 @@ public class VHostManager {
     void restoreVirtualHosts()
             throws RegistryException, JSONException, IOException, KeyStoreException, NoSuchAlgorithmException,
                            CertificateException, UnrecoverableKeyException, NoSuchPaddingException,
-                           IllegalBlockSizeException,
-                           BadPaddingException, InvalidKeyException, InvalidAlgorithmParameterException,
-                           InterruptedException {
+                           IllegalBlockSizeException, BadPaddingException, InvalidKeyException,
+                           InvalidAlgorithmParameterException, InterruptedException {
         String registryPath = this.configReader.getProperty("remoteregistry.path");
         RegistryManager registryManager = new RegistryManager(configReader, NginxVhostConstants.AXIS2_CONF_FILE_PATH);
         SSLFileHandler sslFileHandler = new SSLFileHandler(registryManager, configReader);
@@ -244,9 +243,9 @@ public class VHostManager {
 
                 for (int i = 0; i < cloudCollection.getChildCount(); i++) {
 
-                    String cloudName = cloudCollection.getChildren()[i]
-                                               .substring(cloudCollection.getChildren()[i].lastIndexOf("/") + 1,
-                                                          cloudCollection.getChildren()[i].length());
+                    String cloudName = cloudCollection.getChildren()[i].substring(
+                            cloudCollection.getChildren()[i].lastIndexOf("/") + 1,
+                            cloudCollection.getChildren()[i].length());
 
                     Collection tenantCollection =
                             (Collection) registryManager.getResourceFromRegistry(cloudCollection.getChildren()[i]);
