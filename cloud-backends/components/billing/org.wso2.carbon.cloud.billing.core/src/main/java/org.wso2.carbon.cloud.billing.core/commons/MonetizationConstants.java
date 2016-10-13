@@ -50,6 +50,7 @@ public final class MonetizationConstants {
     public static final String DS_API_URI_APIC_RATE_PLANS = "/v1/rate-plans/tenants/{tenant}/api-cloud";
     public static final String DS_API_URI_REMOVE_API_SUBSCRIPTION = "/v1/apim/{tenantId}/{subscriberId}/subscriptions";
     public static final String DS_API_URI_SUBSCRIBER_USAGE_INFORMATION = "/v1/usage/usage-info";
+	public static final String DS_API_URI_ADD_MONETIZATION_ACCOUNT = "/v1/accounts/{accountNumber}";
 
     /*resource identifiers*/
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
@@ -135,14 +136,20 @@ public final class MonetizationConstants {
     public static final String WORKFLOW_EXTENSION_URL = "/apimgt/applicationdata/workflow-extensions.xml";
     public static final String SUBSCRIPTION_CREATION_EXECUTOR =
             "org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionCreationWorkflowExecutor";
+	public static final String SUBSCRIPTION_DELETION_EXECUTOR =
+			"org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionDeletionWorkflowExecutor";
+	public static final String APLLICATION_DELETION_EXECUTOR =
+			"org.wso2.carbon.cloud.monetization.apimgt.workflows.ApplicationDeletionWorkflowExecutor";
     public static final String PROPERTY_SERVICEURL_NAME = "apiMonetizationServiceUrl";
     public static final String PROPERTY_MONETIZATION_SERVICE_VALUE =
             "/services/APICloudMonetizationService/";
     public static final String PROPERTY_SERVICE_END_POINT = "serviceEndpoint";
     public static final String PROPERTY_USERNAME_NAME = "username";
     public static final String PROPERTY_PASSWORD_NAME = "password";
-    public static final String TAG_WORKFLOWEXTENSION = "WorkFlowExtensions";
-    public static final String TAG_SUSCRIPTION_CREATION = "SubscriptionCreation";
+    public static final String TAG_WORKFLOW_EXTENSION = "WorkFlowExtensions";
+    public static final String TAG_SUBSCRIPTION_CREATION = "SubscriptionCreation";
+	public static final String TAG_SUBSCRIPTION_DELETION = "SubscriptionDeletion";
+	public static final String TAG_APPLICATION_DELETION = "ApplicationDeletion";
     public static final String ATTRIBUTE_EXECUTOR = "executor";
     public static final String ATTRIBUTE_PROPERTY = "Property";
     public static final String ATTRIBUTE_NAME = "name";

@@ -17,6 +17,10 @@
  */
 package org.wso2.carbon.cloud.billing.vendor.stripe;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,12 +41,16 @@ import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonNode;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.cloud.billing.vendor.commons.BillingVendorConstants;
 import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVenderConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
+import org.wso2.carbon.cloud.billing.vendor.stripe.utils.APICloudMonetizationUtils;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -519,66 +527,32 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         }
     }
 
-    /**
-     * Method to create Monetization account
-     *
-     * @param customerId                  monetization customer id
-     * @param monetizationAccountInfoJson monetization account info
-     *                                    {
-     *                                    "managed": "true",
-     *                                    "country": "US",
-     *                                    "default_currency": "usd",
-     *                                    "metadata": {
-     *                                    "customerId": "mkyong"
-     *                                    },
-     *                                    "external_account": "tok_18wYTGFteW7cCxndsSNvFWFv",
-     *                                    "legal_entity": {
-     *                                    "type": "individual",
-     *                                    "business_name": "donnnn44444",
-     *                                    "first_name": "monetized11",
-     *                                    "last_name": "monetizedsername",
-     *                                    "address": {
-     *                                    "city": "outcity",
-     *                                    "line1": "ourline1",
-     *                                    "postal_code": "35004",
-     *                                    "state": "ourstateee"
-     *                                    },
-     *                                    "ssn_last_4": "9999",
-     *                                    "personal_id_number": "444449999",
-     *                                    "dob": {
-     *                                    "day": "25",
-     *                                    "month": "12",
-     *                                    "year": "1988"
-     *                                    },
-     *                                    "personal_address": {
-     *                                    "city": "cityyy",
-     *                                    "country": "GB",
-     *                                    "line1": "lineeee111",
-     *                                    "line2": "lineee2222",
-     *                                    "postal_code": "0001",
-     *                                    "state": "staeeeeee"
-     *                                    }
-     *                                    },
-     *                                    "tos_acceptance": {
-     *                                    "date": "1474542339",
-     *                                    "ip": "100.1.34.97"
-     *                                    }
-     *                                    }
-     * @return success jason string
-     */
-    @Override public String createMonetizationAccount(String customerId, String monetizationAccountInfoJson)
+	/**
+	 * Method to create Monetization account
+	 *
+	 * @param customerId                  monetization customer id
+	 * @param monetizationAccountInfoJson monetization account info
+	 *                                    {
+	 *                                    "accountNumber": "acc999999",
+	 *                                    "access_token": "sk_test_UVFvcC6Exzpe5Lelq5IAZa9z",
+	 *                                    "livemode": false,
+	 *                                    "refresh_token": "rt_9MTBa0i5i5FLg1znSlWnuQF8jIHuT4x",
+	 *                                    "token_type": "bearer",
+	 *                                    "stripe_publishable_key": "pk_test_HHdWwgu",
+	 *                                    "stripe_user_id": "acct_193k8qDMGlVlrnlQ",
+	 *                                    "scope": "read_write"
+	 *                                    }
+	 *                                    these values add to database
+	 * @return success jason string
+	 */
+	@Override public String createMonetizationAccount(String customerId, String monetizationAccountInfoJson)
             throws CloudBillingVendorException {
-        try {
-            monetizationAccountParams.clear();
-            monetizationAccountParams = ObjectParams.setObjectParams(monetizationAccountInfoJson);
-            return validateResponseString(Account.create(monetizationAccountParams).toString());
-        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
-                APIException ex) {
-            throw new CloudBillingVendorException("Error while retrieving all payment methods : ", ex);
-        }
+		    // Add standalone account creation response values to database.
+		    return String.valueOf(APICloudMonetizationUtils.addMonetizationAccount(customerId,
+		                                                                           monetizationAccountInfoJson));
     }
 
-    /**
+	 /**
      * Retrieve invoices associated with a customer
      *
      * @param invoiceInfoJson invoice retrieval info for a specific customer
@@ -664,9 +638,9 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *
      * @param couponID coupon id
      * @return coupon data
-     * @throws CloudBillingException
+     * @throws CloudBillingVendorException
      */
-    @Override public String retrieveCouponInfo(String couponID) throws CloudBillingException {
+    @Override public String retrieveCouponInfo(String couponID) throws CloudBillingVendorException {
         try {
             return validateResponseString(Coupon.retrieve(couponID).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |

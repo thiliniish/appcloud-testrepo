@@ -342,6 +342,17 @@
       <param name="END_DATE" sqlType="STRING"/>
       <param name="GROUP_BY_QUERY" sqlType="QUERY_STRING"/>
    </query>
+   <query id="addMonetizationAccountQ" useConfig="cloud_mgt">
+      <sql>INSERT INTO MONETIZATION_API_CLOUD_ACCOUNT (ACCOUNT_NUMBER,TOKEN_TYPE,STRIPE_PUBLISHABLE_KEY,SCOPE,LIVEMODE,STRIPE_USER_ID,REFRESH_TOKEN,ACCESS_TOKEN,ACCOUNT_CREATION_DATE) VALUES (:ACCOUNT_NUMBER,:TOKEN_TYPE,:STRIPE_PUBLISHABLE_KEY,:SCOPE,LIVEMODE,:STRIPE_USER_ID,:REFRESH_TOKEN,:ACCESS_TOKEN,:ACCOUNT_CREATION_DATE)</sql>
+      <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+      <param name="TOKEN_TYPE" sqlType="STRING"/>
+      <param name="STRIPE_PUBLISHABLE_KEY" sqlType="STRING"/>
+      <param name="SCOPE" sqlType="STRING"/>
+      <param name="STRIPE_USER_ID" sqlType="STRING"/>
+      <param name="REFRESH_TOKEN" sqlType="STRING"/>
+      <param name="ACCESS_TOKEN" sqlType="STRING"/>
+      <param name="ACCOUNT_CREATION_DATE" sqlType="STRING"/>
+   </query>
     <operation name="getSubscriber">
         <call-query href="getSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -424,6 +435,9 @@
         <call-query href="getRatePlansInfoForTenantQ">
             <with-param name="TENANT_DOMAIN" query-param="tenantDomain"/>
         </call-query>
+    </operation>
+    <operation name="addMonetizationAccount">
+        <call-query href="addMonetizationAccountQ"/>
     </operation>
     <resource method="GET" path="v1/subscribers/{tenant}/{username}">
         <call-query href="getSubscriberInfoQ">
@@ -564,7 +578,7 @@
          <with-param name="START_DATE" query-param="startDate"/>
          <with-param name="END_DATE" query-param="endDate"/>
       </call-query>
-   </resource>   
+   </resource>
     <!--path="v1/usage/subscribers/apis/{username}" -->
     <resource method="GET" path="v1/apis/{username}" >
       <call-query href="getApiListForUserQ">
@@ -591,6 +605,18 @@
          <with-param name="START_DATE" query-param="startDate"/>
          <with-param name="END_DATE" query-param="endDate"/>
          <with-param name="GROUP_BY_QUERY" query-param="groupByQuery"/>
+      </call-query>
+   </resource>
+   <resource method="POST" path="v1/accounts/{accountNumber}" returnRequestStatus="true">
+      <call-query href="addMonetizationAccountQ">
+         <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+         <with-param name="TOKEN_TYPE" query-param="token_type"/>
+         <with-param name="STRIPE_PUBLISHABLE_KEY" query-param="stripe_publishable_key"/>
+         <with-param name="SCOPE" query-param="scope"/>
+         <with-param name="STRIPE_USER_ID" query-param="stripe_user_id"/>
+         <with-param name="REFRESH_TOKEN" query-param="refresh_token"/>
+         <with-param name="ACCESS_TOKEN" query-param="access_token"/>
+         <with-param name="ACCOUNT_CREATION_DATE" query-param="account_creation_date"/>
       </call-query>
    </resource>
 </data>
