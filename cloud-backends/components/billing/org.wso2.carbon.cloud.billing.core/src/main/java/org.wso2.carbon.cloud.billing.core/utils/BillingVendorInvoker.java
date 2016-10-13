@@ -26,13 +26,15 @@ import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Billing vendor utility class loader and method invoker
  */
 public class BillingVendorInvoker {
 
-    private static volatile Class billingVendorClass;
+    private static volatile Class<?> billingVendorClass;
     private static volatile Object billingVendorClassInstance;
     private static final Log LOGGER = LogFactory.getLog(BillingVendorInvoker.class);
 
@@ -51,8 +53,8 @@ public class BillingVendorInvoker {
             synchronized (BillingVendorInvoker.class) {
                 if (billingVendorClass == null || billingVendorClassInstance == null) {
                     try {
-                        Class<?> taskClass = Class.forName(billingVendorClassName);
-                        Constructor[] constructors = taskClass.getDeclaredConstructors();
+                        billingVendorClass = Class.forName(billingVendorClassName);
+                        Constructor[] constructors = billingVendorClass.getDeclaredConstructors();
                         Constructor constructor = null;
                         for (Constructor tempConstructor : constructors) {
                             constructor = tempConstructor;
@@ -87,33 +89,27 @@ public class BillingVendorInvoker {
 
     /**
      * Load the cloud billing vendor util class for monetization
+     * TODO : There should be a instance for each argument, hence creating instance for each call. Need to have to cache to keep the instances
      *
      * @param consArg cloud billing vendor constructor argument
      * @throws org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException
      */
-    public static CloudBillingServiceProvider loadBillingVendorForMonetization(String consArg) throws
-                                                                                               CloudBillingException {
+    public static CloudBillingServiceProvider loadBillingVendorForMonetization(String consArg)
+            throws CloudBillingException {
         String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
-        if (billingVendorClass == null || billingVendorClassInstance == null) {
-            synchronized (BillingVendorInvoker.class) {
-                if (billingVendorClass == null || billingVendorClassInstance == null) {
-                    try {
-                        //billingVendorClass = Class.forName(billingVendorClassName);
-                        Class vendorClass = Class.forName(billingVendorClassName);
-                        billingVendorClass.cast(vendorClass);
-                        Constructor billingVendorConstructor = billingVendorClass.getConstructor(
-                                new Class[] { String.class });
-                        billingVendorClassInstance = billingVendorConstructor.newInstance(new Object[] { consArg });
-                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
-                            NoSuchMethodException | InvocationTargetException e) {
-                        throw new CloudBillingException(
-                                "Error while loading cloud billing vendor class : " + billingVendorClassName +
-                                "for Monetization");
-                    }
-                }
-            }
+        CloudBillingServiceProvider instance;
+
+        try {
+            Class<?> vendorClass = Class.forName(billingVendorClassName);
+            Constructor billingVendorConstructor = vendorClass.getConstructor(String.class);
+            instance = (CloudBillingServiceProvider) billingVendorConstructor.newInstance(consArg);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+                InvocationTargetException e) {
+            throw new CloudBillingException(
+                    "Error while loading cloud billing vendor class : " + billingVendorClassName + "for Monetization");
         }
-        return (CloudBillingServiceProvider) billingVendorClassInstance;
+
+        return instance;
     }
 
     /**
