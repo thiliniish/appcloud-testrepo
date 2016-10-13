@@ -19,8 +19,6 @@
 package org.wso2.carbon.cloud.billing.vendor.stripe.utils;
 
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
@@ -38,6 +36,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import javax.xml.stream.XMLStreamException;
 
 /**

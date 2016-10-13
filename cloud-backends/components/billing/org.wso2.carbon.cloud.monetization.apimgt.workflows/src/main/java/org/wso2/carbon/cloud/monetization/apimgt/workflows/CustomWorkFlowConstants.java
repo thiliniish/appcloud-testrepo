@@ -80,10 +80,14 @@ public final class CustomWorkFlowConstants {
     public static final String SUBSCRIBERS_OBJ = "Subscribers";
     public static final String SUBSCRIBER_OBJ = "Subscriber";
 
-    public static final String RESPONSE_SUCCESS = "success";
     public static final String MONETIZATION_TABLES_UPDATED = "monetizationDbUpdated";
     public static final String REMOVED_SUBSCRIPTIONS = "removedSubscriptions";
     public static final String SOAP_RETURN_ELEMENT = "return";
+
+    public static final String RESPONSE_SUCCESS = "success";
+    public static final String RESPONSE_DATA = "data";
+
+    public static final String SUBSCRIPTION_INFO_NOT_AVAILABLE = "subscriptionInfoNotAvailable";
 
     private CustomWorkFlowConstants() {
     }
