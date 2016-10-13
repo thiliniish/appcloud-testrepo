@@ -49,6 +49,7 @@ public final class BillingConstants {
 
     public static final String ENCODING = "UTF-8";
     public static final String HTTP_REQ_HEADER_AUTHZ = "Authorization";
+    public static final String HTTP_REQ_HEADER_X_WSO2_TENANT = "X-WSO2-Tenant";
 
     public static final String ACCOUNT_ID = "ACCOUNT_ID";
     public static final String UOM = "UOM";
@@ -80,6 +81,7 @@ public final class BillingConstants {
     public static final String COUPON_HEADER = "coupon";
 
     public static final String DEFAULT_HOST = "localhost";
+    public static final int DEFAULT_PORT = 9443;
     public static final int DEFAULT_MAX_CONNECTION_PER_HOST = 2;
     public static final int DEFAULT_MAX_TOTAL_CONNECTION = 10;
 
@@ -236,6 +238,11 @@ public final class BillingConstants {
     public static final String ZUORA_REST_API_URI_PRODUCTS = "/rest/v1/catalog/products";
     public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS =
             "/rest/v1/payment-methods/credit-cards/accounts";
+
+    /*API manager REST api suffixes*/
+    public static final String APIM_ADMIN_REST_URI_TENANT_THROTLING_TIERS =
+            "/admin/v0.10/throttling/policies/subscription";
+
     /*data service param names*/
     public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";
     public static final String PARAM_ZUORA_PRODUCT_NAME = "zuoraProductName";

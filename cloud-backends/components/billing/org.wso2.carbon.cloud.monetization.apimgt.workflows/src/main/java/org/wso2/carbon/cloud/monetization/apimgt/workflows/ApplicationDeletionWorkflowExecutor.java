@@ -107,11 +107,11 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
             JsonElement responseElement = new JsonParser().parse(returnElement.getText());
             if (responseElement.isJsonObject()) {
                 JsonObject resultObj = responseElement.getAsJsonObject();
-                if (resultObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS) == null) {
+                if (resultObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS) == null) {
                     throw new WorkflowException("Cancel application subscription failure. Zuora response status " +
                             "cannot be null. response: " + response.toString());
                 }
-                if (resultObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
+                if (resultObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS).getAsBoolean()) {
                     if (LOGGER.isDebugEnabled()) {
                         if (!resultObj.has(CustomWorkFlowConstants.REMOVED_SUBSCRIPTIONS)) {
                             LOGGER.debug("No paid subscriptions found.");
