@@ -405,7 +405,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             return response.toString();
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException
                 | APIException ex) {
-            throw new CloudBillingVendorException("Error while cancelling subscription : ", ex);
+            throw new CloudBillingVendorException("Error while cancelling subscription : " + ex.getMessage(), ex);
         }
     }
 

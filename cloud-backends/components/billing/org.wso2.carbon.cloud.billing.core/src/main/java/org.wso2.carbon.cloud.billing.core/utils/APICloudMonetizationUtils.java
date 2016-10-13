@@ -269,8 +269,8 @@ public final class APICloudMonetizationUtils {
                         .addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
             }
         } catch (CloudBillingException e) {
-            throw new CloudMonetizationException("Error while canceling Subscription for account : " + accountNumber,
-                    e);
+            throw new CloudMonetizationException("Error while canceling Subscription for account : "
+                    + accountNumber + ". " + e.getMessage(), e);
         }
         return responseObj.toString();
     }
