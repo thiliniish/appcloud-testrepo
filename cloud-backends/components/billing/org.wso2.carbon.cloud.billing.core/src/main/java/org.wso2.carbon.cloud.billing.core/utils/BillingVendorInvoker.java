@@ -22,12 +22,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Billing vendor utility class loader and method invoker
@@ -37,7 +36,6 @@ public class BillingVendorInvoker {
     private static volatile Class<?> billingVendorClass;
     private static volatile Object billingVendorClassInstance;
     private static final Log LOGGER = LogFactory.getLog(BillingVendorInvoker.class);
-
 
     private BillingVendorInvoker() {
     }
@@ -53,8 +51,8 @@ public class BillingVendorInvoker {
             synchronized (BillingVendorInvoker.class) {
                 if (billingVendorClass == null || billingVendorClassInstance == null) {
                     try {
-                        billingVendorClass = Class.forName(billingVendorClassName);
-                        Constructor[] constructors = billingVendorClass.getDeclaredConstructors();
+                        Class<?> tempBillingVendorClass = Class.forName(billingVendorClassName);
+                        Constructor[] constructors = tempBillingVendorClass.getDeclaredConstructors();
                         Constructor constructor = null;
                         for (Constructor tempConstructor : constructors) {
                             constructor = tempConstructor;
@@ -63,6 +61,7 @@ public class BillingVendorInvoker {
                             }
                         }
                         if (constructor != null) {
+                            billingVendorClass = tempBillingVendorClass;
                             billingVendorClassInstance = constructor.newInstance();
                         } else {
                             LOGGER.error("Error occurred while starting the service : " + billingVendorClassName
@@ -89,22 +88,22 @@ public class BillingVendorInvoker {
 
     /**
      * Load the cloud billing vendor util class for monetization
-     * TODO : There should be a instance for each argument, hence creating instance for each call. Need to have to cache to keep the instances
+     * TODO : There should be a instance for each argument, hence creating instance for each call.
+     * Need to have to cache to keep the instances
      *
-     * @param consArg cloud billing vendor constructor argument
      * @throws org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException
      */
-    public static CloudBillingServiceProvider loadBillingVendorForMonetization(String consArg)
-            throws CloudBillingException {
+    public static CloudBillingServiceProvider loadBillingVendorForMonetization() throws CloudBillingException {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
         CloudBillingServiceProvider instance;
 
         try {
             Class<?> vendorClass = Class.forName(billingVendorClassName);
             Constructor billingVendorConstructor = vendorClass.getConstructor(String.class);
-            instance = (CloudBillingServiceProvider) billingVendorConstructor.newInstance(consArg);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
-                InvocationTargetException e) {
+            instance = (CloudBillingServiceProvider) billingVendorConstructor.newInstance(tenantDomain);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException
+                | InvocationTargetException e) {
             throw new CloudBillingException(
                     "Error while loading cloud billing vendor class : " + billingVendorClassName + "for Monetization");
         }
@@ -122,23 +121,21 @@ public class BillingVendorInvoker {
     public static Object invokeMethod(String method, String params) throws CloudBillingException {
         loadBillingVendor();
         //no parameter
-        Class noparams[] = { };
+        Class noparams[] = {};
         //String parameter
         Class[] paramString = new Class[1];
         paramString[0] = String.class;
         //call the billing vendor class method
         try {
             if (params == null) {
-                Method billingVendorMethod = billingVendorClass.getDeclaredMethod(method, noparams);
-                billingVendorClassInstance = billingVendorClass.newInstance();
+                Method billingVendorMethod = billingVendorClassInstance.getClass().getDeclaredMethod(method, noparams);
                 return billingVendorMethod.invoke(billingVendorClassInstance);
             } else {
-                Method billingVendorMethod = billingVendorClass.getDeclaredMethod(method, paramString);
-                billingVendorClassInstance = billingVendorClass.newInstance();
+                Method billingVendorMethod = billingVendorClassInstance.getClass().getDeclaredMethod(method,
+                                                                                                     paramString);
                 return billingVendorMethod.invoke(billingVendorClassInstance, params);
             }
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException
-                e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new CloudBillingException("Error while invoking cloud billing vendor method : " + method + ". " + e
                     .getCause());
         }

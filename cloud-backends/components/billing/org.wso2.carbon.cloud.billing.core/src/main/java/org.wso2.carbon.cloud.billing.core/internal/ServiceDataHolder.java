@@ -42,7 +42,6 @@ public class ServiceDataHolder {
     private TenantRegistryLoader tenantRegistryLoader;
     private OutputEventAdapterService outputEventAdapterService;
 
-
     private ServiceDataHolder() {
     }
 

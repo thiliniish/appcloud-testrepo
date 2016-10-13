@@ -19,7 +19,6 @@ package org.wso2.carbon.cloud.billing.core.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,6 +30,7 @@ import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfigManager;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.BillingConfig;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.DataServiceConfig;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.Plan;
+import org.wso2.carbon.cloud.billing.core.commons.fileprocessor.FileContentReader;
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.core.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
@@ -39,9 +39,11 @@ import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -522,11 +524,11 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     }
 
     /**
-     * Invoke cloud billing vendor method with no argument
+     * Invoke cloud billing vendor method
      *
      * @return the result string object
      */
-    public String callVendorNoArgsUtilMethod(String methodName, String params) throws CloudBillingException {
+    public String callVendorMethod(String methodName, String params) throws CloudBillingException {
         return (String) BillingVendorInvoker.invokeMethod(methodName, params);
     }
 
@@ -599,41 +601,45 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         String testAccountDeletionEmailFileName = MonetizationConstants.TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME;
         String subscriptionNotificationEmailFileName = MonetizationConstants.SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME;
         String textContentType = BillingConstants.TEXT_PLAIN_CONTENT_TYPE;
-
-        try {
             // Create the monetization Account
-            JsonNode accountCreationResponseList = CloudBillingServiceUtils.getJsonList(createMonetizationAccount(
-                    customerId, monetizationAccountInfoJson));
-
-            if (null != accountCreationResponseList && null != accountCreationResponseList.get("id")) {
-                //add secret key and publishable key to database.
-
-                //   Add subscriptionCreation element to workflowExtension.xml in registry
+            boolean accountCreationResponse = Boolean.parseBoolean(createMonetizationAccount(customerId,
+                            monetizationAccountInfoJson));
+            if (accountCreationResponse) {
                 status = true;
-                if (!updateWorkFlow(tenantPassword, tenantDisplayName, tenantDomain)) {
+                // Add subscriptionCreation element to workflowExtension.xml in registry
+                if (!updateWorkFlow(MonetizationConstants.TAG_SUBSCRIPTION_CREATION, MonetizationConstants
+                                            .SUBSCRIPTION_CREATION_EXECUTOR, tenantPassword, tenantDisplayName,
+                                    tenantDomain)) {
                     LOGGER.error(
-                            "Registry WorkflowExtension.xml update failed while enabling Monetization.");
+                            "Registry WorkflowExtension.xml update failed for subscription creation while enabling " +
+                            "Monetization.");
                 }
-                /*if (!createEmailFileInRegsitry(tenantDomain, subscriptionNotificationEmailFileName,
-                                               textContentType)) {
-                    LOGGER.error("Creating the registry file " + subscriptionNotificationEmailFileName +
-                                 " failed.");
+                // Add subscriptionDeletion element to workflowExtension.xml in registry
+                if (!updateWorkFlow(MonetizationConstants.TAG_SUBSCRIPTION_DELETION, MonetizationConstants
+                                            .SUBSCRIPTION_DELETION_EXECUTOR,  tenantPassword, tenantDisplayName,
+                                    tenantDomain)) {
+                    LOGGER.error(
+                            "Registry WorkflowExtension.xml update failed for subscription deletion while enabling " +
+                            "Monetization.");
                 }
-                if (!createEmailFileInRegsitry(tenantDomain, testAccountCreationEmailFileName,
-                                               textContentType)) {
-                    LOGGER.error("Creating the registry file " + testAccountCreationEmailFileName +
-                                 " failed.");
+                // Add applicationDeletion element to workflowExtension.xml in registry
+                if (!updateWorkFlow(MonetizationConstants.TAG_APPLICATION_DELETION, MonetizationConstants
+                                            .APLLICATION_DELETION_EXECUTOR,  tenantPassword, tenantDisplayName,
+                                    tenantDomain)) {
+                    LOGGER.error(
+                            "Registry WorkflowExtension.xml update failed for application deletion while enabling " +
+                            "Monetization.");
                 }
-                if (!createEmailFileInRegsitry(tenantDomain, testAccountDeletionEmailFileName,
-                                               textContentType)) {
-                    LOGGER.error("Creating the registry file " + testAccountDeletionEmailFileName +
-                                 " failed.");
-                }*/
+                if (!createEmailFileInRegistry(tenantDomain, subscriptionNotificationEmailFileName, textContentType)) {
+                    LOGGER.error("Creating the registry file " + subscriptionNotificationEmailFileName + " failed.");
+                }
+                if (!createEmailFileInRegistry(tenantDomain, testAccountCreationEmailFileName, textContentType)) {
+                    LOGGER.error("Creating the registry file " + testAccountCreationEmailFileName + " failed.");
+                }
+                if (!createEmailFileInRegistry(tenantDomain, testAccountDeletionEmailFileName, textContentType)) {
+                    LOGGER.error("Creating the registry file " + testAccountDeletionEmailFileName + " failed.");
+                }
             }
-        } catch (IOException e) {
-            throw new CloudBillingException("Error occurred while creating monetization account.", e);
-        }
-
         return status;
     }
 
@@ -645,8 +651,8 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      * @return status of the update
      * @throws CloudBillingException
      */
-    public boolean updateWorkFlow(String tenantPassword, String tenantUsername, String tenantDomain)
-            throws CloudBillingException {
+    public boolean updateWorkFlow(String workflow, String executor, String tenantPassword, String tenantUsername, 
+                                  String tenantDomain) throws CloudBillingException {
         try {
             // Get the workflow resource url
             String workflowUrl = MonetizationConstants.WORKFLOW_EXTENSION_URL;
@@ -654,27 +660,26 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
 
             // Get the resource content
             byte[] bytesContent = (byte[]) workflowResource.getContent();
-            String content = new String(bytesContent, "UTF-8");
+            String content = new String(bytesContent, BillingConstants.ENCODING);
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             InputSource inputSource = new InputSource();
             inputSource.setCharacterStream(new StringReader(content));
             Document doc = documentBuilder.parse(inputSource);
-            Node workFlowExtension = doc.getElementsByTagName(MonetizationConstants.TAG_WORKFLOWEXTENSION).item(0);
+            Node workFlowExtension = doc.getElementsByTagName(MonetizationConstants.TAG_WORKFLOW_EXTENSION).item(0);
             // Loop the WorkFlowExtensions child node
             NodeList extensionList = workFlowExtension.getChildNodes();
             for (int i = 0; i < extensionList.getLength(); i++) {
                 Node node = extensionList.item(i);
-                // Remove the already existing SubscriptionCreation tag
-                if (MonetizationConstants.TAG_SUSCRIPTION_CREATION.equals(node.getNodeName())) {
+                // Remove the already existing element tag
+                if (workflow.equals(node.getNodeName())) {
                     workFlowExtension.removeChild(node);
                 }
             }
-            // Add the new SubscriptionCreation tag
-            Element subscriptionCreation = doc.createElement(MonetizationConstants.TAG_SUSCRIPTION_CREATION);
+            // Add the new tag
+            Element newElement = doc.createElement(workflow);
             // Set the Attribute executor
-            subscriptionCreation.setAttribute(MonetizationConstants.ATTRIBUTE_EXECUTOR,
-                                              MonetizationConstants.SUBSCRIPTION_CREATION_EXECUTOR);
+            newElement.setAttribute(MonetizationConstants.ATTRIBUTE_EXECUTOR, executor);
             // Add ServiceUrl Property tag
             Element propertyServiceUrl = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
             propertyServiceUrl
@@ -688,20 +693,20 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             String serviceURL = BillingConstants.HTTPS + serviceUrlHost + BillingConstants.COLON + serviceUrlPort +
                                 MonetizationConstants.PROPERTY_MONETIZATION_SERVICE_VALUE;
             propertyServiceUrl.setTextContent(serviceURL);
-            subscriptionCreation.appendChild(propertyServiceUrl);
+            newElement.appendChild(propertyServiceUrl);
             // Add Username Property tag
             Element propertyName = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
             propertyName
                     .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_USERNAME_NAME);
             propertyName.setTextContent(tenantUsername);
-            subscriptionCreation.appendChild(propertyName);
+            newElement.appendChild(propertyName);
             // Add Password Property tag
             Element propertyPassword = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
             propertyPassword
                     .setAttribute(MonetizationConstants.ATTRIBUTE_NAME, MonetizationConstants.PROPERTY_PASSWORD_NAME);
             propertyPassword.setTextContent(tenantPassword);
-            subscriptionCreation.appendChild(propertyPassword);
-            workFlowExtension.appendChild(subscriptionCreation);
+            newElement.appendChild(propertyPassword);
+            workFlowExtension.appendChild(newElement);
             // Writing xml file
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, MonetizationConstants.YES);
@@ -716,6 +721,34 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         } catch (RegistryException | ParserConfigurationException | SAXException | IOException | TransformerException
                 e) {
             throw new CloudBillingException("Error occurred while updating the Registry workflowExtensionContent ", e);
+        }
+    }
+
+    /**
+     * This method will create the email notification files sent to subscribers in  the tenant space of the registry.
+     *
+     * @param tenantDomain     tenant domain
+     * @param emailFileName    email file name
+     * @param emailContentType email content type
+     * @return the status of the file creation in the tenant space.
+     * @throws CloudBillingException
+     */
+    private boolean createEmailFileInRegistry(String tenantDomain, String emailFileName, String emailContentType)
+            throws CloudBillingException {
+        FileContentReader fileContentReader = new FileContentReader();
+        String fileBasePath =
+                CarbonUtils.getCarbonHome() + File.separator + MonetizationConstants.EMAIL_RESOURCES_FOLDER +
+                File.separator;
+        String emailFilePath = fileBasePath + emailFileName;
+        String registryPath = MonetizationConstants.EMAIL_FILE_BASE_URL + emailFileName;
+        try {
+            String emailContent = fileContentReader.fileReader(emailFilePath);
+            return CloudBillingUtils.createRegistryResource(tenantDomain, registryPath, emailContent,
+                                                            emailContentType,
+                                                            BillingConstants.GOVERNANCE_REGISTRY);
+        } catch (Exception e) {
+            throw new CloudBillingException(
+                    "Error occurred while creating the registry file " + emailFileName + " error: ", e);
         }
     }
 

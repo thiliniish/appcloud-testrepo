@@ -27,7 +27,7 @@ public final class MonetizationConstants {
     /*Common cloud monetization DSS v1 suffixes*/
     public static final String DS_API_URI_MONETIZATION_STATUS = "/v1/monetization-status/{tenant}/{cloudType}";
     public static final String DS_API_URI_MONETIZATION_TENANT_RATE_PLAN =
-            "/v1/rate-plans/{tenant}/{zuoraProductName}/{ratePlanName}";
+            "/v1/rate-plans/{tenant}/{productName}/{ratePlanName}";
 
     /*API Cloud Monetization DSS v1 suffixes*/
     public static final String DS_API_URI_MON_APIC_SUBSCRIBER = "/v1/subscribers/{tenant}/{username}";
@@ -50,6 +50,7 @@ public final class MonetizationConstants {
     public static final String DS_API_URI_APIC_RATE_PLANS = "/v1/rate-plans/tenants/{tenant}/api-cloud";
     public static final String DS_API_URI_REMOVE_API_SUBSCRIPTION = "/v1/apim/{tenantId}/{subscriberId}/subscriptions";
     public static final String DS_API_URI_SUBSCRIBER_USAGE_INFORMATION = "/v1/usage/usage-info";
+    public static final String DS_API_URI_ADD_MONETIZATION_ACCOUNT = "/v1/accounts/{accountNumber}";
 
     /*resource identifiers*/
     public static final String RESOURCE_IDENTIFIER_TENANT = "{tenant}";
@@ -60,7 +61,7 @@ public final class MonetizationConstants {
     public static final String RESOURCE_IDENTIFIER_API_NAME = "{apiName}";
     public static final String RESOURCE_IDENTIFIER_API_VERSION = "{apiVersion}";
     public static final String RESOURCE_IDENTIFIER_CLOUD_TYPE = "{cloudType}";
-    public static final String RESOURCE_IDENTIFIER_ZUORA_PRODUCT_NAME = "{zuoraProductName}";
+    public static final String PRODUCT_NAME = "{productName}";
     public static final String RESOURCE_IDENTIFIER_RATE_PLAN_NAME = "{ratePlanName}";
     public static final String RESOURCE_IDENTIFIER_VERSION = "{version}";
     public static final String RESOURCE_IDENTIFIER_SUBSCRIBER_ID = "{subscriberId}";
@@ -81,6 +82,7 @@ public final class MonetizationConstants {
     public static final String RATE_PLAN_ID = "RatePlanId";
     public static final String SUBSCRIPTION = "Subscription";
     public static final String SUBSCRIPTIONS = "Subscriptions";
+    public static final String SUBSCRIBERS = "Subscribers";
     public static final String SUBSCRIPTION_NUMBER = "SubscriptionNumber";
     public static final String MAX_DAILY_USAGE = "MaxDailyUsage";
     public static final String ENTRY = "Entry";
@@ -135,14 +137,19 @@ public final class MonetizationConstants {
     public static final String WORKFLOW_EXTENSION_URL = "/apimgt/applicationdata/workflow-extensions.xml";
     public static final String SUBSCRIPTION_CREATION_EXECUTOR =
             "org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionCreationWorkflowExecutor";
+    public static final String SUBSCRIPTION_DELETION_EXECUTOR =
+            "org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionDeletionWorkflowExecutor";
+    public static final String APLLICATION_DELETION_EXECUTOR =
+            "org.wso2.carbon.cloud.monetization.apimgt.workflows.ApplicationDeletionWorkflowExecutor";
     public static final String PROPERTY_SERVICEURL_NAME = "apiMonetizationServiceUrl";
-    public static final String PROPERTY_MONETIZATION_SERVICE_VALUE =
-            "/services/APICloudMonetizationService/";
+    public static final String PROPERTY_MONETIZATION_SERVICE_VALUE = "/services/APICloudMonetizationService/";
     public static final String PROPERTY_SERVICE_END_POINT = "serviceEndpoint";
     public static final String PROPERTY_USERNAME_NAME = "username";
     public static final String PROPERTY_PASSWORD_NAME = "password";
-    public static final String TAG_WORKFLOWEXTENSION = "WorkFlowExtensions";
-    public static final String TAG_SUSCRIPTION_CREATION = "SubscriptionCreation";
+    public static final String TAG_WORKFLOW_EXTENSION = "WorkFlowExtensions";
+    public static final String TAG_SUBSCRIPTION_CREATION = "SubscriptionCreation";
+    public static final String TAG_SUBSCRIPTION_DELETION = "SubscriptionDeletion";
+    public static final String TAG_APPLICATION_DELETION = "ApplicationDeletion";
     public static final String ATTRIBUTE_EXECUTOR = "executor";
     public static final String ATTRIBUTE_PROPERTY = "Property";
     public static final String ATTRIBUTE_NAME = "name";
@@ -152,9 +159,9 @@ public final class MonetizationConstants {
     public static final String TENANT_CONF_URL = "apimgt/applicationdata/tenant-conf.json";
     public static final String EMAIL_FILE_BASE_URL = "/apimgt/pricing/resources/";
     //Email related Constants
-    public static final String EMAIL_BODY_OVERAGE_FAILURE = "Hi Cloud Team, \n Error has occurred while uploading " +
-                                                            "the" +
-                                                            " overage data to zuora on {today}. Please verify.";
+    public static final String EMAIL_BODY_OVERAGE_FAILURE =
+            "Hi Cloud Team, \n Error has occurred while uploading " + "the"
+                    + " overage data to zuora on {today}. Please verify.";
     public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data ";
     public static final String REPLACE_TODAY = "{today}";
     //Email notifications related parameters
@@ -171,6 +178,7 @@ public final class MonetizationConstants {
     //This is used for JSON responses
     public static final String RESPONSE_SUCCESS = "success";
     public static final String RESPONSE_DATA = "data";
+    public static final String RESPONSE_MESSAGE = "message";
 
     private MonetizationConstants() {
     }
