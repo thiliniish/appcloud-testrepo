@@ -61,9 +61,8 @@ public final class APICloudMonetizationUtils {
     private static String subscriptionHistoryUri;
     private static String appSubscriptionsUri;
 
-
-    /*APIM Rest API URIs*/
-    private static String tiersOfTenantUri;
+	/*APIM Rest API URIs*/
+	private static String tiersOfTenantUri;
 
     static {
         dsBRProcessor = BillingRequestProcessorFactory.getInstance()
@@ -506,7 +505,6 @@ public final class APICloudMonetizationUtils {
      * @return json string of tiers
      * @throws CloudMonetizationException
      */
-
     public static String getTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
         try {
             Map<String, String> customHeaders = new HashMap<String, String>();

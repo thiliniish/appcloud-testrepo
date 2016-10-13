@@ -26,8 +26,6 @@ import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Billing vendor utility class loader and method invoker
@@ -49,6 +47,8 @@ public class BillingVendorInvoker {
      */
     public static CloudBillingServiceProvider loadBillingVendor() throws CloudBillingException {
         String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
+
+
         if (billingVendorClass == null || billingVendorClassInstance == null) {
             synchronized (BillingVendorInvoker.class) {
                 if (billingVendorClass == null || billingVendorClassInstance == null) {
@@ -129,16 +129,14 @@ public class BillingVendorInvoker {
         //call the billing vendor class method
         try {
             if (params == null) {
-                Method billingVendorMethod = billingVendorClass.getDeclaredMethod(method, noparams);
-                billingVendorClassInstance = billingVendorClass.newInstance();
+                Method billingVendorMethod = billingVendorClassInstance.getClass().getDeclaredMethod(method, noparams);
                 return billingVendorMethod.invoke(billingVendorClassInstance);
             } else {
-                Method billingVendorMethod = billingVendorClass.getDeclaredMethod(method, paramString);
-                billingVendorClassInstance = billingVendorClass.newInstance();
+                Method billingVendorMethod = billingVendorClassInstance.getClass().getDeclaredMethod(method,
+                                                                                                     paramString);
                 return billingVendorMethod.invoke(billingVendorClassInstance, params);
             }
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException
-                e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new CloudBillingException("Error while invoking cloud billing vendor method : " + method + ". " + e
                     .getCause());
         }

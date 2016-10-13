@@ -140,10 +140,10 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
-     * Get the Json List of the billing vendor response
+     * Get the Json List of the response string
      *
-     * @param responseObject billing vendor rest call response
-     * @return Json list
+     * @param responseObject jsonString response
+     * @return Json node list
      */
     public static JsonNode getJsonList(String responseObject) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

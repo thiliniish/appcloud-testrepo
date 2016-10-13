@@ -25,10 +25,22 @@ public final class BillingVendorConstants {
 
     public static final String EMPTY_STRING = "";
     public static final String ACTIVE_RESPONSE = "active";
-
     public static final String RESPONSE_SUCCESS = "success";
     public static final String RESPONSE_DATA = "data";
     public static final String RESPONSE_MESSAGE = "message";
 
     public static final String AT_PERIOD_END = "at_period_end";
+
+	/** Monetization account table params **/
+	public static final String ACCOUNT_NUMBER = "account_number";
+	public static final String TOKEN_TYPE = "token_type";
+	public static final String STRIPE_PUBLISHABLE_KEY = "stripe_publishable_key";
+	public static final String SCOPE = "scope";
+	public static final String LIVEMODE = "livemode";
+	public static final String STRIPE_USER_ID = "stripe_user_id";
+	public static final String REFRESH_TOKEN = "refresh_token";
+	public static final String ACCESS_TOKEN = "access_token";
+	public static final String ACCOUNT_CREATION_DATE = "account_creation_date";
+
+	public static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 }
