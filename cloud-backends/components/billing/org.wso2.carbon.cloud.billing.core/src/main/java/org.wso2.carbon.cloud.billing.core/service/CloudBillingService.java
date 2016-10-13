@@ -43,6 +43,11 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,10 +57,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 /**
  * Represents cloud billing related services.
@@ -523,16 +524,6 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     }
 
     /**
-     * Load and return the billing vendor instance for monetization
-     * Here we have to pass parameters to billing vendor for monetization
-     *
-     * @return billing vendor for monetization
-     */
-    public CloudBillingServiceProvider init(String consArg) throws CloudBillingException {
-        return BillingVendorInvoker.loadBillingVendorForMonetization(consArg);
-    }
-
-    /**
      * Invoke cloud billing vendor method
      *
      * @return the result string object
@@ -612,7 +603,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         String textContentType = BillingConstants.TEXT_PLAIN_CONTENT_TYPE;
             // Create the monetization Account
             boolean accountCreationResponse = Boolean.parseBoolean(createMonetizationAccount(customerId,
-                                                                                             monetizationAccountInfoJson));
+                            monetizationAccountInfoJson));
             if (accountCreationResponse) {
                 status = true;
                 // Add subscriptionCreation element to workflowExtension.xml in registry

@@ -34,9 +34,10 @@ import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Utility class for workflows
@@ -57,8 +58,8 @@ public final class WorkFlowUtils {
      * @return service client
      * @throws AxisFault
      */
-    public static ServiceClient getClient(String action, String serviceEndpoint, String contentType,
-                                          String username, String password) throws AxisFault {
+    public static ServiceClient getClient(String action, String serviceEndpoint, String contentType, String username,
+            String password) throws AxisFault {
         ServiceClient client = new ServiceClient(ServiceReferenceHolder.getContextService().getClientConfigContext(),
                 null);
         Options options = new Options();
@@ -68,8 +69,7 @@ public final class WorkFlowUtils {
         if (contentType != null) {
             options.setProperty(Constants.Configuration.MESSAGE_TYPE, contentType);
         } else {
-            options.setProperty(Constants.Configuration.MESSAGE_TYPE,
-                    HTTPConstants.MEDIA_TYPE_APPLICATION_XML);
+            options.setProperty(Constants.Configuration.MESSAGE_TYPE, HTTPConstants.MEDIA_TYPE_APPLICATION_XML);
         }
 
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
@@ -109,12 +109,12 @@ public final class WorkFlowUtils {
      * @throws WorkflowException
      */
     public static JsonObject getSubscriberInfo(String subscriber, String tenantDomain, String serviceEndpoint,
-                                               String contentType, String username, String password)
+            String contentType, String username, String password)
             throws AxisFault, XMLStreamException, WorkflowException {
-        ServiceClient client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_GET_SUBSCRIBER,
-                serviceEndpoint, contentType, username, password);
-        String payload = CustomWorkFlowConstants.SUBSCRIBER_INFO_PAYLOAD
-                .replace("$1", subscriber)
+        ServiceClient client = WorkFlowUtils
+                .getClient(CustomWorkFlowConstants.SOAP_ACTION_GET_SUBSCRIBER, serviceEndpoint, contentType, username,
+                        password);
+        String payload = CustomWorkFlowConstants.SUBSCRIBER_INFO_PAYLOAD.replace("$1", subscriber)
                 .replace("$2", tenantDomain);
         OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
         OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
@@ -122,10 +122,10 @@ public final class WorkFlowUtils {
         JsonObject responseObj;
         if (StringUtils.isNotBlank(response.getText())) {
             responseObj = new JsonParser().parse(response.getText().trim()).getAsJsonObject();
-            if (responseObj == null || responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ) == null) {
+            if (responseObj == null || !responseObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS).getAsBoolean()) {
                 throw new WorkflowException("Could not complete workflow. Subscriber information is not available.");
             }
-            return responseObj;
+            return responseObj.get(CustomWorkFlowConstants.RESPONSE_DATA).getAsJsonObject().getAsJsonObject();
         } else {
             throw new WorkflowException("Could not complete workflow. Subscriber information is not available.");
         }

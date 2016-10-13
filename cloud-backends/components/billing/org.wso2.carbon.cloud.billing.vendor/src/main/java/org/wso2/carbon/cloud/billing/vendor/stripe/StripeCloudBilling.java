@@ -17,10 +17,6 @@
  */
 package org.wso2.carbon.cloud.billing.vendor.stripe;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -31,7 +27,6 @@ import com.stripe.exception.APIException;
 import com.stripe.exception.AuthenticationException;
 import com.stripe.exception.CardException;
 import com.stripe.exception.InvalidRequestException;
-import com.stripe.model.Account;
 import com.stripe.model.Coupon;
 import com.stripe.model.Customer;
 import com.stripe.model.CustomerSubscriptionCollection;
@@ -41,16 +36,13 @@ import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonNode;
+import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
-import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
-import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.cloud.billing.vendor.commons.BillingVendorConstants;
 import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVenderConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 import org.wso2.carbon.cloud.billing.vendor.stripe.utils.APICloudMonetizationUtils;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,20 +65,23 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         setApiKey(BillingVenderConfigUtils.getBillingVenderConfiguration().getAuthenticationApiKeys().getSecretKey());
     }
 
-    public StripeCloudBilling(String secretApiKey) {
-         setApiKey(secretApiKey);
+    public StripeCloudBilling(String tenantDomain) {
+        String apiKey = getSecretKey(tenantDomain);
+        setApiKey(apiKey);
+
     }
 
     /**
      * Set the authentication secret API key
-     * @param customerId customer id for which there is a separate API key (i.e Monetization customers account)
+     * @param apiKey api key
      */
-    private static void setApiKey(String customerId) {
-        Stripe.apiKey = getSecreatKey(customerId);
+    private static void setApiKey(String apiKey) {
+        Stripe.apiKey = getSecretKey(apiKey);
     }
 
     // TODO: 10/11/16 Get the SecreatAPI Key from the Database
-    private static String getSecreatKey(String customerId) {
+    private static String getSecretKey(String tenantDomain) {
+        LOGGER.info("Getting Secret Key for Tenant : " + tenantDomain);
         return "sk_test_BKvOXCL9A6xZnhR8zTP15rqM";
     }
 
@@ -296,10 +291,20 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         try {
             subscriptionParams.clear();
             subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
-            return validateResponseString(Subscription.create(subscriptionParams).toString());
+
+            Subscription subscription = Subscription.create(subscriptionParams);
+
+            JsonObject dataObj = new JsonObject();
+            dataObj.addProperty(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, subscription.getId());
+
+            JsonObject response = new JsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, dataObj);
+
+            return response.toString();
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
-            throw new CloudBillingVendorException("Error while creating subscription : ", ex);
+            throw new CloudBillingVendorException("Error while creating subscription : " + ex.getMessage(), ex);
         }
     }
 
@@ -396,10 +401,11 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE,
                         "Subscription cancellation was not successful");
                 response.add(BillingVendorConstants.RESPONSE_DATA, subscriptionJsonObj);
-            } return response.toString();
+            }
+            return response.toString();
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException
                 | APIException ex) {
-            throw new CloudBillingVendorException("Error while cancelling subscription : ", ex);
+            throw new CloudBillingVendorException("Error while cancelling subscription : " + ex.getMessage(), ex);
         }
     }
 
@@ -527,32 +533,33 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         }
     }
 
-	/**
-	 * Method to create Monetization account
-	 *
-	 * @param customerId                  monetization customer id
-	 * @param monetizationAccountInfoJson monetization account info
-	 *                                    {
-	 *                                    "accountNumber": "acc999999",
-	 *                                    "access_token": "sk_test_UVFvcC6Exzpe5Lelq5IAZa9z",
-	 *                                    "livemode": false,
-	 *                                    "refresh_token": "rt_9MTBa0i5i5FLg1znSlWnuQF8jIHuT4x",
-	 *                                    "token_type": "bearer",
-	 *                                    "stripe_publishable_key": "pk_test_HHdWwgu",
-	 *                                    "stripe_user_id": "acct_193k8qDMGlVlrnlQ",
-	 *                                    "scope": "read_write"
-	 *                                    }
-	 *                                    these values add to database
-	 * @return success jason string
-	 */
-	@Override public String createMonetizationAccount(String customerId, String monetizationAccountInfoJson)
+    /**
+     * Method to create Monetization account
+     *
+     * @param customerId                  monetization customer id
+     * @param monetizationAccountInfoJson monetization account info
+     *                                    {
+     *                                    "accountNumber": "acc999999",
+     *                                    "access_token": "sk_test_UVFvcC6Exzpe5Lelq5IAZa9z",
+     *                                    "livemode": false,
+     *                                    "refresh_token": "rt_9MTBa0i5i5FLg1znSlWnuQF8jIHuT4x",
+     *                                    "token_type": "bearer",
+     *                                    "stripe_publishable_key": "pk_test_HHdWwgu",
+     *                                    "stripe_user_id": "acct_193k8qDMGlVlrnlQ",
+     *                                    "scope": "read_write"
+     *                                    }
+     *                                    these values add to database
+     * @return success jason string
+     */
+    @Override
+    public String createMonetizationAccount(String customerId, String monetizationAccountInfoJson)
             throws CloudBillingVendorException {
-		    // Add standalone account creation response values to database.
-		    return String.valueOf(APICloudMonetizationUtils.addMonetizationAccount(customerId,
-		                                                                           monetizationAccountInfoJson));
+        // Add standalone account creation response values to database.
+        return String
+                .valueOf(APICloudMonetizationUtils.addMonetizationAccount(customerId, monetizationAccountInfoJson));
     }
 
-	 /**
+    /**
      * Retrieve invoices associated with a customer
      *
      * @param invoiceInfoJson invoice retrieval info for a specific customer
@@ -605,7 +612,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             for (int i = 0; i < subscriptionCollection.getData().size(); i++) {
                 if (customer.getSubscriptions().getData().get(i).getStatus().equals(BillingVendorConstants
                                                                                             .ACTIVE_RESPONSE)) {
-                    return customer.getSubscriptions().getData().get(i).getPlan().getId().toString();
+                    return customer.getSubscriptions().getData().get(i).getPlan().getId();
                 }
             }
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
