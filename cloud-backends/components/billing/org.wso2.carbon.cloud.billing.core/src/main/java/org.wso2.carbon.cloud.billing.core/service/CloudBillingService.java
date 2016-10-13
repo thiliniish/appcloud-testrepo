@@ -17,8 +17,11 @@
  */
 package org.wso2.carbon.cloud.billing.core.service;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -34,6 +37,7 @@ import org.wso2.carbon.cloud.billing.core.commons.fileprocessor.FileContentReade
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.core.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.core.security.CloudBillingSecurity;
 import org.wso2.carbon.cloud.billing.core.utils.BillingVendorInvoker;
 import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
@@ -51,6 +55,7 @@ import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -651,7 +656,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      * @return status of the update
      * @throws CloudBillingException
      */
-    public boolean updateWorkFlow(String workflow, String executor, String tenantPassword, String tenantUsername, 
+    public boolean updateWorkFlow(String workflow, String executor, String tenantPassword, String tenantUsername,
                                   String tenantDomain) throws CloudBillingException {
         try {
             // Get the workflow resource url
@@ -752,4 +757,36 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         }
     }
 
+    /**
+     * Retrieve zuora accountId for tenant domain
+     *
+     * @param tenantDomain tenant domain
+     * @return string zuora accountId
+     * @throws CloudBillingException
+     */
+    public String getAccountId(String tenantDomain) throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving account Id tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Generate a MDA hash
+     *
+     * @param data        data which need a hash
+     * @param mdAlgorithm mda algorithm
+     * @return hashed data
+     * @throws CloudBillingException
+     */
+    public String generateHash(String data, String mdAlgorithm) throws CloudBillingException {
+        try {
+            return CloudBillingSecurity.generateHash(data, mdAlgorithm);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while generating hash value ", ex);
+            throw ex;
+        }
+    }
 }

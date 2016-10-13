@@ -19,6 +19,8 @@
 package org.wso2.carbon.cloud.billing.core.utils;
 
 import com.google.gson.Gson;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
@@ -28,8 +30,13 @@ import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfigManager;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.CloudType;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.Plan;
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
+import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
+import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.cloud.billing.core.security.CloudBillingSecurity;
 
 import java.io.IOException;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud Billing core module
@@ -38,6 +45,11 @@ public final class CloudBillingServiceUtils {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceUtils.class);
     private static volatile String configObj;
+    private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getInstance()
+                                                                                         .getBillingRequestProcessor(
+                                                                                                 BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+    private static String billingServiceURI = BillingConfigManager.getBillingConfiguration().getDataServiceConfig()
+                                                                  .getCloudBillingServiceUri();
 
     private CloudBillingServiceUtils() {
     }
@@ -149,5 +161,35 @@ public final class CloudBillingServiceUtils {
         ObjectMapper mapper = new ObjectMapper();
         // convert JSON string to JsonNode list
         return mapper.readTree(responseObject);
+    }
+
+    /**
+     * Retrieve Payment account id for tenant
+     *
+     * @param tenantDomain tenant domain
+     * @return account id
+     * @throws CloudBillingException
+     */
+    public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
+
+        String dsAccountURL =  billingServiceURI.concat(BillingConstants.DS_API_URI_TENANT_ACCOUNT);
+
+        String response = dsBRProcessor.doGet(dsAccountURL.replace(BillingConstants.TENANT_DOMAIN_PARAM,
+                                                                   tenantDomain), null, null);
+        try {
+            if (response != null && !response.isEmpty()) {
+                OMElement elements = AXIOMUtil.stringToOM(response);
+                if (elements.getFirstElement() == null || elements.getFirstElement().getFirstElement() == null) {
+                    return null;
+                } else {
+                    return elements.getFirstElement().getFirstElement().getText();
+                }
+            } else {
+                return null;
+            }
+
+        } catch (XMLStreamException e) {
+            throw new CloudBillingException("Unable to get the OMElement from " + response, e);
+        }
     }
 }
