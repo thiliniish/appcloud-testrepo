@@ -283,8 +283,9 @@ public final class BillingConstants {
     public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE accountnumber" +
                                                                    " " +
                                                                    "= '?'";
+	public static final String ENABLE_MONETIZATION_REGISTRY_PROPERTY = "EnableMonetization";
 
-    private BillingConstants() {
+	private BillingConstants() {
     }
 
     /**
