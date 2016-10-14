@@ -286,7 +286,7 @@ public final class BillingConstants {
 	public static final String ENABLE_MONETIZATION_REGISTRY_PROPERTY = "EnableMonetization";
 
 	private BillingConstants() {
-    }
+	}
 
     /**
      * SecureValueProperties inner class
