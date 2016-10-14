@@ -43,7 +43,7 @@ public class BillingVendorInvoker {
     /**
      * Load the cloud billing vendor util class
      *
-     * @throws org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException
+     * @throws CloudBillingException
      */
     public static CloudBillingServiceProvider loadBillingVendor() throws CloudBillingException {
         String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
@@ -89,7 +89,7 @@ public class BillingVendorInvoker {
     /**
      * Load the cloud billing vendor util class for monetization
      * TODO : There should be a instance for each argument, hence creating instance for each call.
-     * Need to have to cache to keep the instances
+     * TODO : Need to have to cache to keep the instances
      *
      * @throws org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException
      */
