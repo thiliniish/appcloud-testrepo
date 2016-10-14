@@ -45,7 +45,7 @@ public class Plan {
     @XmlElement(name = "Property")
     private Property[] properties;
 
-    private static volatile Map<String, String> propertiesMap;
+    private Map<String, String> propertiesMap;
 
     private static final Log LOGGER = LogFactory.getLog(Plan.class);
 
