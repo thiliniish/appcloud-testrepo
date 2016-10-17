@@ -19,6 +19,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+            <version>${wso2carbon.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk16</artifactId>
             <version>${bcprov-jdk16.version}</version>

@@ -27,18 +27,18 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.vendor.commons.config.BillingVendorConfig;
-import org.wso2.carbon.cloud.billing.vendor.internal.CloudBillingVenderComponent;
+import org.wso2.carbon.cloud.billing.vendor.internal.ServiceDataHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
 import java.io.File;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 
 /**
  * Billing configuration utility class
@@ -97,7 +97,7 @@ public class BillingVenderConfigUtils {
                     BillingConstants.BILLING_VENDOR_CONFIG_FILE_NAME;
             File billingVenderConfig = new File(configLocation);
             Document doc = convertToDocument(billingVenderConfig);
-//            secureResolveDocument(doc);
+            secureResolveDocument(doc);
 
             /* Un-marshaling Billing Management configuration */
             JAXBContext cdmContext = JAXBContext.newInstance(BillingVendorConfig.class);
@@ -154,7 +154,7 @@ public class BillingVenderConfigUtils {
         if (secretResolver == null) {
             secretResolver = SecretResolverFactory.create((OMElement) null, false);
             secretResolver.init(
-                    CloudBillingVenderComponent.getSecretCallbackHandlerService().getSecretCallbackHandler());
+                    ServiceDataHolder.getInstance().getSecretCallbackHandlerService().getSecretCallbackHandler());
         }
         return secretResolver.resolve(alias);
     }

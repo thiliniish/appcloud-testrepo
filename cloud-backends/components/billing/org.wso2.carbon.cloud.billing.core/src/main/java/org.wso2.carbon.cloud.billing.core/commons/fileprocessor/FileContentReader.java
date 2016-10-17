@@ -23,7 +23,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * This class is used to read the content of files passed.

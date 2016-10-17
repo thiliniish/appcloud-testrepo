@@ -32,8 +32,6 @@ import org.wso2.carbon.securevault.SecretCallbackHandlerService;
  */
 public class CloudBillingVenderComponent {
 
-    private static SecretCallbackHandlerService secretCallbackHandlerService;
-
     private static final Log LOGGER = LogFactory.getLog(CloudBillingVenderComponent.class);
 
 
@@ -48,15 +46,12 @@ public class CloudBillingVenderComponent {
         }
     }
 
-    public static SecretCallbackHandlerService getSecretCallbackHandlerService() {
-        return secretCallbackHandlerService;
-    }
 
     public void setSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
-        this.secretCallbackHandlerService = secretCallbackHandlerService;
+        ServiceDataHolder.getInstance().setSecretCallbackHandlerService(secretCallbackHandlerService);
     }
 
     public void unsetSecretCallbackHandlerService(SecretCallbackHandlerService secretCallbackHandlerService) {
-        this.secretCallbackHandlerService = null;
+        ServiceDataHolder.getInstance().setSecretCallbackHandlerService(null);
     }
 }

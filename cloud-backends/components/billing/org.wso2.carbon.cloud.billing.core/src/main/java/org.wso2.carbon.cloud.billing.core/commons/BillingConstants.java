@@ -56,7 +56,7 @@ public final class BillingConstants {
     public static final String QTY = "QTY";
     public static final String STARTDATE = "STARTDATE";
     public static final String ENDDATE = "ENDDATE";
-    public static final String SUBSCRIPTION_ID = "SUBSCRIPTION_ID";
+    public static final String SUBSCRIPTION_ID = "SUBSCRIPTION_NUMBER";
     public static final String CHARGE_ID = "CHARGE_ID";
     public static final String DESCRIPTION = "DESCRIPTION";
 
@@ -168,7 +168,7 @@ public final class BillingConstants {
 
     public static final String FILE_PART_NAME = "file";
 
-    public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
+    public static final String API_CLOUD_ID = "api_cloud";
 
     /* zuora product related attributes */
     public static final String PRODUCT_CATEGORY = "Base Products";
@@ -283,9 +283,10 @@ public final class BillingConstants {
     public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE accountnumber" +
                                                                    " " +
                                                                    "= '?'";
+	public static final String ENABLE_MONETIZATION_REGISTRY_PROPERTY = "EnableMonetization";
 
-    private BillingConstants() {
-    }
+	private BillingConstants() {
+	}
 
     /**
      * SecureValueProperties inner class
