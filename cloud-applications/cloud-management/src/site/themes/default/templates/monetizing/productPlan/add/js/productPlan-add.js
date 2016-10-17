@@ -42,7 +42,7 @@ function doSubmit() {
         },
         function (result) {
             if (result) {
-                planDescription = planName + " Plan.";
+                planDescription = planName + " Plan updated.";
                 jagg.post("../blocks/monetizing/productPlan/update/ajax/update.jag", {
                         action: "updatePaymentPlansOfTenant",
                         planName: planName,
@@ -64,7 +64,7 @@ function doSubmit() {
                         }
                     });
             } else {
-                planDescription = planName + " Plan updated.";
+                planDescription = planName + " Plan.";
                 jagg.post("../blocks/monetizing/productPlan/add/ajax/add.jag", {
                         action: "add-payment-plans-of-tenant",
                         planName: planName,
@@ -98,6 +98,7 @@ function isUpdate() {
         function (result) {
             if (result) {
                 $("#btn_addPaymentPlan").text(" Update");
+                $("#pricing").attr("disabled", true);
             } else {
                 $("#btn_addPaymentPlan").text(" Add");
             }

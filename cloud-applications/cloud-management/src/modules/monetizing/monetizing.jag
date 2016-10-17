@@ -777,117 +777,6 @@ var getSubscriptionDataFromName = function (subscriptionName) {
     return subscriptionData;
 };
 
-// Function for enable monetization
-var enableMonetization = function (tenantPassword) {
-    var isPaidAccount = false;
-    var paymentPlanName = null;
-    try {
-        /* Check whether the account is eligible for monetizing. Account should be a paid account and at
-         least upgrade to getting traction payment plan. So it should not be a billing starting plan.
-         */
-        isPaidAccount = modBilling.isPaidAccount();
-        paymentPlanName = getCurrentPaymentPlan();
-        var tenantDomain = modManager.getTenantDomain();
-        var username = jagg.getUser();
-        if (isPaidAccount) {
-            if (paymentPlanName != null && BILLING_STARTER_PLAN != paymentPlanName) {
-                var productName = tenantDomain + "_" + API_CLOUD;
-                var effectiveStartDate = new Packages.java.util.Date();
-                var tenantDisplayName = jagg.getUser();
-                var cloudEmail = cloudConfig.supportContact.to;
-                var userEmail = String(session.get(LOGGED_IN_USER_EMAIL));
-                var isProductCreated =
-                        billingService.enableMonetization(tenantDomain, tenantPassword, tenantDisplayName);
-                if (isProductCreated) {
-                    var cloudType = productIdFromServiceId.api_cloud;
-                    // Add status to MONETIZATION_STATUS table
-                    var addMonetizationStatus = addStatusToMonetizationStatusTable(tenantDomain, API_CLOUD);
-                    if (addMonetizationStatus) {
-                        log.info("Successfully updated the monetization status table for tenant : " + tenantDomain);
-
-                        //updating the monetization status For ApiCloud
-                        var updateApiCloudMonetizationStatusResult = updateApiCloudMonetizationStatus();
-                        if (updateApiCloudMonetizationStatusResult.error) {
-                            log.error(updateApiCloudMonetizationStatusResult.message);
-                        }
-
-                        // Send email notification to cloud service
-                        var notificationToCloudStatus = sendProductEnableNotificationEmailToCloud(tenantDisplayName,
-                                effectiveStartDate, productName, cloudEmail);
-                        if (notificationToCloudStatus == false) {
-                            log.error("Monetization Enable notification sending failed for cloud service for tenant : "
-                            + tenantDomain + " , Product name : " + productName);
-                        }
-
-                        // Send email notification to tenant
-                        var notificationToUserStatus = sendProductEnableNotificationEmailToUser(tenantDisplayName,
-                                effectiveStartDate, productName, userEmail);
-                        if (notificationToUserStatus == false) {
-                            log.error("Monetization Enable notification sending failed for cloud service for tenant : "
-                            + tenantDomain + " , Product name : " + productName);
-                        }
-                        log.info("Successfully created the Product for the tenant : " + tenantDomain);
-                        return {
-                            error: false,
-                            status: "200",
-                            message: "You have successfully enabled monetizaton for API Cloud. <br>" +
-                            "Next, select the commercial tier to complete the task.",
-                            redirectionURL: apiManagerURL + TIER_MANAGE_URL,
-                            account: "paid"
-                        };
-                    } else {
-                        responseMessage = "Add status to monetization_status table failed for user: " + username + " of tenant: " +
-                                       tenantDomain + ".";
-                        throw responseMessage;
-                    }
-                } else {
-                    responseMessage = "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
-                    throw responseMessage;
-                }
-            }  else {
-                message = "Validation failed. User " + username + " is having a " + BILLING_STARTER_PLAN + " account.";
-                log.error(message);
-                responseMessage = "You are subscribed to " + BILLING_STARTER_PLAN + " Plan. In order to enable Monetization please " +
-                                  "upgrade your account to at-least '" + MONETIZATION_STARTER_PLAN + "' plan.";
-                return {
-                    error: true,
-                    invalidPlanError: true,
-                    message: responseMessage,
-                    status: 426,
-                    redirectionURL: contactUsURL,
-                    account: BILLING_STARTER_PLAN
-                };
-            }
-        } else {
-            message = "Validation failed. User " + username + " is having a free account.";
-            log.error(message);
-            account = "Free";
-            responseMessage = "You are having a free account. In order to enable Monetization please upgrade your account to " +
-                              "at-least 'Getting Traction' plan.";
-            return {
-                error: true,
-                invalidPlanError: true,
-                message: responseMessage,
-                status: 426,
-                redirectionURL: contactUsURL,
-                account: account
-            };
-        }
-    } catch (e) {
-        account = "";
-        var displayMessage = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
-        log.error(displayMessage);
-        log.error(e);
-        return {
-            error: true,
-            message: displayMessage,
-            status: 500,
-            redirectionURL: contactUsURL,
-            account: account
-        };
-    }
-};
-
 // Function for query zuora product by name
 var getProductInfo = function (tenantDomain, productName) {
     billingService.queryProduct(tenantDomain, productName);
@@ -1054,41 +943,6 @@ var getProductPlans = function () {
         };
     }
 };
-var addProductPlans = function (planName, planDescription, pricing, overageCharge, overageLimit, dailyUsage) {
-    try {
-        var tenantDomain = modManager.getTenantDomain();
-        var addProductPlansResult = JSON.parse(billingService.createProductRatePlan(tenantDomain, planName, pricing, overageCharge, planDescription));
-        if (addProductPlansResult.id != null) {
-            addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlansResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
-            var msg = "Successfully added the product rate plan: " + planName + " for the tenant " + tenantDomain;
-            return {
-                error: false,
-                status: 200,
-                message: msg,
-                redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
-            };
-        } else {
-            var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
-            log.error("Error occurred while adding the product plans for tenant: " + tenantDomain);
-            return {
-                error: true,
-                redirectionURL: contactUsURL,
-                message: msg,
-                status: 500
-            };
-        }
-    } catch (e) {
-        var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
-        log.error(msg);
-        log.error(e);
-        return {
-            error: true,
-            redirectionURL: contactUsURL,
-            message: msg,
-            status: 500
-        };
-    }
-};
 
 // getting the tier details of the tenant
 var getTiersOfTenant = function () {
@@ -1200,20 +1054,36 @@ var isProductPlanExistsForTenant = function (ratePlanName) {
     }
 };
 
-var updateProductRatePlanInfo = function (ratePlanName, description, recurringCharge, overageCharge, overageLimit, dailyUsage) {
+/* Monetization implementation with Stripe */
+
+//Function to add product rate plans
+var addProductRatePlan = function (planName, planDescription, pricing, overageCharge, overageLimit, dailyUsage) {
     try {
         var tenantDomain = modManager.getTenantDomain();
-        var updateProductResult = JSON.parse(billingService.updateProductRatePlan(tenantDomain, ratePlanName, recurringCharge, overageCharge, description));
-        if (updateProductResult.id != null) {
-            updateProductPlanDetailsToMonetizationTable(tenantDomain, updateProductResult.id, ratePlanName, recurringCharge, overageCharge, overageLimit, dailyUsage);
+        var planObj = {};
+        planObj.id = API_CLOUD + "_" + planName;
+        planObj.amount = pricing;
+        planObj.currency = "usd";
+        planObj.interval = "month";
+        planObj.name = planName;
+        var metaDataObj = {};
+        metaDataObj.product = API_CLOUD;
+        metaDataObj.description = planDescription;
+        planObj.metadata = metaDataObj;
+        //this will add the plan to wso2 platform. Neet to modify it..!!
+        var addProductPlanResult = JSON.parse(billingService.createProductRatePlan(stringify(planObj)));
+        if (addProductPlanResult.id != null) {
+            addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlanResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
+            var msg = "Successfully added the product rate plan: " + planName + " for the tenant " + tenantDomain;
             return {
                 error: false,
                 status: 200,
+                message: msg,
                 redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
             };
         } else {
-            var msg = "Unable to update the product plan at the moment. Please contact WSO2 Cloud Team for help.";
-            log.error("Error occurred while updating the product plan: " + ratePlanName + " for tenant: " + tenantDomain);
+            var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+            log.error("Error occurred while adding the product plans for tenant: " + tenantDomain);
             return {
                 error: true,
                 redirectionURL: contactUsURL,
@@ -1221,6 +1091,30 @@ var updateProductRatePlanInfo = function (ratePlanName, description, recurringCh
                 status: 500
             };
         }
+    } catch (e) {
+        var msg = "Unable to add the product plan at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(msg);
+        log.error(e);
+        return {
+            error: true,
+            redirectionURL: contactUsURL,
+            message: msg,
+            status: 500
+        };
+    }
+};
+
+// Function to update rate plan info
+var updateProductRatePlanInfo = function (ratePlanName, description, recurringCharge, overageCharge, overageLimit, dailyUsage) {
+    try {
+        var tenantDomain = modManager.getTenantDomain();
+        var ratePlanId = API_CLOUD + "_" + ratePlanName;
+        updateProductPlanDetailsToMonetizationTable(tenantDomain, ratePlanId, ratePlanName, recurringCharge, overageCharge, overageLimit, dailyUsage);
+        return {
+            error: false,
+            status: 200,
+            redirectionURL: cloudmgtURL + MONETIZATION_PAYMENT_PLANS_URI
+        };
     } catch (e) {
         var msg = "Unable to update the product plan at the moment. Please contact WSO2 Cloud Team for help.";
         log.error(msg);
@@ -1233,4 +1127,118 @@ var updateProductRatePlanInfo = function (ratePlanName, description, recurringCh
         };
     }
 };
+
+// Function to enable monetization
+var enableMonetization = function (tenantPassword, stripeAuthCode) {
+    var isPaidAccount = false;
+    var paymentPlanName = null;
+    var accountId = null;
+    try {
+        /* Check whether the account is eligible for monetizing. Account should be a paid account and at
+         least upgrade to getting traction payment plan. So it should not be a billing starting plan.
+         */
+        isPaidAccount = modBilling.isPaidAccount();
+        accountId = modBilling.getAccountId();
+        paymentPlanName = getCurrentPaymentPlan();
+        var tenantDomain = modManager.getTenantDomain();
+        var username = jagg.getUser();
+        if (isPaidAccount && null != accountId) {
+            if (paymentPlanName != null && BILLING_STARTER_PLAN != paymentPlanName) {
+                var productName = tenantDomain + "_" + API_CLOUD;
+                var effectiveStartDate = new Packages.java.util.Date();
+                var tenantDisplayName = jagg.getUser();
+                var cloudEmail = cloudConfig.supportContact.to;
+                var userEmail = String(session.get(LOGGED_IN_USER_EMAIL));
+                var isProductCreated =
+                        billingService.enableMonetization(tenantDomain, accountId, stripeAuthCode,  tenantPassword, tenantDisplayName);
+                if (isProductCreated) {
+                    var cloudType = productIdFromServiceId.api_cloud;
+                    // Add status to MONETIZATION_STATUS table
+                    var addMonetizationStatus = addStatusToMonetizationStatusTable(tenantDomain, API_CLOUD);
+                    if (addMonetizationStatus) {
+                        log.info("Successfully updated the monetization status table for tenant : " + tenantDomain);
+
+                        //updating the monetization status For ApiCloud
+                        var updateApiCloudMonetizationStatusResult = updateApiCloudMonetizationStatus();
+                        if (updateApiCloudMonetizationStatusResult.error) {
+                            log.error(updateApiCloudMonetizationStatusResult.message);
+                        }
+
+                        // Send email notification to cloud service
+                        var notificationToCloudStatus = sendProductEnableNotificationEmailToCloud(tenantDisplayName,
+                                effectiveStartDate, productName, cloudEmail);
+                        if (notificationToCloudStatus == false) {
+                            log.error("Monetization Enable notification sending failed for cloud service for tenant : "
+                                    + tenantDomain + " , Product name : " + productName);
+                        }
+
+                        // Send email notification to tenant
+                        var notificationToUserStatus = sendProductEnableNotificationEmailToUser(tenantDisplayName,
+                                effectiveStartDate, productName, userEmail);
+                        if (notificationToUserStatus == false) {
+                            log.error("Monetization Enable notification sending failed for cloud service for tenant : "
+                                    + tenantDomain + " , Product name : " + productName);
+                        }
+                        log.info("Successfully created the Product for the tenant : " + tenantDomain);
+                        return {
+                            error: false,
+                            status: "200",
+                            message: "You have successfully enabled monetizaton for API Cloud. <br>" +
+                            "Next, select the commercial tier to complete the task.",
+                            redirectionURL: apiManagerURL + TIER_MANAGE_URL,
+                            account: "paid"
+                        };
+                    } else {
+                        responseMessage = "Add status to monetization_status table failed for user: " + username + " of tenant: " +
+                                tenantDomain + ".";
+                        throw responseMessage;
+                    }
+                } else {
+                    responseMessage = "Product creation failed for user: " + username + " of tenant: " + tenantDomain + ".";
+                    throw responseMessage;
+                }
+            }  else {
+                message = "Validation failed. User " + username + " is having a " + BILLING_STARTER_PLAN + " account.";
+                log.error(message);
+                responseMessage = "You are subscribed to " + BILLING_STARTER_PLAN + " Plan. In order to enable Monetization please " +
+                        "upgrade your account to at-least '" + MONETIZATION_STARTER_PLAN + "' plan.";
+                return {
+                    error: true,
+                    invalidPlanError: true,
+                    message: responseMessage,
+                    status: 426,
+                    redirectionURL: contactUsURL,
+                    account: BILLING_STARTER_PLAN
+                };
+            }
+        } else {
+            message = "Validation failed. User " + username + " is having a free account.";
+            log.error(message);
+            account = "Free";
+            responseMessage = "You are having a free account. In order to enable Monetization please upgrade your account to " +
+                    "at-least 'Getting Traction' plan.";
+            return {
+                error: true,
+                invalidPlanError: true,
+                message: responseMessage,
+                status: 426,
+                redirectionURL: contactUsURL,
+                account: account
+            };
+        }
+    } catch (e) {
+        account = "";
+        var displayMessage = "Unable to enable the API Cloud monetization at the moment. Please contact WSO2 Cloud Team for help.";
+        log.error(displayMessage);
+        log.error(e);
+        return {
+            error: true,
+            message: displayMessage,
+            status: 500,
+            redirectionURL: contactUsURL,
+            account: account
+        };
+    }
+};
+
 %>

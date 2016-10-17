@@ -31,6 +31,7 @@ public class BillingVendorConfig {
     private String password;
     private String currency;
     private AuthenticationApiKeys authenticationApiKeys;
+    private OAuthEndpointConfig oAuthEndpointConfig;
 
     @XmlElement(name = "User", nillable = false, required = true)
     public String getUser() {
@@ -62,6 +63,21 @@ public class BillingVendorConfig {
     @XmlElement(name = "AuthenticationApiKeys", nillable = false, required = true)
     public AuthenticationApiKeys getAuthenticationApiKeys() {
         return authenticationApiKeys;
+    }
+
+    @XmlElement(name = "OAuthEndpoint", nillable = false, required = true)
+    public OAuthEndpointConfig getOAuthEndpointConfig() {
+        return oAuthEndpointConfig;
+    }
+
+    @XmlElement(name = "Security", nillable = true, required = false)
+    private SecurityConfig securityConfig;
+
+    public SecurityConfig getSecurityConfig() {
+        return securityConfig;
+    }
+    public void setOAuthEndpointConfig(OAuthEndpointConfig oAuthEndpointConfig) {
+        this.oAuthEndpointConfig = oAuthEndpointConfig;
     }
 
     public void setAuthenticationApiKeys(AuthenticationApiKeys authenticationApiKeys) {
