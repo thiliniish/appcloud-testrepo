@@ -343,7 +343,7 @@
       <param name="GROUP_BY_QUERY" sqlType="QUERY_STRING"/>
    </query>
    <query id="addMonetizationAccountQ" useConfig="cloud_mgt">
-      <sql>INSERT INTO MONETIZATION_API_CLOUD_ACCOUNT (ACCOUNT_NUMBER,TOKEN_TYPE,STRIPE_PUBLISHABLE_KEY,SCOPE,LIVEMODE,STRIPE_USER_ID,REFRESH_TOKEN,ACCESS_TOKEN,ACCOUNT_CREATION_DATE) VALUES (:ACCOUNT_NUMBER,:TOKEN_TYPE,:STRIPE_PUBLISHABLE_KEY,:SCOPE,LIVEMODE,:STRIPE_USER_ID,:REFRESH_TOKEN,:ACCESS_TOKEN,:ACCOUNT_CREATION_DATE)</sql>
+      <sql>INSERT INTO MONETIZATION_API_CLOUD_ACCOUNT (ACCOUNT_NUMBER,TOKEN_TYPE,STRIPE_PUBLISHABLE_KEY,SCOPE,LIVE_MODE,STRIPE_USER_ID,REFRESH_TOKEN,ACCESS_TOKEN,ACCOUNT_CREATION_DATE) VALUES (:ACCOUNT_NUMBER,:TOKEN_TYPE,:STRIPE_PUBLISHABLE_KEY,:SCOPE,:LIVE_MODE,:STRIPE_USER_ID,:REFRESH_TOKEN,:ACCESS_TOKEN,:ACCOUNT_CREATION_DATE)</sql>
       <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
       <param name="TOKEN_TYPE" sqlType="STRING"/>
       <param name="STRIPE_PUBLISHABLE_KEY" sqlType="STRING"/>
@@ -352,6 +352,7 @@
       <param name="REFRESH_TOKEN" sqlType="STRING"/>
       <param name="ACCESS_TOKEN" sqlType="STRING"/>
       <param name="ACCOUNT_CREATION_DATE" sqlType="STRING"/>
+      <param name="LIVE_MODE" sqlType="TINYINT"/>
    </query>
     <operation name="getSubscriber">
         <call-query href="getSubscriberInfoQ">
@@ -617,6 +618,7 @@
          <with-param name="REFRESH_TOKEN" query-param="refresh_token"/>
          <with-param name="ACCESS_TOKEN" query-param="access_token"/>
          <with-param name="ACCOUNT_CREATION_DATE" query-param="account_creation_date"/>
+         <with-param name="LIVE_MODE" query-param="livemode"/>
       </call-query>
    </resource>
 </data>
