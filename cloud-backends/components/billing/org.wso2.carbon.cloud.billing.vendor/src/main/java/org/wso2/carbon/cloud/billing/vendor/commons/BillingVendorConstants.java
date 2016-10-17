@@ -29,7 +29,14 @@ public final class BillingVendorConstants {
     public static final String RESPONSE_DATA = "data";
     public static final String RESPONSE_MESSAGE = "message";
 
-    public static final String AT_PERIOD_END = "at_period_end";
+	/** OAuth enpoint related params **/
+	public static final String TOKEN_ENDPOINT = "/oauth/token";
+	public static final String GRANT_TYPE = "grant_type";
+	public static final String CLIENT_SECRET = "client_secret";
+	public static final String CODE = "code";
+	public static final String AUTHORIZATION_CODE = "authorization_code";
+
+	public static final String AT_PERIOD_END = "at_period_end";
 
     /**
      * Monetization account table params

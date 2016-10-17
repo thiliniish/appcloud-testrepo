@@ -4,6 +4,7 @@ jagg.initializer("monetizing/publisher/enable", {
         //css
         jagg.addHeaderCSS("publisher/enable", "jquery.dataTables.min", 'new-assets/css/datatables-1.10.7/jquery.dataTables.min.css');
         jagg.addHeaderCSS("publisher/enable", "jquery.dataTable.override", 'new-assets/css/datatables-1.10.7/jquery.dataTables.override.css');
+        jagg.addHeaderCSS("publisher/enable", "stripe.button", 'new-assets/css/stripe/stripe-button.css');
         //js compiled plugins
         jagg.addFooterJS("publisher/enable", "datatables.min", "new-assets/js/datatables-1.10.7/jquery.dataTables.min.js");
         jagg.addFooterJS("publisher/enable", "jeditable", "new-assets/js/Jeditable-1.7.3/jquery.jeditable.js");
