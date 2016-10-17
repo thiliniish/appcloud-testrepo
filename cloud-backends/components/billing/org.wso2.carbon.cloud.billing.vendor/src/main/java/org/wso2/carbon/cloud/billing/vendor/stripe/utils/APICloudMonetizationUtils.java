@@ -32,12 +32,12 @@ import org.wso2.carbon.cloud.billing.core.processor.DataServiceBillingRequestPro
 import org.wso2.carbon.cloud.billing.vendor.commons.BillingVendorConstants;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud monetization service

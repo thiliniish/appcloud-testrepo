@@ -41,7 +41,7 @@ public class Subscription {
     @XmlElement(name = "Plan")
     private Plan[] plans;
 
-    private static volatile Map<String, Plan> planMap;
+    private Map<String, Plan> planMap;
 
     private static final Log LOGGER = LogFactory.getLog(Subscription.class);
 

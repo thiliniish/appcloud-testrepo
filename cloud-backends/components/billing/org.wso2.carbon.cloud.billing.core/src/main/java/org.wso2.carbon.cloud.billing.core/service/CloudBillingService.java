@@ -17,11 +17,10 @@
  */
 package org.wso2.carbon.cloud.billing.core.service;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.util.AXIOMUtil;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,6 +40,7 @@ import org.wso2.carbon.cloud.billing.core.security.CloudBillingSecurity;
 import org.wso2.carbon.cloud.billing.core.utils.BillingVendorInvoker;
 import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -55,13 +55,19 @@ import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+
+
 
 /**
  * Represents cloud billing related services.
@@ -758,17 +764,76 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     }
 
     /**
-     * Retrieve zuora accountId for tenant domain
+     * Method to update the config registry, monetization status in tenant-conf.json
      *
      * @param tenantDomain tenant domain
-     * @return string zuora accountId
+     * @return status of the update
+     */
+    public boolean updateMonetizationStatus(String tenantDomain) throws CloudBillingException {
+
+        // Get the tenant-conf resource url
+        String tenantConfUrl = MonetizationConstants.TENANT_CONF_URL;
+        Resource tenantConfResource = CloudBillingUtils
+                .getRegistryResource(tenantDomain, tenantConfUrl, BillingConstants.CONFIG_REGISTRY);
+
+        // Get the resource content
+        try {
+            String content = new String((byte[]) tenantConfResource.getContent(), BillingConstants.ENCODING);
+            JsonObject jsonRegistryObject = (JsonObject) new JsonParser().parse(content);
+            jsonRegistryObject.addProperty(BillingConstants.ENABLE_MONETIZATION_REGISTRY_PROPERTY, true);
+            tenantConfResource.setContent(jsonRegistryObject.toString().getBytes(BillingConstants.ENCODING));
+            return CloudBillingUtils.putRegistryResource(tenantDomain, tenantConfUrl, tenantConfResource,
+                                                         BillingConstants.CONFIG_REGISTRY);
+
+        } catch (RegistryException e) {
+            throw new CloudBillingException("Error occurred while updating the monetization status in registry ", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error occurred during encoding bytes ", e);
+        }
+    }
+
+    /**
+     * Encrypt texts using the default Crypto utility. and base 64 encode
+     *
+     * @param text text need to be encrypt
+     * @return base64encoded encrypted string
+     * @throws CloudBillingException
+     */
+    public String getEncryptionInfo(String text) throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils.getEncryptionInfo(text);
+        } catch (CryptoException e) {
+            throw new CloudBillingException("Error occurred while encrypting ", e);
+        }
+    }
+
+    /**
+     * Decrypt texts using the default Crypto utility. and base 64 decode
+     *
+     * @param base64CyperText base64 Cyper Text need to be decrypt
+     * @return base64decoded decrypted string
+     * @throws CloudBillingException
+     */
+    public String getDecryptedInfo(String base64CyperText) throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils.getDecryptedInfo(base64CyperText);
+        } catch (CryptoException | IOException e) {
+            throw new CloudBillingException("Error occurred while decrypting ", e);
+        }
+    }
+
+    /**
+     * Retrieve customer Id for tenant domain
+     *
+     * @param tenantDomain tenant domain
+     * @return string customer Id
      * @throws CloudBillingException
      */
     public String getAccountId(String tenantDomain) throws CloudBillingException {
         try {
             return CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while retrieving account Id tenant: " + tenantDomain, ex);
+            LOGGER.error("Error occurred while retrieving account Id for tenant: " + tenantDomain, ex);
             throw ex;
         }
     }

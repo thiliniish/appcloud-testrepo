@@ -21,21 +21,35 @@ package org.wso2.carbon.cloud.billing.core.utils;
 import com.google.gson.Gson;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfigManager;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.CloudType;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.Plan;
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
+import org.wso2.carbon.cloud.billing.core.commons.utils.CloudBillingUtils;
+import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
+import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.core.security.CloudBillingSecurity;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -45,14 +59,17 @@ public final class CloudBillingServiceUtils {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceUtils.class);
     private static volatile String configObj;
-    private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getInstance()
-                                                                                         .getBillingRequestProcessor(
-                                                                                                 BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
-    private static String billingServiceURI = BillingConfigManager.getBillingConfiguration().getDataServiceConfig()
-                                                                  .getCloudBillingServiceUri();
 
     private CloudBillingServiceUtils() {
     }
+
+    private static String billingServiceURI =
+            BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingServiceUri();
+    private static BillingRequestProcessor dsBRProcessor =
+            BillingRequestProcessorFactory.getInstance().getBillingRequestProcessor(
+                    BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+    private static String monetizationServiceURI =
+            BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudMonetizationServiceUri();
 
     /**
      * Get configuration on json
@@ -136,6 +153,36 @@ public final class CloudBillingServiceUtils {
         return BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId).isBillingEnabled();
     }
 
+      /**
+       * Method to get that the monetization functionality enable/disable status
+       * @param tenantDomain tenant domain
+       * @param cloudId Unique ID for the cloud (i.e api_cloud)
+       * @return monetization enable/disable status
+       */
+    public static boolean isMonetizationEnabled(String tenantDomain, String cloudId) throws
+                                                                                         CloudBillingException {
+          String monetizationStatusUrl = monetizationServiceURI.concat(
+                  MonetizationConstants.DS_API_URI_MONETIZATION_STATUS);
+          String response = null;
+        try {
+              String url = monetizationStatusUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
+                                                         CloudBillingUtils.encodeUrlParam(tenantDomain)).replace(
+                          MonetizationConstants.RESOURCE_IDENTIFIER_CLOUD_TYPE, CloudBillingUtils.encodeUrlParam(
+                          cloudId));
+              response = dsBRProcessor.doGet(url, null, null);
+            OMElement elements = AXIOMUtil.stringToOM(response);
+
+            OMElement status = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
+                                                                        BillingConstants.STATUS));
+            //Since the tenants' who are not enabled monetization. will not have an entry in the rdbms.
+            return status != null && StringUtils.isNotBlank(status.getText())
+                   && Integer.parseInt(status.getText()) == 1;
+
+        } catch (XMLStreamException | UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error occurred while parsing response: " + response, e);
+        }
+    }
+
     /**
      * This is to send notification mails to cloud. Receiver mail
      * address will be set as cloud
@@ -161,6 +208,29 @@ public final class CloudBillingServiceUtils {
         ObjectMapper mapper = new ObjectMapper();
         // convert JSON string to JsonNode list
         return mapper.readTree(responseObject);
+    }
+
+    /**
+     * Encrypt texts using the default Crypto utility. and base 64 encode
+     *
+     * @param text text need to be encrypt
+     * @return base64encoded encrypted string
+     * @throws org.wso2.carbon.core.util.CryptoException
+     */
+    public static String getEncryptionInfo(String text) throws CryptoException {
+        return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(text.getBytes(Charset.defaultCharset()));
+    }
+
+    /**
+     * Decrypt texts using the default Crypto utility. and base 64 decode
+     *
+     * @param base64CyperText base64 Cyper Text need to be decrypt
+     * @return base64decoded decrypted string
+     * @throws org.wso2.carbon.core.util.CryptoException
+     */
+    public static String getDecryptedInfo(String base64CyperText) throws CryptoException, IOException {
+        byte[] decriptedByteArray = CryptoUtil.getDefaultCryptoUtil().base64DecodeAndDecrypt(base64CyperText);
+        return new String(decriptedByteArray, BillingConstants.ENCODING);
     }
 
     /**
@@ -192,4 +262,5 @@ public final class CloudBillingServiceUtils {
             throw new CloudBillingException("Unable to get the OMElement from " + response, e);
         }
     }
+
 }

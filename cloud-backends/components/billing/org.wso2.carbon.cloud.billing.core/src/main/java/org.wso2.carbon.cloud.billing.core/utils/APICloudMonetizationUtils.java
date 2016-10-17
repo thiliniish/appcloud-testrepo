@@ -39,6 +39,8 @@ import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.core.processor.DataServiceBillingRequestProcessor;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,9 +48,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud monetization service
@@ -696,7 +695,7 @@ public final class APICloudMonetizationUtils {
     /**
      * Retrieve the list of tiers of a given tenant
      *
-     * @param tenantDomain
+     * @param tenantDomain tenant domain
      * @return json string of tiers
      * @throws CloudMonetizationException
      */
