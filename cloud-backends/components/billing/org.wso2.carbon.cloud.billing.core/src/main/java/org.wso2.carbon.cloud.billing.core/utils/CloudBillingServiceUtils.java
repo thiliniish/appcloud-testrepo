@@ -39,11 +39,11 @@ import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFacto
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud Billing core module
@@ -58,9 +58,9 @@ public final class CloudBillingServiceUtils {
 
     private static String billingServiceURI =
             BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingServiceUri();
-    private static BillingRequestProcessor dsBRProcessor =
-            BillingRequestProcessorFactory.getInstance().getBillingRequestProcessor(
-                    BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+    private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getInstance()
+                                                                                         .getBillingRequestProcessor(
+                                                                                                 BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
     private static String monetizationServiceURI =
             BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudMonetizationServiceUri();
 
@@ -121,24 +121,25 @@ public final class CloudBillingServiceUtils {
         return false;
     }
 
-//    /**
-//     * Validate service Id
-//     *
-//     * @param cloudId service id
-//     * @return validation boolean
-//     */
-//    public static boolean validateServiceId(String cloudId) {
-//        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getSubscriptions();
-//        for (Subscription subscription : subscriptions) {
-//            if (cloudId.equals(subscription.getId())) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    //    /**
+    //     * Validate service Id
+    //     *
+    //     * @param cloudId service id
+    //     * @return validation boolean
+    //     */
+    //    public static boolean validateServiceId(String cloudId) {
+    //        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getSubscriptions();
+    //        for (Subscription subscription : subscriptions) {
+    //            if (cloudId.equals(subscription.getId())) {
+    //                return true;
+    //            }
+    //        }
+    //        return false;
+    //    }
 
     /**
      * Method to get that the billing functionality enable/disable status
+     *
      * @param cloudId Unique ID for the cloud (i.e api_cloud)
      * @return billing enable/disable status
      */
@@ -146,30 +147,30 @@ public final class CloudBillingServiceUtils {
         return BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId).isBillingEnabled();
     }
 
-      /**
-       * Method to get that the monetization functionality enable/disable status
-       * @param tenantDomain tenant domain
-       * @param cloudId Unique ID for the cloud (i.e api_cloud)
-       * @return monetization enable/disable status
-       */
-    public static boolean isMonetizationEnabled(String tenantDomain, String cloudId) throws
-                                                                                         CloudBillingException {
-          String monetizationStatusUrl = monetizationServiceURI.concat(
-                      MonetizationConstants.DS_API_URI_MONETIZATION_STATUS);
-          String response = null;
+    /**
+     * Method to get that the monetization functionality enable/disable status
+     *
+     * @param tenantDomain tenant domain
+     * @param cloudId      Unique ID for the cloud (i.e api_cloud)
+     * @return monetization enable/disable status
+     */
+    public static boolean isMonetizationEnabled(String tenantDomain, String cloudId) throws CloudBillingException {
+        String monetizationStatusUrl =
+                monetizationServiceURI.concat(MonetizationConstants.DS_API_URI_MONETIZATION_STATUS);
+        String response = null;
         try {
-              String url = monetizationStatusUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                                                         CloudBillingUtils.encodeUrlParam(tenantDomain)).replace(
-                          MonetizationConstants.RESOURCE_IDENTIFIER_CLOUD_TYPE, CloudBillingUtils.encodeUrlParam(
-                          cloudId));
-              response = dsBRProcessor.doGet(url, null, null);
+            String url = monetizationStatusUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
+                                                       CloudBillingUtils.encodeUrlParam(tenantDomain))
+                                              .replace(MonetizationConstants.RESOURCE_IDENTIFIER_CLOUD_TYPE,
+                                                       CloudBillingUtils.encodeUrlParam(cloudId));
+            response = dsBRProcessor.doGet(url, null, null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
-            OMElement status = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
-                                                                        BillingConstants.STATUS));
+            OMElement status = elements.getFirstChildWithName(
+                    new QName(BillingConstants.DS_NAMESPACE_URI, BillingConstants.STATUS));
             //Since the tenants' who are not enabled monetization. will not have an entry in the rdbms.
-            return status != null && StringUtils.isNotBlank(status.getText())
-                   && Integer.parseInt(status.getText()) == 1;
+            return status != null && StringUtils.isNotBlank(status.getText()) &&
+                   Integer.parseInt(status.getText()) == 1;
 
         } catch (XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while parsing response: " + response, e);
@@ -184,11 +185,10 @@ public final class CloudBillingServiceUtils {
      * @param messageSubject message subject
      */
     public static void sendNotificationToCloud(String messageBody, String messageSubject) {
-        String receiver =
-                BillingConfigManager.getBillingConfiguration().getNotificationsConfig().getEmailNotification()
-                                  .getSender();
-        EmailNotifications.getInstance().sendMail(messageBody, messageSubject, receiver,
-                                                  BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
+        String receiver = BillingConfigManager.getBillingConfiguration().getNotificationsConfig().getEmailNotification()
+                                              .getSender();
+        EmailNotifications.getInstance()
+                          .sendMail(messageBody, messageSubject, receiver, BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
     }
 
     /**
@@ -227,30 +227,33 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
-     * Retrieve customer id for tenant
+     * Retrieve Payment account id for tenant
      *
      * @param tenantDomain tenant domain
-     * @return customer id
+     * @return account id
      * @throws CloudBillingException
      */
     public static String getAccountIdForTenant(String tenantDomain) throws CloudBillingException {
-          String dsAccountURL = billingServiceURI.concat(BillingConstants.DS_API_URI_TENANT_ACCOUNT);
-          String response = dsBRProcessor.doGet(dsAccountURL.replace(BillingConstants.TENANT_DOMAIN_PARAM, tenantDomain),
-                                                null, null);
-          try {
-                if (response != null && !response.isEmpty()) {
-                      OMElement elements = AXIOMUtil.stringToOM(response);
-                      if (elements.getFirstElement() == null || elements.getFirstElement().getFirstElement() == null) {
-                            return null;
-                      } else {
-                            return elements.getFirstElement().getFirstElement().getText();
-                      }
+
+        String dsAccountURL = billingServiceURI.concat(BillingConstants.DS_API_URI_TENANT_ACCOUNT);
+
+        String response = dsBRProcessor
+                .doGet(dsAccountURL.replace(BillingConstants.TENANT_DOMAIN_PARAM, tenantDomain), null, null);
+        try {
+            if (response != null && !response.isEmpty()) {
+                OMElement elements = AXIOMUtil.stringToOM(response);
+                if (elements.getFirstElement() == null || elements.getFirstElement().getFirstElement() == null) {
+                    return null;
                 } else {
-                      return null;
+                    return elements.getFirstElement().getFirstElement().getText();
                 }
-          } catch (XMLStreamException e) {
-                throw new CloudBillingException("Unable to get the OMElement from " + response, e);
-          }
+            } else {
+                return null;
+            }
+
+        } catch (XMLStreamException e) {
+            throw new CloudBillingException("Unable to get the OMElement from " + response, e);
+        }
     }
 
 }

@@ -43,11 +43,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 /**
  * Billing configuration utility class
  */
-public class BillingVenderConfigUtils {
+public class BillingVendorConfigUtils {
     private static SecretResolver secretResolver;
     private static volatile BillingVendorConfig billingVendorConfig;
 
-    private BillingVenderConfigUtils() {
+    private BillingVendorConfigUtils() {
     }
 
     /**
@@ -55,11 +55,11 @@ public class BillingVenderConfigUtils {
      *
      * @return Billing config
      */
-    public static BillingVendorConfig getBillingVenderConfiguration() {
+    public static BillingVendorConfig getBillingVendorConfiguration() {
         if (billingVendorConfig == null) {
-            synchronized (BillingVenderConfigUtils.class) {
+            synchronized (BillingVendorConfigUtils.class) {
                 if (billingVendorConfig == null) {
-                    billingVendorConfig = loadBillingVenderConfig();
+                    billingVendorConfig = loadBillingVendorConfig();
                 }
             }
         }
@@ -90,13 +90,13 @@ public class BillingVenderConfigUtils {
      *
      * @return Billing config
      */
-    private static BillingVendorConfig loadBillingVenderConfig() {
+    private static BillingVendorConfig loadBillingVendorConfig() {
         try {
             String configLocation = CarbonUtils.getCarbonConfigDirPath() + File.separator +
                     BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
                     BillingConstants.BILLING_VENDOR_CONFIG_FILE_NAME;
-            File billingVenderConfig = new File(configLocation);
-            Document doc = convertToDocument(billingVenderConfig);
+            File billingVendorConfig = new File(configLocation);
+            Document doc = convertToDocument(billingVendorConfig);
             secureResolveDocument(doc);
 
             /* Un-marshaling Billing Management configuration */

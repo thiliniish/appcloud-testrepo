@@ -36,6 +36,7 @@ import org.wso2.carbon.cloud.billing.core.commons.fileprocessor.FileContentReade
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.core.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.cloud.billing.core.security.CloudBillingSecurity;
 import org.wso2.carbon.cloud.billing.core.utils.BillingVendorInvoker;
 import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.core.AbstractAdmin;
@@ -45,6 +46,11 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -654,7 +660,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      * @return status of the update
      * @throws CloudBillingException
      */
-    public boolean updateWorkFlow(String workflow, String executor, String tenantPassword, String tenantUsername, 
+    public boolean updateWorkFlow(String workflow, String executor, String tenantPassword, String tenantUsername,
                                   String tenantDomain) throws CloudBillingException {
         try {
             // Get the workflow resource url
@@ -830,4 +836,20 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         }
     }
 
+    /**
+     * Generate a MDA hash
+     *
+     * @param data        data which need a hash
+     * @param mdAlgorithm mda algorithm
+     * @return hashed data
+     * @throws CloudBillingException
+     */
+    public String generateHash(String data, String mdAlgorithm) throws CloudBillingException {
+        try {
+            return CloudBillingSecurity.generateHash(data, mdAlgorithm);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while generating hash value ", ex);
+            throw ex;
+        }
+    }
 }

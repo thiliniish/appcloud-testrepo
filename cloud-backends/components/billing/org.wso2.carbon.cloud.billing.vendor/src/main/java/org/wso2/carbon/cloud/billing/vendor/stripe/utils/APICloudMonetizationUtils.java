@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.cloud.billing.vendor.stripe.utils;
 
+import com.google.gson.JsonObject;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -32,17 +35,19 @@ import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.core.processor.DataServiceBillingRequestProcessor;
+import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.cloud.billing.vendor.commons.BillingVendorConstants;
 import org.wso2.carbon.cloud.billing.vendor.commons.processor.VendorRequestProcessor;
-import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVenderConfigUtils;
+import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVendorConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud monetization service
@@ -57,6 +62,7 @@ public final class APICloudMonetizationUtils {
 
     /* Data service URIs */
     private static String monetizationAccountUri;
+    private static String accountInfoUri;
 
     private static String clientSecret;
 
@@ -64,12 +70,15 @@ public final class APICloudMonetizationUtils {
         dsBRProcessor = BillingRequestProcessorFactory.getInstance().getBillingRequestProcessor(
                 BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
         vendorRequestProcessor = new VendorRequestProcessor(
-                BillingVenderConfigUtils.getBillingVenderConfiguration().getOAuthEndpointConfig()
-                        .getHttpClientConfig());
+                BillingVendorConfigUtils.getBillingVendorConfiguration().getOAuthEndpointConfig()
+                                        .getHttpClientConfig());
         String apiCloudMonUri = BillingConfigManager.getBillingConfiguration().getDataServiceConfig()
                                                     .getCloudBillingVendorServiceURI();
         monetizationAccountUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_ADD_MONETIZATION_ACCOUNT);
-        clientSecret = BillingVenderConfigUtils.getBillingVenderConfiguration().getAuthenticationApiKeys().getSecretKey();
+        accountInfoUri = apiCloudMonUri.concat(BillingVendorConstants.DS_API_URI_VENDOR_ACCOUNT_INFO);
+
+        clientSecret =
+                BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey();
     }
 
     private APICloudMonetizationUtils() {
@@ -87,23 +96,24 @@ public final class APICloudMonetizationUtils {
             throws CloudBillingVendorException {
         try {
             String tokenEndpointUrl = BillingVendorConstants.TOKEN_ENDPOINT;
-            NameValuePair[] stripeNameValuePairs = new NameValuePair[] {
-                    new NameValuePair(BillingVendorConstants.CLIENT_SECRET, clientSecret),
-                    new NameValuePair(BillingVendorConstants.CODE, stripeAuthCode),
-                    new NameValuePair(BillingVendorConstants.GRANT_TYPE, BillingVendorConstants.AUTHORIZATION_CODE)
-            };
+            NameValuePair[] stripeNameValuePairs =
+                    new NameValuePair[] { new NameValuePair(BillingVendorConstants.CLIENT_SECRET, clientSecret),
+                                          new NameValuePair(BillingVendorConstants.CODE, stripeAuthCode),
+                                          new NameValuePair(BillingVendorConstants.GRANT_TYPE,
+                                                            BillingVendorConstants.AUTHORIZATION_CODE) };
             String responseFromStripeTE = vendorRequestProcessor
                     .doPost(tokenEndpointUrl, BillingConstants.HTTP_TYPE_APPLICATION_JSON, stripeNameValuePairs);
-            if (StringUtils.isBlank(responseFromStripeTE)){
+            if (StringUtils.isBlank(responseFromStripeTE)) {
                 throw new CloudBillingVendorException(
-                        "Error while retrieving the access token form the stripe token endpoint for customer account: " +
-                                customerId);
+                        "Error while retrieving the access token form the stripe token endpoint for customer account:" +
+                        " " +
+                        customerId);
             }
-            LOGGER.info("Successfully retrieved access token information for customer account: "  + customerId);
+            LOGGER.info("Successfully retrieved access token information for customer account: " + customerId);
             JsonNode accountCreationResponseList;
             accountCreationResponseList = APICloudMonetizationUtils.getJsonList(responseFromStripeTE);
             String addAccountUrl = monetizationAccountUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
-                    CloudBillingUtils.encodeUrlParam(customerId));
+                                                                  CloudBillingUtils.encodeUrlParam(customerId));
             if (null != accountCreationResponseList) {
                 String stripeUserId = accountCreationResponseList.get(BillingVendorConstants.STRIPE_USER_ID).asText();
                 String accessToken = accountCreationResponseList.get(BillingVendorConstants.ACCESS_TOKEN).asText();
@@ -113,24 +123,25 @@ public final class APICloudMonetizationUtils {
                 }
                 String refreshToken = accountCreationResponseList.get(BillingVendorConstants.REFRESH_TOKEN).asText();
                 String tokenType = accountCreationResponseList.get(BillingVendorConstants.TOKEN_TYPE).asText();
-                String stripePublishableKey = accountCreationResponseList.get(
-                        BillingVendorConstants.STRIPE_PUBLISHABLE_KEY).asText();
+                String stripePublishableKey =
+                        accountCreationResponseList.get(BillingVendorConstants.STRIPE_PUBLISHABLE_KEY).asText();
                 String scope = accountCreationResponseList.get(BillingVendorConstants.SCOPE).asText();
                 DateFormat dateFormat = new SimpleDateFormat(BillingVendorConstants.DATE_FORMAT);
                 Date date = new Date();
                 String accountCreationDate = (dateFormat.format(date));
-                NameValuePair[] dsNameValuePairs = new NameValuePair[] {
-                        new NameValuePair(BillingVendorConstants.STRIPE_USER_ID, stripeUserId),
-                        new NameValuePair(BillingVendorConstants.ACCESS_TOKEN, accessToken),
-                        new NameValuePair(BillingVendorConstants.LIVEMODE, liveMode),
-                        new NameValuePair(BillingVendorConstants.REFRESH_TOKEN, refreshToken),
-                        new NameValuePair(BillingVendorConstants.TOKEN_TYPE, tokenType),
-                        new NameValuePair(BillingVendorConstants.STRIPE_PUBLISHABLE_KEY, stripePublishableKey),
-                        new NameValuePair(BillingVendorConstants.SCOPE, scope),
-                        new NameValuePair(BillingVendorConstants.ACCOUNT_CREATION_DATE, accountCreationDate)
-                };
-                String dsResponse = dsBRProcessor.doPost(addAccountUrl, BillingConstants.HTTP_TYPE_APPLICATION_XML,
-                        dsNameValuePairs);
+                NameValuePair[] dsNameValuePairs =
+                        new NameValuePair[] { new NameValuePair(BillingVendorConstants.STRIPE_USER_ID, stripeUserId),
+                                              new NameValuePair(BillingVendorConstants.ACCESS_TOKEN, accessToken),
+                                              new NameValuePair(BillingVendorConstants.LIVEMODE, liveMode),
+                                              new NameValuePair(BillingVendorConstants.REFRESH_TOKEN, refreshToken),
+                                              new NameValuePair(BillingVendorConstants.TOKEN_TYPE, tokenType),
+                                              new NameValuePair(BillingVendorConstants.STRIPE_PUBLISHABLE_KEY,
+                                                                stripePublishableKey),
+                                              new NameValuePair(BillingVendorConstants.SCOPE, scope),
+                                              new NameValuePair(BillingVendorConstants.ACCOUNT_CREATION_DATE,
+                                                                accountCreationDate) };
+                String dsResponse = dsBRProcessor
+                        .doPost(addAccountUrl, BillingConstants.HTTP_TYPE_APPLICATION_XML, dsNameValuePairs);
                 return DataServiceBillingRequestProcessor.isXMLResponseSuccess(dsResponse);
             }
         } catch (IOException | CloudBillingException | XMLStreamException e) {
@@ -139,6 +150,59 @@ public final class APICloudMonetizationUtils {
                     customerId, e);
         }
         return false;
+    }
+
+    public static String getTenantAccountInformation(String accountId) throws CloudBillingVendorException {
+        try {
+            String url = accountInfoUri.replace(BillingVendorConstants.RESOURCE_IDENTIFIER_CUSTOMER_ID,
+                                                CloudBillingUtils.encodeUrlParam(accountId));
+            String response = dsBRProcessor.doGet(url, null, null);
+            if (response != null && !response.isEmpty()) {
+                return response;
+            } else {
+                return null;
+            }
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudBillingVendorException("Error while getting Tenant Account Information for : " + accountId,
+                                                  e);
+        }
+    }
+
+    public static String getPublishableKeyForTenant(String tenantDomain) throws CloudBillingVendorException {
+        JsonObject params = new JsonObject();
+        params.addProperty("token", getAccountInfoByParameter(tenantDomain, BillingVendorConstants.STRIPE_PUBLISHABLE_KEY));
+        return params.toString();
+    }
+
+    public static String getSecretKey(String tenantDomain) throws CloudBillingVendorException {
+        return getAccountInfoByParameter(tenantDomain, BillingVendorConstants.STRIPE_ACCESS_TOKEN);
+    }
+
+    public static String getAccountInfoByParameter(String tenantDomain, String parameter) throws CloudBillingVendorException{
+        try {
+            String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
+            String accountInfo = getTenantAccountInformation(accountId);
+            if (accountInfo != null && !accountInfo.isEmpty()) {
+                OMElement elements = AXIOMUtil.stringToOM(accountInfo);
+                if (elements.getFirstElement() == null || elements.getFirstElement().getFirstElement() == null) {
+                    return "No account information for " + accountId;
+                } else {
+                    Iterator iterator = elements.getFirstElement().getChildElements();
+                    while (iterator.hasNext()) {
+                        OMElement AccountInfo = (OMElement) iterator.next();
+                        if (parameter.equals(AccountInfo.getLocalName())) {
+                            return AccountInfo.getText();
+                        }
+                    }
+                    return "Publishable key Error";
+                }
+            } else {
+                return "No account information for " + accountId;
+            }
+        } catch (XMLStreamException | CloudBillingException e) {
+            throw new CloudBillingVendorException(
+                    "Error while getting Tenant Account Information for : " + tenantDomain, e);
+        }
     }
 
     /**

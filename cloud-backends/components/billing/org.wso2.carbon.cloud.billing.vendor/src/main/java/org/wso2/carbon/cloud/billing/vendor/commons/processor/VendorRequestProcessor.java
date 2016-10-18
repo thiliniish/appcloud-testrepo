@@ -21,25 +21,25 @@ package org.wso2.carbon.cloud.billing.vendor.commons.processor;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.httpclient.NameValuePair;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.vendor.commons.config.HttpClientConfig;
 import org.wso2.carbon.cloud.billing.vendor.commons.config.TrustStore;
 import org.wso2.carbon.cloud.billing.vendor.commons.processor.utils.ProcessorUtils;
-import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVenderConfigUtils;
+import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVendorConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 
 public class VendorRequestProcessor {
 
     private HttpClient httpClient;
     protected static final int DEFAULT_CONNECTION_RETRIES = 5;
-    private static TrustStore trustStore = BillingVenderConfigUtils.getBillingVenderConfiguration().getSecurityConfig()
-            .getTrustStore();
+    private static TrustStore trustStore =
+            BillingVendorConfigUtils.getBillingVendorConfiguration().getSecurityConfig().getTrustStore();
 
     public VendorRequestProcessor(HttpClientConfig httpClientConfig) {
         if (httpClientConfig != null) {
@@ -62,7 +62,7 @@ public class VendorRequestProcessor {
     protected HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
         HostConfiguration hostConfig = new HostConfiguration();
         hostConfig.setHost(httpClientConfig.getHostname(), httpClientConfig.getPort(),
-                Protocol.getProtocol(BillingConstants.HTTPS_SCHEME));
+                           Protocol.getProtocol(BillingConstants.HTTPS_SCHEME));
 
         HttpConnectionManagerParams connParams = new HttpConnectionManagerParams();
         connParams.setMaxConnectionsPerHost(hostConfig, httpClientConfig.getMaxConnectionsPerHost());
@@ -96,9 +96,8 @@ public class VendorRequestProcessor {
         setTrustStoreParams();
         PostMethod post = new PostMethod(url);
         // default accept response body in JSON
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
-                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
-                acceptType;
+        String acceptTypeHeader =
+                StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         post.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         post.addRequestHeader(BillingConstants.HTTP_CONTENT_TYPE, BillingConstants.HTTP_TYPE_APPLICATION_URL_ENCODED);
         if (ArrayUtils.isNotEmpty(nameValuePairs)) {
