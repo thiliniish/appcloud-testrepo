@@ -549,7 +549,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     /**
      * Load and return the billing vendor monetization instance
      *
-     * @return billing vendor fr monetization
+     * @return billing vendor for monetization
      */
     private CloudBillingServiceProvider init(String tenantDomain) throws CloudBillingException {
         return BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
