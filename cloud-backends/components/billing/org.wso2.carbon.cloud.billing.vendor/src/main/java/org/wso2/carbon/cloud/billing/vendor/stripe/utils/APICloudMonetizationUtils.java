@@ -39,6 +39,7 @@ import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendor
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -66,8 +67,7 @@ public final class APICloudMonetizationUtils {
                 BillingVenderConfigUtils.getBillingVenderConfiguration().getOAuthEndpointConfig()
                         .getHttpClientConfig());
         String apiCloudMonUri = BillingConfigManager.getBillingConfiguration().getDataServiceConfig()
-                                                    .getApiCloudMonetizationServiceUri();
-
+                                                    .getCloudBillingVendorServiceURI();
         monetizationAccountUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_ADD_MONETIZATION_ACCOUNT);
         clientSecret = BillingVenderConfigUtils.getBillingVenderConfiguration().getAuthenticationApiKeys().getSecretKey();
     }
