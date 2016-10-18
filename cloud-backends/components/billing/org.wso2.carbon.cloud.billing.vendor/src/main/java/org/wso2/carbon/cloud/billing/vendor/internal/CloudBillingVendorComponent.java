@@ -24,7 +24,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.securevault.SecretCallbackHandlerService;
 
 /**
- * @scr.component name="cloud.billing.vender.component" immediate=true
+ * @scr.component name="cloud.billing.vendor.component" immediate=true
  * @scr.reference name="secret.callback.handler.service"
  * interface="org.wso2.carbon.securevault.SecretCallbackHandlerService"
  * bind="setSecretCallbackHandlerService" unbind="unsetSecretCallbackHandlerService"
