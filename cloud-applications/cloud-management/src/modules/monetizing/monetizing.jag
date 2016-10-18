@@ -1071,7 +1071,7 @@ var addProductRatePlan = function (planName, planDescription, pricing, overageCh
         metaDataObj.description = planDescription;
         planObj.metadata = metaDataObj;
         //this will add the plan to wso2 platform. Neet to modify it..!!
-        var addProductPlanResult = JSON.parse(billingService.createProductRatePlan(stringify(planObj)));
+        var addProductPlanResult = JSON.parse(billingService.createProductRatePlan(tenantDomain, stringify(planObj)));
         if (addProductPlanResult.id != null) {
             addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlanResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
             var msg = "Successfully added the product rate plan: " + planName + " for the tenant " + tenantDomain;
