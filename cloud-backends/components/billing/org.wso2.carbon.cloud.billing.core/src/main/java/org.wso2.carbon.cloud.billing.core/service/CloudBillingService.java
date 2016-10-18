@@ -47,11 +47,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -115,6 +110,23 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     }
 
     /**
+     * Create the Customer for monetization customer
+     *
+     * @param tenantDomain tenant domain
+     * @param customerInfoJson customer details
+     * @return success Json string
+     */
+    public String createCustomer(String tenantDomain,String customerInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).createCustomer(customerInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while creating the account for subscriber.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
      * Retrieve customer details
      *
      * @param customerId customer id
@@ -166,12 +178,14 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     /**
      * Create rate plan for the Product
      *
+     * @param tenantDomain tenant domain
      * @param ratePlanInfoJson rate-plan details
      * @return success json string
      */
-    @Override public String createProductRatePlan(String ratePlanInfoJson) throws CloudBillingException {
+    @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson) throws
+                                                                                           CloudBillingException {
         try {
-            return init().createProductRatePlan(ratePlanInfoJson);
+            return init(tenantDomain).createProductRatePlan(tenantDomain, ratePlanInfoJson);
         } catch (CloudBillingException ex) {
             String message = "Error occurred while creating the the product rate plan.";
             LOGGER.error(message, ex);
@@ -530,6 +544,15 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      */
     private CloudBillingServiceProvider init() throws CloudBillingException {
         return BillingVendorInvoker.loadBillingVendor();
+    }
+
+    /**
+     * Load and return the billing vendor monetization instance
+     *
+     * @return billing vendor fr monetization
+     */
+    private CloudBillingServiceProvider init(String tenantDomain) throws CloudBillingException {
+        return BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
     }
 
     /**

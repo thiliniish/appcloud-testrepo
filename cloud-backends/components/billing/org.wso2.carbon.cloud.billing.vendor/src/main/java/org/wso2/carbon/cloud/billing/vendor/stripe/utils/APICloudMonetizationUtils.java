@@ -41,13 +41,13 @@ import org.wso2.carbon.cloud.billing.vendor.commons.processor.VendorRequestProce
 import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVendorConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud monetization service

@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -93,8 +92,8 @@ public class BillingVendorInvoker {
      *
      * @throws org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException
      */
-    public static CloudBillingServiceProvider loadBillingVendorForMonetization() throws CloudBillingException {
-        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+    public static CloudBillingServiceProvider loadBillingVendorForMonetization(String tenantDomain)
+            throws CloudBillingException {
         String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
         CloudBillingServiceProvider instance;
 
@@ -107,7 +106,6 @@ public class BillingVendorInvoker {
             throw new CloudBillingException(
                     "Error while loading cloud billing vendor class : " + billingVendorClassName + "for Monetization");
         }
-
         return instance;
     }
 
