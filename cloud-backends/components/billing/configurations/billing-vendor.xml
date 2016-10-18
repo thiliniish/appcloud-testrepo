@@ -27,4 +27,22 @@
                 <SecretKey>SECRETKEY</SecretKey>
                 <PublishableKey>PUBLISHABLEKEY</PublishableKey>
         </AuthenticationApiKeys>
+        <OAuthEndpoint>
+            <HttpClientConfig>
+                <Hostname>connect.stripe.com</Hostname>
+                <Port>443</Port>
+                <MaxConnectionsPerHost>50</MaxConnectionsPerHost>
+                <MaxTotalConnections>50</MaxTotalConnections>
+            </HttpClientConfig>
+        </OAuthEndpoint>
+        <Security>
+            <TrustStore>
+                <!--TrustStore should be in security resource directory -->
+                <Name>repository/resources/security/client-truststore.jks</Name>
+                <!-- trust-store type (JKS/PKCS12 etc.) -->
+                <Type>JKS</Type>
+                <!-- trust-store password -->
+                <Password>wso2carbon</Password>
+            </TrustStore>
+        </Security>
 </CloudBillingVendor>
