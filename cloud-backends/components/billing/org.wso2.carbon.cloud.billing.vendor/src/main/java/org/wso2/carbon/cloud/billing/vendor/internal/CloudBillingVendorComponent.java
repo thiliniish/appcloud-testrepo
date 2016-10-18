@@ -30,9 +30,9 @@ import org.wso2.carbon.securevault.SecretCallbackHandlerService;
  * bind="setSecretCallbackHandlerService" unbind="unsetSecretCallbackHandlerService"
  * cardinality="1..1" policy="dynamic"
  */
-public class CloudBillingVenderComponent {
+public class CloudBillingVendorComponent {
 
-    private static final Log LOGGER = LogFactory.getLog(CloudBillingVenderComponent.class);
+    private static final Log LOGGER = LogFactory.getLog(CloudBillingVendorComponent.class);
 
 
     protected void activate(ComponentContext context) {

@@ -45,4 +45,7 @@ public final class BillingVendorConstants {
     public static final String ACCOUNT_CREATION_DATE = "account_creation_date";
 
     public static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+
+    public static final String DS_API_URI_VENDOR_ACCOUNT_INFO = "/v1/accounts/getVendorInfo/{customerId}";
+    public static final String RESOURCE_IDENTIFIER_CUSTOMER_ID = "{customerId}";
 }
