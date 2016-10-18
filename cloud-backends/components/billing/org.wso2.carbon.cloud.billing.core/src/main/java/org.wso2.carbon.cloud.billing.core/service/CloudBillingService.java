@@ -67,8 +67,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
-
-
 /**
  * Represents cloud billing related services.
  */
@@ -605,7 +603,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      * @return status of product creation
      * @throws CloudBillingException
      */
-    public boolean enableMonetization(String tenantDomain, String customerId, String monetizationAccountInfoJson,
+    public boolean enableMonetization(String tenantDomain, String customerId, String stripeAuthCode,
                                       String tenantPassword, String tenantDisplayName) throws CloudBillingException {
         boolean status = false;
         String testAccountCreationEmailFileName = MonetizationConstants.TEST_ACCOUNT_CREATION_EMAIL_FILE_NAME;
@@ -614,7 +612,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         String textContentType = BillingConstants.TEXT_PLAIN_CONTENT_TYPE;
             // Create the monetization Account
             boolean accountCreationResponse = Boolean.parseBoolean(createMonetizationAccount(customerId,
-                            monetizationAccountInfoJson));
+                    stripeAuthCode));
             if (accountCreationResponse) {
                 status = true;
                 // Add subscriptionCreation element to workflowExtension.xml in registry
