@@ -90,10 +90,11 @@ public class BillingVendorInvoker {
      * TODO : There should be a instance for each argument, hence creating instance for each call.
      * TODO : Need to have to cache to keep the instances
      *
-     * @throws org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException
+     * @throws CloudBillingException
      */
     public static CloudBillingServiceProvider loadBillingVendorForMonetization(String tenantDomain)
             throws CloudBillingException {
+        //String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
         CloudBillingServiceProvider instance;
 
