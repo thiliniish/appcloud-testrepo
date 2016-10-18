@@ -29,6 +29,7 @@
         <CloudBillingServiceURI>/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURI>
         <CloudMonetizationServiceURI>/services/WSO2CloudMonetizationDS.SecureHTTPEndpoint</CloudMonetizationServiceURI>
         <APICloudMonetizationServiceURI>/services/WSO2APICloudMonetizationDS.SecureHTTPEndpoint</APICloudMonetizationServiceURI>
+        <CloudBillingVendorServiceURI>/services/WSO2CloudBillingVendorDS.SecureHTTPEndpoint</CloudBillingVendorServiceURI>
         <User>admin</User>
         <Password>admin</Password>
         <HttpClientConfig>

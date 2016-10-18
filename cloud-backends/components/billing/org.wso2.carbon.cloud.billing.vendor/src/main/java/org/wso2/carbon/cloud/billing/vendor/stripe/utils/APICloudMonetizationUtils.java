@@ -73,8 +73,7 @@ public final class APICloudMonetizationUtils {
                 BillingVendorConfigUtils.getBillingVendorConfiguration().getOAuthEndpointConfig()
                                         .getHttpClientConfig());
         String apiCloudMonUri = BillingConfigManager.getBillingConfiguration().getDataServiceConfig()
-                                                    .getApiCloudMonetizationServiceUri();
-
+                                                    .getCloudBillingVendorServiceURI();
         monetizationAccountUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_ADD_MONETIZATION_ACCOUNT);
         accountInfoUri = apiCloudMonUri.concat(BillingVendorConstants.DS_API_URI_VENDOR_ACCOUNT_INFO);
 

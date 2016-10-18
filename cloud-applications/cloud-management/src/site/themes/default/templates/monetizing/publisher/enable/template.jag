@@ -71,8 +71,8 @@
         <div class="row">
             <div class="col-md-12 msg-issues" style="padding-top: 10px">
                 Enable <b>Monetization</b> For API Cloud : </br>
-                <p id="requirement-Message">In order to enable WSO2 API Cloud Monetization feature you should create
-                an account in Stripe. If you already have an Stripe account please follow the instructions to connect it with the WSO2 Platform.
+                <p id="requirement-Message">In order to enable WSO2 API Cloud Monetization feature, you should create
+                an account in Stripe. If you already have a Stripe account, please connect it to the WSO2 platform.
                 <p><a href="<%=stripeConnectUrl%>" class="connect-button"><span>Connect with Stripe</span></a></p>
             </div>
         </div>
