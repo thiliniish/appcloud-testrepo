@@ -60,10 +60,11 @@ public interface CloudBillingServiceProvider {
     /**
      * Create rate plan for the Product
      *
+     * @param tenantDomain tenant domain
      * @param ratePlanInfoJson rate-plan details
      * @return success json string
      */
-    public String createProductRatePlan(String ratePlanInfoJson) throws CloudBillingException;
+    public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson) throws CloudBillingException;
 
     /**
      * retrieve a specific rate plan

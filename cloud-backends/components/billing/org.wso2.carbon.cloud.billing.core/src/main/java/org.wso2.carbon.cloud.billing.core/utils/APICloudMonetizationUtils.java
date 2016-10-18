@@ -221,7 +221,8 @@ public final class APICloudMonetizationUtils {
      * }
      * @throws CloudMonetizationException
      */
-    public static String cancelSubscription(String accountNumber, String appName, String apiName, String apiVersion)
+    public static String cancelSubscription(String tenantDomain, String accountNumber, String appName, String apiName,
+                                            String apiVersion)
             throws CloudMonetizationException {
         JsonObject responseObj = new JsonObject();
         JsonObject dataObj = new JsonObject();
@@ -254,7 +255,7 @@ public final class APICloudMonetizationUtils {
                 .getAsJsonObject();
 
         try {
-            responseObj = cancelVendorSubscription(subscriptionObj);
+            responseObj = cancelVendorSubscription(tenantDomain, subscriptionObj);
 
             if (responseObj.get(MonetizationConstants.RESPONSE_SUCCESS).getAsBoolean()) {
                 boolean success = removeSubscriptionsInMonDb(accountNumber, appName, apiName, apiVersion);
@@ -274,9 +275,10 @@ public final class APICloudMonetizationUtils {
         return responseObj.toString();
     }
 
-    private static JsonObject cancelVendorSubscription(JsonObject subscriptionObj) throws CloudBillingException {
+    private static JsonObject cancelVendorSubscription(String tenantDomain, JsonObject subscriptionObj) throws
+                                                                                           CloudBillingException {
 
-        CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization();
+        CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
 
         String response = provider
                 .cancelSubscription(subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER).getAsString(),
@@ -425,7 +427,7 @@ public final class APICloudMonetizationUtils {
      * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
      * @throws CloudMonetizationException
      */
-    public static String removeAppSubscriptions(String accountNumber, String appName)
+    public static String removeAppSubscriptions(String tenantDomain, String accountNumber, String appName)
             throws CloudMonetizationException {
         JsonObject responseObj = new JsonObject();
         JsonObject dataObj = new JsonObject();
@@ -473,7 +475,7 @@ public final class APICloudMonetizationUtils {
         for (JsonElement subscription : subscriptions) {
             try {
                 JsonObject subscriptionObj = subscription.getAsJsonObject();
-                JsonObject vendorResponseObj = cancelVendorSubscription(subscriptionObj);
+                JsonObject vendorResponseObj = cancelVendorSubscription(tenantDomain, subscriptionObj);
                 if (vendorResponseObj.get(MonetizationConstants.RESPONSE_SUCCESS).getAsBoolean()) {
                     boolean success = removeSubscriptionsInMonDb(accountNumber,
                             subscriptionObj.get(MonetizationConstants.ATTRIB_APP_NAME).getAsString(),
@@ -546,7 +548,7 @@ public final class APICloudMonetizationUtils {
             subscriptionObj.addProperty("plan", ratePlanId);
             subscriptionObj.addProperty("customer", accountNumber);
 
-            CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization();
+            CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
             String vendorResponse = provider.createSubscription(subscriptionObj.toString());
 
             JsonObject vendorResponseObj = new JsonParser().parse(vendorResponse).getAsJsonObject();

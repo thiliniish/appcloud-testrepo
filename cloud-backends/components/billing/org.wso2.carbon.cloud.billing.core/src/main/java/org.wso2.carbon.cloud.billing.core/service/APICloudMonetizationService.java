@@ -131,10 +131,12 @@ public class APICloudMonetizationService {
      * }
      * @throws CloudMonetizationException
      */
-    public String cancelSubscription(String accountNumber, String appName, String apiName, String apiVersion)
+    public String cancelSubscription(String tenantDomain, String accountNumber, String appName, String apiName, String
+		    apiVersion)
             throws CloudMonetizationException {
         try {
-            return APICloudMonetizationUtils.cancelSubscription(accountNumber, appName, apiName, apiVersion);
+            return APICloudMonetizationUtils.cancelSubscription(tenantDomain, accountNumber, appName, apiName,
+                                                                apiVersion);
         } catch (CloudMonetizationException ex) {
             LOGGER.error(
                     "Error while cancelling the subscription. Account no: " + accountNumber + " Application " + "name: "
@@ -177,9 +179,10 @@ public class APICloudMonetizationService {
      * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
      * @throws CloudMonetizationException
      */
-    public String removeAppSubscriptions(String accountNumber, String appName) throws CloudMonetizationException {
+    public String removeAppSubscriptions(String tenantDomain, String accountNumber, String appName) throws
+                                                                                      CloudMonetizationException {
         try {
-            return APICloudMonetizationUtils.removeAppSubscriptions(accountNumber, appName);
+            return APICloudMonetizationUtils.removeAppSubscriptions(tenantDomain, accountNumber, appName);
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error while removing application subscription. Account no: " + accountNumber + " "
                     + "Application name: " + appName, ex);
@@ -205,7 +208,7 @@ public class APICloudMonetizationService {
         try {
             return APICloudMonetizationUtils
                     .createAPISubscription(accountNumber, tenantDomain, tierName, appName, apiName, apiVersion,
-                            apiProvider);
+                                           apiProvider);
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error occurred while creating API Subscription. Account : " + accountNumber + " Tenant : "
                     + tenantDomain + " Application : " + appName + " API : " + apiName);
