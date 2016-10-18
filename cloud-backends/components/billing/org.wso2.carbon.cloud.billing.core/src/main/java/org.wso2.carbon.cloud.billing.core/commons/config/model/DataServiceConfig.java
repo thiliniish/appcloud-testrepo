@@ -36,6 +36,9 @@ public class DataServiceConfig {
     @XmlElement(name = "APICloudMonetizationServiceURI", nillable = false, required = true)
     private String apiCloudMonetizationServiceUri;
 
+    @XmlElement(name = "CloudBillingVendorServiceURI", nillable = false, required = true)
+    private String CloudBillingVendorServiceURI;
+
     @XmlElement(name = "User", nillable = false, required = true)
     private String user;
 
@@ -67,6 +70,10 @@ public class DataServiceConfig {
 
     public String getCloudMonetizationServiceUri() {
         return cloudMonetizationServiceUri;
+    }
+
+    public String getCloudBillingVendorServiceURI() {
+        return CloudBillingVendorServiceURI;
     }
 
 }
