@@ -24,17 +24,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * TrustStore related configurations
  */
-@XmlRootElement(name = "TrustStore")
-public class TrustStore {
+@XmlRootElement(name = "TrustStore") public class TrustStore {
 
-    @XmlElement(name = "Name", nillable = false)
-    private String name;
+    @XmlElement(name = "Name", nillable = false) private String name;
 
-    @XmlElement(name = "Type", nillable = false)
-    private String type;
+    @XmlElement(name = "Type", nillable = false) private String type;
 
-    @XmlElement(name = "Password", nillable = false)
-    private String password;
+    @XmlElement(name = "Password", nillable = false) private String password;
 
     public String getName() {
         return name;

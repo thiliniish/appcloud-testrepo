@@ -52,15 +52,14 @@ import java.util.Map;
  */
 public class StripeCloudBilling implements CloudBillingServiceProvider {
 
+    private static final Log LOGGER = LogFactory.getLog(StripeCloudBilling.class);
+    private static Gson gsonObj = new Gson();
     private Map<String, Object> customerParams = new HashMap<>();
     private Map<String, Object> planParams = new HashMap<>();
     private Map<String, Object> subscriptionParams = new HashMap<>();
     private Map<String, Object> cardParams = new HashMap<>();
     private Map<String, Object> invoiceParams = new HashMap<>();
     private Map<String, Object> monetizationAccountParams = new HashMap<>();
-    private static Gson gsonObj = new Gson();
-
-    private static final Log LOGGER = LogFactory.getLog(StripeCloudBilling.class);
 
     public StripeCloudBilling() {
         setApiKey(BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey());
@@ -193,8 +192,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *                         }
      * @return success json string
      */
-    @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson) throws
-                                                                                     CloudBillingVendorException {
+    @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson)
+            throws CloudBillingVendorException {
         try {
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);

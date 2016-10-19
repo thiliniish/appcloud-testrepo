@@ -24,26 +24,19 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Config element that represent the Email xml object
  */
 
-@XmlRootElement(name = "Email")
-public class EmailConfig {
+@XmlRootElement(name = "Email") public class EmailConfig {
 
-    @XmlElement(name = "Host", nillable = false)
-    private String host;
+    @XmlElement(name = "Host", nillable = false) private String host;
 
-    @XmlElement(name = "Port", nillable = false)
-    private String port;
+    @XmlElement(name = "Port", nillable = false) private String port;
 
-    @XmlElement(name = "Username", nillable = false)
-    private String username;
+    @XmlElement(name = "Username", nillable = false) private String username;
 
-    @XmlElement(name = "Password", nillable = false)
-    private String password;
+    @XmlElement(name = "Password", nillable = false) private String password;
 
-    @XmlElement(name = "Sender", nillable = false)
-    private String sender;
+    @XmlElement(name = "Sender", nillable = false) private String sender;
 
-    @XmlElement(name = "Tls", nillable = false)
-    private String tls;
+    @XmlElement(name = "Tls", nillable = false) private String tls;
 
     public String getHost() {
         return host;

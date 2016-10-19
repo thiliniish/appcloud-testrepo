@@ -23,11 +23,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the Notification xml object
  */
-@XmlRootElement(name = "Notifications")
-public class NotificationConfig {
+@XmlRootElement(name = "Notifications") public class NotificationConfig {
 
-    @XmlElement(name = "Email", nillable = false)
-    private EmailConfig emailNotification;
+    @XmlElement(name = "Email", nillable = false) private EmailConfig emailNotification;
 
     public EmailConfig getEmailNotification() {
         return emailNotification;

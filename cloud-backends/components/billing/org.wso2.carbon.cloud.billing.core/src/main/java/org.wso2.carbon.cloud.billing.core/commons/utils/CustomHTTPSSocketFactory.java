@@ -67,33 +67,30 @@ public class CustomHTTPSSocketFactory implements SecureProtocolSocketFactory {
     /**
      * {@inheritDoc}
      */
-    @Override
-    public Socket createSocket(String host, int port) throws IOException {
+    @Override public Socket createSocket(String host, int port) throws IOException {
         return insertEnabledProtocols(base.createSocket(host, port));
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public Socket createSocket(String host, int port, InetAddress localAddress, int localPort) throws IOException {
+    @Override public Socket createSocket(String host, int port, InetAddress localAddress, int localPort)
+            throws IOException {
         return insertEnabledProtocols(base.createSocket(host, port, localAddress, localPort));
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public Socket createSocket(String host, int port, InetAddress localAddress, int localPort,
-                               HttpConnectionParams params) throws IOException {
+    @Override public Socket createSocket(String host, int port, InetAddress localAddress, int localPort,
+                                         HttpConnectionParams params) throws IOException {
         return insertEnabledProtocols(base.createSocket(host, port, localAddress, localPort, params));
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
+    @Override public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException {
         return insertEnabledProtocols(base.createSocket(socket, host, port, autoClose));
     }
 }

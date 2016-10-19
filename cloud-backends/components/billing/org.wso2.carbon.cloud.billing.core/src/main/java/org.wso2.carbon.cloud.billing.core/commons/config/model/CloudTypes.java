@@ -23,22 +23,17 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represent a collection of {@link CloudType}
  */
-@XmlRootElement(name = "CloudTypes")
-public class CloudTypes {
-
-    @XmlElement(name = "CloudType", required = true)
-    private CloudType[] cloudTypes;
-
-    private static volatile Map<String, CloudType> cloudTypeMap;
+@XmlRootElement(name = "CloudTypes") public class CloudTypes {
 
     private static final Log LOGGER = LogFactory.getLog(CloudTypes.class);
+    private static volatile Map<String, CloudType> cloudTypeMap;
+    @XmlElement(name = "CloudType", required = true) private CloudType[] cloudTypes;
 
     public CloudType[] getAllCloudTypes() {
         return cloudTypes.clone();

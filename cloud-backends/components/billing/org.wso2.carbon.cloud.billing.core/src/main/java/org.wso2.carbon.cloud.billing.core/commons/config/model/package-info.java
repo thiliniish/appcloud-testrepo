@@ -16,8 +16,8 @@
  * under the License.
  */
 
-@XmlSchema(namespace = BillingConstants.CONFIG_NAMESPACE, elementFormDefault = XmlNsForm.QUALIFIED)
-package org.wso2.carbon.cloud.billing.core.commons.config.model;
+@XmlSchema(namespace = BillingConstants.CONFIG_NAMESPACE, elementFormDefault = XmlNsForm.QUALIFIED) package org.wso2
+        .carbon.cloud.billing.core.commons.config.model;
 
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 

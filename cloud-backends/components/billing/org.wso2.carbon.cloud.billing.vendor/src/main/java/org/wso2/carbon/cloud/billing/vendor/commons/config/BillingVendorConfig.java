@@ -24,17 +24,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the CloudBillingVendor xml object
  */
-@XmlRootElement(name = "CloudBillingVendor")
-public class BillingVendorConfig {
+@XmlRootElement(name = "CloudBillingVendor") public class BillingVendorConfig {
 
     private String user;
     private String password;
     private String currency;
     private AuthenticationApiKeys authenticationApiKeys;
     private OAuthEndpointConfig oAuthEndpointConfig;
+    @XmlElement(name = "Security", nillable = true, required = false) private SecurityConfig securityConfig;
 
-    @XmlElement(name = "User", nillable = false, required = true)
-    public String getUser() {
+    @XmlElement(name = "User", nillable = false, required = true) public String getUser() {
         return user;
     }
 
@@ -42,8 +41,7 @@ public class BillingVendorConfig {
         this.user = user;
     }
 
-    @XmlElement(name = "Password", nillable = false, required = true)
-    public String getPassword() {
+    @XmlElement(name = "Password", nillable = false, required = true) public String getPassword() {
         return password;
     }
 
@@ -51,8 +49,7 @@ public class BillingVendorConfig {
         this.password = password;
     }
 
-    @XmlElement(name = "Currency", nillable = false, required = true)
-    public String getCurrency() {
+    @XmlElement(name = "Currency", nillable = false, required = true) public String getCurrency() {
         return currency;
     }
 
@@ -60,28 +57,26 @@ public class BillingVendorConfig {
         this.currency = currency;
     }
 
-    @XmlElement(name = "AuthenticationApiKeys", nillable = false, required = true)
-    public AuthenticationApiKeys getAuthenticationApiKeys() {
+    @XmlElement(name = "AuthenticationApiKeys", nillable = false, required = true) public AuthenticationApiKeys
+    getAuthenticationApiKeys() {
         return authenticationApiKeys;
-    }
-
-    @XmlElement(name = "OAuthEndpoint", nillable = false, required = true)
-    public OAuthEndpointConfig getOAuthEndpointConfig() {
-        return oAuthEndpointConfig;
-    }
-
-    @XmlElement(name = "Security", nillable = true, required = false)
-    private SecurityConfig securityConfig;
-
-    public SecurityConfig getSecurityConfig() {
-        return securityConfig;
-    }
-    public void setOAuthEndpointConfig(OAuthEndpointConfig oAuthEndpointConfig) {
-        this.oAuthEndpointConfig = oAuthEndpointConfig;
     }
 
     public void setAuthenticationApiKeys(AuthenticationApiKeys authenticationApiKeys) {
         this.authenticationApiKeys = authenticationApiKeys;
+    }
+
+    @XmlElement(name = "OAuthEndpoint", nillable = false, required = true) public OAuthEndpointConfig
+    getOAuthEndpointConfig() {
+        return oAuthEndpointConfig;
+    }
+
+    public void setOAuthEndpointConfig(OAuthEndpointConfig oAuthEndpointConfig) {
+        this.oAuthEndpointConfig = oAuthEndpointConfig;
+    }
+
+    public SecurityConfig getSecurityConfig() {
+        return securityConfig;
     }
 
 }

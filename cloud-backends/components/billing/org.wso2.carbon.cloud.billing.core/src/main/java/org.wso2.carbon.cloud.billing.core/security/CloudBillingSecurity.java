@@ -64,4 +64,14 @@ public class CloudBillingSecurity {
             throw new CloudBillingSecurityException("Error while generating hash.", e);
         }
     }
+
+    public static boolean validateHash(String token, String tokenHash, String mdAlgorithm)
+            throws CloudBillingSecurityException {
+        try {
+            String hash = generateHash(token, mdAlgorithm);
+            return tokenHash.equals(hash);
+        } catch (CloudBillingSecurityException e) {
+            throw new CloudBillingSecurityException(" Exception occurred while validating hash", e);
+        }
+    }
 }

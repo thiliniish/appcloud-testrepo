@@ -27,23 +27,17 @@ import javax.xml.bind.annotation.XmlElement;
 public class CloudType {
 
     //id uniquely identifies cloud type ex: api_cloud, app_cloud
-    @XmlAttribute(name = "id")
-    private String id;
+    @XmlAttribute(name = "id") private String id;
 
-    @XmlAttribute(name = "name")
-    private String name;
+    @XmlAttribute(name = "name") private String name;
 
-    @XmlElement(name = "BillingEnabled", required = true)
-    private boolean billingEnabled;
+    @XmlElement(name = "BillingEnabled", required = true) private boolean billingEnabled;
 
-    @XmlElement(name = "TrialPeriod", required = true)
-    private int trialPeriod;
+    @XmlElement(name = "TrialPeriod", required = true) private int trialPeriod;
 
-    @XmlElement(name = "UsageDisplayPeriod", required = true)
-    private int usageDisplayPeriod;
+    @XmlElement(name = "UsageDisplayPeriod", required = true) private int usageDisplayPeriod;
 
-    @XmlElement(name = "Subscription", required = true)
-    private Subscription subscription;
+    @XmlElement(name = "Subscription", required = true) private Subscription subscription;
 
     public String getId() {
         return id;

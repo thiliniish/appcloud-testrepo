@@ -24,20 +24,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the HttpClientConfig xml object
  */
-@XmlRootElement(name = "HttpClientConfig")
-public class HttpClientConfig {
+@XmlRootElement(name = "HttpClientConfig") public class HttpClientConfig {
 
-    @XmlElement(name = "Hostname", required = false)
-    private String hostname;
+    @XmlElement(name = "Hostname", required = false) private String hostname;
 
-    @XmlElement(name = "Port", required = false)
-    private int port;
+    @XmlElement(name = "Port", required = false) private int port;
 
-    @XmlElement(name = "MaxConnectionsPerHost", nillable = false, required = true)
-    private int maxConnectionsPerHost;
+    @XmlElement(name = "MaxConnectionsPerHost", nillable = false, required = true) private int maxConnectionsPerHost;
 
-    @XmlElement(name = "MaxTotalConnections", nillable = false, required = true)
-    private int maxTotalConnections;
+    @XmlElement(name = "MaxTotalConnections", nillable = false, required = true) private int maxTotalConnections;
 
     public HttpClientConfig() {
     }

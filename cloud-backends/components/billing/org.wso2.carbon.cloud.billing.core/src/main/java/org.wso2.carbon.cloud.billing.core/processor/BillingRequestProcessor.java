@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.cloud.billing.core.processor;
 
-
 import org.apache.commons.httpclient.NameValuePair;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 

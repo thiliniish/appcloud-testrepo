@@ -61,13 +61,13 @@ public final class BillingConstants {
     public static final String DESCRIPTION = "DESCRIPTION";
 
     public static final String USAGE_UPLOADER_TASK_NAME = "usageUploader";
-    public static final String USAGE_UPLOADER_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.usage.scheduler" +
-                                                                ".UsageUploaderTask";
+    public static final String USAGE_UPLOADER_TASK_CLASS_NAME =
+            "org.wso2.carbon.cloud.billing.usage.scheduler" + ".UsageUploaderTask";
     public static final String USAGE_UPLOADER_TASK_TENANT_ID_KEY = "__TENANT_ID_PROP__";
 
     public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
-    public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME = "org.wso2.carbon.cloud.billing.subscription.tasks" +
-                                                                   ".BillingDbUpdateTask";
+    public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME =
+            "org.wso2.carbon.cloud.billing.subscription.tasks" + ".BillingDbUpdateTask";
     public static final String PENDING_DISABLES_URL_KEY = "__PENDING_DISABLES__";
     public static final String DISABLE_TENANT_URL_KEY = "__DISABLE_TENANT__";
     public static final String UPDATE_SUBSCRIPTION_STATUS_URL_KEY = "__UPDATE_SUBSCRIPTION_STATUS__";
@@ -273,6 +273,7 @@ public final class BillingConstants {
     public static final String EEROR_RESPONSE_PROPERTY_SUCCESS = "success";
     public static final String EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED = "successSpecified";
     public static final String EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED = "errorsSpecified";
+    public static final String ENABLE_MONETIZATION_REGISTRY_PROPERTY = "EnableMonetization";
     /* Zuora queries */
     private static final String ZUORA_ACCOUNT_QUERY_PREFIX = "SELECT id, name, accountnumber, billtoid, " +
                                                              "communicationprofileid, createddate, " +
@@ -283,10 +284,9 @@ public final class BillingConstants {
     public static final String QUERY_ZUORA_ACCOUNT_BY_ACCOUNT_NO = ZUORA_ACCOUNT_QUERY_PREFIX + "WHERE accountnumber" +
                                                                    " " +
                                                                    "= '?'";
-	public static final String ENABLE_MONETIZATION_REGISTRY_PROPERTY = "EnableMonetization";
 
-	private BillingConstants() {
-	}
+    private BillingConstants() {
+    }
 
     /**
      * SecureValueProperties inner class

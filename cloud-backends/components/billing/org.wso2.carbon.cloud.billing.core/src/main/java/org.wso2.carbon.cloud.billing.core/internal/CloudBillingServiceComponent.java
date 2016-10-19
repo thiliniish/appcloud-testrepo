@@ -89,10 +89,10 @@ public class CloudBillingServiceComponent {
 
     /**
      * Initialize the Output EventAdapter Service dependency
+     *
      * @param outputEventAdapterService Output EventAdapter Service reference
      */
-    protected void setOutputEventAdapterService(
-            OutputEventAdapterService outputEventAdapterService) {
+    protected void setOutputEventAdapterService(OutputEventAdapterService outputEventAdapterService) {
         ServiceDataHolder.getInstance().setOutputEventAdapterService(outputEventAdapterService);
     }
 
@@ -107,10 +107,11 @@ public class CloudBillingServiceComponent {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Billing bundle activation is started");
             }
-            this.billingServiceRef = bundleContext.registerService(CloudBillingService.class.getName(), new
-                    CloudBillingService(), null);
-            this.apiMonServiceRef = bundleContext.registerService(APICloudMonetizationService.class.getName(),
-                                                                  new APICloudMonetizationService(), null);
+            this.billingServiceRef =
+                    bundleContext.registerService(CloudBillingService.class.getName(), new CloudBillingService(), null);
+            this.apiMonServiceRef = bundleContext
+                    .registerService(APICloudMonetizationService.class.getName(), new APICloudMonetizationService(),
+                                     null);
             activateScheduledTasks();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Cloud billing  bundle is activated");
@@ -166,8 +167,7 @@ public class CloudBillingServiceComponent {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("SecretCallbackHandlerService is acquired");
         }
-        ServiceDataHolder.getInstance().setSecretCallbackHandlerService(
-                secretCallbackHandlerService);
+        ServiceDataHolder.getInstance().setSecretCallbackHandlerService(secretCallbackHandlerService);
     }
 
     /**
@@ -253,8 +253,7 @@ public class CloudBillingServiceComponent {
      *
      * @param outputEventAdapterService
      */
-    protected void unsetOutputEventAdapterService(
-            OutputEventAdapterService outputEventAdapterService) {
+    protected void unsetOutputEventAdapterService(OutputEventAdapterService outputEventAdapterService) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Unset the Output Email Adapter service.");
         }
@@ -263,7 +262,7 @@ public class CloudBillingServiceComponent {
 
     /**
      * todo write the schedule task
-     *
+     * <p/>
      * Activate scheduled tasks if billing enabled
      */
     private void activateScheduledTasks() {
@@ -303,8 +302,8 @@ public class CloudBillingServiceComponent {
      */
     private void registerUsageUploaderTask() {
         try {
-            ServiceDataHolder.getInstance().getTaskService().registerTaskType(
-                    BillingConstants.USAGE_UPLOADER_TASK_NAME);
+            ServiceDataHolder.getInstance().getTaskService()
+                             .registerTaskType(BillingConstants.USAGE_UPLOADER_TASK_NAME);
         } catch (TaskException e) {
             LOGGER.error("Error in registering usage upload tas task type: " + e.getMessage(), e);
         }

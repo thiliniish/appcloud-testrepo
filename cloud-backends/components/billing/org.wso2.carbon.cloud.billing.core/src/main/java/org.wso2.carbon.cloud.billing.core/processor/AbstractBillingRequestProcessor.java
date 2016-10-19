@@ -38,9 +38,10 @@ public abstract class AbstractBillingRequestProcessor implements BillingRequestP
         if (httpClientConfig != null) {
             this.httpClient = initHttpClient(httpClientConfig);
         } else {
-            HttpClientConfig defaultHttpClientConfig = new HttpClientConfig(BillingConstants.DEFAULT_HOST,
-                    BillingConstants.DEFAULT_PORT, BillingConstants.DEFAULT_MAX_CONNECTION_PER_HOST,
-                    BillingConstants.DEFAULT_MAX_TOTAL_CONNECTION);
+            HttpClientConfig defaultHttpClientConfig =
+                    new HttpClientConfig(BillingConstants.DEFAULT_HOST, BillingConstants.DEFAULT_PORT,
+                                         BillingConstants.DEFAULT_MAX_CONNECTION_PER_HOST,
+                                         BillingConstants.DEFAULT_MAX_TOTAL_CONNECTION);
             this.httpClient = initHttpClient(defaultHttpClientConfig);
         }
     }
@@ -63,7 +64,7 @@ public abstract class AbstractBillingRequestProcessor implements BillingRequestP
     protected HttpClient initHttpClient(HttpClientConfig httpClientConfig) {
         HostConfiguration hostConfig = new HostConfiguration();
         hostConfig.setHost(httpClientConfig.getHostname(), httpClientConfig.getPort(),
-                Protocol.getProtocol(BillingConstants.HTTPS_SCHEME));
+                           Protocol.getProtocol(BillingConstants.HTTPS_SCHEME));
 
         HttpConnectionManagerParams connParams = new HttpConnectionManagerParams();
         connParams.setMaxConnectionsPerHost(hostConfig, httpClientConfig.getMaxConnectionsPerHost());

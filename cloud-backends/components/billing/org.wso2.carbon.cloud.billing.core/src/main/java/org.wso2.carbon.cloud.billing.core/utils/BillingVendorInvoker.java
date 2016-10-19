@@ -32,9 +32,9 @@ import java.lang.reflect.Method;
  */
 public class BillingVendorInvoker {
 
+    private static final Log LOGGER = LogFactory.getLog(BillingVendorInvoker.class);
     private static volatile Class<?> billingVendorClass;
     private static volatile Object billingVendorClassInstance;
-    private static final Log LOGGER = LogFactory.getLog(BillingVendorInvoker.class);
 
     private BillingVendorInvoker() {
     }
@@ -63,21 +63,21 @@ public class BillingVendorInvoker {
                             billingVendorClass = tempBillingVendorClass;
                             billingVendorClassInstance = constructor.newInstance();
                         } else {
-                            LOGGER.error("Error occurred while starting the service : " + billingVendorClassName
-                                    + " Constructor was not found.");
+                            LOGGER.error("Error occurred while starting the service : " + billingVendorClassName +
+                                         " Constructor was not found.");
                         }
 
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                         LOGGER.error(e);
                         throw new CloudBillingException(
-                                "Error while loading cloud billing vendor class : " + billingVendorClassName + ". "
-                                        + e);
+                                "Error while loading cloud billing vendor class : " + billingVendorClassName + ". " +
+                                e);
                     } catch (InvocationTargetException e) {
                         LOGGER.error(e.getTargetException());
                         LOGGER.error(e.getTargetException().getCause().getMessage());
                         throw new CloudBillingException(
-                                "Error while loading cloud billing vendor class : " + billingVendorClassName + ". "
-                                        + e);
+                                "Error while loading cloud billing vendor class : " + billingVendorClassName + ". " +
+                                e);
                     }
                 }
             }
@@ -130,13 +130,13 @@ public class BillingVendorInvoker {
                 Method billingVendorMethod = billingVendorClassInstance.getClass().getDeclaredMethod(method, noparams);
                 return billingVendorMethod.invoke(billingVendorClassInstance);
             } else {
-                Method billingVendorMethod = billingVendorClassInstance.getClass().getDeclaredMethod(method,
-                                                                                                     paramString);
+                Method billingVendorMethod =
+                        billingVendorClassInstance.getClass().getDeclaredMethod(method, paramString);
                 return billingVendorMethod.invoke(billingVendorClassInstance, params);
             }
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            throw new CloudBillingException("Error while invoking cloud billing vendor method : " + method + ". " + e
-                    .getCause());
+            throw new CloudBillingException(
+                    "Error while invoking cloud billing vendor method : " + method + ". " + e.getCause());
         }
     }
 }

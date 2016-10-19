@@ -74,7 +74,8 @@ public final class APICloudMonetizationUtils {
                                         .getHttpClientConfig());
         String billingVendorServiceUri =
                 BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingVendorServiceURI();
-        monetizationAccountUri = billingVendorServiceUri.concat(MonetizationConstants.DS_API_URI_ADD_MONETIZATION_ACCOUNT);
+        monetizationAccountUri =
+                billingVendorServiceUri.concat(MonetizationConstants.DS_API_URI_ADD_MONETIZATION_ACCOUNT);
         accountInfoUri = billingVendorServiceUri.concat(BillingVendorConstants.DS_API_URI_VENDOR_ACCOUNT_INFO);
 
         clientSecret =
@@ -152,6 +153,12 @@ public final class APICloudMonetizationUtils {
         return false;
     }
 
+    /**
+     * Get Account Information for tenant from Account
+     * @param accountNumber
+     * @return
+     * @throws CloudBillingVendorException
+     */
     public static String getTenantAccountInformation(String accountNumber) throws CloudBillingVendorException {
         try {
             String url = accountInfoUri.replace(BillingVendorConstants.RESOURCE_IDENTIFIER_CUSTOMER_ID,
@@ -175,10 +182,23 @@ public final class APICloudMonetizationUtils {
         return params.toString();
     }
 
+    /**
+     * Retrieve Secret key from DB
+     * @param tenantDomain
+     * @return
+     * @throws CloudBillingVendorException
+     */
     public static String getSecretKey(String tenantDomain) throws CloudBillingVendorException {
         return getAccountInfoByParameter(tenantDomain, BillingVendorConstants.STRIPE_ACCESS_TOKEN);
     }
 
+    /**
+     * Retrieve Account Information by parsing the relevent accoutn parameter
+     * @param tenantDomain
+     * @param parameter
+     * @return
+     * @throws CloudBillingVendorException
+     */
     public static String getAccountInfoByParameter(String tenantDomain, String parameter)
             throws CloudBillingVendorException {
         try {
@@ -191,12 +211,12 @@ public final class APICloudMonetizationUtils {
                 } else {
                     Iterator iterator = elements.getFirstElement().getChildElements();
                     while (iterator.hasNext()) {
-                        OMElement AccountInfo = (OMElement) iterator.next();
-                        if (parameter.equals(AccountInfo.getLocalName())) {
-                            return AccountInfo.getText();
+                        OMElement accountInfoChildren = (OMElement) iterator.next();
+                        if (parameter.equals(accountInfoChildren.getLocalName())) {
+                            return accountInfoChildren.getText();
                         }
                     }
-                    return "Publishable key Error";
+                    return ("Required Parameter Not found in Account " + tenantDomain);
                 }
             } else {
                 return "No account information for " + accountId;

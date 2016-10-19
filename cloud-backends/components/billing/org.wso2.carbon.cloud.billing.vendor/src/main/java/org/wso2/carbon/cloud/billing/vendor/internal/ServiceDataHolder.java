@@ -30,7 +30,6 @@ public class ServiceDataHolder {
     private static final Log LOGGER = LogFactory.getLog(ServiceDataHolder.class);
     private SecretCallbackHandlerService secretCallbackHandlerService;
 
-
     private ServiceDataHolder() {
     }
 
@@ -42,7 +41,6 @@ public class ServiceDataHolder {
     public static ServiceDataHolder getInstance() {
         return SERVICE_DATA_HOLDER;
     }
-
 
     /**
      * Get secret callback handler service
