@@ -47,6 +47,11 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,11 +61,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 
 /**
  * Represents cloud billing related services.
@@ -872,6 +872,22 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             return CloudBillingSecurity.generateHash(data, mdAlgorithm);
         } catch (CloudBillingException ex) {
             LOGGER.error("Error occurred while generating hash value ", ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Get a specific account details
+     *
+     * @param customerId customer id
+     * @return coupon data
+     * @throws CloudBillingException
+     */
+    @Override public String retrieveAccountInfo(String customerId) throws CloudBillingException {
+        try {
+            return init().retrieveAccountInfo(customerId);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the account information of the customer : " + customerId, ex);
             throw ex;
         }
     }

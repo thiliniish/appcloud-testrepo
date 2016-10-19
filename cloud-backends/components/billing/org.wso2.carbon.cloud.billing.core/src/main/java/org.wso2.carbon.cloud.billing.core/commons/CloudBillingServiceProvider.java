@@ -216,7 +216,6 @@ public interface CloudBillingServiceProvider {
      */
     public String getInvoiceDetails(String invoiceId) throws CloudBillingException;
 
-
     /**
      * Get current plan subscribed to a service
      *
@@ -243,4 +242,14 @@ public interface CloudBillingServiceProvider {
      * @throws CloudBillingException
      */
     public String retrieveCouponInfo(String couponID) throws CloudBillingException;
+
+    /**
+     * Get a specific account details
+     *
+     * @param customerId customer id
+     * @return coupon data
+     * @throws CloudBillingException
+     */
+    public String retrieveAccountInfo(String customerId) throws CloudBillingException;
+
 }
