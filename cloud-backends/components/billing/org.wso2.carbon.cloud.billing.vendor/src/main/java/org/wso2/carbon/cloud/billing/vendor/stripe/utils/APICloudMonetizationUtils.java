@@ -41,13 +41,13 @@ import org.wso2.carbon.cloud.billing.vendor.commons.processor.VendorRequestProce
 import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVendorConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud monetization service
@@ -72,10 +72,10 @@ public final class APICloudMonetizationUtils {
         vendorRequestProcessor = new VendorRequestProcessor(
                 BillingVendorConfigUtils.getBillingVendorConfiguration().getOAuthEndpointConfig()
                                         .getHttpClientConfig());
-        String apiCloudMonUri = BillingConfigManager.getBillingConfiguration().getDataServiceConfig()
-                                                    .getCloudBillingVendorServiceURI();
-        monetizationAccountUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_ADD_MONETIZATION_ACCOUNT);
-        accountInfoUri = apiCloudMonUri.concat(BillingVendorConstants.DS_API_URI_VENDOR_ACCOUNT_INFO);
+        String billingVendorServiceUri =
+                BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingVendorServiceURI();
+        monetizationAccountUri = billingVendorServiceUri.concat(MonetizationConstants.DS_API_URI_ADD_MONETIZATION_ACCOUNT);
+        accountInfoUri = billingVendorServiceUri.concat(BillingVendorConstants.DS_API_URI_VENDOR_ACCOUNT_INFO);
 
         clientSecret =
                 BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey();
@@ -152,10 +152,10 @@ public final class APICloudMonetizationUtils {
         return false;
     }
 
-    public static String getTenantAccountInformation(String accountId) throws CloudBillingVendorException {
+    public static String getTenantAccountInformation(String accountNumber) throws CloudBillingVendorException {
         try {
             String url = accountInfoUri.replace(BillingVendorConstants.RESOURCE_IDENTIFIER_CUSTOMER_ID,
-                                                CloudBillingUtils.encodeUrlParam(accountId));
+                                                CloudBillingUtils.encodeUrlParam(accountNumber));
             String response = dsBRProcessor.doGet(url, null, null);
             if (response != null && !response.isEmpty()) {
                 return response;
@@ -163,14 +163,15 @@ public final class APICloudMonetizationUtils {
                 return null;
             }
         } catch (CloudBillingException | UnsupportedEncodingException e) {
-            throw new CloudBillingVendorException("Error while getting Tenant Account Information for : " + accountId,
-                                                  e);
+            throw new CloudBillingVendorException(
+                    "Error while getting Tenant Account Information for : " + accountNumber, e);
         }
     }
 
     public static String getPublishableKeyForTenant(String tenantDomain) throws CloudBillingVendorException {
         JsonObject params = new JsonObject();
-        params.addProperty("token", getAccountInfoByParameter(tenantDomain, BillingVendorConstants.STRIPE_PUBLISHABLE_KEY));
+        params.addProperty("token",
+                           getAccountInfoByParameter(tenantDomain, BillingVendorConstants.STRIPE_PUBLISHABLE_KEY));
         return params.toString();
     }
 
@@ -178,7 +179,8 @@ public final class APICloudMonetizationUtils {
         return getAccountInfoByParameter(tenantDomain, BillingVendorConstants.STRIPE_ACCESS_TOKEN);
     }
 
-    public static String getAccountInfoByParameter(String tenantDomain, String parameter) throws CloudBillingVendorException{
+    public static String getAccountInfoByParameter(String tenantDomain, String parameter)
+            throws CloudBillingVendorException {
         try {
             String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
             String accountInfo = getTenantAccountInformation(accountId);

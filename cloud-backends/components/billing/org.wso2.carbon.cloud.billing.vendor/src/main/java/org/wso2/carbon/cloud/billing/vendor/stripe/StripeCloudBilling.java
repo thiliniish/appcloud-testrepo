@@ -193,7 +193,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *                         }
      * @return success json string
      */
-    @Override public String createProductRatePlan(String ratePlanInfoJson) throws CloudBillingVendorException {
+    @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson) throws
+                                                                                     CloudBillingVendorException {
         try {
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
