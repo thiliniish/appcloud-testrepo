@@ -14,6 +14,20 @@
       <param name="ACCESS_TOKEN" sqlType="STRING"/>
       <param name="ACCOUNT_CREATION_DATE" sqlType="STRING"/>
    </query>
+   <query id="getVendorAccountInfoQ" useConfig="cloud_mgt">
+      <sql>SELECT TOKEN_TYPE, STRIPE_PUBLISHABLE_KEY, SCOPE, LIVEMODE, STRIPE_USER_ID, REFRESH_TOKEN, ACCESS_TOKEN, ACCOUNT_CREATION_DATE FROM MONETIZATION_API_CLOUD_ACCOUNT WHERE ACCOUNT_NUMBER=         (:ACCOUNT_NUMBER);</sql>
+      <result element="Account" rowName="Account">
+         <element column="TOKEN_TYPE" name="TokenType" xsdType="string"/>
+         <element column="STRIPE_PUBLISHABLE_KEY" name="stripe_publishable_key" xsdType="string"/>
+         <element column="SCOPE" name="Scope" xsdType="string"/>
+         <element column="LIVEMODE" name="LiveMode" xsdType="int"/>
+         <element column="STRIPE_USER_ID" name="StripeUserId" xsdType="string"/>
+         <element column="REFRESH_TOKEN" name="RefreshToken" xsdType="string"/>
+         <element column="ACCESS_TOKEN" name="AccessToken" xsdType="string"/>
+         <element column="ACCOUNT_CREATION_DATE" name="AccountCreationDate" xsdType="string"/>
+      </result>
+      <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+   </query>
    <operation name="addMonetizationAccount">
       <call-query href="addMonetizationAccountQ">
          <with-param name="ACCOUNT_NUMBER" query-param="ACCOUNT_NUMBER"/>
@@ -26,6 +40,11 @@
          <with-param name="ACCOUNT_CREATION_DATE" query-param="ACCOUNT_CREATION_DATE"/>
       </call-query>
    </operation>
+   <operation name="getVendorAccountInfo">
+      <call-query href="getVendorAccountInfoQ">
+         <with-param name="ACCOUNT_NUMBER" query-param="customerId"/>
+      </call-query>
+   </operation>
    <resource method="POST" path="v1/accounts/{accountNumber}" returnRequestStatus="true">
       <call-query href="addMonetizationAccountQ">
          <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
@@ -36,6 +55,11 @@
          <with-param name="REFRESH_TOKEN" query-param="refresh_token"/>
          <with-param name="ACCESS_TOKEN" query-param="access_token"/>
          <with-param name="ACCOUNT_CREATION_DATE" query-param="account_creation_date"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="v1/accounts/getVendorInfo/{accountNumber}">
+      <call-query href="getVendorAccountInfoQ">
+         <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
       </call-query>
    </resource>
 </data>

@@ -24,29 +24,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the DataServiceAPI xml object
  */
-@XmlRootElement(name = "DataServiceAPI")
-public class DataServiceConfig {
+@XmlRootElement(name = "DataServiceAPI") public class DataServiceConfig {
 
-    @XmlElement(name = "CloudBillingServiceURI", nillable = false, required = true)
-    private String cloudBillingServiceUri;
+    @XmlElement(name = "CloudBillingServiceURI", nillable = false, required = true) private String
+            cloudBillingServiceUri;
 
-    @XmlElement(name = "CloudMonetizationServiceURI", nillable = false, required = true)
-    private String cloudMonetizationServiceUri;
+    @XmlElement(name = "CloudMonetizationServiceURI", nillable = false, required = true) private String
+            cloudMonetizationServiceUri;
 
-    @XmlElement(name = "APICloudMonetizationServiceURI", nillable = false, required = true)
-    private String apiCloudMonetizationServiceUri;
+    @XmlElement(name = "APICloudMonetizationServiceURI", nillable = false, required = true) private String
+            apiCloudMonetizationServiceUri;
 
-    @XmlElement(name = "CloudBillingVendorServiceURI", nillable = false, required = true)
-    private String CloudBillingVendorServiceURI;
+    @XmlElement(name = "CloudBillingVendorServiceURI", nillable = false, required = true) private String
+            cloudBillingVendorServiceURI;
 
-    @XmlElement(name = "User", nillable = false, required = true)
-    private String user;
+    @XmlElement(name = "User", nillable = false, required = true) private String user;
 
-    @XmlElement(name = "Password", nillable = false, required = true)
-    private String password;
+    @XmlElement(name = "Password", nillable = false, required = true) private String password;
 
-    @XmlElement(name = "HttpClientConfig", nillable = false)
-    private HttpClientConfig httpClientConfig;
+    @XmlElement(name = "HttpClientConfig", nillable = false) private HttpClientConfig httpClientConfig;
 
     public String getCloudBillingServiceUri() {
         return cloudBillingServiceUri;
@@ -73,7 +69,7 @@ public class DataServiceConfig {
     }
 
     public String getCloudBillingVendorServiceURI() {
-        return CloudBillingVendorServiceURI;
+        return cloudBillingVendorServiceURI;
     }
 
 }
