@@ -19,6 +19,9 @@
 package org.wso2.carbon.cloud.billing.core.utils;
 
 import com.google.gson.Gson;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.lang.StringUtils;
@@ -41,9 +44,6 @@ import org.wso2.carbon.core.util.CryptoUtil;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 /**
  * Model to represent Utilities for Cloud Billing core module
