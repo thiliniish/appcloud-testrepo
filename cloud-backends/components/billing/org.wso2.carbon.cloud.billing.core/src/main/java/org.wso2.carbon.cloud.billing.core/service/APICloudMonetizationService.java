@@ -20,8 +20,11 @@ package org.wso2.carbon.cloud.billing.core.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
+import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.core.utils.APICloudMonetizationUtils;
+import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 
 /**
  * API Cloud monetization service.
@@ -132,7 +135,7 @@ public class APICloudMonetizationService {
      * @throws CloudMonetizationException
      */
     public String cancelSubscription(String tenantDomain, String accountNumber, String appName, String apiName, String
-		    apiVersion)
+            apiVersion)
             throws CloudMonetizationException {
         try {
             return APICloudMonetizationUtils.cancelSubscription(tenantDomain, accountNumber, appName, apiName,
@@ -229,6 +232,22 @@ public class APICloudMonetizationService {
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error occurred while retrieving throttling tiers of tenant: " + tenantDomain, ex);
             throw ex;
+        }
+    }
+
+    /**
+     * Check whether monetization enabled for API Cloud
+     *
+     * @param tenantDomain tenant domain
+     * @return boolean enabled status
+     */
+    public boolean isMonetizationEnabled(String tenantDomain) throws CloudMonetizationException {
+        try {
+            return CloudBillingServiceUtils.isMonetizationEnabled(tenantDomain, BillingConstants.API_CLOUD_ID);
+        } catch (CloudBillingException e) {
+            String errorMsg = "Error while checking monetization status for tenant: " + tenantDomain;
+            LOGGER.error(errorMsg, e);
+            throw new CloudMonetizationException(errorMsg, e);
         }
     }
 }
