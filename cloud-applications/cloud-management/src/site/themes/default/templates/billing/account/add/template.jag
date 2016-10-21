@@ -7,10 +7,10 @@
 
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
     var userName =  session.get("LOGGED_IN_USER");
     var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
-    var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3;
+    var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3, field_passthrough4;
     var creditCardCity, creditCardCountry, creditCardAddress1, creditCardAddress2, creditCardState, creditCardPostalCode;
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
@@ -51,10 +51,8 @@
     if(callsPerDay != null){
         callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
     }
-    var serviceId = session.get("SERVICE_ID");
     if("Response_From_Submit_Page" == responseFrom) {
-        if("true" == request.getParameter("success")[0]) {
-
+        if("true" == request.getParameter("success")) {
             var claims = jagg.module("user/profile").getProfile();
             profileFirstName = claims.firstname || "";
             profileLastName = claims.lastname || "";
@@ -63,6 +61,7 @@
             field_passthrough1 = request.getParameter("field_passthrough1");
             field_passthrough2 = request.getParameter("field_passthrough2");
             field_passthrough3 = request.getParameter("field_passthrough3");
+
             //field_passthrough2 is the serviceId
             paymentPlanName = jagg.module("billing").getPaymentPlanFromId(field_passthrough2, field_passthrough3);
             creditCardCity = request.getParameter("creditCardCity") || "";
@@ -71,6 +70,7 @@
             creditCardAddress2 = request.getParameter("creditCardAddress2") || "";
             creditCardState = request.getParameter("creditCardState") || "";
             creditCardPostalCode  = request.getParameter("creditCardPostalCode") || "";
+            field_passthrough4  = request.getParameter("field_passthrough4") || "";
 
         }
         log.debug("Request received from payment method creation page. Callback from Zuora");
@@ -219,7 +219,8 @@
                 productRatePlanId :$("#field_passthrough3").attr('value'),
                 email:$("#email").attr('value'),
                 responseFrom: "<%=responseFrom%>",
-                accountId : "<%= accountId%>"
+                accountId : "<%= accountId%>",
+                field_passthrough4:$("#field_passthrough4").attr('value'),
                 
             },
             function (result) {
@@ -540,7 +541,7 @@
                               <% } else {  %>
                                <p class="tcenter">You will be upgrading  your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
                              <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span>,  
-                             you will be charged USD <span id="monthly-payable-amount-txt"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%> </span>. Your today's payment will be USD <span id="actual-payable-amount-txt"><%=Number(actualPaymentAmount - couponDiscount).toFixed(2)%>.</span> </p>
+                             you will be charged USD <span id="monthly-payable-amount-txt"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%> </span>. </p>
                             <% }   %>
                    </div>     
 		<% } if(responseFrom == EDIT_USER_INFO ) {  %>
@@ -573,9 +574,14 @@
 				</div>
 				<hr class="wr-separate"/>
 				<div id="pricing-container">
+
 					<p class="col-md-8 nopad">&nbsp;</p><p class="col-md-4 nopad tright"><strong>USD</strong></p>
 					<p class="col-md-8 nopad">Subscription Fee (per/m)</p><p id="monthlyRentalPara" class="col-md-4 nopad tright"><%=Number(monthlyRental).toFixed(2)%></p>
 					<p class="col-md-8 nopad">Discount from coupon</p><p id="discountPara" class="col-md-4 nopad tright"><%=Number(couponDiscount).toFixed(2)%></p>
+
+						<% if(isUpgrade) {  %>
+						<p class="col-md-12 nopad">*Please note that prorated charges are applicable when upgrading</p>
+					<% } else {  %>
 					<p class="col-md-8 nopad">Remaining account balance</p><p id="accountBalancePara" class="col-md-4 nopad tright"><%=Number(monthlyRental - actualPaymentAmount).toFixed(2)%></p>
 					<br class="c-both" />
 					<div class="col-md-8 nopad blue">&nbsp;</div>
@@ -583,6 +589,7 @@
 						<p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
 						<p id="payableAmountPara" class="col-md-12 nopad nomargin blue-line-right"><span id="payable-amount"><%=Number(actualPaymentAmount - couponDiscount).toFixed(2)%></span></p>
 					</div>
+					<% } %>
 					<br class="c-both" />
 				</div>
 				<div id="action-container">
@@ -613,6 +620,7 @@
             <input type="hidden" name="field_passthrough1" id="field_passthrough1" value="<%=field_passthrough1%>" />
             <input type="hidden" name="field_passthrough2" id="field_passthrough2" value="<%=field_passthrough2%>" />
             <input type="hidden" name="field_passthrough3" id="field_passthrough3" value="<%=field_passthrough3%>" />
+            <input type="hidden" name="field_passthrough4" id="field_passthrough4" value="<%=field_passthrough4%>" />
 
 </div>
 <!-- /content/body -->

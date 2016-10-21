@@ -29,6 +29,7 @@ public final class BillingVendorConstants {
     public static final String RESPONSE_DATA = "data";
     public static final String RESPONSE_MESSAGE = "message";
     public static final String AT_PERIOD_END = "at_period_end";
+    public static final String DATE_FORMAT_YEAR_MONTH_DAY = "yyyy-MM-dd";
 
     /**
      * OAuth enpoint related params

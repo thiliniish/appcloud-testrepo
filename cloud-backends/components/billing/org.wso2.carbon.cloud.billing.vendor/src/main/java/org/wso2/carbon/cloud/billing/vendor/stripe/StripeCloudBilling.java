@@ -18,6 +18,7 @@
 package org.wso2.carbon.cloud.billing.vendor.stripe;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -27,6 +28,7 @@ import com.stripe.exception.APIException;
 import com.stripe.exception.AuthenticationException;
 import com.stripe.exception.CardException;
 import com.stripe.exception.InvalidRequestException;
+import com.stripe.model.Charge;
 import com.stripe.model.Coupon;
 import com.stripe.model.Customer;
 import com.stripe.model.CustomerSubscriptionCollection;
@@ -36,6 +38,7 @@ import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.JsonNode;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
@@ -44,6 +47,10 @@ import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVendorConfigUti
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 import org.wso2.carbon.cloud.billing.vendor.stripe.utils.APICloudMonetizationUtils;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,12 +88,12 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     // TODO: 10/11/16 Get the SecretAPI Key from the Database
-    private static String getSecretKey(String tenantDomain) throws CloudBillingException {
+    private static String getSecretKey(String tenantDomain) throws CloudBillingVendorException {
         LOGGER.info("Getting Secret Key for Tenant : " + tenantDomain);
         try {
             return APICloudMonetizationUtils.getSecretKey(tenantDomain);
         } catch (CloudBillingVendorException e) {
-            throw new CloudBillingException(
+            throw new CloudBillingVendorException(
                     "Cloud Billing Exception Occurred while getting Secret key for tenant : " + tenantDomain, e);
         }
     }
@@ -123,12 +130,21 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      * @return json string of customer information
      */
     @Override public String getCustomerDetails(String customerId) throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
         try {
-            return validateResponseString(Customer.retrieve(customerId).toString());
+            Customer customer = Customer.retrieve(customerId);
+            JsonObject customerJsonObj =
+                    new JsonParser().parse(validateResponseString(customer.toString())).getAsJsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, customerJsonObj);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
-            throw new CloudBillingVendorException("Error while retrieving customer : ", ex);
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage().toString());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while retrieving customer : ", ex);
         }
+        return response.toString();
     }
 
     /**
@@ -690,6 +706,203 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
+     * Get a specific account details
+     *
+     * @param customerId coupon id
+     * @return account information
+     * @throws CloudBillingException
+     */
+    @Override public String retrieveAccountInfo(String customerId) throws CloudBillingVendorException {
+
+        JsonObject response = new JsonObject();
+        try {
+            String customerDetails = getCustomerDetails(customerId);
+            JsonObject object = new JsonObject();
+            object.addProperty("customer", customerId);
+            String customerInvoices = getInvoices(object.toString());
+            JsonNode customerObj = APICloudMonetizationUtils.getJsonList(customerDetails);
+            JsonNode invoiceObj = APICloudMonetizationUtils.getJsonList(customerInvoices);
+            JsonObject accountInfo = new JsonObject();
+            // Validate if customer details are successfully retrieved
+            if (Boolean.parseBoolean(customerObj.get(BillingVendorConstants.RESPONSE_SUCCESS).toString())) {
+                JsonObject accountSummaryObj = new JsonObject();
+                JsonObject subscriptionDetailsObj = new JsonObject();
+                JsonObject defaultPaymentMethodObj = new JsonObject();
+                JsonObject contactInformationObj = new JsonObject();
+                ArrayList<String> invoiceArrayList = new ArrayList<String>();
+                ArrayList<String> paymentArrayList = new ArrayList<String>();
+
+                accountSummaryObj.addProperty("accountName",
+                                              customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("description")
+                                                         .asText());
+                accountSummaryObj.addProperty("accountBalance", customerObj.get(BillingVendorConstants.RESPONSE_DATA)
+                                                                           .get("account_balance").asText());
+                accountSummaryObj.addProperty("currency",
+                                              customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("currency")
+                                                         .asText());
+
+                JsonNode subscriptionNode =
+                        customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("subscriptions").get("data").get(0);
+                subscriptionDetailsObj.addProperty("serviceName", subscriptionNode.get("plan").get("name").asText());
+                subscriptionDetailsObj.addProperty("startDate", convertUnixTimestamp(
+                        BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("start").asLong()));
+                subscriptionDetailsObj.addProperty("endDate", convertUnixTimestamp(
+                        BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("ended_at").asLong()));
+                subscriptionDetailsObj.addProperty("status", subscriptionNode.get("status").asText());
+
+                // payment Details
+                JsonNode paymentNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("sources").get("data");
+                JsonNode defaultPaymentNode = null;
+                for (int x = 0; x < paymentNode.size(); x++) {
+                    String defualtPaymentId =
+                            customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("default_source").toString();
+                    if (defualtPaymentId.equalsIgnoreCase(paymentNode.get(x).get("id").toString())) {
+                        defaultPaymentNode = paymentNode.get(x);
+                    }
+                }
+                if (defaultPaymentNode != null) {
+                    defaultPaymentMethodObj.addProperty("paymentMethodType", defaultPaymentNode.get("object").asText());
+                    defaultPaymentMethodObj.addProperty("paymentType", defaultPaymentNode.get("brand").asText());
+                    defaultPaymentMethodObj
+                            .addProperty("expirationMonth", defaultPaymentNode.get("exp_month").asText());
+                    defaultPaymentMethodObj.addProperty("expirationYear", defaultPaymentNode.get("exp_year").asText());
+                    defaultPaymentMethodObj
+                            .addProperty("cardNumber", "************" + defaultPaymentNode.get("last4").asText());
+                }
+
+                // Customer Details
+                JsonNode contactDetailsNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("shipping");
+                contactInformationObj.addProperty("name", contactDetailsNode.get("name").asText());
+                contactInformationObj.addProperty("firstName",
+                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
+                                                             .get("firstName").asText());
+                contactInformationObj.addProperty("lastName",
+                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
+                                                             .get("lastName").asText());
+                contactInformationObj.addProperty("state", contactDetailsNode.get("address").get("state").asText());
+                contactInformationObj.addProperty("city", contactDetailsNode.get("address").get("city").asText());
+                contactInformationObj.addProperty("country", contactDetailsNode.get("address").get("country").asText());
+                contactInformationObj
+                        .addProperty("postalcode", contactDetailsNode.get("address").get("postal_code").asText());
+                contactInformationObj.addProperty("address1", contactDetailsNode.get("address").get("line1").asText());
+                contactInformationObj.addProperty("address2", contactDetailsNode.get("address").get("line2").asText());
+                contactInformationObj.addProperty("email",
+                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("email")
+                                                             .asText());
+
+                for (int x = 0; x < invoiceObj.get("data").size(); x++) {
+                    JsonNode invoiceItem = invoiceObj.get("data").get(x);
+                    JsonObject invoiceItemObj = new JsonObject();
+                    JsonObject chargeItemObj = new JsonObject();
+                    invoiceItemObj.addProperty("date",
+                                               convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                                                    invoiceItem.get("date").asLong()));
+                    invoiceItemObj.addProperty("InvoiceId", invoiceItem.get("id").asText());
+                    invoiceItemObj.addProperty("TargetDate",
+                                               convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                                                    invoiceItem.get("period_end").asLong()));
+                    invoiceItemObj.addProperty("Amount", invoiceItem.get("total").asText());
+                    invoiceItemObj.addProperty("paid", invoiceItem.get("paid").asText());
+                    invoiceArrayList.add(invoiceItemObj.toString());
+
+                    //get ChargeObject
+                    String chargeDetails = getChargedDetails(invoiceItem.get("charge").asText());
+                    JsonNode chargeObj = APICloudMonetizationUtils.getJsonList(chargeDetails);
+                    chargeItemObj.addProperty("type", chargeObj.get("data").get("source").get("object").asText());
+                    chargeItemObj.addProperty("effectiveDate",
+                                              convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                                                   chargeObj.get("data").get("created").asLong()));
+                    chargeItemObj.addProperty("paymentNumber", chargeObj.get("data").get("id").asText());
+                    chargeItemObj.addProperty("invoiceNumber", invoiceItem.get("id").asText());
+                    chargeItemObj.addProperty("Status", chargeObj.get("data").get("status").asText());
+                    paymentArrayList.add(chargeItemObj.toString());
+
+                }
+
+                String st = new Gson().toJson(invoiceArrayList);
+                JsonArray invoiceJsonObject = (new JsonParser()).parse(st).getAsJsonArray();
+
+                st = new Gson().toJson(paymentArrayList);
+                JsonArray paymentJsonObject = (new JsonParser()).parse(st).getAsJsonArray();
+
+                accountInfo.add("accountSummary", accountSummaryObj);
+                accountInfo.add("subscriptionDetails", subscriptionDetailsObj);
+                accountInfo.add("defaultPaymentDetails", defaultPaymentMethodObj);
+                accountInfo.add("contactDetails", contactInformationObj);
+                accountInfo.add("invoicesInformation", invoiceJsonObject);
+                accountInfo.add("chargeInformation", paymentJsonObject);
+
+                response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+                response.add(BillingVendorConstants.RESPONSE_DATA, accountInfo);
+
+                return validateResponseString(response.toString());
+            } else {
+                return customerDetails;
+            }
+        } catch (IOException e) {
+            LOGGER.error("Error occurred while retrieving account info ", e);
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, e.getMessage());
+            return response.toString();
+
+        }
+    }
+
+    /**
+     * Get Charge information
+     *
+     * @param chargeId subscription id
+     * @return json charge information json string
+     */
+    public String getChargedDetails(String chargeId) throws CloudBillingVendorException {
+
+        JsonObject response = new JsonObject();
+        try {
+            Charge charge = Charge.retrieve(chargeId);
+            JsonObject chargeJsonObj =
+                    new JsonParser().parse(validateResponseString(charge.toString())).getAsJsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, chargeJsonObj);
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage().toString());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while retrieving charge details : ", ex);
+        }
+        return response.toString();
+    }
+
+    public String convertUnixTimestamp(String format, long unixSeconds) {
+        if (unixSeconds != 0) {
+            Date date = new Date(unixSeconds * 1000L); // *1000 is to convert seconds to milliseconds
+            SimpleDateFormat sdf = new SimpleDateFormat(format); // the format of your date
+            return sdf.format(date);
+        }
+        return null;
+    }
+
+    /**
+     * Remove the discount in the subscription
+     *
+     * @param subscriptionId subscription id
+     * @return json response string
+     */
+    public String deleteSubscriptionDiscount(String subscriptionId) throws CloudBillingVendorException {
+        try {
+
+            Subscription.retrieve(subscriptionId).deleteDiscount();
+            if (Subscription.retrieve(subscriptionId).getDiscount() == null) {
+                return "success";
+            }
+            return null;
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            throw new CloudBillingVendorException("Error while removing the subscription discount: ", ex);
+        }
+    }
+
+    /**
      * Inner class to set parameters to vendor model class objects
      */
     private static class ObjectParams {
@@ -698,5 +911,4 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             }.getType());
         }
     }
-
 }

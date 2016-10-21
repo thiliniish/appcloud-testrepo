@@ -9,7 +9,7 @@
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
     %>
 
     <style type="text/css">
@@ -95,6 +95,7 @@
         }
 
         });
+
         
 		function updateAccountInfo(){
         	 //call backend and load data
@@ -105,74 +106,78 @@
                     },
                 success: function(data) {
                     var accountObj = jQuery.parseJSON(data);
+                    var accountSummary = accountObj.data.accountSummary;
+                    var contactDetails = accountObj.data.contactDetails;
+                    var invoiceDetails = accountObj.data.invoicesInformation;
+                    var paymentMethodDetails = accountObj.data.defaultPaymentDetails;
+                    var subscriptionDetails = accountObj.data.subscriptionDetails;
+                    var chargeInformation = accountObj.data.chargeInformation;
                     var ZERO_PAYMENT_VALUE = 0;
-                    accountId = accountObj.basicInfo.id;
-                    contactInfo = accountObj.billToContact;
-                    accountName = accountObj.basicInfo.name;
-                    lastPayment = accountObj.basicInfo.lastPaymentAmount;
+                    accountId = accountObj.id;
+                    contactInfo = accountObj.data.contactDetails;
+                    accountName = accountSummary.accountName;
+                    lastPayment = accountSummary.lastPaymentAmount;
                     if (lastPayment == null) {
                         lastPayment = ZERO_PAYMENT_VALUE;
                     }
                     // set account summary
-                    $('#accName').text(accountObj.basicInfo.name);
-                    $('#lastPayment').text(lastPayment + " " + accountObj.basicInfo.currency);
-                    $('#accBalance').text(accountObj.basicInfo.balance);
-                    $('#lastPaymentDate').text(accountObj.basicInfo.lastPaymentDate);
-                    $('#lastInvoice').text(accountObj.basicInfo.lastInvoiceDate);
+                    $('#accName').text(accountSummary.accountName);
+                    $('#lastPayment').text(lastPayment + " " + accountSummary.currency);
+                    $('#accBalance').text(accountSummary.accountBalance);
+                    $('#lastPaymentDate').text(accountSummary.lastPaymentDate);
+                    $('#lastInvoice').text(accountSummary.lastInvoiceDate);
 
                     // set contact info
-                    $('#fname').text(accountObj.billToContact.firstName);
-                    $('#state').text(accountObj.billToContact.state);
-                    $('#lname').text(accountObj.billToContact.lastName);
-                    $('#postalcode').text(accountObj.billToContact.zipCode);
-                    $('#address').text(accountObj.billToContact.address1 + " " + accountObj.billToContact.address2);
-                    $('#country').text(accountObj.billToContact.country);
-                    $('#city').text(accountObj.billToContact.city);
-                    $('#email').text(accountObj.billToContact.workEmail);
+                    $('#fname').text(contactDetails.firstName);
+                    $('#state').text(contactDetails.state);
+                    $('#lname').text(contactDetails.lastName);
+                    $('#postalcode').text(contactDetails.postalcode);
+                    $('#address').text(contactDetails.address1 + " " + contactDetails.address1);
+                    $('#country').text(contactDetails.country);
+                    $('#city').text(contactDetails.city);
+                    $('#email').text(contactDetails.email);
 
                     // set credit card info
-                    $('#paymentMethodType').text(String(accountObj.basicInfo.defaultPaymentMethod.paymentMethodType).replace(/([A-Z])/g, ' $1'));
-                    $('#paymentType').text(accountObj.basicInfo.defaultPaymentMethod.creditCardType);
-                    $('#ccNum').text(accountObj.basicInfo.defaultPaymentMethod.creditCardNumber);
-                    var creditCardExpirationMonth = accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationMonth;
-                    var creditCardExpirationYear = accountObj.basicInfo.defaultPaymentMethod.creditCardExpirationYear;
+                    $('#paymentMethodType').text(paymentMethodDetails.paymentMethodType);
+                    $('#paymentType').text(paymentMethodDetails.paymentType);
+                    $('#ccNum').text(paymentMethodDetails.cardNumber);
+                    var creditCardExpirationMonth = paymentMethodDetails.expirationMonth;
+                    var creditCardExpirationYear = paymentMethodDetails.expirationYear;
                     if (creditCardExpirationMonth == null || creditCardExpirationYear == null) {
                         $('#ccExpiry').text('');
                     } else {
                         $('#ccExpiry').text(creditCardExpirationMonth + " / " + creditCardExpirationYear);
                     }
                     // set subscription info
-                    $('#subsStartDate').text(accountObj.subscriptions[0].subscriptionStartDate);
-                    $('#subsStatus').text(accountObj.subscriptions[0].status);
-                    for(var i=0; i<accountObj.subscriptions.length; i++) {
-                        var tempSubs = accountObj.subscriptions[i];
+                    $('#subsStartDate').text(subscriptionDetails.startDate);
+                    $('#subsStatus').text(subscriptionDetails.status);
+                    //TODO handle multi subscriptions
+                        var tempSubs = subscriptionDetails;
                           var actionData = '<td><a onclick="loadChangePlanPage()" ><i class="fa fa-edit" ></i> Change Plan</a> &nbsp; '
-                       + '<a onclick="verifyCancel(\'' + tempSubs.ratePlans[0].productName + '\')"><i class="fa fa-times" ></i> Cancel</a></td></tr>';
+                       + '<a onclick="verifyCancel(\'' + tempSubs.serviceName + '\')"><i class="fa fa-times" ></i> Cancel</a></td></tr>';
 
                         if(tempSubs.status == "Cancelled"){
                         actionData = '<td><a class="fa fa-edit" href="<%=jagg.getAbsoluteUrl("/site/pages/contact-us.jag")%>"> Contact Us</a></td></tr>' ;
                        }
-                       var termEndDate = tempSubs.termEndDate;
-                       if(termEndDate == null ){
+                       var termEndDate = tempSubs.endDate;
+                       var termStartDate = tempSubs.startDate;
+                       if(termEndDate == null  || termEndDate == 'null'){
                        termEndDate = ' - ';
                        }
                         $("#subscription-tbody").append($('<tr>'
-                           + '<td>' + tempSubs.ratePlans[0].productName + '</td>'
-                           + '<td>' + tempSubs.termStartDate + '</td>'
+                           + '<td>' + tempSubs.serviceName + '</td>'
+                           + '<td>' + termStartDate + '</td>'
                            + '<td>' + termEndDate + '</td>'
                            + '<td>' + tempSubs.status + '</td>' + actionData
                            ));
-                    }
 
-                    invoicesObj = accountObj.invoices;
-                    totalInvoicePages = ((invoicesObj.length % maxNumberOfItems) == 0 ) ? (invoicesObj.length/maxNumberOfItems) : (invoicesObj.length/maxNumberOfItems) + 1;
+                    totalInvoicePages = ((invoiceDetails.length % maxNumberOfItems) == 0 ) ? (invoiceDetails.length/maxNumberOfItems) : (invoiceDetails.length/maxNumberOfItems) + 1;
                     totalInvoicePages = Math.floor(totalInvoicePages);
-                    updateInvoiceTable(invoicesObj);
+                    updateInvoiceTable(invoiceDetails);
 
-                    paymentsObj = accountObj.payments;
-                    totalPaymentPages = ((paymentsObj.length % maxNumberOfItems) == 0 ) ? (paymentsObj.length/maxNumberOfItems) : (paymentsObj.length/maxNumberOfItems) + 1;
+                    totalPaymentPages = ((chargeInformation.length % maxNumberOfItems) == 0 ) ? (chargeInformation.length/maxNumberOfItems) : (chargeInformation.length/maxNumberOfItems) + 1;
                     totalPaymentPages = Math.floor(totalPaymentPages);
-                    updatePaymentTable(paymentsObj);
+                    updatePaymentTable(chargeInformation);
                 }, error : function (jqXHR, textStatus, errorThrown) {
                     // Disable buttons
                     document.getElementById("btnAddNewPayment").disabled = true;
@@ -204,16 +209,21 @@
 			}else{
 				$('.invoiceFooter').hide();
 			}
-            for(var i=((invoicePageNumber-1) * maxNumberOfItems); i <invoicesObj.length && i < (invoicePageNumber * maxNumberOfItems); i++ ) {
-				var invoice = invoicesObj[i];
+            for(var i=((invoicePageNumber-1) * maxNumberOfItems); i <invoicesObj.length && i < (invoicePageNumber * maxNumberOfItems); i++ ) {;
+                var invoice =jQuery.parseJSON(invoicesObj[i]);
+                var status;
+                if(invoice.paid){
+                  status = "paid";
+                } else {
+                  status = "unpaid";
+                }
                 $("#invoices-tbody").append($('<tr class ="cleanableInvoice">'
-                   + '<td>' + invoice.invoiceDate + '</td>'
-                   + '<td><a onclick="goToInvoicePage(\''+invoice.id+'\')">' + invoice.invoiceNumber + '</a></td>'
-                   + '<td>' + invoice.dueDate + '</td>'
-                   + '<td>' + invoice.amount + '</td>'
-                   + '<td>' + invoice.balance + '</td>'
-                   + '<td>' + invoice.status + '</td>'
-                   ));
+                    + '<td>' + invoice.date + '</td>'
+                    + '<td><a onclick="goToInvoicePage(\''+invoice.InvoiceId+'\')">' + invoice.InvoiceId + '</a></td>'
+                    + '<td>' + invoice.TargetDate + '</td>'
+                    + '<td>' + invoice.Amount /100 + '</td>'
+                    + '<td>' + status + '</td>'
+                ));
             }
 		}
 
@@ -232,24 +242,14 @@
 			    $('.paymentFooter').hide();
 			}
             for(var i=((paymentPageNumber-1) * maxNumberOfItems); i < paymentsObj.length && i < (paymentPageNumber * maxNumberOfItems); i++ ) {
-                var payment = paymentsObj[i];
+                var payment  =jQuery.parseJSON(paymentsObj[i]);
                 var paidInvoices = null;
-                var paidInvoicesArray = payment.paidInvoices;
-                for (var k=0; k<paidInvoicesArray.length; k++){
-                    var paidInvoice = payment.paidInvoices[k];
-                    if (paidInvoices == null){
-                        paidInvoices = paidInvoice.invoiceNumber;
-                    } else {
-                        paidInvoices = ", " + paidInvoice.invoiceNumber;
-                    }
-                }
-
                 $("#payments-tbody").append($('<tr class ="cleanablePayment">'
-                    + '<td>' + payment.paymentType + '</td>'
+                    + '<td>' + payment.type + '</td>'
                     + '<td>' + payment.effectiveDate + '</td>'
                     + '<td>' + payment.paymentNumber + '</td>'
-                    + '<td>' + paidInvoices + '</td>'
-                    + '<td>' + payment.status + '</td>'
+                    + '<td>' + payment.invoiceNumber + '</td>'
+                    + '<td>' + payment.Status + '</td>'
                 ));
             }
         }
@@ -286,7 +286,7 @@
                     '<input type="hidden" name="address1" value = "' + contactInfo.address1 + '"/>' +
                     '<input type="hidden" name="address2"value = "' + contactInfo.address2 + '"/>' +
                     '<input type="hidden" name="state" value = "' + contactInfo.state + '"/>' +
-                    '<input type="hidden" name="zipCode" value="' + contactInfo.zipCode + '"/>' +
+                    '<input type="hidden" name="zipCode" value="' + contactInfo.postalcode + '"/>' +
                     '<input type="hidden" name="responseFrom" value = "Edit_User_Info"/>' +
                     '</form>');
             $('body').append(formContactInfo);
@@ -467,7 +467,6 @@
                                     <th>Invoice No</th>
                                     <th>Target Date</th>
                                     <th>Amount (USD)</th>
-                                    <th>Balance (USD)</th>
                                     <th>Status</th>
                                     <!--th>Action</th-->
                                 </tr>

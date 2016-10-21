@@ -19,6 +19,11 @@ package org.wso2.carbon.cloud.billing.core.service;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -870,6 +875,22 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         try {
             return CloudBillingSecurity.validateHash(token, tokenHash, mdAlgorithm);
         } catch (CloudBillingException ex) {
+            throw ex;
+        }
+    }
+
+    /**
+     * Get a specific account details
+     *
+     * @param customerId customer id
+     * @return coupon data
+     * @throws CloudBillingException
+     */
+    @Override public String retrieveAccountInfo(String customerId) throws CloudBillingException {
+        try {
+            return init().retrieveAccountInfo(customerId);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the account information of the customer : " + customerId, ex);
             throw ex;
         }
     }
