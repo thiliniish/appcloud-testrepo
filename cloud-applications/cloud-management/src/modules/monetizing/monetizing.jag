@@ -20,8 +20,8 @@ var multitenancy = carbon.multitenancy;
 var message;
 var responseMessage = "";
 var account;
-var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
-var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.CloudBillingService');
+var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService');
 var contactUsURL = cloudmgtURL + CLOUD_CONTACT_US_URI;
 var data;
 
