@@ -986,7 +986,7 @@ var updateApiCloudMonetizationStatus = function () {
     options["HTTPHeaders"] = [
         {name: "Cookie", value: cookie}
     ];
-    var payload = '<updateMonetizationStatus xmlns="http://service.billing.cloud.carbon.wso2.org">' +
+    var payload = '<updateMonetizationStatus xmlns="http://service.core.billing.cloud.carbon.wso2.org">' +
             '<tenantDomain>' + tenantDomain + '</tenantDomain>' +
             '</updateMonetizationStatus>';
     var result = {};
