@@ -263,7 +263,7 @@ var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Getting monetization usage data of apiVersion " + apiVersion + ", application: "
-                        + applicationName + " for user: " + userId + ", from " + fromDate + " to " + toDate + ".");
+                + applicationName + " for user: " + userId + ", from " + fromDate + " to " + toDate + ".");
             }
             if (apiVersion == "*") {
                 var api = "*";
@@ -633,7 +633,7 @@ var getAccountIdFromUserName = function (username) {
         log.error("Error while getting the account id from the username - " + username + " :");
         log.error(e);
         message = "Error while getting the account id from the username - " + username +
-                ", Please contact WSO2 Cloud Team for help";
+        ", Please contact WSO2 Cloud Team for help";
         return {
             error: true,
             statusCode: 500,
@@ -782,9 +782,10 @@ var getProductInfo = function (tenantDomain, productName) {
     billingService.queryProduct(tenantDomain, productName);
 };
 
-// Retrieves the current payment plan name of the tenant
+// Method which retrieves the current payment plan of the tenant
 var getCurrentPaymentPlan = function () {
     var serviceId = API_CLOUD;
+    var currentRatePlanId = null;
     try {
         var ratePlans = modBilling.getCurrentRatePlan(serviceId);
         var paymentPlanName = null;
@@ -935,7 +936,7 @@ var getProductPlans = function () {
 var getTiersOfTenant = function () {
     try {
         var tenantDomain = modManager.getTenantDomain();
-        var tiersList = JSON.parse(monetizationService.getTiers(tenantDomain));
+        var tiersList = JSON.parse(monetizationService.getTiersOfTenant(tenantDomain));
         var msg = "Successfully retrieved the product plan list at the tenant " +tenantDomain;
         return {
             error: false,
@@ -986,7 +987,7 @@ var updateApiCloudMonetizationStatus = function () {
     options["HTTPHeaders"] = [
         {name: "Cookie", value: cookie}
     ];
-    var payload = '<updateMonetizationStatus xmlns="http://service.billing.cloud.carbon.wso2.org">' +
+    var payload = '<updateMonetizationStatus xmlns="http://service.core.billing.cloud.carbon.wso2.org">' +
             '<tenantDomain>' + tenantDomain + '</tenantDomain>' +
             '</updateMonetizationStatus>';
     var result = {};

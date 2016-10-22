@@ -21,13 +21,12 @@ package org.wso2.carbon.cloud.billing.core.service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
-import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.core.utils.APICloudMonetizationUtils;
-import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 import org.wso2.carbon.cloud.billing.core.utils.BillingVendorInvoker;
+import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 
 /**
  * API Cloud monetization service.
@@ -57,7 +56,7 @@ public class APICloudMonetizationService {
      * }
      * }
      * }
-     * <p>
+     * <p/>
      * if AccountNumber is null then
      * <p/>
      * {
@@ -99,8 +98,8 @@ public class APICloudMonetizationService {
                     .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, false);
         } catch (CloudMonetizationException ex) {
             LOGGER.error(
-                    "Error while adding subscriber information. Tenant: " + tenantDomain + " Subscriber: " + username
-                            + " Account number: " + accountNumber, ex);
+                    "Error while adding subscriber information. Tenant: " + tenantDomain + " Subscriber: " + username +
+                    " Account number: " + accountNumber, ex);
             throw ex;
         }
     }
@@ -119,34 +118,32 @@ public class APICloudMonetizationService {
      * "data":  { Vendor Data },
      * "monetizationDbUpdated" : true
      * }
-     * <p>
+     * <p/>
      * failure
-     * <p>
+     * <p/>
      * {
      * "success": false,
      * "message": "Error Message",
      * "data": { Vendor Data },
      * "monetizationDbUpdated" : true
      * }
-     * <p>
+     * <p/>
      * When subscription data not available on databases
      * it would be
-     * <p>
+     * <p/>
      * {
      * "subscriptionInfoNotAvailable":true
      * }
      * @throws CloudMonetizationException
      */
-    public String cancelSubscription(String tenantDomain, String accountNumber, String appName, String apiName, String
-            apiVersion)
-            throws CloudMonetizationException {
+    public String cancelSubscription(String tenantDomain, String accountNumber, String appName, String apiName,
+                                     String apiVersion) throws CloudMonetizationException {
         try {
-            return APICloudMonetizationUtils.cancelSubscription(tenantDomain, accountNumber, appName, apiName,
-                                                                apiVersion);
+            return APICloudMonetizationUtils
+                    .cancelSubscription(tenantDomain, accountNumber, appName, apiName, apiVersion);
         } catch (CloudMonetizationException ex) {
-            LOGGER.error(
-                    "Error while cancelling the subscription. Account no: " + accountNumber + " Application " + "name: "
-                            + appName + " Api name: " + apiName + " Api version: " + apiVersion, ex);
+            LOGGER.error("Error while cancelling the subscription. Account no: " + accountNumber + " Application " +
+                         "name: " + appName + " Api name: " + apiName + " Api version: " + apiVersion, ex);
             throw ex;
         }
     }
@@ -181,17 +178,17 @@ public class APICloudMonetizationService {
      * ],
      * "success": true
      * }
-     * <p>
+     * <p/>
      * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
      * @throws CloudMonetizationException
      */
-    public String removeAppSubscriptions(String tenantDomain, String accountNumber, String appName) throws
-                                                                                      CloudMonetizationException {
+    public String removeAppSubscriptions(String tenantDomain, String accountNumber, String appName)
+            throws CloudMonetizationException {
         try {
             return APICloudMonetizationUtils.removeAppSubscriptions(tenantDomain, accountNumber, appName);
         } catch (CloudMonetizationException ex) {
-            LOGGER.error("Error while removing application subscription. Account no: " + accountNumber + " "
-                    + "Application name: " + appName, ex);
+            LOGGER.error("Error while removing application subscription. Account no: " + accountNumber + " " +
+                         "Application name: " + appName, ex);
             throw ex;
         }
     }
@@ -210,14 +207,15 @@ public class APICloudMonetizationService {
      * @throws CloudMonetizationException
      */
     public String createAPISubscription(String accountNumber, String tenantDomain, String tierName, String appName,
-            String apiName, String apiVersion, String apiProvider) throws CloudMonetizationException {
+                                        String apiName, String apiVersion, String apiProvider)
+            throws CloudMonetizationException {
         try {
             return APICloudMonetizationUtils
                     .createAPISubscription(accountNumber, tenantDomain, tierName, appName, apiName, apiVersion,
                                            apiProvider);
         } catch (CloudMonetizationException ex) {
-            LOGGER.error("Error occurred while creating API Subscription. Account : " + accountNumber + " Tenant : "
-                    + tenantDomain + " Application : " + appName + " API : " + apiName);
+            LOGGER.error("Error occurred while creating API Subscription. Account : " + accountNumber + " Tenant : " +
+                         tenantDomain + " Application : " + appName + " API : " + apiName);
             throw ex;
         }
     }
