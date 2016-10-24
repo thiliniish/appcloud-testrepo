@@ -46,7 +46,7 @@ public final class BillingVendorConstants {
     public static final String ACCOUNT_NUMBER = "account_number";
     public static final String TOKEN_TYPE = "token_type";
     public static final String STRIPE_PUBLISHABLE_KEY = "stripe_publishable_key";
-    public static final String STRIPE_ACCESS_TOKEN = "AcessToken";
+    public static final String STRIPE_ACCESS_TOKEN = "AccessToken";
     public static final String SCOPE = "scope";
     public static final String LIVEMODE = "livemode";
     public static final String STRIPE_USER_ID = "stripe_user_id";

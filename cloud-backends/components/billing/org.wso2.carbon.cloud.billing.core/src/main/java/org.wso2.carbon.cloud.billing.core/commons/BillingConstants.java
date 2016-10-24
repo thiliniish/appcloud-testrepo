@@ -240,9 +240,9 @@ public final class BillingConstants {
             "/rest/v1/payment-methods/credit-cards/accounts";
 
     /*API manager REST api suffixes*/
-    public static final String APIM_ADMIN_REST_URI_TENANT_THROTLING_TIERS =
+    public static final String APIM_ADMIN_REST_URI_TENANT_ADVANCED_THROTTLING_TIERS =
             "/admin/v0.10/throttling/policies/subscription";
-    public static final String APIM_ADMIN_REST_URI_TENANT_THROTTLING_TIERS =
+    public static final String APIM_ADMIN_REST_URI_TENANT_BASIC_THROTTLING_TIERS =
             "/store/v0.10/tiers/api";
 
     /*data service param names*/
