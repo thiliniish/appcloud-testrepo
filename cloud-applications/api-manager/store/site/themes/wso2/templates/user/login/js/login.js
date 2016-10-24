@@ -2,7 +2,7 @@ var login = login || {};
 (function () {
     var loginbox = login.loginbox || (login.loginbox = {});
 
-    loginbox.login = function (username, password, url,tenant) {        
+    loginbox.login = function (username, password, url, tenant) {
         if (username.indexOf("@") != -1) {
             username = username.replace("@", ".") + "@" + tenant;
         }

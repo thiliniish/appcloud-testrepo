@@ -112,13 +112,13 @@ include("/jagg/jagg.jag");
 
         var loggedInUser = jagg.getUser();
         loggedInUser.tenantDomain = domain;
-        if(userInfo) {
+        if (userInfo) {
             loggedInUser.fullName = userInfo.fullName;
             loggedInUser.email = userInfo.email;
             loggedInUser.isTenantAdmin = userInfo.isTenantAdmin;
         }
 
-        if(tenantDisplayName) {
+        if (tenantDisplayName) {
             loggedInUser.tenantDisplayName = tenantDisplayName;
         }
         jagg.setUser(loggedInUser);
@@ -136,12 +136,12 @@ include("/jagg/jagg.jag");
 function getTenantDisplayName(domainName) {
     var tenantDisplayName;
     var log = new Log();
-    try{
+    try {
         var db = new Database("cloud_mgt");
         var results = db.query("SELECT displayName FROM ORGANIZATIONS WHERE tenantDomain='" + domainName + "';");
         tenantDisplayName = results[0]["displayName"];
         db.close();
-    } catch(e) {
+    } catch (e) {
         var errorMsg = "Error while getting tenant display name of " + domainName;
         log.error(errorMsg);
         log.error(e);
@@ -180,19 +180,19 @@ function getUserInfo(username) {
 
 function convertClaims(result) {
     var claims = {};
-    if(result != null){
+    if (result != null) {
         for (var i = 0; i < result.length; i++) {
             var uri = result[i].getClaimUri();
 
             if (uri.indexOf("wso2.org") > 0) {
                 if (uri.indexOf("lastname") > 0) {
                     var tmp = result[i].getValue();
-                    if(tmp.indexOf("@") < 0 && tmp.indexOf("$") != 0){
+                    if (tmp.indexOf("@") < 0 && tmp.indexOf("$") != 0) {
                         claims.lastname = result[i].getValue();
                     }
                 } else if (uri.indexOf("givenname") > 0) {
                     var tmp = result[i].getValue();
-                    if(tmp.indexOf("$") != 0){
+                    if (tmp.indexOf("$") != 0) {
                         claims.firstname = result[i].getValue();
                     }
                 } else if (uri.indexOf("emailaddress") > 0) {

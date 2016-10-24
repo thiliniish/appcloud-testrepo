@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 import org.wso2.carbon.cloud.signup.configReader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.constants.SignUpWorkflowConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.cloud.signup.internal.ServiceReferenceHolder;
@@ -133,12 +134,15 @@ public class Util implements Serializable {
      * @throws WorkflowException
      */
     public String getConfirmationLink(String tenantDomain, String uuid) throws WorkflowException {
-        String link = ConfigFileReader.retrieveConfigAttribute("URLs", "cloudMgtVerificationUrl");
+        String link = ConfigFileReader.retrieveConfigAttribute(SignUpWorkflowConstants.URLS,
+                                                               SignUpWorkflowConstants.CLOUD_MGT_VERIFICATION_URL);
         //if custom store url available construct the link using it.
         String customStoreURL = getCustomStoreURL(tenantDomain);
-        String defaultStoreURL = ConfigFileReader.retrieveConfigAttribute("URLs", "defaultStoreUrl");
+        String defaultStoreURL = ConfigFileReader.retrieveConfigAttribute(SignUpWorkflowConstants.URLS,
+                                                                          SignUpWorkflowConstants.DEFAULT_STORE_URL);
         if (customStoreURL != null && !customStoreURL.equals(defaultStoreURL)) {
-            String verificationPagePath = ConfigFileReader.retrieveConfigAttribute("URLs", "verificationPagePath");
+            String verificationPagePath = ConfigFileReader.retrieveConfigAttribute(SignUpWorkflowConstants.URLS,
+                                                                     SignUpWorkflowConstants.VERIFICATION_PAGE_PATH);
             link = "https://" + customStoreURL + verificationPagePath;
         }
         link = link + "?confirmation=" + uuid + "&isStoreInvitee=true&tenant=" + tenantDomain;

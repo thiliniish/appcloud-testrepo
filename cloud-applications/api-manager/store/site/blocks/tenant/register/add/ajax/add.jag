@@ -21,15 +21,14 @@ var log = new Log("blocks.tenant.register.add.ajax.add.jag");
             log.error(errorMsg, e);
             var responseObj = {};
             responseObj.error = true;
-            responseObj.message = errorMsg;           
+            responseObj.message = errorMsg;
             print(responseObj);
         }
-
     } else {
-		var errorMsg = "No Action Specified";
+        var errorMsg = "No Action Specified";
         log.error(errorMsg);
         var responseObj = {};
-        responseObj.error = true;        
+        responseObj.error = true;
         responseObj.message = errorMsg;
         print(responseObj);
     }

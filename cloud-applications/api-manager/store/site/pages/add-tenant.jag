@@ -1,9 +1,9 @@
 <%
 include("/jagg/jagg.jag");
 include("header.jag");
+
 var site = require("/site/conf/site.json");
 var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
-
 var tenantDomain = jagg.getTenantDomain();
 var confirmationKey = encoder.getSafeText(request.getParameter("confirmation"));
 var isInvitee = encoder.getSafeText(request.getParameter("isInvitee"));

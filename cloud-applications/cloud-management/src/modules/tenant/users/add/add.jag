@@ -421,7 +421,7 @@ var resendInvite = function resendInvite(email) {
         if (results != null && results != "") {
             var uuid = results[0]["uuid"];
             var userRoles = results[0]["roles"];
-            var link = getInvitationLink(tenantDomain, uuid, userRoles);
+            var link = getInvitationLink(tenantDomain, userRoles, uuid);
             sendEmail(email, link, displayName, userRoles);
             log.info("Re-sending invitation to invited user " + email +" successful")
             return true;

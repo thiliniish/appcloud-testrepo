@@ -54,7 +54,6 @@ function checkConfirmation() {
    }
 }
 
-
 function loginWithoutScreen() {
     var username = $("#email").val().replace('@', '.') + "@" + tenant;
     var password = $("#userPassword").val();
@@ -79,7 +78,6 @@ function loginWithoutScreen() {
                   }
     );
 }
-
 
 $(document).ready(function ($) {
     var clickwithblur = false;
@@ -107,9 +105,6 @@ $(document).ready(function ($) {
                                     },
                                     submitHandler: function (form) {
                                         doSubmit();
-                                    },
-                                    invalidHandler: function (event, validator) {
-                                        console.log("Invalid handler executed");
                                     }
                                 });
 
@@ -154,4 +149,5 @@ $(document).ready(function ($) {
     });
 
 });
+
 
