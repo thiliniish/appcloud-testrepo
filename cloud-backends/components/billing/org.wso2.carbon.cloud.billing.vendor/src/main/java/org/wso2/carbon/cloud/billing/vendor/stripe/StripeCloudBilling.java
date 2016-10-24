@@ -380,19 +380,53 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *                             "product": "api_cloud"
      *                             },
      *                             }
+     * @param isUpgrade            is Upgrade subscription
      * @return success Json string
      */
-    @Override public String updateSubscription(String subscriptionId, String subscriptionInfoJson)
+    @Override public String updateSubscription(String subscriptionId, String subscriptionInfoJson, boolean isUpgrade)
             throws CloudBillingVendorException {
+        JsonObject returnResponse = new JsonObject();
         try {
-            Subscription subscription = Subscription.retrieve(subscriptionId);
             subscriptionParams.clear();
             subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
-            return validateResponseString(subscription.update(subscriptionParams).toString());
+            Subscription subscription = Subscription.retrieve(subscriptionId);
+
+            //Remove discount if avail
+            if (subscription.getDiscount() != null) {
+                deleteSubscriptionDiscount(subscriptionId);
+            }
+            JsonObject response =
+                    new JsonParser().parse(validateResponseString(subscription.update(subscriptionParams).toString()))
+                                    .getAsJsonObject();
+            LOGGER.info("Subscription has being successfully updated for customer: " + subscription.getCustomer());
+
+            // if successfully update the if its and upgrade then immediately charge for the proration
+            if (response.get("id") != null && isUpgrade) {
+                JsonObject immediateChargeObject = new JsonObject();
+                immediateChargeObject.addProperty("description", "Prorated Charges");
+                immediateChargeObject.addProperty("customer", subscription.getCustomer());
+
+                String createInvoiceResponse = createInvoice(immediateChargeObject.toString());
+                JsonNode createInvoiceResponseObj = APICloudMonetizationUtils.getJsonList(createInvoiceResponse);
+                if (createInvoiceResponseObj.get("success").asBoolean()) {
+                    String chargeInvoiceResult = chargeInvoice(createInvoiceResponseObj.get("data").asText());
+                    JsonNode chargeInvoiceResultobj = APICloudMonetizationUtils.getJsonList(chargeInvoiceResult);
+                    if (chargeInvoiceResultobj.get("success").asBoolean()) {
+                        LOGGER.info(
+                                "Successfully charged the prorated amount for customer: " + subscription.getCustomer());
+                    }
+                }
+            }
+            returnResponse.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            returnResponse.add(BillingVendorConstants.RESPONSE_DATA, response);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
-                APIException ex) {
-            throw new CloudBillingVendorException("Error while updating subscription : ", ex);
+                APIException | IOException ex) {
+            returnResponse.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            returnResponse.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            returnResponse.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while updating subscription: " + subscriptionId, ex);
         }
+        return returnResponse.toString();
     }
 
     /**
@@ -620,6 +654,57 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
+     * Retrieve invoices associated with a customer
+     *
+     * @param invoiceInfoJson invoice creation info
+     * @return String of invoices id
+     */
+    @Override public String createInvoice(String invoiceInfoJson) throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
+        try {
+            Map<String, Object> invoiceParam = ObjectParams.setObjectParams(invoiceInfoJson);
+            Invoice invoice = Invoice.create(invoiceParam);
+            JsonObject invoiceJsonObj =
+                    new JsonParser().parse(validateResponseString(invoice.toString())).getAsJsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, invoiceJsonObj.get("id"));
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while creating the invoice : ", ex);
+        }
+        return response.toString();
+    }
+
+    /**
+     * Charge the customer associated with the given invoice
+     *
+     * @param invoiceId invoice id
+     * @returnjson string of invoice information
+     */
+    @Override public String chargeInvoice(String invoiceId) throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
+        try {
+
+            Invoice invoice = Invoice.retrieve(invoiceId);
+            Invoice invoiceData = invoice.pay();
+            JsonObject invoiceJsonObj =
+                    new JsonParser().parse(validateResponseString(invoiceData.toString())).getAsJsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, invoiceJsonObj);
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while charging for invoice: " + invoiceId, ex);
+        }
+        return response.toString();
+    }
+
+    /**
      * Get current plan subscribed to a service
      *
      * @param customerId customer id
@@ -804,18 +889,19 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                     invoiceItemObj.addProperty("Amount", invoiceItem.get("total").asText());
                     invoiceItemObj.addProperty("paid", invoiceItem.get("paid").asText());
                     invoiceArrayList.add(invoiceItemObj.toString());
-
-                    //get ChargeObject
-                    String chargeDetails = getChargedDetails(invoiceItem.get("charge").asText());
-                    JsonNode chargeObj = APICloudMonetizationUtils.getJsonList(chargeDetails);
-                    chargeItemObj.addProperty("type", chargeObj.get("data").get("source").get("object").asText());
-                    chargeItemObj.addProperty("effectiveDate",
-                                              convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
-                                                                   chargeObj.get("data").get("created").asLong()));
-                    chargeItemObj.addProperty("paymentNumber", chargeObj.get("data").get("id").asText());
-                    chargeItemObj.addProperty("invoiceNumber", invoiceItem.get("id").asText());
-                    chargeItemObj.addProperty("Status", chargeObj.get("data").get("status").asText());
-                    paymentArrayList.add(chargeItemObj.toString());
+                    if (invoiceItem.get("charge") != null) {
+                        //get ChargeObject
+                        String chargeDetails = getChargedDetails(invoiceItem.get("charge").asText());
+                        JsonNode chargeObj = APICloudMonetizationUtils.getJsonList(chargeDetails);
+                        chargeItemObj.addProperty("type", chargeObj.get("data").get("source").get("object").asText());
+                        chargeItemObj.addProperty("effectiveDate", convertUnixTimestamp(
+                                BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                chargeObj.get("data").get("created").asLong()));
+                        chargeItemObj.addProperty("paymentNumber", chargeObj.get("data").get("id").asText());
+                        chargeItemObj.addProperty("invoiceNumber", invoiceItem.get("id").asText());
+                        chargeItemObj.addProperty("Status", chargeObj.get("data").get("status").asText());
+                        paymentArrayList.add(chargeItemObj.toString());
+                    }
 
                 }
 
