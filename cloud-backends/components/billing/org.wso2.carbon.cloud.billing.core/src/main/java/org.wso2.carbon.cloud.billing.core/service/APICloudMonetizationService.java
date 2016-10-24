@@ -18,10 +18,15 @@
 
 package org.wso2.carbon.cloud.billing.core.service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
+import org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.core.utils.APICloudMonetizationUtils;
@@ -277,5 +282,69 @@ public class APICloudMonetizationService {
             throw new CloudBillingException(message, ex);
         }
     }
+
+    /**
+     * Retrieve rate plans information for api cloud for tenant
+     *
+     * @param tenantDomain tenant
+     * @return rate plan information in json
+     *[
+     *      {
+     *          "MaxDailyUsage": "10000",
+     *          "MonthlyRental": "5000.0",
+     *          "OverUsageUnits": "1000",
+     *          "OverUsageUnitsPrice": "5.0",
+     *          "RatePlanName": "Gold"
+     *      },
+     *      {
+     *          "MaxDailyUsage": "10000",
+     *          "MonthlyRental": "7000.0",
+     *          "OverUsageUnits": "1000",
+     *          "OverUsageUnitsPrice": "5.0",
+     *          "RatePlanName": "Platinum"
+     *      }
+     *]
+     * @throws CloudMonetizationException
+     */
+    public String getRatePlansInfo(String tenantDomain) throws CloudMonetizationException {
+        try {
+            String ratePlans = APICloudMonetizationUtils.getRatePlanInfo(tenantDomain);
+            if (StringUtils.isBlank(ratePlans)) {
+                return new JsonArray().toString();
+            }
+
+            JsonElement jsonElement = new JsonParser().parse(ratePlans);
+
+            if (!jsonElement.isJsonObject()) {
+                return new JsonArray().toString();
+            }
+            JsonElement entries = jsonElement.getAsJsonObject().get(MonetizationConstants.ENTRY);
+
+            if (entries == null || !entries.isJsonObject()) {
+                return new JsonArray().toString();
+            }
+
+            JsonElement ratePlanElements = entries.getAsJsonObject().get(MonetizationConstants.RATE_PLANS);
+
+            if (ratePlanElements == null) {
+                return new JsonArray().toString();
+            }
+
+            if (ratePlanElements.isJsonObject()) {
+                JsonArray ratePlansArray = new JsonArray();
+                ratePlansArray.add(ratePlanElements.getAsJsonObject());
+                return ratePlansArray.toString();
+            } else if (ratePlanElements.isJsonArray()) {
+                return ratePlanElements.getAsJsonArray().toString();
+            } else {
+                return new JsonArray().toString();
+            }
+
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error while getting Rate plans for tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
 
 }

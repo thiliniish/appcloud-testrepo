@@ -24,13 +24,13 @@ package org.wso2.carbon.cloud.monetization.apimgt.workflows;
 public final class CustomWorkFlowConstants {
 
     public static final String SUBSCRIBER_INFO_PAYLOAD =
-            "<ser:getAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+            "<ser:getAPISubscriberInfo xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
                     "  <ser:username>$1</ser:username>\n" +
                     "  <ser:tenantDomain>$2</ser:tenantDomain>\n" +
                     "</ser:getAPISubscriberInfo>";
 
     public static final String ADD_SUBSCRIBER_PAYLOAD =
-            "<ser:addAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+            "<ser:addAPISubscriberInfo xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
                     "  <ser:username>$1</ser:username>\n" +
                     "  <ser:tenantDomain>$2</ser:tenantDomain>\n" +
                     "  <ser:isTestAccount>$3</ser:isTestAccount>\n" +
@@ -38,7 +38,7 @@ public final class CustomWorkFlowConstants {
                     "</ser:addAPISubscriberInfo>";
 
     public static final String CANCEL_SUBSCRIPTION_PAYLOAD =
-            "<ser:cancelSubscription xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+            "<ser:cancelSubscription xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
                     " <ser:accountNumber>$1</ser:accountNumber>\n" +
                     " <ser:appName>$2</ser:appName>\n" +
                     " <ser:apiName>$3</ser:apiName>\n" +
@@ -46,13 +46,13 @@ public final class CustomWorkFlowConstants {
                     " </ser:cancelSubscription>";
 
     public static final String REMOVE_APP_SUBSCRIPTIONS_PAYLOAD =
-            "<ser:removeAppSubscriptions xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+            "<ser:removeAppSubscriptions xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
                     " <ser:accountNumber>$1</ser:accountNumber>\n" +
                     " <ser:appName>$2</ser:appName>\n" +
                     " </ser:removeAppSubscriptions>";
 
     public static final String CREATE_API_SUBSCRIPTION_PAYLOAD =
-            "<ser:createAPISubscription xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
+            "<ser:createAPISubscription xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
                     " <ser:accountNumber>$1</ser:accountNumber>\n" +
                     " <ser:tenantDomain>$2</ser:tenantDomain>\n" +
                     " <ser:tierName>$3</ser:tierName>\n" +

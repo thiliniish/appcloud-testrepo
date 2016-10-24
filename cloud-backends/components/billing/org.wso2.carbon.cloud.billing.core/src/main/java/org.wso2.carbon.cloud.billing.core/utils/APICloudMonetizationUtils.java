@@ -66,6 +66,7 @@ public final class APICloudMonetizationUtils {
     private static String subscriptionHistoryUri;
     private static String appSubscriptionsUri;
     private static String ratePlanUrl;
+    private static String ratePlanInfoUri;
 
     /*APIM Rest API URIs*/
     private static String tiersOfTenantUri;
@@ -87,8 +88,9 @@ public final class APICloudMonetizationUtils {
         subscriptionHistoryUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_API_SUBSCRIPTION_HISTORY);
         appSubscriptionsUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APP_SUBSCRIPTIONS);
         ratePlanUrl = cloudMonUri.concat(MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN);
+        ratePlanInfoUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APIC_RATE_PLANS);
 
-        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_THROTLING_TIERS);
+        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_THROTTLING_TIERS);
     }
 
     private APICloudMonetizationUtils() {
@@ -724,6 +726,22 @@ public final class APICloudMonetizationUtils {
             throw new CloudMonetizationException(
                     "Error occurred while calling the APIM Store Rest API for retrieving throttling tiers of tenant: " +
                     tenantDomain, e);
+        }
+    }
+
+    /**
+     * Retrieve Rate Plan Information
+     * @param tenantDomain
+     * @return
+     * @throws CloudMonetizationException
+     */
+    public static String getRatePlanInfo(String tenantDomain) throws CloudMonetizationException {
+        try {
+            String url = ratePlanInfoUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
+                                                 CloudBillingUtils.encodeUrlParam(tenantDomain));
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while retrieving rate plans for tenant: " + tenantDomain, e);
         }
     }
 

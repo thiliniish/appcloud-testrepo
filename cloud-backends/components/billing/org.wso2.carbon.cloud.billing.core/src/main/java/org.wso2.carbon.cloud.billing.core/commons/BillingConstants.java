@@ -242,6 +242,8 @@ public final class BillingConstants {
     /*API manager REST api suffixes*/
     public static final String APIM_ADMIN_REST_URI_TENANT_THROTLING_TIERS =
             "/admin/v0.10/throttling/policies/subscription";
+    public static final String APIM_ADMIN_REST_URI_TENANT_THROTTLING_TIERS =
+            "/store/v0.10/tiers/api";
 
     /*data service param names*/
     public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";
