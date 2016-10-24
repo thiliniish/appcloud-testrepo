@@ -263,7 +263,7 @@ var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Getting monetization usage data of apiVersion " + apiVersion + ", application: "
-                + applicationName + " for user: " + userId + ", from " + fromDate + " to " + toDate + ".");
+                        + applicationName + " for user: " + userId + ", from " + fromDate + " to " + toDate + ".");
             }
             if (apiVersion == "*") {
                 var api = "*";
@@ -633,7 +633,7 @@ var getAccountIdFromUserName = function (username) {
         log.error("Error while getting the account id from the username - " + username + " :");
         log.error(e);
         message = "Error while getting the account id from the username - " + username +
-        ", Please contact WSO2 Cloud Team for help";
+                ", Please contact WSO2 Cloud Team for help";
         return {
             error: true,
             statusCode: 500,
@@ -782,10 +782,9 @@ var getProductInfo = function (tenantDomain, productName) {
     billingService.queryProduct(tenantDomain, productName);
 };
 
-// Method which retrieves the current payment plan of the tenant
+// Retrieves the current payment plan name of the tenant
 var getCurrentPaymentPlan = function () {
     var serviceId = API_CLOUD;
-    var currentRatePlanId = null;
     try {
         var ratePlans = modBilling.getCurrentRatePlan(serviceId);
         var paymentPlanName = null;
@@ -839,11 +838,6 @@ var createProductRatePlan = function (ratePlanName, price, throttlingLimit, mont
             overageCharge, description);
 };
 
-// Function for get the names of thw throttling tiers
-var getThrottlingTiersOfTenant = function (tenantDomain) {
-    return billingService.getThrottlingTiersOfTenant(tenantDomain);
-};
-
 // Function to get the number of product plans available for the given tenant.
 var getNumberOfProductPlansForTenant = function (tenantDomain) {
     var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
@@ -888,15 +882,15 @@ var getProductPlans = function () {
         var planList = [];
         for (var index in tiersList) {
             var tmpPlanList = {};
-            if (tiersList[index].BillingPlan == null) {
-                tiersList[index].BillingPlan = FREE_TIER;
+            if (tiersList[index].billingPlan == null) {
+                tiersList[index].billingPlan = FREE_TIER;
             }
-            tmpPlanList.planName = tiersList[index].tierName;
-            tmpPlanList.billingActive = tiersList[index].BillingPlan;
+            tmpPlanList.planName = tiersList[index].policyName;
+            tmpPlanList.billingActive = tiersList[index].billingPlan;
             var isAvailable = false;
             if (result != null) {
                 for (var count in result) {
-                    if (result[count].RATE_PLAN_NAME == tiersList[index].tierName) {
+                    if (result[count].RATE_PLAN_NAME == tiersList[index].policyName) {
                         isAvailable = true;
                         tmpPlanList.dailyLimit = result[count].MAX_DAILY_USAGE;
                         tmpPlanList.price = result[count].MONTHLY_RENTAL;
@@ -936,7 +930,8 @@ var getProductPlans = function () {
 var getTiersOfTenant = function () {
     try {
         var tenantDomain = modManager.getTenantDomain();
-        var tiersList = JSON.parse(monetizationService.getTiersOfTenant(tenantDomain));
+        var result = JSON.parse(monetizationService.getTiersOfTenant(tenantDomain));
+        var tiersList = result["list"];
         var msg = "Successfully retrieved the product plan list at the tenant " +tenantDomain;
         return {
             error: false,

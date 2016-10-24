@@ -187,17 +187,36 @@
         %>
                 <ul class="dropdown-menu dropdown-menu-right float-remove-xs position-static-xs text-center-xs remove-margin-xs slideInDown" role="menu">
         <%
-                    for (var dropsDown in dropDowns) {
-                        var dropDownUrl = dropDowns[dropsDown].url;
-                        var dropDownIcon = dropDowns[dropsDown].icon;
-                        var dropDownTarget = dropDowns[dropsDown].target;
+                    for (var dropDown in dropDowns) {
+                        var dropDownUrl = dropDowns[dropDown].url;
+                        var dropDownIcon = dropDowns[dropDown].icon;
+                        var dropDownTarget = dropDowns[dropDown].target;
+                        if (attr == "Account" && accountContent == "Account"){
+                            if (dropDown == "Request Extension") {
+                                //do not show Request Extension if Billing is enabled
+                            } else {
+                                if (dropDown == "Upgrade Now") {
+                                    dropDownUrl = (dropDownUrl.split("?")[0]).replace("payment-plans", "account-summary");
+                                    dropDown = "Account Summary";
+                                }
         %>
                     <li>
-                        <a title="<%=dropsDown%>" href="<%=dropDownUrl%>" target="<%=dropDownTarget%>">
-                            <i class="<%=dropDownIcon%>" title="<%=dropsDown%>"></i> <%=dropsDown%>
+                        <a title="<%=dropDown%>" href="<%=dropDownUrl%>" target="<%=dropDownTarget%>">
+                            <i class="<%=dropDownIcon%>" title="<%=dropDown%>"></i> <%=dropDown%>
                         </a>
                     </li>
         <%
+                            }
+                        } else {
+        %>
+                    <li>
+                        <a title="<%=dropDown%>" href="<%=dropDownUrl%>" target="<%=dropDownTarget%>">
+                            <i class="<%=dropDownIcon%>" title="<%=dropDown%>"></i> <%=dropDown%>
+                        </a>
+                    </li>
+        <%
+
+                        }
                     }
         %>
                 </ul>
@@ -249,14 +268,14 @@
                 <ul class="dropdown-menu dropdown-menu-right float-remove-xs position-static-xs text-center-xs remove-margin-xs slideInDown" role="menu">
         <%
             var userDropDowns = userMenu.dropDown;
-            for (var dropDown in userDropDowns) {
-                var icon = userDropDowns[dropDown].icon;
-                var url = userDropDowns[dropDown].url;
-                var target = userDropDowns[dropDown].target;
+            for (var userDropDown in userDropDowns) {
+                var icon = userDropDowns[userDropDown].icon;
+                var url = userDropDowns[userDropDown].url;
+                var target = userDropDowns[userDropDown].target;
         %>
                     <li>
-                        <a title="<%=dropDown%>" href="<%=url%>" target="<%=target%>">
-                            <i class="<%=icon%>" title="<%=dropDown%>"></i> <%=dropDown%>
+                        <a title="<%=userDropDown%>" href="<%=url%>" target="<%=target%>">
+                            <i class="<%=icon%>" title="<%=userDropDown%>"></i> <%=userDropDown%>
                         </a>
                     </li>
         <%

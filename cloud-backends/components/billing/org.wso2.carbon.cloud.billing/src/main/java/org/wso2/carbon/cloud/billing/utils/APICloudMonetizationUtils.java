@@ -261,47 +261,17 @@ public final class APICloudMonetizationUtils {
      * @throws CloudMonetizationException
      */
     public static List<String> getFreeTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
-        try {
-            Resource tiersXmlResource = CloudBillingUtils
-                    .getRegistryResource(tenantDomain, MonetizationConstants.TIERS_XML_URL);
-            if (tiersXmlResource != null) {
-                String content = new String((byte[]) tiersXmlResource.getContent(), BillingConstants.ENCODING);
-                List<String> freeTiers = new ArrayList<>();
-                OMElement element = AXIOMUtil.stringToOM(content);
-                OMElement assertion = element.getFirstChildWithName(MonetizationConstants.ASSERTION_ELEMENT);
-                Iterator policies = assertion.getChildrenWithName(MonetizationConstants.POLICY_ELEMENT);
-                while (policies.hasNext()) {
-                    OMElement attributes = null;
-                    OMElement policy = (OMElement) policies.next();
-                    OMElement id = policy.getFirstChildWithName(MonetizationConstants.THROTTLE_ID_ELEMENT);
-                    String tierName = id.getText();
-                    if (MonetizationConstants.UNAUTHENTICATED.equalsIgnoreCase(tierName)) {
-                        continue;
-                    }
-                    OMElement tier = policy.getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
-                            .getFirstChildWithName(MonetizationConstants.THROTTLE_CONTROL_ELEMENT)
-                            .getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT)
-                            .getFirstChildWithName(MonetizationConstants.POLICY_ELEMENT);
-                    if (tier != null) {
-                        attributes = tier.getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_ELEMENT);
-                    }
-                    if (attributes != null) {
-                        OMElement billingPlan = attributes
-                                .getFirstChildWithName(MonetizationConstants.THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT);
-                        if (billingPlan != null && MonetizationConstants.FREE.equals(billingPlan.getText())) {
-                            freeTiers.add(tierName);
-                        }
-                    }
-                }
-                return freeTiers;
-            } else {
-                throw new CloudMonetizationException(
-                        "tiers.xml file could not be loaded for tenant " + tenantDomain + ".");
+        List<String> freeTiers = new ArrayList<>();
+        JsonElement tiersObject = new JsonParser().parse(getTiersOfTenant(tenantDomain));
+        JsonArray tiersArray = tiersObject.getAsJsonObject().getAsJsonArray("list");
+        for (int i = 0; i < tiersArray.size(); i++) {
+            String tierName = tiersArray.get(i).getAsJsonObject().get("policyName").getAsString();
+            String billingPlan = tiersArray.get(i).getAsJsonObject().get("billingPlan").getAsString();
+            if (StringUtils.isNotBlank(billingPlan) && MonetizationConstants.FREE.equals(billingPlan)) {
+                freeTiers.add(tierName);
             }
-        } catch (CloudBillingException | RegistryException | XMLStreamException | UnsupportedEncodingException e) {
-            throw new CloudMonetizationException(
-                    "Error occurred while getting free tiers of tenant: " + tenantDomain + ".", e);
         }
+        return freeTiers;
     }
 
     /**
