@@ -19,11 +19,6 @@ package org.wso2.carbon.cloud.billing.core.service;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -117,11 +112,11 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     /**
      * Create the Customer for monetization customer
      *
-     * @param tenantDomain tenant domain
+     * @param tenantDomain     tenant domain
      * @param customerInfoJson customer details
      * @return success Json string
      */
-    public String createCustomer(String tenantDomain,String customerInfoJson) throws CloudBillingException {
+    public String createCustomer(String tenantDomain, String customerInfoJson) throws CloudBillingException {
         try {
             return init(tenantDomain).createCustomer(customerInfoJson);
         } catch (CloudBillingException ex) {
@@ -183,12 +178,12 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     /**
      * Create rate plan for the Product
      *
-     * @param tenantDomain tenant domain
+     * @param tenantDomain     tenant domain
      * @param ratePlanInfoJson rate-plan details
      * @return success json string
      */
-    @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson) throws
-                                                                                           CloudBillingException {
+    @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson)
+            throws CloudBillingException {
         try {
             return init(tenantDomain).createProductRatePlan(tenantDomain, ratePlanInfoJson);
         } catch (CloudBillingException ex) {
@@ -221,8 +216,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      * @param ratePlanInfoJson rate-plan details
      * @return success json string
      */
-    @Override public String updateProductRatePlan(String planId, String ratePlanInfoJson) throws
-                                                                                          CloudBillingException {
+    @Override public String updateProductRatePlan(String planId, String ratePlanInfoJson) throws CloudBillingException {
         try {
             return init().updateProductRatePlan(planId, ratePlanInfoJson);
         } catch (CloudBillingException ex) {
@@ -307,8 +301,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         try {
             return init().retrieveCouponInfo(couponID);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while retrieving the coupons information of the coupon : " + couponID,
-                         ex);
+            LOGGER.error("Error occurred while retrieving the coupons information of the coupon : " + couponID, ex);
             throw ex;
         }
     }
@@ -442,8 +435,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      * @param paymentMethodInfoJson payment method details
      * @return success Json string
      */
-    @Override public String updatePaymentMethod(String customerId, String paymentMethodId, String
-            paymentMethodInfoJson)
+    @Override public String updatePaymentMethod(String customerId, String paymentMethodId, String paymentMethodInfoJson)
             throws CloudBillingException {
         try {
             return init().updatePaymentMethod(customerId, paymentMethodId, paymentMethodInfoJson);
@@ -581,15 +573,15 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     }
 
     //// TODO: 10/8/16 Verify this method
-//    /**
-//     * Validate service id
-//     *
-//     * @param serviceId service Id
-//     * @return success boolean
-//     */
-//    public boolean validateServiceId(String serviceId) {
-//        return CloudBillingServiceUtils.validateServiceId(serviceId);
-//    }
+    //    /**
+    //     * Validate service id
+    //     *
+    //     * @param serviceId service Id
+    //     * @return success boolean
+    //     */
+    //    public boolean validateServiceId(String serviceId) {
+    //        return CloudBillingServiceUtils.validateServiceId(serviceId);
+    //    }
 
     /**
      * Method to get that the billing functionality enable/disable status
@@ -638,45 +630,41 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         String testAccountDeletionEmailFileName = MonetizationConstants.TEST_ACCOUNT_DELETION_EMAIL_FILE_NAME;
         String subscriptionNotificationEmailFileName = MonetizationConstants.SUBSCRIPTION_NOTIFICATION_EMAIL_FILE_NAME;
         String textContentType = BillingConstants.TEXT_PLAIN_CONTENT_TYPE;
-            // Create the monetization Account
-            boolean accountCreationResponse = Boolean.parseBoolean(createMonetizationAccount(customerId,
-                    stripeAuthCode));
-            if (accountCreationResponse) {
-                status = true;
-                // Add subscriptionCreation element to workflowExtension.xml in registry
-                if (!updateWorkFlow(MonetizationConstants.TAG_SUBSCRIPTION_CREATION, MonetizationConstants
-                                            .SUBSCRIPTION_CREATION_EXECUTOR, tenantPassword, tenantDisplayName,
-                                    tenantDomain)) {
-                    LOGGER.error(
-                            "Registry WorkflowExtension.xml update failed for subscription creation while enabling " +
-                            "Monetization.");
-                }
-                // Add subscriptionDeletion element to workflowExtension.xml in registry
-                if (!updateWorkFlow(MonetizationConstants.TAG_SUBSCRIPTION_DELETION, MonetizationConstants
-                                            .SUBSCRIPTION_DELETION_EXECUTOR,  tenantPassword, tenantDisplayName,
-                                    tenantDomain)) {
-                    LOGGER.error(
-                            "Registry WorkflowExtension.xml update failed for subscription deletion while enabling " +
-                            "Monetization.");
-                }
-                // Add applicationDeletion element to workflowExtension.xml in registry
-                if (!updateWorkFlow(MonetizationConstants.TAG_APPLICATION_DELETION, MonetizationConstants
-                                            .APLLICATION_DELETION_EXECUTOR,  tenantPassword, tenantDisplayName,
-                                    tenantDomain)) {
-                    LOGGER.error(
-                            "Registry WorkflowExtension.xml update failed for application deletion while enabling " +
-                            "Monetization.");
-                }
-                if (!createEmailFileInRegistry(tenantDomain, subscriptionNotificationEmailFileName, textContentType)) {
-                    LOGGER.error("Creating the registry file " + subscriptionNotificationEmailFileName + " failed.");
-                }
-                if (!createEmailFileInRegistry(tenantDomain, testAccountCreationEmailFileName, textContentType)) {
-                    LOGGER.error("Creating the registry file " + testAccountCreationEmailFileName + " failed.");
-                }
-                if (!createEmailFileInRegistry(tenantDomain, testAccountDeletionEmailFileName, textContentType)) {
-                    LOGGER.error("Creating the registry file " + testAccountDeletionEmailFileName + " failed.");
-                }
+        // Create the monetization Account
+        boolean accountCreationResponse = Boolean.parseBoolean(createMonetizationAccount(customerId, stripeAuthCode));
+        if (accountCreationResponse) {
+            status = true;
+            // Add subscriptionCreation element to workflowExtension.xml in registry
+            if (!updateWorkFlow(MonetizationConstants.TAG_SUBSCRIPTION_CREATION,
+                                MonetizationConstants.SUBSCRIPTION_CREATION_EXECUTOR, tenantPassword, tenantDisplayName,
+                                tenantDomain)) {
+                LOGGER.error("Registry WorkflowExtension.xml update failed for subscription creation while enabling " +
+                             "Monetization.");
             }
+            // Add subscriptionDeletion element to workflowExtension.xml in registry
+            if (!updateWorkFlow(MonetizationConstants.TAG_SUBSCRIPTION_DELETION,
+                                MonetizationConstants.SUBSCRIPTION_DELETION_EXECUTOR, tenantPassword, tenantDisplayName,
+                                tenantDomain)) {
+                LOGGER.error("Registry WorkflowExtension.xml update failed for subscription deletion while enabling " +
+                             "Monetization.");
+            }
+            // Add applicationDeletion element to workflowExtension.xml in registry
+            if (!updateWorkFlow(MonetizationConstants.TAG_APPLICATION_DELETION,
+                                MonetizationConstants.APLLICATION_DELETION_EXECUTOR, tenantPassword, tenantDisplayName,
+                                tenantDomain)) {
+                LOGGER.error("Registry WorkflowExtension.xml update failed for application deletion while enabling " +
+                             "Monetization.");
+            }
+            if (!createEmailFileInRegistry(tenantDomain, subscriptionNotificationEmailFileName, textContentType)) {
+                LOGGER.error("Creating the registry file " + subscriptionNotificationEmailFileName + " failed.");
+            }
+            if (!createEmailFileInRegistry(tenantDomain, testAccountCreationEmailFileName, textContentType)) {
+                LOGGER.error("Creating the registry file " + testAccountCreationEmailFileName + " failed.");
+            }
+            if (!createEmailFileInRegistry(tenantDomain, testAccountDeletionEmailFileName, textContentType)) {
+                LOGGER.error("Creating the registry file " + testAccountDeletionEmailFileName + " failed.");
+            }
+        }
         return status;
     }
 
@@ -719,9 +707,8 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             newElement.setAttribute(MonetizationConstants.ATTRIBUTE_EXECUTOR, executor);
             // Add ServiceUrl Property tag
             Element propertyServiceUrl = doc.createElement(MonetizationConstants.ATTRIBUTE_PROPERTY);
-            propertyServiceUrl
-                    .setAttribute(MonetizationConstants.ATTRIBUTE_NAME,
-                                  MonetizationConstants.PROPERTY_SERVICE_END_POINT);
+            propertyServiceUrl.setAttribute(MonetizationConstants.ATTRIBUTE_NAME,
+                                            MonetizationConstants.PROPERTY_SERVICE_END_POINT);
             // Get ServiceUrl from config files
             BillingConfig billingConfig = BillingConfigManager.getBillingConfiguration();
             DataServiceConfig dataServiceConfig = billingConfig.getDataServiceConfig();
@@ -780,8 +767,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         String registryPath = MonetizationConstants.EMAIL_FILE_BASE_URL + emailFileName;
         try {
             String emailContent = fileContentReader.fileReader(emailFilePath);
-            return CloudBillingUtils.createRegistryResource(tenantDomain, registryPath, emailContent,
-                                                            emailContentType,
+            return CloudBillingUtils.createRegistryResource(tenantDomain, registryPath, emailContent, emailContentType,
                                                             BillingConstants.GOVERNANCE_REGISTRY);
         } catch (Exception e) {
             throw new CloudBillingException(
@@ -799,8 +785,8 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
 
         // Get the tenant-conf resource url
         String tenantConfUrl = MonetizationConstants.TENANT_CONF_URL;
-        Resource tenantConfResource = CloudBillingUtils
-                .getRegistryResource(tenantDomain, tenantConfUrl, BillingConstants.CONFIG_REGISTRY);
+        Resource tenantConfResource =
+                CloudBillingUtils.getRegistryResource(tenantDomain, tenantConfUrl, BillingConstants.CONFIG_REGISTRY);
 
         // Get the resource content
         try {
@@ -876,7 +862,14 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         try {
             return CloudBillingSecurity.generateHash(data, mdAlgorithm);
         } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while generating hash value ", ex);
+            throw ex;
+        }
+    }
+
+    public boolean validateHash(String token, String tokenHash, String mdAlgorithm) throws CloudBillingException {
+        try {
+            return CloudBillingSecurity.validateHash(token, tokenHash, mdAlgorithm);
+        } catch (CloudBillingException ex) {
             throw ex;
         }
     }

@@ -35,7 +35,6 @@ import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
 import java.io.File;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -92,8 +91,8 @@ public class BillingConfigManager {
     private static BillingConfig loadBillingConfig() throws CloudBillingException {
         try {
             String configLocation =
-                    CarbonUtils.getCarbonConfigDirPath() + File.separator + BillingConstants.CLOUD_CONFIG_FOLDER
-                            + File.separator + BillingConstants.CONFIG_FILE_NAME;
+                    CarbonUtils.getCarbonConfigDirPath() + File.separator + BillingConstants.CLOUD_CONFIG_FOLDER +
+                    File.separator + BillingConstants.CONFIG_FILE_NAME;
 
             File billingConfig = new File(configLocation);
             Document doc = convertToDocument(billingConfig);
@@ -123,8 +122,8 @@ public class BillingConfigManager {
             return docBuilder.parse(file);
         } catch (Exception e) {
             throw new CloudBillingException(
-                    "Error occurred while parsing file, while converting " + "to a org.w3c.dom.Document : " + e
-                            .getMessage(), e);
+                    "Error occurred while parsing file, while converting " + "to a org.w3c.dom.Document : " +
+                    e.getMessage(), e);
         }
     }
 
@@ -147,7 +146,8 @@ public class BillingConfigManager {
      */
     private static void secureLoadElement(Element element) {
         Attr secureAttr = element.getAttributeNodeNS(BillingConstants.SecureValueProperties.SECURE_VAULT_NS,
-                BillingConstants.SecureValueProperties.SECRET_ALIAS_ATTRIBUTE_NAME_WITH_NAMESPACE);
+                                                     BillingConstants.SecureValueProperties
+                                                             .SECRET_ALIAS_ATTRIBUTE_NAME_WITH_NAMESPACE);
         if (secureAttr != null) {
             element.setTextContent(loadFromSecureVault(secureAttr.getValue()));
             element.removeAttributeNode(secureAttr);

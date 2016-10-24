@@ -21,6 +21,9 @@ package org.wso2.carbon.cloud.billing.vendor.commons.config;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * OAuth Endpoint Config Reader
+ */
 @XmlRootElement(name = "OAuthEndpoint") public class OAuthEndpointConfig {
 
     private HttpClientConfig httpClientConfig;

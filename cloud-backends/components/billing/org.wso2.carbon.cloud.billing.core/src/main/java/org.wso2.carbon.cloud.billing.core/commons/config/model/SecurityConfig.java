@@ -24,11 +24,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Represents the Security Configurations
  */
-@XmlRootElement(name = "Security")
-public class SecurityConfig {
+@XmlRootElement(name = "Security") public class SecurityConfig {
 
-    @XmlElement(name = "TrustStore", nillable = true)
-    private TrustStore trustStore;
+    @XmlElement(name = "TrustStore", nillable = true) private TrustStore trustStore;
 
     public TrustStore getTrustStore() {
         return trustStore;

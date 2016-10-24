@@ -118,12 +118,11 @@ public final class CloudBillingUtils {
                     return resource;
                 } else {
                     throw new CloudBillingException(
-                            "Unable to find the registry resource in the given location: " + resourceUrl
-                            + " for tenant domain: " + tenantDomain);
+                            "Unable to find the registry resource in the given location: " + resourceUrl +
+                            " for tenant domain: " + tenantDomain);
                 }
             } else {
-                throw new CloudBillingException(
-                        "Error while retrieving tenant id for tenant domain: " + tenantDomain);
+                throw new CloudBillingException("Error while retrieving tenant id for tenant domain: " + tenantDomain);
             }
         } catch (RegistryException | UserStoreException e) {
             throw new CloudBillingException(

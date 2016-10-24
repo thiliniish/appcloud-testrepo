@@ -37,8 +37,9 @@ public class ProcessorUtils {
     private static final Log LOGGER = LogFactory.getLog(ProcessorUtils.class);
     private static final String NOT_FOUND_ERROR_MSG =
             "Failed with HTTP error code : " + HttpURLConnection.HTTP_NOT_FOUND + " (Not Found). URI is incorrect.";
-    private static final String AUTH_ERROR_MSG = "Failed with HTTP error code : " + HttpURLConnection.HTTP_UNAUTHORIZED
-            + " (Unauthorized). Credentials used are incorrect.";
+    private static final String AUTH_ERROR_MSG =
+            "Failed with HTTP error code : " + HttpURLConnection.HTTP_UNAUTHORIZED +
+            " (Unauthorized). Credentials used are incorrect.";
 
     private ProcessorUtils() {
     }
@@ -53,7 +54,7 @@ public class ProcessorUtils {
      * @throws CloudBillingVendorException
      */
     public static String executeHTTPMethodWithRetry(HttpClient httpClient, HttpMethodBase httpMethod,
-            int executionCount) throws CloudBillingVendorException {
+                                                    int executionCount) throws CloudBillingVendorException {
 
         int response;
         int retryCount = 0;
@@ -66,27 +67,27 @@ public class ProcessorUtils {
                 response = httpClient.executeMethod(httpMethod);
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("HTTP response code for the " + methodName + " request to URL: " + url + " is " +
-                            response);
+                                 response);
                 }
                 switch (response) {
-                case HttpURLConnection.HTTP_OK:
-                    return handleCaseHTTPOk(httpMethod);
+                    case HttpURLConnection.HTTP_OK:
+                        return handleCaseHTTPOk(httpMethod);
 
-                case HttpURLConnection.HTTP_ACCEPTED:
-                    //Reason : https://wso2.org/jira/browse/DS-886
-                    httpMethod.releaseConnection();
-                    return String.valueOf(response);
+                    case HttpURLConnection.HTTP_ACCEPTED:
+                        //Reason : https://wso2.org/jira/browse/DS-886
+                        httpMethod.releaseConnection();
+                        return String.valueOf(response);
 
-                case HttpURLConnection.HTTP_NOT_FOUND:
-                    throw new CloudBillingVendorException(NOT_FOUND_ERROR_MSG);
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                        throw new CloudBillingVendorException(NOT_FOUND_ERROR_MSG);
 
-                case HttpURLConnection.HTTP_UNAUTHORIZED:
-                    throw new CloudBillingVendorException(AUTH_ERROR_MSG);
+                    case HttpURLConnection.HTTP_UNAUTHORIZED:
+                        throw new CloudBillingVendorException(AUTH_ERROR_MSG);
 
-                default:
-                    retryCount++;
-                    handleDefaultCase(executionCount, response, retryCount, methodName, url);
-                    break;
+                    default:
+                        retryCount++;
+                        handleDefaultCase(executionCount, response, retryCount, methodName, url);
+                        break;
                 }
                 httpMethod.releaseConnection();
             } catch (CloudBillingVendorException ex) {
@@ -123,23 +124,23 @@ public class ProcessorUtils {
                 LOGGER.debug("HTTP response code for the " + methodName + " request: " + uri + " is " + response);
             }
             switch (response) {
-            case HttpURLConnection.HTTP_OK:
-                return handleCaseHTTPOk(httpMethod);
+                case HttpURLConnection.HTTP_OK:
+                    return handleCaseHTTPOk(httpMethod);
 
-            case HttpURLConnection.HTTP_ACCEPTED:
-                //Reason : https://wso2.org/jira/browse/DS-886
-                httpMethod.releaseConnection();
-                return String.valueOf(response);
+                case HttpURLConnection.HTTP_ACCEPTED:
+                    //Reason : https://wso2.org/jira/browse/DS-886
+                    httpMethod.releaseConnection();
+                    return String.valueOf(response);
 
-            case HttpURLConnection.HTTP_NOT_FOUND:
-                throw new CloudBillingVendorException(NOT_FOUND_ERROR_MSG);
+                case HttpURLConnection.HTTP_NOT_FOUND:
+                    throw new CloudBillingVendorException(NOT_FOUND_ERROR_MSG);
 
-            case HttpURLConnection.HTTP_UNAUTHORIZED:
-                throw new CloudBillingVendorException(AUTH_ERROR_MSG);
+                case HttpURLConnection.HTTP_UNAUTHORIZED:
+                    throw new CloudBillingVendorException(AUTH_ERROR_MSG);
 
-            default:
-                throw new CloudBillingVendorException(
-                        methodName + " request failed for URI: " + uri + " with HTTP error code : " + response);
+                default:
+                    throw new CloudBillingVendorException(
+                            methodName + " request failed for URI: " + uri + " with HTTP error code : " + response);
             }
         } catch (CloudBillingVendorException ex) {
             throw ex;
@@ -177,13 +178,13 @@ public class ProcessorUtils {
      * @throws CloudBillingVendorException
      */
     private static void handleExceptionWithRetry(int executionCount, int retryCount, String methodName, String uri,
-            Exception ex) throws CloudBillingVendorException {
+                                                 Exception ex) throws CloudBillingVendorException {
         if (retryCount >= executionCount) {
             throw new CloudBillingVendorException(methodName + " request failed for the maximum no. of attempts(" +
-                    retryCount + ") for URL: " + uri, ex);
+                                                  retryCount + ") for URL: " + uri, ex);
         } else {
-            LOGGER.warn(methodName + " request failed for URL: " + uri + " with exception : " + ex.getMessage()
-                    + ". Retry attempt: " + retryCount + "/" + executionCount);
+            LOGGER.warn(methodName + " request failed for URL: " + uri + " with exception : " + ex.getMessage() +
+                        ". Retry attempt: " + retryCount + "/" + executionCount);
         }
     }
 
@@ -198,14 +199,14 @@ public class ProcessorUtils {
      * @throws CloudBillingVendorException
      */
     private static void handleDefaultCase(int executionCount, int response, int retryCount, String methodName,
-            String uri) throws CloudBillingVendorException {
+                                          String uri) throws CloudBillingVendorException {
         if (retryCount >= executionCount) {
             throw new CloudBillingVendorException(
                     methodName + " request failed for the " + retryCount + " attempt for URI:" +
-                            " " + uri + " with HTTP error code: " + response);
+                    " " + uri + " with HTTP error code: " + response);
         } else {
             LOGGER.warn(methodName + " request failed for URI: " + uri + " with HTTP error code: " +
-                    response + ". Retry: " + retryCount + "/" + executionCount);
+                        response + ". Retry: " + retryCount + "/" + executionCount);
         }
     }
 

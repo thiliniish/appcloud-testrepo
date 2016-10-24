@@ -128,7 +128,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             String apiInfo = URLEncoder
                     .encode(getEncryptionInfo(subscriptionWorkflowDTO), CustomWorkFlowConstants.ENCODING);
             //Check subscriber information availability
-            if (responseObj.isJsonObject()) {
+            if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBER_OBJ) != null) {
                 JsonObject subscriberJsonObj = responseObj.get(CustomWorkFlowConstants.SUBSCRIBER_OBJ)
                         .getAsJsonObject();
                 boolean isTestAccount = subscriberJsonObj.get(CustomWorkFlowConstants.IS_TEST_ACCOUNT_PROPERTY)

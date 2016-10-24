@@ -39,8 +39,6 @@ import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.core.processor.DataServiceBillingRequestProcessor;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,6 +46,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud monetization service
@@ -66,20 +66,21 @@ public final class APICloudMonetizationUtils {
     private static String subscriptionHistoryUri;
     private static String appSubscriptionsUri;
     private static String ratePlanUrl;
+    private static String ratePlanInfoUri;
 
     /*APIM Rest API URIs*/
     private static String tiersOfTenantUri;
 
     static {
-        dsBRProcessor = BillingRequestProcessorFactory.getInstance()
-                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
-        apimRestRequestProcessor = BillingRequestProcessorFactory.getInstance()
-                .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.APIM_REST);
+        dsBRProcessor = BillingRequestProcessorFactory.getInstance().getBillingRequestProcessor(
+                BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+        apimRestRequestProcessor = BillingRequestProcessorFactory.getInstance().getBillingRequestProcessor(
+                BillingRequestProcessorFactory.ProcessorType.APIM_REST);
 
-        String cloudMonUri = BillingConfigManager.getBillingConfiguration().getDataServiceConfig()
-                .getCloudMonetizationServiceUri();
+        String cloudMonUri =
+                BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudMonetizationServiceUri();
         String apiCloudMonUri = BillingConfigManager.getBillingConfiguration().getDataServiceConfig()
-                .getApiCloudMonetizationServiceUri();
+                                                    .getApiCloudMonetizationServiceUri();
         String apimRestUri = BillingConfigManager.getBillingConfiguration().getApimRestAPIConfig().getRestServiceUri();
 
         subscribersUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_MON_APIC_SUBSCRIBER);
@@ -87,8 +88,9 @@ public final class APICloudMonetizationUtils {
         subscriptionHistoryUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_API_SUBSCRIPTION_HISTORY);
         appSubscriptionsUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APP_SUBSCRIPTIONS);
         ratePlanUrl = cloudMonUri.concat(MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN);
+        ratePlanInfoUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APIC_RATE_PLANS);
 
-        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_THROTLING_TIERS);
+        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_BASIC_THROTTLING_TIERS);
     }
 
     private APICloudMonetizationUtils() {
@@ -109,22 +111,22 @@ public final class APICloudMonetizationUtils {
 
         try {
             String url = subscribersUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                    CloudBillingUtils.encodeUrlParam(tenantDomain))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
-                            CloudBillingUtils.encodeUrlParam(username));
+                                                CloudBillingUtils.encodeUrlParam(tenantDomain))
+                                       .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
+                                                CloudBillingUtils.encodeUrlParam(username));
             String dbResponse = dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
             JsonElement dbResponseElement = new JsonParser().parse(dbResponse);
 
             if (dbResponseElement == null || dbResponseElement.isJsonPrimitive()) {
                 throw new CloudMonetizationException(
-                        "API Subscriber information unavailable for the User : " + username + ", For Tenant : "
-                                + tenantDomain);
+                        "API Subscriber information unavailable for the User : " + username + ", For Tenant : " +
+                        tenantDomain);
             }
 
-            if (dbResponseElement.isJsonObject() && dbResponseElement.getAsJsonObject()
-                    .get(MonetizationConstants.SUBSCRIBERS).isJsonPrimitive()) {
-                String msg = "API Subscriber information unavailable for the User : " + username + ", For Tenant : "
-                        + tenantDomain;
+            if (dbResponseElement.isJsonObject() &&
+                dbResponseElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIBERS).isJsonPrimitive()) {
+                String msg = "API Subscriber information unavailable for the User : " + username + ", For Tenant : " +
+                             tenantDomain;
                 LOGGER.warn(msg);
                 responseObj.addProperty(MonetizationConstants.RESPONSE_SUCCESS, false);
                 responseObj.addProperty(MonetizationConstants.RESPONSE_MESSAGE, msg);
@@ -157,29 +159,30 @@ public final class APICloudMonetizationUtils {
      * @throws CloudMonetizationException
      */
     public static boolean updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-            String accountNumber, boolean isExistingUser) throws CloudMonetizationException {
+                                                  String accountNumber, boolean isExistingUser)
+            throws CloudMonetizationException {
         try {
             String url = subscribersUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                    CloudBillingUtils.encodeUrlParam(tenantDomain))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
-                            CloudBillingUtils.encodeUrlParam(username));
+                                                CloudBillingUtils.encodeUrlParam(tenantDomain))
+                                       .replace(MonetizationConstants.RESOURCE_IDENTIFIER_USERNAME,
+                                                CloudBillingUtils.encodeUrlParam(username));
             List<NameValuePair> nameValuePairs = new ArrayList<>();
-            NameValuePair testAccountNVP = new NameValuePair(MonetizationConstants.PARAM_IS_TEST_ACCOUNT,
-                    String.valueOf(isTestAccount));
+            NameValuePair testAccountNVP =
+                    new NameValuePair(MonetizationConstants.PARAM_IS_TEST_ACCOUNT, String.valueOf(isTestAccount));
             nameValuePairs.add(testAccountNVP);
 
             if (StringUtils.isNotBlank(accountNumber)) {
-                NameValuePair accountNumberNVP = new NameValuePair(BillingConstants.PARAM_ACCOUNT_NUMBER,
-                        accountNumber.trim());
+                NameValuePair accountNumberNVP =
+                        new NameValuePair(BillingConstants.PARAM_ACCOUNT_NUMBER, accountNumber.trim());
                 nameValuePairs.add(accountNumberNVP);
             }
             String response;
             if (!isExistingUser) {
                 response = dsBRProcessor.doPost(url, BillingConstants.HTTP_TYPE_APPLICATION_XML,
-                        nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                                                nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             } else {
                 response = dsBRProcessor.doPut(url, BillingConstants.HTTP_TYPE_APPLICATION_XML,
-                        nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+                                               nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
             }
 
             return DataServiceBillingRequestProcessor.isXMLResponseSuccess(response);
@@ -205,25 +208,24 @@ public final class APICloudMonetizationUtils {
      * "totalDeltaMrr": 0,
      * "totalDeltaTcv": null
      * }
-     * <p>
+     * <p/>
      * failure
-     * <p>
+     * <p/>
      * {
      * "success": false,
      * "data": "Data sent from Vendor"
      * }
-     * <p>
+     * <p/>
      * When subscription data not available on databases
      * it would be
-     * <p>
+     * <p/>
      * {
      * "subscriptionInfoNotAvailable":true
      * }
      * @throws CloudMonetizationException
      */
     public static String cancelSubscription(String tenantDomain, String accountNumber, String appName, String apiName,
-                                            String apiVersion)
-            throws CloudMonetizationException {
+                                            String apiVersion) throws CloudMonetizationException {
         JsonObject responseObj = new JsonObject();
         JsonObject dataObj = new JsonObject();
 
@@ -233,16 +235,16 @@ public final class APICloudMonetizationUtils {
 
         if (subscriptionInfoElement == null || subscriptionInfoElement.isJsonPrimitive()) {
             throw new CloudMonetizationException(
-                    "Error while cancelling the subscription. Subscription data unavailable. Account no: "
-                            + accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api "
-                            + "version: " + apiVersion);
+                    "Error while cancelling the subscription. Subscription data unavailable. Account no: " +
+                    accountNumber + ", Application name: " + appName + ", Api name: " + apiName + ", Api " +
+                    "version: " + apiVersion);
         }
 
-        if (subscriptionInfoElement.isJsonObject() && subscriptionInfoElement.getAsJsonObject()
-                .get(MonetizationConstants.SUBSCRIPTION).isJsonPrimitive()) {
+        if (subscriptionInfoElement.isJsonObject() &&
+            subscriptionInfoElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION).isJsonPrimitive()) {
             String msg = "Subscription information not available.";
-            LOGGER.warn(msg + " Account no: " + accountNumber + ", Application name: " + appName + ", " + "Api name: "
-                    + apiName + ", Api " + "version: " + apiVersion);
+            LOGGER.warn(msg + " Account no: " + accountNumber + ", Application name: " + appName + ", " + "Api name: " +
+                        apiName + ", Api " + "version: " + apiVersion);
 
             responseObj.addProperty(MonetizationConstants.RESPONSE_SUCCESS, true);
             responseObj.addProperty(MonetizationConstants.RESPONSE_MESSAGE, msg);
@@ -251,8 +253,8 @@ public final class APICloudMonetizationUtils {
             return responseObj.toString();
         }
 
-        JsonObject subscriptionObj = subscriptionInfoElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION)
-                .getAsJsonObject();
+        JsonObject subscriptionObj =
+                subscriptionInfoElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION).getAsJsonObject();
 
         try {
             responseObj = cancelVendorSubscription(tenantDomain, subscriptionObj);
@@ -260,29 +262,29 @@ public final class APICloudMonetizationUtils {
             if (responseObj.get(MonetizationConstants.RESPONSE_SUCCESS).getAsBoolean()) {
                 boolean success = removeSubscriptionsInMonDb(accountNumber, appName, apiName, apiVersion);
                 responseObj.get(MonetizationConstants.RESPONSE_DATA).getAsJsonObject()
-                        .addProperty(BillingConstants.MONETIZATION_DB_UPDATED, success);
+                           .addProperty(BillingConstants.MONETIZATION_DB_UPDATED, success);
 
             } else {
                 LOGGER.error(
                         "Error while cancelling the subscription. Response From Vendor: " + responseObj.toString());
                 responseObj.get(MonetizationConstants.RESPONSE_DATA).getAsJsonObject()
-                        .addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
+                           .addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
             }
         } catch (CloudBillingException e) {
-            throw new CloudMonetizationException("Error while canceling Subscription for account : "
-                    + accountNumber + ". " + e.getMessage(), e);
+            throw new CloudMonetizationException(
+                    "Error while canceling Subscription for account : " + accountNumber + ". " + e.getMessage(), e);
         }
         return responseObj.toString();
     }
 
-    private static JsonObject cancelVendorSubscription(String tenantDomain, JsonObject subscriptionObj) throws
-                                                                                           CloudBillingException {
+    private static JsonObject cancelVendorSubscription(String tenantDomain, JsonObject subscriptionObj)
+            throws CloudBillingException {
 
         CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
 
-        String response = provider
-                .cancelSubscription(subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER).getAsString(),
-                        subscriptionObj.toString());
+        String response = provider.cancelSubscription(
+                subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER).getAsString(),
+                subscriptionObj.toString());
         return new JsonParser().parse(response).getAsJsonObject();
     }
 
@@ -299,13 +301,13 @@ public final class APICloudMonetizationUtils {
             throws CloudMonetizationException {
         try {
             String url = subscriptionUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
-                    CloudBillingUtils.encodeUrlParam(accountNumber))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
-                            CloudBillingUtils.encodeUrlParam(appName))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
-                            CloudBillingUtils.encodeUrlParam(apiName))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
-                            CloudBillingUtils.encodeUrlParam(apiVersion));
+                                                 CloudBillingUtils.encodeUrlParam(accountNumber))
+                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
+                                                 CloudBillingUtils.encodeUrlParam(appName))
+                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
+                                                 CloudBillingUtils.encodeUrlParam(apiName))
+                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
+                                                 CloudBillingUtils.encodeUrlParam(apiVersion));
 
             return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
         } catch (UnsupportedEncodingException | CloudBillingException e) {
@@ -325,33 +327,33 @@ public final class APICloudMonetizationUtils {
      * @throws CloudMonetizationException
      */
     private static boolean removeSubscriptionsInMonDb(String accountNumber, String appName, String apiName,
-            String apiVersion) throws CloudMonetizationException {
+                                                      String apiVersion) throws CloudMonetizationException {
 
         boolean success = false;
         //TODO do following with box carring
         try {
             String subscriptionHistoryUrl = subscriptionHistoryUri
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
-                            CloudBillingUtils.encodeUrlParam(accountNumber))
+                             CloudBillingUtils.encodeUrlParam(accountNumber))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
-                            CloudBillingUtils.encodeUrlParam(appName))
+                             CloudBillingUtils.encodeUrlParam(appName))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
-                            CloudBillingUtils.encodeUrlParam(apiName))
+                             CloudBillingUtils.encodeUrlParam(apiName))
                     .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
-                            CloudBillingUtils.encodeUrlParam(apiVersion));
+                             CloudBillingUtils.encodeUrlParam(apiVersion));
 
             boolean response = DataServiceBillingRequestProcessor
                     .isJsonResponseSuccess(dsBRProcessor.doPost(subscriptionHistoryUrl, null, new NameValuePair[] {}));
             //TODO do following with box carring
             if (response) {
                 String subscriptionUrl = subscriptionUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
-                        CloudBillingUtils.encodeUrlParam(accountNumber))
-                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
-                                CloudBillingUtils.encodeUrlParam(appName))
-                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
-                                CloudBillingUtils.encodeUrlParam(apiName))
-                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
-                                CloudBillingUtils.encodeUrlParam(apiVersion));
+                                                                 CloudBillingUtils.encodeUrlParam(accountNumber))
+                                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
+                                                                 CloudBillingUtils.encodeUrlParam(appName))
+                                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME,
+                                                                 CloudBillingUtils.encodeUrlParam(apiName))
+                                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
+                                                                 CloudBillingUtils.encodeUrlParam(apiVersion));
 
                 response = DataServiceBillingRequestProcessor
                         .isJsonResponseSuccess(dsBRProcessor.doDelete(subscriptionUrl, null, new NameValuePair[] {}));
@@ -359,31 +361,33 @@ public final class APICloudMonetizationUtils {
                     success = true;
                 } else {
                     //ToDo This email and manual recovering process is a temporary fix for the MVP
-                    String msgBody = "Error while removing subscriptions operation failed: Updating subscription "
-                            + "information in the database. Please delete the entry from "
-                            + "subscriptions table.  Account no: " + accountNumber + ", Application name: " + appName
-                            + ", " + "API name: " + apiName + ", API Version: " + apiVersion;
+                    String msgBody = "Error while removing subscriptions operation failed: Updating subscription " +
+                                     "information in the database. Please delete the entry from " +
+                                     "subscriptions table.  Account no: " + accountNumber + ", Application name: " +
+                                     appName + ", " + "API name: " + apiName + ", API Version: " + apiVersion;
                     String msgSubject = "[Monetization][API Cloud][ALERT] Subscription removal db update failure";
                     //sending as a notification for cloud
                     CloudBillingServiceUtils.sendNotificationToCloud(msgBody, msgSubject);
 
-                    LOGGER.error("Cancelling subscription: monetization tables update failure. Removing "
-                            + "subscription from subscriptions table. Account no: " + accountNumber + ", Application "
-                            + "name: " + appName + ", Api name: " + apiName + ", Api " + "version: " + apiVersion);
+                    LOGGER.error("Cancelling subscription: monetization tables update failure. Removing " +
+                                 "subscription from subscriptions table. Account no: " + accountNumber +
+                                 ", Application " + "name: " + appName + ", Api name: " + apiName + ", Api " +
+                                 "version: " + apiVersion);
                 }
             } else {
                 //ToDo This email and manual recovering process is a temporary fix for the MVP
-                String msgBody = "Error while removing subscriptions operation failed: Updating subscription "
-                        + "information in the database. Please add the entry to history table and delete it from "
-                        + "subscriptions table.  Account no: " + accountNumber + ", Application name: " + appName + ", "
-                        + "API name: " + apiName + ", API Version: " + apiVersion;
+                String msgBody = "Error while removing subscriptions operation failed: Updating subscription " +
+                                 "information in the database. Please add the entry to history table and delete it " +
+                                 "from " +
+                                 "subscriptions table.  Account no: " + accountNumber + ", Application name: " +
+                                 appName + ", " + "API name: " + apiName + ", API Version: " + apiVersion;
                 String msgSubject = "[Monetization][API Cloud][ALERT] Subscription removal db update failure.";
                 //sending as a notification for cloud
                 CloudBillingServiceUtils.sendNotificationToCloud(msgBody, msgSubject);
 
-                LOGGER.error("Cancelling subscription: monetization tables update failure. adding to history "
-                        + "and removing from subscriptions. Account no: " + accountNumber + ", Application name: "
-                        + appName + ", Api name: " + apiName + ", Api " + "version: " + apiVersion);
+                LOGGER.error("Cancelling subscription: monetization tables update failure. adding to history " +
+                             "and removing from subscriptions. Account no: " + accountNumber + ", Application name: " +
+                             appName + ", Api name: " + apiName + ", Api " + "version: " + apiVersion);
 
             }
 
@@ -423,7 +427,7 @@ public final class APICloudMonetizationUtils {
      * ],
      * "success": true
      * }
-     * <p>
+     * <p/>
      * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
      * @throws CloudMonetizationException
      */
@@ -438,8 +442,8 @@ public final class APICloudMonetizationUtils {
 
         if (!element.isJsonObject()) {
             throw new CloudMonetizationException(
-                    "Error while cancelling the subscriptions for Account: " + accountNumber + ", Application name: "
-                            + appName + ". Subscription details not available.");
+                    "Error while cancelling the subscriptions for Account: " + accountNumber + ", Application name: " +
+                    appName + ". Subscription details not available.");
         }
         JsonElement subscriptionsElement = element.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTIONS);
 
@@ -451,12 +455,12 @@ public final class APICloudMonetizationUtils {
 
         if (!subscriptionsElement.isJsonObject()) {
             throw new CloudMonetizationException(
-                    "Error while cancelling the subscriptions for Account: " + accountNumber + ", Application name: "
-                            + appName + ". Subscription details not available.");
+                    "Error while cancelling the subscriptions for Account: " + accountNumber + ", Application name: " +
+                    appName + ". Subscription details not available.");
         }
 
-        JsonElement subscriptionsJElement = subscriptionsElement.getAsJsonObject()
-                .get(MonetizationConstants.SUBSCRIPTION);
+        JsonElement subscriptionsJElement =
+                subscriptionsElement.getAsJsonObject().get(MonetizationConstants.SUBSCRIPTION);
         JsonArray subscriptions;
         if (subscriptionsJElement.isJsonObject()) {
             subscriptions = new JsonArray();
@@ -465,8 +469,8 @@ public final class APICloudMonetizationUtils {
             subscriptions = subscriptionsJElement.getAsJsonArray();
         } else {
             throw new CloudMonetizationException(
-                    "Error while cancelling the subscriptions for Account: " + accountNumber + ", Application name: "
-                            + appName + ". Subscription element should be either " + "json  array or json object. ");
+                    "Error while cancelling the subscriptions for Account: " + accountNumber + ", Application name: " +
+                    appName + ". Subscription element should be either " + "json  array or json object. ");
         }
 
         JsonArray removedSubscriptions = new JsonArray();
@@ -477,16 +481,19 @@ public final class APICloudMonetizationUtils {
                 JsonObject subscriptionObj = subscription.getAsJsonObject();
                 JsonObject vendorResponseObj = cancelVendorSubscription(tenantDomain, subscriptionObj);
                 if (vendorResponseObj.get(MonetizationConstants.RESPONSE_SUCCESS).getAsBoolean()) {
-                    boolean success = removeSubscriptionsInMonDb(accountNumber,
-                            subscriptionObj.get(MonetizationConstants.ATTRIB_APP_NAME).getAsString(),
-                            subscriptionObj.get(MonetizationConstants.ATTRIB_API_NAME).getAsString(),
-                            subscriptionObj.get(MonetizationConstants.ATTRIB_API_VERSION).getAsString());
+                    boolean success = removeSubscriptionsInMonDb(accountNumber, subscriptionObj
+                            .get(MonetizationConstants.ATTRIB_APP_NAME).getAsString(), subscriptionObj
+                                                                         .get(MonetizationConstants.ATTRIB_API_NAME)
+                                                                         .getAsString(), subscriptionObj
+                                                                         .get(MonetizationConstants.ATTRIB_API_VERSION)
+                                                                         .getAsString());
                     subscriptionObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, success);
                     removedSubscriptions.add(subscriptionObj);
                 } else {
-                    LOGGER.error("Vendor Subscription cancellation failure. Account number: " + accountNumber + " , "
-                            + "Subscription Id: " + subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER)
-                            .getAsString() + ". Reasons: " + vendorResponseObj.get("message"));
+                    LOGGER.error("Vendor Subscription cancellation failure. Account number: " + accountNumber + " , " +
+                                 "Subscription Id: " +
+                                 subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER).getAsString() +
+                                 ". Reasons: " + vendorResponseObj.get("message"));
                     subscriptionObj.addProperty(BillingConstants.MONETIZATION_DB_UPDATED, false);
                     removalFailedSubscriptions.add(subscriptionObj);
                     //Check already the success value set to false
@@ -521,9 +528,9 @@ public final class APICloudMonetizationUtils {
             throws CloudMonetizationException {
         try {
             String url = appSubscriptionsUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
-                    CloudBillingUtils.encodeUrlParam(accountNumber))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
-                            CloudBillingUtils.encodeUrlParam(appName));
+                                                     CloudBillingUtils.encodeUrlParam(accountNumber))
+                                            .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME,
+                                                     CloudBillingUtils.encodeUrlParam(appName));
 
             return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
         } catch (UnsupportedEncodingException | CloudBillingException e) {
@@ -533,14 +540,15 @@ public final class APICloudMonetizationUtils {
     }
 
     public static String createAPISubscription(String accountNumber, String tenantDomain, String tierName,
-            String appName, String apiName, String apiVersion, String apiProvider) throws CloudMonetizationException {
+                                               String appName, String apiName, String apiVersion, String apiProvider)
+            throws CloudMonetizationException {
 
         Date planEffectiveDate = new Date();
         String ratePlanId = getRatePlanId(tenantDomain, tierName);
         if (StringUtils.isBlank(ratePlanId)) {
             throw new CloudMonetizationException(
-                    "Tier is either not commercial or invalid; tier: " + tierName + " " + "for tenant:  "
-                            + tenantDomain);
+                    "Tier is either not commercial or invalid; tier: " + tierName + " " + "for tenant:  " +
+                    tenantDomain);
         }
 
         try {
@@ -554,8 +562,8 @@ public final class APICloudMonetizationUtils {
             JsonObject vendorResponseObj = new JsonParser().parse(vendorResponse).getAsJsonObject();
 
             if (vendorResponseObj != null && vendorResponseObj.isJsonObject()) {
-                String mysqlFormatDate = new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT)
-                        .format(planEffectiveDate);
+                String mysqlFormatDate =
+                        new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT).format(planEffectiveDate);
 
                 if (vendorResponseObj.get(MonetizationConstants.RESPONSE_SUCCESS).getAsBoolean()) {
                     JsonObject vendorDataObj = vendorResponseObj.getAsJsonObject(MonetizationConstants.RESPONSE_DATA);
@@ -566,16 +574,17 @@ public final class APICloudMonetizationUtils {
                     apiDataObj.addProperty(MonetizationConstants.SOAP_API_PROVIDER, apiProvider);
                     apiDataObj.addProperty(BillingConstants.PARAM_RATE_PLAN_ID, ratePlanId);
                     apiDataObj.addProperty(BillingConstants.PARAM_SUBSCRIPTION_NUMBER,
-                            vendorDataObj.get(BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString());
+                                           vendorDataObj.get(BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString());
                     boolean addSubscriptionStatus = APICloudMonetizationUtils
                             .addSubscriptionInformation(tenantDomain, accountNumber, apiDataObj, mysqlFormatDate);
 
                     //ToDo This email and manual recovering process is a temporary fix for the MVP
                     if (!addSubscriptionStatus) {
-                        String msgBody = "Error while updating subscription information in the database. Please update "
-                                + "the subscriptions table. Tenant: " + tenantDomain + ", Account number: "
-                                + accountNumber + ", Effective date: " + mysqlFormatDate + ", API data: " + apiDataObj
-                                .toString();
+                        String msgBody =
+                                "Error while updating subscription information in the database. Please update " +
+                                "the subscriptions table. Tenant: " + tenantDomain + ", Account number: " +
+                                accountNumber + ", Effective date: " + mysqlFormatDate + ", API data: " +
+                                apiDataObj.toString();
                         String msgSubject = "[Monetization][API Cloud][ALERT] Subscription db update failure";
                         //sending as a notification for cloud
                         CloudBillingServiceUtils.sendNotificationToCloud(msgBody, msgSubject);
@@ -584,16 +593,17 @@ public final class APICloudMonetizationUtils {
 
                     //ignore the warning this is only until the continuous delivery of messages is guaranteed
                     vendorResponseObj.getAsJsonObject(MonetizationConstants.RESPONSE_DATA)
-                            .addProperty(BillingConstants.MONETIZATION_DB_UPDATED, addSubscriptionStatus);
+                                     .addProperty(BillingConstants.MONETIZATION_DB_UPDATED, addSubscriptionStatus);
                     return vendorResponseObj.toString();
 
                 } else {
                     //ToDo This email and manual recovering process is a temporary fix for the MVP
-                    String errorMsg = "Vendor subscription creation failure. response: {" + vendorResponseObj
-                            .get(MonetizationConstants.RESPONSE_MESSAGE) + " } Tenant: " + tenantDomain
-                            + ", Account number: " + accountNumber + ". User may have "
-                            + "retried later. No action required unless this is a recurring issue. Please see the "
-                            + "response details";
+                    String errorMsg = "Vendor subscription creation failure. response: {" +
+                                      vendorResponseObj.get(MonetizationConstants.RESPONSE_MESSAGE) + " } Tenant: " +
+                                      tenantDomain + ", Account number: " + accountNumber + ". User may have " +
+                                      "retried later. No action required unless this is a recurring issue. Please see" +
+                                      " the " +
+                                      "response details";
                     String msgSubject = "[Monetization][API Cloud][WARN] Subscription failure";
 
                     //sending as a notification for cloud
@@ -628,10 +638,11 @@ public final class APICloudMonetizationUtils {
             String response = null;
             try {
                 String url = ratePlanUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                        CloudBillingUtils.encodeUrlParam(tenantDomain))
-                        .replace(MonetizationConstants.PRODUCT_NAME, CloudBillingUtils.encodeUrlParam(productName))
-                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_RATE_PLAN_NAME,
-                                CloudBillingUtils.encodeUrlParam(ratePlanName));
+                                                 CloudBillingUtils.encodeUrlParam(tenantDomain))
+                                        .replace(MonetizationConstants.PRODUCT_NAME,
+                                                 CloudBillingUtils.encodeUrlParam(productName))
+                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_RATE_PLAN_NAME,
+                                                 CloudBillingUtils.encodeUrlParam(ratePlanName));
                 response = dsBRProcessor.doGet(url, null, null);
                 OMElement elements = AXIOMUtil.stringToOM(response);
 
@@ -665,32 +676,36 @@ public final class APICloudMonetizationUtils {
      * @throws CloudMonetizationException
      */
     public static boolean addSubscriptionInformation(String tenantDomain, String accountNumber, JsonObject apiDataObj,
-            String effectiveDate) throws CloudMonetizationException {
+                                                     String effectiveDate) throws CloudMonetizationException {
         try {
             String url = subscriptionUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_ACCOUNT_NO,
-                    CloudBillingUtils.encodeUrlParam(accountNumber))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils
-                            .encodeUrlParam(apiDataObj.get(MonetizationConstants.SOAP_APP_NAME).getAsString()))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils
-                            .encodeUrlParam(apiDataObj.get(MonetizationConstants.SOAP_API_NAME).getAsString()))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION, CloudBillingUtils
-                            .encodeUrlParam(apiDataObj.get(MonetizationConstants.SOAP_API_VERSION).getAsString()));
+                                                 CloudBillingUtils.encodeUrlParam(accountNumber))
+                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_APP_NAME, CloudBillingUtils
+                                                .encodeUrlParam(apiDataObj.get(MonetizationConstants.SOAP_APP_NAME)
+                                                                          .getAsString()))
+                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_NAME, CloudBillingUtils
+                                                .encodeUrlParam(apiDataObj.get(MonetizationConstants.SOAP_API_NAME)
+                                                                          .getAsString()))
+                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_API_VERSION,
+                                                 CloudBillingUtils.encodeUrlParam(
+                                                         apiDataObj.get(MonetizationConstants.SOAP_API_VERSION)
+                                                                   .getAsString()));
 
             NameValuePair[] nameValuePairs = new NameValuePair[] {
                     new NameValuePair(MonetizationConstants.SOAP_API_PROVIDER,
-                            apiDataObj.get(MonetizationConstants.SOAP_API_PROVIDER).getAsString()),
+                                      apiDataObj.get(MonetizationConstants.SOAP_API_PROVIDER).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_RATE_PLAN_ID,
-                            apiDataObj.get(BillingConstants.PARAM_RATE_PLAN_ID).getAsString()),
+                                      apiDataObj.get(BillingConstants.PARAM_RATE_PLAN_ID).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_SUBSCRIPTION_NUMBER,
-                            apiDataObj.get(BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString()),
+                                      apiDataObj.get(BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString()),
                     new NameValuePair(BillingConstants.PARAM_START_DATE, effectiveDate.trim()) };
 
             String response = dsBRProcessor.doPost(url, BillingConstants.HTTP_TYPE_APPLICATION_XML, nameValuePairs);
             return DataServiceBillingRequestProcessor.isXMLResponseSuccess(response);
         } catch (CloudBillingException | UnsupportedEncodingException | XMLStreamException e) {
             throw new CloudMonetizationException(
-                    "Error while adding subscription information for child account: " + accountNumber
-                            + " of the parent tenant: " + tenantDomain, e);
+                    "Error while adding subscription information for child account: " + accountNumber +
+                    " of the parent tenant: " + tenantDomain, e);
         }
     }
 
@@ -709,8 +724,24 @@ public final class APICloudMonetizationUtils {
                     .doGet(tiersOfTenantUri, BillingConstants.HTTP_TYPE_APPLICATION_JSON, customHeaders, null);
         } catch (CloudBillingException e) {
             throw new CloudMonetizationException(
-                    "Error occurred while calling the APIM Store Rest API for retrieving throttling tiers of tenant: "
-                            + tenantDomain, e);
+                    "Error occurred while calling the APIM Store Rest API for retrieving throttling tiers of tenant: " +
+                    tenantDomain, e);
+        }
+    }
+
+    /**
+     * Retrieve Rate Plan Information
+     * @param tenantDomain
+     * @return
+     * @throws CloudMonetizationException
+     */
+    public static String getRatePlanInfo(String tenantDomain) throws CloudMonetizationException {
+        try {
+            String url = ratePlanInfoUri.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
+                                                 CloudBillingUtils.encodeUrlParam(tenantDomain));
+            return dsBRProcessor.doGet(url, BillingConstants.HTTP_TYPE_APPLICATION_JSON, null);
+        } catch (CloudBillingException | UnsupportedEncodingException e) {
+            throw new CloudMonetizationException("Error while retrieving rate plans for tenant: " + tenantDomain, e);
         }
     }
 

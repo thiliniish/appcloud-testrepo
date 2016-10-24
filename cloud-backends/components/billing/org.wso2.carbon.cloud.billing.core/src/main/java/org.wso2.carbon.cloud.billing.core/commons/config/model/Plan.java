@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -32,22 +31,14 @@ import javax.xml.bind.annotation.XmlValue;
 /**
  * Plan
  */
-@XmlRootElement(name = "Plan")
-public class Plan {
-
-    //id uniquely identifies cloud type ex: api_cloud, app_cloud
-    @XmlAttribute(name = "id")
-    private String id;
-
-    @XmlAttribute(name = "name")
-    private String name;
-
-    @XmlElement(name = "Property")
-    private Property[] properties;
-
-    private Map<String, String> propertiesMap;
+@XmlRootElement(name = "Plan") public class Plan {
 
     private static final Log LOGGER = LogFactory.getLog(Plan.class);
+    //id uniquely identifies cloud type ex: api_cloud, app_cloud
+    @XmlAttribute(name = "id") private String id;
+    @XmlAttribute(name = "name") private String name;
+    @XmlElement(name = "Property") private Property[] properties;
+    private Map<String, String> propertiesMap;
 
     public String getId() {
         return id;
@@ -95,14 +86,11 @@ public class Plan {
     /**
      * Property
      */
-    @XmlRootElement(name = "Property")
-    public static class Property {
+    @XmlRootElement(name = "Property") public static class Property {
 
-        @XmlAttribute(name = "name")
-        private String name;
+        @XmlAttribute(name = "name") private String name;
 
-        @XmlValue
-        private String value;
+        @XmlValue private String value;
 
         public String getName() {
             return name;

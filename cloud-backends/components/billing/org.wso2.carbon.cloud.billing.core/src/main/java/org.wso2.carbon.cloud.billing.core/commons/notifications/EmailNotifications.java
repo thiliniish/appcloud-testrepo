@@ -34,8 +34,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -77,8 +75,8 @@ public class EmailNotifications extends Observable {
      * @param msgFormat Output Event Adapter message format
      * @return OutputEventAdapterConfiguration instance for given configuration
      */
-    private static OutputEventAdapterConfiguration createOutputEventAdapterConfiguration(
-            String name, String type, String msgFormat) {
+    private static OutputEventAdapterConfiguration createOutputEventAdapterConfiguration(String name, String type,
+                                                                                         String msgFormat) {
         if (outputEventAdapterConfiguration == null) {
             synchronized (EmailNotifications.class) {
                 if (outputEventAdapterConfiguration == null) {
@@ -98,13 +96,11 @@ public class EmailNotifications extends Observable {
      */
     protected static void createEmailAdapter() {
         outputEventAdapterConfiguration =
-                createOutputEventAdapterConfiguration(emailAdapterName,
-                                                      BillingConstants.RENDERING_TYPE_EMAIL,
+                createOutputEventAdapterConfiguration(emailAdapterName, BillingConstants.RENDERING_TYPE_EMAIL,
                                                       BillingConstants.EMAIL_MESSAGE_FORMAT);
         while (!isEmailAdapterCreated()) {
             try {
-                CloudBillingServiceComponent.getOutputEventAdapterService().create(
-                        outputEventAdapterConfiguration);
+                CloudBillingServiceComponent.getOutputEventAdapterService().create(outputEventAdapterConfiguration);
                 LOGGER.info("The email adapter " + emailAdapterName + " created Successfully");
                 emailAdapterCreatedResult = true;
             } catch (OutputEventAdapterException e) {
@@ -197,8 +193,7 @@ public class EmailNotifications extends Observable {
         /**
          * {@inheritDoc}
          */
-        @Override
-        public void update(Observable o, Object arg) {
+        @Override public void update(Observable o, Object arg) {
             if (arg instanceof Map) {
                 Map email = (Map) arg;
                 failedEmailQueue.add(email);
@@ -212,30 +207,6 @@ public class EmailNotifications extends Observable {
                 }
             } else {
                 LOGGER.error("No argument specified. ");
-            }
-        }
-    }
-
-    /**
-     * Mail queue observer which allocates the threads and sends the email
-     */
-    protected class MailQueueObserver implements Observer {
-
-        private MailSenderErrorObserver mailSenderErrorObserver;
-
-        MailQueueObserver() {
-            mailSenderErrorObserver = new MailSenderErrorObserver();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void update(Observable o, Object arg) {
-            while (!mailQueue.isEmpty()) {
-                Map email = mailQueue.poll();
-                MailSender mailSender = new MailSender(mailSenderErrorObserver, email);
-                executorService.execute(mailSender);
             }
         }
     }
@@ -255,13 +226,10 @@ public class EmailNotifications extends Observable {
         /**
          * {@inheritDoc}
          */
-        @Override
-        public void run() {
+        @Override public void run() {
             Map<String, String> dynamicPropertiesForEmail = new HashMap<String, String>();
-            dynamicPropertiesForEmail
-                    .put(MESSAGE_RECEIVER, email.get(MESSAGE_RECEIVER).toString());
-            dynamicPropertiesForEmail
-                    .put(MESSAGE_SUBJECT, email.get(MESSAGE_SUBJECT).toString());
+            dynamicPropertiesForEmail.put(MESSAGE_RECEIVER, email.get(MESSAGE_RECEIVER).toString());
+            dynamicPropertiesForEmail.put(MESSAGE_SUBJECT, email.get(MESSAGE_SUBJECT).toString());
             dynamicPropertiesForEmail.put(MESSAGE_TYPE, email.get(MESSAGE_TYPE).toString());
 
             //Making sure that the email adapter has been created before sending the emails.
@@ -275,8 +243,7 @@ public class EmailNotifications extends Observable {
 
                 if (isEmailAdapterCreated()) {
                     CloudBillingServiceComponent.getOutputEventAdapterService()
-                                                .publish(emailAdapterName,
-                                                         dynamicPropertiesForEmail,
+                                                .publish(emailAdapterName, dynamicPropertiesForEmail,
                                                          email.get(MESSAGE_BODY).toString());
                     setChanged();
                     notifyObservers(true);
@@ -294,10 +261,32 @@ public class EmailNotifications extends Observable {
                 setChanged();
                 notifyObservers(email);
                 LOGGER.error("Error while sending the email notification to: " +
-                             email.get(MESSAGE_RECEIVER).toString
-                                     () + " under subject: " +
+                             email.get(MESSAGE_RECEIVER).toString() + " under subject: " +
                              email.get(MESSAGE_SUBJECT).toString() + ". Email is added " +
                              "back to the queue. once the error is fixed it will try again ", e);
+            }
+        }
+    }
+
+    /**
+     * Mail queue observer which allocates the threads and sends the email
+     */
+    protected class MailQueueObserver implements Observer {
+
+        private MailSenderErrorObserver mailSenderErrorObserver;
+
+        MailQueueObserver() {
+            mailSenderErrorObserver = new MailSenderErrorObserver();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override public void update(Observable o, Object arg) {
+            while (!mailQueue.isEmpty()) {
+                Map email = mailQueue.poll();
+                MailSender mailSender = new MailSender(mailSenderErrorObserver, email);
+                executorService.execute(mailSender);
             }
         }
     }

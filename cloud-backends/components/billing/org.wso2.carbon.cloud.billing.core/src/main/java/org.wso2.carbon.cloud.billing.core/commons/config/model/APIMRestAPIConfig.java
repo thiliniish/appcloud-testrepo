@@ -24,14 +24,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the APIMRestAPI xml object
  */
-@XmlRootElement(name = "APIMRestAPI")
-public class APIMRestAPIConfig {
+@XmlRootElement(name = "APIMRestAPI") public class APIMRestAPIConfig {
 
-    @XmlElement(name = "RestServiceURI", nillable = false, required = true)
-    private String restServiceUri;
+    @XmlElement(name = "RestServiceURI", nillable = false, required = true) private String restServiceUri;
 
-    @XmlElement(name = "HttpClientConfig", nillable = false)
-    private HttpClientConfig httpClientConfig;
+    @XmlElement(name = "HttpClientConfig", nillable = false) private HttpClientConfig httpClientConfig;
 
     public HttpClientConfig getHttpClientConfig() {
         return httpClientConfig;
@@ -40,6 +37,5 @@ public class APIMRestAPIConfig {
     public String getRestServiceUri() {
         return restServiceUri;
     }
-
 
 }

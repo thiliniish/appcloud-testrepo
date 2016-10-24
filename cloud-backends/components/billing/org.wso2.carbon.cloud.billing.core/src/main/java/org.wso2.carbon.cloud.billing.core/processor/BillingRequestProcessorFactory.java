@@ -39,8 +39,8 @@ public final class BillingRequestProcessorFactory {
 
         dataServiceBillingRequestProcessor =
                 new DataServiceBillingRequestProcessor(billingConfig.getDataServiceConfig().getHttpClientConfig());
-        apimRestAPIRequestProcessor = new APIMRestAPIRequestProcessor(
-                billingConfig.getApimRestAPIConfig().getHttpClientConfig());
+        apimRestAPIRequestProcessor =
+                new APIMRestAPIRequestProcessor(billingConfig.getApimRestAPIConfig().getHttpClientConfig());
 
     }
 

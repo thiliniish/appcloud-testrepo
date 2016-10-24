@@ -35,10 +35,11 @@ import java.net.HttpURLConnection;
 public class ProcessorUtils {
 
     private static final Log LOGGER = LogFactory.getLog(ProcessorUtils.class);
-    private static final String NOT_FOUND_ERROR_MSG = "Failed with HTTP error code : " + HttpURLConnection
-            .HTTP_NOT_FOUND + " (Not Found). URI is incorrect.";
-    private static final String AUTH_ERROR_MSG = "Failed with HTTP error code : " + HttpURLConnection.HTTP_UNAUTHORIZED
-                                                 + " (Unauthorized). Credentials used are incorrect.";
+    private static final String NOT_FOUND_ERROR_MSG =
+            "Failed with HTTP error code : " + HttpURLConnection.HTTP_NOT_FOUND + " (Not Found). URI is incorrect.";
+    private static final String AUTH_ERROR_MSG =
+            "Failed with HTTP error code : " + HttpURLConnection.HTTP_UNAUTHORIZED +
+            " (Unauthorized). Credentials used are incorrect.";
 
     private ProcessorUtils() {
     }
@@ -138,8 +139,8 @@ public class ProcessorUtils {
                     throw new CloudBillingException(AUTH_ERROR_MSG);
 
                 default:
-                    throw new CloudBillingException(methodName + " request failed for URI: " + uri
-                                                    + " with HTTP error code : " + response);
+                    throw new CloudBillingException(
+                            methodName + " request failed for URI: " + uri + " with HTTP error code : " + response);
             }
         } catch (CloudBillingException ex) {
             throw ex;
@@ -180,10 +181,10 @@ public class ProcessorUtils {
                                                  Exception ex) throws CloudBillingException {
         if (retryCount >= executionCount) {
             throw new CloudBillingException(methodName + " request failed for the maximum no. of attempts(" +
-                    retryCount + ") for URL: " + uri, ex);
+                                            retryCount + ") for URL: " + uri, ex);
         } else {
-            LOGGER.warn(methodName + " request failed for URL: " + uri + " with exception : " + ex.getMessage()
-                        + ". Retry attempt: " + retryCount + "/" + executionCount);
+            LOGGER.warn(methodName + " request failed for URL: " + uri + " with exception : " + ex.getMessage() +
+                        ". Retry attempt: " + retryCount + "/" + executionCount);
         }
     }
 
@@ -201,8 +202,7 @@ public class ProcessorUtils {
                                           String uri) throws CloudBillingException {
         if (retryCount >= executionCount) {
             throw new CloudBillingException(methodName + " request failed for the " + retryCount + " attempt for URI:" +
-                                            " " + uri
-                                            + " with HTTP error code: " + response);
+                                            " " + uri + " with HTTP error code: " + response);
         } else {
             LOGGER.warn(methodName + " request failed for URI: " + uri + " with HTTP error code: " +
                         response + ". Retry: " + retryCount + "/" + executionCount);

@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,19 +30,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Subscription specific rate plan holding element
  */
-@XmlRootElement(name = "Subscription")
-public class Subscription {
-
-    //product id
-    @XmlAttribute(name = "productId")
-    private String productId;
-
-    @XmlElement(name = "Plan")
-    private Plan[] plans;
-
-    private Map<String, Plan> planMap;
+@XmlRootElement(name = "Subscription") public class Subscription {
 
     private static final Log LOGGER = LogFactory.getLog(Subscription.class);
+    //product id
+    @XmlAttribute(name = "productId") private String productId;
+    @XmlElement(name = "Plan") private Plan[] plans;
+    private Map<String, Plan> planMap;
 
     public String getProductId() {
         return productId;

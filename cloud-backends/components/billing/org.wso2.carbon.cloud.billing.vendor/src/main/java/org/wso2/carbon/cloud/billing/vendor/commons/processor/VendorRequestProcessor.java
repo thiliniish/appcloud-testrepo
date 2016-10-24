@@ -34,12 +34,15 @@ import org.wso2.carbon.cloud.billing.vendor.commons.processor.utils.ProcessorUti
 import org.wso2.carbon.cloud.billing.vendor.commons.utils.BillingVendorConfigUtils;
 import org.wso2.carbon.cloud.billing.vendor.stripe.exceptions.CloudBillingVendorException;
 
+/**
+ * Vendor Request Processor Class
+ */
 public class VendorRequestProcessor {
 
-    private HttpClient httpClient;
     protected static final int DEFAULT_CONNECTION_RETRIES = 5;
     private static TrustStore trustStore =
             BillingVendorConfigUtils.getBillingVendorConfiguration().getSecurityConfig().getTrustStore();
+    private HttpClient httpClient;
 
     public VendorRequestProcessor(HttpClientConfig httpClientConfig) {
         if (httpClientConfig != null) {

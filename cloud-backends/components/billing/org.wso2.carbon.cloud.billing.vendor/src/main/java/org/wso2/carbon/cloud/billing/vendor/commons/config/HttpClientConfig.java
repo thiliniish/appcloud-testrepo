@@ -21,8 +21,10 @@ package org.wso2.carbon.cloud.billing.vendor.commons.config;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "HttpClientConfig")
-public class HttpClientConfig {
+/**
+ * Http client Config Node
+ */
+@XmlRootElement(name = "HttpClientConfig") public class HttpClientConfig {
 
     private String hostname;
     private int port;
@@ -45,7 +47,8 @@ public class HttpClientConfig {
         this.port = port;
     }
 
-    @XmlElement(name = "MaxConnectionsPerHost", nillable = false, required = true) public int getMaxConnectionsPerHost() {
+    @XmlElement(name = "MaxConnectionsPerHost", nillable = false, required = true) public int
+    getMaxConnectionsPerHost() {
         return maxConnectionsPerHost;
     }
 

@@ -19,9 +19,6 @@
 package org.wso2.carbon.cloud.billing.core.utils;
 
 import com.google.gson.Gson;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +39,9 @@ import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFacto
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -52,17 +52,15 @@ public final class CloudBillingServiceUtils {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceUtils.class);
     private static volatile String configObj;
+    private static String billingServiceURI =
+            BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingServiceUri();
+    private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory
+            .getInstance().getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+    private static String monetizationServiceURI =
+            BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudMonetizationServiceUri();
 
     private CloudBillingServiceUtils() {
     }
-
-    private static String billingServiceURI =
-            BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingServiceUri();
-    private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getInstance()
-                                                                                         .getBillingRequestProcessor(
-                                                                                                 BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
-    private static String monetizationServiceURI =
-            BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudMonetizationServiceUri();
 
     /**
      * Get configuration on json

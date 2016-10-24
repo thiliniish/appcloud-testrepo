@@ -140,7 +140,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
-            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage().toString());
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
             response.add(BillingVendorConstants.RESPONSE_DATA, null);
             LOGGER.error("Error while retrieving customer : ", ex);
         }
@@ -208,8 +208,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *                         }
      * @return success json string
      */
-    @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson) throws
-                                                                                     CloudBillingVendorException {
+    @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson)
+            throws CloudBillingVendorException {
         try {
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
@@ -866,7 +866,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
-            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage().toString());
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
             response.add(BillingVendorConstants.RESPONSE_DATA, null);
             LOGGER.error("Error while retrieving charge details : ", ex);
         }

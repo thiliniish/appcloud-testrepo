@@ -122,12 +122,12 @@ public final class MonetizationConstants {
     public static final QName THROTTLE_ID_ELEMENT = new QName(THROTTLE_NAMESPACE, "ID");
     public static final QName THROTTLE_CONTROL_ELEMENT = new QName(THROTTLE_NAMESPACE, "Control");
     public static final QName THROTTLE_ATTRIBUTES_ELEMENT = new QName(THROTTLE_NAMESPACE, "Attributes");
-    public static final QName THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT = new QName(
-            MonetizationConstants.THROTTLE_NAMESPACE, "x-wso2-BillingPlan");
-    public static final QName THROTTLE_ATTRIBUTES_MAXIMUM_COUNT_ELEMENT = new QName(
-            MonetizationConstants.THROTTLE_NAMESPACE, "MaximumCount");
-    public static final QName THROTTLE_ATTRIBUTES_UNIT_TIME_ELEMENT = new QName(
-            MonetizationConstants.THROTTLE_NAMESPACE, "UnitTime");
+    public static final QName THROTTLE_ATTRIBUTES_BILLING_PLAN_ELEMENT =
+            new QName(MonetizationConstants.THROTTLE_NAMESPACE, "x-wso2-BillingPlan");
+    public static final QName THROTTLE_ATTRIBUTES_MAXIMUM_COUNT_ELEMENT =
+            new QName(MonetizationConstants.THROTTLE_NAMESPACE, "MaximumCount");
+    public static final QName THROTTLE_ATTRIBUTES_UNIT_TIME_ELEMENT =
+            new QName(MonetizationConstants.THROTTLE_NAMESPACE, "UnitTime");
     public static final String TIER_NAME = "tierName";
     public static final String MAXIMUM_COUNT = "maximumCount";
     public static final String UNIT_TIME = "unitTime";
@@ -160,8 +160,8 @@ public final class MonetizationConstants {
     public static final String EMAIL_FILE_BASE_URL = "/apimgt/pricing/resources/";
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE =
-            "Hi Cloud Team, \n Error has occurred while uploading " + "the"
-                    + " overage data to zuora on {today}. Please verify.";
+            "Hi Cloud Team, \n Error has occurred while uploading " + "the" +
+            " overage data to zuora on {today}. Please verify.";
     public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data ";
     public static final String REPLACE_TODAY = "{today}";
     //Email notifications related parameters

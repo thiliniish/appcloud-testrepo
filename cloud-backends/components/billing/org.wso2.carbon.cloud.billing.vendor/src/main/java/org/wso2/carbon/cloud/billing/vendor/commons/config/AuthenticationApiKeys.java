@@ -24,15 +24,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the AuthenticationApiKeys xml object
  */
-@XmlRootElement(name = "AuthenticationApiKeys")
-public class AuthenticationApiKeys {
+@XmlRootElement(name = "AuthenticationApiKeys") public class AuthenticationApiKeys {
 
     private String apiVersion;
     private String secretKey;
     private String publishableKey;
 
-    @XmlElement(name = "ApiVersion", nillable = false, required = true)
-    public String getApiVersion() {
+    @XmlElement(name = "ApiVersion", nillable = false, required = true) public String getApiVersion() {
         return apiVersion;
     }
 
@@ -40,8 +38,7 @@ public class AuthenticationApiKeys {
         this.apiVersion = apiVersion;
     }
 
-    @XmlElement(name = "SecretKey", nillable = false, required = true)
-    public String getSecretKey() {
+    @XmlElement(name = "SecretKey", nillable = false, required = true) public String getSecretKey() {
         return secretKey;
     }
 
@@ -49,8 +46,7 @@ public class AuthenticationApiKeys {
         this.secretKey = secretKey;
     }
 
-    @XmlElement(name = "PublishableKey", nillable = false, required = true)
-    public String getPublishableKey() {
+    @XmlElement(name = "PublishableKey", nillable = false, required = true) public String getPublishableKey() {
         return publishableKey;
     }
 

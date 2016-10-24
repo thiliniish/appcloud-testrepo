@@ -60,7 +60,7 @@ public interface CloudBillingServiceProvider {
     /**
      * Create rate plan for the Product
      *
-     * @param tenantDomain tenant domain
+     * @param tenantDomain     tenant domain
      * @param ratePlanInfoJson rate-plan details
      * @return success json string
      */
@@ -158,8 +158,7 @@ public interface CloudBillingServiceProvider {
      * @param paymentMethodInfoJson payment method details
      * @return success Json string
      */
-    public String setDefaultPaymentMethod(String customerId, String paymentMethodInfoJson) throws
-                                                                                           CloudBillingException;
+    public String setDefaultPaymentMethod(String customerId, String paymentMethodInfoJson) throws CloudBillingException;
 
     /**
      * Update default payment method
@@ -219,7 +218,7 @@ public interface CloudBillingServiceProvider {
     /**
      * Get current plan subscribed to a service
      *
-     * @param customerId  customer id
+     * @param customerId customer id
      * @return current active rate plan
      * @throws CloudBillingException
      */

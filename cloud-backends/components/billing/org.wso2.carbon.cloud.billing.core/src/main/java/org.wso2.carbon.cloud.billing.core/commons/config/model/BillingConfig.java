@@ -24,29 +24,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the CloudBilling xml object
  */
-@XmlRootElement(name = "CloudBilling")
-public class BillingConfig {
+@XmlRootElement(name = "CloudBilling") public class BillingConfig {
 
-    @XmlElement(name = "BillingVendorClass", nillable = false, required = true)
-    private String billingVendorClass;
+    @XmlElement(name = "BillingVendorClass", nillable = false, required = true) private String billingVendorClass;
 
-    @XmlElement(name = "MgtModeEnabled", nillable = false, required = true)
-    private boolean mgtModeEnabled;
+    @XmlElement(name = "MgtModeEnabled", nillable = false, required = true) private boolean mgtModeEnabled;
 
-    @XmlElement(name = "DataServiceAPI", nillable = false, required = true)
-    private DataServiceConfig dataServiceConfig;
+    @XmlElement(name = "DataServiceAPI", nillable = false, required = true) private DataServiceConfig dataServiceConfig;
 
-    @XmlElement(name = "APIMRestAPI", nillable = false, required = true)
-    private APIMRestAPIConfig apimRestAPIConfig;
+    @XmlElement(name = "APIMRestAPI", nillable = false, required = true) private APIMRestAPIConfig apimRestAPIConfig;
 
-    @XmlElement(name = "Security", nillable = true, required = false)
-    private SecurityConfig securityConfig;
+    @XmlElement(name = "Security", nillable = true, required = false) private SecurityConfig securityConfig;
 
-    @XmlElement(name = "Notifications", nillable = false)
-    private NotificationConfig notificationsConfig;
+    @XmlElement(name = "Notifications", nillable = false) private NotificationConfig notificationsConfig;
 
-    @XmlElement(name = "CloudTypes", nillable = false, required = true)
-    private CloudTypes cloudTypes;
+    @XmlElement(name = "CloudTypes", nillable = false, required = true) private CloudTypes cloudTypes;
 
     public String getBillingVendorClass() {
         return billingVendorClass;

@@ -37,27 +37,25 @@ import java.util.Map;
  */
 public class APIMRestAPIRequestProcessor extends AbstractBillingRequestProcessor {
 
-    private static TrustStore trustStore = BillingConfigManager.getBillingConfiguration().getSecurityConfig()
-            .getTrustStore();
+    private static TrustStore trustStore =
+            BillingConfigManager.getBillingConfiguration().getSecurityConfig().getTrustStore();
 
     public APIMRestAPIRequestProcessor(HttpClientConfig httpClientConfig) {
         super(httpClientConfig);
     }
 
-    @Override
-    public String doGet(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    @Override public String doGet(String url, String acceptType, NameValuePair[] nameValuePairs)
+            throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by APIM RestAPI Request Processor");
     }
 
-    @Override
-    public String doGet(String url, String acceptType, Map<String, String> customHeaders,
-            NameValuePair[] nameValuePairs) throws CloudBillingException {
+    @Override public String doGet(String url, String acceptType, Map<String, String> customHeaders,
+                                  NameValuePair[] nameValuePairs) throws CloudBillingException {
         setTrustStoreParams();
         GetMethod get = new GetMethod(url);
         // default accept response body in XML
-        String acceptTypeHeader = StringUtils.isBlank(acceptType) ?
-                BillingConstants.HTTP_TYPE_APPLICATION_JSON :
-                acceptType;
+        String acceptTypeHeader =
+                StringUtils.isBlank(acceptType) ? BillingConstants.HTTP_TYPE_APPLICATION_JSON : acceptType;
         get.addRequestHeader(BillingConstants.HTTP_RESPONSE_TYPE_ACCEPT, acceptTypeHeader);
         for (Map.Entry<String, String> entry : customHeaders.entrySet()) {
             get.addRequestHeader(entry.getKey(), entry.getValue());
@@ -69,38 +67,33 @@ public class APIMRestAPIRequestProcessor extends AbstractBillingRequestProcessor
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
     }
 
-    @Override
-    public void doUpload(String url, String acceptType, File file) throws CloudBillingException {
+    @Override public void doUpload(String url, String acceptType, File file) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by APIM RestAPI Request Processor");
     }
 
-    @Override
-    public String doPost(String url, String acceptType, String jsonPayload) throws CloudBillingException {
+    @Override public String doPost(String url, String acceptType, String jsonPayload) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by APIM RestAPI Request Processor");
     }
 
-    @Override
-    public String doPost(String url, String acceptType, NameValuePair[] keyValuePair) throws CloudBillingException {
+    @Override public String doPost(String url, String acceptType, NameValuePair[] keyValuePair)
+            throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by APIM RestAPI Request Processor");
     }
 
-    @Override
-    public String doPut(String url, String acceptType, String jsonPayload) throws CloudBillingException {
+    @Override public String doPut(String url, String acceptType, String jsonPayload) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by APIM RestAPI Request Processor");
     }
 
-    @Override
-    public String doPut(String url, String acceptType, NameValuePair[] nameValuePairs) {
+    @Override public String doPut(String url, String acceptType, NameValuePair[] nameValuePairs) {
         throw new UnsupportedOperationException("This method is not supported by APIM RestAPI Request Processor");
     }
 
-    @Override
-    public String doDelete(String url, String acceptType) throws CloudBillingException {
+    @Override public String doDelete(String url, String acceptType) throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by APIM RestAPI Request Processor");
     }
 
-    @Override
-    public String doDelete(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException {
+    @Override public String doDelete(String url, String acceptType, NameValuePair[] nameValuePairs)
+            throws CloudBillingException {
         throw new UnsupportedOperationException("This method is not supported by APIM RestAPI Request Processor");
     }
 

@@ -33,7 +33,6 @@ import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
 import java.io.File;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -93,8 +92,8 @@ public class BillingVendorConfigUtils {
     private static BillingVendorConfig loadBillingVendorConfig() {
         try {
             String configLocation = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                    BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
-                    BillingConstants.BILLING_VENDOR_CONFIG_FILE_NAME;
+                                    BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
+                                    BillingConstants.BILLING_VENDOR_CONFIG_FILE_NAME;
             File billingVendorConfig = new File(configLocation);
             Document doc = convertToDocument(billingVendorConfig);
             secureResolveDocument(doc);
@@ -153,11 +152,10 @@ public class BillingVendorConfigUtils {
     private static synchronized String loadFromSecureVault(String alias) {
         if (secretResolver == null) {
             secretResolver = SecretResolverFactory.create((OMElement) null, false);
-            secretResolver.init(
-                    ServiceDataHolder.getInstance().getSecretCallbackHandlerService().getSecretCallbackHandler());
+            secretResolver
+                    .init(ServiceDataHolder.getInstance().getSecretCallbackHandlerService().getSecretCallbackHandler());
         }
         return secretResolver.resolve(alias);
     }
-
 
 }
