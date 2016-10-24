@@ -133,8 +133,7 @@ public class Util implements Serializable {
      * @throws WorkflowException
      */
     public String getConfirmationLink(String tenantDomain, String uuid) throws WorkflowException {
-        String link = ConfigFileReader.retrieveConfigAttribute("URLs",
-                                                               "cloudMgtVerificationUrl");
+        String link = ConfigFileReader.retrieveConfigAttribute("URLs", "cloudMgtVerificationUrl");
         //if custom store url available construct the link using it.
         String customStoreURL = getCustomStoreURL(tenantDomain);
         String defaultStoreURL = ConfigFileReader.retrieveConfigAttribute("URLs", "defaultStoreUrl");
