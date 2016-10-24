@@ -147,7 +147,7 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
         log.info("Sending tenant creation events of [ " + organizationDomain + " ] to BAM");
         server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName, "ADD");
         try {
-            jagg.module("util").addUserToOT(email, adminPassword, firstName, lastName);
+            jagg.module("util").addUserToOT(email, password, firstName, lastName);
         } catch (e) {
             log.error("Error while registering organization [ " + organizationDomain + " ] Email [ " + email + "]");
             log.error(e);
