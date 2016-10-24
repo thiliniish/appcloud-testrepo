@@ -1,0 +1,37 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("blocks.tenant.register.add.ajax.add.jag");
+(function () {
+    var cloudConf = require("/site/conf/cloud_conf.json");
+    var addUserAPI = cloudConf.cloud.mgt_url + cloudConf.cloud.apiResourcePaths.addUser;
+    var action = request.getParameter("action");
+
+    if (action == "importInvitedUser") {
+        var confirmationKey = request.getParameter("confirmationKey");
+        var password = request.getParameter("adminPassword");
+        var firstName = request.getParameter("firstName");
+        var lastName = request.getParameter("lastName");
+        //call cloud mgt api
+        var data = { action: action, confirmationKey: confirmationKey, adminPassword: password, firstName: firstName, lastName: lastName};
+        try {
+            var result = post(addUserAPI, data, {}, 'json');
+            print(result.data);
+        } catch (e) {
+            var errorMsg = "Error while calling api :" + addUserAPI;
+            log.error(errorMsg, e);
+            var responseObj = {};
+            responseObj.error = true;
+            responseObj.message = errorMsg;           
+            print(responseObj);
+        }
+
+    } else {
+		var errorMsg = "No Action Specified";
+        log.error(errorMsg);
+        var responseObj = {};
+        responseObj.error = true;        
+        responseObj.message = errorMsg;
+        print(responseObj);
+    }
+}());
+%>

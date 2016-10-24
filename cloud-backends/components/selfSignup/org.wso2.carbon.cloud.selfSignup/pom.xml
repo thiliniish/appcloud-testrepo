@@ -99,6 +99,8 @@
                             javax.mail.internet; version="1.4.0",
                             javax.mail; version="1.4.0",
                             org.wso2.carbon.tenant.mgt.services; version="${apim.carbon.tenant.mgt.version}"
+                            org.wso2.carbon.tenant.mgt.services; version="${apim.carbon.tenant.mgt.version}",
+                            org.wso2.carbon.registry.*; version="${imp.pkg.version.carbon.kernel.registry}"
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.cloud.signup.configReader; version="1.0.0",

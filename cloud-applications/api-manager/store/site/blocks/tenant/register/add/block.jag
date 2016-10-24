@@ -1,0 +1,10 @@
+<%
+jagg.block("tenant/register/add", {
+    initialize: function (data) {
+    },
+
+    getOutputs: function (inputs) {
+        return inputs;
+    }
+});
+%>

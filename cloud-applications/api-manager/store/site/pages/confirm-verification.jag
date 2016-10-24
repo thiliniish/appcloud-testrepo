@@ -1,0 +1,27 @@
+<%
+include("/jagg/jagg.jag");
+include("header.jag");
+var site = require("/site/conf/site.json");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+
+var inputsObj = {};
+inputsObj.confirm = encoder.getSafeText(request.getParameter("confirmation"));
+inputsObj.isInvitee = encoder.getSafeText(request.getParameter("isInvitee"));
+inputsObj.isStoreInvitee = encoder.getSafeText(request.getParameter("isStoreInvitee"));
+
+(function () {
+    jagg.render({
+                    "name": "page/base",
+                    "inputs": {
+                        "title": "Verification",
+                        "pagePath": "/site/pages/confirm-verification.jag",
+                        "body": [
+                            {
+                                "name": "tenant/register/confirm",
+                                "inputs": inputsObj
+                            }
+                        ]
+                    }
+                });
+}());
+%>

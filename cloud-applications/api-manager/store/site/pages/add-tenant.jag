@@ -1,0 +1,35 @@
+<%
+include("/jagg/jagg.jag");
+include("header.jag");
+var site = require("/site/conf/site.json");
+var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+
+var tenantDomain = jagg.getTenantDomain();
+var confirmationKey = encoder.getSafeText(request.getParameter("confirmation"));
+var isInvitee = encoder.getSafeText(request.getParameter("isInvitee"));
+var isStoreInvitee = encoder.getSafeText(request.getParameter("isStoreInvitee"));
+var registrationEmail = encoder.getSafeText(request.getParameter("email"));
+
+var inputsObj = {};
+inputsObj.email = registrationEmail;
+inputsObj.confirmationKey = confirmationKey;
+inputsObj.isInvitee = isInvitee;
+inputsObj.isStoreInvitee = isStoreInvitee;
+inputsObj.isConfirmed = session.get("isConfirmed");
+
+(function () {
+    jagg.render({
+                    "name": "page/base",
+                    "inputs": {
+                        "title": "Congratulations",
+                        "pagePath": "/site/pages/add-tenant.jag",
+                        "body": [
+                            {
+                                "name": "tenant/register/add",
+                                "inputs": inputsObj
+                            }
+                        ]
+                    }
+                });
+}());
+%>

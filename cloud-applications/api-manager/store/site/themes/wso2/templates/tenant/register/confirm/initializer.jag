@@ -1,0 +1,8 @@
+<%
+jagg.initializer("tenant/register/confirm", {
+    preInitialize:function () {
+        //custom js functions
+        jagg.addFooterJS("register/confirm","confirm.js","templates/tenant/register/confirm/js/confirm.js");
+    }
+});
+%>
