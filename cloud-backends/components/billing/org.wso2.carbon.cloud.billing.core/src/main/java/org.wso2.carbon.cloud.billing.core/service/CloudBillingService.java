@@ -360,12 +360,13 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      * @param subscriptionId       subscription Id
      * @param subscriptionInfoJson subscription details for downgrade or upgrade. This includes customer id and the
      *                             product rate-plan id
+     * @param isUpgrade            is Upgrade subscription
      * @return success Json string
      */
-    @Override public String updateSubscription(String subscriptionId, String subscriptionInfoJson)
+    @Override public String updateSubscription(String subscriptionId, String subscriptionInfoJson, boolean isUpgrade)
             throws CloudBillingException {
         try {
-            return init().updateSubscription(subscriptionId, subscriptionInfoJson);
+            return init().updateSubscription(subscriptionId, subscriptionInfoJson, isUpgrade);
         } catch (CloudBillingException ex) {
             String message = "Error occurred while updating the subscription with id : " + subscriptionId;
             LOGGER.error(message, ex);
@@ -529,6 +530,38 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             return init().getInvoiceDetails(invoiceId);
         } catch (CloudBillingException ex) {
             String message = "Error occurred while retrieving invoice details.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Retrieve invoices associated with a customer
+     *
+     * @param invoiceInfoJson invoice creation info
+     * @return String of invoices id
+     */
+    @Override public String createInvoice(String invoiceInfoJson) throws CloudBillingException {
+        try {
+            return init().createInvoice(invoiceInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while creating the invoice";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Retrieve invoices associated with a customer
+     *
+     * @param invoiceId invoice id
+     * @return String of invoices id
+     */
+    @Override public String chargeInvoice(String invoiceId) throws CloudBillingException {
+        try {
+            return init().chargeInvoice(invoiceId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while creating the invoice";
             LOGGER.error(message, ex);
             throw new CloudBillingException(message, ex);
         }

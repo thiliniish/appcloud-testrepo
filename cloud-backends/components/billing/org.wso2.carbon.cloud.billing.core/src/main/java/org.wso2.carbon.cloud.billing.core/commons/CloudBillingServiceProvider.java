@@ -129,9 +129,11 @@ public interface CloudBillingServiceProvider {
      * @param subscriptionId       subscription Id
      * @param subscriptionInfoJson subscription details for downgrade or upgrade. This includes customer id and the
      *                             product rate-plan id
+     * @param isUpgrade            is Upgrade subscription
      * @return success Json string
      */
-    public String updateSubscription(String subscriptionId, String subscriptionInfoJson) throws CloudBillingException;
+    public String updateSubscription(String subscriptionId, String subscriptionInfoJson, boolean isUpgrade)
+            throws CloudBillingException;
 
     /**
      * Cancel subscription by the subscription id
@@ -214,6 +216,22 @@ public interface CloudBillingServiceProvider {
      * @return json string of invoice information
      */
     public String getInvoiceDetails(String invoiceId) throws CloudBillingException;
+
+    /**
+     * Retrieve invoices associated with a customer
+     *
+     * @param invoiceInfoJson invoice creation info
+     * @return String of invoice id
+     */
+    public String createInvoice(String invoiceInfoJson) throws CloudBillingException;
+
+    /**
+     * Charge the customer associated with the given invoice
+     *
+     * @param invoiceId invoice id
+     * @return String of invoice id
+     */
+    public String chargeInvoice(String invoiceId) throws CloudBillingException;
 
     /**
      * Get current plan subscribed to a service
