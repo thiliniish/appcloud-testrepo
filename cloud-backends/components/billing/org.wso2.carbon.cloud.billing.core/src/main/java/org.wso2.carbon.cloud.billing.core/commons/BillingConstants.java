@@ -239,6 +239,8 @@ public final class BillingConstants {
     public static final String ZUORA_REST_API_URI_ACCOUNT_PAYMENTS_CREDIT_CARDS =
             "/rest/v1/payment-methods/credit-cards/accounts";
 
+    public static final String API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
+
     /*API manager REST api suffixes*/
     public static final String APIM_ADMIN_REST_URI_TENANT_ADVANCED_THROTTLING_TIERS =
             "/admin/v0.10/throttling/policies/subscription";
@@ -247,7 +249,6 @@ public final class BillingConstants {
 
     /*data service param names*/
     public static final String PARAM_ACCOUNT_NUMBER = "accountNumber";
-    public static final String PARAM_ZUORA_PRODUCT_NAME = "zuoraProductName";
     public static final String PARAM_RATE_PLAN_NAME = "ratePlanName";
     public static final String PARAM_RATE_PLAN_ID = "ratePlanId";
     public static final String PARAM_SUBSCRIPTION_NUMBER = "subscriptionNumber";

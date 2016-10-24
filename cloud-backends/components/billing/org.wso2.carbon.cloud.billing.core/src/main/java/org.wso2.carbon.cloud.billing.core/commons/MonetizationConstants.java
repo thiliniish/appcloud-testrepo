@@ -63,6 +63,7 @@ public final class MonetizationConstants {
     public static final String RESOURCE_IDENTIFIER_CLOUD_TYPE = "{cloudType}";
     public static final String PRODUCT_NAME = "{productName}";
     public static final String RESOURCE_IDENTIFIER_RATE_PLAN_NAME = "{ratePlanName}";
+    public static final String RESOURCE_IDENTIFIER_PRODUCT_NAME = "{productName}";
     public static final String RESOURCE_IDENTIFIER_VERSION = "{version}";
     public static final String RESOURCE_IDENTIFIER_SUBSCRIBER_ID = "{subscriberId}";
 
