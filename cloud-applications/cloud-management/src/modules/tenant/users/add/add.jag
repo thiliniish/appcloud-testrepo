@@ -281,7 +281,7 @@ var sendInvite = function (email, tenant, roles, message) {
     var results = jagg.module("database").executeQuery(queryString, parameters);
 
     log.info("Successfully added the user by email [ " + email + " ] to TEMP_INVITEE");
-    var link = targetEpr + "?confirmation=" + uuid + "&isInvitee=true";
+    var link = getInvitationLink(tenant, roles, uuid);    
     sendEmail(email, link, displayName, roles, message);
     var modEvents = jagg.module("events");
     var type = "CloudMgt";
@@ -421,7 +421,7 @@ var resendInvite = function resendInvite(email) {
         if (results != null && results != "") {
             var uuid = results[0]["uuid"];
             var userRoles = results[0]["roles"];
-            var link = targetEpr + "?confirmation=" + uuid + "&isInvitee=true";
+            var link = getInvitationLink(tenantDomain, userRoles, uuid);
             sendEmail(email, link, displayName, userRoles);
             log.info("Re-sending invitation to invited user " + email +" successful")
             return true;
@@ -743,4 +743,42 @@ var generateUUId = function() {
 	return uuid;
 };
 
+/**
+ * Construct the invitation link. if user is invited with only subscriber role
+ * then invitation link will be store url else cloud management app url
+ * @param tenant
+ * @param roles
+ * @param uuid
+ * @returns {string}
+ */
+var getInvitationLink = function (tenant, roles, uuid) {
+    var prefix = "?confirmation=" + uuid + "&isInvitee=true";
+    var link = targetEpr + prefix;
+    if (roles) {
+        var usreRoles = roles.split(',');
+        if (usreRoles.length == 1 && usreRoles == ROLE_SUBSCRIBER) {
+            link = getStoreConfirmationLink(tenant, prefix);
+        }
+    }
+    return link;
+}
+
+/**
+ * Construct the store confirmation page link.
+ * @param tenantDomain
+ * @param prefix
+ * @returns {string}
+ */
+var getStoreConfirmationLink = function (tenantDomain, prefix) {
+    //construct the link with default store domain
+    var link = cloudConfig.registrationEmail.targetStoreEpr + prefix + "&tenant=" + tenantDomain;
+    var defaultStoreURL = cloudConfig.customUrl.defaultStoreUrl;
+    //Get registry mapping
+    var currentMapping = jagg.module("customurl").getCurrentUserMapping(tenantDomain, API_CLOUD_TYPE);
+    if (currentMapping != null && currentMapping.store.customUrl != defaultStoreURL) {
+        var confirmPagePath = cloudConfig.registrationEmail.confirmPagePath;
+        link = "https://" + currentMapping.store.customUrl + confirmPagePath + prefix + "&tenant=" + tenantDomain;
+    }
+    return link;
+}
 %>

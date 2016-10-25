@@ -69,7 +69,8 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
             return {
                 error: false,
                 status: 200,
-                data: "add-tenant.jag"
+                data: "add-tenant.jag",
+                registration : { confirmationKey : confirm, email : email }
             };
         } else {
             return {
