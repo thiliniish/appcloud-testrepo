@@ -206,6 +206,8 @@ var BILLING_SERVICE = "CloudBillingService";
 var API_CLOUD_PRODUCT_EXTENSION = "_api_cloud";
 var CENTS = 100;
 
+var THOUSAND = 1000;
+
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
 var LOGGED_IN_USER_EMAIL = "LOGGED_IN_USER_EMAIL";

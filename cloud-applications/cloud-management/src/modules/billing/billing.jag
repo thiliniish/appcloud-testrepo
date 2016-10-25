@@ -750,4 +750,50 @@ var getCurrencyUsed = function() {
     return CURRENCY;
 };
 
+var getBillingInvoiceData = function (tenantDomain, invoiceId) {
+    try {
+        var summary = billingCoreService.getInvoiceDetails(invoiceId);
+
+        var invoiceObj = JSON.parse(summary);
+        if (invoiceObj.id != null) {
+            var invoiceItems = invoiceObj.lines.data;
+            var invoiceData = {};
+            var dateFormat = dateTimeFormatter(DATE_FORMAT);
+
+            invoiceData["accountName"] = invoiceObj.customer;
+            invoiceData["invoiceDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
+            invoiceData["invoiceNumber"] = invoiceObj.id;
+            invoiceData["amount"] = invoiceObj.amount_due / CENTS;
+            invoiceData["invoiceItems"] = [];
+
+            for (var i = 0; i < invoiceItems.length; i++) {
+                var item = {};
+                var invoiceItem = invoiceItems[i];
+                item["chargeName"] = invoiceItem.description;
+                if (invoiceItem.description == null) {
+                    item["chargeName"] = invoiceItem.plan.statement_descriptor;
+                }
+                item["subscriptionName"] = invoiceItem.plan.name;
+                item["amount"] = invoiceItem.amount / CENTS;
+                item["servicePeriod"] = dateFormat.format(invoiceItem.period.start * THOUSAND) + " to "
+                        + dateFormat.format(invoiceItem.period.end * THOUSAND);
+                item["chargeDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
+                item["discount"] = 0.0;
+                if (invoiceItem.discountable && invoiceObj.discount != null) {
+                    if (invoiceObj.discount.coupon.amount_off != null) {
+                        item["discount"] = -invoiceObj.discount.coupon.amount_off / CENTS;
+                    } else {
+                        item["discount"] = -(invoiceItem.amount - invoiceObj.discount.coupon.percent_off) / CENTS;
+                    }
+                }
+                invoiceData["invoiceItems"].push(item);
+            }
+            return invoiceData;
+        }
+    } catch (e) {
+        log.error("ERROR in getting Billing invoice data for tenant : " + tenantDomain + " : " + e.message);
+        log.error(e);
+        throw e;
+    }
+};
 %>

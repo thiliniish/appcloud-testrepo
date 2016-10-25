@@ -561,7 +561,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         try {
             return init().chargeInvoice(invoiceId);
         } catch (CloudBillingException ex) {
-            String message = "Error occurred while creating the invoice";
+            String message = "Error occurred while charging for invoice";
             LOGGER.error(message, ex);
             throw new CloudBillingException(message, ex);
         }
