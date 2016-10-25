@@ -776,8 +776,8 @@ var getStoreConfirmationLink = function (tenantDomain, prefix) {
     //Get registry mapping
     var currentMapping = jagg.module("customurl").getCurrentUserMapping(tenantDomain, API_CLOUD_TYPE);
     if (currentMapping != null && currentMapping.store.customUrl != defaultStoreURL) {
-        var temp = link.replace(defaultStoreURL, currentMapping.store.customUrl);
-        link = link.replace(defaultStoreURL, currentMapping.store.customUrl);
+        var confirmPagePath = cloudConfig.registrationEmail.confirmPagePath;
+        link = "https://" + currentMapping.store.customUrl + confirmPagePath + prefix + "&tenant=" + tenantDomain;
     }
     return link;
 }
