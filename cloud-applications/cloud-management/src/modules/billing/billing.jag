@@ -753,7 +753,7 @@ var getCurrencyUsed = function() {
 
 var getTrialPeriod = function (serviceId) {
     return billingCoreService.getTrialPeriod(serviceId);
-}
+};
 
 var getBillingInvoiceData = function (tenantDomain, invoiceId) {
     try {
@@ -859,6 +859,57 @@ var removePaymentMethod = function(methodId) {
     } catch (e) {
         log.error("Failed remove the payment method. method Id : " + methodId);
         throw new Error("Failed remove the payment method. method Id : " + methodId);
+    }
+};
+
+var cancelSubscription = function(serviceName) {
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    var effectiveDate = setChangePlanEffectiveDate(false);
+    var dateFormatter = dateTimeFormatter(DATE_FORMAT);
+    var serviceId = null;
+    for (var i = 0; i < subscriptionsType.length; i++) {
+        if ((subscriptionsType[i].name).equals(serviceName)) {
+            serviceId = subscriptionsType[i].id;
+            break;
+        }
+    }
+
+    try {
+        var subscriptionId = getCurrentSubscription().id;
+        log.info("Cancelling subscription for tenant: " + tenantDomain + " subscription id: " + subscriptionId);
+        var data = {};
+        data.at_period_end = 'true'; // This will set the cancellation in the end of the bill cycle
+
+        var response = JSON.parse(billingCoreService.cancelSubscription(subscriptionId, JSON.stringify(data)));
+        if (response.success === true) {
+            if (serviceId != null) {
+                updateBillingStatus(status.PENDING_DISABLE, effectiveDate, type.PAID, serviceId, tenantDomain);
+            }
+            var tenantDisplayName = getDisplayNameFromTenantDomain(tenantDomain);
+            if (tenantDisplayName != null) {
+                setTimeout(function () {
+                    try {
+                        jagg.module("util").sendSubscriptionCancellationEmail(tenantDisplayName, serviceName, effectiveDate);
+                        jagg.module("util").sendBillingSubscriptionCancelledNotification(tenantDisplayName, serviceId, effectiveDate);
+                        return true;
+                    } catch (e) {
+                        log.error("Error while sending notification on subscription cancellation: " + e);
+                        return true;
+                    } finally {
+                        tenantDisplayName = null;
+                        serviceName = null;
+                        serviceId = null;
+                        effectiveDate = null;
+                    }
+                }, 0);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    } catch (e) {
+        log.error("Error cancelling subscription for tenant " + tenantDomain + e);
+        throw Error(e);
     }
 };
 %>

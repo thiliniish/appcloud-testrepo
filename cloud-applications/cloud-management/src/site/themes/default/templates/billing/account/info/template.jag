@@ -156,7 +156,7 @@
                           var actionData = '<td><a onclick="loadChangePlanPage()" ><i class="fa fa-edit" ></i> Change Plan</a> &nbsp; '
                        + '<a onclick="verifyCancel(\'' + tempSubs.serviceName + '\')"><i class="fa fa-times" ></i> Cancel</a></td></tr>';
 
-                        if(tempSubs.status == "Cancelled"){
+                       if (tempSubs.isCancelled == "true") {
                         actionData = '<td><a class="fa fa-edit" href="<%=jagg.getAbsoluteUrl("/site/pages/contact-us.jag")%>"> Contact Us</a></td></tr>' ;
                        }
                        var termEndDate = tempSubs.endDate;
