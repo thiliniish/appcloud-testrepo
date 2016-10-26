@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.wso2.carbon.cloud.billing.core.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfigManager;
@@ -36,6 +37,7 @@ import org.wso2.carbon.cloud.billing.core.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.cloud.billing.core.usage.apiusage.APICloudUsageManager;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 
@@ -272,10 +274,10 @@ public final class CloudBillingServiceUtils {
     }
        
     /**
-     * @param tenantDomain
-     * @param productName
-     * @param ratePlanName
-     * @return
+     * @param tenantDomain tenant domain
+     * @param productName product name
+     * @param ratePlanName rate plan name
+     * @return rate plan id
      * @throws CloudBillingException
      */
     public static String getRatePlanId(String tenantDomain, String productName, String ratePlanName)
@@ -303,6 +305,34 @@ public final class CloudBillingServiceUtils {
         } catch (XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while parsing response: " + response, e);
         }
+    }
+
+    /**
+     * Method to get that the billing usage display period
+     *
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
+     * @return billing usage display period
+     */
+    public static String usageDisplayPeriod(String cloudId) {
+        return Integer.toString(BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId)
+                                                    .getUsageDisplayPeriod());
+    }
+
+    /**
+     * Retrieve account usage
+     *
+     * @param tenantDomain tenant domain
+     * @param productName  product name
+     * @param startDate    start date (date range for usage)
+     * @param endDate      end data (date range for usage)
+     * @return account usage array
+     * @throws CloudBillingException
+     */
+    public static AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName,
+                                                                     String startDate, String endDate)
+            throws CloudBillingException {
+        APICloudUsageManager usageManager = new APICloudUsageManager();
+        return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
     }
 
 }

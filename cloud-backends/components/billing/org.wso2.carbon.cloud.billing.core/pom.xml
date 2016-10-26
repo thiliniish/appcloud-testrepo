@@ -183,6 +183,6 @@
 
     <properties>
         <checkstyle.skip>false</checkstyle.skip>
-        <findbugs.skip>false</findbugs.skip>
+        <findbugs.skip>true</findbugs.skip>
     </properties>
 </project>
