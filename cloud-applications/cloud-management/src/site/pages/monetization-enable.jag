@@ -5,7 +5,6 @@ var site = require("/site/conf/site.json");
 
 (function () {
     var user = jagg.getUser();
-    var log = new Log();
     if (user == null) {
         response.sendRedirect("../pages/index.jag");
         return;
@@ -32,9 +31,6 @@ var site = require("/site/conf/site.json");
     }
     var eligibleForMonetization = false;
     var paymentPlanName = jagg.module("monetizing").getCurrentPaymentPlan();
-
-    log.info(paymentPlanName);
-
     if (paymentPlanName != null && BILLING_STARTER_PLAN != paymentPlanName) {
         eligibleForMonetization = true;
     }

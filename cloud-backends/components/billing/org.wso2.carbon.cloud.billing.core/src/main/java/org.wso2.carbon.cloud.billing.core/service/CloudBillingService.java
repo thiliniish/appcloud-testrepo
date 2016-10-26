@@ -322,6 +322,16 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         }
     }
 
+    public String createSubscription(String tenantDomain, String subscriptionInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).createSubscription(subscriptionInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while creating the subscription.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
     /**
      * Retrieve a subscription
      *

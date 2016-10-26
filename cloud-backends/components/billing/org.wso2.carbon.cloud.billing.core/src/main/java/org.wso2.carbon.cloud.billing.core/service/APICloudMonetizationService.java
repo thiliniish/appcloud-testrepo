@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.billing.core.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -101,6 +102,28 @@ public class APICloudMonetizationService {
         try {
             APICloudMonetizationUtils
                     .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, false);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error(
+                    "Error while adding subscriber information. Tenant: " + tenantDomain + " Subscriber: " + username +
+                    " Account number: " + accountNumber, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Insert into subscriber information
+     *
+     * @param username      subscriber user name
+     * @param tenantDomain  tenant domain
+     * @param isTestAccount boolean test account or not
+     * @param accountNumber account number. this would be null for non paid subscribers
+     * @throws CloudMonetizationException
+     */
+    public void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
+                                        String accountNumber) throws CloudMonetizationException {
+        try {
+            APICloudMonetizationUtils
+                    .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
         } catch (CloudMonetizationException ex) {
             LOGGER.error(
                     "Error while adding subscriber information. Tenant: " + tenantDomain + " Subscriber: " + username +
@@ -288,22 +311,22 @@ public class APICloudMonetizationService {
      *
      * @param tenantDomain tenant
      * @return rate plan information in json
-     *[
-     *      {
-     *          "MaxDailyUsage": "10000",
-     *          "MonthlyRental": "5000.0",
-     *          "OverUsageUnits": "1000",
-     *          "OverUsageUnitsPrice": "5.0",
-     *          "RatePlanName": "Gold"
-     *      },
-     *      {
-     *          "MaxDailyUsage": "10000",
-     *          "MonthlyRental": "7000.0",
-     *          "OverUsageUnits": "1000",
-     *          "OverUsageUnitsPrice": "5.0",
-     *          "RatePlanName": "Platinum"
-     *      }
-     *]
+     * [
+     * {
+     * "MaxDailyUsage": "10000",
+     * "MonthlyRental": "5000.0",
+     * "OverUsageUnits": "1000",
+     * "OverUsageUnitsPrice": "5.0",
+     * "RatePlanName": "Gold"
+     * },
+     * {
+     * "MaxDailyUsage": "10000",
+     * "MonthlyRental": "7000.0",
+     * "OverUsageUnits": "1000",
+     * "OverUsageUnitsPrice": "5.0",
+     * "RatePlanName": "Platinum"
+     * }
+     * ]
      * @throws CloudMonetizationException
      */
     public String getRatePlansInfo(String tenantDomain) throws CloudMonetizationException {
@@ -355,7 +378,7 @@ public class APICloudMonetizationService {
      */
     public String getRatePlanId(String tenantDomain, String ratePlanName) throws CloudMonetizationException {
         try {
-            String productName = tenantDomain + "_"+"_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
+            String productName = tenantDomain + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
             return CloudBillingServiceUtils.getRatePlanId(tenantDomain, productName, ratePlanName);
         } catch (CloudBillingException e) {
             String errorMsg = "Error while getting rate plan id for tenant: " + tenantDomain + " Rate Plan name: " +
@@ -365,5 +388,24 @@ public class APICloudMonetizationService {
         }
     }
 
-
+    /**
+     * @param tenantDomain  tenant domain
+     * @param accountNumber account number
+     * @param apiData       api data json object
+     * @param effectiveDate effective date
+     * @return success information
+     * @throws CloudMonetizationException
+     */
+    public boolean addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
+                                              String effectiveDate) throws CloudMonetizationException {
+        try {
+            JsonObject apiDataObj = new JsonParser().parse(apiData).getAsJsonObject();
+            return APICloudMonetizationUtils
+                    .addSubscriptionInformation(tenantDomain, accountNumber, apiDataObj, effectiveDate);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error while adding subscription information. Tenant: " + tenantDomain + " Account no: " +
+                         accountNumber + " Api data: " + apiData, ex);
+            throw ex;
+        }
+    }
 }

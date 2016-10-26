@@ -634,7 +634,7 @@ public final class APICloudMonetizationUtils {
      */
     public static String getRatePlanId(String tenantDomain, String ratePlanName) throws CloudMonetizationException {
         try {
-            String productName = BillingConstants.API_CLOUD_ID;
+            String productName = tenantDomain + "_" + BillingConstants.API_CLOUD_ID;
             String response = null;
             try {
                 String url = ratePlanUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
