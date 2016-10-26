@@ -843,6 +843,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 subscriptionDetailsObj.addProperty("endDate", convertUnixTimestamp(
                         BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("ended_at").asLong()));
                 subscriptionDetailsObj.addProperty("status", subscriptionNode.get("status").asText());
+                subscriptionDetailsObj
+                        .addProperty("isCancelled", subscriptionNode.get("cancel_at_period_end").asText());
 
                 // payment Details
                 JsonNode paymentNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("sources").get("data");
