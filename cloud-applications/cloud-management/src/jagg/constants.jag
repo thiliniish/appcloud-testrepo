@@ -205,6 +205,8 @@ var FREE_TIER = "FREE";
 var BILLING_SERVICE = "CloudBillingService";
 var API_CLOUD_PRODUCT_EXTENSION = "_api_cloud";
 var CENTS = 100;
+var IFRAME_DESCRIPTION = "Pay securely using Stripe";
+var IFRAME_BUTTON = "Pay Using Stripe";
 
 var THOUSAND = 1000;
 

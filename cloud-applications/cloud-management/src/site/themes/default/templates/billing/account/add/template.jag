@@ -207,9 +207,7 @@
                 firstName :$("#firstName").attr('value'),
                 lastName :$("#lastName").attr('value'),
                 address1 :$("#addressLine1").attr('value'),
-                address2 :$("#addressLine2").attr('value'),
                 city :$("#city").attr('value'),
-                state :$("#state").attr('value'),
                 zipCode :$("#postalCode").attr('value'),
                 country :$("#country").attr('value'),
                 refId :$("#refId").attr('value'),
@@ -493,17 +491,9 @@
 			<div class="input-control input-full-width col-md-7 text">
 				<input type="text" id="addressLine1" name="addressLine1" value="<%=creditCardAddress1%>" placeholder=""/>
 			</div>
-			<label class="input-label col-md-5">Address Line 2</label>
-			<div class="input-control input-full-width col-md-7 text">
-				<input type="text" id="addressLine2" name="addressLine2" value="<%=creditCardAddress2%>" placeholder=""/>
-			</div>
 			<label class="input-label col-md-5">City</label>
 			<div class="input-control input-full-width col-md-7 text">
 				<input type="text" id="city" name="city" value="<%=creditCardCity%>" placeholder=""/>
-			</div>
-			<label class="input-label col-md-5">State/Province/Region</label>
-			<div class="input-control input-full-width col-md-7 text">
-				<input type="text" id="state" name="state" value="<%=creditCardState%>" placeholder=""/>
 			</div>
 			<label class="input-label col-md-5">Country</label>
 			<div class="input-control input-full-width col-md-7 text">
