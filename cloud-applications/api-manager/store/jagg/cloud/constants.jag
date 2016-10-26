@@ -11,6 +11,7 @@ var COMMON_ERROR_MESSAGE = "An error occurred while processing the request. Plea
 var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
 
 var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
+var STRIPE_SIGNATURE_HASH = "STRIPE_SIGNATURE_HASH";
 var TENANT_RATE_PLANS = "TENANT_RATE_PLANS";
 var MONTHLY_SUBSCRIPTION_CHARGE_NAME = "Monthly subscription fee";
 

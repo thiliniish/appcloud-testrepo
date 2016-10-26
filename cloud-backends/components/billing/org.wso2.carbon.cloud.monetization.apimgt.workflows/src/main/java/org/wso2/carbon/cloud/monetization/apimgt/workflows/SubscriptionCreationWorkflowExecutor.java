@@ -150,7 +150,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                 } else {
                     return handleFreePlan(subscriptionWorkflowDTO);
                 }
-            } else if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonPrimitive()) {
+            } else if (responseObj.get(CustomWorkFlowConstants.SUBSCRIPTION_INFO_NOT_AVAILABLE).isJsonPrimitive()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Subscriber information is not available. adding subscriber");
                 }
@@ -242,8 +242,8 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             JsonObject dataObj = responseObj.get(CustomWorkFlowConstants.RESPONSE_DATA).getAsJsonObject();
             if (responseObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS) != null
                     && dataObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj
-                    .get(CustomWorkFlowConstants.RESPONSE_SUCCESS).getAsBoolean() && responseObj
-                    .get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
+                    .get(CustomWorkFlowConstants.RESPONSE_SUCCESS).getAsBoolean() && dataObj.get(
+                            CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
                 subscriptionWorkflowDTO.setStatus(APPROVED);
                 complete(subscriptionWorkflowDTO);
                 httpworkflowResponse

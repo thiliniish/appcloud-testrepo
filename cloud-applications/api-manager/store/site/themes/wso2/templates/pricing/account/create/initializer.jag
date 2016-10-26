@@ -23,12 +23,14 @@ jagg.initializer("pricing/account/create", {
         jagg.addHeaderJS("pricing/account/create", "custom",
                 "templates/pricing/js/custom/custom.js");
         jagg.addHeaderJS("pricing/account/create", "countriesAndState",
-                "/js/lib/countriesAndStates.js");
+                "templates/pricing/js/countriesandstates/countriesAndStates.js");
         jagg.addHeaderJS("pricing/account/create", "create-account",
                 "templates/pricing/account/create/js/create-account.js");
 
+        jagg.addHeaderCode("pricing/payment-method/add", "stripe", '<script type="text/javascript" src="https://js.stripe.com/v2/"></script>');
         jagg.addHeaderCode("pricing/account/create", "charset", '<meta charset="utf-8">');
         jagg.addHeaderCode("pricing/account/create", "viewpoint", '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+
     }
 });
 %>

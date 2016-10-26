@@ -93,12 +93,12 @@ function submitPage() {
     }
 };
 
-function addPaymentMethod(){
+function addPaymentMethod() {
     jagg.syncPost("../blocks/billing/method/add/ajax/add.jag", {
         action: "addPaymentMethod",
         tokenId: cardDetails.field_passthrough4
     }, function (results) {
-///       No action Needed
+    // No action Needed
     }, function (jqXHR, textStatus, errorThrown) {
         $('.message_box').empty();
         jagg.message({

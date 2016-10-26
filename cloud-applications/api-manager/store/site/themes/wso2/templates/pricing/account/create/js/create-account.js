@@ -17,8 +17,8 @@ function doSubmit() {
             signature: $("#signature").val(),
             field_passthrough1: $("#field_passthrough1").val(),
             workflowReference: $("#workflowReference").val(),
-            email: $("#email").val()
-
+            email: $("#email").val(),
+            field_passthrough5: $("#field_passthrough5").val()
         }, function (result) {
             if (!result.error) {
                 var tenant = $("#tenant").val();
