@@ -953,4 +953,38 @@ var addDays = function (date, days) {
     return cal.getTime();
 };
 
+// Get the usage display period for api cloud
+var getAPICloudUsageDisplayPeriod = function (serviceId) {
+    return billingCoreService.usageDisplayPeriod(serviceId);
+};
+
+//Get Usage for a given time line
+var getTenantUsage = function (fromDate, toDate) {
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    try {
+        if (log.isDebugEnabled()) {
+            log.debug("Getting tenant Usage for year from " + fromDate + " To " + toDate);
+        }
+        var usage = billingCoreService.getTenantUsageDataForGivenDateRange(tenantDomain, "API_CLOUD", fromDate, toDate);
+        var accountUsage = {
+            entry: []
+        };
+        for (var i = 0; i < usage.length; i++) {
+            var item = usage[i];
+            accountUsage.entry.push({
+                "date": usage[i].getDate(),
+                "maxUsage": item.getMaxDailyUsage(),
+                "calls": item.getUsage(),
+                "ratePlan": item.getRatePlan(),
+                "isPaid": item.isPaidAccount(),
+                "overage": item.getOverage()
+            });
+        }
+        return accountUsage;
+    } catch (e) {
+        log.error("Error retrieving usage for : " + tenantDomain + " " + e);
+        throw Error(e);
+    }
+};
+
 %>

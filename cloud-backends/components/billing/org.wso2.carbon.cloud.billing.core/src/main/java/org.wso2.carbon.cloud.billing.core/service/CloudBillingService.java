@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wso2.carbon.cloud.billing.core.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
@@ -782,7 +783,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             transformer.transform(source, result);
             content = result.getWriter().toString();
             // Update the workflow resource
-            workflowResource.setContent(content.getBytes("UTF-8"));
+            workflowResource.setContent(content.getBytes(BillingConstants.ENCODING));
             return CloudBillingUtils.putRegistryResource(tenantDomain, workflowUrl, workflowResource);
         } catch (RegistryException | ParserConfigurationException | SAXException | IOException | TransformerException
                 e) {
@@ -940,5 +941,37 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
      */
     public static String getTrialPeriod(String cloudId) {
         return CloudBillingServiceUtils.getTrialPeriod(cloudId);
+    }
+
+    /**
+     * Method to get that the billing usage display period
+     *
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
+     * @return billing usage display period
+     */
+    public static String usageDisplayPeriod(String cloudId) {
+        return CloudBillingServiceUtils.usageDisplayPeriod(cloudId);
+    }
+
+    /**
+     * Retrieve usage data for a tenant
+     *
+     * @param tenantDomain Tenant Domain
+     * @param productName  Subscribed product
+     * @param startDate    date range - start date
+     * @param endDate      data range - end date
+     * @return Account Usage array
+     * @throws CloudBillingException
+     */
+    public AccountUsage[] getTenantUsageDataForGivenDateRange(String tenantDomain, String productName, String startDate,
+                                                              String endDate) throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils
+                    .getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving usage data of tenant: " + tenantDomain + "for product: " +
+                         productName, ex);
+            throw ex;
+        }
     }
 }

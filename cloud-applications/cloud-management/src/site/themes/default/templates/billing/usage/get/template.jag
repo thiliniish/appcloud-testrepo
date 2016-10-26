@@ -108,7 +108,7 @@ if (request.getParameter("cloud-type") != null) {
 	var isBillingEnabled = jagg.module("billing").isBillingEnabled(SUBSCRIPTION_API_CLOUD);
 	if (isBillingEnabled) {
 		var isBillingAccount = jagg.module("billing").isPaidAccount();
-		var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();
+		var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod(SUBSCRIPTION_API_CLOUD)).toString();
 
 		var dateFormatter = "yyyy-MM-dd";
 		var dateFormat = new Packages.java.text.SimpleDateFormat(dateFormatter);
