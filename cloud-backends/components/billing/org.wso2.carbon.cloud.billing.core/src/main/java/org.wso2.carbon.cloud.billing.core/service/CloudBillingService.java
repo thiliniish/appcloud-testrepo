@@ -605,16 +605,15 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         return CloudBillingServiceUtils.validateRatePlanId(serviceId, productRatePlanId);
     }
 
-    //// TODO: 10/8/16 Verify this method
-    //    /**
-    //     * Validate service id
-    //     *
-    //     * @param serviceId service Id
-    //     * @return success boolean
-    //     */
-    //    public boolean validateServiceId(String serviceId) {
-    //        return CloudBillingServiceUtils.validateServiceId(serviceId);
-    //    }
+    /**
+     * Validate service id
+     *
+     * @param serviceId service Id
+     * @return success boolean
+     */
+    public boolean validateServiceId(String serviceId) {
+        return CloudBillingServiceUtils.validateServiceId(serviceId);
+    }
 
     /**
      * Method to get that the billing functionality enable/disable status

@@ -406,7 +406,7 @@ public class APICloudMonetizationService {
     /**
      * Get APIs for a given user from API Stat tables.
      *
-     * @param username
+     * @param username username
      * @return JSON object of api names
      * @throws CloudMonetizationException
      */
@@ -422,7 +422,7 @@ public class APICloudMonetizationService {
     /**
      * Get the list of applications by looking at the user name and api name from API Stat tables
      *
-     * @param username
+     * @param username username
      * @param apiName  API Name
      * @return JSON object of Application names
      * @throws CloudMonetizationException
@@ -473,6 +473,5 @@ public class APICloudMonetizationService {
             throw new CloudMonetizationException(errorMsg, e);
         }
     }
-
 
 }
