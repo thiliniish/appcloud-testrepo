@@ -916,10 +916,10 @@ var cancelSubscription = function(serviceName) {
 
 // Extend the trial period
 var extendTrial = function (serviceId, customerRequest) {
-
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     var extensionStartDate = new Packages.java.util.Date();
-    var extendedEndDate = addDays(extensionStartDate, parseInt(getConfigInJson().trialPeriod));
+    var extendedEndDate = addDays(extensionStartDate, parseInt(
+            billingCoreService.getTrialPeriod(SUBSCRIPTION_API_CLOUD)));
     var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
 
     var queryString = SQL_QUERY_STRINGS.SELECT_ALL_FROM_BILLING_STATUS;
@@ -1000,10 +1000,16 @@ var extendTrial = function (serviceId, customerRequest) {
         } else {
             return false;
         }
-
     } else {
         return false;
     }
+};
+
+var addDays = function (date, days) {
+    var cal = Packages.java.util.Calendar.getInstance();
+    cal.setTime(date);
+    cal.add(Packages.java.util.Calendar.DATE, days);
+    return cal.getTime();
 };
 
 %>
