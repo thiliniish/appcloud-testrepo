@@ -113,7 +113,7 @@
                 <div class="container col-md-8 wr-text-gray">
                     <p>Please enter your card information</p>
                     <div class="col-md-12 panel-body">
-                        <button id="redeembtn1" type="button" style="font-weight: normal;" class="btn redeembtn btn-default btn-redeem col-md-4 col-xs-12">Pay By Card</button>
+                        <button id="btnAddCardDetails" type="button" style="font-weight: normal;" class="btn redeembtn btn-default btn-redeem col-md-4 col-xs-12">Pay By Card</button>
                         <div class="cardDetails" id="cardDetails">
                             <div class="col-lg-12 content-section-wrapper">
                                 <label class="control-label label-style">Card type :</label>

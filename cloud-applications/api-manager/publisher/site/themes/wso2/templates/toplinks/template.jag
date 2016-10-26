@@ -191,7 +191,7 @@
                         var dropDownUrl = dropDowns[dropDown].url;
                         var dropDownIcon = dropDowns[dropDown].icon;
                         var dropDownTarget = dropDowns[dropDown].target;
-                        if (attr == "Account" && accountContent == "Account"){
+                        if (attr == "Account" && accountContent == "Account") {
                             if (dropDown == "Request Extension") {
                                 //do not show Request Extension if Billing is enabled
                             } else {
@@ -207,6 +207,8 @@
                     </li>
         <%
                             }
+                        } else if (dropDown == "Monetization" && isTrialAccount) {
+                           //do not show Monetization if Billing is not enabled
                         } else {
         %>
                     <li>

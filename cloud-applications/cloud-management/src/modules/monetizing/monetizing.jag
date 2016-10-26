@@ -90,12 +90,13 @@ var getSubscribersOfTenant = function () {
     }
 };
 
+// Make subscriber account as test account
 var makeSubscriberAccountTest = function (subscriberString) {
     var tenantDomain = modManager.getTenantDomain();
     var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
     var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
     var sqlDateFormat = modUtil.dateTimeFormatter(MYSQL_DATETIME_FORMAT);
-    var zuoradateFormatter = modUtil.dateTimeFormatter(ZUORA_DATE_FORMAT);
+    var dateFormatter = modUtil.dateTimeFormatter(DATE_FORMAT);
     var effectiveDate = new Packages.java.util.Date();
     var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
     var subscriber, username, accountId;
@@ -114,7 +115,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                     var subsLen = subscriptionIds.length;
                     var jsonData = {};
                     jsonData.cancellationPolicy = 'SpecificDate';
-                    jsonData.cancellationEffectiveDate = zuoradateFormatter.format(effectiveDate);
+                    jsonData.cancellationEffectiveDate = dateFormatter.format(effectiveDate);
                     jsonData.invoiceCollect = true;
                     for (var j = 0; j < subsLen; j++) {
                         //Cancel subscriptions
@@ -208,7 +209,7 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
                 }
                 //Remove paid api subscriptions from apim
                 var response = monetizationService.removePaidApiSubscriptionsOfUser(apimSubscriberId, tenantDomain);
-                if (response === true) {
+                if (response && response === true) {
                     //Update monetization subscriber table
                     updateMonetizationSubscriberTable(false, username, tenantDomain);
                     //Send notification email
@@ -256,7 +257,6 @@ var makeTestSubscriberAccountRegular = function (subscriberString) {
 
 
 //Get usage for a given time line
-
 var getSubscriberUsage = function (userId, applicationName, apiVersion, fromDate, toDate, isMonthly, displayType) {
     var tenantDomain = modManager.getTenantDomain();
     if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
@@ -1044,7 +1044,7 @@ var addProductRatePlan = function (planName, planDescription, pricing, overageCh
     try {
         var tenantDomain = modManager.getTenantDomain();
         var planObj = {};
-        planObj.id = API_CLOUD + "_" + planName;
+        planObj.id = API_CLOUD + "_" + tenantDomain + "_" + planName;
         planObj.amount = pricing;
         planObj.currency = "usd";
         planObj.interval = "month";
@@ -1053,7 +1053,6 @@ var addProductRatePlan = function (planName, planDescription, pricing, overageCh
         metaDataObj.product = API_CLOUD;
         metaDataObj.description = planDescription;
         planObj.metadata = metaDataObj;
-        //this will add the plan to wso2 platform. Neet to modify it..!!
         var addProductPlanResult = JSON.parse(billingService.createProductRatePlan(tenantDomain, stringify(planObj)));
         if (addProductPlanResult.id != null) {
             addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlanResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
@@ -1091,7 +1090,7 @@ var addProductRatePlan = function (planName, planDescription, pricing, overageCh
 var updateProductRatePlanInfo = function (ratePlanName, description, recurringCharge, overageCharge, overageLimit, dailyUsage) {
     try {
         var tenantDomain = modManager.getTenantDomain();
-        var ratePlanId = API_CLOUD + "_" + ratePlanName;
+        var ratePlanId = API_CLOUD + "_" + tenantDomain + "_" + ratePlanName;
         updateProductPlanDetailsToMonetizationTable(tenantDomain, ratePlanId, ratePlanName, recurringCharge, overageCharge, overageLimit, dailyUsage);
         return {
             error: false,

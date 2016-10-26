@@ -571,7 +571,7 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         try {
             return init().chargeInvoice(invoiceId);
         } catch (CloudBillingException ex) {
-            String message = "Error occurred while creating the invoice";
+            String message = "Error occurred while charging for invoice";
             LOGGER.error(message, ex);
             throw new CloudBillingException(message, ex);
         }
@@ -931,5 +931,15 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             LOGGER.error("Error occurred while retrieving the account information of the customer : " + customerId, ex);
             throw ex;
         }
+    }
+
+    /**
+     * Method to get that the billing trial period
+     *
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
+     * @return billing trial period
+     */
+    public static String getTrialPeriod(String cloudId) {
+        return CloudBillingServiceUtils.getTrialPeriod(cloudId);
     }
 }

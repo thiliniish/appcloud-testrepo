@@ -19,6 +19,7 @@ package org.wso2.carbon.cloud.billing.vendor.stripe;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -499,11 +500,19 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String setDefaultPaymentMethod(String customerId, String paymentMethodInfoJson)
             throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
         try {
-            return validateResponseString(updateCustomer(customerId, paymentMethodInfoJson));
+            JsonElement customerJsonObj =  new JsonParser().parse(
+                    validateResponseString(updateCustomer(customerId, paymentMethodInfoJson)));
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, customerJsonObj);
         } catch (CloudBillingVendorException ex) {
-            throw new CloudBillingVendorException("Error while setting the default payment method : ", ex);
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while setting the default payment method : ", ex);
         }
+        return response.toString();
     }
 
     /**
@@ -834,6 +843,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 subscriptionDetailsObj.addProperty("endDate", convertUnixTimestamp(
                         BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("ended_at").asLong()));
                 subscriptionDetailsObj.addProperty("status", subscriptionNode.get("status").asText());
+                subscriptionDetailsObj
+                        .addProperty("isCancelled", subscriptionNode.get("cancel_at_period_end").asText());
 
                 // payment Details
                 JsonNode paymentNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("sources").get("data");

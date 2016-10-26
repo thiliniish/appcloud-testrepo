@@ -20,10 +20,7 @@ var mod = jagg.module("billing");
     if (action == "get-payment-methods") {
         if ((session.get("TENANT_INFO")) != null) {
             var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-            var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
-            var accountId = billingService.getAccountId(tenantDomain);
-            // call the billing module
-            var summary = mod.getAllPaymentMethods(accountId);
+            var summary = mod.getAllPaymentMethods(tenantDomain);
             print(summary);
         }
     } else if (action == "setDefaultMethod") {

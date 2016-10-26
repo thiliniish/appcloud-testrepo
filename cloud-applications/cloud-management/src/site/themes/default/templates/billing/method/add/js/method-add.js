@@ -3,6 +3,7 @@ var publicParam = {};
 var cardDetails = {};
 var monthlyRental = $("#monthlyRental").attr('value');
 var productRatePlanId = $("#productRatePlanId").attr('value');
+var accountId = $("#accountId").attr('value');
 
 $(document).ready(function ($) {
     // Check for billing enable/disable mode
@@ -19,6 +20,9 @@ $(document).ready(function ($) {
         });
         $("#redeembtn").click(function () {
             calculateDiscount();
+        });
+        $("#btnAddCardDetails").click(function () {
+            getCheckoutHandler();
         });
         $('#coupon').keydown(function (event) {
             if (event.keyCode === 13) {
@@ -68,8 +72,10 @@ $(document).ready(function ($) {
 });
 
 function submitPage() {
-    //TODO Check the other possibilities
     var secondaryCC = null;
+    if (accountId != null && accountId != "") {
+            secondaryCC = true;
+    }
     var strUrlBasicParam = Object.keys(publicParam).map(function (key) {
         return encodeURIComponent(key) + '=' + encodeURIComponent(publicParam[key]);
     }).join('&');
@@ -78,13 +84,33 @@ function submitPage() {
         return encodeURIComponent(key) + '=' + encodeURIComponent(cardDetails[key]);
     }).join('&');
 
-    if (secondaryCC != null && secondaryCC == "secondary-card") {
+    if (secondaryCC) {
+       addPaymentMethod();
         window.top.location.href = "../../site/pages/payment-methods.jag?secondary-card=success";
     } else {
         window.top.location.href = "../../site/pages/add-billing-account.jag?responseFrom=Response_From_Submit_Page&success=true&"
             + strUrlBasicParam + "&" + strUrlCardParams;
     }
 };
+
+function addPaymentMethod(){
+    jagg.syncPost("../blocks/billing/method/add/ajax/add.jag", {
+        action: "addPaymentMethod",
+        tokenId: cardDetails.field_passthrough4
+    }, function (results) {
+///       No action Needed
+    }, function (jqXHR, textStatus, errorThrown) {
+        $('.message_box').empty();
+        jagg.message({
+            content: "Unable to add a new payment method at the moment. Please contact WSO2 Cloud Team for help",
+            type: 'error',
+            cbk: function () {
+                var cloudMgtURL = $("#cloudmgtURL").attr('value');
+                window.location.href = cloudMgtURL + "/site/pages/contact-us.jag";
+            }
+        });
+    });
+}
 
 
 function getKeys() {
@@ -172,9 +198,7 @@ function getCheckoutHandler() {
         billingAddress: true,
         panelLabel: 'Submit',
         token: function (response) {
-            // You can access the token ID with `token.id`.
-            // Get the token ID to your server-side code for use.
-            document.getElementById("redeembtn1").style.visibility = "hidden";
+            document.getElementById("btnAddCardDetails").style.visibility = "hidden";
             document.getElementById("cardDetails").style.visibility = "visible";
             $("#paymentType").text(response.card.brand);
             $("#ccName").text(response.card.name);
