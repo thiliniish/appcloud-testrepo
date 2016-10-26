@@ -145,3 +145,8 @@ input:checked+input.txtCoupon {
 #goToCloudType:active {
     background-color: #e6e6e6;
 }
+
+.label-style {
+    text-align: left !important;
+    font-weight: normal !important;
+}

@@ -4,13 +4,16 @@ var cardDetails = {};
 var monthlyRental = $("#monthlyRental").attr('value');
 var productRatePlanId = $("#productRatePlanId").attr('value');
 var accountId = $("#accountId").attr('value');
+var userEmail = $("#userEmail").attr('value');
+var iframeDescription = $("#iframeDescription").attr('value');
 
 $(document).ready(function ($) {
     // Check for billing enable/disable mode
     var isBillingEnabled = $("#isBillingEnabled").attr('value');
 
     if (isBillingEnabled) {
-        document.getElementById("cardDetails").style.visibility = "hidden";
+        document.getElementById("cardDetails").style.display = "none";
+        document.getElementById("cardSuccessHeader").style.display = "none";
         showErrorMessage();
         getKeys();
         getCheckoutHandler();
@@ -74,7 +77,7 @@ $(document).ready(function ($) {
 function submitPage() {
     var secondaryCC = null;
     if (accountId != null && accountId != "") {
-            secondaryCC = true;
+        secondaryCC = true;
     }
     var strUrlBasicParam = Object.keys(publicParam).map(function (key) {
         return encodeURIComponent(key) + '=' + encodeURIComponent(publicParam[key]);
@@ -195,27 +198,31 @@ function getCheckoutHandler() {
         key: field_passthrough1,
         image: 'http://b.content.wso2.com/sites/all/cloudmicro/images/icon-wso2.jpg',
         locale: 'auto',
+        zipCode: true,
+        allowRememberMe: false,
         billingAddress: true,
         panelLabel: 'Submit',
         token: function (response) {
-            document.getElementById("btnAddCardDetails").style.visibility = "hidden";
-            document.getElementById("cardDetails").style.visibility = "visible";
+            document.getElementById("btnAddCardDetails").style.display = "none";
+            document.getElementById("cardDetailHeader").style.display = "none";
+            document.getElementById("cardDetails").style.display = "block";
+            document.getElementById("cardSuccessHeader").style.display = "block";
             $("#paymentType").text(response.card.brand);
             $("#ccName").text(response.card.name);
             $("#ccNum").text("************" + response.card.last4);
             $("#ccExpiary").text(response.card.exp_month + " / " + response.card.exp_year);
 
             cardDetails.creditCardAddress1 = response.card.address_line1;
-            cardDetails.creditCardAddress2 = response.card.address_line2;
             cardDetails.creditCardPostalCode = response.card.address_zip;
             cardDetails.creditCardCountry = response.card.address_country;
             cardDetails.creditCardCity = response.card.address_city;
-            cardDetails.creditCardState = response.card.address_state;
             cardDetails.field_passthrough4 = response.id;
         }
     });
     handler.open({
-        name: 'WSO2 Cloud'
+        name: 'WSO2 Cloud',
+        description: iframeDescription,
+        email: userEmail
     });
 
     // Close Checkout on page navigation:

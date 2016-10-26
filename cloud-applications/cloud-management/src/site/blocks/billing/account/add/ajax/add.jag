@@ -29,9 +29,7 @@ var ratePlans = session.get("RATE_PLANS");
 
 		organizationName = request.getParameter("orgName");
 		accountData.line1 = request.getParameter("address1");
-		accountData.line2 = request.getParameter("address2");
 		accountData.city = request.getParameter("city");
-		accountData.state = request.getParameter("state");
 		accountData.postal_code = request.getParameter("zipCode");
 		accountData.country = request.getParameter("country");
 
