@@ -125,21 +125,21 @@ public final class CloudBillingServiceUtils {
         return false;
     }
 
-    //    /**
-    //     * Validate service Id
-    //     *
-    //     * @param cloudId service id
-    //     * @return validation boolean
-    //     */
-    //    public static boolean validateServiceId(String cloudId) {
-    //        Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getSubscriptions();
-    //        for (Subscription subscription : subscriptions) {
-    //            if (cloudId.equals(subscription.getId())) {
-    //                return true;
-    //            }
-    //        }
-    //        return false;
-    //    }
+    /**
+     * Validate service Id
+     *
+     * @param cloudId service id
+     * @return validation boolean
+     * */
+    public static boolean validateServiceId(String cloudId) {
+        CloudType[] cloudTypes = BillingConfigManager.getBillingConfiguration().getCloudTypes();
+        for (CloudType cloudType : cloudTypes) {
+            if (cloudId.equals(cloudType.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Method to get that the billing functionality enable/disable status

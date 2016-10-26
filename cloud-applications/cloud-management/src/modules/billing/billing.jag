@@ -751,6 +751,7 @@ var getCurrencyUsed = function() {
     return CURRENCY;
 };
 
+// get the trial period
 var getTrialPeriod = function (serviceId) {
     return billingCoreService.getTrialPeriod(serviceId);
 };
@@ -912,4 +913,103 @@ var cancelSubscription = function(serviceName) {
         throw Error(e);
     }
 };
+
+// Extend the trial period
+var extendTrial = function (serviceId, customerRequest) {
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    var extensionStartDate = new Packages.java.util.Date();
+    var extendedEndDate = addDays(extensionStartDate, parseInt(
+            billingCoreService.getTrialPeriod(SUBSCRIPTION_API_CLOUD)));
+    var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+
+    var queryString = SQL_QUERY_STRINGS.SELECT_ALL_FROM_BILLING_STATUS;
+    var parameters = [tenantDomain, serviceId, type.TRIAL];
+    var result = modDb.executeQuery(queryString, parameters);
+    if (result.length > 0) {
+        if (result[0]["STATUS"] === status.ACTIVE || status.EXTENDED) {
+
+            var trialStartDate = result[0]["START_DATE"];
+            var trialEndDate = result[0]["END_DATE"];
+
+            queryString = SQL_QUERY_STRINGS.INSERT_BILLING_STATUS_HISTORY;
+            var tenantId = modManager.getTenantId(tenantDomain);
+            parameters = [serviceId, null, tenantDomain, type.TRIAL, status.EXPIRED, trialStartDate, trialEndDate,
+                tenantId];
+            modDb.executeQuery(queryString, parameters);
+
+            queryString = SQL_QUERY_STRINGS.UPDATE_BILLING_STATUS;
+            parameters = [status.EXTENDED, sqlDateFormat.format(extensionStartDate),
+                sqlDateFormat.format(extendedEndDate), tenantDomain, serviceId, type.TRIAL];
+            modDb.executeQuery(queryString, parameters);
+
+            var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
+            if (tenantDisplayName != null) {
+                setTimeout(function () {
+                    try {
+                        jagg.module("util").sendBillingTrialExtendedMailToUser(tenantDisplayName, serviceId,
+                                extendedEndDate);
+                        jagg.module("util").sendBillingTrialExtendedNotification(tenantDisplayName, serviceId,
+                                extendedEndDate, customerRequest);
+                        var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+                        if (isEnabled == true) {
+                            var modEvents = jagg.module("events");
+                            var type = serviceId.toUpperCase();
+                            type = type.substring(0, type.indexOf("_"));
+                            var email = String(session.get("LOGGED_IN_USER_EMAIL"));
+                            var data = "email=" + email + "&expiry_date=" + sqlDateFormat.format(extendedEndDate);
+                            var URL;
+                            if ("API".equals(type)) {
+                                URL = cloudConfig.MailCampaignAddUserApi.apiCloudTrialExtension;
+                            } else if ("APP".equals(type)) {
+                                URL = cloudConfig.MailCampaignAddUserApi.appCloudTrialExtension;
+                            }
+                            var result = post(URL, data, {}, 'text');
+                            var msg = result['data'];
+                            var actionString = MAIL_CAMPAIGN + "-" + type + "-trialextension:";
+                            var page = MAIL_CAMPAIGN;
+                            var item = type;
+                            var events = [];
+                            if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
+                                actionString = actionString + "Success";
+                                log.info(MAIL_CAMPAIGN + " api call Trial Extension is success for " + email);
+                            } else {
+                                actionString = actionString + "Failed";
+                                log.error(MAIL_CAMPAIGN + " api call failed for the user " + jagg.getUser() + " " + msg);
+                            }
+                            var event = {};
+                            event.item = item;
+                            event.timestamp = new Date().getTime();
+                            event.pageName = page;
+                            event.action = actionString;
+                            events[events.length] = event;
+                            modEvents.publishUserActivity(events, jagg.getUser(), tenantDomain);
+                        }
+                        return true;
+                    } catch (e) {
+                        log.error("Error while sending notification for renewal of trial subscription : " + e);
+                        return true;
+                    } finally {
+                        serviceId = null;
+                        extendedEndDate = null;
+                        tenantDisplayName = null;
+                        customerRequest = null;
+                    }
+                }, 0);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+};
+
+var addDays = function (date, days) {
+    var cal = Packages.java.util.Calendar.getInstance();
+    cal.setTime(date);
+    cal.add(Packages.java.util.Calendar.DATE, days);
+    return cal.getTime();
+};
+
 %>

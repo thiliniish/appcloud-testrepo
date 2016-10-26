@@ -89,6 +89,9 @@ jagg.module("billing", {
     },
     removePaymentMethod: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").removePaymentMethod.apply(this, arguments);
+    },
+    extendTrial: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").extendTrial.apply(this, arguments);
     }
 
 });
