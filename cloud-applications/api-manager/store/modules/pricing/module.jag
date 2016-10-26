@@ -1,7 +1,7 @@
 <%
 jagg.module("pricing", {
-    generateParams: function () {
-        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").generateParams.apply(this, arguments);
+    generateParameters: function () {
+        return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").generateParameters.apply(this, arguments);
     },
     isMonetizationEnabled: function () {
         return jagg.require(jagg.getModulesDir() + "pricing/manager.jag").isMonetizationEnabled.apply(this, arguments);

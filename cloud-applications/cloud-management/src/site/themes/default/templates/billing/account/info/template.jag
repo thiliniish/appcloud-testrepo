@@ -122,17 +122,13 @@
                     }
                     // set account summary
                     $('#accName').text(accountSummary.accountName);
-                    $('#lastPayment').text(lastPayment + " " + accountSummary.currency);
                     $('#accBalance').text(accountSummary.accountBalance);
-                    $('#lastPaymentDate').text(accountSummary.lastPaymentDate);
-                    $('#lastInvoice').text(accountSummary.lastInvoiceDate);
 
                     // set contact info
                     $('#fname').text(contactDetails.firstName);
-                    $('#state').text(contactDetails.state);
                     $('#lname').text(contactDetails.lastName);
                     $('#postalcode').text(contactDetails.postalcode);
-                    $('#address').text(contactDetails.address1 + " " + contactDetails.address1);
+                    $('#address').text(contactDetails.address1);
                     $('#country').text(contactDetails.country);
                     $('#city').text(contactDetails.city);
                     $('#email').text(contactDetails.email);
@@ -350,20 +346,8 @@
                             <label id="accName" name="accName" class="control-label label-style"></label>
                         </div>
                         <div class="col-lg-6 content-section-wrapper">
-                            <label class="control-label label-style title-label">Last Payment :</label>
-                            <label id="lastPayment" name="lastPayment" class="control-label label-style"></label>
-                        </div>
-                        <div class="col-lg-6 content-section-wrapper">
                             <label class="control-label label-style title-label">Account Balance :</label>
                             <label id="accBalance" name="accBalance" class="control-label label-style"></label>
-                        </div>
-                        <div class="col-lg-6 content-section-wrapper">
-                            <label class="control-label label-style title-label">Last Payment Date :</label>
-                            <label id="lastPaymentDate" name="lastPaymentDate" class="control-label label-style"></label>
-                        </div>
-                        <div class="col-lg-6 content-section-wrapper">
-                            <label class="control-label label-style title-label">Last Invoice :</label>
-                            <label id="lastInvoice" name="lastInvoice" class="control-label label-style"></label>
                         </div>
                         <div class="col-lg-6 content-section-wrapper"></div>
                     </div>
@@ -425,16 +409,16 @@
                             <label id="fname" name="fname" class="control-label label-style"></label>
                         </div>
                         <div class="col-lg-6 content-section-wrapper">
-                            <label class="control-label label-style title-label">City :</label>
-                            <label id="city" name="city" class="control-label label-style"></label>
+                            <label class="control-label label-style title-label">Address :</label>
+                            <label id="address" name="address" class="control-label label-style"></label>
                         </div>
                         <div class="col-lg-6 content-section-wrapper">
                             <label class="control-label label-style title-label">Last Name :</label>
                             <label id="lname" name="lname" class="control-label label-style"></label>
                         </div>
                         <div class="col-lg-6 content-section-wrapper">
-                            <label class="control-label label-style title-label">State :</label>
-                            <label id="state" name="state" class="control-label label-style"></label>
+                            <label class="control-label label-style title-label">City :</label>
+                            <label id="city" name="city" class="control-label label-style"></label>
                         </div>
                         <div class="col-lg-6 content-section-wrapper">
                             <label class="control-label label-style title-label">E-mail :</label>
@@ -445,8 +429,6 @@
                             <label id="postalcode" name="postalcode" class="control-label label-style"></label>
                         </div>
                         <div class="col-lg-6 content-section-wrapper">
-                            <label class="control-label label-style title-label">Address :</label>
-                            <label id="address" name="address" class="control-label label-style"></label>
                         </div>
                         <div class="col-lg-6 content-section-wrapper">
                             <label class="control-label label-style title-label">Country :</label>

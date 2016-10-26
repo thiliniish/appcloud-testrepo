@@ -12,11 +12,11 @@ var errorObj = {
     message: "Internal error. Please retry..."
 };
 
-//Generate zuora HPM page parameters
-var generateParams = function (tenantDomain, workflowReference) {
+//Create Billing vendor parameters 
+var generateParameters = function (tenantDomain, workflowReference) {
     try {
-        var clientParams = JSON.parse(billingService.prepareParams());
-        session.put(ZUORA_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
+        var clientParams = JSON.parse(billingService.callVendorMethod("getPublishableKeyForTenant", tenantDomain));
+        session.put(STRIPE_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
         //passthrough parameters are used to pass the values between the iframe and account creation page. we can use
         //those parameters by iteratively number them from 1
         //field_passthrough1 is client token
@@ -120,7 +120,7 @@ var updateContactInfo = function (accountData) {
 
 var removePaymentMethod = function (methodId) {
     try {
-        var result =  JSON.parse(billingService.removePaymentMethod(methodId));
+        var result = JSON.parse(billingService.removePaymentMethod(methodId));
         if (result.success) {
             return {
                 error: false,
@@ -348,6 +348,7 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
 
     //base64 decode and decrypt the workflow data
     var apiData = decryptWorkflowData(workflowRefData);
+
     try {
         ratePlanId = apiMonService.getRatePlanId(tenantDomain, apiData.ratePlanName);
         if (ratePlanId == null || "".equals(ratePlanId)) {
@@ -371,82 +372,75 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
 
     try {
         var effectiveDate = new Packages.java.util.Date();
-        var data = populateAccountInfo(accountData, metaData, effectiveDate, ratePlanId);
-        var response = billingService.createChildAccount(tenantDomain, stringify(data));
-
-        var responseObj = JSON.parse(response);
-        var createChildResObj = responseObj.createChildResponse;
-        var addParentObj = responseObj.addParentResponse;
+        var data = populateAccountInfo(accountData, metaData, false);
+        var response = billingService.createCustomer(tenantDomain, stringify(data));
+        var createChildAccountResObj = JSON.parse(response);
         var updateSubscriberResult, addSubscriptionResult;
+        if (createChildAccountResObj.id != null) {
+            data = populateSubscriptionInfo(createChildAccountResObj.id, ratePlanId);
+            var responseSubscriptionCreation = billingService.createSubscription(tenantDomain, stringify(data));
+            var responseSubscriptionCreationObj = JSON.parse(responseSubscriptionCreation);
 
-        if (createChildResObj.success) {
-            updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
-                    createChildResObj.accountNumber);
-            var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
-            var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
-            var messageBody, subject;
+            if (responseSubscriptionCreationObj.success) {
+                updateSubscriberResult = apiMonService.updateAPISubscriberInfo(username, tenantDomain, false,
+                        createChildAccountResObj.id);
+                var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+                var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+                var messageBody, subject;
 
-            if (updateSubscriberResult) {
-                apiData.subscriptionNumber = createChildResObj.subscriptionNumber;
-                apiData.ratePlanId = ratePlanId;
-                addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildResObj
-                        .accountNumber, stringify(apiData), formattedEffectiveDate);
-                if (!addSubscriptionResult) {
-                    log.error("Error while updating subscription information. subscription information update failed. "
-                            + "account name: " + data.name + " account number: " + createChildResObj.accountNumber + "for tenant:"
-                            + tenantDomain);
+                if (updateSubscriberResult) {
+                    apiData.subscriptionNumber = responseSubscriptionCreationObj.data.subscriptionNumber;
+                    log.info("api data subscriptionNumber");
+                    log.info(apiData.subscriptionNumber);
+                    apiData.ratePlanId = ratePlanId;
+                    addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildAccountResObj.id,
+                            stringify(apiData), formattedEffectiveDate);
+
+                    if (!addSubscriptionResult) {
+                        log.error("Error while updating subscription information. subscription information update failed. "
+                        + "account name: " + data.name + " account number: " + createChildAccountResObj.id + "for tenant:"
+                        + tenantDomain);
+                        //ToDo This email and manual recovering process is a temporary fix for the MVP
+                        messageBody = "Error while updating subscription information in the database. Please update " +
+                        "the subscriptions table. Tenant: " + tenantDomain + ", Username: " +
+                        username + ", Account number: " + createChildAccountResObj.id + ", Effective date: "
+                        + formattedEffectiveDate + ", API data: " + stringify(apiData);
+                        subject = "[Monetization][API Cloud][ALERT] Subscription db update failure";
+                        billingService.sendEmailToCloud(subject, messageBody);
+                        log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
+                        + " Tenant: " + tenantDomain);
+                        addSubscriptionResult = true;
+                    }
+                } else {
                     //ToDo This email and manual recovering process is a temporary fix for the MVP
-                    messageBody = "Error while updating subscription information in the database. Please update " +
-                            "the subscriptions table. Tenant: " + tenantDomain + ", Username: " +
-                            username + ", Account number: " + createChildResObj.accountNumber + ", Effective date: "
-                            + formattedEffectiveDate + ", API data: " + stringify(apiData);
-                    subject = "[Monetization][API Cloud][ALERT] Subscription db update failure";
+                    messageBody = "Error while updating subscriber information in the database. Please update " +
+                    "the subscriber table & subscriptions table. Tenant: " + tenantDomain + ", Username: " +
+                    username + ", Account number: " + createChildAccountResObj.accountNumber + ", Effective date: "
+                    + formattedEffectiveDate + ", API data: " + stringify(apiData);
+                    subject = "[Monetization][API Cloud][ALERT] Subscriber account db update failure";
                     billingService.sendEmailToCloud(subject, messageBody);
                     log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
-                            + " Tenant: " + tenantDomain);
+                    + " Tenant: " + tenantDomain);
+                    updateSubscriberResult = true;
                     addSubscriptionResult = true;
                 }
             } else {
+                errorMsg = "Billing account creation failed.";
                 //ToDo This email and manual recovering process is a temporary fix for the MVP
-                messageBody = "Error while updating subscriber information in the database. Please update " +
-                        "the subscriber table & subscriptions table. Tenant: " + tenantDomain + ", Username: " +
-                        username + ", Account number: " + createChildResObj.accountNumber + ", Effective date: "
-                        + formattedEffectiveDate + ", API data: " + stringify(apiData);
-                subject = "[Monetization][API Cloud][ALERT] Subscriber account db update failure";
+                messageBody = errorMsg + " Tenant: " + tenantDomain + " For monetizing. Response: "
+                + stringify(createChildAccountResObj.reasons) + "  User may have retried later. No action required" +
+                "unless this is a recurring issue. Please see the response details";
+
+                subject = "[Monetization][API Cloud][WARN] Zuora account creation failure";
                 billingService.sendEmailToCloud(subject, messageBody);
-                log.error("Error while updating subscriber information. Account update failed. Account: " + data.name
-                        + " Tenant: " + tenantDomain);
-                updateSubscriberResult = true;
-                addSubscriptionResult = true;
+
+                log.error(messageBody);
+                return {
+                    error: true,
+                    statusCode: 500,
+                    message: errorMsg + " Please Retry..."
+                };
             }
-
-            if (addParentObj.success == null || !addParentObj.success) {
-                //ToDo This email and manual recovering process is a temporary fix for the MVP
-                messageBody = "Error while adding account parent for zuora. Please add parent account. " +
-                        "Tenant: " + tenantDomain + ", Username: " + username + ", Account number: " +
-                        createChildResObj.accountNumber;
-                subject = "[Monetization][API Cloud][ALERT] Adding account parent failure";
-                billingService.sendEmailToCloud(subject, messageBody);
-                log.error("Adding parent failed for child." + " Tenant: " + tenantDomain + " For monetizing. Reasons: "
-                        + stringify(createChildResObj.reasons));
-            }
-        } else {
-            errorMsg = "Billing account creation failed.";
-            //ToDo This email and manual recovering process is a temporary fix for the MVP
-            messageBody = errorMsg + " Tenant: " + tenantDomain + " For monetizing. Response: "
-                    + stringify(createChildResObj.reasons) + "  User may have retried later. No action required" +
-                    "unless this is a recurring issue. Please see the response details";
-
-            subject = "[Monetization][API Cloud][WARN] Zuora account creation failure";
-            billingService.sendEmailToCloud(subject, messageBody);
-
-            log.error(messageBody);
-            return {
-                error: true,
-                statusCode: 500,
-                message: errorMsg + " Please Retry..."
-            };
-        }
 
         var modWorkflow = jagg.module("workflow");
         var workflowStatus;
@@ -467,6 +461,26 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
                 message: errorMsg + "Subscription failed. API will not be activated." +
                 "Since the payment has already been processed, please contact support."
             };
+        }
+        } else {
+            errorMsg = "Billing account creation failed.";
+            //ToDo This email and manual recovering process is a temporary fix for the MVP'
+            messageBody = errorMsg + " Tenant: " + tenantDomain + " For monetizing. Response: Creating Account For" +
+            "Stripe failed";
+
+            subject = "[Monetization][API Cloud][WARN] Stripe account creation failure";
+            billingService.sendEmailToCloud(subject, messageBody);
+
+            log.error(messageBody);
+            return {
+                error: true,
+                statusCode: 500,
+                message: errorMsg + " Please Retry..."
+            };
+
+
+
+
         }
 
 
@@ -514,9 +528,9 @@ var getAllProductPlansForTenant = function (tenantDomain) {
             log.debug("getAllProductPlansForTenant : " + stringify(result));
         }
         var ratePlanList = JSON.parse(result);
-        for (var index in ratePlanList){
+        for (var index in ratePlanList) {
             for (var tiersIndex in tierList) {
-                if(tierList[tiersIndex].policyName == ratePlanList[index].RatePlanName) {
+                if (tierList[tiersIndex].policyName == ratePlanList[index].RatePlanName) {
                     ratePlanList[index].defaultLimit = tierList[tiersIndex].defaultLimit;
                     break;
                 }
@@ -525,8 +539,8 @@ var getAllProductPlansForTenant = function (tenantDomain) {
             ratePlanList[index].OverUsageUnitsPrice = parseFloat(ratePlanList[index].OverUsageUnitsPrice).toFixed(2);
         }
         return {
-            error:false,
-            result:ratePlanList,
+            error: false,
+            result: ratePlanList,
             statusCode: 200
         };
     } catch (e) {
@@ -537,4 +551,12 @@ var getAllProductPlansForTenant = function (tenantDomain) {
         return errorObj;
     }
 };
+
+var populateSubscriptionInfo = function (customer, ratePlanId) {
+    var data = {};
+    data.customer = customer;
+    data.plan = ratePlanId;
+    return data;
+};
+
 %>

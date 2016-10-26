@@ -46,10 +46,10 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         return;
     }
 
-    if (action != null && action == "generateParams") {
-        var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
+    if (action != null && action == "generateParameters") {
+        var workflowReferenceForKeys = encoder.getSafeText(request.getParameter("workflowReference"));
         try {
-            result = mod.generateParams(tenantDomain, workflowReference);
+            result = mod.generateParameters(tenantDomain, workflowReferenceForKeys);
             if (result != null) {
                 print(result);
             } else {
