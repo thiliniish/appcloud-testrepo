@@ -116,10 +116,12 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
             var refId = encoder.getSafeText(request.getParameter("refId"));
             var field_passthrough1 = encoder.getSafeText(request.getParameter("field_passthrough1"));
             selectedApp = encoder.getSafeText(request.getParameter("field_passthrough4"));
+            var field_passthrough5 = encoder.getSafeText(request.getParameter("field_passthrough5"));
 
             inputsObj.refId = refId;
             inputsObj.signature = signature;
             inputsObj.field_passthrough1 = field_passthrough1;
+            inputsObj.field_passthrough5 = field_passthrough5;
             inputsObj.selectedApp = selectedApp;
 
             middleObj = [{
