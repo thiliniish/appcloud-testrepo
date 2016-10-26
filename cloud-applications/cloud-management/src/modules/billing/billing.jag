@@ -268,7 +268,7 @@ var createAccount = function(accountData, metaData, organizationName) {
         if (response.id != null) {
             var planName = getPaymentPlanFromId(metaData.serviceId, metaData.productRatePlanId);
             data = populateSubscriptionInfo(response.id, metaData.productRatePlanId);
-            var responseSubscriptionCreation = JSON.parse(billingCoreService.createSubscription((JSON.stringify(data))));
+            var responseSubscriptionCreation = JSON.parse(billingCoreService.createSubscription(JSON.stringify(data)));
 
             if (responseSubscriptionCreation.data.subscriptionNumber != null) {
                 //update BILLING_ACCOUNT table
@@ -799,6 +799,66 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
         log.error("ERROR in getting Billing invoice data for tenant : " + tenantDomain + " : " + e.message);
         log.error(e);
         throw e;
+    }
+};
+
+var addPaymentMethod = function(tokenId) {
+    try {
+        var accountId = getAccountId();
+        var data = {};
+        data.source = tokenId;
+        var response = JSON.parse(billingCoreService.addPaymentMethod(accountId,
+                JSON.stringify(data)));
+        return "Your contact information is successfully added"
+    } catch (e) {
+        log.error("customer account update failed. Error : " + e);
+        throw new Error("customer account update failed. Error : " + e);
+    }
+};
+
+var getAllPaymentMethods = function(tenantDomain) {
+    var accountId = getAccountId();
+    var accInfo = JSON.parse(billingCoreService.getCustomerDetails(accountId));
+    if (accInfo.success) {
+        var responseObj = {};
+        responseObj.success = accInfo.success;
+        responseObj.defualtCardId = accInfo.data.default_source;
+        responseObj.card = accInfo.data.sources.data;
+        return responseObj;
+    } else {
+        log.error("Failed to get all payment methods. Error : " + accInfo.message);
+        throw new Error("Failed to get all payment methods. Error : " + accInfo.message);
+    }
+
+};
+
+var updateDefaultPaymentMethod = function(methodId) {
+    if (methodId) {
+        var accountId = getAccountId();
+        var data = {};
+        data.default_source = methodId;
+
+        var accInfo = JSON.parse(billingCoreService.setDefaultPaymentMethod(accountId, JSON.stringify(data)));
+        if (accInfo.success) {
+            return accInfo;
+        } else {
+            log.error("Failed update the payment method. method Id : " + methodId);
+            throw new Error("Failed update the payment method. method Id : " + methodId);
+        }
+    } else {
+        log.error("Failed update the payment method. method Id : " + methodId);
+        throw new Error("Failed update the payment method. method Id : " + methodId);
+    }
+};
+
+var removePaymentMethod = function(methodId) {
+    try {
+        var accountId = getAccountId();
+        return JSON.parse(billingCoreService.removePaymentMethod(accountId, methodId));
+
+    } catch (e) {
+        log.error("Failed remove the payment method. method Id : " + methodId);
+        throw new Error("Failed remove the payment method. method Id : " + methodId);
     }
 };
 %>
