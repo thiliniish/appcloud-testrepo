@@ -388,8 +388,7 @@ public class APICloudMonetizationService {
      */
     public JSONObject getSubscriberUsageInformationForGivenDateRange(String tenantDomain, String userId, String api,
                                                                      String version, String applicationName,
-                                                                     String startDate, String endDate, String 
-            isMonthly)
+                                                                     String startDate, String endDate, String isMonthly)
             throws CloudMonetizationException {
         try {
             return APICloudMonetizationUtils.getSubscriberUsageInformationForGivenDateRange(tenantDomain, userId, api,
