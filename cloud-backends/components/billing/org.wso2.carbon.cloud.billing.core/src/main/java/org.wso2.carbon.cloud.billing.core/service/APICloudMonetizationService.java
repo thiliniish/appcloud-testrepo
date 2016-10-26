@@ -456,5 +456,24 @@ public class APICloudMonetizationService {
         }
     }
 
+     /**
+     * Get rate plan id for rate plan name
+     *
+     * @param tenantDomain tenant domain
+     * @param ratePlanName rate plan name
+     * @return rate plan id
+     */
+    public String getRatePlanId(String tenantDomain, String ratePlanName) throws CloudMonetizationException {
+        try {
+            String productName = tenantDomain + "_" + "_" + BillingConstants.API_CLOUD_SUBSCRIPTION_ID;
+            return CloudBillingServiceUtils.getRatePlanId(tenantDomain, productName, ratePlanName);
+        } catch (CloudBillingException e) {
+            String errorMsg = "Error while getting rate plan id for tenant: " + tenantDomain + " Rate Plan name: " +
+                              ratePlanName;
+            LOGGER.error(errorMsg, e);
+            throw new CloudMonetizationException(errorMsg, e);
+        }
+    }
+
 
 }

@@ -52,12 +52,18 @@ public final class CloudBillingServiceUtils {
 
     private static final Log LOGGER = LogFactory.getLog(CloudBillingServiceUtils.class);
     private static volatile String configObj;
-    private static String billingServiceURI =
-            BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingServiceUri();
-    private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory
-            .getInstance().getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
-    private static String monetizationServiceURI =
-            BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudMonetizationServiceUri();
+    private static String billingServiceURI;
+    private static BillingRequestProcessor dsBRProcessor;
+    private static String monetizationServiceURI;
+
+    static {
+        monetizationServiceURI =
+                BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudMonetizationServiceUri();
+        dsBRProcessor = BillingRequestProcessorFactory.getInstance().getBillingRequestProcessor(
+                BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+        billingServiceURI =
+                BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingServiceUri();
+    }
 
     private CloudBillingServiceUtils() {
     }
@@ -261,8 +267,42 @@ public final class CloudBillingServiceUtils {
      * @return billing trial period
      */
     public static String getTrialPeriod(String cloudId) {
-        return Integer.toString(BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId)
-                                                    .getTrialPeriod());
+       return Integer.toString(BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId)
+                                                   .getTrialPeriod());
+    }
+       
+    /**
+     * @param tenantDomain
+     * @param productName
+     * @param ratePlanName
+     * @return
+     * @throws CloudBillingException
+     */
+    public static String getRatePlanId(String tenantDomain, String productName, String ratePlanName)
+            throws CloudBillingException {
+        String ratePlanUrl =
+                monetizationServiceURI.concat(MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN);
+        String response = null;
+        try {
+            String url = ratePlanUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
+                                             CloudBillingUtils.encodeUrlParam(tenantDomain))
+                                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_PRODUCT_NAME,
+                                             CloudBillingUtils.encodeUrlParam(productName))
+                                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_RATE_PLAN_NAME,
+                                             CloudBillingUtils.encodeUrlParam(ratePlanName));
+            response = dsBRProcessor.doGet(url, null, null);
+            OMElement elements = AXIOMUtil.stringToOM(response);
+
+            OMElement ratePlanId = elements.getFirstChildWithName(
+                    new QName(BillingConstants.DS_NAMESPACE_URI, MonetizationConstants.RATE_PLAN_ID));
+            if (ratePlanId != null && StringUtils.isNotBlank(ratePlanId.getText())) {
+                return ratePlanId.getText().trim();
+            } else {
+                return BillingConstants.EMPTY_STRING;
+            }
+        } catch (XMLStreamException | UnsupportedEncodingException e) {
+            throw new CloudBillingException("Error occurred while parsing response: " + response, e);
+        }
     }
 
 }
