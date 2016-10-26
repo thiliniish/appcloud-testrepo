@@ -100,7 +100,7 @@
 	                                </span>
 	                               <%=i18n.localize("Go Back")%>
 	                            </a>
-	                        </li>
+	                        </li> 
 	                    <% } else if(inputs.page == "forum/forum-new" || inputs.page == "forum/forum-topic"){%>
 	                    <%var urlSuffix = jagg.getTenantURLPrefix(); %>
 	                        <li>
@@ -124,6 +124,7 @@
 	                        </li>
 	                    <% } %>
 	                    </ul>
+	
 	                </div><!--/.nav-collapse -->
 	            </div> 
 	         <%} %>          

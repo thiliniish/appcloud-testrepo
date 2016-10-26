@@ -19,7 +19,7 @@ jagg.block("menu/primary", {
         var links = [], user = jagg.getUser(),
                 path = inputs.pagePath;
         var tenant=inputs.tenant;
-        var urlPrefix = jagg.getTenantURLPrefix("?");
+		var urlPrefix = jagg.getTenantURLPrefix("?");
         var mod = jagg.module("manager");
         var tenantDomains = mod.getActiveTenantDomains().tenantDomains;
         var isForumEnabled = mod.isForumEnabled();
@@ -32,7 +32,7 @@ jagg.block("menu/primary", {
             "tooltip":i18n.localize("Browse the latest versions of published APIs, make subscriptions and generate API keys."),
             "active":(path == "/site/pages/list-apis.jag")
         });
-
+        
         links.push({
             "title":i18n.localize("My Applications"),
             "url":jagg.getMappedUrl("/site/pages/applications.jag"+urlPrefix),

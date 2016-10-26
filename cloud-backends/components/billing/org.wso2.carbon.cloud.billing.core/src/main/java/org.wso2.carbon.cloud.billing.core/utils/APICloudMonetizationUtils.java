@@ -155,7 +155,7 @@ public final class APICloudMonetizationUtils {
                 LOGGER.warn(msg);
                 responseObj.addProperty(MonetizationConstants.RESPONSE_SUCCESS, false);
                 responseObj.addProperty(MonetizationConstants.RESPONSE_MESSAGE, msg);
-                dataObj.addProperty("subscriptionInfoNotAvailable", true);
+                dataObj.addProperty(MonetizationConstants.SUBSCRIPTION_INFO_NOT_AVAILABLE, true);
                 responseObj.add(MonetizationConstants.RESPONSE_DATA, dataObj);
                 return responseObj.toString();
             }
@@ -273,7 +273,7 @@ public final class APICloudMonetizationUtils {
 
             responseObj.addProperty(MonetizationConstants.RESPONSE_SUCCESS, true);
             responseObj.addProperty(MonetizationConstants.RESPONSE_MESSAGE, msg);
-            dataObj.addProperty("subscriptionInfoNotAvailable", true);
+            dataObj.addProperty(MonetizationConstants.SUBSCRIPTION_INFO_NOT_AVAILABLE, true);
             responseObj.add(MonetizationConstants.RESPONSE_DATA, dataObj);
             return responseObj.toString();
         }

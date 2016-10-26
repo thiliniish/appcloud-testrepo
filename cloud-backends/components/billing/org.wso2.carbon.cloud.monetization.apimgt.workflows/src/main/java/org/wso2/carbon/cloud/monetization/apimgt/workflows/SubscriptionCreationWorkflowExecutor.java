@@ -150,7 +150,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                 } else {
                     return handleFreePlan(subscriptionWorkflowDTO);
                 }
-            } else if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonPrimitive()) {
+            } else if (responseObj.get(CustomWorkFlowConstants.SUBSCRIPTION_INFO_NOT_AVAILABLE).isJsonPrimitive()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Subscriber information is not available. adding subscriber");
                 }
