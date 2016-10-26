@@ -77,6 +77,18 @@ jagg.module("billing", {
     },
     getTrialPeriod: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTrialPeriod.apply(this, arguments);
+    },
+    addPaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").addPaymentMethod.apply(this, arguments);
+    },
+    getAllPaymentMethods: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAllPaymentMethods.apply(this, arguments);
+    },
+    updateDefaultPaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").updateDefaultPaymentMethod.apply(this, arguments);
+    },
+    removePaymentMethod: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").removePaymentMethod.apply(this, arguments);
     }
 
 });
