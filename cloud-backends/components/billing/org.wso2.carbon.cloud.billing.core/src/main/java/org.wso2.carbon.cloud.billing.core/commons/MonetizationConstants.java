@@ -180,6 +180,11 @@ public final class MonetizationConstants {
     public static final String RESPONSE_DATA = "data";
     public static final String RESPONSE_MESSAGE = "message";
 
+    public static final String TIERS_XML_TIER_NAME_ELEMENT = "tierPlan"; // advance throttling this value is
+    // 'policyName'
+    public static final String TIERS_XML_BILLING_PLAN_ELEMENT = "name"; // advance throttling this value is
+    // 'billingPlan'
+
     private MonetizationConstants() {
     }
 }

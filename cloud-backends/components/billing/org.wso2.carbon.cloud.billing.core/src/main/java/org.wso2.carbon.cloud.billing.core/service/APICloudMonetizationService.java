@@ -24,6 +24,7 @@ import com.google.gson.JsonParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONObject;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
@@ -342,6 +343,115 @@ public class APICloudMonetizationService {
 
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error while getting Rate plans for tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Retrieve subscriber related usage data
+     *
+     * @param tenantDomain    tenant domain
+     * @param userId          user id
+     * @param api             api name with version
+     * @param version         api version
+     * @param applicationName application name
+     * @param startDate       date range - start date
+     * @param endDate         date range - end date
+     * @return JSON object of usage data
+     * @throws CloudMonetizationException
+     */
+    public JSONObject getTenantMonetizationUsageDataForGivenDateRange(String tenantDomain, String userId, String api,
+                                                                      String version, String applicationName,
+                                                                      String startDate, String endDate)
+            throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.getTenantMonetizationUsageDataForGivenDateRange(tenantDomain, userId, api,
+                                                                                             version, applicationName,
+                                                                                             startDate, endDate);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error occurred while retrieving monetization usage data of tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * @param tenantDomain    tenant domain
+     * @param userId          user id
+     * @param api             api name with version
+     * @param version         api version
+     * @param applicationName application name
+     * @param startDate       date range - start date
+     * @param endDate         date range - end date
+     * @param isMonthly       is monthly information requested
+     * @return JSON object of subscriber usage information
+     * @throws CloudMonetizationException
+     */
+    public JSONObject getSubscriberUsageInformationForGivenDateRange(String tenantDomain, String userId, String api,
+                                                                     String version, String applicationName,
+                                                                     String startDate, String endDate, String 
+            isMonthly)
+            throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.getSubscriberUsageInformationForGivenDateRange(tenantDomain, userId, api,
+                                                                                            version, applicationName,
+                                                                                            startDate, endDate,
+                                                                                            Boolean.parseBoolean(
+                                                                                                    isMonthly));
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error occurred while retrieving subscriber usage information of tenant: " + tenantDomain,
+                         ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Get APIs for a given user from API Stat tables.
+     *
+     * @param username
+     * @return JSON object of api names
+     * @throws CloudMonetizationException
+     */
+    public String getUserAPIs(String username) throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.getUserAPIs(username);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error while getting API list for the user: " + username, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Get the list of applications by looking at the user name and api name from API Stat tables
+     *
+     * @param username
+     * @param apiName  API Name
+     * @return JSON object of Application names
+     * @throws CloudMonetizationException
+     */
+    public String getUserAPIApplications(String username, String apiName) throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.getUserAPIApplications(username, apiName);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error while getting Application list for the user: " + username, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Remove paid api subscriptions of a subscriber of a given tenant
+     *
+     * @param subscriberId subscriber id
+     * @param tenantDomain tenant domain
+     * @return boolean remove subscription status
+     * @throws CloudMonetizationException
+     */
+    public boolean removePaidApiSubscriptionsOfUser(String subscriberId, String tenantDomain)
+            throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.removePaidApiSubscriptionsOfUser(subscriberId, tenantDomain);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error occurred while removing paid api subscriptions of subscriber: " + subscriberId +
+                         " of tenant: " + tenantDomain, ex);
             throw ex;
         }
     }

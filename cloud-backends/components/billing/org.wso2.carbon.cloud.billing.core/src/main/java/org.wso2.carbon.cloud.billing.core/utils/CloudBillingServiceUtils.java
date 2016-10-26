@@ -254,4 +254,15 @@ public final class CloudBillingServiceUtils {
         }
     }
 
+    /**
+     * Method to get that the billing trial period
+     *
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
+     * @return billing trial period
+     */
+    public static String getTrialPeriod(String cloudId) {
+        return Integer.toString(BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId)
+                                                    .getTrialPeriod());
+    }
+
 }
