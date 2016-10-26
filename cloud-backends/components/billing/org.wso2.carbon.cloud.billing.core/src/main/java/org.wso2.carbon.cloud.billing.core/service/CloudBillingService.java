@@ -922,4 +922,14 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             throw ex;
         }
     }
+
+    /**
+     * Method to get that the billing trial period
+     *
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
+     * @return billing trial period
+     */
+    public static String getTrialPeriod(String cloudId) {
+        return CloudBillingServiceUtils.getTrialPeriod(cloudId);
+    }
 }

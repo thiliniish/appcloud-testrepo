@@ -105,7 +105,7 @@ if (request.getParameter("cloud-type") != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 	var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 	var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-	var isBillingEnabled = jagg.module("billing").isBillingEnabled();
+	var isBillingEnabled = jagg.module("billing").isBillingEnabled(SUBSCRIPTION_API_CLOUD);
 	if (isBillingEnabled) {
 		var isBillingAccount = jagg.module("billing").isPaidAccount();
 		var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod()).toString();

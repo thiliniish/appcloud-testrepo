@@ -746,9 +746,14 @@ var updateContactInfo = function(organizationName, accountData, metaData) {
         throw new Error("customer account update failed. Error : " + e);
     }
 };
+
 var getCurrencyUsed = function() {
     return CURRENCY;
 };
+
+var getTrialPeriod = function (serviceId) {
+    return billingCoreService.getTrialPeriod(serviceId);
+}
 
 var getBillingInvoiceData = function (tenantDomain, invoiceId) {
     try {

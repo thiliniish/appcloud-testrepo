@@ -74,6 +74,9 @@ jagg.module("billing", {
     },
     getAccountInfo: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAccountInfo.apply(this, arguments);
+    },
+    getTrialPeriod: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTrialPeriod.apply(this, arguments);
     }
 
 });

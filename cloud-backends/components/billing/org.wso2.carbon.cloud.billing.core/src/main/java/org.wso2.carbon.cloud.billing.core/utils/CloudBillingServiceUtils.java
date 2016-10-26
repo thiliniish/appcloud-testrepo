@@ -261,6 +261,17 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
+     * Method to get that the billing trial period
+     *
+     * @param cloudId Unique ID for the cloud (i.e api_cloud)
+     * @return billing trial period
+     */
+    public static String getTrialPeriod(String cloudId) {
+       return Integer.toString(BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId)
+                                                   .getTrialPeriod());
+    }
+       
+    /**
      * @param tenantDomain
      * @param productName
      * @param ratePlanName
@@ -289,7 +300,6 @@ public final class CloudBillingServiceUtils {
             } else {
                 return BillingConstants.EMPTY_STRING;
             }
-
         } catch (XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while parsing response: " + response, e);
         }

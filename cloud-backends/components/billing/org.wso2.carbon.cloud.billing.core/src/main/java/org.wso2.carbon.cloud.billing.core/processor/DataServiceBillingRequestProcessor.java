@@ -285,6 +285,9 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), delete, DEFAULT_CONNECTION_RETRIES);
     }
 
+   /**
+    * set TrustStore params
+    */
     private void setTrustStoreParams() {
         System.setProperty(BillingConstants.TRUST_STORE_NAME_PROPERTY, trustStore.getName());
         System.setProperty(BillingConstants.TRUST_STORE_PASSWORD_PROPERTY, trustStore.getPassword());
