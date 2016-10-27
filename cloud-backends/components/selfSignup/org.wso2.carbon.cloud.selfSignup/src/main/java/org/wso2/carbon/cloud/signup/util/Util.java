@@ -17,6 +17,17 @@ package org.wso2.carbon.cloud.signup.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
+import org.wso2.carbon.cloud.signup.configReader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.constants.SignUpWorkflowConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.cloud.signup.internal.ServiceReferenceHolder;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.Resource;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -78,4 +89,63 @@ public class Util implements Serializable {
         return rolesArrayList;
     }
 
+    /**
+     * Get the custom store url of given tenant.
+     *
+     * @param tenantDomain Tenant Domain
+     * @return if custom URL available then return custom URL else return null
+     * @throws WorkflowException
+     */
+    private String getCustomStoreURL(String tenantDomain) throws WorkflowException {
+        String customURL = null;
+        try {
+            //get custom url mapping from super tenant registry
+            int tenantId = MultitenantConstants.SUPER_TENANT_ID;
+            Registry registry = ServiceReferenceHolder.getInstance().getRegistryService().getGovernanceSystemRegistry(
+                    tenantId);
+            String path = "customurl/api-cloud/" + tenantDomain + "/urlMapping/" + tenantDomain;
+            if (registry.resourceExists(path)) {
+                Resource resource = registry.get(path);
+                String jsonData = new String((byte[]) resource.getContent());
+
+                JSONParser parser = new JSONParser();
+                JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
+                JSONObject storeConfig = (JSONObject) jsonObject.get("store");
+                customURL = storeConfig.get("customUrl").toString();
+            }
+        } catch (RegistryException e) {
+            String errorMsg = "Error while reading custom url config from registry for tenant :" + tenantDomain;
+            log.error(errorMsg, e);
+            throw new WorkflowException(errorMsg, e);
+        } catch (ParseException e) {
+            String errorMsg = "Error while parsing custom url config of tenant :" + tenantDomain;
+            log.error(errorMsg, e);
+            throw new WorkflowException(errorMsg, e);
+        }
+        return customURL;
+    }
+
+    /**
+     * Get the confirmation link to send in mail.
+     *
+     * @param tenantDomain Tenant Domain
+     * @param uuid         UUID
+     * @return Confirmation Link
+     * @throws WorkflowException
+     */
+    public String getConfirmationLink(String tenantDomain, String uuid) throws WorkflowException {
+        String link = ConfigFileReader.retrieveConfigAttribute(SignUpWorkflowConstants.URLS,
+                                                               SignUpWorkflowConstants.CLOUD_MGT_VERIFICATION_URL);
+        //if custom store url available construct the link using it.
+        String customStoreURL = getCustomStoreURL(tenantDomain);
+        String defaultStoreURL = ConfigFileReader.retrieveConfigAttribute(SignUpWorkflowConstants.URLS,
+                                                                          SignUpWorkflowConstants.DEFAULT_STORE_URL);
+        if (customStoreURL != null && !customStoreURL.equals(defaultStoreURL)) {
+            String verificationPagePath = ConfigFileReader.retrieveConfigAttribute(SignUpWorkflowConstants.URLS,
+                                                                     SignUpWorkflowConstants.VERIFICATION_PAGE_PATH);
+            link = "https://" + customStoreURL + verificationPagePath;
+        }
+        link = link + "?confirmation=" + uuid + "&isStoreInvitee=true&tenant=" + tenantDomain;
+        return link;
+    }
 }

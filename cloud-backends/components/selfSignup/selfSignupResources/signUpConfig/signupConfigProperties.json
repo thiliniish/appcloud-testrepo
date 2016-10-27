@@ -12,7 +12,9 @@
   },
   "URLs": {
     "adminDashboardUrl": "https://local.cloudmgt.wso2.com:9643/admin-dashboard/",
-    "cloudMgtVerificationUrl": "https://local.cloudmgt.wso2.com:9444/cloudmgt/site/pages/confirm-verification.jag"
+    "cloudMgtVerificationUrl": "https://local.cloudmgt.wso2.com:9643/store/site/pages/confirm-verification.jag",
+    "defaultStoreUrl" : "local.cloudmgt.wso2.com:9643",
+    "verificationPagePath" : "/site/pages/confirm-verification.jag"
   },
  "EmailSubjects":{ 
       "USER_EMAIL_SUBJECT":"Sign-up request approval status of API Store ",
