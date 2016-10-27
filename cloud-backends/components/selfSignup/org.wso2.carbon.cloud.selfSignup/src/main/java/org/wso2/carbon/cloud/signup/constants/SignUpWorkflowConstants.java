@@ -34,4 +34,8 @@ public class SignUpWorkflowConstants {
     public static final String CONTENT_ID = "Content-ID";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
+    public static final String URLS = "URLs";
+    public static final String CLOUD_MGT_VERIFICATION_URL = "cloudMgtVerificationUrl";
+    public static final String DEFAULT_STORE_URL = "defaultStoreUrl";
+    public static final String VERIFICATION_PAGE_PATH = "verificationPagePath";
 }

@@ -1,0 +1,39 @@
+.gray {
+    color: #707070;
+    display: block;
+    padding-top: 4px;
+}
+
+.green {
+    color: #04a200;
+    display: block;
+    padding-top: 4px;
+}
+
+.content-section {
+    border-right: 1px solid #E2E2E2;
+    border-bottom: 1px solid #E2E2E2;
+    border-top: 1px solid #E2E2E2;
+    background-color: white;
+    padding: 10px 35px;
+    min-height: 210px;
+}
+
+.reg-right-panel .btn-primary {
+    color: #ffffff;
+    background-color: #F27B21;
+    border: 1px solid #F27B21;
+}
+
+.reg-left-panel{
+    height: 400px;
+    border-left: 3px solid #E38E4A;
+}
+
+.reg-right-panel {
+    height: 400px;
+}
+
+.reg-spinner {
+    margin-left: 10px;
+}
