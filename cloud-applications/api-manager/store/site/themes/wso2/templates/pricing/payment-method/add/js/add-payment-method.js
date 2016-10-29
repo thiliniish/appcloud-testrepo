@@ -29,10 +29,9 @@ function submitPage() {
         return encodeURIComponent(key) + '=' + encodeURIComponent(cardDetails[key]);
     }).join('&');
 
+    secondaryCC = publicParams.field_passthrough4;
     if (secondaryCC != null && secondaryCC == "secondary-card") {
-        actionString = "&action=viewPaymentMethod&";
-        window.top.location.href = "../../../site/pages/pricing/manage-account.jag?tenant=" +
-        encodeURIComponent(tenant) + actionString + window.location.search.substring(1);
+        addPaymentMethod();
     } else {
         actionString = "&action=createAccount&";
         window.top.location.href = "../../../site/pages/pricing/manage-account.jag?tenant=" +
@@ -65,6 +64,29 @@ function generateParameters() {
         }
     }, "json");
 }
+
+function addPaymentMethod() {
+    jagg.syncPost("/site/blocks/pricing/payment-method/add/ajax/add.jag", {
+        action: "addPaymentMethod",
+        tokenId: cardDetails.field_passthrough5
+    }, function (results) {
+        console.log(results.result);
+        actionString = "&action=viewPaymentMethod";
+        window.top.location.href = "../../../site/pages/pricing/manage-account.jag?tenant=" + encodeURIComponent(tenant) + actionString +
+        '&fieldPassthrough1=' + encodeURIComponent(results.result);
+    }, function (jqXHR, textStatus, errorThrown) {
+        $('.message_box').empty();
+        jagg.message({
+            content: "Unable to add a new payment method at the moment. Please contact WSO2 Cloud Team for help",
+            type: 'error',
+            cbk: function () {
+                var cloudMgtURL = $("#cloudmgtURL").attr('value');
+                window.location.href = cloudMgtURL + "/site/pages/contact-us.jag";
+            }
+        });
+    });
+}
+
 
 //A Custom function is needed
 (function () {

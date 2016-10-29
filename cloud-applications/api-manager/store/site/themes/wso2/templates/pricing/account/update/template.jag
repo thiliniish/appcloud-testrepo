@@ -44,7 +44,7 @@
                     <select id="country" name="country" onchange='populateStateValue("")'></select>
                 </div>
                 <script type="text/javascript">
-                    var countryCode = getCountryCode("<%=outputs.creditCardCountry%>");
+                    var countryCode = "<%=outputs.creditCardCountry%>";
                     postCountry = countryCode;
                     populateCountry(countryCode);
                 </script>
@@ -82,10 +82,10 @@
             </div>
             <input type="hidden"
                 name="cloudmgtURL" id="cloudmgtURL" value="<%=outputs.cloudmgtURL%>" />
+			<input type="hidden" id="organization" value="<%=outputs.organization%>" />
             <div class="clearfix"></div>
             <div class="form-group">
-                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="updateContactInfo('<%=outputs.tenantDomain
-    %>', document);">
+                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="updateContactInfo('<%=outputs.tenantDomain%>', document);">
                     <span class="fw-stack btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-edit fw-stack-1x"></i>

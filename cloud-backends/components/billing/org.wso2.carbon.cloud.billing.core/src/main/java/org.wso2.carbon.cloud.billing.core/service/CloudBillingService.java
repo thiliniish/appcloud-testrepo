@@ -143,6 +143,16 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         }
     }
 
+    public String getCustomerDetails(String tenantDomain, String customerId) throws CloudBillingException {
+        try {
+            return init(tenantDomain).getCustomerDetails(customerId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving the customer details for customer id : " + customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
     /**
      * Update Customer Info
      *
@@ -153,6 +163,26 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     @Override public String updateCustomer(String customerId, String customerInfoJson) throws CloudBillingException {
         try {
             return init().updateCustomer(customerId, customerInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while updating the customer with customer id : " + customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Update customer information
+     *
+     * @param tenantDomain     tenantDomain
+     * @param customerId       Customer Id
+     * @param customerInfoJson Customer Information to update
+     * @return
+     * @throws CloudBillingException
+     */
+    public String updateCustomer(String tenantDomain, String customerId, String customerInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).updateCustomer(customerId, customerInfoJson);
         } catch (CloudBillingException ex) {
             String message = "Error occurred while updating the customer with customer id : " + customerId;
             LOGGER.error(message, ex);
@@ -421,6 +451,17 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         }
     }
 
+    public String addPaymentMethod(String tenantDomain, String customerId, String paymentMethodInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).addPaymentMethod(customerId, paymentMethodInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while adding the payment method.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
     /**
      * Set specific payment method of a specific customer as default
      *
@@ -432,6 +473,25 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             throws CloudBillingException {
         try {
             return init().setDefaultPaymentMethod(customerId, paymentMethodInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while setting the default payment method of customer " + customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Set specific payment method of a specific customer as default
+     *
+     * @param tenantDomain          tenant domain
+     * @param customerId            customer Id
+     * @param paymentMethodInfoJson payment method details
+     * @return success Json string
+     */
+    public String setDefaultPaymentMethod(String tenantDomain, String customerId, String paymentMethodInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).setDefaultPaymentMethod(customerId, paymentMethodInfoJson);
         } catch (CloudBillingException ex) {
             String message = "Error occurred while setting the default payment method of customer " + customerId;
             LOGGER.error(message, ex);
@@ -476,6 +536,17 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
         }
     }
 
+    public String getAllPaymentMethods(String tenantdomain, String customerId, String paymentMethodInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantdomain).getAllPaymentMethods(customerId, paymentMethodInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving all payment method of customer " + customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
     /**
      * Remove payment method/ card info
      *
@@ -487,6 +558,28 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             throws CloudBillingException {
         try {
             return init().removePaymentMethod(customerId, paymentMethodId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while deleting the payment method " + paymentMethodId + " , of customer" +
+                             " " +
+                             customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Remove payment method/ card info
+     *
+     * @param tenantDomain    tenant Domain
+     * @param customerId      Customer Id
+     * @param paymentMethodId Payment Method Id
+     * @return
+     * @throws CloudBillingException
+     */
+    public String removePaymentMethod(String tenantDomain, String customerId, String paymentMethodId)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).removePaymentMethod(customerId, paymentMethodId);
         } catch (CloudBillingException ex) {
             String message = "Error occurred while deleting the payment method " + paymentMethodId + " , of customer" +
                              " " +
@@ -529,6 +622,17 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             throw new CloudBillingException(message, ex);
         }
     }
+
+    public String getInvoices(String tenantDomain, String invoiceInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).getInvoices(invoiceInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving invoices.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
 
     /**
      * Retrieve invoice details
@@ -929,6 +1033,24 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
             return init().retrieveAccountInfo(customerId);
         } catch (CloudBillingException ex) {
             LOGGER.error("Error occurred while retrieving the account information of the customer : " + customerId, ex);
+            throw ex;
+        }
+    }
+
+    public String retrieveAccountInfo(String tenantDomain, String customerId) throws CloudBillingException {
+        try {
+            return init(tenantDomain).retrieveAccountInfo(customerId);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the account information of the customer : " + customerId, ex);
+            throw ex;
+        }
+    }
+
+    @Override public String getCurrencyUsed() throws CloudBillingException {
+        try {
+            return init().getCurrencyUsed();
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the currency used");
             throw ex;
         }
     }

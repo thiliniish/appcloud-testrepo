@@ -13,7 +13,7 @@ var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
 var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
 var STRIPE_SIGNATURE_HASH = "STRIPE_SIGNATURE_HASH";
 var TENANT_RATE_PLANS = "TENANT_RATE_PLANS";
-var MONTHLY_SUBSCRIPTION_CHARGE_NAME = "Monthly subscription fee";
+var SUBSCRIPTION_CHARGE_MONTH = "month";
 
 //invoice object related constants
 var ACCOUNT_NAME = "accountName";
