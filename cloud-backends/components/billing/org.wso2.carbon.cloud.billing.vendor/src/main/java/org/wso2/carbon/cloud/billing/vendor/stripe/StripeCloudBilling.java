@@ -90,7 +90,6 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
 
     // TODO: 10/11/16 Get the SecretAPI Key from the Database
     private static String getSecretKey(String tenantDomain) throws CloudBillingVendorException {
-        LOGGER.info("Getting Secret Key for Tenant : " + tenantDomain);
         try {
             return APICloudMonetizationUtils.getSecretKey(tenantDomain);
         } catch (CloudBillingVendorException e) {
