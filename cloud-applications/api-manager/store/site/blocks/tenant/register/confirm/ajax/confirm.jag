@@ -1,0 +1,41 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("site.blocks.tenant.register.confirm.ajax.confirm.jag");
+
+(function () {
+    var cloudConf = require("/site/conf/cloud_conf.json");
+    var confirmUserAPI = cloudConf.cloud.mgt_url + cloudConf.cloud.apiResourcePaths.confirmUser;
+    var action = request.getParameter("action");
+
+    if (action == "confirmUser") {
+        var confirm = request.getParameter("confirm");
+        var isInvitee = request.getParameter("isInvitee");
+        var isStoreInvitee = request.getParameter("isStoreInvitee");
+        //call cloud mgt api
+        var data = { action: action, confirm: confirm, isInvitee: isInvitee, isStoreInvitee: isStoreInvitee};
+        try {
+            var result = post(confirmUserAPI, data, {}, 'json');
+            var resultData = result.data;
+            if (!resultData.error && resultData.data == "add-tenant.jag") {
+                session.put("isConfirmed", true);
+            }
+            print(resultData);
+        } catch (e) {
+            var errorMsg = "Error while calling api :" + confirmUserAPI;
+            log.error(errorMsg, e);
+            var responseObj = {};
+            responseObj.error = true;  
+			responseObj.message = errorMsg;          
+            print(responseObj);
+        }
+    } else {
+        var errorMsg = "No Action Specified";
+        log.error(errorMsg);
+        var responseObj = {};
+        responseObj.error = true;        
+        responseObj.message = errorMsg;
+        print(responseObj);
+    }
+
+}());
+%>

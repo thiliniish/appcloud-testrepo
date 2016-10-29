@@ -12,7 +12,13 @@
   fullUrl = request.getRequestURI();
   if(request.getQueryString() != null){
       fullUrl += '?'+request.getQueryString();
-  }     
+  }
+  var userLoginType = session.get("userLoginType");
+  var isCustomURL = false;
+  if(site.reverseProxy.tenantHeader != undefined && site.reverseProxy.tenantHeader != null
+          && request.getHeader(site.reverseProxy.tenantHeader) != null) {
+      isCustomURL = true;
+  }
 %>
 <!--
 ~   Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
@@ -48,6 +54,8 @@
         var tenant = '<%=tenant%>';
         var urlPrefix = '<%=urlPrefix%>';
         var siteContext = '<%=jagg.getSiteContext()%>';
+        var userLoginType = '<%=userLoginType%>';
+        var isCustomURL = <%=isCustomURL%>;
     </script>
 
     <!-- Le fav and touch icons -->
