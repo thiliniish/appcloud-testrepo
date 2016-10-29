@@ -475,6 +475,8 @@ public final class APICloudMonetizationUtils {
         responseObj.addProperty(MonetizationConstants.RESPONSE_SUCCESS, true);
         //Application only has free apis.
         if (subscriptionsElement.isJsonPrimitive() && subscriptionsElement.getAsString().isEmpty()) {
+            dataObj.addProperty("removedSubscriptions", false);
+            responseObj.add(MonetizationConstants.RESPONSE_DATA, dataObj);
             return responseObj.toString();
         }
 

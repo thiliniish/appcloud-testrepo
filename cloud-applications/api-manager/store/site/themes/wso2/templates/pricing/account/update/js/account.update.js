@@ -8,6 +8,7 @@ function updateContactInfo(tenantDomain, docObj) {
         url: "../../blocks/pricing/account/update/ajax/update.jag",
         data: {
             action: "updateAccount",
+            organization: docObj.getElementById("organization").value,
             firstName: docObj.getElementById("firstname").value,
             lastName: docObj.getElementById("lastname").value,
             address1: docObj.getElementById("addressline1").value,

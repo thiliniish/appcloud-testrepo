@@ -177,7 +177,6 @@ public interface CloudBillingServiceProvider {
      * Retrieve all payment methods of a specific customer
      *
      * @param customerId            customer Id
-     * @param paymentMethodInfoJson payment method details
      * @return success Json string
      */
     public String getAllPaymentMethods(String customerId, String paymentMethodInfoJson) throws CloudBillingException;
@@ -268,5 +267,10 @@ public interface CloudBillingServiceProvider {
      * @throws CloudBillingException
      */
     public String retrieveAccountInfo(String customerId) throws CloudBillingException;
+
+    /**
+     *
+     */
+    public String getCurrencyUsed() throws CloudBillingException;
 
 }

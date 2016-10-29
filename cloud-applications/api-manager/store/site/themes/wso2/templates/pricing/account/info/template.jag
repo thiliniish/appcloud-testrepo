@@ -80,7 +80,8 @@
                         View Methods
                         </button>
                         <input type="hidden" name="accountId" id="accountId"/>
-                        <input type="hidden" name="tenantDomain" id="tenantDomain"/>
+                        <input type="hidden" name="tenantDomain" id="tenantDomain" />
+                        <input type="hidden" name="defaultPaymentMethod" id="defaultPaymentMethod" />
                         <input type="hidden" name="address1" id="address1"/>
                         <input type="hidden" name="address2" id="address2"/>
                         <button type="button" class="cu-btn cu-btn-sm cu-btn-blue"
@@ -115,7 +116,7 @@
                                  <span>Expiration date:</span>
                               </div>
                               <div class="col-md-6">
-                                 <p id="ccExpiary" name="ccExpiary"/>
+                                 <p id="ccExpiry" name="ccExpiary"/>
                               </div>
                            </div>
                         </div>
@@ -238,7 +239,6 @@
               <th>Invoice No</th>
               <th>Target Date</th>
               <th>Amount ($)</th>
-              <th>Balance ($)</th>
               <th>Status</th>
            </tr>
         </thead>

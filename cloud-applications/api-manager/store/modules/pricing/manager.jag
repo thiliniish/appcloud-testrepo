@@ -55,7 +55,8 @@ var getAccountDetails = function () {
     try {
         var username = jagg.getUser().username;
         var accountId = getAccountId();
-        var summary = billingService.getAccountSummary(accountId);
+        var tenantDomain = multiTenantUtils.getTenantDomain(username);
+        var summary = billingService.retrieveAccountInfo(tenantDomain, accountId);
         if (JSON.parse(summary.trim()).success) {
             return {
                 error: false,
@@ -84,13 +85,14 @@ var getAccountDetails = function () {
 };
 
 
-var updateContactInfo = function (accountData) {
+var updateContactInfo = function (organizationName, accountData) {
     try {
-        var username = jagg.getUser().username;
+        var metaData = {};
         var accountId = getAccountId();
-        var data = {};
-        data.billToContact = accountData;
-        var response = JSON.parse(billingService.updateAccount(accountId, JSON.stringify(data)));
+        var username = jagg.getUser().username;
+        var tenantDomain = multiTenantUtils.getTenantDomain(username);
+        var data = populateAccountInfo(organizationName, accountData, metaData, true);
+        var response = JSON.parse(billingService.updateCustomer(tenantDomain, accountId, JSON.stringify(data)));
         if (response.success) {
             return {
                 error: false,
@@ -120,7 +122,10 @@ var updateContactInfo = function (accountData) {
 
 var removePaymentMethod = function (methodId) {
     try {
-        var result = JSON.parse(billingService.removePaymentMethod(methodId));
+        var accountId = getAccountId();
+        var user = jagg.getUser().username;
+        var tenantDomain = multiTenantUtils.getTenantDomain(user);
+        var result = JSON.parse(billingService.removePaymentMethod(tenantDomain,accountId ,methodId));
         if (result.success) {
             return {
                 error: false,
@@ -150,8 +155,11 @@ var removePaymentMethod = function (methodId) {
 
 var getAllPaymentMethods = function () {
     try {
+        var user = jagg.getUser().username;
+        var tenantDomain = multiTenantUtils.getTenantDomain(user);
         var accountId = getAccountId();
-        var summary = JSON.parse(billingService.getAllPaymentMethods(accountId));
+        var object = {object:"card"};
+        var summary = JSON.parse(billingService.getAllPaymentMethods(tenantDomain, accountId, JSON.stringify(object)));
         if (summary.success) {
             return {
                 error: false,
@@ -181,10 +189,14 @@ var getAllPaymentMethods = function () {
 
 var updateDefaultPaymentMethod = function (methodId) {
     try {
+        var accountId = getAccountId();
+        var user = jagg.getUser().username;
+        var tenantDomain = multiTenantUtils.getTenantDomain(user);
         var data = {
-            "defaultPaymentMethod": true
+            "default_source": ''+methodId+''
         };
-        var response = JSON.parse(billingService.updateDefaultPaymentMethod(methodId, JSON.stringify(data)));
+        var response = JSON.parse(billingService.setDefaultPaymentMethod(tenantDomain, accountId, JSON.stringify
+        (data)));
         if (response.success) {
             return {
                 error: false,
@@ -202,7 +214,7 @@ var updateDefaultPaymentMethod = function (methodId) {
         }
     } catch (e) {
         log.error("ERROR while while updating the default payment method: " + user + " - " + e.message);
-        log(e);
+        log.error(e);
         msg = "Error while updating payment methods";
         return {
             error: true,
@@ -218,43 +230,42 @@ var getBillingInvoiceData = function (invoiceId) {
     try {
         var username = jagg.getUser().username;
         var accountId = getAccountId();
-        var summary = billingService.getInvoices(accountId);
+        var tenantDomain = multiTenantUtils.getTenantDomain(username);
+        var data = {
+            "customer" : accountId
+        };
+        var summary = billingService.getInvoices(tenantDomain, JSON.stringify(data));
         var invoiceObj = JSON.parse(summary);
-        if (invoiceObj.success) {
-            var invoices = invoiceObj.invoices;
+        if (invoiceObj.data) {
+            var invoices = invoiceObj.data;
             for (var index = 0; index < invoices.length; index++) {
                 if (invoiceId == invoices[index].id) {
-                    var invoiceItems = invoices[index].invoiceItems;
+                    var invoiceItems = invoices[index].lines.data;
 
                     var invoiceData = {};
 
-                    invoiceData[ACCOUNT_NAME] = invoices[index].accountName;
-                    invoiceData[INVOICE_DATE] = invoices[index].invoiceDate;
-                    invoiceData[INVOICE_NUMBER] = invoices[index].invoiceNumber;
-                    invoiceData[AMOUNT] = invoices[index].amount;
+                    invoiceData[ACCOUNT_NAME] = invoices[index].customer;
+                    invoiceData[INVOICE_DATE] = invoices[index].date;
+                    invoiceData[INVOICE_NUMBER] = invoices[index].id;
+                    invoiceData[AMOUNT] = invoices[index].amount_due;
                     invoiceData[INVOICE_ITEMS] = [];
 
                     for (var i = 0; i < invoiceItems.length; i++) {
                         var item = {};
                         var invoiceItem = invoiceItems[i];
-                        if (invoiceItem.chargeName == MONTHLY_SUBSCRIPTION_CHARGE_NAME) {
-                            item[CHARGE_NAME] = invoiceItem.chargeName;
-                            item[AMOUNT] = invoiceItem.chargeAmount;
-                            item[SERVIVICE_PERIOD] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
-                            item[CHARGE_DATE] = invoices[index].invoiceDate;
-                            //if next invoice item is not in the next billing cycle
-                            if ((i + 1) < invoiceItems.length && invoiceItems[i + 1].chargeName == DISCOUNT_CHARGE_NAME) {
-                                item[DISCOUNT] = invoiceItems[i + 1].chargeAmount;
-                            }
-                            else {
-                                item[DISCOUNT] = 0.0;
+                        item[CHARGE_NAME] = invoiceItem.plan.name;
+                        item[AMOUNT] = invoiceItem.plan.amount;
+                        item[SERVIVICE_PERIOD] = invoiceItem.period.start + " to " + invoiceItem.period.end;
+                        item[CHARGE_DATE] = invoices[index].amount_due;
+                        //if next invoice item is not in the next billing cycle
+                        if (invoiceItem.discountable && invoices[index].discount != null) {
+                            if (invoices[index].discount.coupon.amount_off != null) {
+                                item["discount"] = -invoiceObj.discount.coupon.amount_off / CENTS;
+                            } else {
+                                item["discount"] = -(invoiceItem.amount - invoiceObj.discount.coupon.percent_off) / CENTS;
                             }
                         }
                         else {
-                            item[CHARGE_NAME] = invoiceItem.chargeName;
-                            item[AMOUNT] = invoiceItem.chargeAmount;
-                            item[SERVIVICE_PERIOD] = invoiceItem.serviceStartDate + " to " + invoiceItem.serviceEndDate;
-                            item[CHARGE_DATE] = invoices[index].invoiceDate;
                             item[DISCOUNT] = 0.0;
                         }
                         invoiceData[INVOICE_ITEMS].push(item);
@@ -557,6 +568,34 @@ var populateSubscriptionInfo = function (customer, ratePlanId) {
     data.customer = customer;
     data.plan = ratePlanId;
     return data;
+};
+
+var addPaymentMethod = function(tokenId) {
+    try {
+        var accountId = getAccountId();
+        var user = jagg.getUser().username;
+        var tenantDomain = multiTenantUtils.getTenantDomain(user);
+        var data = {};
+        data.source = tokenId;
+        var response = JSON.parse(billingService.addPaymentMethod(tenantDomain, accountId, JSON.stringify(data)));
+        if(response.success){
+            return {
+                error: false,
+                result: response.data.default_payment_method,
+                statusCode: 200
+            };
+
+        } else {
+            return {
+                error: true,
+                result: "Error while adding the payment method",
+                statusCode: 500
+            };
+        }
+    } catch (e) {
+        log.error("customer account update failed. Error : " + e);
+        throw new Error("customer account update failed. Error : " + e);
+    }
 };
 
 %>
