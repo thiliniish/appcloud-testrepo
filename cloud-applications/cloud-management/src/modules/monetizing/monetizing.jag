@@ -1037,8 +1037,9 @@ var addProductRatePlan = function (planName, planDescription, pricing, overageCh
     try {
         var tenantDomain = modManager.getTenantDomain();
         var planObj = {};
+        var amount = pricing * 100;
         planObj.id = API_CLOUD + "_" + tenantDomain + "_" + planName;
-        planObj.amount = pricing * 100;
+        planObj.amount = amount.toFixed(0);
         planObj.currency = "usd";
         planObj.interval = "month";
         planObj.name = planName;
