@@ -7,8 +7,9 @@ $(document).ready(function () {
         success: function (result) {
             result = jQuery.parseJSON(result);
             if (!result.error) {
-                var paymentMethodsObj = result.message;
-                var creditCards = paymentMethodsObj.creditCards;
+                var paymentMethodsObj = result.message.data;
+                var creditCards = paymentMethodsObj.data;
+                var defaultMethod = $('#defaultPaymentMethod').val();
                 if ($.fn.DataTable.isDataTable('#payment-methods')) {
                     var table = $('#payment-methods').DataTable();
                     table.destroy();
@@ -18,19 +19,19 @@ $(document).ready(function () {
                     "paging": false,
                     "data": creditCards,
                     "columns": [
-                        {"data": "cardType", "width": "15%", "sClass": "dt-body-right"},
-                        {"data": "cardHolderInfo.cardHolderName", "width": "25%"},
-                        {"data": "cardNumber", "width": "18%", "sClass": "dt-body-right"},
+                        {"data": "brand", "width": "15%", "sClass": "dt-body-right"},
+                        {"data": "name", "width": "25%"},
+                        {"data": "last4", "width": "18%", "sClass": "dt-body-right"},
                         {
                             "data": "null", "width": "15%", "sClass": "dt-body-right",
                             "render": function (data, type, full, meta) {
-                                return +full['expirationMonth'] + ' / ' + full['expirationYear'];
+                                return +full['exp_month'] + ' / ' + full['exp_year'];
                             }
                         },
                         {
-                            "data": "defaultPaymentMethod", "width": "7%", "sClass": "dt-body-center",
+                            "data": "id", "width": "7%", "sClass": "dt-body-center",
                             "render": function (data, type, full, meta) {
-                                if (data == true) {
+                                if (full['id'] == defaultMethod) {
                                     return '<a class="editroles"><i class="fw fw-check"></i></a>';
                                 } else {
                                     return '';
@@ -40,7 +41,11 @@ $(document).ready(function () {
                         {
                             "data": "id", "orderable": false, "width": "15%",
                             "render": function (data, type, full, meta) {
-                                return "<a class='editroles' onclick='return makeDefaultMethod(\"" + full['id'] + "\")'' ><i class='fw fw-star'></i> Set as Primary</a> ";
+                                if (full['id'] == defaultMethod) {
+                                    return '';
+                                } else {
+                                    return "<a class='editroles' onclick='return makeDefaultMethod(\"" + full['id'] + "\")'' ><i class='fw fw-star'></i> Set as Primary</a> ";
+                                }
                             }
                         },
                         {
@@ -80,7 +85,7 @@ function makeDefaultMethod(methodId) {
                     content: 'Successfully updated the default payment method.',
                     type: 'info',
                     cbk: function () {
-                        var form = $('<form action="manage-account.jag?tenant=' + tenantDomain + '"' + 'method="post">' +
+                        var form = $('<form action="manage-account.jag?tenant=' + tenantDomain + '&fieldPassthrough1='+ methodId +'"' + 'method="post">' +
                             '<input type="hidden" name="action" value="viewPaymentMethod"/>' +
                             '</form>');
                         $('body').append(form);
@@ -103,6 +108,7 @@ function makeDefaultMethod(methodId) {
 
 
 function removePaymentMethod(methodId) {
+    var defaultMethod = $('#defaultPaymentMethod').val();
     $.ajax({
         url: "../../blocks/pricing/payment-method/info/ajax/get.jag",
         data: {
@@ -117,7 +123,7 @@ function removePaymentMethod(methodId) {
                     content: 'Successfully removed the payment method.',
                     type: 'info',
                     cbk: function () {
-                        var form = $('<form action="manage-account.jag?tenant=' + tenantDomain + '"' + 'method="post">' +
+                        var form = $('<form action="manage-account.jag?tenant=' + tenantDomain + '&fieldPassthrough1='+ defaultMethod +'"' + 'method="post">' +
                             '<input type="hidden" name="action" value="viewPaymentMethod"/>' +
                             '</form>');
                         $('body').append(form);

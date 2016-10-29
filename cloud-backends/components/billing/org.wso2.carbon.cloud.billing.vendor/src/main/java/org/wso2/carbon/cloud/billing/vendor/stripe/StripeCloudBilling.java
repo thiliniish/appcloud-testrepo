@@ -90,7 +90,6 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
 
     // TODO: 10/11/16 Get the SecretAPI Key from the Database
     private static String getSecretKey(String tenantDomain) throws CloudBillingVendorException {
-        LOGGER.info("Getting Secret Key for Tenant : " + tenantDomain);
         try {
             return APICloudMonetizationUtils.getSecretKey(tenantDomain);
         } catch (CloudBillingVendorException e) {
@@ -475,15 +474,25 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String addPaymentMethod(String customerId, String paymentMethodInfoJson)
             throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
         try {
             Customer customer = Customer.retrieve(customerId);
             cardParams.clear();
             cardParams = ObjectParams.setObjectParams(paymentMethodInfoJson);
-            return validateResponseString(customer.getSources().create(cardParams).toString());
+            JsonElement customerDetails = new JsonParser().parse(getCustomerDetails(customerId));
+            JsonElement paymentMethodSuccess =
+                    new JsonParser().parse(validateResponseString(customer.getSources().create(cardParams).toString()));
+            JsonObject responseData = new JsonObject();
+            responseData.add("default_payment_method",
+                             customerDetails.getAsJsonObject().get("data").getAsJsonObject().get("default_source"));
+            responseData.add("add_payment_method_response", paymentMethodSuccess);
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, responseData);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while adding the new payment method : ", ex);
         }
+        return response.toString();
     }
 
     /**
@@ -502,8 +511,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
-            JsonElement customerJsonObj =  new JsonParser().parse(
-                    validateResponseString(updateCustomer(customerId, paymentMethodInfoJson)));
+            JsonElement customerJsonObj =
+                    new JsonParser().parse(validateResponseString(updateCustomer(customerId, paymentMethodInfoJson)));
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
             response.add(BillingVendorConstants.RESPONSE_DATA, customerJsonObj);
         } catch (CloudBillingVendorException ex) {
@@ -569,14 +578,19 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getAllPaymentMethods(String customerId, String paymentMethodInfoJson)
             throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
         try {
             cardParams.clear();
             cardParams = ObjectParams.setObjectParams(paymentMethodInfoJson);
-            return validateResponseString(Customer.retrieve(customerId).getSources().all(cardParams).toString());
+            JsonElement paymentMethod = new JsonParser().parse(validateResponseString(
+                    Customer.retrieve(customerId).getSources().all(cardParams).toString()));
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, paymentMethod);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while retrieving all payment methods : ", ex);
         }
+        return response.toString();
     }
 
     /**
@@ -588,13 +602,17 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String removePaymentMethod(String customerId, String paymentMethodId)
             throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
         try {
-            return validateResponseString(
-                    Customer.retrieve(customerId).getSources().retrieve(paymentMethodId).delete().toString());
+            JsonElement deleteStatus = new JsonParser().parse(validateResponseString(
+                    Customer.retrieve(customerId).getSources().retrieve(paymentMethodId).delete().toString()));
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, deleteStatus);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while removing payment method : ", ex);
         }
+        return response.toString();
     }
 
     /**
@@ -857,6 +875,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                     }
                 }
                 if (defaultPaymentNode != null) {
+                    defaultPaymentMethodObj.addProperty("paymentId", defaultPaymentNode.get("id").asText());
                     defaultPaymentMethodObj.addProperty("paymentMethodType", defaultPaymentNode.get("object").asText());
                     defaultPaymentMethodObj.addProperty("paymentType", defaultPaymentNode.get("brand").asText());
                     defaultPaymentMethodObj
@@ -997,6 +1016,13 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 APIException ex) {
             throw new CloudBillingVendorException("Error while removing the subscription discount: ", ex);
         }
+    }
+
+    /**
+     * @return Currency Used by Vendor
+     */
+    @Override public String getCurrencyUsed() {
+        return BillingVendorConfigUtils.getBillingVendorConfiguration().getCurrency();
     }
 
     /**

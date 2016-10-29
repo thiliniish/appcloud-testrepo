@@ -46,7 +46,6 @@ import org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus;
 
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -58,13 +57,13 @@ import javax.xml.stream.XMLStreamException;
  * /_system/governance/apimgt/applicationdata/workflow-extensions.xml
  * <p/>
  * ex config:
- *  <ApplicationDeletion
- *              executor="org.wso2.carbon.cloud.monetization.apimgt.workflows.ApplicationDeletionWorkflowExecutor">
- *      <Property name="serviceEndpoint">
- *          https://milestones.appfactory.wso2.com:9643/services/APICloudMonetizationService/</Property>
- *      <Property name="username">rajith.siriw.ardana.gmail.com@mustanggt350</Property>
- *      <Property name="password">Admin!23</Property>
- *  </ApplicationDeletion>
+ * <ApplicationDeletion
+ * executor="org.wso2.carbon.cloud.monetization.apimgt.workflows.ApplicationDeletionWorkflowExecutor">
+ * <Property name="serviceEndpoint">
+ * https://milestones.appfactory.wso2.com:9643/services/APICloudMonetizationService/</Property>
+ * <Property name="username">rajith.siriw.ardana.gmail.com@mustanggt350</Property>
+ * <Property name="password">Admin!23</Property>
+ * </ApplicationDeletion>
  */
 public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
 
@@ -96,25 +95,26 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
         ServiceClient client;
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(
-                    "Cancelling subscriptions for application. Account: " + accountNumber + " Application " + "name: "
-                            + workflowDTO.getApplication().getName());
+                    "Cancelling subscriptions for application. Account: " + accountNumber + " Application " + "name: " +
+                    workflowDTO.getApplication().getName());
         }
-        payload = CustomWorkFlowConstants.REMOVE_APP_SUBSCRIPTIONS_PAYLOAD.replace("$1", accountNumber)
-                .replace("$2", workflowDTO.getApplication().getName());
+        payload = CustomWorkFlowConstants.REMOVE_APP_SUBSCRIPTIONS_PAYLOAD
+                .replace("$1", workflowDTO.getTenantDomain())
+                .replace("$2", accountNumber)
+                .replace("$3", workflowDTO.getApplication().getName());
         client = WorkFlowUtils
                 .getClient(CustomWorkFlowConstants.SOAP_ACTION_REMOVE_APP_SUBSCRIPTIONS, serviceEndpoint, contentType,
-                        username, password);
+                           username, password);
         OMElement response = client.sendReceive(AXIOMUtil.stringToOM(payload));
         if (response.getChildrenWithLocalName(CustomWorkFlowConstants.SOAP_RETURN_ELEMENT).hasNext()) {
-            OMElement returnElement = (OMElement) response
-                    .getChildrenWithLocalName(CustomWorkFlowConstants.SOAP_RETURN_ELEMENT).next();
+            OMElement returnElement =
+                    (OMElement) response.getChildrenWithLocalName(CustomWorkFlowConstants.SOAP_RETURN_ELEMENT).next();
             JsonElement responseElement = new JsonParser().parse(returnElement.getText());
             if (responseElement.isJsonObject()) {
                 JsonObject resultObj = responseElement.getAsJsonObject();
                 if (resultObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS) == null) {
-                    throw new WorkflowException(
-                            "Cancel application subscription failure.  Response status " + "cannot be null. response: "
-                                    + response.toString());
+                    throw new WorkflowException("Cancel application subscription failure.  Response status " +
+                                                "cannot be null. response: " + response.toString());
                 }
                 JsonObject dataObj = resultObj.get(CustomWorkFlowConstants.RESPONSE_DATA).getAsJsonObject();
                 if (resultObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS).getAsBoolean()) {
@@ -126,7 +126,7 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
                     return finalizeAppDeletion(workflowDTO);
                 } else {
                     return removeSuccessRemovals(dataObj.getAsJsonArray(CustomWorkFlowConstants.REMOVED_SUBSCRIPTIONS),
-                            workflowDTO);
+                                                 workflowDTO);
                 }
             } else {
                 throw new WorkflowException(
@@ -134,15 +134,15 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
             }
         } else {
             throw new WorkflowException(
-                    "Cancel application subscription response information cannot be empty. " + "response: " + response
-                            .toString());
+                    "Cancel application subscription response information cannot be empty. " + "response: " +
+                    response.toString());
         }
     }
 
     /**
      * This executes once it fails to remove any of the paid subscriptions from the billing engine. this
      * Uses to only remove the successfully removed subscriptions from billing engine.
-     * <p>
+     * <p/>
      * Once it executes this, it will not delete the application and the free subscriptions.
      *
      * @param removedSubscriptions json array containing successfully removed subscription information
@@ -171,9 +171,10 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
             try {
                 apiMgtDAO.removeSubscription(identifier, applicationIdID);
             } catch (APIManagementException e) {
-                errorMsg = "Could not complete subscription deletion for Application: " + workflowDTO.getApplication()
-                        .getName() + ". Subscriber: " + workflowDTO.getUserName() + ", ApiName: " + apiName + ", "
-                        + "ApiVersion: " + apiVersion + ", ApiProvider: " + apiProvider;
+                errorMsg = "Could not complete subscription deletion for Application: " +
+                           workflowDTO.getApplication().getName() + ". Subscriber: " + workflowDTO.getUserName() +
+                           ", ApiName: " + apiName + ", " + "ApiVersion: " + apiVersion + ", ApiProvider: " +
+                           apiProvider;
                 throw new WorkflowException(errorMsg, e);
             }
         }
@@ -198,24 +199,21 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
     /**
      * {@inheritDoc}
      */
-    @Override
-    public String getWorkflowType() {
+    @Override public String getWorkflowType() {
         return WorkflowConstants.WF_TYPE_AM_APPLICATION_DELETION;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public List<WorkflowDTO> getWorkflowDetails(String s) throws WorkflowException {
+    @Override public List<WorkflowDTO> getWorkflowDetails(String s) throws WorkflowException {
         return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public WorkflowResponse execute(WorkflowDTO workflowDTO) throws WorkflowException {
+    @Override public WorkflowResponse execute(WorkflowDTO workflowDTO) throws WorkflowException {
         ApplicationWorkflowDTO applicationWorkflowDTO;
         Set<SubscribedAPI> subscribedAPISet;
         if (workflowDTO instanceof ApplicationWorkflowDTO) {
@@ -224,39 +222,40 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
             throw new WorkflowException(ERROR_MSG + " WorkflowDTO doesn't match the required type");
         }
 
-        Subscriber subscriber = new Subscriber(
-                applicationWorkflowDTO.getUserName() + "@" + applicationWorkflowDTO.getTenantDomain());
+        Subscriber subscriber =
+                new Subscriber(applicationWorkflowDTO.getUserName() + "@" + applicationWorkflowDTO.getTenantDomain());
         try {
-            subscribedAPISet = ApiMgtDAO.getInstance()
-                    .getSubscribedAPIs(subscriber, applicationWorkflowDTO.getApplication().getName(), null);
+            subscribedAPISet = ApiMgtDAO.getInstance().getSubscribedAPIs(subscriber,
+                                                                         applicationWorkflowDTO.getApplication()
+                                                                                               .getName(), null);
 
             //If 0 subscribed apis
             if (subscribedAPISet.isEmpty()) {
                 return finalizeAppDeletion(applicationWorkflowDTO);
             }
         } catch (APIManagementException e) {
-            throw new WorkflowException(
-                    ERROR_MSG + " Subscribed for API list not available. Subscriber: " + applicationWorkflowDTO
-                            .getUserName() + " Application: " + applicationWorkflowDTO.getApplication().getName());
+            throw new WorkflowException(ERROR_MSG + " Subscribed for API list not available. Subscriber: " +
+                                        applicationWorkflowDTO.getUserName() + " Application: " +
+                                        applicationWorkflowDTO.getApplication().getName());
         }
 
         try {
             JsonObject responseObj = WorkFlowUtils
                     .getSubscriberInfo(applicationWorkflowDTO.getUserName(), applicationWorkflowDTO.getTenantDomain(),
-                            serviceEndpoint, contentType, username, password);
+                                       serviceEndpoint, contentType, username, password);
             if (responseObj.isJsonObject()) {
-                JsonObject subscriberJsonObj = responseObj.get(CustomWorkFlowConstants.SUBSCRIBER_OBJ)
-                        .getAsJsonObject();
+                JsonObject subscriberJsonObj =
+                        responseObj.get(CustomWorkFlowConstants.SUBSCRIBER_OBJ).getAsJsonObject();
                 if (subscriberJsonObj.isJsonObject()) {
-                    boolean isTestAccount = subscriberJsonObj.get(CustomWorkFlowConstants.IS_TEST_ACCOUNT_PROPERTY)
-                            .getAsBoolean();
+                    boolean isTestAccount =
+                            subscriberJsonObj.get(CustomWorkFlowConstants.IS_TEST_ACCOUNT_PROPERTY).getAsBoolean();
 
                     //Check subscribers is a test/complementary subscriber
                     if (!isTestAccount) {
                         String accountNumber = subscriberJsonObj.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY)
-                                .isJsonPrimitive() ?
-                                subscriberJsonObj.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY).getAsString() :
-                                null;
+                                                                .isJsonPrimitive() ?
+                                               subscriberJsonObj.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY)
+                                                                .getAsString() : null;
                         if (StringUtils.isBlank(accountNumber)) {
                             //Subscriber doesn't have any paid apis
                             return finalizeAppDeletion(applicationWorkflowDTO);
@@ -271,13 +270,13 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
                 }
             } else if (responseObj.isJsonPrimitive() && responseObj.getAsString().isEmpty()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Subscriber information is not available. Subscriber assumed to be only using free "
-                            + "apis");
+                    LOGGER.debug("Subscriber information is not available. Subscriber assumed to be only using free " +
+                                 "apis");
                 }
                 return finalizeAppDeletion(applicationWorkflowDTO);
             } else {
-                throw new WorkflowException(ERROR_MSG + " Subscriber information is not available. Could be due to a "
-                        + "connection failure.");
+                throw new WorkflowException(ERROR_MSG + " Subscriber information is not available. Could be due to a " +
+                                            "connection failure.");
             }
         } catch (AxisFault | XMLStreamException e) {
             throw new WorkflowException(ERROR_MSG, e);
@@ -287,15 +286,14 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
     /**
      * {@inheritDoc}
      */
-    @Override
-    public WorkflowResponse complete(WorkflowDTO workflowDTO) throws WorkflowException {
+    @Override public WorkflowResponse complete(WorkflowDTO workflowDTO) throws WorkflowException {
         ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         ApplicationWorkflowDTO applicationWorkflowDTO;
         if (workflowDTO instanceof ApplicationWorkflowDTO) {
             applicationWorkflowDTO = (ApplicationWorkflowDTO) workflowDTO;
         } else {
-            throw new WorkflowException("Incompatible types. " + workflowDTO.getClass()
-                    + " cannot be cast to ApplicationWorkflowDTO");
+            throw new WorkflowException(
+                    "Incompatible types. " + workflowDTO.getClass() + " cannot be cast to ApplicationWorkflowDTO");
         }
         Application application = applicationWorkflowDTO.getApplication();
         String errorMsg;
@@ -303,8 +301,8 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
             apiMgtDAO.deleteApplication(application);
         } catch (APIManagementException e) {
             if (e.getMessage() == null) {
-                errorMsg = "Couldn't complete simple application deletion workflow for application: " + application
-                        .getName();
+                errorMsg = "Couldn't complete simple application deletion workflow for application: " +
+                           application.getName();
             } else {
                 errorMsg = e.getMessage();
             }
