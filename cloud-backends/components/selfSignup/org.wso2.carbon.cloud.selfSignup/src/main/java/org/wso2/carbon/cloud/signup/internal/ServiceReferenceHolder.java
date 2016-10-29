@@ -19,6 +19,7 @@ package org.wso2.carbon.cloud.signup.internal;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
+import org.wso2.carbon.registry.core.service.RegistryService;
 
 /**
  * This class consists of the getter and setter methods needed to access the configuration parameter
@@ -29,6 +30,7 @@ public class ServiceReferenceHolder {
     private static ConfigurationContextService contextService;
     private APIManagerConfigurationService amConfigurationService;
     private RealmService realmService;
+    private RegistryService registryService;
 
     private static final ServiceReferenceHolder instance = new ServiceReferenceHolder();
 
@@ -70,5 +72,23 @@ public class ServiceReferenceHolder {
      */
     public void setRealmService(RealmService realmService) {
         this.realmService = realmService;
+    }
+
+    /**
+     * Set registry service
+     *
+     * @param registryService registryService
+     */
+    public void setRegistryService(RegistryService registryService) {
+        this.registryService = registryService;
+    }
+
+    /**
+     * Get registry service
+     *
+     * @return registry service
+     */
+    public RegistryService getRegistryService() {
+        return registryService;
     }
 }
