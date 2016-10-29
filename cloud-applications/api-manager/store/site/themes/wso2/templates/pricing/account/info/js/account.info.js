@@ -36,13 +36,10 @@ $(document).ready(function () {
 
                 // set account summary
                 $('#tenantDomain').val(tenantDomain);
-                $('#defaultPaymentMethod').val(paymentMethodDetails.paymentId);
-                $('#accName').text(accountName);
-                $('#accountName').val(accountName);
-                $('#lastPayment').text(lastPayment + " " + accountSummary.currency);
                 $('#accBalance').text(accountSummary.accountBalance);
-                $('#lastPaymentDate').text(accountSummary.lastPaymentDate);
-                $('#lastInvoice').text(accountSummary.lastInvoiceDate);
+                $('#accName').text(accountName);
+                $('#defaultPaymentMethod').val(paymentMethodDetails.paymentId);
+                $('#accountName').val(accountName);
 
                 // set contact info
                 $('#fname').text(contactDetails.firstName);
@@ -82,7 +79,12 @@ $(document).ready(function () {
                             }
                         },
                         {"data": "TargetDate", "width": "20%", "sClass": "dt-body-right"},
-                        {"data": "Amount", "width": "15%", "sClass": "dt-body-right"},
+                        {
+                            "data": "Amount", "width": "15%", "sClass": "dt-body-right",
+                            "render": function (data, type, full, meta) {
+                                return full['Amount'] / 100;
+                            }
+                        },
                         {
                             "data": "paid", "width": "15%", "sClass": "dt-body-right",
                             "render": function (data, type, full, meta) {
