@@ -831,13 +831,6 @@ var sendProductEnableNotificationEmailToUser = function (displayName, effectiveS
     return modUtil.sendEmail(body, subject, userEmail);
 };
 
-// Function for create product rate plans
-var createProductRatePlan = function (ratePlanName, price, throttlingLimit, monthlyLimit, overageCharge, description) {
-    var tenantDomain = modManager.getTenantDomain();
-    return billingService.createProductRatePlan(tenantDomain, ratePlanName, price, throttlingLimit, monthlyLimit,
-            overageCharge, description);
-};
-
 // Function to get the number of product plans available for the given tenant.
 var getNumberOfProductPlansForTenant = function (tenantDomain) {
     var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
@@ -1049,6 +1042,7 @@ var addProductRatePlan = function (planName, planDescription, pricing, overageCh
         planObj.currency = "usd";
         planObj.interval = "month";
         planObj.name = planName;
+        planObj.statement_descriptor = planName + "Plan";
         var metaDataObj = {};
         metaDataObj.product = API_CLOUD;
         metaDataObj.description = planDescription;

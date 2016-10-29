@@ -400,7 +400,7 @@ var changeSubscriptionPlan = function(accountId, newProductRatePlanId, ratePlans
         response = false;
     }
     var effectiveDate = session.get("EFFECTIVE_DATE");
-    if (response) {
+    if (response.success) {
         //add an entry to subscription
         //UPDATE_ BILLING_ACCOUNT_AMENDMENTS
         //INSERT_BILLING_ACCOUNT_AMENDMENTS
@@ -443,68 +443,9 @@ var changeSubscriptionPlan = function(accountId, newProductRatePlanId, ratePlans
         }
         return true;
     } else {
-        if (response.reasons[0].message == "The Contract effective date should not be " +
-                "earlier than the customer acceptance date of the previous amendment.") {
-            if (log.isDebugEnabled()){
-                log.debug("Rate plan change failed for account: " + accountId + " into plan: " + newProductRatePlanId + " from plan: "
-                        + currentRatePlanId + " Response from zuora: " + JSON.stringify(response));
-            }
-            return ("The Contract effective date should not be " +
-            "earlier than the customer acceptance date of the previous amendment.");
-        }
-        else if (response.reasons[0].message.indexOf("Rate plan \""+ BILLING_COUPON_HEADER + couponData+"\" is not effective on the contract effective date") >= 0){
-            if (log.isDebugEnabled()){
-                log.debug("Rate plan \""+ BILLING_COUPON_HEADER + couponData+"\"is not effective on the contract effective date. Response from zuora: " +
-                        JSON.stringify(response));
-            }
-            return ("Coupon is not valid. Please enter a valid coupon.");
-        }
-        else {
-            throw new Error("Rate plan change failed for account: " + accountId + " into plan: " + newProductRatePlanId + " from plan: "
-                    + currentRatePlanId + " Response from zuora: " + JSON.stringify(response));
-        }
+        throw new Error("Rate plan change failed for account: " + accountId + " into plan: " + newProductRatePlanId + " from plan: "
+                + currentRatePlanId + "Error : " + JSON.stringify(response.message));
     }
-};
-
-var getChangeSubscriptionResult  = function(accountId, newProductRatePlanId,
-                                                                           ratePlans, serviceId, couponData) {
-
-    var couponRatePlanId;
-    var planId = null;
-    var couponPlanId = null;
-    var accountId = getAccountId();
-
-    // Get rate plans
-    var ratePlan = getCurrentRatePlan(serviceId);
-    var currentRatePlanId;
-
-    currentRatePlanId = ratePlan.id;
-    session.put("CURRENT_RATE_PLAN_ID", currentRatePlanId);
-
-    // Get effective date
-    var isUpgrade = isPlanUpgrade(ratePlans, currentRatePlanId, newProductRatePlanId);
-    var effectiveDate = setChangePlanEffectiveDate(isUpgrade);
-    session.put("EFFECTIVE_DATE", effectiveDate);
-
-    // Change plan data
-    var changePlanData ={};
-    changePlanData["prorate"] = true;
-    changePlanData["plan"] = newProductRatePlanId;
-    var accInfoStr = JSON.parse(billingCoreService.getCustomerDetails(accountId));
-    var subscriptionId = accInfoStr.data.subscriptions.data[0].id;
-    //Removing all the discounts related to subscription
-    if (accInfoStr.data.subscriptions.data[0].discount != null && isUpgrade) {
-        billingCoreService.callVendorMethod("deleteSubscriptionDiscount",subscriptionId);
-    }
-
-    // Checking the validity of the coupon and getting the new coupons rate plan Id
-    if (isValidCoupon(couponData, serviceId)) {
-        couponPlanId = BILLING_COUPON_HEADER + couponData;
-        changePlanData["coupon"] = couponPlanId;
-    }
-
-    return JSON.parse(billingCoreService.updateSubscription(subscriptionId, JSON.stringify(changePlanData)));
-
 };
 
 var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId, serviceId, couponData, isUpgrade) {
@@ -528,7 +469,7 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 
     var response = billingCoreService.updateSubscription(subscriptionId, JSON.stringify(changePlanData),
             isUpgrade);
-    return JSON.parse(response).success;
+    return JSON.parse(response);
 };
 
 //populate account information object
@@ -1010,6 +951,40 @@ var addDays = function (date, days) {
     cal.setTime(date);
     cal.add(Packages.java.util.Calendar.DATE, days);
     return cal.getTime();
+};
+
+// Get the usage display period for api cloud
+var getAPICloudUsageDisplayPeriod = function (serviceId) {
+    return billingCoreService.usageDisplayPeriod(serviceId);
+};
+
+//Get Usage for a given time line
+var getTenantUsage = function (fromDate, toDate) {
+    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    try {
+        if (log.isDebugEnabled()) {
+            log.debug("Getting tenant Usage for year from " + fromDate + " To " + toDate);
+        }
+        var usage = billingCoreService.getTenantUsageDataForGivenDateRange(tenantDomain, "API_CLOUD", fromDate, toDate);
+        var accountUsage = {
+            entry: []
+        };
+        for (var i = 0; i < usage.length; i++) {
+            var item = usage[i];
+            accountUsage.entry.push({
+                "date": usage[i].getDate(),
+                "maxUsage": item.getMaxDailyUsage(),
+                "calls": item.getUsage(),
+                "ratePlan": item.getRatePlan(),
+                "isPaid": item.isPaidAccount(),
+                "overage": item.getOverage()
+            });
+        }
+        return accountUsage;
+    } catch (e) {
+        log.error("Error retrieving usage for : " + tenantDomain + " " + e);
+        throw Error(e);
+    }
 };
 
 %>
