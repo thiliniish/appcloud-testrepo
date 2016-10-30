@@ -27,6 +27,7 @@ var getPaymentPlanFromId = function (serviceId, paymentPlanId) {
     }
     return null;
 };
+
 var isPaidAccount = function () {
     if ((session.get("TENANT_INFO")) != null) {
         var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
@@ -986,5 +987,34 @@ var getTenantUsage = function (fromDate, toDate) {
         throw Error(e);
     }
 };
+
+// Add to mail campaign
+function addCloudSubmissionToMailCampaign(email, domain, type) {
+    var extensionStartDate = new Packages.java.util.Date();
+    var extendedEndDate = addDays(extensionStartDate, parseInt(billingCoreService.getTrialPeriod(SUBSCRIPTION_API_CLOUD)));
+    var sqlDateFormat = dateTimeFormatter(PARDOT_DATE_FORMAT);
+    var expDate = sqlDateFormat.format(extendedEndDate);
+    var type = type.substring(0, type.indexOf("_"));
+    var modProfile = jagg.module("user/profile");
+    var claims = modProfile.getProfile();
+    // todo: get Lead source token
+    var data;
+    var URL;
+    if (claims.firstname != "undefined" && claims.lastname != "undefined") {
+        var firstName = claims.firstname;
+        var lastName = claims.lastname;
+        data = "email=" + email + "&first_name=" + firstName + "&last_name=" + lastName + "&expiry_date" + expDate +
+        "&first_login=1";
+    } else {
+        data = "email=" + email + "&expiry_date" + expDate + "&first_login=1";
+    }
+    if ("API".equals(type)) {
+        URL = cloudConfig.MailCampaignAddUserApi.apiCloudSubmission;
+    } else if ("APP".equals(type)) {
+        URL = cloudConfig.MailCampaignAddUserApi.appCloudSubmission;
+    }
+    var result = post(URL, data, {}, 'text');
+    return result;
+}
 
 %>
