@@ -12,7 +12,7 @@ var errorObj = {
     message: "Internal error. Please retry..."
 };
 
-//Create Billing vendor parameters 
+//Create Billing vendor parameters
 var generateParameters = function (tenantDomain, workflowReference) {
     try {
         var clientParams = JSON.parse(billingService.callVendorMethod("getPublishableKeyForTenant", tenantDomain));
@@ -224,7 +224,9 @@ var updateDefaultPaymentMethod = function (methodId) {
     }
 };
 
-
+var dateTimeFormatter = function(dateTimeFormat) {
+    return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
+};
 
 var getBillingInvoiceData = function (invoiceId) {
     try {
@@ -240,33 +242,35 @@ var getBillingInvoiceData = function (invoiceId) {
             var invoices = invoiceObj.data;
             for (var index = 0; index < invoices.length; index++) {
                 if (invoiceId == invoices[index].id) {
-                    var invoiceItems = invoices[index].lines.data;
+                    var InvoidObj = invoices[index];
+                    var invoiceItems = InvoidObj.lines.data;
 
                     var invoiceData = {};
 
-                    invoiceData[ACCOUNT_NAME] = invoices[index].customer;
-                    invoiceData[INVOICE_DATE] = invoices[index].date;
-                    invoiceData[INVOICE_NUMBER] = invoices[index].id;
-                    invoiceData[AMOUNT] = invoices[index].amount_due;
+                    invoiceData[ACCOUNT_NAME] = InvoidObj.customer;
+                    invoiceData[INVOICE_DATE] = dateFormat.format(InvoidObj.date * THOUSAND) ;
+                    invoiceData[INVOICE_NUMBER] = InvoidObj.id;
+                    invoiceData[AMOUNT] = InvoidObj.amount_due / CENTS;
                     invoiceData[INVOICE_ITEMS] = [];
 
                     for (var i = 0; i < invoiceItems.length; i++) {
                         var item = {};
                         var invoiceItem = invoiceItems[i];
                         item[CHARGE_NAME] = invoiceItem.plan.name;
-                        item[AMOUNT] = invoiceItem.plan.amount;
-                        item[SERVIVICE_PERIOD] = invoiceItem.period.start + " to " + invoiceItem.period.end;
-                        item[CHARGE_DATE] = invoices[index].amount_due;
+                        item[AMOUNT] = invoiceItem.plan.amount / CENTS;
+                        item[SERVIVICE_PERIOD] = dateFormat.format(invoiceItem.period.start * THOUSAND) + " to " +
+                        dateFormat.format(invoiceItem.period.end * THOUSAND);
+                        item[CHARGE_DATE] = dateFormat.format(InvoidObj.date * THOUSAND);
                         //if next invoice item is not in the next billing cycle
-                        if (invoiceItem.discountable && invoices[index].discount != null) {
-                            if (invoices[index].discount.coupon.amount_off != null) {
+                        if (invoiceItem.discountable && InvoidObj.discount != null) {
+                            if (InvoidObj.discount.coupon.amount_off != null) {
                                 item["discount"] = -invoiceObj.discount.coupon.amount_off / CENTS;
                             } else {
                                 item["discount"] = -(invoiceItem.amount - invoiceObj.discount.coupon.percent_off) / CENTS;
                             }
                         }
                         else {
-                            item[DISCOUNT] = 0.0;
+                            item[DISCOUNT] = 0.0 / CENTS;
                         }
                         invoiceData[INVOICE_ITEMS].push(item);
                     }
@@ -359,7 +363,6 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
 
     //base64 decode and decrypt the workflow data
     var apiData = decryptWorkflowData(workflowRefData);
-
     try {
         ratePlanId = apiMonService.getRatePlanId(tenantDomain, apiData.ratePlanName);
         if (ratePlanId == null || "".equals(ratePlanId)) {
@@ -401,8 +404,6 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
 
                 if (updateSubscriberResult) {
                     apiData.subscriptionNumber = responseSubscriptionCreationObj.data.subscriptionNumber;
-                    log.info("api data subscriptionNumber");
-                    log.info(apiData.subscriptionNumber);
                     apiData.ratePlanId = ratePlanId;
                     addSubscriptionResult = apiMonService.addSubscriptionInformation(tenantDomain, createChildAccountResObj.id,
                             stringify(apiData), formattedEffectiveDate);
