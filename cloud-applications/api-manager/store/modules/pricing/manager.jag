@@ -64,7 +64,7 @@ var getAccountDetails = function () {
                 statusCode: 200
             };
         } else {
-            log.error("Get zuora account info failed. Error : " + JSON.stringify(response.reasons));
+            log.error("Customer account info failed. Error : " + JSON.stringify(response.reasons));
             msg = "Getting account information failed .. Please retry ";
             return {
                 error: true,
@@ -230,6 +230,7 @@ var dateTimeFormatter = function(dateTimeFormat) {
 
 var getBillingInvoiceData = function (invoiceId) {
     try {
+        var dateFormat = dateTimeFormatter(DATE_FORMAT);
         var username = jagg.getUser().username;
         var accountId = getAccountId();
         var tenantDomain = multiTenantUtils.getTenantDomain(username);
@@ -489,10 +490,6 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
                 statusCode: 500,
                 message: errorMsg + " Please Retry..."
             };
-
-
-
-
         }
 
 

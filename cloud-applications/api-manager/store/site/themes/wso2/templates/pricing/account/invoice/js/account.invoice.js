@@ -80,7 +80,6 @@ $(document).ready(function () {
             $('#fAmount').text(fullAmount.toFixed(2) + ' ' + currency);
 
             //setting the Basic Information
-            $('#lblOrg').text(invoiceObj.accountName);
             $('#curr').text(currency);
             $('#lblInvoiceNum').text(invoiceObj.invoiceNumber);
             $('#lblInvoiceDate').text(invoiceObj.invoiceDate);

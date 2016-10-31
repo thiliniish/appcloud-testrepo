@@ -51,7 +51,11 @@ $(document).ready(function () {
                         {
                             "data": "id", "orderable": false, "width": "5%", "sClass": "dt-body-center",
                             "render": function (data, type, full, meta) {
-                                return "<a class='editroles' onclick='return removePaymentMethod(\"" + full['id'] + "\")'' ><i class='fw fw-delete'></i></a> ";
+                                if (full['id'] == defaultMethod) {
+                                    return '';
+                                } else {
+                                    return "<a class='editroles' onclick='return removePaymentMethod(\"" + full['id'] + "\")'' ><i class='fw fw-delete'></i></a> ";
+                                }
                             }
                         }
                     ]
