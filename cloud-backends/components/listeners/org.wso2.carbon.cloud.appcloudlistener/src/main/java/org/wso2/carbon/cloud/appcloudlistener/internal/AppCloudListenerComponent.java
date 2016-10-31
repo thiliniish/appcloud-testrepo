@@ -16,20 +16,23 @@
  *   under the License.
  */
 
-package org.wso2.carbon.cloud.listener.internal;
+package org.wso2.carbon.cloud.appcloudlistener.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-
+import org.wso2.carbon.cloud.appcloudlistener.AppCloudListener;
+import org.wso2.carbon.cloud.listener.CloudListener;
 
 /**
- * @scr.component name="org.wso2.carbon.cloud.listener.interface"
+ * @scr.component name="appcloud.listener.serviceComponent"
  * immediate="true"
  */
-public class CloudListenerComponent {
+public class AppCloudListenerComponent {
 
-    private static Log log = LogFactory.getLog(CloudListenerComponent.class);
+    private static Log log = LogFactory.getLog(AppCloudListenerComponent.class);
+    private ServiceRegistration serviceRegistration;
 
     /**
      * Method to activate bundle.
@@ -37,7 +40,10 @@ public class CloudListenerComponent {
      * @param context OSGi component context.
      */
     protected void activate(ComponentContext context) {
-        log.info("Activating cloud listener component interface");
+        log.info("Activating App Cloud listener component");
+        AppCloudListener appCloudListener = new AppCloudListener();
+        serviceRegistration = context.getBundleContext().registerService(CloudListener.class.getName(),
+                appCloudListener, null);
     }
 
     /**
@@ -46,7 +52,7 @@ public class CloudListenerComponent {
      * @param context OSGi component context.
      */
     protected void deactivate(ComponentContext context) {
-        log.info("Deactivating cloud listener component interface");
+        log.info("Deactivating App Cloud listener component");
+        serviceRegistration.unregister();
     }
-
 }
