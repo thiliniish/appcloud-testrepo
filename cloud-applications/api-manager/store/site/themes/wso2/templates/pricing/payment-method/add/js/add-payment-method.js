@@ -3,6 +3,21 @@ var isSecondaryPaymentMethod = Boolean(getRequestParam("secondaryPayment"));
 var field_passthrough1;
 var cardDetails = {};
 
+$(document).ready(function ($) {
+    document.getElementById("cardDetails").style.visibility = "hidden";
+    if (!isSecondaryPaymentMethod) {
+        var error = decodeURIComponent(($("#errorObj").attr('value')));
+        var errorObj = JSON.parse(error);
+        if (errorObj.error) {
+            jagg.message({content: errorObj.errorMessage, type: "error"});
+        }
+    }
+    generateParameters();
+    $("#redeembtn1").click(function () {
+        getCheckoutHandler();
+    });
+});
+
 var callback = function (response) {
     if (!response.success) {
         $('.message_box').empty();
@@ -118,25 +133,13 @@ $('.myaffix').bind('elementClassChanged', function (e) {
     }
 });
 
-$(document).ready(function ($) {
-    document.getElementById("cardDetails").style.visibility = "hidden";
-    if (!isSecondaryPaymentMethod) {
-        var error = decodeURIComponent(($("#errorObj").attr('value')));
-        var errorObj = JSON.parse(error);
-        if (errorObj.error) {
-            jagg.message({content: errorObj.errorMessage, type: "error"});
-        }
-    }
-    generateParameters();
-});
-
-
-
 function getCheckoutHandler() {
     var handler = StripeCheckout.configure({
         key: field_passthrough1,
         image: 'http://b.content.wso2.com/sites/all/cloudmicro/images/icon-wso2.jpg',
         locale: 'auto',
+        zipCode: true,
+        allowRememberMe: false,
         billingAddress: true,
         panelLabel: 'Submit',
         token: function (response) {
@@ -156,11 +159,12 @@ function getCheckoutHandler() {
             cardDetails.creditCardCity = response.card.address_city;
             cardDetails.creditCardState = response.card.address_state;
             cardDetails.field_passthrough5 = response.id;
-            //console.log(cardDetails.field_passthrough5)
         }
     });
     handler.open({
-        name: 'WSO2 Cloud'
+        name: 'WSO2 Cloud',
+        description: 'Pay securely using Stripe',
+        email: $("#email").attr('value')
     });
 
     // Close Checkout on page navigation:

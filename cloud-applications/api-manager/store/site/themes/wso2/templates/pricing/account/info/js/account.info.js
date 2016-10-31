@@ -192,6 +192,7 @@ function updateContactInfo(obj) {
 function goToInvoicePage(id, tenantDomain) {
     var formInvoice = $('<form action="invoice.jag?tenant=' + tenantDomain + '"' + ' method="post">' +
         '<input type="hidden" name="invoiceId" value="' + id + '"/>' +
+        '<input type="text" name="accountNm" value="' + $('input#accountName').val() + '"/>' +
         '</form>');
     $('body').append(formInvoice);
     $(formInvoice).submit();

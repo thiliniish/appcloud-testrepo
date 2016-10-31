@@ -18,7 +18,7 @@
                             <div class="col-md-5 col-md-offset-1">
                                <div class="row">
                                   <div class="col-md-6">
-                                     <span>Account name:</span>
+                                     <span>Account Name:</span>
                                   </div>
                                   <div class="col-md-6">
                                      <p id="accName" name="accName"/>
@@ -28,7 +28,7 @@
                             <div class="col-md-5 col-md-offset-1">
                                <div class="row">
                                   <div class="col-md-6">
-                                     <span>Account balance:</span>
+                                     <span>Account Balance:</span>
                                   </div>
                                   <div class="col-md-6">
                                      <p id="accBalance" name="accBalance"/>
@@ -56,6 +56,7 @@
                         View Methods
                         </button>
                         <input type="hidden" name="accountId" id="accountId"/>
+                        <input type="hidden" name="accountName" id="accountName"/>
                         <input type="hidden" name="tenantDomain" id="tenantDomain" />
                         <input type="hidden" name="defaultPaymentMethod" id="defaultPaymentMethod" />
                         <input type="hidden" name="address1" id="address1"/>
@@ -89,7 +90,7 @@
                            </div>
                            <div class="row">
                               <div class="col-md-6">
-                                 <span>Expiration date:</span>
+                                 <span>Expiration Date:</span>
                               </div>
                               <div class="col-md-6">
                                  <p id="ccExpiry" name="ccExpiary"/>

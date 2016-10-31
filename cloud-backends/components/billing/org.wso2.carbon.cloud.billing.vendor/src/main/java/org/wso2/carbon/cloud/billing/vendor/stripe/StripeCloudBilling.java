@@ -164,15 +164,24 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String updateCustomer(String customerId, String customerInfoJson)
             throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
         try {
             Customer customer = Customer.retrieve(customerId);
             customerParams.clear();
             customerParams = ObjectParams.setObjectParams(customerInfoJson);
-            return validateResponseString(customer.update(customerParams).toString());
+            JsonObject customerJsonObj =
+                    new JsonParser().parse(validateResponseString(customer.update(customerParams).toString()))
+                                    .getAsJsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, customerJsonObj);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
-            throw new CloudBillingVendorException("Error while updating customer : ", ex);
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while updating customer : ", ex);
         }
+        return response.toString();
     }
 
     /**
@@ -610,7 +619,10 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             response.add(BillingVendorConstants.RESPONSE_DATA, deleteStatus);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
-            throw new CloudBillingVendorException("Error while removing payment method : ", ex);
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while removing payment method : ", ex);
         }
         return response.toString();
     }
