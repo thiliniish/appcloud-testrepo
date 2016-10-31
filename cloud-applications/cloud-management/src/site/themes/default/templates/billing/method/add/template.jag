@@ -109,7 +109,7 @@
                             </div>
                         </div>
                     </div>
-            <% var buttonValue; if (accountId !="" ) { buttonValue="Add" ; } else { buttonValue="Continue" ; } %>
+            <% var buttonValue; if (accountId !="" ) { buttonValue="Proceed"; } else { buttonValue="Continue"; } %>
             <div class="row">
             <form class='form-horizontal'>
                 <div class="container col-md-8 wr-text-gray">
