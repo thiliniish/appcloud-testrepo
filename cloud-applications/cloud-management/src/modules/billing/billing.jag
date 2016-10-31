@@ -757,7 +757,7 @@ var addPaymentMethod = function(tokenId) {
         var response = JSON.parse(billingCoreService.addPaymentMethod(accountId,
                 JSON.stringify(data)));
         if (response.success) {
-            return "Your contact information is successfully added";
+            return "Your payment information is successfully added";
         } else {
             throw new Error("customer account update failed.");
         }
