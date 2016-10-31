@@ -114,7 +114,7 @@
             <form class='form-horizontal'>
                 <div class="container col-md-8 wr-text-gray">
                             <div class="panel-body">
-                            <p id="cardDetailHeader">Please enter your card information</p>
+                            <p id="cardDetailHeader">Please enter your card details</p>
                             <p id="cardSuccessHeader" class="content-section-wrapper">Your card information</p>
                             <button id="btnAddCardDetails" type="button" style="font-weight: normal;" class="btn redeembtn btn-default
                                 btn-redeem col-md-4 col-xs-12"><%= IFRAME_BUTTON %></button>
@@ -152,7 +152,8 @@
                                 <div id="coupon-container">
                                     <p>Enter coupon code here</p>
                                     <form class="form-inline input-control text">
-                                        <input id="coupon" class="txtbox-redeem col-md-8 col-xs-12" type="text" value="" placeholder="Eg: ACE">
+                                        <input id="coupon" class="txtbox-redeem col-md-8 col-xs-12" type="text"
+                                        value="" placeholder="E.g. ACE">
                                         <button id="redeembtn" type="button" style="font-weight: normal;" class="btn redeembtn btn-default btn-redeem col-md-4 col-xs-12">Redeem</button>
                                         <label id="couponValidator" name="couponValidator" class="control-label label-style red-color">
                                         </label>
