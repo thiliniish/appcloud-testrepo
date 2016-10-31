@@ -14,13 +14,13 @@
     var tenantDomain;
     // TO DO Monetization Enabled need to be added
     var isMonetizationEnabled = false;
-    <!--if (session.get("TENANT_INFO") != null) {-->
-        <!--tenantDomain = (session.get("TENANT_INFO")).tenantDomain;-->
-        <!--var result = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);-->
-        <!--if (!result.error) {-->
-            <!--isMonetizationEnabled = result.monetizationEnabled;-->
-        <!--}-->
-    <!--}-->
+    if (session.get("TENANT_INFO") != null) {
+        tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+        var result = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+        if (!result.error) {
+            isMonetizationEnabled = result.monetizationEnabled;
+        }
+    }
     if (isBillingEnabled) {
         var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
         var accountId = jagg.module("billing").getAccountId(serviceId);
@@ -156,7 +156,7 @@
 
             if (isBillingEnabled) {
                 for (var i = 0; i < paymentPlans.length; i++) {
-                    if (paymentPlans[i].visibility) {
+                    if (paymentPlans[i].visibility == "true") {
                         var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
                         var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
                         var maxUsageStr = numFormat.format(maxUsageAmmount);
