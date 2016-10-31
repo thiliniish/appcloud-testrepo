@@ -919,7 +919,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                     invoiceItemObj.addProperty("Amount", invoiceItem.get("total").asText());
                     invoiceItemObj.addProperty("paid", invoiceItem.get("paid").asText());
                     invoiceArrayList.add(invoiceItemObj.toString());
-                    if (invoiceItem.get("charge").asBoolean()) {
+                    if (!invoiceItem.get("charge").isNull()) {
                         //get ChargeObject
                         String chargeDetails = getChargedDetails(invoiceItem.get("charge").asText());
                         JsonNode chargeObj = APICloudMonetizationUtils.getJsonList(chargeDetails);
