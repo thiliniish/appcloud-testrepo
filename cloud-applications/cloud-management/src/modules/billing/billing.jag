@@ -682,7 +682,11 @@ var updateContactInfo = function(organizationName, accountData, metaData) {
                 true);
         var response = JSON.parse(billingCoreService.updateCustomer(accountId,
                 JSON.stringify(data)));
-        return "Your contact information is successfully added"
+        if (response.success) {
+            return "Your contact information is successfully added";
+        } else {
+            throw new Error("customer account update failed.");
+        }
     } catch (e) {
         log.error("customer account update failed. Error : " + e);
         throw new Error("customer account update failed. Error : " + e);
@@ -752,7 +756,11 @@ var addPaymentMethod = function(tokenId) {
         data.source = tokenId;
         var response = JSON.parse(billingCoreService.addPaymentMethod(accountId,
                 JSON.stringify(data)));
-        return "Your contact information is successfully added"
+        if (response.success) {
+            return "Your contact information is successfully added";
+        } else {
+            throw new Error("customer account update failed.");
+        }
     } catch (e) {
         log.error("customer account update failed. Error : " + e);
         throw new Error("customer account update failed. Error : " + e);
