@@ -735,7 +735,8 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
                     if (invoiceObj.discount.coupon.amount_off != null) {
                         item["discount"] = -invoiceObj.discount.coupon.amount_off / CENTS;
                     } else {
-                        item["discount"] = -(invoiceItem.amount - invoiceObj.discount.coupon.percent_off) / CENTS;
+                        item["discount"] = -(invoiceItem.amount * (invoiceObj.discount.coupon.percent_off / 100)) /
+                                CENTS;
                     }
                 }
                 invoiceData["invoiceItems"].push(item);
