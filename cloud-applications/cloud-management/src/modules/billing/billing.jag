@@ -643,15 +643,18 @@ var addTenantToBilling = function(tenantId, tenantDomain) {
                 + ") added to BILLING_STATUS table with params: " + parameters);
     }
 };
+
 // Assuming that only one subscription is created for the Tenant.
-var getCurrentRatePlan = function(serviceId) {
+var getCurrentRatePlan = function (serviceId) {
     if ((session.get("TENANT_INFO")) != null) {
         var susbcriptionData = getCustomerDetails();
-        return susbcriptionData.data.subscriptions.data[0].plan;
-    } else {
-        return null;
+        if (susbcriptionData.success) {
+            return susbcriptionData.data.subscriptions.data[0].plan;
+        }
     }
+    return null;
 };
+
 var getCurrentSubscription = function(serviceId) {
     if ((session.get("TENANT_INFO")) != null) {
         var susbcriptionData = getCustomerDetails();
