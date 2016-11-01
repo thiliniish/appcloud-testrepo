@@ -36,7 +36,7 @@ var SQL_QUERY_STRINGS = {
   //billing queries
 
   INSERT_INTO_BILLING_ACCOUNT : "INSERT INTO BILLING_ACCOUNT VALUES ('?','?');",
-  //update the BILLING_ACCOUNT table with zuora account id when upgrading to a paid plan
+  //update the BILLING_ACCOUNT table with account id when upgrading to a paid plan
   INSERT_ACCOUNT_NUMBER_TO_BILLING_ACCOUNT : "UPDATE BILLING_ACCOUNT SET ACCOUNT_NUMBER = '?' WHERE TENANT_DOMAIN = '?';",
   INSERT_INTO_BILLING_STATUS : 	"INSERT INTO BILLING_STATUS VALUES ('?','?','?','?','?','?');",
   UPDATE_SUBSCRIPTION_TYPE_STATUS_IN_BILLING_STATUS : "UPDATE BILLING_STATUS SET STATUS = ('?'), END_DATE = ('?') WHERE (TENANT_DOMAIN, SUBSCRIPTION, TYPE) = ('?','?','?')",

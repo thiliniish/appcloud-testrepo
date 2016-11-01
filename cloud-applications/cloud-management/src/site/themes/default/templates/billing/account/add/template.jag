@@ -73,7 +73,7 @@
             field_passthrough4  = request.getParameter("field_passthrough4") || "";
 
         }
-        log.debug("Request received from payment method creation page. Callback from Zuora");
+        log.debug("Request received from payment method creation page. Callback from Billing Vendor");
     }else if (EDIT_USER_INFO == responseFrom){
         organizationName = request.getParameter("organizationName");
         profileFirstName = request.getParameter("firstName");
@@ -219,7 +219,7 @@
                 responseFrom: "<%=responseFrom%>",
                 accountId : "<%= accountId%>",
                 field_passthrough4:$("#field_passthrough4").attr('value'),
-                
+
             },
             function (result) {
                 document.getElementById("spinner").style.display = 'none';
@@ -347,7 +347,7 @@
             if(responseFrom == EDIT_USER_INFO){
             	activateSubmit("activateButton.checked");
             	 $('#submitbtn').css('background-color','hsl(197, 97%, 41%)');
-             	
+
             }
 
             $('#backbtn').click(function() {
@@ -523,17 +523,17 @@
          	</div>
             <% } %>
 		</div>
-		<%} else { %>  
+		<%} else { %>
                    <div class="container col-md-8 wr-text">
                           <% if(isDowngrade ) {  %>
                            <p class="tcenter">You will be downgrading  your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
                            <p class="tcenter">You will be charged USD <span id="payable-amount-txt"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span> <b> on your next renewal date</b> <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
                               <% } else {  %>
                                <p class="tcenter">You will be upgrading  your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
-                             <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span>,  
+                             <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span>,
                              you will be charged USD <span id="monthly-payable-amount-txt"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%> </span>. </p>
                             <% }   %>
-                   </div>     
+                   </div>
 		<% } if(responseFrom == EDIT_USER_INFO ) {  %>
             <div class="wr-text col-sm-8">
                 <input id="submitbtn" type='button' value = 'Update' style="font-weight:normal;" class="btn btn-default btn-redeem col-md-6 col-xs-12 " />
