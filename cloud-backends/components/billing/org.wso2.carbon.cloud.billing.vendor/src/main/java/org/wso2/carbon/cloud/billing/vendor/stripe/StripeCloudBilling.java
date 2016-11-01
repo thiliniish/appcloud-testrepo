@@ -68,15 +68,16 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     private Map<String, Object> cardParams = new HashMap<>();
     private Map<String, Object> invoiceParams = new HashMap<>();
     private Map<String, Object> monetizationAccountParams = new HashMap<>();
+    private static boolean billingSet = false;
 
     public StripeCloudBilling() {
-        setApiKey(BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey());
+        setBillingApiKey();
+        setKeyType();
     }
 
     public StripeCloudBilling(String tenantDomain) throws CloudBillingException {
         String apiKey = getSecretKey(tenantDomain);
         setApiKey(apiKey);
-
     }
 
     /**
@@ -88,7 +89,20 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         Stripe.apiKey = apiKey;
     }
 
-    // TODO: 10/11/16 Get the SecretAPI Key from the Database
+    /**
+     * Setting API Key for Billing Instance
+     */
+    private static void setBillingApiKey() {
+        if (billingSet) {
+            Stripe.apiKey =
+                    BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey();
+        }
+    }
+
+    private static void setKeyType() {
+        billingSet = true;
+    }
+
     private static String getSecretKey(String tenantDomain) throws CloudBillingVendorException {
         try {
             return APICloudMonetizationUtils.getSecretKey(tenantDomain);
@@ -114,6 +128,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String createCustomer(String customerInfoJson) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             customerParams.clear();
             customerParams = ObjectParams.setObjectParams(customerInfoJson);
             return validateResponseString(Customer.create(customerParams).toString());
@@ -132,6 +147,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String getCustomerDetails(String customerId) throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             Customer customer = Customer.retrieve(customerId);
             JsonObject customerJsonObj =
                     new JsonParser().parse(validateResponseString(customer.toString())).getAsJsonObject();
@@ -166,6 +182,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             Customer customer = Customer.retrieve(customerId);
             customerParams.clear();
             customerParams = ObjectParams.setObjectParams(customerInfoJson);
@@ -192,6 +209,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String deleteCustomer(String customerId) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             Customer customer = Customer.retrieve(customerId);
             return validateResponseString(customer.delete().toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
@@ -220,6 +238,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson)
             throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
             return validateResponseString(Plan.create(planParams).toString());
@@ -237,6 +256,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getProductRatePlan(String ratePlanId) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             return validateResponseString(Plan.retrieve(ratePlanId).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
@@ -261,6 +281,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String updateProductRatePlan(String planId, String ratePlanInfoJson)
             throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             Plan plan = Plan.retrieve(planId);
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
@@ -279,6 +300,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String deleteProductRatePlan(String ratePlanId) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             return validateResponseString(Plan.retrieve(ratePlanId).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
@@ -299,6 +321,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getAllProductRatePlans(String ratePlanInfoJson) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
             return validateResponseString(Plan.list(planParams).toString());
@@ -321,6 +344,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String createSubscription(String subscriptionInfoJson) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             subscriptionParams.clear();
             subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
 
@@ -348,6 +372,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getSubscription(String subscriptionId) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             return validateResponseString(Subscription.retrieve(subscriptionId).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
@@ -363,6 +388,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getAllSubscriptions(String subscriptionInfoJson) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             subscriptionParams.clear();
             subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
             return validateResponseString(Subscription.list(subscriptionParams).toString());
@@ -396,6 +422,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject returnResponse = new JsonObject();
         try {
+            setBillingApiKey();
             subscriptionParams.clear();
             subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
             Subscription subscription = Subscription.retrieve(subscriptionId);
@@ -448,6 +475,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String cancelSubscription(String subscriptionId, String subscriptionInfoJson)
             throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             Subscription subscription = Subscription.retrieve(subscriptionId);
             subscriptionParams.clear();
             //We cancel the subscription at the end of currently subscribed time period
@@ -485,6 +513,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             Customer customer = Customer.retrieve(customerId);
             cardParams.clear();
             cardParams = ObjectParams.setObjectParams(paymentMethodInfoJson);
@@ -520,6 +549,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             JsonElement customerJsonObj =
                     new JsonParser().parse(validateResponseString(updateCustomer(customerId, paymentMethodInfoJson)));
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
@@ -560,6 +590,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String updatePaymentMethod(String customerId, String paymentMethodId, String paymentMethodInfoJson)
             throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             Customer customer = Customer.retrieve(customerId);
             ExternalAccount cardInfo = customer.getSources().retrieve(paymentMethodId);
             cardParams.clear();
@@ -589,6 +620,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             cardParams.clear();
             cardParams = ObjectParams.setObjectParams(paymentMethodInfoJson);
             JsonElement paymentMethod = new JsonParser().parse(validateResponseString(
@@ -613,6 +645,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             JsonElement deleteStatus = new JsonParser().parse(validateResponseString(
                     Customer.retrieve(customerId).getSources().retrieve(paymentMethodId).delete().toString()));
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
@@ -668,12 +701,13 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getInvoices(String invoiceInfoJson) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             invoiceParams.clear();
             invoiceParams = ObjectParams.setObjectParams(invoiceInfoJson);
             return validateResponseString(Invoice.list(invoiceParams).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
-            throw new CloudBillingVendorException("Error while removing payment method : ", ex);
+            throw new CloudBillingVendorException("Error while getting invoices : ", ex);
         }
     }
 
@@ -685,6 +719,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getInvoiceDetails(String invoiceId) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             return validateResponseString(Invoice.retrieve(invoiceId).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
@@ -701,6 +736,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String createInvoice(String invoiceInfoJson) throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             Map<String, Object> invoiceParam = ObjectParams.setObjectParams(invoiceInfoJson);
             Invoice invoice = Invoice.create(invoiceParam);
             JsonObject invoiceJsonObj =
@@ -726,7 +762,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String chargeInvoice(String invoiceId) throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
-
+            setBillingApiKey();
             Invoice invoice = Invoice.retrieve(invoiceId);
             Invoice invoiceData = invoice.pay();
             JsonObject invoiceJsonObj =
@@ -751,6 +787,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getCurrentRatePlan(String customerId) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             Customer customer = Customer.retrieve(customerId);
             CustomerSubscriptionCollection subscriptionCollection = customer.getSubscriptions();
             for (int i = 0; i < subscriptionCollection.getData().size(); i++) {
@@ -776,6 +813,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getCustomerCoupons(String customerId) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             return validateResponseString(Customer.retrieve(customerId).getDiscount().toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
@@ -793,6 +831,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String retrieveCouponInfo(String couponID) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             return validateResponseString(Coupon.retrieve(couponID).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
@@ -807,11 +846,13 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      * @return json publishable key
      */
     public String getPublishableKey() throws CloudBillingVendorException {
+        setBillingApiKey();
         return BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getPublishableKey();
     }
 
     public String getPublishableKeyForTenant(String tenantDomain) throws CloudBillingVendorException {
         try {
+            setBillingApiKey();
             return APICloudMonetizationUtils.getPublishableKeyForTenant(tenantDomain);
         } catch (CloudBillingVendorException e) {
             throw new CloudBillingVendorException("Error while obtaining publishable key for tenant : " + tenantDomain,
@@ -837,9 +878,9 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      * @throws CloudBillingException
      */
     @Override public String retrieveAccountInfo(String customerId) throws CloudBillingVendorException {
-
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             String customerDetails = getCustomerDetails(customerId);
             JsonObject object = new JsonObject();
             object.addProperty("customer", customerId);
@@ -986,6 +1027,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
 
         JsonObject response = new JsonObject();
         try {
+            setBillingApiKey();
             Charge charge = Charge.retrieve(chargeId);
             JsonObject chargeJsonObj =
                     new JsonParser().parse(validateResponseString(charge.toString())).getAsJsonObject();
@@ -1018,7 +1060,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     public String deleteSubscriptionDiscount(String subscriptionId) throws CloudBillingVendorException {
         try {
-
+            setBillingApiKey();
             Subscription.retrieve(subscriptionId).deleteDiscount();
             if (Subscription.retrieve(subscriptionId).getDiscount() == null) {
                 return "success";
