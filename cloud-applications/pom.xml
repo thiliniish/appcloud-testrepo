@@ -32,6 +32,6 @@
     <modules>
         <module>cloud-management</module>
         <module>cloud-admin</module>
-        <module>sso-webapp</module>
+        <module>sso-webapps</module>
     </modules>
 </project>
