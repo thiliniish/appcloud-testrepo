@@ -207,8 +207,6 @@
                     </li>
         <%
                             }
-                        } else if (dropDown == "Monetization" && isTrialAccount) {
-                           //do not show Monetization if Billing is not enabled
                         } else {
         %>
                     <li>
