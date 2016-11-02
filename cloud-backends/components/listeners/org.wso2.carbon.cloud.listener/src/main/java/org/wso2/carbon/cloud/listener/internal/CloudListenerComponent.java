@@ -29,7 +29,7 @@ import org.osgi.service.component.ComponentContext;
  */
 public class CloudListenerComponent {
 
-    private static Log log = LogFactory.getLog(CloudListenerComponent.class);
+    private static final Log log = LogFactory.getLog(CloudListenerComponent.class);
 
     /**
      * Method to activate bundle.

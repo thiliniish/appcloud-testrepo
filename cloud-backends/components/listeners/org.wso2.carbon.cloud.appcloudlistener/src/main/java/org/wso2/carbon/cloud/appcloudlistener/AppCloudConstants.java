@@ -30,7 +30,7 @@ public class AppCloudConstants {
     public static final String APPLICATION_NAME_PARAMETER = "applicationName";
     public static final String AUTHORIZATION_HEADER_PARAMETER = "authorizationHeader";
     public static final String USERNAME_PARAMETER = "username";
-    public static final String JWT_LOGIN_ACTION = "jwtLogin";
+    public static final String JWT_LOGIN_ACTION = "loginWithJWT";
     public static final String UPDATE_CUSTOM_URL_ACTION = "updateCustomUrl";
     public static final String CLOUD_TYPE_PARAMETER = "cloudType";
     public static final String APP_CLOUD_CLOUD_TYPE = "app-cloud";

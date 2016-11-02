@@ -31,7 +31,7 @@ import org.wso2.carbon.cloud.listener.CloudListener;
  */
 public class AppCloudListenerComponent {
 
-    private static Log log = LogFactory.getLog(AppCloudListenerComponent.class);
+    private static final Log log = LogFactory.getLog(AppCloudListenerComponent.class);
     private ServiceRegistration serviceRegistration;
 
     /**

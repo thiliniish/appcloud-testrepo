@@ -211,18 +211,15 @@ public class AppCloudListener implements CloudListener {
                     } else {
                         String msg = "Updating custom url: " + customUrl + " for application: " + applicationName +
                                 " for user: " + username + " failed.";
-                        log.error(msg);
                         throw new CloudMgtException(msg);
                     }
                 } else {
                     String msg = "Authentication of user " + username + " from App Cloud failed.";
-                    log.error(msg);
                     throw new CloudMgtException(msg);
                 }
             }
         } catch (IOException e) {
             String msg = "Error occurred while updating custom url for user: " + username + ".";
-            log.error(msg, e);
             throw new CloudMgtException(msg, e);
         }
     }
