@@ -220,8 +220,8 @@ function getCheckoutHandler() {
         }
     });
     handler.open({
-        name: 'WSO2 Cloud',
-        description: iframeDescription,
+        name: 'Secure Stripe Gateway',
+        description: 'Credit card billing information',
         email: userEmail
     });
 
