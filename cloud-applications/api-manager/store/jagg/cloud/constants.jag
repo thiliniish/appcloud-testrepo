@@ -26,6 +26,7 @@ var SERVIVICE_PERIOD = "servicePeriod";
 var DISCOUNT = "discount";
 var CENTS = 100;
 var THOUSAND = 1000;
+var CURRENCY = "USD";
 
 var DEAULT_API_NAME = "ALL";
 var DEAULT_APP_NAME = "ALL";

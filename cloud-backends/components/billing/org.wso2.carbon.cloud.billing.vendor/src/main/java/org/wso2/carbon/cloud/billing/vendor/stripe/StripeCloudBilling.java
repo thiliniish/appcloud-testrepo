@@ -238,7 +238,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson)
             throws CloudBillingVendorException {
         try {
-            setBillingApiKey();
+            String apiKey = getSecretKey(tenantDomain);
+            setApiKey(apiKey);
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
             return validateResponseString(Plan.create(planParams).toString());
