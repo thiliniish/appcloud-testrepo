@@ -42,9 +42,6 @@ import org.wso2.carbon.user.core.service.RealmService;
  * policy="dynamic" bind="setApplicationInfoService" unbind="unsetApplicationInfoService"
  */
 
-/**
- * Represents the tenant app deletion component
- */
 public class TenantAppDeletionComponent {
     private static final Log log = LogFactory.getLog(TenantAppDeletionComponent.class);
 
