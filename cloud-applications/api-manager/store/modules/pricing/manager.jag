@@ -15,7 +15,8 @@ var errorObj = {
 //Create Billing vendor parameters
 var generateParameters = function (tenantDomain, workflowReference) {
     try {
-        var clientParams = JSON.parse(billingService.callVendorMethod("getPublishableKeyForTenant", tenantDomain));
+        var clientParams = JSON.parse(billingService.callVendorMethodForMonetization("getPublishableKeyForTenant",
+                tenantDomain));
         session.put(STRIPE_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
         //passthrough parameters are used to pass the values between the iframe and account creation page. we can use
         //those parameters by iteratively number them from 1

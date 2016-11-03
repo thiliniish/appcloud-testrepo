@@ -139,4 +139,39 @@ public class BillingVendorInvoker {
                     "Error while invoking cloud billing vendor method : " + method + ". " + e.getCause());
         }
     }
+
+    /**
+     * Invoker method to call Monetization related
+     *
+     * @param method          Method Name Parsed to backend
+     * @param tenantDomain    Tenant Domain To be used
+     * @param params          Parameters to be invoked
+     * @return
+     * @throws CloudBillingException
+     */
+    public static Object invokeMethodForMonetization(String method, String tenantDomain, String params)
+            throws CloudBillingException {
+        CloudBillingServiceProvider cloudBillingServiceProviderInstance =
+                (CloudBillingServiceProvider) loadBillingVendorForMonetization(tenantDomain);
+        //no parameter
+        Class noparams[] = {};
+        //String parameter
+        Class[] paramString = new Class[1];
+        paramString[0] = String.class;
+        //call the billing vendor class method
+        try {
+            if (params == null) {
+                Method billingVendorMethod =
+                        cloudBillingServiceProviderInstance.getClass().getDeclaredMethod(method, noparams);
+                return billingVendorMethod.invoke(cloudBillingServiceProviderInstance);
+            } else {
+                Method billingVendorMethod =
+                        cloudBillingServiceProviderInstance.getClass().getDeclaredMethod(method, paramString);
+                return billingVendorMethod.invoke(cloudBillingServiceProviderInstance, params);
+            }
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new CloudBillingException(
+                    "Error while invoking cloud billing vendor method : " + method + ". " + e.getCause());
+        }
+    }
 }

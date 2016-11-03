@@ -38,7 +38,8 @@ var accountName = encoder.getSafeText(request.getParameter("accountNm"));
                         "middle": {
                             "name": "pricing/account/invoice",
                             "inputs": {
-                                "invoiceId": invoiceId
+                                "invoiceId": invoiceId,
+                                "accountName": accountName
                             }
                         }
                     }
