@@ -181,7 +181,7 @@ public class VHostManager {
                     }
                 }
                 //Remove https config file
-                file = new File(configReader.getProperty("nginx.api.gateway.https.config.path") + domainName +
+                file = new File(configReader.getProperty("nginx.api.config.path") + domainName +
                                         NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
