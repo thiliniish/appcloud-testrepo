@@ -15,14 +15,12 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-
 package org.wso2.carbon.cloud.appcloudlistener;
 
 /**
  * Constants for App Cloud specific REST calls.
  */
 public class AppCloudConstants {
-
     public static final String SERVER_BLOCK_BASE_URL = "serverBlockBaseUrl";
     public static final String ACTION_PARAMETER = "action";
     public static final String POINTED_URL_PARAMETER = "pointedUrl";
@@ -44,5 +42,4 @@ public class AppCloudConstants {
     public static final String TRUST_STORE_PASSWORD = "Security.TrustStore.Password";
     public static final String TRUST_STORE_TYPE = "Security.TrustStore.Type";
     public static final int MAX_RETRY_COUNT = 3;
-
 }

@@ -15,7 +15,6 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-
 package org.wso2.carbon.cloud.appcloudlistener;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -46,7 +45,6 @@ import java.util.Map;
  * Represents the implementation of interface CloudListener to perform App Cloud specific actions.
  */
 public class AppCloudListener implements CloudListener {
-
     private static final Log log = LogFactory.getLog(AppCloudListener.class);
     private String serverBlockBaseUrl;
 
@@ -64,7 +62,6 @@ public class AppCloudListener implements CloudListener {
                 CarbonUtils.getServerConfiguration().getFirstProperty(AppCloudConstants.TRUST_STORE_PASSWORD));
         System.setProperty(AppCloudConstants.TRUST_STORE_TYPE_PROPERTY,
                 CarbonUtils.getServerConfiguration().getFirstProperty(AppCloudConstants.TRUST_STORE_TYPE));
-
     }
 
     /**
@@ -103,14 +100,12 @@ public class AppCloudListener implements CloudListener {
             throws IOException {
         HttpClient client = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost(url);
-
         //Add headers
         for (Map.Entry<String, String> entry : headerMap.entrySet()) {
             post.setHeader(entry.getKey(), entry.getValue());
         }
         //Add parameters
         post.setEntity(new UrlEncodedFormEntity(urlParameters));
-
         return client.execute(post);
     }
 
@@ -124,17 +119,14 @@ public class AppCloudListener implements CloudListener {
      */
     private HttpResponse login(String username, String authorizationHeader) throws IOException {
         String loginUrl = serverBlockBaseUrl + AppCloudConstants.LOGIN_BLOCK_SUFFIX;
-
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE);
         headerMap.put(HttpHeaders.AUTHORIZATION, authorizationHeader);
         headerMap.put(HttpHeaders.CONNECTION, HTTP.CONN_CLOSE);
-
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(
                 new BasicNameValuePair(AppCloudConstants.ACTION_PARAMETER, AppCloudConstants.JWT_LOGIN_ACTION));
         urlParameters.add(new BasicNameValuePair(AppCloudConstants.USERNAME_PARAMETER, username));
-
         return executeHTTPPostWithRetry(loginUrl, urlParameters, headerMap);
     }
 
@@ -146,10 +138,15 @@ public class AppCloudListener implements CloudListener {
      * @return session Id
      * @throws IOException
      */
-    private String getSessionId(String username, String authorizationHeader) throws IOException {
+    private String getCookie(String username, String authorizationHeader) throws IOException {
         HttpResponse response = login(username, authorizationHeader);
         if (response != null) {
-            return response.getHeaders(SM.SET_COOKIE)[0].getValue().split(AppCloudConstants.SEMI_COLON_SEPARATOR)[0];
+            StringBuffer cookie = new StringBuffer();
+            for (int i = 0; i < response.getHeaders(SM.SET_COOKIE).length; i++) {
+                cookie.append(response.getHeaders(SM.SET_COOKIE)[i].getValue()
+                        .split(AppCloudConstants.SEMI_COLON_SEPARATOR)[0] + AppCloudConstants.SEMI_COLON_SEPARATOR);
+            }
+            return cookie.toString();
         } else {
             return null;
         }
@@ -168,19 +165,16 @@ public class AppCloudListener implements CloudListener {
     private HttpResponse updateCustomUrl(String sessionId, String pointedUrl, String customUrl, String applicationName)
             throws IOException {
         String urlMapperUrl = serverBlockBaseUrl + AppCloudConstants.URL_MAPPER_BLOCK_SUFFIX;
-
         HashMap<String, String> headerMap = new HashMap<>();
         headerMap.put(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE);
         headerMap.put(SM.COOKIE, sessionId);
         headerMap.put(HttpHeaders.CONNECTION, HTTP.CONN_CLOSE);
-
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(
                 new BasicNameValuePair(AppCloudConstants.ACTION_PARAMETER, AppCloudConstants.UPDATE_CUSTOM_URL_ACTION));
         urlParameters.add(new BasicNameValuePair(AppCloudConstants.POINTED_URL_PARAMETER, pointedUrl));
         urlParameters.add(new BasicNameValuePair(AppCloudConstants.CUSTOM_URL_PARAMETER, customUrl));
         urlParameters.add(new BasicNameValuePair(AppCloudConstants.APPLICATION_NAME_PARAMETER, applicationName));
-
         return executeHTTPPostWithRetry(urlMapperUrl, urlParameters, headerMap);
     }
 
@@ -191,7 +185,7 @@ public class AppCloudListener implements CloudListener {
      * @throws CloudMgtException
      */
     @Override
-    public void triggerOnCustomUrlAdded(HashMap<String, String> parameterMap) throws CloudMgtException {
+    public void triggerOnCustomUrlAddition(HashMap<String, String> parameterMap) throws CloudMgtException {
         String username = parameterMap.get(AppCloudConstants.USERNAME_PARAMETER);
         try {
             log.info("Started triggering actions for App Cloud after setting custom URL");
@@ -199,12 +193,11 @@ public class AppCloudListener implements CloudListener {
             if (AppCloudConstants.APP_CLOUD_CLOUD_TYPE.equals(cloudType)) {
                 String authorizationHeader = parameterMap.get(AppCloudConstants.AUTHORIZATION_HEADER_PARAMETER);
                 serverBlockBaseUrl = parameterMap.get(AppCloudConstants.SERVER_BLOCK_BASE_URL);
-                String sessionId = getSessionId(username, authorizationHeader);
+                String sessionId = getCookie(username, authorizationHeader);
                 if (sessionId != null) {
                     String pointedUrl = parameterMap.get(AppCloudConstants.POINTED_URL_PARAMETER);
                     String customUrl = parameterMap.get(AppCloudConstants.CUSTOM_URL_PARAMETER);
                     String applicationName = parameterMap.get(AppCloudConstants.APPLICATION_NAME_PARAMETER);
-
                     HttpResponse response = updateCustomUrl(sessionId, pointedUrl, customUrl, applicationName);
                     if (response != null) {
                         log.info("Completed actions for App Cloud after setting custom URL");
@@ -223,5 +216,4 @@ public class AppCloudListener implements CloudListener {
             throw new CloudMgtException(msg, e);
         }
     }
-
 }

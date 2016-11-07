@@ -15,20 +15,17 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-
 package org.wso2.carbon.cloud.listener.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 
-
 /**
  * @scr.component name="org.wso2.carbon.cloud.listener.interface"
  * immediate="true"
  */
 public class CloudListenerComponent {
-
     private static final Log log = LogFactory.getLog(CloudListenerComponent.class);
 
     /**

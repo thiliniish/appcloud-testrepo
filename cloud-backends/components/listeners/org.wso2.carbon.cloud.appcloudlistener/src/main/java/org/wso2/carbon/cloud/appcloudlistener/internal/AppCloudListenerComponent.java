@@ -15,7 +15,6 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-
 package org.wso2.carbon.cloud.appcloudlistener.internal;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +29,6 @@ import org.wso2.carbon.cloud.listener.CloudListener;
  * immediate="true"
  */
 public class AppCloudListenerComponent {
-
     private static final Log log = LogFactory.getLog(AppCloudListenerComponent.class);
     private ServiceRegistration serviceRegistration;
 

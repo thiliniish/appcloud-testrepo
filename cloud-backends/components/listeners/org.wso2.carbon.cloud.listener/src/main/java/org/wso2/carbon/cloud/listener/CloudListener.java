@@ -15,7 +15,6 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-
 package org.wso2.carbon.cloud.listener;
 
 import org.wso2.carbon.cloud.common.CloudMgtException;
@@ -33,6 +32,5 @@ public interface CloudListener {
      * @param parameterMap map with parameters required to invoke actions specific for each cloud
      * @throws CloudMgtException
      */
-    void triggerOnCustomUrlAdded(HashMap<String, String> parameterMap) throws CloudMgtException;
-
+    void triggerOnCustomUrlAddition(HashMap<String, String> parameterMap) throws CloudMgtException;
 }
