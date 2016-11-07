@@ -123,6 +123,7 @@ public class AppCloudListener implements CloudListener {
         headerMap.put(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE);
         headerMap.put(HttpHeaders.AUTHORIZATION, authorizationHeader);
         headerMap.put(HttpHeaders.CONNECTION, HTTP.CONN_CLOSE);
+
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(
                 new BasicNameValuePair(AppCloudConstants.ACTION_PARAMETER, AppCloudConstants.JWT_LOGIN_ACTION));
@@ -169,6 +170,7 @@ public class AppCloudListener implements CloudListener {
         headerMap.put(HttpHeaders.CONTENT_TYPE, URLEncodedUtils.CONTENT_TYPE);
         headerMap.put(SM.COOKIE, sessionId);
         headerMap.put(HttpHeaders.CONNECTION, HTTP.CONN_CLOSE);
+
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(
                 new BasicNameValuePair(AppCloudConstants.ACTION_PARAMETER, AppCloudConstants.UPDATE_CUSTOM_URL_ACTION));
