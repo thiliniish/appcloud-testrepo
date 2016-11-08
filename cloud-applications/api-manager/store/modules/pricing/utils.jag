@@ -41,8 +41,7 @@ var getTenantDomain = function() {
 }
 
 var getCurrencyUsed = function () {
-    var tenantDomain = getTenantDomain();
-    var currencyObj = JSON.parse(apiMonService.getCurrencyUsed(tenantDomain));
+    var currencyObj = JSON.parse(apiMonService.getCurrencyUsed());
     return currencyObj.data.currency;
 };
 
