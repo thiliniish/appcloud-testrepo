@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.wso2.carbon.cloud</groupId>
-        <artifactId>cloud-applications</artifactId>
+        <artifactId>sso-webapps</artifactId>
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
