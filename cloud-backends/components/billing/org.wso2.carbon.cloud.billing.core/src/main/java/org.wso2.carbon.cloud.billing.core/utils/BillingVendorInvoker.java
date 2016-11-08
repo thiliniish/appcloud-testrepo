@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -92,9 +93,9 @@ public class BillingVendorInvoker {
      *
      * @throws CloudBillingException
      */
-    public static CloudBillingServiceProvider loadBillingVendorForMonetization(String tenantDomain)
+    public static CloudBillingServiceProvider loadBillingVendorForMonetization()
             throws CloudBillingException {
-        //String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
         CloudBillingServiceProvider instance;
 
@@ -144,15 +145,14 @@ public class BillingVendorInvoker {
      * Invoker method to call Monetization related
      *
      * @param method       Method Name Parsed to backend
-     * @param tenantDomain Tenant Domain To be used
      * @param params       Parameters to be invoked
      * @return
      * @throws CloudBillingException
      */
-    public static Object invokeMethodForMonetization(String method, String tenantDomain, String params)
+    public static Object invokeMethodForMonetization(String method, String params)
             throws CloudBillingException {
         CloudBillingServiceProvider cloudBillingServiceProviderInstance =
-                (CloudBillingServiceProvider) loadBillingVendorForMonetization(tenantDomain);
+                (CloudBillingServiceProvider) loadBillingVendorForMonetization();
         //no parameter
         Class noparams[] = {};
         //String parameter

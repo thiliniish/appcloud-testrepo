@@ -15,8 +15,7 @@ var errorObj = {
 //Create Billing vendor parameters
 var generateParameters = function (tenantDomain, workflowReference) {
     try {
-        var clientParams = JSON.parse(apiMonService.callVendorMethod("getPublishableKeyForTenant", tenantDomain,
-                tenantDomain));
+        var clientParams = JSON.parse(apiMonService.callVendorMethod("getPublishableKeyForTenant", tenantDomain));
         session.put(STRIPE_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
         //passthrough parameters are used to pass the values between the iframe and account creation page. we can use
         //those parameters by iteratively number them from 1
@@ -54,9 +53,8 @@ var generateParameters = function (tenantDomain, workflowReference) {
 
 var getAccountDetails = function () {
     try {
-        var tenantDomain = getTenantDomain();
         var accountId = getAccountId();
-        var summary = apiMonService.retrieveAccountInfo(tenantDomain, accountId);
+        var summary = apiMonService.retrieveAccountInfo(accountId);
         if (JSON.parse(summary.trim()).success)   {
             return {
                 error: false,
@@ -89,9 +87,8 @@ var updateContactInfo = function (organizationName, accountData) {
     try {
         var metaData = {};
         var accountId = getAccountId();
-        var tenantDomain = getTenantDomain();
         var data = populateAccountInfo(organizationName, accountData, metaData, true);
-        var response = JSON.parse(apiMonService.updateCustomer(tenantDomain, accountId, JSON.stringify(data)));
+        var response = JSON.parse(apiMonService.updateCustomer(accountId, JSON.stringify(data)));
         if (response.success) {
             return {
                 error: false,
@@ -153,10 +150,9 @@ var removePaymentMethod = function (methodId) {
 
 var getAllPaymentMethods = function () {
     try {
-        var tenantDomain = getTenantDomain();
         var accountId = getAccountId();
         var object = {object:"card"};
-        var summary = JSON.parse(apiMonService.getAllPaymentMethods(tenantDomain, accountId, JSON.stringify(object)));
+        var summary = JSON.parse(apiMonService.getAllPaymentMethods(accountId, JSON.stringify(object)));
         if (summary.success) {
             return {
                 error: false,
@@ -187,11 +183,10 @@ var getAllPaymentMethods = function () {
 var updateDefaultPaymentMethod = function (methodId) {
     try {
         var accountId = getAccountId();
-        var tenantDomain = getTenantDomain();
         var data = {
             "default_source": ''+methodId+''
         };
-        var response = JSON.parse(apiMonService.setDefaultPaymentMethod(tenantDomain, accountId, JSON.stringify
+        var response = JSON.parse(apiMonService.setDefaultPaymentMethod(accountId, JSON.stringify
         (data)));
         if (response.success) {
             return {
@@ -228,11 +223,10 @@ var getBillingInvoiceData = function (invoiceId) {
     try {
         var dateFormat = dateTimeFormatter(DATE_FORMAT);
         var accountId = getAccountId();
-        var tenantDomain = getTenantDomain();
         var data = {
             "customer" : accountId
         };
-        var summary = apiMonService.getInvoices(tenantDomain, JSON.stringify(data));
+        var summary = apiMonService.getInvoices(JSON.stringify(data));
         var invoiceObj = JSON.parse(summary);
         if (invoiceObj.data) {
             var invoices = invoiceObj.data;
@@ -383,12 +377,12 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
     try {
         var effectiveDate = new Packages.java.util.Date();
         var data = populateAccountInfo(accountData, metaData, false);
-        var response = apiMonService.createCustomer(tenantDomain, stringify(data));
+        var response = apiMonService.createCustomer(stringify(data));
         var createChildAccountResObj = JSON.parse(response);
         var updateSubscriberResult, addSubscriptionResult;
         if (createChildAccountResObj.id != null) {
             data = populateSubscriptionInfo(createChildAccountResObj.id, ratePlanId);
-            var responseSubscriptionCreation = apiMonService.createSubscription(tenantDomain, stringify(data));
+            var responseSubscriptionCreation = apiMonService.createSubscription(stringify(data));
             var responseSubscriptionCreationObj = JSON.parse(responseSubscriptionCreation);
 
             if (responseSubscriptionCreationObj.success) {
@@ -565,11 +559,9 @@ var populateSubscriptionInfo = function (customer, ratePlanId) {
 var addPaymentMethod = function(tokenId) {
     try {
         var accountId = getAccountId();
-        var user = jagg.getUser().username;
-        var tenantDomain = multiTenantUtils.getTenantDomain(user);
         var data = {};
         data.source = tokenId;
-        var response = JSON.parse(apiMonService.addPaymentMethod(tenantDomain, accountId, JSON.stringify(data)));
+        var response = JSON.parse(apiMonService.addPaymentMethod(accountId, JSON.stringify(data)));
         if(response.success){
             return {
                 error: false,
