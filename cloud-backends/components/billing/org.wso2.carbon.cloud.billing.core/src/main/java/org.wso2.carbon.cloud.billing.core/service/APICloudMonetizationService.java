@@ -266,6 +266,23 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * Create rate plan for the Product
+     *
+     * @param tenantDomain     tenant domain
+     * @param ratePlanInfoJson rate-plan details
+     * @return success json string
+     */
+    public String createProductRatePlan(String tenantDomain, String ratePlanInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).createProductRatePlan(tenantDomain, ratePlanInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while creating the the product rate plan.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
      * Check whether monetization enabled for API Cloud
      *
      * @param tenantDomain tenant domain
@@ -288,23 +305,6 @@ public class APICloudMonetizationService {
      */
     private CloudBillingServiceProvider init(String tenantDomain) throws CloudBillingException {
         return BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
-    }
-
-    /**
-     * Create the Customer for monetization customer
-     *
-     * @param tenantDomain     tenant domain
-     * @param customerInfoJson customer details
-     * @return success Json string
-     */
-    public String createCustomer(String tenantDomain, String customerInfoJson) throws CloudBillingException {
-        try {
-            return init(tenantDomain).createCustomer(customerInfoJson);
-        } catch (CloudBillingException ex) {
-            String message = "Error occurred while creating the account for subscriber.";
-            LOGGER.error(message, ex);
-            throw new CloudBillingException(message, ex);
-        }
     }
 
     /**
@@ -496,6 +496,29 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * Createing Subscription for the organization
+     *
+     * @param tenantDomain
+     * @param subscriptionInfoJson
+     * @return
+     * @throws CloudBillingException {
+     *                               "success": "true",
+     *                               "data" : {
+     *                               subscriptionNumber: "subscription_number_from_vendor"
+     *                               }
+     *                               }
+     */
+    public String createSubscription(String tenantDomain, String subscriptionInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).createSubscription(subscriptionInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while creating the subscription.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
      * @param tenantDomain  tenant domain
      * @param accountNumber account number
      * @param apiData       api data json object
@@ -514,6 +537,189 @@ public class APICloudMonetizationService {
                          accountNumber + " Api data: " + apiData, ex);
             throw ex;
         }
+    }
+
+    /**
+     * Adding payment methods for subscriptions
+     *
+     * @param tenantDomain          tenant domain
+     * @param customerId
+     * @param paymentMethodInfoJson
+     * @return
+     * @throws CloudBillingException
+     */
+    public String addPaymentMethod(String tenantDomain, String customerId, String paymentMethodInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).addPaymentMethod(customerId, paymentMethodInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while adding the payment method.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Set specific payment method of a specific customer as default
+     *
+     * @param tenantDomain          tenant domain
+     * @param customerId            customer Id
+     * @param paymentMethodInfoJson payment method details
+     * @return success Json string
+     */
+    public String setDefaultPaymentMethod(String tenantDomain, String customerId, String paymentMethodInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).setDefaultPaymentMethod(customerId, paymentMethodInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while setting the default payment method of customer " + customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Get All Payment methods for the user for monetized tenant
+     *
+     * @param tenantdomain
+     * @param customerId
+     * @param paymentMethodInfoJson
+     * @return
+     * @throws CloudBillingException
+     */
+    public String getAllPaymentMethods(String tenantdomain, String customerId, String paymentMethodInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantdomain).getAllPaymentMethods(customerId, paymentMethodInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving all payment method of customer " + customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Remove payment method/ card info
+     *
+     * @param tenantDomain    tenant Domain
+     * @param customerId      Customer Id
+     * @param paymentMethodId Payment Method Id
+     * @return
+     * @throws CloudBillingException
+     */
+    public String removePaymentMethod(String tenantDomain, String customerId, String paymentMethodId)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).removePaymentMethod(customerId, paymentMethodId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while deleting the payment method " + paymentMethodId + " , of customer" +
+                             " " +
+                             customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Get invoices for user from Vendor
+     *
+     * @param tenantDomain    Tenant Domain
+     * @param invoiceInfoJson Invoice Information
+     * @return
+     * @throws CloudBillingException
+     */
+    public String getInvoices(String tenantDomain, String invoiceInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).getInvoices(invoiceInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving invoices.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Create the Customer for monetization customer
+     *
+     * @param tenantDomain     tenant domain
+     * @param customerInfoJson customer details
+     * @return success Json string
+     */
+    public String createCustomer(String tenantDomain, String customerInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).createCustomer(customerInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while creating the account for subscriber.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Update Monetization customer information
+     *
+     * @param tenantDomain     tenantDomain
+     * @param customerId       Customer Id
+     * @param customerInfoJson Customer Information to update
+     * @return
+     * @throws CloudBillingException
+     */
+    public String updateCustomer(String tenantDomain, String customerId, String customerInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).updateCustomer(customerId, customerInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while updating the customer with customer id : " + customerId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Account information of the user
+     *
+     * @param tenantDomain tenant domain
+     * @param customerId   customer Id on vendor end
+     * @return
+     * @throws CloudBillingException
+     */
+    public String retrieveAccountInfo(String tenantDomain, String customerId) throws CloudBillingException {
+        try {
+            return init(tenantDomain).retrieveAccountInfo(customerId);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the account information of the customer : " + customerId, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Get currency used from Vendor
+     *
+     * @param tenantDomain tenant domain of the organization
+     * @return { "success" : "true",
+     * "data" : {
+     * "currency" : "USD",
+     * "conversion" : "CENTS"
+     * }
+     * }
+     * @throws CloudBillingException
+     */
+    public String getCurrencyUsed(String tenantDomain) throws CloudBillingException {
+        try {
+            return init(tenantDomain).getCurrencyUsed();
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the currency used");
+            throw ex;
+        }
+    }
+
+    /**
+     * Invoke cloud billing vendor method
+     *
+     * @return the result string object
+     */
+    public String callVendorMethod(String methodName, String tenantDomain, String params) throws CloudBillingException {
+        return (String) BillingVendorInvoker.invokeMethodForMonetization(methodName, tenantDomain, params);
     }
 
 }

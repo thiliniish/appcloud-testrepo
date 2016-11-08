@@ -624,8 +624,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             setBillingApiKey();
             cardParams.clear();
             cardParams = ObjectParams.setObjectParams(paymentMethodInfoJson);
-            JsonElement paymentMethod = new JsonParser().parse(validateResponseString(
-                    Customer.retrieve(customerId).getSources().all(cardParams).toString()));
+            JsonElement paymentMethod = new JsonParser().parse(
+                    validateResponseString(Customer.retrieve(customerId).getSources().all(cardParams).toString()));
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
             response.add(BillingVendorConstants.RESPONSE_DATA, paymentMethod);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
@@ -1074,10 +1074,25 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * @return Currency Used by Vendor
+     * Returns currency and conversion used by the vendor
+     *
+     * @return
+     * { "success" : "true",
+     * "data" : {
+     * "currency" : "USD",
+     * "conversion" : "CENTS"
+     * }
+     * }
      */
     @Override public String getCurrencyUsed() {
-        return BillingVendorConfigUtils.getBillingVendorConfiguration().getCurrency();
+        JsonObject response = new JsonObject();
+        setBillingApiKey();
+        JsonObject currencyData = new JsonObject();
+        currencyData.addProperty("currency", BillingVendorConfigUtils.getBillingVendorConfiguration().getCurrency());
+        currencyData.addProperty("conversion", "CENTS");
+        response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+        response.add(BillingVendorConstants.RESPONSE_DATA, currencyData);
+        return response.toString();
     }
 
     /**

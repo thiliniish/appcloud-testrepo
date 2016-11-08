@@ -143,9 +143,9 @@ public class BillingVendorInvoker {
     /**
      * Invoker method to call Monetization related
      *
-     * @param method          Method Name Parsed to backend
-     * @param tenantDomain    Tenant Domain To be used
-     * @param params          Parameters to be invoked
+     * @param method       Method Name Parsed to backend
+     * @param tenantDomain Tenant Domain To be used
+     * @param params       Parameters to be invoked
      * @return
      * @throws CloudBillingException
      */
