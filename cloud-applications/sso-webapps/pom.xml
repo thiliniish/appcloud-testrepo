@@ -10,7 +10,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>cloud-authentication-web-apps</artifactId>
+    <artifactId>sso-webapps</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>SSO Web applications</name>
