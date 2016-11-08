@@ -711,13 +711,14 @@ public class CloudBillingService extends AbstractAdmin implements CloudBillingSe
     /**
      * Call Vendor Method with Monetization Parameters
      *
-     * @param methodName    Method to be invoked from Vendor Class
-     * @param tenantDomain  Tenant Domain to be parsed
-     * @param params        Parameters to be used
-     * @return              String response from vendor end
+     * @param methodName   Method to be invoked from Vendor Class
+     * @param tenantDomain Tenant Domain to be parsed
+     * @param params       Parameters to be used
+     * @return String response from vendor end
      * @throws CloudBillingException
      */
-    public String callVendorMethodForMonetization(String methodName, String tenantDomain, String params) throws CloudBillingException {
+    public String callVendorMethodForMonetization(String methodName, String tenantDomain, String params)
+            throws CloudBillingException {
         return (String) BillingVendorInvoker.invokeMethodForMonetization(methodName, tenantDomain, params);
     }
 
