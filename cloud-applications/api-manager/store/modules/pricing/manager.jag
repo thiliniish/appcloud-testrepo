@@ -15,7 +15,7 @@ var errorObj = {
 //Create Billing vendor parameters
 var generateParameters = function (tenantDomain, workflowReference) {
     try {
-        var clientParams = JSON.parse(billingService.callVendorMethodForMonetization("getPublishableKeyForTenant",
+        var clientParams = JSON.parse(apiMonService.callVendorMethod("getPublishableKeyForTenant", tenantDomain,
                 tenantDomain));
         session.put(STRIPE_SIGNATURE_HASH, billingService.generateHash(clientParams.token, mdAlgorithm));
         //passthrough parameters are used to pass the values between the iframe and account creation page. we can use
@@ -54,11 +54,10 @@ var generateParameters = function (tenantDomain, workflowReference) {
 
 var getAccountDetails = function () {
     try {
-        var username = jagg.getUser().username;
+        var tenantDomain = getTenantDomain();
         var accountId = getAccountId();
-        var tenantDomain = multiTenantUtils.getTenantDomain(username);
-        var summary = billingService.retrieveAccountInfo(tenantDomain, accountId);
-        if (JSON.parse(summary.trim()).success) {
+        var summary = apiMonService.retrieveAccountInfo(tenantDomain, accountId);
+        if (JSON.parse(summary.trim()).success)   {
             return {
                 error: false,
                 message: summary,
@@ -90,10 +89,9 @@ var updateContactInfo = function (organizationName, accountData) {
     try {
         var metaData = {};
         var accountId = getAccountId();
-        var username = jagg.getUser().username;
-        var tenantDomain = multiTenantUtils.getTenantDomain(username);
+        var tenantDomain = getTenantDomain();
         var data = populateAccountInfo(organizationName, accountData, metaData, true);
-        var response = JSON.parse(billingService.updateCustomer(tenantDomain, accountId, JSON.stringify(data)));
+        var response = JSON.parse(apiMonService.updateCustomer(tenantDomain, accountId, JSON.stringify(data)));
         if (response.success) {
             return {
                 error: false,
@@ -101,7 +99,7 @@ var updateContactInfo = function (organizationName, accountData) {
                 statusCode: 200
             };
         } else {
-            log.error("Zuora customer account update failed. Error : " + JSON.stringify(response.reasons));
+            log.error("Customer account update failed. Error : " + JSON.stringify(response.reasons));
             msg = "Account Update Failed.. Please retry ";
             return {
                 error: true,
@@ -124,9 +122,8 @@ var updateContactInfo = function (organizationName, accountData) {
 var removePaymentMethod = function (methodId) {
     try {
         var accountId = getAccountId();
-        var user = jagg.getUser().username;
-        var tenantDomain = multiTenantUtils.getTenantDomain(user);
-        var result = JSON.parse(billingService.removePaymentMethod(tenantDomain,accountId ,methodId));
+        var tenantDomain = getTenantDomain();
+        var result = JSON.parse(apiMonService.removePaymentMethod(tenantDomain,accountId ,methodId));
         if (result.success) {
             return {
                 error: false,
@@ -156,11 +153,10 @@ var removePaymentMethod = function (methodId) {
 
 var getAllPaymentMethods = function () {
     try {
-        var user = jagg.getUser().username;
-        var tenantDomain = multiTenantUtils.getTenantDomain(user);
+        var tenantDomain = getTenantDomain();
         var accountId = getAccountId();
         var object = {object:"card"};
-        var summary = JSON.parse(billingService.getAllPaymentMethods(tenantDomain, accountId, JSON.stringify(object)));
+        var summary = JSON.parse(apiMonService.getAllPaymentMethods(tenantDomain, accountId, JSON.stringify(object)));
         if (summary.success) {
             return {
                 error: false,
@@ -191,12 +187,11 @@ var getAllPaymentMethods = function () {
 var updateDefaultPaymentMethod = function (methodId) {
     try {
         var accountId = getAccountId();
-        var user = jagg.getUser().username;
-        var tenantDomain = multiTenantUtils.getTenantDomain(user);
+        var tenantDomain = getTenantDomain();
         var data = {
             "default_source": ''+methodId+''
         };
-        var response = JSON.parse(billingService.setDefaultPaymentMethod(tenantDomain, accountId, JSON.stringify
+        var response = JSON.parse(apiMonService.setDefaultPaymentMethod(tenantDomain, accountId, JSON.stringify
         (data)));
         if (response.success) {
             return {
@@ -232,13 +227,12 @@ var dateTimeFormatter = function(dateTimeFormat) {
 var getBillingInvoiceData = function (invoiceId) {
     try {
         var dateFormat = dateTimeFormatter(DATE_FORMAT);
-        var username = jagg.getUser().username;
         var accountId = getAccountId();
-        var tenantDomain = multiTenantUtils.getTenantDomain(username);
+        var tenantDomain = getTenantDomain();
         var data = {
             "customer" : accountId
         };
-        var summary = billingService.getInvoices(tenantDomain, JSON.stringify(data));
+        var summary = apiMonService.getInvoices(tenantDomain, JSON.stringify(data));
         var invoiceObj = JSON.parse(summary);
         if (invoiceObj.data) {
             var invoices = invoiceObj.data;
@@ -389,12 +383,12 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
     try {
         var effectiveDate = new Packages.java.util.Date();
         var data = populateAccountInfo(accountData, metaData, false);
-        var response = billingService.createCustomer(tenantDomain, stringify(data));
+        var response = apiMonService.createCustomer(tenantDomain, stringify(data));
         var createChildAccountResObj = JSON.parse(response);
         var updateSubscriberResult, addSubscriptionResult;
         if (createChildAccountResObj.id != null) {
             data = populateSubscriptionInfo(createChildAccountResObj.id, ratePlanId);
-            var responseSubscriptionCreation = billingService.createSubscription(tenantDomain, stringify(data));
+            var responseSubscriptionCreation = apiMonService.createSubscription(tenantDomain, stringify(data));
             var responseSubscriptionCreationObj = JSON.parse(responseSubscriptionCreation);
 
             if (responseSubscriptionCreationObj.success) {
@@ -403,7 +397,6 @@ var createAccount = function (username, accountData, metaData, workflowRefData) 
                 var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
                 var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
                 var messageBody, subject;
-
                 if (updateSubscriberResult) {
                     apiData.subscriptionNumber = responseSubscriptionCreationObj.data.subscriptionNumber;
                     apiData.ratePlanId = ratePlanId;
@@ -576,7 +569,7 @@ var addPaymentMethod = function(tokenId) {
         var tenantDomain = multiTenantUtils.getTenantDomain(user);
         var data = {};
         data.source = tokenId;
-        var response = JSON.parse(billingService.addPaymentMethod(tenantDomain, accountId, JSON.stringify(data)));
+        var response = JSON.parse(apiMonService.addPaymentMethod(tenantDomain, accountId, JSON.stringify(data)));
         if(response.success){
             return {
                 error: false,

@@ -34,15 +34,23 @@ var getConfigInJson = function () {
 };
 
 var zuoraObj = (getConfigInJson()).zuoraConfig;
+
+var getTenantDomain = function() {
+    var user = jagg.getUser().username;
+    return multiTenantUtils.getTenantDomain(user);
+}
+
 var getCurrencyUsed = function () {
-    return CURRENCY;
+    var tenantDomain = getTenantDomain();
+    var currencyObj = JSON.parse(apiMonService.getCurrencyUsed(tenantDomain));
+    return currencyObj.data.currency;
 };
 
 var getAccountId = function () {
 
     try {
         var user = jagg.getUser().username;
-        var tenantDomain = multiTenantUtils.getTenantDomain(user);
+        var tenantDomain = getTenantDomain();
         var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(user, tenantDomain));
         if (subscriberData.data.Subscriber != null) {
             var accountNumber = subscriberData.data.Subscriber.AccountNumber;

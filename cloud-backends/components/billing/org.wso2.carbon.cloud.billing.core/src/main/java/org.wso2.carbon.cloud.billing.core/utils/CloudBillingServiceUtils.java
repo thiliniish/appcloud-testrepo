@@ -132,7 +132,7 @@ public final class CloudBillingServiceUtils {
      *
      * @param cloudId service id
      * @return validation boolean
-     * */
+     */
     public static boolean validateServiceId(String cloudId) {
         CloudType[] cloudTypes = BillingConfigManager.getBillingConfiguration().getCloudTypes();
         for (CloudType cloudType : cloudTypes) {
@@ -269,13 +269,13 @@ public final class CloudBillingServiceUtils {
      * @return billing trial period
      */
     public static String getTrialPeriod(String cloudId) {
-       return Integer.toString(BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId)
-                                                   .getTrialPeriod());
+        return Integer
+                .toString(BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId).getTrialPeriod());
     }
-       
+
     /**
      * @param tenantDomain tenant domain
-     * @param productName product name
+     * @param productName  product name
      * @param ratePlanName rate plan name
      * @return rate plan id
      * @throws CloudBillingException
@@ -314,8 +314,8 @@ public final class CloudBillingServiceUtils {
      * @return billing usage display period
      */
     public static String usageDisplayPeriod(String cloudId) {
-        return Integer.toString(BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId)
-                                                    .getUsageDisplayPeriod());
+        return Integer.toString(
+                BillingConfigManager.getBillingConfiguration().getCloudTypeById(cloudId).getUsageDisplayPeriod());
     }
 
     /**
