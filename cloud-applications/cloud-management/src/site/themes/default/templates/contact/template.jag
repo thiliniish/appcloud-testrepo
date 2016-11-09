@@ -100,7 +100,6 @@
     }
 
     $(document).ready(function($){
-        initializeUserActivity("Contact-Us Page");
         jQuery.validator.setDefaults({
             errorElement:'p'
         });
