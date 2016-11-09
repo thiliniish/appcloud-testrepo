@@ -962,11 +962,6 @@ var createProductRatePlan = function (ratePlanName, price, throttlingLimit, mont
             overageCharge, description);
 };
 
-// Function for get the names of thw throttling tiers
-var getThrottlingTiersOfTenant = function (tenantDomain) {
-    return billingService.getThrottlingTiersOfTenant(tenantDomain);
-};
-
 // Function to get the number of product plans available for the given tenant.
 var getNumberOfProductPlansForTenant = function (tenantDomain) {
     var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
@@ -1011,15 +1006,15 @@ var getProductPlans = function () {
         var planList = [];
         for (var index in tiersList) {
             var tmpPlanList = {};
-            if (tiersList[index].BillingPlan == null) {
-                tiersList[index].BillingPlan = FREE_TIER;
+            if (tiersList[index].billingPlan == null) {
+                tiersList[index].billingPlan = FREE_TIER;
             }
-            tmpPlanList.planName = tiersList[index].tierName;
-            tmpPlanList.billingActive = tiersList[index].BillingPlan;
+            tmpPlanList.planName = tiersList[index].policyName;
+            tmpPlanList.billingActive = tiersList[index].billingPlan;
             var isAvailable = false;
             if (result != null) {
                 for (var count in result) {
-                    if (result[count].RATE_PLAN_NAME == tiersList[index].tierName) {
+                    if (result[count].RATE_PLAN_NAME == tiersList[index].policyName) {
                         isAvailable = true;
                         tmpPlanList.dailyLimit = result[count].MAX_DAILY_USAGE;
                         tmpPlanList.price = result[count].MONTHLY_RENTAL;
@@ -1094,7 +1089,8 @@ var addProductPlans = function (planName, planDescription, pricing, overageCharg
 var getTiersOfTenant = function () {
     try {
         var tenantDomain = modManager.getTenantDomain();
-        var tiersList = JSON.parse(monetizationService.getTiers(tenantDomain));
+        var result = JSON.parse(monetizationService.getTiersOfTenant(tenantDomain));
+        var tiersList = result["list"];
         var msg = "Successfully retrieved the product plan list at the tenant " +tenantDomain;
         return {
             error: false,

@@ -45,7 +45,11 @@ var getAccountId = function () {
         var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(user, tenantDomain));
         if (subscriberData.Subscribers.Subscriber != null) {
             var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
-            return accountNumber;
+            if (typeof accountNumber == 'object') {
+                return null;
+            } else {
+                return accountNumber;
+            }
         } else {
             return null;
         }

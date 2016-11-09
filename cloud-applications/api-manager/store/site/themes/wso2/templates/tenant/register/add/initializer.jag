@@ -1,0 +1,13 @@
+<%
+jagg.initializer("tenant/register/add", {
+    preInitialize:function () {
+        //css
+        jagg.addHeaderCSS("register/add","add.css",'templates/tenant/register/add/css/add.css');
+        jagg.addHeaderCSS("register/add","jquery.validate.password.css",'libs/jquery-validate-password/jquery.validate.password.css');
+
+        //custom js functions        
+        jagg.addFooterJS("register/add","jquery.validate.password.js","templates/tenant/register/add/js/jquery.validate.password.js");
+        jagg.addFooterJS("register/add","validate.organization.js","templates/tenant/register/add/js/add.js");
+    }
+});
+%>

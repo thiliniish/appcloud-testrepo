@@ -221,12 +221,12 @@ public class APICloudMonetizationService {
      * Get tier details from tiers.xml
      *
      * @param tenantDomain
-     * @return json object array of tiers
+     * @return json string of array of tiers
      * @throws CloudMonetizationException
      */
-    public JsonArray getTiers(String tenantDomain) throws CloudMonetizationException {
+    public String getTiers(String tenantDomain) throws CloudMonetizationException {
         try {
-            JsonArray tierList = APICloudMonetizationUtils.getTiersOfTenant(tenantDomain);
+            String tierList = APICloudMonetizationUtils.getTiersOfTenant(tenantDomain);
             return tierList;
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error occurred while getting the tier details of tenant: " + tenantDomain, ex);
@@ -595,6 +595,22 @@ public class APICloudMonetizationService {
 
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error while getting Rate plans for tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Retrieve available tiers of the tenant
+     *
+     * @param tenantDomain tenant
+     * @return Tiers information in a json string
+     * @throws CloudMonetizationException
+     */
+    public String getTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.getTiersOfTenant(tenantDomain);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error occurred while retrieving throttling tiers of tenant: " + tenantDomain, ex);
             throw ex;
         }
     }

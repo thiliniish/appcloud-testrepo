@@ -8,15 +8,15 @@ i18n.init(request, localeResourcesBasePath);
 var tenantDomain = jagg.getTenantDomain();
 var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
-var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
 
 (function () {
     var user = jagg.getUser(), isCreatePermitted;
-    isTenantAllowed();
     if (!user) {
         response.sendRedirect(getRedirectPathForNonAuthenticatedUser());
         return;
     }
+    var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
+
     //Check if monetization is available for the tenant.
     if (isMonetizationEnabledObj == null || isMonetizationEnabledObj.error || !isMonetizationEnabledObj.monetizationEnabled) {
         response.sendRedirect(jagg.getAbsoluteUrl("/site/pages/list-apis.jag") + jagg.getTenantURLPrefix("?"));
@@ -26,6 +26,7 @@ var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tena
         "name": "page/base",
         "inputs": {
             "title": "API Store- Invoice Summary ",
+            "pagePath": "pricing/account/invoice",
             "header": {
                 "name": "menu/primary"
             },
@@ -33,21 +34,6 @@ var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tena
                 {
                     "name": "layout/base",
                     "inputs": {
-                        "top": [
-
-                            {
-                                "name": "search/api-search",
-                                "inputs": null
-                            }
-                        ],
-                        "left": [
-                            {
-                                "name": "api/recently-added",
-                                "inputs": {
-                                    "tenant": tenantDomain
-                                }
-                            }
-                        ],
                         "middle": {
                             "name": "pricing/account/invoice",
                             "inputs": {
@@ -55,10 +41,6 @@ var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tena
                             }
                         }
                     }
-                }
-            ], "footer": [
-                {
-                    "name": "footer"
                 }
             ]
         }

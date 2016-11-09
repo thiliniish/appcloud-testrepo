@@ -13,7 +13,6 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     var user = jagg.getUser(), isMonetizationEnabledObj, selectedApp, middleObj;
 
     isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
-    isTenantAllowed();
     //if user is not logged in
     if (!user) {
         response.sendRedirect(getRedirectPathForNonAuthenticatedUser());
@@ -143,9 +142,9 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
                 log.error("Required parameters are not available to send subscription notifications for the tenant " + tenantDomain);
             }
 
-            var uri = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?");
+            var uri = jagg.getAbsoluteUrl("/site/pages/application.jag") + jagg.getTenantURLPrefix("?");
             if (selectedApp != null && !"".equals(selectedApp)) {
-                uri = uri + "&selectedApp=" + selectedApp;
+                uri = uri + "&name=" + selectedApp;
             }
             inputsObj.redirectUrl = uri;
             middleObj = [{
@@ -160,12 +159,12 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     jagg.render({
         "name": "page/base",
         "inputs": {
-            "title": "My Account",
+            "title": i18n.localize("My Account"),
             "pagePath": "/site/pages/pricing/manage-account.jag",
             "body": [
                 {
                     "name": "layout/base",
-                    "title": "My Account",
+                    "title": i18n.localize("My Account"),
                     "inputs": {
                         "top": [
 
@@ -180,8 +179,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
                                 "inputs": {"tenant": tenantDomain}
                             }
                         ],
-                        "middle": middleObj,
-                        "right": null
+                        "middle": middleObj
                     }
                 }
             ]

@@ -38,6 +38,7 @@ public final class BillingRequestProcessorFactory {
     private BillingRequestProcessor zuoraBillingRequestProcessor;
     private BillingRequestProcessor zuoraBillingRequestProcessorRest;
     private BillingRequestProcessor dataServiceBillingRequestProcessor;
+    private BillingRequestProcessor apimRestAPIRequestProcessor;
 
     /**
      * Private constructor of the factory
@@ -50,7 +51,8 @@ public final class BillingRequestProcessorFactory {
         zuoraBillingRequestProcessor = new ZuoraBillingRequestProcessor(zuoraHttpClientConfig);
         dataServiceBillingRequestProcessor =
                 new DataServiceBillingRequestProcessor(billingConfig.getDSConfig().getHttpClientConfig());
-
+        apimRestAPIRequestProcessor = new APIMRestAPIRequestProcessor(
+                billingConfig.getAPIMRestConfig().getHttpClientConfig());
         //if the rest api require another host name. specified in billing.xml
         if (StringUtils.isNotBlank(zuoraConfig.getServiceUrlHost())) {
             zuoraBillingRequestProcessorRest =
@@ -101,6 +103,8 @@ public final class BillingRequestProcessorFactory {
                 return zuoraBillingRequestProcessorRest;
             case ZUORA_RSA:
                 return zuoraBillingRequestProcessor;
+        case APIM_REST:
+                return apimRestAPIRequestProcessor;
             default:
                 throw new IllegalArgumentException("Unsupported billing request processor type requested");
         }
@@ -110,7 +114,7 @@ public final class BillingRequestProcessorFactory {
      * Enum for Processor types
      */
     public enum ProcessorType {
-        DATA_SERVICE, ZUORA, ZUORA_RSA
+        DATA_SERVICE, ZUORA, ZUORA_RSA, APIM_REST
     }
 
 }

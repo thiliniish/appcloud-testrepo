@@ -134,7 +134,7 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
      * @throws APIManagementException
      */
     private boolean isAnActiveSubscription(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws APIManagementException {
-        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
+        ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         APIIdentifier apiIdentifier = new APIIdentifier(subscriptionWorkflowDTO.getApiProvider(),
                 subscriptionWorkflowDTO.getApiName(), subscriptionWorkflowDTO.getApiVersion());
         int applicationId = apiMgtDAO.getApplicationId(subscriptionWorkflowDTO.getApplicationName(),
@@ -266,14 +266,13 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
      */
     @Override
     public WorkflowResponse complete(WorkflowDTO workflowDTO) throws WorkflowException {
-        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
+        ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         SubscriptionWorkflowDTO subWorkflowDTO;
         if (workflowDTO instanceof SubscriptionWorkflowDTO) {
             subWorkflowDTO = (SubscriptionWorkflowDTO) workflowDTO;
         } else {
             throw new WorkflowException(ERROR_MSG + " WorkflowDTO doesn't match the required type");
         }
-        Connection conn = null;
         String errorMsg;
 
         try {
@@ -281,31 +280,10 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
                     subWorkflowDTO.getApiName(), subWorkflowDTO.getApiVersion());
             int applicationIdID = apiMgtDAO.getApplicationId(subWorkflowDTO.getApplicationName(), subWorkflowDTO.getSubscriber());
 
-            conn = APIMgtDBUtil.getConnection();
-            conn.setAutoCommit(false);
-            apiMgtDAO.removeSubscription(identifier, applicationIdID, conn);
-            conn.commit();
+            apiMgtDAO.removeSubscription(identifier, applicationIdID);
         } catch (APIManagementException e) {
             errorMsg = "Could not complete subscription deletion workflow for api: " + subWorkflowDTO.getApiName();
             throw new WorkflowException(errorMsg, e);
-        } catch (SQLException e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    LOGGER.error("Failed to rollback remove subscription ", ex);
-                }
-            }
-            errorMsg = "Couldn't remove subscription entry for api: " + subWorkflowDTO.getApiName();
-            throw new WorkflowException(errorMsg, e);
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                LOGGER.error("Couldn't close database connection for subscription deletion workflow", e);
-            }
         }
         return new GeneralWorkflowResponse();
     }

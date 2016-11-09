@@ -231,6 +231,7 @@
         <carbon.analytics.common.version>5.0.6</carbon.analytics.common.version>
         <orbit.version.json>2.0.0.wso2v1</orbit.version.json>
         <orbit.version.json-simple>1.1.wso2v1</orbit.version.json-simple>
+        <json-simple.version>1.1.1</json-simple.version>
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.source>1.6</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -298,11 +299,10 @@
         <maven-war-plugin.version>2.4</maven-war-plugin.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <org.codehaus.jackson.version>1.9.13</org.codehaus.jackson.version>
-        <carbon.apimgt.version>5.0.3</carbon.apimgt.version>
         <org.osgi.service.component.version>1.3.0</org.osgi.service.component.version>
         <org.osgi.framework.version>4.3.0</org.osgi.framework.version>
 
-        <imp.pkg.version.axiom>[1.2.11.wso2v4, 1.3.0)</imp.pkg.version.axiom>
+        <imp.pkg.version.axiom>[1.2.11, 1.3.0)</imp.pkg.version.axiom>
         <imp.pkg.version.axis2>[1.6.1.wso2v10, 1.7.0)</imp.pkg.version.axis2>
         <imp.pkg.version.carbon.platform>[4.2.0, 4.3.0)</imp.pkg.version.carbon.platform>
         <imp.pkg.version.carbon.kernel.registry>[1.0.1, 1.1.0)</imp.pkg.version.carbon.kernel.registry>
@@ -322,5 +322,15 @@
         <imp.pkg.version.javax.activation>[0.0.0, 0.1.0)</imp.pkg.version.javax.activation>
         <imp.pkg.version.codehaus.jackson>[0.0.0, 0.1.0)</imp.pkg.version.codehaus.jackson>
         <imp.pkg.version.hazelcast>[3.0.1, 3.1.0)</imp.pkg.version.hazelcast>
-    </properties>
+
+        <!-- APIM Versions -->
+        <carbon.apimgt.version>6.0.4</carbon.apimgt.version>
+        <apim.carbon.kernel.version>4.4.7</apim.carbon.kernel.version>
+        <apim.carbon.tenant.mgt.version>4.6.0</apim.carbon.tenant.mgt.version>
+        <apim.carbon.tenant.common.version>4.5.4</apim.carbon.tenant.common.version>
+
+        <apim.imp.pkg.version.axiom>[1.2.11, 1.3.0)</apim.imp.pkg.version.axiom>
+        <apim.imp.pkg.version.axis2>[1.6.1, 1.7.0)</apim.imp.pkg.version.axis2>
+
+      </properties>
 </project>

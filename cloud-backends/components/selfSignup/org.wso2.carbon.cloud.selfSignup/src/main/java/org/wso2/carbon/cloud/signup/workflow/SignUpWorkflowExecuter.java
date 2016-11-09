@@ -414,10 +414,7 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
     public String getCloudmgtLink() throws WorkflowException {
         String cloudmgtUrl;
         try {
-            LOGGER.info("Obtaining the UUID for the user " + getUserEmail());
-            cloudmgtUrl = ConfigFileReader.retrieveConfigAttribute("URLs",
-                                                                   "cloudMgtVerificationUrl");
-            cloudmgtUrl = cloudmgtUrl + "?confirmation=" + uuid + "&isStoreInvitee=true";
+            cloudmgtUrl = utilObject.getConfirmationLink(tenantDomain, uuid);
         } catch (WorkflowException e) {
             errorMessage = "Error in setting the cloudmgt url for the tenant " + tenantDomain;
             LOGGER.error(errorMessage, e);

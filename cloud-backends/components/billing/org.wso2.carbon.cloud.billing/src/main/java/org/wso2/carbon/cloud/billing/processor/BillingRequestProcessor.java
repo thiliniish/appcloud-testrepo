@@ -23,6 +23,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.wso2.carbon.cloud.billing.exceptions.CloudBillingException;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * Represents the API invocation methods which are needed for cloud billing
@@ -31,6 +32,9 @@ import java.io.File;
 public interface BillingRequestProcessor {
 
     String doGet(String url, String acceptType, NameValuePair[] nameValuePairs) throws CloudBillingException;
+
+    String doGet(String url, String acceptType, Map<String, String> customHeaders, NameValuePair[] nameValuePairs)
+            throws CloudBillingException;
 
     void doUpload(String url, String acceptType, File file) throws CloudBillingException;
 
