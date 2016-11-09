@@ -163,7 +163,8 @@
     "auth_email": "cloud_emai@wso2.com",
     "auth_pass": "pass",
     "add_url": "add_url",
-    "edit_pwd_url": "edit_pwd_url"
+    "edit_pwd_url": "edit_pwd_url",
+    "update_url": "update_url"
   },
   "MailCampaignAddUserApi":{
     "enable_MailCampaignAddUserApi": false,

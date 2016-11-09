@@ -449,6 +449,52 @@ function addUserToOT (email, pass, firstName, lastName) {
 	}
 };
 
+function updateUserProfileInOT(email, firstName, lastName) {
+    try {
+        log.info("Updating profile of user [ " + email + " ] in OT");
+
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var AUTH_EMAIL = cloudConfig.OTUserApi.auth_email;
+        var AUTH_PASSWORD = cloudConfig.OTUserApi.auth_pass;
+        var URL = cloudConfig.OTUserApi.update_url;
+        var enabled = cloudConfig.OTUserApi.enable;
+        var data = {
+            "category": "Personal Information",
+            "profile_first_name": firstName,
+            "profile_last_name": lastName
+        };
+        var payload = {
+            "uid": email,
+            "data": stringify(data),
+            "auth_email": AUTH_EMAIL,
+            "auth_pass": AUTH_PASSWORD
+        };
+
+        if (enabled.toString() == "true") {
+            var response = post(URL, payload, {});
+            var httpStatus = response.xhr.statusText;
+            var responseData;
+
+            if (response.data) {
+                responseData = new XML(response.data);
+            }
+
+            if (httpStatus == "OK" && responseData && responseData == 1) {
+                return;
+            } else {
+                var response = { "data ": response.data, "statusText": response.xhr.statusText};
+                var errorMsg = "Error while updating the user profile of "
+                                       + email + " in OT. Response from OT : " + stringify(response);
+                log.error(errorMsg);
+            }
+        }
+    } catch (e) {
+        var errorMsg = "Error while updating the user profile of " + email + " in OT";
+        log.error(errorMsg);
+        log.error(e)
+    }
+};
+
 //<TODO>Needs to be modified for Pardot</TODO>
 function getLeadSourceToken (campaign) {
     var tokenId = null;
