@@ -27,7 +27,36 @@ var log = new Log();
 		} catch (e) {
 			throw "Error while getting user organizations";
 		}
-	} else{
+    } else if (action == "getOrgDisplayName") {
+        var tenantDomain = request.getParameter("tenant");
+        var responseContent;
+        if (!tenantDomain) {
+            responseContent = {"error": true, "message": "Required parameter tenant domain is not provided"};
+        } else {
+            try {
+                var modUtil = jagg.module("util");
+                //tenant aware username
+                var username = session.get("LOGGED_IN_USER");
+                //only carbon super admin user can access this api
+                if (!modUtil.isCarbonSuperAdmin(username)) {
+                    responseContent =
+                    {"error": true, "message": "User does not have enough privilege to access this API"};
+                    response.status = 403;
+                } else {
+                    var organizationDisplayName = modUtil.getTenantDisplayName(tenantDomain);
+                    responseContent = {"error": false, "name": organizationDisplayName};
+                }
+            } catch (e) {
+                var errorMsg = "Error while getting organization display name";
+                log.error(errorMsg + " for tenant : " + tenantDomain);
+                log.error(e);
+                responseContent = {"error": true, "message": errorMsg};
+                response.status = 500;
+            }
+        }
+        response.contentType = APPLICATION_JSON;
+        response.content = responseContent;
+    } else {
 		throw new Error("No action specified");
 	}
 
