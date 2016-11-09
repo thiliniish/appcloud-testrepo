@@ -38,6 +38,7 @@
         <module>cloud-monitoring</module>
         <module>cloud-integration</module>
         <module>cloud-tools</module>
+        <module>cloud-backends/orbit</module>
     </modules>
 
     <repositories>

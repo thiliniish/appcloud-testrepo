@@ -41,7 +41,7 @@
     </dependencies>
 
     <properties>
-        <checkstyle.skip>true</checkstyle.skip>
-        <findbugs.skip>true</findbugs.skip>
+        <!--<checkstyle.skip>true</checkstyle.skip>-->
+        <!--<findbugs.skip>true</findbugs.skip>-->
     </properties>
 </project>

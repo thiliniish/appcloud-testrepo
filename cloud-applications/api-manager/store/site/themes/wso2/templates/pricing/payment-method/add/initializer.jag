@@ -15,8 +15,6 @@ jagg.initializer("pricing/payment-method/add", {
         jagg.addHeaderCSS("pricing/payment-method/add", "font-awesome.min",
                 "templates/pricing/css/font-awesome-4.2.0/font-awesome.min.css");
 
-        jagg.addHeaderJS("pricing/account/create", "zuora.min",
-                "templates/pricing/js/zuora/zuora-min.js");
         jagg.addHeaderJS("pricing/payment-method/add", "html5shiv.min",
                 "templates/pricing/manage-account/js/html5shiv.min.js");
         jagg.addHeaderJS("pricing/payment-method/add", "respond.min",
@@ -31,6 +29,7 @@ jagg.initializer("pricing/payment-method/add", {
         jagg.addHeaderJS("pricing/payment-method/add", "add-payment-method",
                 "templates/pricing/payment-method/add/js/add-payment-method.js");
 
+        jagg.addHeaderCode("pricing/payment-method/add", "stripe", '<script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>');
         jagg.addHeaderCode("pricing/payment-method/add", "charset", '<meta charset="utf-8">');
         jagg.addHeaderCode("pricing/payment-method/add", "viewpoint", '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
     }

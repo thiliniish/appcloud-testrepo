@@ -8,6 +8,7 @@ i18n.init(request, localeResourcesBasePath);
 var tenantDomain = jagg.getTenantDomain();
 var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
+var accountName = encoder.getSafeText(request.getParameter("accountNm"));
 
 (function () {
     var user = jagg.getUser(), isCreatePermitted;
@@ -37,7 +38,8 @@ var invoiceId = encoder.getSafeText(request.getParameter("invoiceId"));
                         "middle": {
                             "name": "pricing/account/invoice",
                             "inputs": {
-                                "invoiceId": invoiceId
+                                "invoiceId": invoiceId,
+                                "accountName": accountName
                             }
                         }
                     }

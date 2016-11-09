@@ -163,10 +163,9 @@ var productIdFromServiceId = {api_cloud: "API Cloud", app_cloud: "APP Cloud"};
 var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 var MYSQL_MAX_DATETIME_STRING = "9999-12-31 12:59:59";
 var MYSQL_MIN_DATETIME_STRING = "1000-01-01 00:00:00";
-var ZUORA_DATE_FORMAT = "yyyy-MM-dd";
+var DATE_FORMAT = "yyyy-MM-dd";
 var MAIL_CAMPAIGN = "Pardot";
 var PARDOT_DATE_FORMAT = "yyyy-MM-dd";
-var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
 var MAIL_CAMPAIGN_SUBMISSION_SUCCESS = "Cannot find success page to redirect to. Please use your browser back button.<br\\>";
 var RIGHTWAVE_RESPONSE_TYPE = "text";
 
@@ -176,11 +175,21 @@ var BILLING_TYPE = "billingType";
 var BILLING_ACCOUNT_ID = "billingAccountId";
 var BILLING_STATUS = "billingStatus";
 
+// Billing api cloud plan properties
+
+var BILLING_API_CLOUD_PLAN_MAX_DAILY_USAGE = "MaxDailyUsage";
+var BILLING_API_CLOUD_PLAN_MAX_ACCOUNT = "MaxAccounts";
+var BILLING_API_CLOUD_PLAN_OVER_USAGE = "OverUsage";
+var BILLING_API_CLOUD_PLAN_MONTHLY_RENTAL = "MonthlyRental";
+var BILLING_API_CLOUD_PLAN_PREMIUM_LEVEL = "PremiumLevel";
+var BILLING_API_CLOUD_PLAN_VISIBILITY = "Visibility";
+
 //billing coupon
 var BILLING_COUPON_HEADER = "coupon_";
 var EXPIRED_RATE_PALN = "Expired";
 var DISCOUNT_CHARGE_NAME ="Discount";
 var MONTHLY_SUBSCRIPTION_CHARGE_NAME ="Monthly subscription fee";
+var CURRENCY = "USD";
 
 //Billing Commons
 var BILLING_SUGGESTED_PLAN = "Getting Traction";
@@ -194,11 +203,16 @@ var MONETIZATION_PAYMENT_PLANS_URI = "/site/pages/monetization-payment-plans.jag
 var FREE_TIER = "FREE";
 var BILLING_SERVICE = "CloudBillingService";
 var API_CLOUD_PRODUCT_EXTENSION = "_api_cloud";
+var CENTS = 100;
+var IFRAME_DESCRIPTION = "Pay securely using Stripe";
+var IFRAME_BUTTON = "Pay Using Stripe";
+
+var THOUSAND = 1000;
 
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
 var LOGGED_IN_USER_EMAIL = "LOGGED_IN_USER_EMAIL";
-var TIER_MANAGE_URL = "admin-dashboard/tier-manage";
+var TIER_MANAGE_URL = "admin/tier-manage";
 
 //Monetization Account Types
 var ACC_FREE = "Free";
@@ -229,7 +243,7 @@ var PASSWORD_CHARACTER_TYPE_VALIDATION_REGEX = /(^[a-zA-Z0-9<>@!#$%^&*()_+[\]{}?
 var USER_ACTIVITY_STREAM = "cloudmgt.user.activity.monitor";
 var USER_ACTIVITY_STREAM_VERSION = "1.0.0";
 
-//Zuora related
+//Vendor related
 var EDIT_USER_INFO = "Edit_User_Info";
 var IS_FROM_CHANGE_PLAN = "isFromChangePlan";
 

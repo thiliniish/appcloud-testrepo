@@ -1,5 +1,22 @@
 var params;
 var isSecondaryPaymentMethod = Boolean(getRequestParam("secondaryPayment"));
+var field_passthrough1;
+var cardDetails = {};
+
+$(document).ready(function ($) {
+    document.getElementById("cardDetails").style.visibility = "hidden";
+    if (!isSecondaryPaymentMethod) {
+        var error = decodeURIComponent(($("#errorObj").attr('value')));
+        var errorObj = JSON.parse(error);
+        if (errorObj.error) {
+            jagg.message({content: errorObj.errorMessage, type: "error"});
+        }
+    }
+    generateParameters();
+    $("#redeembtn1").click(function () {
+        getCheckoutHandler();
+    });
+});
 
 var callback = function (response) {
     if (!response.success) {
@@ -12,43 +29,79 @@ var callback = function (response) {
     }
 };
 
-function getRequestParam(name){
-    if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+function getRequestParam(name) {
+    if (name = (new RegExp('[?&]' + encodeURIComponent(name) + '=([^&]*)')).exec(location.search))
         return decodeURIComponent(name[1]);
-}
-function showPage() {
-    var zuoraDiv = document.getElementById('zuora_payment');
-    zuoraDiv.innerHTML = "";
-    Z.render(params, null, callback);
 }
 
 function submitPage() {
-    jagg.message({content: 'Please wait. Your request is being processed..', type: 'info'});
-    Z.submit();
+    var secondaryCC = null;
+    var strUrlBasicParam = Object.keys(publicParams).map(function (key) {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(publicParams[key]);
+    }).join('&');
+
+    var strUrlCardParams = Object.keys(cardDetails).map(function (key) {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(cardDetails[key]);
+    }).join('&');
+
+    secondaryCC = publicParams.field_passthrough4;
+    if (secondaryCC != null && secondaryCC == "secondary-card") {
+        addPaymentMethod();
+    } else {
+        actionString = "&action=createAccount&";
+        window.top.location.href = "../../../site/pages/pricing/manage-account.jag?tenant=" +
+        encodeURIComponent(tenant) + actionString + window.location.search.split('&')[2] + "&" + strUrlBasicParam
+        + "&" + strUrlCardParams;
+    }
 }
 
+var publicParams = {};
 function generateParameters() {
     var workflowReference = $("#workflowReference").attr('value');
     var tenant = $("#tenant").attr('value');
     var accountId = $("#accountId").attr('value');
-    jagg.post("/site/blocks/pricing/payment-method/add/ajax/add.jag", {
-        action: "generateParams",
+    var result = jagg.post("/site/blocks/pricing/payment-method/add/ajax/add.jag", {
+        action: "generateParameters",
         workflowReference: workflowReference,
         tenant: tenant
     }, function (result) {
         if (!result.error) {
-            params = result.params;
-            if(accountId != null) {
-                params.field_accountId = accountId;
-                params.field_passthrough4 = "secondary-card";
-                params.field_passthrough3 = tenant;
+            publicParams = result.params;
+            field_passthrough1 = publicParams.field_passthrough1;
+            getCheckoutHandler();
+            if (accountId != null) {
+                publicParams.field_accountId = accountId;
+                publicParams.field_passthrough4 = "secondary-card";
+                publicParams.field_passthrough3 = tenant;
             }
-            showPage();
         } else {
             jagg.message({content: result.message, type: "error"});
         }
     }, "json");
 }
+
+function addPaymentMethod() {
+    jagg.syncPost("/site/blocks/pricing/payment-method/add/ajax/add.jag", {
+        action: "addPaymentMethod",
+        tokenId: cardDetails.field_passthrough5
+    }, function (results) {
+        console.log(results.result);
+        actionString = "&action=viewPaymentMethod";
+        window.top.location.href = "../../../site/pages/pricing/manage-account.jag?tenant=" + encodeURIComponent(tenant) + actionString +
+        '&fieldPassthrough1=' + encodeURIComponent(results.result);
+    }, function (jqXHR, textStatus, errorThrown) {
+        $('.message_box').empty();
+        jagg.message({
+            content: "Unable to add a new payment method at the moment. Please contact WSO2 Cloud Team for help",
+            type: 'error',
+            cbk: function () {
+                var cloudMgtURL = $("#cloudmgtURL").attr('value');
+                window.location.href = cloudMgtURL + "/site/pages/contact-us.jag";
+            }
+        });
+    });
+}
+
 
 //A Custom function is needed
 (function () {
@@ -80,13 +133,42 @@ $('.myaffix').bind('elementClassChanged', function (e) {
     }
 });
 
-$(document).ready(function ($) {
-    if (!isSecondaryPaymentMethod) {
-        var error = decodeURIComponent(($("#errorObj").attr('value')));
-        var errorObj = JSON.parse(error);
-        if (errorObj.error) {
-            jagg.message({content: errorObj.errorMessage, type: "error"});
+function getCheckoutHandler() {
+    var handler = StripeCheckout.configure({
+        key: field_passthrough1,
+        image: 'http://b.content.wso2.com/sites/all/cloudmicro/images/icon-wso2.jpg',
+        locale: 'auto',
+        zipCode: true,
+        allowRememberMe: false,
+        billingAddress: true,
+        panelLabel: 'Submit',
+        token: function (response) {
+            // You can access the token ID with `token.id`.
+            // Get the token ID to your server-side code for use.
+            document.getElementById("redeembtn1").style.visibility = "hidden";
+            document.getElementById("cardDetails").style.visibility = "visible";
+            $("#paymentType").text(response.card.brand);
+            $("#ccName").text(response.card.name);
+            $("#ccNum").text("************" + response.card.last4);
+            $("#ccExpiary").text(response.card.exp_month + " / " + response.card.exp_year);
+
+            cardDetails.creditCardAddress1 = response.card.address_line1;
+            cardDetails.creditCardAddress2 = response.card.address_line2;
+            cardDetails.creditCardPostalCode = response.card.address_zip;
+            cardDetails.creditCardCountry = response.card.address_country;
+            cardDetails.creditCardCity = response.card.address_city;
+            cardDetails.creditCardState = response.card.address_state;
+            cardDetails.field_passthrough5 = response.id;
         }
-    }
-    generateParameters();
-});
+    });
+    handler.open({
+        name: 'WSO2 Cloud',
+        description: 'Pay securely using Stripe',
+        email: $("#email").attr('value')
+    });
+
+    // Close Checkout on page navigation:
+    window.addEventListener('popstate', function () {
+        handler.close();
+    });
+}

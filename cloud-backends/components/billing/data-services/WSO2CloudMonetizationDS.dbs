@@ -13,12 +13,12 @@
     </query>
     <query id="getTenantRatePlanIdQ" useConfig="cloud_mgt">
         <sql>SELECT RATE_PLAN_ID FROM MONETIZATION_PRODUCT_PLANS WHERE TENANT_DOMAIN=(:TENANT_DOMAIN) AND
-        ZUORA_PRODUCT_NAME=(:ZUORA_PRODUCT_NAME) AND RATE_PLAN_NAME=(:RATE_PLAN_NAME);</sql>
+        PRODUCT_NAME=(:PRODUCT_NAME) AND RATE_PLAN_NAME=(:RATE_PLAN_NAME);</sql>
         <result element="Entry" rowName="">
             <element column="RATE_PLAN_ID" name="RatePlanId" xsdType="string"/>
         </result>
         <param name="TENANT_DOMAIN" sqlType="STRING"/>
-        <param name="ZUORA_PRODUCT_NAME" sqlType="STRING"/>
+        <param name="PRODUCT_NAME" sqlType="STRING"/>
         <param name="RATE_PLAN_NAME" sqlType="STRING"/>
     </query>
     <operation name="getMonetizationStatus">
@@ -30,14 +30,14 @@
     <operation name="getRatePlanId">
         <call-query href="getTenantRatePlanIdQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
-            <with-param name="ZUORA_PRODUCT_NAME" query-param="zuoraProductName"/>
+            <with-param name="PRODUCT_NAME" query-param="productName"/>
             <with-param name="RATE_PLAN_NAME" query-param="ratePlanName"/>
         </call-query>
     </operation>
-    <resource method="GET" path="v1/rate-plans/{tenant}/{zuoraProductName}/{ratePlanName}">
+    <resource method="GET" path="v1/rate-plans/{tenant}/{productName}/{ratePlanName}">
         <call-query href="getTenantRatePlanIdQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
-            <with-param name="ZUORA_PRODUCT_NAME" query-param="zuoraProductName"/>
+            <with-param name="PRODUCT_NAME" query-param="productName"/>
             <with-param name="RATE_PLAN_NAME" query-param="ratePlanName"/>
         </call-query>
     </resource>

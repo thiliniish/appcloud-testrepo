@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<CloudBilling xmlns="http://www.wso2.org/cloud/billing">
+
+    <!--Billing component is deployed for cloudmgt. Set this to false if the billing component is
+    deployed in APIM or other server as a supporting component. This will disable mgt tasks-->
+    <MgtModeEnabled>true</MgtModeEnabled>
+
+    <BillingVendorClass>org.wso2.carbon.cloud.billing.vendor.stripe.StripeCloudBilling</BillingVendorClass>
+
+    <DataServiceAPI>
+        <CloudBillingServiceURI>/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURI>
+        <CloudMonetizationServiceURI>/services/WSO2CloudMonetizationDS.SecureHTTPEndpoint</CloudMonetizationServiceURI>
+        <APICloudMonetizationServiceURI>/services/WSO2APICloudMonetizationDS.SecureHTTPEndpoint</APICloudMonetizationServiceURI>
+        <CloudBillingVendorServiceURI>/services/WSO2CloudBillingVendorDS.SecureHTTPEndpoint</CloudBillingVendorServiceURI>
+        <User>admin</User>
+        <Password>admin</Password>
+        <HttpClientConfig>
+            <Hostname>localhost</Hostname>
+            <Port>9453</Port>
+            <MaxConnectionsPerHost>50</MaxConnectionsPerHost>
+            <MaxTotalConnections>50</MaxTotalConnections>
+        </HttpClientConfig>
+    </DataServiceAPI>
+
+    <APIMRestAPI>
+        <RestServiceURI>/api/am</RestServiceURI>
+        <HttpClientConfig>
+            <Hostname>localhost</Hostname>
+            <Port>9453</Port>
+            <MaxConnectionsPerHost>50</MaxConnectionsPerHost>
+            <MaxTotalConnections>50</MaxTotalConnections>
+        </HttpClientConfig>
+    </APIMRestAPI>
+
+    <!--TODO This should be removable -->
+    <Security>
+        <TrustStore>
+            <!--TrustStore should be in security resource directory -->
+            <Name>client-truststore.jks</Name>
+            <!-- trust-store type (JKS/PKCS12 etc.) -->
+            <Type>JKS</Type>
+            <!-- trust-store password -->
+            <Password>wso2carbon</Password>
+        </TrustStore>
+    </Security>
+
+    <Notifications>
+        <Email>
+            <Host>smtp.gmail.com</Host>
+            <Port>25</Port>
+            <Username>username</Username>
+            <Password>password</Password>
+            <Tls>true</Tls>
+            <Sender>WSO2 Cloud Team &lt;cloud@wso2.com&gt;</Sender>
+        </Email>
+    </Notifications>
+
+    <CloudTypes>
+        <CloudType id="api_cloud" name="API Cloud">
+            <!--Billing functionality enable/disable status-->
+            <BillingEnabled>true</BillingEnabled>
+            <!--Trial period in days-->
+            <TrialPeriod>14</TrialPeriod>
+            <!--This is for statistical purposes. Usage display period in days-->
+            <UsageDisplayPeriod>30</UsageDisplayPeriod>
+            <Subscription productId="prod_api_cloud">
+                <Plan id="api_cloud_starter" name="Starter">
+                    <Property name="MaxDailyUsage">500</Property>
+                    <Property name="MaxAccounts">10</Property>
+                    <Property name="OverUsage">$5/1000</Property>
+                    <Property name="MonthlyRental">$100</Property>
+                    <Property name="PremiumLevel">1</Property>
+                </Plan>
+                <Plan id="api_cloud_getting_traction" name="Getting Traction">
+                    <Property name="MaxDailyUsage">100000</Property>
+                    <Property name="MaxAccounts">100</Property>
+                    <Property name="OverUsage">$5/1000</Property>
+                    <Property name="MonthlyRental">$250</Property>
+                    <Property name="PremiumLevel">2</Property>
+                </Plan>
+                <Plan id="api_cloud_medium" name="Medium">
+                    <Property name="MaxDailyUsage">500</Property>
+                    <Property name="MaxAccounts">10</Property>
+                    <Property name="OverUsage">$5/1000</Property>
+                    <Property name="MonthlyRental">$100</Property>
+                    <Property name="PremiumLevel">1</Property>
+                </Plan>
+                <Plan id="api_cloud_large" name="Large">
+                    <Property name="MaxDailyUsage">100000</Property>
+                    <Property name="MaxAccounts">100</Property>
+                    <Property name="OverUsage">$5/1000</Property>
+                    <Property name="MonthlyRental">$250</Property>
+                    <Property name="PremiumLevel">2</Property>
+                </Plan>
+                <Plan id="api_cloud_extra_large" name="Extra-Large">
+                    <Property name="MaxDailyUsage">500</Property>
+                    <Property name="MaxAccounts">10</Property>
+                    <Property name="OverUsage">$5/1000</Property>
+                    <Property name="MonthlyRental">$100</Property>
+                    <Property name="PremiumLevel">1</Property>
+                </Plan>
+            </Subscription>
+        </CloudType>
+
+        <CloudType id="app_cloud" name="APP Cloud">
+            <!--Billing functionality enable/disable status-->
+            <BillingEnabled>false</BillingEnabled>
+            <!--Trial period in days-->
+            <TrialPeriod>14</TrialPeriod>
+            <!--This is for statistical purposes. Usage display period in days-->
+            <UsageDisplayPeriod>30</UsageDisplayPeriod>
+
+            <Subscription productId="prod_app_cloud">
+                <Plan id="app_cloud_starter" name="Starter">
+                    <Property name="MaxApplications">10</Property>
+                    <Property name="MaxReplicas">2</Property>
+                    <Property name="MonthlyRental">$100</Property>
+                    <Property name="PremiumLevel">1</Property>
+                </Plan>
+                <Plan id="app_cloud_getting_traction" name="Getting Traction">
+                    <Property name="MaxApplications">20</Property>
+                    <Property name="MaxReplicas">10</Property>
+                    <Property name="MonthlyRental">$250</Property>
+                    <Property name="PremiumLevel">2</Property>
+                </Plan>
+                <Plan id="app_cloud_medium" name="Medium">
+                    <Property name="MaxApplications">30</Property>
+                    <Property name="MaxReplicas">15</Property>
+                    <Property name="MonthlyRental">$100</Property>
+                    <Property name="PremiumLevel">1</Property>
+                </Plan>
+                <Plan id="app_cloud_large" name="Large">
+                    <Property name="MaxApplications">40</Property>
+                    <Property name="MaxReplicas">20</Property>
+                    <Property name="MonthlyRental">$250</Property>
+                    <Property name="PremiumLevel">2</Property>
+                </Plan>
+                <Plan id="app_cloud_extra_large" name="Extra-Large">
+                    <Property name="MaxApplications">100</Property>
+                    <Property name="MaxReplicas">25</Property>
+                    <Property name="MonthlyRental">$100</Property>
+                    <Property name="PremiumLevel">1</Property>
+                </Plan>
+            </Subscription>
+        </CloudType>
+    </CloudTypes>
+
+</CloudBilling>

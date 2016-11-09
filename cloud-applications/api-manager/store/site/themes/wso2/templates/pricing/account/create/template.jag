@@ -102,9 +102,11 @@
                       </div>
                    </div>
                    <div>
+                   <% var log = new Log(); log.info(outputs.field_passthrough5); %>
                         <input type="hidden" name="refId" id="refId" value="<%=outputs.refId%>"/>
                         <input type="hidden" name="signature" id="signature" value="<%=outputs.signature%>"/>
                         <input type="hidden" name="field_passthrough1" id="field_passthrough1" value="<%=outputs.field_passthrough1%>"/>
+                        <input type="hidden" name="field_passthrough5" id="field_passthrough5" value="<%=outputs.field_passthrough5%>" />
                         <input type="hidden" name="workflowReference" id="workflowReference" value="<%=outputs.workflowReference%>"/>
                         <input type="hidden" name="tenant" id="tenant" value="<%=outputs.tenant%>"/>
                         <input type="hidden" name="selectedApp" id="selectedApp" value="<%=outputs.selectedApp%>"/>

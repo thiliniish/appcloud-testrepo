@@ -24,7 +24,7 @@
                                       </div>
                                       <div class="col-md-4">
                                          <label id="lblOrg" name="lblOrg"
-                                            class="control-label  label-style"></label>
+                                            class="control-label  label-style" ><%=outputs.accountName%></label>
                                       </div>
                                    </div>
                                 </div>

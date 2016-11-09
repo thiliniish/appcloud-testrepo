@@ -1,4 +1,5 @@
 <% jagg.template("pricing/payment-method/add", function(inputs, outputs, jagg) { %>
+<% var user = jagg.getUser(); %>
 
 <div class="page-header">
    <h2>Account</h2>
@@ -6,7 +7,8 @@
 <div class="content-section shadow-up">
    <div class="content-data">
       <div class="container clearfix">
-      <% if(!outputs.isSecondaryPaymentMethod) { %>
+      <%
+    if (!outputs.isSecondaryPaymentMethod) { %>
          <div class="row wr-wizard">
             <div class="col-md-4">
                <div class="itm-wiz itm-wiz-current">
@@ -35,34 +37,63 @@
                </div>
             </div>
          </div>
-           <% } %>
-         <div class="row">
-            <div class="col-md-8 wr-text-gray">
-               <p>Please Enter your card information</p>
-               <div>
-                  <form name="inputData" class='form-horizontal' id='registerForm' role="form">
-                     <div class="form-group">
-                        <div id="zuora_payment"></div>
-                     </div>
-                       <% if(!outputs.isSecondaryPaymentMethod) { %>
-                     <input type="hidden" name="workflowReference" id="workflowReference"  value="<%=outputs.workflowReference%>"/>
-                      <% } else { %>
-                        <input type="hidden" name="accountId" id="accountId"  value="<%=outputs.accountId%>"/>
-                      <% } %>
-                     <input type="hidden" name="tenant" id="tenant" value="<%=outputs.tenant%>"/>
-                     <input type="hidden" name="errorObj" id="errorObj" value="<%=encodeURIComponent(JSON.stringify(outputs.errorObj))%>"/>
-                  </form>
-               </div>
-            </div>
-             <% if(!outputs.isSecondaryPaymentMethod) { %>
-            <div class="col-md-4" style="min-height:100%">
-               <!--<div style="position: relative; display: block;">-->
-               <div class="wr-text myaffix">
-                  <div id="product-container">
-                     <h2 class="product-summery">SUMMARY</h2>
-                     <p>
-                        <span class="selected-plan-txt">SELECTED PLAN</span>
-                        <span class="product-planname"><%=outputs.ratePlan.RatePlanName%></span>
+           <%
+    }
+    %>
+            <div class="row">
+               <div class="col-md-8 wr-text-gray">
+                  <p>Please Enter your card information</p>
+                        <div class="col-md-12 panel-body">
+                        <button id="redeembtn1" type="button" style="font-weight: normal;" class="btn redeembtn btn-default btn-redeem col-md-4 col-xs-12">Pay By Card</button>
+                        <div class="cardDetails" id="cardDetails">
+                            <div class="col-lg-12 content-section-wrapper">
+                                <label class="control-label label-style">Card type :</label>
+                                <label id="paymentType" name="paymentType" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <label class="control-label label-style">Card holder name :</label>
+                                <label id="ccName" name="ccName" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <label class="control-label label-style">Card number :</label>
+                                <label id="ccNum" name="ccNum" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <label class="control-label label-style">Expiration date :</label>
+                                <label id="ccExpiary" name="ccExpiary" class="control-label label-style"></label>
+                            </div>
+                        </div>
+                        <div class="signin"></div>
+                          <%
+    if (!outputs.isSecondaryPaymentMethod) {
+        %>
+                            <input type="hidden" name="workflowReference" id="workflowReference"  value="<%=outputs.workflowReference
+        %>"/>
+                              <%
+    } else {
+        %>
+                               <input type="hidden" name="accountId" id="accountId"  value="<%=outputs.accountId
+        %>"/>
+                              <%
+    }
+    %>
+                        <input type="hidden" name="tenant" id="tenant" value="<%=outputs.tenant%>"/>
+                        <input type="hidden" name="email" id="email" value="<%=user.email%>"/>
+                     <input type="hidden" name="errorObj" id="errorObj" value="<%=encodeURIComponent(JSON.stringify(outputs.errorObj))
+    %>"/>
+                   </div>
+                </div>
+                 <%
+    if (!outputs.isSecondaryPaymentMethod) {
+        %>
+                   <div class="col-md-4" style="min-height:100%">
+                      <!--<div style="position: relative; display: block;">-->
+                      <div class="wr-text myaffix">
+                         <div id="product-container">
+                            <h2 class="product-summery">SUMMARY</h2>
+                            <p>
+                               <span class="selected-plan-txt">SELECTED PLAN</span>
+                               <span class="product-planname"><%=outputs.ratePlan.RatePlanName%></span>
                      </p>
                      <ul>
                         <li><%=outputs.ratePlan.MaxDailyUsage%> Calls/Day</li>
@@ -84,23 +115,26 @@
                         <div class="col-md-8 nopad blue">&nbsp;</div>
                         <div class="col-md-4 nopad tright ">
                            <p class="col-md-12 nopad nomargin blue-line-right pull-right">Total USD</p>
-                           <p class="col-md-12 nopad nomargin blue-line-right pull-right"><span id="payable-ammount"><%=outputs.ratePlan.MonthlyRental%></span></p>
-                        </div>
-                     </div>
-                     <br class="clearfix" />
-                  </div>
-                  <div id="action-container">
-                  <div class="row">
-                   <div class="col-md-6">
-                        <button type="button" class="btn btn-default btn-back col-md-5 col-md-12" onclick="window.history.back();">Back</button>
-                   </div>
-                    <div class="col-md-6">
-                        <button id="submitbtn" type="button" onclick="submitPage()" class="btn btn-default btn-redeem col-md6 col-md-12 pull-right">Proceed</button>
-                   </div>
-                  </div>
-                     <br class="c-both" />
-                  </div>
-                  <% } else { %>
+                           <p class="col-md-12 nopad nomargin blue-line-right pull-right"><span id="payable-ammount"><%=outputs.ratePlan.MonthlyRental
+        %></span></p>
+                                </div>
+                             </div>
+                             <br class="clearfix" />
+                          </div>
+                          <div id="action-container">
+                          <div class="row">
+                           <div class="col-md-6">
+                                <button type="button" class="btn btn-default btn-back col-md-5 col-md-12" onclick="window.history.back();">Back</button>
+                           </div>
+                            <div class="col-md-6">
+                                <button id="submitbtn" type="button" onclick="submitPage()" class="btn btn-default btn-redeem
+                                 col-md6 col-md-12 pull-right submit">Proceed</button>
+                           </div>
+                          </div>
+                             <br class="c-both" />
+                          </div>
+                          <%
+    } else { %>
                    </div>
                    <br class="clearfix" />
                    <div class="row">
@@ -119,12 +153,15 @@
                                 Proceed
                             </button>
                     </div>
-                  <% } %>
+                  <%
+    }
+    %>
+                  </div>
+                  <!--</div>-->
                </div>
-               <!--</div>-->
             </div>
          </div>
       </div>
-   </div>
 
-<% }); %>
+   <%
+}); %>

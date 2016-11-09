@@ -1,7 +1,10 @@
 <%
 jagg.initializer("billing/plan/get", {
     preInitialize : function () {
-        var isBillingEnabled = jagg.module("billing").isBillingEnabled();
+        // UI related CSS files
+        jagg.addHeaderCSS("plan/get", "billing.css", "new-assets/css/billing.css");
+
+        var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
         if (isBillingEnabled) {
         var serviceId = session.get("SERVICE_ID");
         var tenantInfo = session.get("TENANT_INFO");
@@ -10,7 +13,7 @@ jagg.initializer("billing/plan/get", {
         } else if (serviceId == null && request.getParameter("cloud-type") == null ){
             response.sendRedirect("../pages/index.jag");
         }
-        if(serviceId !=null && jagg.module("billing").validateServiceId(serviceId)) {
+        if(serviceId !=null ) {
             session.put("SERVICE_ID", serviceId);
         } else {
             response.sendRedirect("../pages/index.jag");
