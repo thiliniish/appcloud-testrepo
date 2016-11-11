@@ -41,7 +41,6 @@ import org.wso2.carbon.cloud.billing.core.internal.ServiceDataHolder;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
 import org.wso2.carbon.cloud.billing.core.processor.DataServiceBillingRequestProcessor;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
