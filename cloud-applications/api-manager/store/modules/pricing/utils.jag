@@ -41,7 +41,7 @@ var getTenantDomain = function() {
 }
 
 var getCurrencyUsed = function () {
-    var currencyObj = JSON.parse(apiMonService.getCurrencyUsed());
+    var currencyObj = JSON.parse(apiMonService.getCurrencyUsed(getTenantDomain()));
     return currencyObj.data.currency;
 };
 
@@ -50,7 +50,7 @@ var getAccountId = function () {
     try {
         var user = jagg.getUser().username;
         var tenantDomain = getTenantDomain();
-        var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(user, tenantDomain));
+        var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfoForTenant(tenantDomain, user));
         if (subscriberData.data.Subscriber != null) {
             var accountNumber = subscriberData.data.Subscriber.AccountNumber;
             if (typeof accountNumber == 'object') {

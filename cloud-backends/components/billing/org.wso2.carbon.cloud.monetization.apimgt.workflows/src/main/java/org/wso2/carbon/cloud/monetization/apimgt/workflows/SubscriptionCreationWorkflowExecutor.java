@@ -197,8 +197,8 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             LOGGER.debug("Subscriber not available. adding subscriber");
         }
 
-        payload = CustomWorkFlowConstants.ADD_SUBSCRIBER_PAYLOAD.replace("$1", subscriptionWorkflowDTO.getSubscriber())
-                .replace("$2", subscriptionWorkflowDTO.getTenantDomain()).replace("$3", "false");
+        payload = CustomWorkFlowConstants.ADD_SUBSCRIBER_PAYLOAD.replace("$1", subscriptionWorkflowDTO.getSubscriber
+                ()).replace("$2", "false");
         client = WorkFlowUtils
                 .getClient(CustomWorkFlowConstants.SOAP_ACTION_UPDATE_SUBSCRIBER, serviceEndpoint, contentType,
                         username, password);
@@ -219,12 +219,11 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
     private WorkflowResponse createSubscription(String accountNumber, SubscriptionWorkflowDTO subscriptionWorkflowDTO,
             HttpWorkflowResponse httpworkflowResponse) throws AxisFault, XMLStreamException, WorkflowException {
         String payload = CustomWorkFlowConstants.CREATE_API_SUBSCRIPTION_PAYLOAD.replace("$1", accountNumber)
-                .replace("$2", subscriptionWorkflowDTO.getTenantDomain())
-                .replace("$3", subscriptionWorkflowDTO.getTierName())
-                .replace("$4", subscriptionWorkflowDTO.getApplicationName())
-                .replace("$5", subscriptionWorkflowDTO.getApiName())
-                .replace("$6", subscriptionWorkflowDTO.getApiVersion())
-                .replace("$7", subscriptionWorkflowDTO.getApiProvider());
+                .replace("$2", subscriptionWorkflowDTO.getTierName())
+                .replace("$3", subscriptionWorkflowDTO.getApplicationName())
+                .replace("$4", subscriptionWorkflowDTO.getApiName())
+                .replace("$5", subscriptionWorkflowDTO.getApiVersion())
+                .replace("$6", subscriptionWorkflowDTO.getApiProvider());
 
         ServiceClient client = WorkFlowUtils
                 .getClient(CustomWorkFlowConstants.SOAP_ACTION_CREATE_API_SUBSCRIPTION, serviceEndpoint, contentType,
