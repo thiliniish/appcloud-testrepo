@@ -305,7 +305,7 @@ public final class APICloudMonetizationUtils {
     private static JsonObject cancelVendorSubscription(String tenantDomain, JsonObject subscriptionObj)
             throws CloudBillingException {
 
-        CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization();
+        CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
 
         String response = provider.cancelSubscription(
                 subscriptionObj.get(MonetizationConstants.SUBSCRIPTION_NUMBER).getAsString(),
@@ -583,7 +583,7 @@ public final class APICloudMonetizationUtils {
             subscriptionObj.addProperty("plan", ratePlanId);
             subscriptionObj.addProperty("customer", accountNumber);
 
-            CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization();
+            CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
             String vendorResponse = provider.createSubscription(subscriptionObj.toString());
 
             JsonObject vendorResponseObj = new JsonParser().parse(vendorResponse).getAsJsonObject();

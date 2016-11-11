@@ -24,6 +24,7 @@
     <MgtModeEnabled>true</MgtModeEnabled>
 
     <BillingVendorClass>org.wso2.carbon.cloud.billing.vendor.stripe.StripeCloudBilling</BillingVendorClass>
+    <BillingVendorMonetizationClass>org.wso2.carbon.cloud.billing.vendor.stripe.StripeCloudMonetization</BillingVendorMonetizationClass>
 
     <DataServiceAPI>
         <CloudBillingServiceURI>/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURI>
