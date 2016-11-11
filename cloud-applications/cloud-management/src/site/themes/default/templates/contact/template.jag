@@ -16,7 +16,7 @@
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var publisherUrl = (cloudConfig.subscriptions.type)[1].urls.cloudTypeUrl;
-    var trialPeriod = (jagg.module("billing").getTrialPeriod()).toString();
+    var trialPeriod = jagg.module("billing").getTrialPeriod(SUBSCRIPTION_API_CLOUD);
     var to = cloudConfig.supportContact.to;
     var serviceId = session.get("SERVICE_ID");
     var customSubject = "";

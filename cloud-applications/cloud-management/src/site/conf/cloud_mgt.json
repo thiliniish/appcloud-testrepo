@@ -195,5 +195,9 @@
   "commonRoles": [
     "appfactoryusers",
     "Internal/everyone"
-  ]
+  ],
+  "billingVendor": {
+    "oAuthEndpoint": "https://connect.stripe.com/oauth/",
+    "clientId" : "ca_97VFwjhWbMGj8SXqwS3ODTeZBivcD4KT"
+  }
 }

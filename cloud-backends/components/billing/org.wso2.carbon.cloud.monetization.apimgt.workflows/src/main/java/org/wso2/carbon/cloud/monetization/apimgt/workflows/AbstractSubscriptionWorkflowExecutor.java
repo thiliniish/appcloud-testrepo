@@ -34,10 +34,11 @@ public abstract class AbstractSubscriptionWorkflowExecutor extends WorkflowExecu
 
     protected static final String ERROR_MSG = "Could not complete workflow.";
 
-    protected abstract WorkflowResponse handleFreePlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws WorkflowException;
+    protected abstract WorkflowResponse handleFreePlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
+            throws WorkflowException;
 
-    protected abstract WorkflowResponse handleCommercialPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws
-            WorkflowException;
+    protected abstract WorkflowResponse handleCommercialPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
+            throws WorkflowException;
 
     /**
      * This is to handle the workflow according to the tier plan of the tier. Which is either COMMERCIAL or FREE
@@ -46,25 +47,25 @@ public abstract class AbstractSubscriptionWorkflowExecutor extends WorkflowExecu
      * @return Workflow response
      * @throws WorkflowException
      */
-    protected WorkflowResponse handleTierPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws WorkflowException {
+    protected WorkflowResponse handleTierPlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
+            throws WorkflowException {
         try {
-            Tier tier = APIUtil.getTierFromCache(subscriptionWorkflowDTO.getTierName(),
-                    subscriptionWorkflowDTO.getTenantDomain());
+            Tier tier = APIUtil
+                    .getTierFromCache(subscriptionWorkflowDTO.getTierName(), subscriptionWorkflowDTO.getTenantDomain());
             //Check tier information
             if (tier != null && StringUtils.isNotBlank(tier.getTierPlan())) {
                 String tierPlan = tier.getTierPlan();
                 switch (tierPlan) {
-                    case CustomWorkFlowConstants.TIER_PLAN_COMMERCIAL:
-                        return handleCommercialPlan(subscriptionWorkflowDTO);
-                    case CustomWorkFlowConstants.TIER_PLAN_FREE:
-                        return handleFreePlan(subscriptionWorkflowDTO);
-                    default:
-                        throw new WorkflowException(ERROR_MSG + " Tier plan " + tierPlan + " not " + "available.");
+                case CustomWorkFlowConstants.TIER_PLAN_COMMERCIAL:
+                    return handleCommercialPlan(subscriptionWorkflowDTO);
+                case CustomWorkFlowConstants.TIER_PLAN_FREE:
+                    return handleFreePlan(subscriptionWorkflowDTO);
+                default:
+                    throw new WorkflowException(ERROR_MSG + " Tier plan " + tierPlan + " not " + "available.");
                 }
             } else {
-                throw new WorkflowException(
-                        ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName() +
-                        " or tier plan is not available");
+                throw new WorkflowException(ERROR_MSG + " Tier " + subscriptionWorkflowDTO.getTierName()
+                        + " or tier plan is not available");
             }
         } catch (APIManagementException e) {
             throw new WorkflowException(ERROR_MSG + " Error occurred while querying the tier information. ", e);

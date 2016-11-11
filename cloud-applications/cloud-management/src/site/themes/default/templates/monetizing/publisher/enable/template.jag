@@ -1,11 +1,16 @@
 <% jagg.template("monetizing/publisher/enable", function(inputs, outputs, jagg) {
     paymentPlanUrl = "/site/pages/payment-plans.jag?cloud-type=api_cloud";
-    if(!outputs.eligibleForMonetization && outputs.isFromChangePlan){
+    if(!outputs.eligibleForMonetization && outputs.isFromChangePlan) {
         paymentPlanUrl += "&is-from-change-plan=true";
     }
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var stripeOAuthEndpoint = cloudConfig.billingVendor.oAuthEndpoint;
+    var stripeClientId = cloudConfig.billingVendor.clientId;
+    var stripeConnectUrl = stripeOAuthEndpoint + "authorize?response_type=code&client_id=" + stripeClientId + "&scope=read_write";
 %>
 
 <input type="hidden" name="eligibleForMonetization" id="eligibleForMonetization" value=<%=outputs.eligibleForMonetization%> />
+<input type="hidden" name="isStripeError" id="isStripeError" value="<%=outputs.isStripeError%>" />
 <input type="hidden" name="userName" id="userName" value="<%=outputs.userName%>" />
 <input type="hidden" name="cloudmgtURI" id="cloudmgtURI" value="<%=outputs.cloudmgtURI%>" />
 <input type="hidden" name="paymentPlanUrl" id="paymentPlanUrl" value="<%=paymentPlanUrl%>" />
@@ -36,6 +41,7 @@
             </div>
         </div>
   <%  } else { %>
+  <%  if (outputs.isStripeSuccessResponse){ %>
         <div class="row">
             <div class="col-md-12 msg-issues" style="padding-top: 10px">
                 Enable <b>Monetization</b> For API Cloud : </br>
@@ -50,6 +56,7 @@
                     <div class="form-group col-md-6">
                         <label for="password">Your Cloud Account Password: </label>
                         <input type="password" name="password" id="password"  class="form-control required" placeholder="Your password" />
+                        <input type="hidden" name="stripeAuthCode" id="stripeAuthCode"  value=<%=request.getParameter('stripe-authcode')%> />
                     </div>
                     <div class="clearfix"></div>
                     <div class="form-group col-md-6">
@@ -60,6 +67,16 @@
                 </div>
             </div>
         </form>
+<%} else { %>
+        <div class="row">
+            <div class="col-md-12 msg-issues" style="padding-top: 10px">
+                Enable <b>Monetization</b> For API Cloud : </br>
+                <p id="requirement-Message">In order to enable WSO2 API Cloud Monetization feature, you should create
+                an account in Stripe. If you already have a Stripe account, please connect it to the WSO2 platform.
+                <p><a href="<%=stripeConnectUrl%>" class="connect-button"><span>Connect with Stripe</span></a></p>
+            </div>
+        </div>
+<% }%>
         <% } %>
     </div>
 </div>

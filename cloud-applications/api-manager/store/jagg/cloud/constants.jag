@@ -2,7 +2,7 @@
 //Zuora related
 var EDIT_USER_INFO = "Edit_User_Info";
 var IS_FROM_CHANGE_PLAN = "isFromChangePlan";
-var ZUORA_DATE_FORMAT = "yyyy-MM-dd";
+var DATE_FORMAT = "yyyy-MM-dd";
 
 var CLOUD_DEFAULT_ROLE = "default";
 
@@ -10,9 +10,9 @@ var CLOUD_DEFAULT_ROLE = "default";
 var COMMON_ERROR_MESSAGE = "An error occurred while processing the request. Please contact WSO2 Cloud Team for help.";
 var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
 
-var ZUORA_SIGNATURE_HASH = "ZUORA_SIGNATURE_HASH";
+var STRIPE_SIGNATURE_HASH = "STRIPE_SIGNATURE_HASH";
 var TENANT_RATE_PLANS = "TENANT_RATE_PLANS";
-var MONTHLY_SUBSCRIPTION_CHARGE_NAME = "Monthly subscription fee";
+var SUBSCRIPTION_CHARGE_MONTH = "month";
 
 //invoice object related constants
 var ACCOUNT_NAME = "accountName";
@@ -24,6 +24,9 @@ var CHARGE_NAME = "chargeName";
 var CHARGE_DATE = "chargeDate";
 var SERVIVICE_PERIOD = "servicePeriod";
 var DISCOUNT = "discount";
+var CENTS = 100;
+var THOUSAND = 1000;
+var CURRENCY = "USD";
 
 var DEAULT_API_NAME = "ALL";
 var DEAULT_APP_NAME = "ALL";

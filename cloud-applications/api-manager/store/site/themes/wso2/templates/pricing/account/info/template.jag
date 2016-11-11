@@ -1,0 +1,258 @@
+<% jagg.template("pricing/account/info", function (inputs, outputs, jagg) {
+    %>
+    <div class="page-header">
+        <h2>Account Summary</h2>
+   </div>
+       <div class="monetization-subscriber-content">
+       <div class="forms">
+          <div class="margin-bottom-md">
+                <div class="accordion">
+                   <div class="box">
+                      <div class="box-header">
+                         <h4 class="pull-left">Summary</h4>
+                         <i class="fw fw-down pull-right"></i>
+                         <div class="clearfix"></div>
+                      </div>
+                      <div class="box-content active">
+                         <div class="row">
+                            <div class="col-md-5 col-md-offset-1">
+                               <div class="row">
+                                  <div class="col-md-6">
+                                     <span>Account Name:</span>
+                                  </div>
+                                  <div class="col-md-6">
+                                     <p id="accName" name="accName"/>
+                                  </div>
+                               </div>
+                            </div>
+                            <div class="col-md-5 col-md-offset-1">
+                               <div class="row">
+                                  <div class="col-md-6">
+                                     <span>Account Balance:</span>
+                                  </div>
+                                  <div class="col-md-6">
+                                     <p id="accBalance" name="accBalance"/>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+                         <div class="clearfix"></div>
+                      </div>
+                   </div>
+                   <div class="box">
+                      <div class="box-header">
+                         <h4 class="pull-left">Payment Method (Primary)</h4>
+                         <i class="fw fw-down pull-right"></i>
+                         <div class="clearfix"></div>
+                      </div>
+                      <div class="box-content active">
+                         <div class="text-right padding-all-xs">
+                            <button type="button" class="cu-btn cu-btn-sm cu-btn-blue"
+                               id="view-payment-methods" onclick="viewPaymentMethods(document);">
+                        <span class="fw-stack btn-action-ico">
+                        <i class="fw fw-ring fw-stack-2x"></i>
+                        <i class="fw fw-view fw-stack-1x"></i>
+                        </span>
+                        View Methods
+                        </button>
+                        <input type="hidden" name="accountId" id="accountId"/>
+                        <input type="hidden" name="accountName" id="accountName"/>
+                        <input type="hidden" name="tenantDomain" id="tenantDomain" />
+                        <input type="hidden" name="defaultPaymentMethod" id="defaultPaymentMethod" />
+                        <input type="hidden" name="address1" id="address1"/>
+                        <input type="hidden" name="address2" id="address2"/>
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue"
+                           id="add-new-payment-method" onclick="addNewPaymentMethod(document);">
+                        <span class="fw-stack btn-action-ico">
+                        <i class="fw fw-ring fw-stack-2x"></i>
+                        <i class="fw fw-add fw-stack-1x"></i>
+                        </span>
+                        Add Method
+                        </button>
+                     </div>
+                     <div class="row">
+                        <div class="col-md-5 col-md-offset-1">
+                           <div class="row">
+                              <div class="col-md-6">
+                                 <span>Payment Type:</span>
+                              </div>
+                              <div class="col-md-6">
+                                 <p id="paymentMethodType" name="paymentMethodType"/>
+                              </div>
+                           </div>
+                           <div class="row">
+                              <div class="col-md-6">
+                                 <span>Number:</span>
+                              </div>
+                              <div class="col-md-6">
+                                 <p id="ccNum" name="ccNum"/>
+                              </div>
+                           </div>
+                           <div class="row">
+                              <div class="col-md-6">
+                                 <span>Expiration Date:</span>
+                              </div>
+                              <div class="col-md-6">
+                                 <p id="ccExpiry" name="ccExpiary"/>
+                              </div>
+                           </div>
+                        </div>
+                        <div class="col-md-5 col-md-offset-1">
+                           <div class="row">
+                              <div class="col-md-6">
+                                 <span>Card Type:</span>
+                              </div>
+                              <div class="col-md-6">
+                                 <p id="paymentType" name="paymentType"/>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="clearfix"></div>
+                  </div>
+               </div>
+               <div class="box">
+                  <div class="box-header">
+                     <h4 class="pull-left">Contact Information</h4>
+                     <i class="fw fw-down pull-right"></i>
+                     <div class="clearfix"></div>
+                  </div>
+                  <div class="box-content active">
+                     <div class="text-right padding-all-xs">
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="update-contact-info"
+                         onclick="updateContactInfo(document);" >
+     <span class="fw-stack btn-action-ico">
+     <i class="fw fw-ring fw-stack-2x"></i>
+     <i class="fw fw-edit fw-stack-1x"></i>
+     </span>
+     Update
+     </button>
+    </div>
+    <div class="row">
+     <div class="col-md-5 col-md-offset-1">
+        <div class="row">
+           <div class="col-md-6">
+              <span>First Name:</span>
+           </div>
+           <div class="col-md-6">
+              <p id="fname" name="fname"/>
+           </div>
+        </div>
+        <div class="row">
+           <div class="col-md-6">
+              <span>Last Name:</span>
+           </div>
+           <div class="col-md-6">
+              <p id="lname" name="lname"/>
+           </div>
+        </div>
+        <div class="row">
+           <div class="col-md-6">
+              <span>Email:</span>
+           </div>
+           <div class="col-md-6">
+              <p id="email" name="email"/>
+           </div>
+        </div>
+        <div class="row">
+           <div class="col-md-6">
+              <span>Address:</span>
+           </div>
+           <div class="col-md-6">
+              <p id="address" name="address"/>
+           </div>
+        </div>
+        <div class="row">
+           <div class="col-md-6">
+              <span>Country:</span>
+           </div>
+           <div class="col-md-6">
+              <p id="country" name="country"/>
+           </div>
+        </div>
+     </div>
+     <div class="col-md-5 col-md-offset-1">
+        <div class="row">
+           <div class="col-md-6">
+              <span>City:</span>
+           </div>
+           <div class="col-md-6">
+              <p id="city" name="city"/>
+           </div>
+        </div>
+        <div class="row">
+           <div class="col-md-6">
+              <span>State:</span>
+           </div>
+           <div class="col-md-6">
+              <p id="state" name="state"/>
+           </div>
+        </div>
+        <div class="row">
+           <div class="col-md-6">
+              <span>Postal Code:</span>
+           </div>
+           <div class="col-md-6">
+              <p id="postalcode" name="postalcode"/>
+           </div>
+        </div>
+     </div>
+    </div>
+    <div class="clearfix"></div>
+    </div>
+    </div>
+    <div class="box">
+    <div class="box-header">
+    <h4 class="pull-left">Invoices</h4>
+    <i class="fw fw-down pull-right"></i>
+    <div class="clearfix"></div>
+    </div>
+    <div class="box-content active">
+    <div class="datatable">
+     <table id="invoice-info" class="display cell-border" cellspacing="0" width="100%">
+        <thead>
+           <tr>
+              <th>Date</th>
+              <th>Invoice No</th>
+              <th>Target Date</th>
+              <th>Amount ($)</th>
+              <th>Status</th>
+           </tr>
+        </thead>
+     </table>
+    </div>
+    <div class="clearfix"></div>
+    </div>
+    </div>
+    <div class="box">
+    <div class="box-header">
+    <h4 class="pull-left">Payments</h4>
+    <i class="fw fw-down pull-right"></i>
+    <div class="clearfix"></div>
+    </div>
+    <div class="box-content active">
+    <div class="datatable">
+     <table id="payments-info" class="display cell-border" cellspacing="0" width="100%">
+        <thead>
+           <tr>
+              <th>Type</th>
+              <th>Effective Date</th>
+              <th>Payment No</th>
+              <th>Paid Invoices</th>
+              <th>Status</th>
+           </tr>
+        </thead>
+     </table>
+    </div>
+    <div class="clearfix"></div>
+    </div>
+    </div>
+    </div>
+    <div class="clearfix"></div>
+    </div>
+    </div>
+    </div>
+
+    <%
+}); %>
+

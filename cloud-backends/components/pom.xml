@@ -28,7 +28,8 @@
     <packaging>pom</packaging>
     <name>Cloud Backend Components</name>
     <modules>
-        <module>billing/org.wso2.carbon.cloud.billing</module>
+        <module>billing/org.wso2.carbon.cloud.billing.core</module>
+        <module>billing/org.wso2.carbon.cloud.billing.vendor</module>
         <module>billing/org.wso2.carbon.cloud.billing.apihandler</module>
         <module>billing/org.wso2.carbon.cloud.monetization.apimgt.workflows</module>
         <module>user-store/org.wso2.carbon.cloud.userstore</module>

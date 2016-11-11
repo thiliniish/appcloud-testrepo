@@ -18,55 +18,45 @@ jagg.block("menu/primary", {
     getOutputs:function (inputs) {
         var links = [], user = jagg.getUser(),
                 path = inputs.pagePath;
-        var tenant = inputs.tenant;
-        //Logic to check if the passed tenant domain is null.
-        if (typeof tenant === "undefined" || tenant == null || tenant == "") {
-            tenant = jagg.getTenantDomain();
-        }
+        var tenant=inputs.tenant;
 		var urlPrefix = jagg.getTenantURLPrefix("?");
         var mod = jagg.module("manager");
         var tenantDomains = mod.getActiveTenantDomains().tenantDomains;
+        var isForumEnabled = mod.isForumEnabled();
 
         links.push({
-            "title":i18n.localize("apis"),
+            "title":i18n.localize("APIs"),
             "url":jagg.getMappedUrl("/"+urlPrefix),
             "classes":"link-home",
-            "classIcon":"fa fa-cogs",
-            "tooltip":i18n.localize("apisTooltip"),
+            "classIcon":"fw fw-api fw-2x",
+            "tooltip":i18n.localize("Browse the latest versions of published APIs, make subscriptions and generate API keys."),
             "active":(path == "/site/pages/list-apis.jag")
         });
         
         links.push({
-            "title":i18n.localize("viewprototypedapis"),
-            "url":jagg.getMappedUrl("/site/pages/list-prototyped-apis.jag"+urlPrefix),
-            "classes":"link-ss",
-            "classIcon":"fa fa-cog",
-            "tooltip":i18n.localize("prototypedApisTooltip"),
-            "active":(path == "/site/pages/list-prototyped-apis.jag")
-        });
-
-        links.push({
-            "title":i18n.localize("myApps"),
+            "title":i18n.localize("My Applications"),
             "url":jagg.getMappedUrl("/site/pages/applications.jag"+urlPrefix),
             "classes":"link-myapplications" + (user ? "" : " need-login"),
-            "classIcon":"fa fa-suitcase",
-            "tooltip":i18n.localize("myAppsTooltip"),
+            "classIcon":"fw fw-application fw-2x",
+            "tooltip":i18n.localize("Browse and create applications. Applications are required to make API subscriptions and consume them."),
             "active":(path == "/site/pages/applications.jag")
         });
 
+        if(isForumEnabled) {
+            links.push({
+                "title":i18n.localize("Forum"),
+                "url":jagg.getAbsoluteUrl("/forum/"+urlPrefix),
+                "classes":"link-forum",
+                "classIcon":"fw fw-forum fw-2x",
+                "tooltip":i18n.localize("forum"),
+                "active":(path == "/site/pages/forum.jag")
+            });
+        }
+
         links.push({
-            "title":i18n.localize("mySubs"),
-            "url":jagg.getMappedUrl("/site/pages/subscriptions.jag"+urlPrefix),
-            "classes":"link-mysubscriptions" + (user ? "" : " need-login"),
-            "classIcon":"fa fa-tags",
-            "tooltip":i18n.localize("mySubsTooltip"),
-            "active":(path == "/site/pages/subscriptions.jag")
-        });
- 
-       links.push({
             "title":i18n.localize("myAcc"),
             "url":jagg.getMappedUrl("/site/pages/pricing/account-summary.jag"+urlPrefix),
-            "classes":"link-myapplications" + (user ? "" : " need-login"),
+            "classes":"link-myAcc" + (user ? "" : " need-login"),
             "classIcon":"fa fa-suitcase",
             "tooltip":i18n.localize("myAccTooltip"),
             "active":(path == "/site/pages/pricing/account-summary.jag")
@@ -78,27 +68,19 @@ jagg.block("menu/primary", {
                 "title":i18n.localize("billing"),
                 "url":jagg.getMappedUrl("/site/pages/billing.jag"+urlPrefix),
                 "classes":"link-mysubscriptions" + (user ? "" : " need-login"),
-                "classIcon":"fa fa-usd",
+                "classIcon":"fa fa-suitcase",
                 "tooltip":i18n.localize("billingTooltip"),
                 "active":(path == "/site/pages/billing.jag")
             });
         }
 
-        links.push({
-            "title":i18n.localize("forum"),
-            "url":jagg.getAbsoluteUrl("/forum/"+urlPrefix),
-            "classes":"link-forum",
-            "classIcon":"fa fa-comment-o",
-            "tooltip":i18n.localize("forum"),
-            "active":(path == "/site/pages/forum.jag")
-        });
         var isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenant);
         if (isMonetizationEnabledObj != null && !isMonetizationEnabledObj.error && isMonetizationEnabledObj.monetizationEnabled) {
             links.push({
-                "title": "Pricing",
+                "title": "Pricing Menu",
                 "url": jagg.getMappedUrl("/site/pages/pricing/pricing-menu.jag" + urlPrefix),
                 "classes": "link-ss",
-                "classIcon": "fa fa-usd",
+                "classIcon": "fa suitcase",
                 "tooltip": "Pricing Menu",
                 "active": (path == "/site/pages/pricing/pricing-menu.jag")
             });
@@ -106,7 +88,8 @@ jagg.block("menu/primary", {
 
         return {
             "links":links,
-            "tenantDomains":tenantDomains
+            "tenantDomains":tenantDomains,
+            "isForumEnabled":isForumEnabled
         };
     },
 
@@ -117,4 +100,3 @@ jagg.block("menu/primary", {
     }
 });
 %>
-

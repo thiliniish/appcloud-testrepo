@@ -48,6 +48,7 @@ import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 /**
  * Represent the request api processor for zuora
@@ -137,6 +138,22 @@ public class ZuoraBillingRequestProcessor extends AbstractBillingRequestProcesso
             get.setQueryString(nameValuePairs);
         }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * Zuora GET request with custom headers
+     *
+     * @param url               URL
+     * @param acceptType        Accept header
+     * @param customHeaders     map of custom headers
+     * @param nameValuePairs    query params
+     * @return response
+     * @throws CloudBillingException
+     */
+    @Override public String doGet(String url, String acceptType, Map<String, String> customHeaders,
+            NameValuePair[] nameValuePairs) throws CloudBillingException {
+        throw new UnsupportedOperationException(
+                "GET method with custom headers is not supported by Zuora Billing Request Processor");
     }
 
     /**

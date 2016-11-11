@@ -12,6 +12,9 @@ include("/jagg/constants.jag");
     var tenantDomain;
     var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudmgtURI = cloudConfig.ServerUrls.cloudmgt.toString();
+    var contactUsURL = cloudmgtURI + CLOUD_CONTACT_US_URI;
     var user = jagg.getUser();
     if (user == null || (tenantDomain = multiTenantUtils.getTenantDomain(user)) == null) {
         response.status = 401;
@@ -72,7 +75,8 @@ include("/jagg/constants.jag");
             }
             returnObj = {
                 error: true,
-                message: message,
+                message: message + ", Please contact WSO2 Cloud Team for help",
+                redirectionURL: contactUsURL,
                 status: result.status
             };
         } else {

@@ -3,9 +3,8 @@
     var secondaryCCStatus = request.getParameter("secondary-card");
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled(SUBSCRIPTION_API_CLOUD);
 %>
-
     <style type="text/css">
         .label-style {
             text-align: left !important;
@@ -35,24 +34,21 @@
                     },
                 success: function(data) {
                     var paymentMethodsObj = jQuery.parseJSON(data);
-                    var creditCards = paymentMethodsObj.creditCards;
-
+                    var creditCards = paymentMethodsObj.card;
                     if(creditCards.length == 1) {
-                        // Single payment method, it is the default
-                        for(var i=0; i<creditCards.length;  i++) {
-                            $('#paymentType').text(creditCards[i].cardType);
-                            $('#ccName').text(creditCards[i].cardHolderInfo.cardHolderName);
-                            $('#ccNum').text(creditCards[i].cardNumber);
-                            $('#ccExpiary').text(creditCards[i].expirationMonth + "/" + creditCards[i].expirationYear);
-                        }
+                            $('#paymentType').text(creditCards[0].brand);
+                            $('#ccName').text(creditCards[0].name);
+                            $('#ccNum').text("************" + creditCards[0].last4);
+                            $('#ccExpiary').text(creditCards[0].exp_month + "/" + creditCards[0].exp_year);
+
                     } else {
                         $('#other-cc-panel').show();
-                        for(var i=0; i<creditCards.length;  i++) {
-                            if(creditCards[i].defaultPaymentMethod) {
-                                $('#paymentType').text(creditCards[i].cardType);
-                                $('#ccName').text(creditCards[i].cardHolderInfo.cardHolderName);
-                                $('#ccNum').text(creditCards[i].cardNumber);
-                                $('#ccExpiary').text(creditCards[i].expirationMonth + "/" + creditCards[i].expirationYear);
+                        for (var i=0; i < creditCards.length; i++) {
+                            if (creditCards[i].id == paymentMethodsObj.defualtCardId) {
+                                $('#paymentType').text(creditCards[i].brand);
+                                $('#ccName').text(creditCards[i].name);
+                                $('#ccNum').text("************" + creditCards[i].last4);
+                                $('#ccExpiary').text(creditCards[i].exp_month + "/" + creditCards[i].exp_year);
                             } else {
                                 $("#other-cc-panel-body").append($('<div class="well"><div class="row" style="position:relative;">'
                                     + '<div style="position:absolute; top:5px; right:5px; z-index:10000;"><button type="button" class="btn btn-default pull-right panel-btn-style"'
@@ -61,16 +57,16 @@
     	                            + 'onclick="removePaymentMethod(\'' + creditCards[i].id + '\');">Remove Method</button></div>'
                                     + '<div class="col-lg-12 content-section-wrapper">'
                                     + '<label class="control-label label-style">Card type :</label>'
-                                    + '<label id="paymentType" name="paymentType" class="control-label label-style">' + creditCards[i].cardType + '</label></div>'
+                                    + '<label id="paymentType" name="paymentType" class="control-label label-style">' + creditCards[i].brand + '</label></div>'
                                     + '<div class="col-lg-12 content-section-wrapper">'
                                     + '<label class="control-label label-style">Card holder name :</label>'
-                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + creditCards[i].cardHolderInfo.cardHolderName + '</label></div>'
+                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + creditCards[i].name + '</label></div>'
                                     + '<div class="col-lg-12 content-section-wrapper">'
                                     + '<label class="control-label label-style">Card number :</label>'
-                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + creditCards[i].cardNumber + '</label></div>'
+                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + "************" + creditCards[i].last4 + '</label></div>'
                                     + '<div class="col-lg-12 content-section-wrapper">'
                                     + '<label class="control-label label-style">Expiration date:</label>'
-                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + creditCards[i].expirationMonth + "/" + creditCards[i].expirationYear
+                                    + '<label id="ccName" name="ccName" class="control-label label-style">' + creditCards[i].exp_month + "/" + creditCards[i].exp_year
                                     + '</label></br></div>'
                                     + '</div></div>'
                                 ));
