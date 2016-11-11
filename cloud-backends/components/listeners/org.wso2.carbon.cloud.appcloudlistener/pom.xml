@@ -78,9 +78,8 @@
                             org.wso2.carbon.cloud.appcloudlistener
                         </Export-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*,
-                            org.wso2.carbon.cloud.listener.*,
-                            *;resolution:=optional
+                            org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
+                            org.wso2.carbon.cloud.listener.*; version="${cloud.listener.version}"
                         </Import-Package>
                         <Embed-Dependency>
                             httpclient;scope=compile|runtime;inline=false,
@@ -94,6 +93,7 @@
 
     <properties>
         <apache.httpcomponents.httpcore.version>4.4.1</apache.httpcomponents.httpcore.version>
+        <cloud.listener.version>1.0.0</cloud.listener.version>
     </properties>
 
 </project>

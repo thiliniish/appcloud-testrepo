@@ -62,8 +62,7 @@
                             org.wso2.carbon.cloud.listener
                         </Export-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*,
-                            *;resolution:=optional
+                            org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}"
                         </Import-Package>
                     </instructions>
                 </configuration>
