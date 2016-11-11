@@ -269,7 +269,7 @@ public interface CloudBillingServiceProvider {
     public String retrieveAccountInfo(String customerId) throws CloudBillingException;
 
     /**
-     *
+     * get the Currency used
      */
     public String getCurrencyUsed() throws CloudBillingException;
 

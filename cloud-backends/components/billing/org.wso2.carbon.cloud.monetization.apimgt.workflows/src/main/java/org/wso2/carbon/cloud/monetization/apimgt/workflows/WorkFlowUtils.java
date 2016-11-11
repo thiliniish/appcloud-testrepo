@@ -114,7 +114,7 @@ public final class WorkFlowUtils {
                 .getClient(CustomWorkFlowConstants.SOAP_ACTION_GET_SUBSCRIBER, serviceEndpoint, contentType, username,
                            password);
         String payload =
-                CustomWorkFlowConstants.SUBSCRIBER_INFO_PAYLOAD.replace("$1", subscriber).replace("$2", tenantDomain);
+                CustomWorkFlowConstants.SUBSCRIBER_INFO_PAYLOAD.replace("$1", subscriber);
         OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
         OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
 

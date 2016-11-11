@@ -34,6 +34,7 @@ import org.wso2.carbon.cloud.billing.core.exceptions.CloudMonetizationException;
 import org.wso2.carbon.cloud.billing.core.utils.APICloudMonetizationUtils;
 import org.wso2.carbon.cloud.billing.core.utils.BillingVendorInvoker;
 import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 
 /**
  * API Cloud monetization service.
@@ -49,57 +50,16 @@ public class APICloudMonetizationService {
     private static final Log LOGGER = LogFactory.getLog(CloudBillingService.class);
 
     /**
-     * Retrieve subscriber information from
-     *
-     * @param username     username of the subscriber
-     * @param tenantDomain tenant domain
-     * @return {
-     * "Subscribers": {
-     * "Subscriber": {
-     * "Tenant": "chargerhellcat"
-     * "Username": "kaiphaes.fakeinbox.com"
-     * "TestAccount": "false"
-     * "AccountNumber": "xxxxxxxxxxxxxx"
-     * }
-     * }
-     * }
-     * <p/>
-     * if AccountNumber is null then
-     * <p/>
-     * {
-     * "Subscribers": {
-     * "Subscriber": {
-     * "Tenant": "chargerhellcat"
-     * "Username": "kaiphaes.fakeinbox.com"
-     * "TestAccount": "false"
-     * "AccountNumber": {"@nil": "true"}
-     * }
-     * }
-     * }
-     * @throws CloudMonetizationException
-     */
-    public String getAPISubscriberInfo(String username, String tenantDomain) throws CloudMonetizationException {
-        try {
-            return APICloudMonetizationUtils.getAPISubscriberInfo(username, tenantDomain);
-        } catch (CloudMonetizationException ex) {
-            LOGGER.error(
-                    "Error while getting subscriber information. Tenant: " + tenantDomain + " subscriber: " + username,
-                    ex);
-            throw ex;
-        }
-    }
-
-    /**
      * Insert into subscriber information
      *
      * @param username      subscriber user name
-     * @param tenantDomain  tenant domain
      * @param isTestAccount boolean test account or not
      * @param accountNumber account number. this would be null for non paid subscribers
      * @throws CloudMonetizationException
      */
-    public void addAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount, String accountNumber)
+    public void addAPISubscriberInfo(String username, boolean isTestAccount, String accountNumber)
             throws CloudMonetizationException {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             APICloudMonetizationUtils
                     .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, false);
@@ -112,23 +72,27 @@ public class APICloudMonetizationService {
     }
 
     /**
-     * Insert into subscriber information
+     * Handles the commercial API subscription flows of subscribers who already has paid accounts.
      *
-     * @param username      subscriber user name
-     * @param tenantDomain  tenant domain
-     * @param isTestAccount boolean test account or not
-     * @param accountNumber account number. this would be null for non paid subscribers
+     * @param accountNumber subscriber account number
+     * @param tierName      subscribing tier name
+     * @param appName       application name
+     * @param apiName       api name
+     * @param apiVersion    api version
+     * @param apiProvider   api provider
+     * @return response json object.
      * @throws CloudMonetizationException
      */
-    public void updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-                                        String accountNumber) throws CloudMonetizationException {
+    public String createAPISubscription(String accountNumber, String tierName, String appName, String apiName,
+                                        String apiVersion, String apiProvider) throws CloudMonetizationException {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
-            APICloudMonetizationUtils
-                    .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
+            return APICloudMonetizationUtils
+                    .createAPISubscription(accountNumber, tenantDomain, tierName, appName, apiName, apiVersion,
+                                           apiProvider);
         } catch (CloudMonetizationException ex) {
-            LOGGER.error(
-                    "Error while adding subscriber information. Tenant: " + tenantDomain + " Subscriber: " + username +
-                    " Account number: " + accountNumber, ex);
+            LOGGER.error("Error occurred while creating API Subscription. Account : " + accountNumber + " Tenant : " +
+                         tenantDomain + " Application : " + appName + " API : " + apiName);
             throw ex;
         }
     }
@@ -165,8 +129,9 @@ public class APICloudMonetizationService {
      * }
      * @throws CloudMonetizationException
      */
-    public String cancelSubscription(String tenantDomain, String accountNumber, String appName, String apiName,
-                                     String apiVersion) throws CloudMonetizationException {
+    public String cancelSubscription(String accountNumber, String appName, String apiName, String apiVersion)
+            throws CloudMonetizationException {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             return APICloudMonetizationUtils
                     .cancelSubscription(tenantDomain, accountNumber, appName, apiName, apiVersion);
@@ -211,8 +176,8 @@ public class APICloudMonetizationService {
      * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
      * @throws CloudMonetizationException
      */
-    public String removeAppSubscriptions(String tenantDomain, String accountNumber, String appName)
-            throws CloudMonetizationException {
+    public String removeAppSubscriptions(String accountNumber, String appName) throws CloudMonetizationException {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             return APICloudMonetizationUtils.removeAppSubscriptions(tenantDomain, accountNumber, appName);
         } catch (CloudMonetizationException ex) {
@@ -223,28 +188,107 @@ public class APICloudMonetizationService {
     }
 
     /**
-     * Handles the commercial API subscription flows of subscribers who already has paid accounts.
+     * Retrieve subscriber information from logged in tenant
      *
-     * @param accountNumber subscriber account number
-     * @param tenantDomain  tenant domain
-     * @param tierName      subscribing tier name
-     * @param appName       application name
-     * @param apiName       api name
-     * @param apiVersion    api version
-     * @param apiProvider   api provider
-     * @return response json object.
+     * @param username username of the subscriber
+     * @return {
+     * "Subscribers": {
+     * "Subscriber": {
+     * "Tenant": "chargerhellcat"
+     * "Username": "kaiphaes.fakeinbox.com"
+     * "TestAccount": "false"
+     * "AccountNumber": "xxxxxxxxxxxxxx"
+     * }
+     * }
+     * }
+     * <p/>
+     * if AccountNumber is null then
+     * <p/>
+     * {
+     * "Subscribers": {
+     * "Subscriber": {
+     * "Tenant": "chargerhellcat"
+     * "Username": "kaiphaes.fakeinbox.com"
+     * "TestAccount": "false"
+     * "AccountNumber": {"@nil": "true"}
+     * }
+     * }
+     * }
      * @throws CloudMonetizationException
      */
-    public String createAPISubscription(String accountNumber, String tenantDomain, String tierName, String appName,
-                                        String apiName, String apiVersion, String apiProvider)
+    public String getAPISubscriberInfo(String username) throws CloudMonetizationException {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        try {
+            return APICloudMonetizationUtils.getAPISubscriberInfo(username, tenantDomain);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error(
+                    "Error while getting subscriber information. Tenant: " + tenantDomain + " subscriber: " + username,
+                    ex);
+            throw ex;
+        }
+    }
+
+
+    /**
+     * Retrieve subscriber information from the tenant
+     *
+     * @param tenantDomain Tenant Domain of the user
+     * @param username username of the subscriber
+     * @return {
+     * "Subscribers": {
+     * "Subscriber": {
+     * "Tenant": "chargerhellcat"
+     * "Username": "kaiphaes.fakeinbox.com"
+     * "TestAccount": "false"
+     * "AccountNumber": "xxxxxxxxxxxxxx"
+     * }
+     * }
+     * }
+     * <p/>
+     * if AccountNumber is null then
+     * <p/>
+     * {
+     * "Subscribers": {
+     * "Subscriber": {
+     * "Tenant": "chargerhellcat"
+     * "Username": "kaiphaes.fakeinbox.com"
+     * "TestAccount": "false"
+     * "AccountNumber": {"@nil": "true"}
+     * }
+     * }
+     * }
+     * @throws CloudMonetizationException
+     */
+    public String getAPISubscriberInfoForTenant(String tenantDomain, String username)
             throws CloudMonetizationException {
         try {
-            return APICloudMonetizationUtils
-                    .createAPISubscription(accountNumber, tenantDomain, tierName, appName, apiName, apiVersion,
-                                           apiProvider);
+            return APICloudMonetizationUtils.getAPISubscriberInfo(username, tenantDomain);
         } catch (CloudMonetizationException ex) {
-            LOGGER.error("Error occurred while creating API Subscription. Account : " + accountNumber + " Tenant : " +
-                         tenantDomain + " Application : " + appName + " API : " + apiName);
+            LOGGER.error(
+                    "Error while getting subscriber information. Tenant: " + tenantDomain + " subscriber: " + username,
+                    ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Insert into subscriber information
+     *
+     * @param tenantDomain Tenant Domain of the user
+     * @param username      subscriber user name
+     * @param isTestAccount boolean test account or not
+     * @param accountNumber account number. this would be null for non paid subscribers
+     * @throws CloudMonetizationException
+     */
+    public void updateAPISubscriberInfo(String tenantDomain, String username, boolean isTestAccount,
+                                        String accountNumber) throws CloudMonetizationException {
+        try {
+            APICloudMonetizationUtils
+                    .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error(
+                    "Error while adding subscriber information. Tenant: " + tenantDomain + " Subscriber: " + username +
+                    " Account number: " + accountNumber, ex);
             throw ex;
         }
     }
@@ -252,7 +296,7 @@ public class APICloudMonetizationService {
     /**
      * Retrieve available tiers of the tenant
      *
-     * @param tenantDomain tenant
+     * @param tenantDomain Tenant Domain of the user
      * @return Tiers information in a json string
      * @throws CloudMonetizationException
      */
@@ -301,6 +345,7 @@ public class APICloudMonetizationService {
     /**
      * Load and return the billing vendor monetization instance
      *
+     * @param tenantDomain Tenant Domain
      * @return billing vendor for monetization
      */
     private CloudBillingServiceProvider init(String tenantDomain) throws CloudBillingException {
@@ -310,7 +355,7 @@ public class APICloudMonetizationService {
     /**
      * Retrieve rate plans information for api cloud for tenant
      *
-     * @param tenantDomain tenant
+     * @param tenantDomain tenant domain
      * @return rate plan information in json
      * [
      * {
@@ -498,7 +543,7 @@ public class APICloudMonetizationService {
     /**
      * Createing Subscription for the organization
      *
-     * @param tenantDomain
+     * @param tenantDomain Tenant Domain
      * @param subscriptionInfoJson
      * @return
      * @throws CloudBillingException {
@@ -542,9 +587,9 @@ public class APICloudMonetizationService {
     /**
      * Adding payment methods for subscriptions
      *
-     * @param tenantDomain          tenant domain
-     * @param customerId
-     * @param paymentMethodInfoJson
+     * @param tenantDomain          Tenant Domain
+     * @param customerId            Customer Id
+     * @param paymentMethodInfoJson Payment method information to be added
      * @return
      * @throws CloudBillingException
      */
@@ -562,7 +607,7 @@ public class APICloudMonetizationService {
     /**
      * Set specific payment method of a specific customer as default
      *
-     * @param tenantDomain          tenant domain
+     * @param tenantDomain          Tenant Domain
      * @param customerId            customer Id
      * @param paymentMethodInfoJson payment method details
      * @return success Json string
@@ -581,16 +626,16 @@ public class APICloudMonetizationService {
     /**
      * Get All Payment methods for the user for monetized tenant
      *
-     * @param tenantdomain
-     * @param customerId
-     * @param paymentMethodInfoJson
+     * @param tenantDomain             Tenant Domain of the user
+     * @param customerId               Customer Id
+     * @param paymentMethodInfoJson    payment method details
      * @return
      * @throws CloudBillingException
      */
-    public String getAllPaymentMethods(String tenantdomain, String customerId, String paymentMethodInfoJson)
+    public String getAllPaymentMethods(String tenantDomain, String customerId, String paymentMethodInfoJson)
             throws CloudBillingException {
         try {
-            return init(tenantdomain).getAllPaymentMethods(customerId, paymentMethodInfoJson);
+            return init(tenantDomain).getAllPaymentMethods(customerId, paymentMethodInfoJson);
         } catch (CloudBillingException ex) {
             String message = "Error occurred while retrieving all payment method of customer " + customerId;
             LOGGER.error(message, ex);
@@ -601,7 +646,7 @@ public class APICloudMonetizationService {
     /**
      * Remove payment method/ card info
      *
-     * @param tenantDomain    tenant Domain
+     * @param tenantDomain    Tenant Domain of the user
      * @param customerId      Customer Id
      * @param paymentMethodId Payment Method Id
      * @return
@@ -623,7 +668,7 @@ public class APICloudMonetizationService {
     /**
      * Get invoices for user from Vendor
      *
-     * @param tenantDomain    Tenant Domain
+     * @param tenantDomain    Tenant Domain of the user
      * @param invoiceInfoJson Invoice Information
      * @return
      * @throws CloudBillingException
@@ -641,7 +686,7 @@ public class APICloudMonetizationService {
     /**
      * Create the Customer for monetization customer
      *
-     * @param tenantDomain     tenant domain
+     * @param tenantDomain     Tenant Domain of the user
      * @param customerInfoJson customer details
      * @return success Json string
      */
@@ -658,7 +703,7 @@ public class APICloudMonetizationService {
     /**
      * Update Monetization customer information
      *
-     * @param tenantDomain     tenantDomain
+     * @param tenantDomain     Tenant Domain of the user
      * @param customerId       Customer Id
      * @param customerInfoJson Customer Information to update
      * @return
@@ -678,8 +723,8 @@ public class APICloudMonetizationService {
     /**
      * Account information of the user
      *
-     * @param tenantDomain tenant domain
-     * @param customerId   customer Id on vendor end
+     * @param tenantDomain  Tenant Domain of the user
+     * @param customerId    Customer Id on vendor end
      * @return
      * @throws CloudBillingException
      */
@@ -695,7 +740,7 @@ public class APICloudMonetizationService {
     /**
      * Get currency used from Vendor
      *
-     * @param tenantDomain tenant domain of the organization
+     * @param tenantDomain  Tenant Domain of the user
      * @return { "success" : "true",
      * "data" : {
      * "currency" : "USD",
@@ -716,10 +761,10 @@ public class APICloudMonetizationService {
     /**
      * Invoke cloud billing vendor method
      *
+     * @param tenantDomain Tenant Domain of the user
      * @return the result string object
      */
-    public String callVendorMethod(String methodName, String tenantDomain, String params) throws CloudBillingException {
-        return (String) BillingVendorInvoker.invokeMethodForMonetization(methodName, tenantDomain, params);
+    public String callVendorMethod(String tenantDomain, String methodName, String params) throws CloudBillingException {
+        return (String) BillingVendorInvoker.invokeMethodForMonetization(tenantDomain, methodName, params);
     }
-
 }
