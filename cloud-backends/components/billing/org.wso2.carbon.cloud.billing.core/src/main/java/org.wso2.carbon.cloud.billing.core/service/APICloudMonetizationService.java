@@ -541,7 +541,7 @@ public class APICloudMonetizationService {
     }
 
     /**
-     * Creating Subscription for the organization
+     * Createing Subscription for the organization
      *
      * @param tenantDomain Tenant Domain
      * @param subscriptionInfoJson

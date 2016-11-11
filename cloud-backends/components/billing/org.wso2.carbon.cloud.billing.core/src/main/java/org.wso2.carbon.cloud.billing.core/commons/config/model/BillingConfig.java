@@ -28,6 +28,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
     @XmlElement(name = "BillingVendorClass", nillable = false, required = true) private String billingVendorClass;
 
+    @XmlElement(name = "BillingVendorMonetizationClass", nillable = false, required = true) private String
+            billingVendorMonetizationClass;
+    
     @XmlElement(name = "MgtModeEnabled", nillable = false, required = true) private boolean mgtModeEnabled;
 
     @XmlElement(name = "DataServiceAPI", nillable = false, required = true) private DataServiceConfig dataServiceConfig;
@@ -42,6 +45,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
     public String getBillingVendorClass() {
         return billingVendorClass;
+    }
+
+    public String getBillingVendorMonetizationClass() {
+        return billingVendorMonetizationClass;
     }
 
     public boolean isMgtModeEnabled() {
