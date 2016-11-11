@@ -36,7 +36,7 @@ function subscription(type, domain) {
 }
 
 function redirectToCloud(url) {
-    window.open(url);
+    location.href = url;
 }
 
 function getWelcomeMsg() {
