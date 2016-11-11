@@ -496,17 +496,18 @@ public class APICloudMonetizationService {
     }
 
     /**
-     * Createing Subscription for the organization
+     * Creating Subscription for the organization
      *
-     * @param tenantDomain
-     * @param subscriptionInfoJson
-     * @return
-     * @throws CloudBillingException {
-     *                               "success": "true",
-     *                               "data" : {
-     *                               subscriptionNumber: "subscription_number_from_vendor"
-     *                               }
-     *                               }
+     * @param tenantDomain         tenant domain
+     * @param subscriptionInfoJson subscription jason info
+     * @return success json object
+     * {
+     * "success": "true",
+     * "data" : {
+     * subscriptionNumber: "subscription_number_from_vendor"
+     * }
+     * }
+     * @throws CloudBillingException
      */
     public String createSubscription(String tenantDomain, String subscriptionInfoJson) throws CloudBillingException {
         try {
@@ -543,9 +544,9 @@ public class APICloudMonetizationService {
      * Adding payment methods for subscriptions
      *
      * @param tenantDomain          tenant domain
-     * @param customerId
-     * @param paymentMethodInfoJson
-     * @return
+     * @param customerId            customer id
+     * @param paymentMethodInfoJson payment method json info
+     * @return success information
      * @throws CloudBillingException
      */
     public String addPaymentMethod(String tenantDomain, String customerId, String paymentMethodInfoJson)
@@ -581,8 +582,8 @@ public class APICloudMonetizationService {
     /**
      * Get All Payment methods for the user for monetized tenant
      *
-     * @param tenantdomain
-     * @param customerId
+     * @param tenantdomain tenant domain
+     * @param customerId customer id
      * @param paymentMethodInfoJson
      * @return
      * @throws CloudBillingException

@@ -94,18 +94,18 @@ public class BillingVendorInvoker {
      */
     public static CloudBillingServiceProvider loadBillingVendorForMonetization(String tenantDomain)
             throws CloudBillingException {
-        //String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
+        String billingVendorMonetizationClassName =
+                CloudBillingServiceUtils.getBillingVendorMonetizationServiceUtilClass();
         CloudBillingServiceProvider instance;
-
         try {
-            Class<?> vendorClass = Class.forName(billingVendorClassName);
+            Class<?> vendorClass = Class.forName(billingVendorMonetizationClassName);
             Constructor billingVendorConstructor = vendorClass.getConstructor(String.class);
             instance = (CloudBillingServiceProvider) billingVendorConstructor.newInstance(tenantDomain);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException
                 | InvocationTargetException e) {
             throw new CloudBillingException(
-                    "Error while loading cloud billing vendor class : " + billingVendorClassName + "for Monetization");
+                    "Error while loading cloud billing vendor class : " + billingVendorMonetizationClassName +
+                    "for Monetization");
         }
         return instance;
     }

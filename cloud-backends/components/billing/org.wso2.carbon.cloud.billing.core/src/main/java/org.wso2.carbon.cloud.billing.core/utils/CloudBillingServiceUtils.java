@@ -111,6 +111,15 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
+     * Retrieve the billing vendor monetization class name
+     *
+     * @return Billing Vendor service monetization class name
+     */
+    public static String getBillingVendorMonetizationServiceUtilClass() {
+        return BillingConfigManager.getBillingConfiguration().getBillingVendorMonetizationClass();
+    }
+
+    /**
      * Validate rate plan id
      *
      * @param serviceId         service Id

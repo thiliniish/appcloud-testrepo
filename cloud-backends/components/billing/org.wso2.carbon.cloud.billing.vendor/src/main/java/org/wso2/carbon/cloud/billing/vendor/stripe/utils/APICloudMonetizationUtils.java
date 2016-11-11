@@ -155,8 +155,8 @@ public final class APICloudMonetizationUtils {
 
     /**
      * Get Account Information for tenant from Account
-     * @param accountNumber
-     * @return
+     * @param accountNumber account no
+     * @return tenant account information
      * @throws CloudBillingVendorException
      */
     public static String getTenantAccountInformation(String accountNumber) throws CloudBillingVendorException {
@@ -184,8 +184,8 @@ public final class APICloudMonetizationUtils {
 
     /**
      * Retrieve Secret key from DB
-     * @param tenantDomain
-     * @return
+     * @param tenantDomain tenant domain
+     * @return secret key
      * @throws CloudBillingVendorException
      */
     public static String getSecretKey(String tenantDomain) throws CloudBillingVendorException {
