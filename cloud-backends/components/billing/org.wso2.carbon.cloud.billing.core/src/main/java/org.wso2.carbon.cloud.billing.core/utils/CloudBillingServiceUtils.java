@@ -127,10 +127,13 @@ public final class CloudBillingServiceUtils {
      * @return validation boolean
      */
     public static boolean validateRatePlanId(String serviceId, String productRatePlanId) {
-        Plan[] plans = getSubscriptions(serviceId);
-        for (Plan plan : plans) {
-            if (plan.getId().equals(productRatePlanId)) {
-                return true;
+        if (serviceId != null && productRatePlanId != null && !serviceId.trim().isEmpty() &&
+            !productRatePlanId.trim().isEmpty()) {
+            Plan[] plans = getSubscriptions(serviceId);
+            for (Plan plan : plans) {
+                if (plan.getId().equals(productRatePlanId)) {
+                    return true;
+                }
             }
         }
         return false;
