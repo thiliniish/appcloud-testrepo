@@ -28,7 +28,7 @@
 <%
     String isTenantListModified = request.getParameter(IS_TENANT_LIST_MODIFIED);
 
-    if (Boolean.parseBoolean(isTenantListModified)) {
+    if (StringUtils.isNotEmpty(isTenantListModified) && Boolean.parseBoolean(isTenantListModified)) {
         TenantDataManager.resetTenantDataList();
     }
 %>

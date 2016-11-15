@@ -36,7 +36,6 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
     else if (username != null) {
 %>
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <!--<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-1.11.1/jquery.min.js'))%>"></script>-->
 
 <!-- BOF cloud menu -->

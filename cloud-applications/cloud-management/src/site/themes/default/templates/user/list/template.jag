@@ -556,7 +556,6 @@ var manageRoleCheckListForInvitations = function() {
     var finalInvitations = [];
 $(document).ready(function(){
 
-    initializeUserActivity("Members Page");
     if(isInvitationSent) {
         jagg.message({type:'success',content:'You have successfully sent the member invitations.',type:'success',cbk:function(){
                         window.location.href = "../pages/user.jag";

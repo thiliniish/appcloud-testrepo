@@ -64,7 +64,6 @@
 	$(document).ready(function() {
         defaultUIView();
         getCurrentUserMaping();
-        initializeUserActivity("Custom URL Page");
 	});
 
     function publishCustomUrl(node) {

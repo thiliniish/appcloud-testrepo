@@ -205,7 +205,6 @@
     }
 
     $(document).ready(function(){
-        initializeUserActivity("User Import Page");
         updateMultiSelectRoles();
 
         $('#saveUserRoles').click(function(){});

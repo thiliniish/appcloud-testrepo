@@ -254,4 +254,6 @@ var COMMON_ERROR_MESSAGE = "An error occurred while processing the request. Plea
 
 var TIME_STAMP_SKEW_IN_SECONDS = "300";
 
+//content types
+var APPLICATION_JSON = "application/json";
 %>
