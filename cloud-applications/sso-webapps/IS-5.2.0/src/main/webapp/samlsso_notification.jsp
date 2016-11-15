@@ -21,8 +21,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
-    //This system property is set in startup script(wso2server.sh)
-    String cloudMgtUrl = System.getProperty("cloudMgt.URL");
+    String cloudMgtUrl = application.getInitParameter("cloudMgtUrl");
     String stat = request.getParameter(Constants.STATUS);
     String statusMessage = request.getParameter(Constants.STATUS_MSG);
     if (stat == null || statusMessage == null) {
@@ -82,6 +81,14 @@
                     </div>
                 </div>
             </div>
+            <table class="styledLeft">
+                <tbody>
+                <tr>
+                    <td><%=Encode.forHtmlContent(statusMessage)%>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     </body>

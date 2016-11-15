@@ -61,8 +61,7 @@ logged into that tenant
             }
         }
 
-        //This system property is set in startup script(wso2server.sh)
-        String cloudMgtUrl = System.getProperty("cloudMgt.URL");
+        String cloudMgtUrl = application.getInitParameter("cloudMgtUrl");
         String cloudMgtDataSource = application.getInitParameter("cloudMgtDataSource");
         String useEmail = application.getInitParameter("useEmail");
         String replaceWith = application.getInitParameter("replaceWith");
@@ -72,6 +71,7 @@ logged into that tenant
 
         String url = request.getRequestURL().toString();
         String baseURL = url.substring(0, url.indexOf("authenticationendpoint"));
+        String storeTenantDomain = request.getParameter("storeTenantDomain");
 
         //Username & password
         String userName = request.getParameter("username");
@@ -90,7 +90,12 @@ logged into that tenant
 
             //Authenticates the user
             AuthenticationClient authenticationClient = new AuthenticationClient(baseURL);
-            boolean loginStatus = authenticationClient.login(userName + "@carbon.super", password, "localhost");
+            boolean loginStatus;
+            if (storeTenantDomain != null && !storeTenantDomain.equals("") && !storeTenantDomain.equals("null")) {
+                loginStatus = authenticationClient.login(userName, password, "localhost", storeTenantDomain);
+            } else {
+                loginStatus = authenticationClient.login(userName + "@carbon.super", password, "localhost", null);
+            }
 
             if (!loginStatus) {
                 loginFailed = "true";
@@ -98,16 +103,21 @@ logged into that tenant
 
             //Only if authenticated, get tenants the user belonging to
             if (loginStatus) {
-                DBClient dbClient = new DBClient(cloudMgtDataSource);
-                tenantDomains = dbClient.getTenantDisplayNames(userName);
-                if (tenantDomains.size() == 1) {
+                if (storeTenantDomain != null && !storeTenantDomain.equals("") && !storeTenantDomain.equals("null")) {
                     singleTenant = true;
-                    tenantDomain = tenantDomains.keySet().iterator().next();
-                } else if (tenantDomains.size() == 0) { //User without a tenant (From OT), we will generate a uuid and redirect to registration page
-                    UUID uuid = UUID.randomUUID();
-                    dbClient.storeTempRegistration(email, uuid.toString());
-                    String redirectUrl = cloudMgtUrl + "/site/pages/confirm-verification.jag?confirmation=" + uuid.toString();
-                    response.sendRedirect(redirectUrl);
+                    tenantDomain = storeTenantDomain;
+                } else {
+                    DBClient dbClient = new DBClient(cloudMgtDataSource);
+                    tenantDomains = dbClient.getTenantDisplayNames(userName);
+                    if (tenantDomains.size() == 1) {
+                        singleTenant = true;
+                        tenantDomain = tenantDomains.keySet().iterator().next();
+                    } else if (tenantDomains.size() == 0) { //User without a tenant (From OT), we will generate a uuid and redirect to registration page
+                        UUID uuid = UUID.randomUUID();
+                        dbClient.storeTempRegistration(email, uuid.toString());
+                        String redirectUrl = cloudMgtUrl + "/site/pages/confirm-verification.jag?confirmation=" + uuid.toString();
+                        response.sendRedirect(redirectUrl);
+                    }
                 }
             }
         }

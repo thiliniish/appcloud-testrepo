@@ -48,7 +48,9 @@
                               + "&isSaaSApp="
                               + CharacterEncoder.getSafeText(request.getParameter("isSaaSApp"))
                               + "&authenticators="
-                              + CharacterEncoder.getSafeText(request.getParameter("authenticators"));
+                              + CharacterEncoder.getSafeText(request.getParameter("authenticators"))
+                              + "&storeTenantDomain="
+                              + CharacterEncoder.getSafeText(request.getParameter("storeTenantDomain"));
 
 %>
 <form action="<%=redirectString%>" method="post" id="loginForm" class="form-horizontal">

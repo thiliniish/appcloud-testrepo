@@ -24,8 +24,7 @@
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
     <%
-        //This system property is set in startup script(wso2server.sh)
-        String cloudMgtUrl = System.getProperty("cloudMgt.URL");
+        String cloudMgtUrl = application.getInitParameter("cloudMgtUrl");
         String stat = request.getParameter("status");
         String statusMessage = request.getParameter("statusMsg");
         if (stat == null || statusMessage == null) {
@@ -34,7 +33,6 @@
         }
         session.invalidate();
     %>
-
 
     <html>
     <head>
@@ -62,6 +60,7 @@
             }
         </style>
     </head>
+
     <body>
     <div class="cMainScreen">
         <div id="local_auth_div" class="container main-login-container">
@@ -76,10 +75,44 @@
                     </div>
                 </div>
             </div>
+            <!-- /content -->
+
         </div>
     </div>
+
+    <!-- footer -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <p>WSO2 Identity Server | &copy;
+                <script>document.write(new Date().getFullYear());</script>
+                <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>. All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script src="libs/jquery_1.11.3/jquery-1.11.3.js"></script>
+    <script src="libs/bootstrap_3.3.5/js/bootstrap.min.js"></script>
+
+    <script>
+
+
+        $('#popover').popover({
+            html: true,
+            title: function () {
+                return $("#popover-head").html();
+            },
+            content: function () {
+                return $("#popover-content").html();
+            }
+        });
+
+    </script>
+
+    <script type="text/javascript" src="js/u2f-api.js"></script>
+
     </body>
     </html>
+
 
 </fmt:bundle>
 

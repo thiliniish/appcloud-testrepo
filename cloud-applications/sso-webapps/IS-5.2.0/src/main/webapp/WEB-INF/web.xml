@@ -45,7 +45,18 @@
         <param-name>/retry.do</param-name>
         <param-value>http://localhost:8080/customauthenticationendpoint/retry.do?type=retry.do</param-value>
     </context-param-->
-	<!-- *************** End of Global configurations ********************** -->
+    <!-- *************** End of Global configurations ********************** -->
+
+	<context-param>
+        <param-name>cloudMgtUrl</param-name>
+        <param-value>https://cloudmgt.clouddev.wso2.com/cloudmgt</param-value>
+    </context-param>
+
+    <!--Display scopes in the consent page.-->
+    <context-param>
+        <param-name>displayScopes</param-name>
+        <param-value>true</param-value>
+    </context-param>      
 
     <context-param>
    	    <param-name>cloudMgtDataSource</param-name>
@@ -63,8 +74,24 @@
     </context-param>
 
     <filter>
+        <filter-name>HttpHeaderSecurityFilter</filter-name>
+        <filter-class>org.apache.catalina.filters.HttpHeaderSecurityFilter</filter-class>
+        <init-param>
+            <param-name>hstsEnabled</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>HttpHeaderSecurityFilter</filter-name>
+        <url-pattern>*</url-pattern>
+    </filter-mapping>
+
+    <filter>
         <filter-name>AuthenticationEndpointFilter</filter-name>
-        <filter-class>org.wso2.carbon.identity.application.authentication.endpoint.util.filter.AuthenticationEndpointFilter</filter-class>
+        <filter-class>
+            org.wso2.carbon.identity.application.authentication.endpoint.util.filter.AuthenticationEndpointFilter
+        </filter-class>
     </filter>
 
     <filter-mapping>
@@ -72,7 +99,7 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <filter>
+     <filter>
         <filter-name>CRLFPreventionFilter</filter-name>
         <filter-class>org.wso2.carbon.ui.filters.CRLFPreventionFilter</filter-class>
     </filter>
@@ -116,6 +143,16 @@
     <servlet>
         <servlet-name>oauth2_consent.do</servlet-name>
         <jsp-file>/oauth2_consent.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>oauth2_logout_consent.do</servlet-name>
+        <jsp-file>/oauth2_logout_consent.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>oauth2_logout.do</servlet-name>
+        <jsp-file>/logout.jsp</jsp-file>
     </servlet>
 
     <servlet>
@@ -186,6 +223,16 @@
     <servlet-mapping>
         <servlet-name>oauth2_consent.do</servlet-name>
         <url-pattern>/oauth2_consent.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>oauth2_logout_consent.do</servlet-name>
+        <url-pattern>/oauth2_logout_consent.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>oauth2_logout.do</servlet-name>
+        <url-pattern>/oauth2_logout.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
