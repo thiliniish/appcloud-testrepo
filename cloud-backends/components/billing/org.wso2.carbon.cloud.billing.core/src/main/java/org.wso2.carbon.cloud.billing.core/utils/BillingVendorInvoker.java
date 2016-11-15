@@ -149,7 +149,7 @@ public class BillingVendorInvoker {
      * @return
      * @throws CloudBillingException
      */
-    public static Object invokeMethodForMonetization(String method, String tenantDomain, String params)
+    public static Object invokeMethodForMonetization(String tenantDomain, String method, String params)
             throws CloudBillingException {
         CloudBillingServiceProvider cloudBillingServiceProviderInstance =
                 (CloudBillingServiceProvider) loadBillingVendorForMonetization(tenantDomain);
