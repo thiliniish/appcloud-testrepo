@@ -156,7 +156,7 @@ public class MessageBrokerConsumer implements MessageListener {
                     String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
                     String customUrl = jsonObject.getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL);
                     String template;
-                    String filePath = configReader.getProperty("nginx.api.config.path") + tenantDomain;
+                    String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + tenantDomain;
                     //Creating store
                     if (STORE.equals(node)) {
                         template = templateManager.getTemplate(NginxVhostConstants.API_STORE_TEMPLATE_NAME);

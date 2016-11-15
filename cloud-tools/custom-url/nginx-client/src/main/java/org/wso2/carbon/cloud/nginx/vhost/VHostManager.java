@@ -162,7 +162,7 @@ public class VHostManager {
         boolean isSuccessful;
         if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudType)) {
             if (STORE_NODE.equals(node)) {
-                file = new File(configReader.getProperty("nginx.api.config.path") + domainName +
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
                                         NginxVhostConstants.STORE_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
@@ -172,7 +172,7 @@ public class VHostManager {
                 }
             } else {
                 //Remove http config file
-                file = new File(configReader.getProperty("nginx.api.config.path") + domainName +
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
                                         NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
@@ -181,7 +181,7 @@ public class VHostManager {
                     }
                 }
                 //Remove https config file
-                file = new File(configReader.getProperty("nginx.api.config.path") + domainName +
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
                                         NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
@@ -242,21 +242,21 @@ public class VHostManager {
                 Collection cloudCollection = (Collection) registryManager.getResourceFromRegistry(registryPath);
 
                 for (int i = 0; i < cloudCollection.getChildCount(); i++) {
-
-                    String cloudName = cloudCollection.getChildren()[i].substring(
-                            cloudCollection.getChildren()[i].lastIndexOf("/") + 1,
-                            cloudCollection.getChildren()[i].length());
+                    String cloudCollectionElement = cloudCollection.getChildren()[i];
+                    String cloudName = cloudCollectionElement.substring(
+                            cloudCollectionElement.lastIndexOf("/") + 1,
+                            cloudCollectionElement.length());
 
                     Collection tenantCollection =
-                            (Collection) registryManager.getResourceFromRegistry(cloudCollection.getChildren()[i]);
+                            (Collection) registryManager.getResourceFromRegistry(cloudCollectionElement);
 
                     for (int z = 0; z < tenantCollection.getChildCount(); z++) {
+                        String tenantCollectionElement = tenantCollection.getChildren()[z];
+                        String tenantId = tenantCollectionElement
+                                                  .substring(tenantCollectionElement.lastIndexOf("/") + 1,
+                                                             tenantCollectionElement.length());
 
-                        String tenantId = tenantCollection.getChildren()[z]
-                                                  .substring(tenantCollection.getChildren()[z].lastIndexOf("/") + 1,
-                                                             tenantCollection.getChildren()[z].length());
-
-                        String urlMappingPath = tenantCollection.getChildren()[z] + "/urlMapping/" + tenantId;
+                        String urlMappingPath = tenantCollectionElement + "/urlMapping/" + tenantId;
                         Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                         byte[] r = (byte[]) resource.getContent();
                         try {
@@ -267,7 +267,7 @@ public class VHostManager {
                                 VHostEntry storeEntry = new VHostEntry();
                                 String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
                                 storeEntry.setTenantDomain(tenantDomain);
-                                String filePath = configReader.getProperty("nginx.api.config.path") + tenantDomain;
+                                String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + tenantDomain;
                                 storeEntry.setCustomDomain(((JSONObject) jsonObject.get(STORE_NODE))
                                                                    .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
                                 storeEntry.setCloudName(cloudName);

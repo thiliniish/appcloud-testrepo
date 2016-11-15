@@ -47,4 +47,6 @@ public class NginxVhostConstants {
     public static final String STORE_CUSTOM_CONFIG = "_store-custom.conf";
     public static final String GATEWAY_CUSTOM_CONFIG = "_gateway-http-custom.conf";
     public static final String GATEWAY_HTTPS_CUSTOM_CONFIG = "_gateway-https-custom.conf";
+    public static final String NGINX_CONFIG_PATH = "nginx.api.config.path";
+
 }
