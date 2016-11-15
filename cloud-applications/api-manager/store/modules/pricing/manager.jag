@@ -121,7 +121,7 @@ var removePaymentMethod = function (methodId) {
     try {
         var accountId = getAccountId();
         var tenantDomain = getTenantDomain();
-        var result = JSON.parse(apiMonService.removePaymentMethod(getTenantDomain(), tenantDomain,accountId ,methodId));
+        var result = JSON.parse(apiMonService.removePaymentMethod(tenantDomain, accountId ,methodId));
         if (result.success) {
             return {
                 error: false,
@@ -129,7 +129,7 @@ var removePaymentMethod = function (methodId) {
                 statusCode: 200
             };
         } else {
-            log.error("Zuora remove payment method failed. Error : " + JSON.stringify(result.reasons));
+            log.error("Monetization remove payment method failed. Error : " + JSON.stringify(result.reasons));
             msg = "Remove payment method failed.. Please retry ";
             return {
                 error: true,
