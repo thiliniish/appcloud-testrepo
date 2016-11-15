@@ -82,7 +82,6 @@
     </style>
 
     <script type="text/javascript">
-        initializeUserActivity("Change password");
         function disable() {
             document.getElementById("spinner").style.display = '';
              var submitButton = document.getElementById('submitbtn');

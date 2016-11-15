@@ -147,7 +147,6 @@ function displayClaims(claims) {
 $(document).ready(function ($) {
     var clickwithblur = false;
     var isKeyup = false;
-    initializeUserActivity("SignUp Page");
     checkConfirmation();
 
     var isUserAvail = $("#isUserAvailable").attr('value');

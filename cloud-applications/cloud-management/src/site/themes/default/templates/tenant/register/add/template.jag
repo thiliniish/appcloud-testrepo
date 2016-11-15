@@ -4,8 +4,6 @@
     %>"></script>
  <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/validate.organization.js'))
     %>"></script>
- <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))
-    %>"></script>
 
 <form method="post" action="<%=outputs.idpURL%>" id="OneTimeLoginSubmitForm">
    <input type="hidden" name="SAMLRequest" value="<%=

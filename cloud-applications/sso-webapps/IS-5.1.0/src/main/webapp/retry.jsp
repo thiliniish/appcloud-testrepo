@@ -24,7 +24,8 @@
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
     <%
-        String cloudMgtUrl = application.getInitParameter("cloudMgtUrl");
+        //This system property is set in startup script(wso2server.sh)
+        String cloudMgtUrl = System.getProperty("cloudMgt.URL");
         String stat = request.getParameter("status");
         String statusMessage = request.getParameter("statusMsg");
         if (stat == null || statusMessage == null) {

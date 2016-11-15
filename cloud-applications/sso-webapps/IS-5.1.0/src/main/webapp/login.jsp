@@ -68,8 +68,8 @@
         String url = request.getRequestURL().toString();
         String baseURL = url.substring(0,
                                        url.indexOf("authenticationendpoint"));
-        String cloudMgtUrl = application
-                .getInitParameter("cloudMgtUrl");
+        //This system property is set in startup script(wso2server.sh)
+        String cloudMgtUrl = System.getProperty("cloudMgt.URL");
     %>
 
     <html>

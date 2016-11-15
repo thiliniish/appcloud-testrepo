@@ -47,11 +47,6 @@
     </context-param-->
 	<!-- *************** End of Global configurations ********************** -->
 
-	<context-param>
-        <param-name>cloudMgtUrl</param-name>
-        <param-value>https://cloudmgt.cloudlocal.wso2.com/cloudmgt</param-value>
-    </context-param>
-
     <context-param>
    	    <param-name>cloudMgtDataSource</param-name>
 		<param-value>cloud_mgt</param-value>

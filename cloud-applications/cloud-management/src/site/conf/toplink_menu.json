@@ -71,14 +71,14 @@
           "url": "https://milestones.appfactory.wso2.com:9643/publisher/",
           "icon": "fw fw-api fa-3x",
           "dropDown": "false",
-          "target": "_blank"
+          "target": "_self"
         },
         "App Cloud": {
           "id": "app_cloud",
           "url": "https://milestones.appfactory.wso2.com:9443/appmgt/",
           "icon": "fa fa-3x fa-cubes",
           "dropDown": "false",
-          "target": "_blank"
+          "target": "_self"
         }
       }
     },
