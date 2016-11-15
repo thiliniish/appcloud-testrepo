@@ -28,16 +28,15 @@ var ratePlans = session.get("RATE_PLANS");
 		};
 
 		organizationName = request.getParameter("orgName");
-		accountData.firstName = request.getParameter("firstName");
-		accountData.lastName = request.getParameter("lastName");
-		accountData.address1 = request.getParameter("address1");
-		accountData.address2 = request.getParameter("address2");
+		accountData.line1 = request.getParameter("address1");
 		accountData.city = request.getParameter("city");
-		accountData.state = request.getParameter("state");
-		accountData.zipCode = request.getParameter("zipCode");
+		accountData.postal_code = request.getParameter("zipCode");
 		accountData.country = request.getParameter("country");
-        accountData.workEmail = request.getParameter("email");
 
+		metaData.workEmail = request.getParameter("email");
+		metaData.field_passthrough4 = request.getParameter("field_passthrough4");
+		metaData.firstName = request.getParameter("firstName");
+		metaData.lastName = request.getParameter("lastName");
 		metaData.refId = request.getParameter("refId");
 		metaData.signature = request.getParameter("signature");
 		metaData.field_passthrough1 = request.getParameter("field_passthrough1");
@@ -46,9 +45,10 @@ var ratePlans = session.get("RATE_PLANS");
 		responseFrom = request.getParameter("responseFrom");
 		try {
 			if(responseFrom == EDIT_USER_INFO){
-				result = mod.updateContactInfo(accountData, organizationName);
-			} else if(responseFrom == IS_FROM_CHANGE_PLAN) {
 
+				result = mod.updateContactInfo(organizationName, accountData, metaData);
+
+			} else if(responseFrom == IS_FROM_CHANGE_PLAN) {
 	       	    var serviceId = session.get("SERVICE_ID");
 	       	    var couponData = session.get("PRODUCT_COUPON_DATA");
 	       	    var accountId = session.get("ACCOUNT_ID");
@@ -64,8 +64,8 @@ var ratePlans = session.get("RATE_PLANS");
 			} else {
 				var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
-				log.error("Created zuora account Id cannot be null for tenant: " + tenantDomain);
-				throw new Error("Created zuora account Id cannot be null for tenant: " + tenantDomain);
+				log.error("Created account Id cannot be null for tenant: " + tenantDomain);
+				throw new Error("Created account Id cannot be null for tenant: " + tenantDomain);
 			}
 		} catch (e) {
 			if(EDIT_USER_INFO == responseFrom){
@@ -86,36 +86,9 @@ var ratePlans = session.get("RATE_PLANS");
 			result = 0;
 			// Check the coupon validity
 			if (mod.isValidCoupon(couponData, serviceId)) {
-				/** Coupon discount value is calculated in calculateDiscountForCoupon() function
-				 * in modules/billing/billing.jag. This coupon discount generic calculation logic
-				 * depends on the format of the PricingSummary value of the zuora productRatePlans
-				 * API response. In-order to avoid the risk of breaking the logic due to change in
-				 * the format of the value PricingSummary,this calculation is used only when creating
-				 * the billing account for the very first time.
-				 * Every other time coupon discount value get from the zuora subscriptions API PUT
-				 * in preview mode. This cannot be done in firs case as it requires billing account
-				 * id. **/
-				if (accountId == null) {
+				//TO DO we should consider calculating the prorated data.
 					result = mod.calculateDiscountForCoupon(couponData);
 					session.put("COUPON_DISCOUNT", result);
-				} else {
-					var actualPaymentAmountResult = mod.getActualPaymentAmount(accountId, productRatePlanId, ratePlans, serviceId, couponData);
-					// Get the invoice item data
-					var invoiceItems = actualPaymentAmountResult["invoiceItems"];
-					var discountAmount;
-					for (var i = 0; i < invoiceItems.length; i++) {
-						// Check for discount charges
-						if (invoiceItems[i]["chargeName"] == 'Discount') {
-							discountAmount = invoiceItems[i]["chargeAmount"];
-							// Invoice items preview the current coupon discount as a negative numeric value
-							if (discountAmount.toString().charAt(0) == '-') {
-								// Get the positive numeric value of the current coupon discount amount
-								result = Math.abs(discountAmount);
-								session.put("COUPON_DISCOUNT", result.toString());
-							}
-						}
-					}
-				}
 			}
 			if (log.isDebugEnabled()) {
 				log.debug("Coupon discount result = " + result);

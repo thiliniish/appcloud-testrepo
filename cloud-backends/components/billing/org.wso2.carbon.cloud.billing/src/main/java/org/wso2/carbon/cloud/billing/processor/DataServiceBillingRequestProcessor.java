@@ -42,6 +42,7 @@ import org.wso2.carbon.cloud.billing.processor.utils.ProcessorUtils;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.stream.XMLStreamException;
 
@@ -114,6 +115,22 @@ public class DataServiceBillingRequestProcessor extends AbstractBillingRequestPr
             get.setQueryString(nameValuePairs);
         }
         return ProcessorUtils.executeHTTPMethodWithRetry(this.getHttpClient(), get, DEFAULT_CONNECTION_RETRIES);
+    }
+
+    /**
+     * Get request with custom headers
+     *
+     * @param url            URL
+     * @param acceptType     Accept header
+     * @param customHeaders  map of custom headers
+     * @param nameValuePairs query params
+     * @return
+     * @throws CloudBillingException
+     */
+    @Override public String doGet(String url, String acceptType, Map<String, String> customHeaders,
+            NameValuePair[] nameValuePairs) throws CloudBillingException {
+        throw new UnsupportedOperationException(
+                "GET method with custom headers is not supported for Data Service Billing request processor");
     }
 
     /**

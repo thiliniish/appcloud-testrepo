@@ -723,5 +723,18 @@ function getDistinctStringsInArray(array) {
     return array;
 };
 
+/**
+ * Check whether user is an admin user in carbon super tenant.
+ * username - Tenant aware username
+ */
+function isCarbonSuperAdmin(username) {
+    var carbon = require('carbon');
+    var server = carbon.server;
+    var tenantId = -1234;
+    var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+    //Check whether the user is Tenant Admin
+    var isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(username, ROLE_ADMIN);
+    return isAdmin;
+};
 %>
 

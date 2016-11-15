@@ -16,23 +16,36 @@ var log = new Log("site/blocks/billing/method/add/ajax/add.jag");
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     mod = jagg.module("billing");
-    if (action == "generateParams") {
+    if (action == "getParams") {
         var serviceId = request.getParameter("serviceId");
         var productRatePlanId = request.getParameter("productRatePlanId");
         try {
-            result = mod.generateParams(serviceId, productRatePlanId);
+            result = mod.getPublicKeyParams(serviceId, productRatePlanId);
             if (result != null) {
                 print(result);
             } else {
                 throw "Client parameters cannot be null";
             }
         } catch (e) {
-            log.error("Error while generating the params " + e.message);
+            log.error("Error while getting the public key " + e.message);
             log.error(e);
-            throw new Error("Error while generating the params " + e.message);
+            throw new Error("Error while getting the params " + e.message);
         }
-
-    } else{
+    } else if (action == "addPaymentMethod") {
+        var tokenId = request.getParameter("tokenId");
+        try {
+            result = mod.addPaymentMethod(tokenId);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while adding the payment method";
+            }
+        } catch (e) {
+            log.error("Error while adding the payment method " + e.message);
+            log.error(e);
+            throw new Error("Error while adding the payment method " + e.message);
+        }
+    } else {
         throw new Error("No action specified");
     }
 }());

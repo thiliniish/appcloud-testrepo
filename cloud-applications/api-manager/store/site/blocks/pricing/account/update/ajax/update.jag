@@ -40,6 +40,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     }
     if (action == "updateAccount") {
         var accountData = {};
+        accountData.organization = String(encoder.getSafeText(request.getParameter("organization")));
         accountData.firstName = String(encoder.getSafeText(request.getParameter("firstName")));
         accountData.lastName =  String(encoder.getSafeText(request.getParameter("lastName")));
         accountData.address1 =  String(encoder.getSafeText(request.getParameter("address1")));

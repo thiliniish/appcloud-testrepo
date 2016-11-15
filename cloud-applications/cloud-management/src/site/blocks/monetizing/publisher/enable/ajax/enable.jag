@@ -5,6 +5,7 @@ include("/jagg/constants.jag");
     var mod, result, returnObj, message,
             action = request.getParameter("action"),
             tenantPassword = request.getParameter("tenantPassword"),
+            stripeAuthCode = request.getParameter("stripeAuthCode"),
             site = require("/site/conf/site.json");
     mod = jagg.module("monetizing");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
@@ -13,7 +14,7 @@ include("/jagg/constants.jag");
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     if (action == "enableMonetization") {
         if (jagg.module("permission").hasTenantLevelUserMgtPermission()) {
-            result = mod.enableMonetization(tenantPassword);
+            result = mod.enableMonetization(tenantPassword, stripeAuthCode);
             if (result == null || result.status == null) {
                 message = "An error occurred while enabling the monetization of the tenant: " + tenantDomain;
                 response.status = 500;

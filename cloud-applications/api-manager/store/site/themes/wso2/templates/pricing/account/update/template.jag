@@ -1,0 +1,101 @@
+<% jagg.template("pricing/account/update", function (inputs, outputs, jagg) { %>
+<div id="margin-top-xs"></div>
+<div class="box">
+    <div class="box-header">
+        <h4>Contact Information</h4>
+    </div>
+    <div class="box-content">
+    <form class="form-horizontal">
+        <div class="forms margin-top-xs margin-left-xs">
+                <br class="c-both" />
+                <br class="c-both" />
+                <br class="c-both" />
+            <div class="form-group">
+                <label for="firstname" class="col-sm-4">First Name: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="firstname"
+                        value="<%=outputs.profileFirstName%>" placeholder="Eg: John" >
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="lastname" class="col-sm-4">Last Name: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="lastname"
+                    value="<%=outputs.profileLastName%>" placeholder="Eg: Doe">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="addressline1" class="col-sm-4">Address Line 1: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="addressline1"
+                    value="<%=outputs.creditCardAddress1%>" placeholder="" >
+                    </div>
+            </div>
+            <div class="form-group">
+                <label for="addressline2" class="col-sm-4">Address Line 2: </label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="addressline2"
+                        value="<%=outputs.creditCardAddress2%>" placeholder="">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="country" class="col-sm-4">Country: </label>
+                <div class="col-sm-8">
+                    <select id="country" name="country" onchange='populateStateValue("")'></select>
+                </div>
+                <script type="text/javascript">
+                    var countryCode = "<%=outputs.creditCardCountry%>";
+                    postCountry = countryCode;
+                    populateCountry(countryCode);
+                </script>
+            </div>
+            <div class="form-group">
+                <label for="state" class="col-sm-4">State/Province/Region: </label>
+                <div class="col-sm-8">
+                <select id="state" name="state"></select>
+                </div>
+                <script type="text/javascript">
+                    postState = "<%=outputs.creditCardState%>";
+                    populateState();
+                </script>
+            </div>
+            <div class="form-group">
+                <label for="city" class="col-sm-4">City: </label>
+                <div class="col-sm-8">
+                <input type="text" class="form-control" id="city"
+                    value="<%=outputs.creditCardCity%>" placeholder="" >
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="postal-zip" class="col-sm-4">Postal Code/ZIP: </label>
+                <div class="col-sm-8">
+                <input type="text" class="form-control" id="postal-zip"
+                    value="<%=outputs.creditCardPostalCode%>" placeholder="" >
+                    </div>
+            </div>
+            <div class="form-group">
+                <label for="email" class="col-sm-4">E-mail: </label>
+                <div class="col-sm-8">
+                <input type="text" class="form-control" id="email" value="<%=outputs.userEmail%>"
+                    placeholder="">
+                    </div>
+            </div>
+            <input type="hidden"
+                name="cloudmgtURL" id="cloudmgtURL" value="<%=outputs.cloudmgtURL%>" />
+			<input type="hidden" id="organization" value="<%=outputs.organization%>" />
+            <div class="clearfix"></div>
+            <div class="form-group">
+                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="updateContactInfo('<%=outputs.tenantDomain%>', document);">
+                    <span class="fw-stack btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-edit fw-stack-1x"></i>
+                    </span>
+                    Update
+                    </button>
+                </div>
+                <div class="clearfix"></div>
+          </div>
+          </div>
+          </div>
+    <%}); %>
+

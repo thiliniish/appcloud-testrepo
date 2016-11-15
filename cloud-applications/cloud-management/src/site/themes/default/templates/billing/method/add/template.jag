@@ -1,12 +1,11 @@
 <% jagg.template("billing/method/add", function(inputs, outputs, jagg) { %>
 <%
-
     var log = new Log("site/themes/default/templates/billing/method/add/template.jag");
-
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled();
+    var serviceId = session.get("SERVICE_ID");
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
     if (isBillingEnabled) {
         var errorMessage = "NA";
         var userName = session.get("LOGGED_IN_USER");
@@ -18,6 +17,7 @@
         var callsAbovePlan = session.get("CALLS_ABOVE_PLAN");
         var monthlyRental = session.get("MONTHLY_RENTAL");
         var couponDiscount = session.get("COUPON_DISCOUNT");
+        var iframeDescription = IFRAME_DESCRIPTION;
         var l = Packages.java.util.Locale.getDefault();
         var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
         if (callsPerDay != null) {
@@ -33,10 +33,8 @@
         if (request.getParameter("accountId") != null) {
             accountId = jagg.module("util").escapeSpecialChars(request.getParameter("accountId"));
         }
-
         var productRatePlanId = session.get("PRODUCT_PLAN_ID");
         session.remove("PRODUCT_PLAN_ID");
-        var serviceId = session.get("SERVICE_ID");
         var paymentPlanName;
         if (accountId == "") {
             paymentPlanName = jagg.module("billing").getPaymentPlanFromId(serviceId, productRatePlanId);
@@ -44,368 +42,190 @@
     }
 
     %>
-
-    <style type="text/css">
-        #backbtn{
-            background-color: #5e5e5e;
-            color: #fff;
-        }
-
-        #backbtn:hover {
-            background-color: #7d7d7d;
-        }
-
-        #backbtn:active {
-            background-color: #e6e6e6;
-        }
-
-        #redeembtn{
-            background: #0395d0 none repeat scroll 0 0;
-            color: #fff;
-        }
-
-        #redeembtn:hover {
-            background: #00a1e2 none repeat scroll 0 0;
-        }
-
-        #redeembtn:active {
-            background: #95D0FF;
-        }
-
-        #submitbtn{
-            background: #0395d0 none repeat scroll 0 0;
-            color: #fff;
-            margin-left: 0;
-        }
-
-        #submitbtn:hover {
-            background: #00a1e2 none repeat scroll 0 0;
-        }
-
-        #submitbtn:active{
-            background: #95D0FF;
-        }
-
-    </style>
-
-    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-     <script type="text/javascript">
-
-var params;
-
-var callback = function (response) {
-var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-    if(!response.success) {
-       $('.message_box').empty();
-                jagg.message({content:JSON.stringify(response), type:'error',cbk:function(){
-                       window.location.href = cloudmgtURL + "/site/pages/index.jag";
-                    }
-                });
-    }
-};
-
-function showPage() {
-   var zuoraDiv = document.getElementById('zuora_payment');
-   zuoraDiv.innerHTML="";
-   Z.render(params, null, callback);
-}
-
-function submitPage() {
-   disable();
-   Z.submit();
-   enable();
-}
-
-function generateParameters (){
-
-var serviceId =  $("#serviceId").attr('value');
-var productRatePlanId =  $("#productRatePlanId").attr('value');
-
- jagg.post("../blocks/billing/method/add/ajax/add.jag", {
-                             action: "generateParams",
-                             serviceId : serviceId,
-                             productRatePlanId :productRatePlanId
-                }, function (result) {
-                    params = jQuery.parseJSON(result);
-                    if('<%= accountId %>' != "") {
-                        params.field_accountId = '<%= accountId %>';
-                        params.field_passthrough4 = "secondary-card";
-                    }
-                    showPage();
-                }, function (jqXHR, textStatus, errorThrown) {
-                    $('.message_box').empty();
-                    jagg.message({content:"Unable to add a new payment method at the moment. Please contact WSO2 Cloud Team for help", type:'error', cbk:function() {
-                        var cloudMgtURL =  $("#cloudmgtURL").attr('value');
-                        window.location.href = cloudMgtURL+"/site/pages/contact-us.jag";
-                        }
-                    });
-                });
-}
-
-    function disable() {
-        document.getElementById("spinner").style.display = '';
-         var submitButton = document.getElementById('submitbtn');
-         $('#submitbtn').css('background-color','#F9BFBB');
-         submitButton.disabled = true;
-    }
-
-    function enable() {
-        document.getElementById("spinner").style.display = 'none';
-         var submitButton = document.getElementById('submitbtn');
-         $('#submitbtn').css('background-color','#428BCA');
-         submitButton.disabled = false;
-    }
-
-        function showErrorMessage(){
-        var errorValue = $("#errorMessage").attr('value');
-        if(errorValue != "NA"){
-            $('.message_box').empty();
-            jagg.message({content:errorValue, type:'error'});
-	    	  return false;
-        }
-        }
-    function calculateDiscount() {
-        jagg.post("../blocks/billing/account/add/ajax/add.jag", {
-            action:"calculateDiscount",
-            couponData : $("#coupon").attr('value')
-        },
-        function (result) {
-            document.getElementById("spinner").style.display = 'none';
-            couponDiscount = result;
-            if(result <= 0) {
-                document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
-            } else {
-                document.getElementById('couponValidator').innerHTML = " ";
-            }
-
-            $('#discountPara').text(Number(couponDiscount).toFixed(2));
-            document.getElementById("payable-ammount").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
-        },
-        function (jqXHR, textStatus, errorThrown) {
-            $('.message_box').empty();
-            jagg.message({content:'Error in calculating discount. Please contact WSO2 Cloud Team for help', type:'error', cbk:function() {
-                    window.location.href = cloudmgtURL;
-                }
-            });
-        });
-    }
-
-        $(document).ready(function($){
-        // Check for billing enable/disable mode
-        var isBillingEnabled = $("#isBillingEnabled").attr('value');
-        if (isBillingEnabled) {
-            showErrorMessage();
-            generateParameters();
-            var clickwithblur = false;
-            $( "#submitbtn" ).click(function() {
-                
-                 submitPage();
-                 });
-            $( "#redeembtn" ).click(function() {
-                 calculateDiscount();
-            });
-            $('#coupon').keydown(function(event) {
-                if(event.keyCode === 13) {
-                     calculateDiscount();
-                     return false;
-                }
-            });
-            $('#submitbtn').mousedown(function(){
-                  clickwithblur = true;
-            });
-            $('#submitbtn').mouseup(function(){
-                  clickwithblur = false;
-            });
-            $('#backbtn').click(function() {
-               if(confirm("Are you sure you want to navigate away from this page?"))
-               {
-                  history.go(-1);
-               }
-               return false;
-            });
-              $('[data-toggle="tooltip"]').tooltip();
-
-                $("[data-toggle=popover]").popover();
-
-                $(".ctrl-asset-type-switcher").popover({
-                    html : true,
-                    content: function() {
-                      return $('#content-asset-types').html();
-                    }
-                });
-
-                $(".ctrl-filter-type-switcher").popover({
-                    html : true,
-                    content: function() {
-                      return $('#content-filter-types').html();
-                    }
-                });
-
-            	$('#nav').affix({
-            	      offset: {
-            	        top: $('header').height()
-            	      }
-            	});
-        } else {
-            var cloudMgtURL = $("#cloudmgtURL").attr('value');
-            var unavailableErrorPage = $("#unavailableErrorPage").attr('value');
-            window.location.href = cloudMgtURL + unavailableErrorPage;
-        }
-
-        });
-    </script>
-
-
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://checkout.stripe.com/checkout.js"></script>
 <div class="container col-lg-12 col-md-12 col-sm-12">
-
-<!-- header -->
-<!--header>
-<div class="row wr-global-header">
-	<div class="col-sm-12 app-logo"><img src="images/logo.png" /><h2 class="app-title">Cloud Billing</h2>
-	</div>
-</div>
-</header-->
-<!-- /header -->
-<div class="container content-starter">
-	<div class="row">
-		<div class="col-lg-12">
-		    <% if (accountId != "" ) { %>
-			<h1>New Payment Method</h1>
-			<% } else { %>
-			<h1>Upgrade Account</h1>
-			<% } %>
-			<div class="helper_text" id="helper_text">
-				<p>Please enter your billing information </p>
-			</div>
-		</div>
-
-	</div>
-</div>
-
-<!-- content/body -->
-<div class="container c-both wr-billing-white info-message-parent">
-<% jagg.includeBlock("page/billing-messages", null); %>
-    <%if (accountId == ""){ %>
-	<div class="row wr-wizard">
-		<div class="col-md-3 col-xs-3">
-			<div class="itm-wiz"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
-			<br class="c-both" />
-		</div>
-		<div class="col-md-3 col-xs-3">
-			<div class="itm-wiz itm-wiz-current"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs"><span>Billing Information</span></div></div>
-			<br class="c-both" />
-		</div>
-		<div class="col-md-3 col-xs-3">
-			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs"><span>Contact Information</span></div></div>
-			<br class="c-both" />
-		</div>
-		<div class="col-md-3 col-xs-3">
-			<div class="itm-wiz"><div class="wiz-no">4</div><div class="wiz-lbl hidden-xs"><span>Summary</span></div></div>
-			<br class="c-both" />
-		</div>
-	</div>
-	<% } %>
-	<div class="row">
-		<div class="container col-md-12">
-			<div class="wr-head"><h2>Billing Information</h2></div>
-		</div>
-	</div>
-                <% var buttonValue;
-                    if(accountId != "") {
-                    buttonValue = "Add";
-
-                 } else {
-                    buttonValue = "Continue";
-                 }%>
-	    
-	<div class="row">
-		<div class="container col-md-8 wr-text-gray">
-			<p>Please enter your card information</p>
-			<div class="col-md-12">
-			    <form name="inputData" class='form-horizontal' id='registerForm' role="form">
-                    <div class="form-group">
-                        <div id="zuora_payment"></div>
+    <div class="container content-starter">
+        <div class="row">
+            <div class="col-lg-12">
+                <% if (accountId !="" ) { %>
+                    <h1>New Payment Method</h1>
+                <% } else { %>
+                    <h1>Upgrade Account</h1>
+                <% } %>
+                <div class="helper_text" id="helper_text">
+                    <p>Please enter your billing information</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- content/body -->
+    <div class="container c-both wr-billing-white info-message-parent">
+    <% jagg.includeBlock( "page/billing-messages", null); %>
+        <%if (accountId=="" ){ %>
+            <div class="row wr-wizard">
+                    <div class="col-md-3 col-xs-3">
+                        <div class="itm-wiz">
+                            <div class="wiz-no">1</div>
+                            <div class="wiz-lbl hidden-xs">
+                                <span>Select Plan</span>
+                            </div>
+                        </div>
+                        <br class="c-both" />
                     </div>
-                    <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
-                    <input type="hidden" name="monthlyRental" id="monthlyRental"  value="<%=monthlyRental%>" />
-                    <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
-                    <input type="hidden" name="errorMessage" id="errorMessage" value="<%=errorMessage%>" />
-                    <input type="hidden" name="serviceId" id="serviceId" value="<%=serviceId%>" />
-                    <input type="hidden" name="productRatePlanId" id="productRatePlanId" value="<%=productRatePlanId%>" />
-                    <input type="hidden" name="accountId" id="accountId" value="<%=accountId%>" />
-                    <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
+                    <div class="col-md-3 col-xs-3">
+                        <div class="itm-wiz itm-wiz-current">
+                            <div class="wiz-no">2</div>
+                            <div class="wiz-lbl hidden-xs">
+                                <span>Billing Information</span>
+                            </div>
+                        </div>
+                        <br class="c-both" />
+                    </div>
+                    <div class="col-md-3 col-xs-3">
+                        <div class="itm-wiz">
+                            <div class="wiz-no">3</div>
+                            <div class="wiz-lbl hidden-xs">
+                                <span>Contact Information</span>
+                            </div>
+                        </div>
+                        <br class="c-both" />
+                    </div>
+                    <div class="col-md-3 col-xs-3">
+                        <div class="itm-wiz">
+                            <div class="wiz-no">4</div>
+                            <div class="wiz-lbl hidden-xs">
+                                <span>Summary</span>
+                            </div>
+                        </div>
+                        <br class="c-both" />
+                    </div>
+                </div>
+        <% } %>
+            <div class="row">
+                        <div class="container col-md-12">
+                            <div class="wr-head">
+                                <h2>Billing Information</h2>
+                            </div>
+                        </div>
+                    </div>
+            <% var buttonValue; if (accountId !="" ) { buttonValue="Proceed"; } else { buttonValue="Continue"; } %>
+            <div class="row">
+            <form class='form-horizontal'>
+                <div class="container col-md-8 wr-text-gray">
+                            <div class="panel-body">
+                            <p id="cardDetailHeader">Please enter your card details</p>
+                            <p id="cardSuccessHeader" class="content-section-wrapper">Your card information</p>
+                            <button id="btnAddCardDetails" type="button" style="font-weight: normal;" class="btn redeembtn btn-default
+                                btn-redeem col-md-4 col-xs-12"><%= IFRAME_BUTTON %></button>
+                                <div id="cardDetails">
+                            <div class="col-lg-12 content-section-wrapper">
+                                <label class="control-label label-style">Card type :</label>
+                                <label id="paymentType" name="paymentType" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <label class="control-label label-style">Card holder name :</label>
+                                <label id="ccName" name="ccName" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <label class="control-label label-style">Card number :</label>
+                                <label id="ccNum" name="ccNum" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <label class="control-label label-style">Expiration date :</label>
+                                <label id="ccExpiary" name="ccExpiary" class="control-label label-style"></label>
+                            </div>
+                           </div>
+                        </div>
+                        <div class="signin"></div>
+                    </div>
+
                 </form>
-                <div class="signin"></div>
-			</div>
-		</div>
-		<%if(accountId != "") {  %>
-            <div class="wr-text col-sm-8">
-                  <input id="submitbtn" type='button' value=<%=buttonValue%> style="font-weight:normal;" class="btn btn-default btn-redeem col-md-6 col-xs-12 " />
-                  <a id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/account-summary.jag'">Cancel</a>
-                  <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display:none; margin-left: 10px;"></i>
-               </div>
-       <% } else {
-		%>
-		<div class="container col-md-4">
-			<div class="wr-text">
-				<div id="coupon-container">
-					<p>Enter coupon code here</p>
-					<form class="form-inline input-control text">
-						<input id="coupon" class="txtbox-redeem col-md-8 col-xs-12" type="text" value="" placeholder="Eg: ACE">
-						<button id="redeembtn" type="button" style="font-weight:normal;" class="btn btn-default btn-redeem col-md-4 col-xs-12">Redeem</button>
-                        <label id="couponValidator" name="couponValidator" class="control-label label-style red-color">  </label>
-					</form>
-					<br class="c-both" />
-				</div>
-				<div id="product-container">
-					<p class="product-summery">PRODUCT SUMMARY</p>
-					<p>
-						<span class="selected-plan-txt">SELECTED PLAN: </span>
-						<span class="product-planname"><%=currRatePlan%></span>
-					</p>
-					<ul>
-						<li><%=accounts%> portal users</li>
-						<li><%=callsPerDay%> calls/day</li>
-						<li><%=callsAbovePlan%> calls above plan</li>
-					</ul>
-				</div>
-				<hr class="wr-separate"/>
-				<div id="pricing-container">
-					<p class="col-md-8 nopad">&nbsp;</p><p class="col-md-4 nopad tright"><strong>USD</strong></p>
-					<p class="col-md-8 nopad">Subscription Fee (per/m)</p><p id="monthlyRentalPara" class="col-md-4 nopad tright"><%=Number(monthlyRental).toFixed(2)%></p>
-					<p class="col-md-8 nopad">Discount from coupon</p><p id="discountPara" class="col-md-4 nopad tright"><%=Number(couponDiscount).toFixed(2)%></p>
-					<br class="c-both" />
-					<div class="col-md-8 nopad blue">&nbsp;</div>
-					<div class="col-md-4 nopad tright ">
-						<p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
-						<p id="payableAmountPara" class="col-md-12 nopad nomargin blue-line-right"><span id="payable-ammount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span></p>
-					</div>
-					<br class="c-both" />
-				</div>
-				<div id="action-container">
-					<button id="backbtn" type="button" class="btn btn-default btn-back col-md-5 col-xs-12">Back</button>
-					<button id="submitbtn" type="button" style="font-weight:normal;" class="btn btn-default btn-redeem col-md-6 col-xs-12 col-md-push-1">Proceed</button>
-					<i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display:none; margin-left: 10px;"></i>
-					<br class="c-both" />
-				</div>
-			</div>
-		</div>
-		<% }%>
-	</div>
-	<div class="row pad-bot-50">
-		<div class="container col-md-8">
-			&nbsp;
-		</div>
-		<div class="container col-md-4">
-			&nbsp;
-		</div>
-		<br class="c-both " />
-	</div>
 
-</div>
-<!-- /content/body -->
-
+                <%if (accountId !="" ) { %>
+                    <div class="wr-text col-sm-8">
+                        <input id="submitbtn" type='button' value=<%=buttonValue%> style="font-weight:normal;" class="btn btn-default btn-redeem col-md-6 col-xs-12 submit" /> <a id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/account-summary.jag'">Cancel</a> <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display: none; margin-left: 10px;"></i>
+                    </div>
+                    <% } else { %>
+                        <div class="container col-md-4">
+                            <div class="wr-text">
+                                <div id="coupon-container">
+                                    <p>Enter coupon code here</p>
+                                    <form class="form-inline input-control text">
+                                        <input id="coupon" class="txtbox-redeem col-md-8 col-xs-12" type="text"
+                                        value="" placeholder="E.g. ACE">
+                                        <button id="redeembtn" type="button" style="font-weight: normal;" class="btn redeembtn btn-default btn-redeem col-md-4 col-xs-12">Redeem</button>
+                                        <label id="couponValidator" name="couponValidator" class="control-label label-style red-color">
+                                        </label>
+                                    </form>
+                                    <br class="c-both" />
+                                </div>
+                                <div id="product-container">
+                                    <p class="product-summery">PRODUCT SUMMARY</p>
+                                    <p>
+                                        <span class="selected-plan-txt">SELECTED PLAN: </span> <span class="product-planname"><%=currRatePlan%></span>
+                                    </p>
+                                    <ul>
+                                        <li>
+                                            <%=accounts%> portal users</li>
+                                        <li>
+                                            <%=callsPerDay%> calls/day</li>
+                                        <li>
+                                            <%=callsAbovePlan%> calls above plan</li>
+                                    </ul>
+                                </div>
+                                <hr class="wr-separate" />
+                                <div id="pricing-container">
+                                    <p class="col-md-8 nopad">&nbsp;</p>
+                                    <p class="col-md-4 nopad tright">
+                                        <strong>USD</strong>
+                                    </p>
+                                    <p class="col-md-8 nopad">Subscription Fee (per/m)</p>
+                                    <p id="monthlyRentalPara" class="col-md-4 nopad tright">
+                                        <%=Number(monthlyRental).toFixed(2)%>
+                                    </p>
+                                    <p class="col-md-8 nopad">Discount from coupon</p>
+                                    <p id="discountPara" class="col-md-4 nopad tright">
+                                        <%=Number(couponDiscount).toFixed(2)%>
+                                    </p>
+                                    <br class="c-both" />
+                                    <div class="col-md-8 nopad blue">&nbsp;</div>
+                                    <div class="col-md-4 nopad tright ">
+                                        <p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
+                                        <p id="payableAmountPara" class="col-md-12 nopad nomargin blue-line-right">
+                                            <span id="payable-ammount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span>
+                                        </p>
+                                    </div>
+                                    <br class="c-both" />
+                                </div>
+                                <div id="action-container">
+                                    <button id="backbtn" type="button" class="btn btn-default btn-back col-md-5 col-xs-12">Back</button>
+                                    <button id="submitbtn" type="button" style="font-weight: normal;" class="btn btn-default btn-redeem col-md-6 col-xs-12 col-md-push-1">Proceed</button>
+                                    <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display: none; margin-left: 10px;"></i>
+                                    <br class="c-both" />
+                                </div>
+                            </div>
+                        </div>
+                        <% }%>
+                            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled" value="<%=isBillingEnabled%>" />
+                            <input type="hidden" name="monthlyRental" id="monthlyRental" value="<%=monthlyRental%>" />
+                            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>" />
+                            <input type="hidden" name="errorMessage" id="errorMessage" value="<%=errorMessage%>" />
+                            <input type="hidden" name="serviceId" id="serviceId" value="<%=serviceId%>" />
+                            <input type="hidden" name="productRatePlanId" id="productRatePlanId" value="<%=productRatePlanId%>" />
+                            <input type="hidden" name="accountId" id="accountId" value="<%=accountId%>" />
+                            <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage" value="<%= unavailableErrorPage %>" />
+                            <input type="hidden" name="userEmail" id="userEmail" value="<%= userEmail %>" />
+                            <input type="hidden" name="iframDescription" id="iframeDescription"
+                            value="<%=iframeDescription %>" />
+            </div>
+            <div class="row pad-bot-50">
+                <div class="container col-md-8">&nbsp;</div>
+                <div class="container col-md-4">&nbsp;</div>
+                <br class="c-both " />
+            </div>
+    </div>
+    <!-- /content/body -->
 </div>
 <div class="clearfix"></div>
 

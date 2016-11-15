@@ -63,7 +63,6 @@ function enable() {
     }
 
     $(document).ready(function($){
-        initializeUserActivity("Add Organization Page");
         var clickwithblur = false;
 
         jQuery.validator.setDefaults({

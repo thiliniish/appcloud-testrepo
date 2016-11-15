@@ -49,7 +49,7 @@ include("/jagg/constants.jag");
     var dailyUsage = encoder.getSafeText(request.getParameter("dailyUsage"));
     var overageLimit = encoder.getSafeText(request.getParameter("overageLimit"));
     if (action == "add-payment-plans-of-tenant") {
-        var result = mod.addProductPlans(planName, planDescription, pricing, overageCharge, overageLimit, dailyUsage);
+        var result = mod.addProductRatePlan(planName, planDescription, pricing, overageCharge, overageLimit, dailyUsage);
         print(result);
 
     } else {

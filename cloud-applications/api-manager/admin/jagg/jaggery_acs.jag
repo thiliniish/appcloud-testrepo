@@ -1,0 +1,233 @@
+<html>
+    <body>
+    Waiting for responses from identity server and validate response and forward to requested URI.
+        <%
+(function () {
+    include("jagg.jag");
+    var site = require("/site/conf/site.json");
+    var log = new Log();
+    var samlResponse = request.getParameter("SAMLResponse");
+    var sessionId = session.getId();
+    var samlRequest = request.getParameter("SAMLRequest");
+    // create a sso relying party js object
+    var security = require("sso");
+    var ssoRelyingParty = new security.SSORelyingParty(site.ssoConfiguration.issuer);
+    var isLogoutResponse = false;
+    var isLogoutRequest = false;
+
+    // if saml response is not a log out response
+    if (samlResponse != null) {
+        isLogoutResponse = ssoRelyingParty.isLogoutResponse(samlResponse);
+        if (!Boolean(isLogoutResponse)) {
+            var MultitenantConstants = Packages.org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+            //Validate the saml response schema-check the number of response elements is 1 and check the number of assertions
+            //is equal to 1
+            var isResponseValid = ssoRelyingParty.validateSAMLResponseSchema(samlResponse);
+            if (!Boolean(isResponseValid)) {
+                log.error("SAML response schema verification is failed.");
+                response.sendRedirect("../site/pages/error-pages/401.html");
+                return;
+            }
+
+            // validating the assertion validity period
+            if(site.ssoConfiguration.verifyAssertionValidityPeriod === 'true'){
+                var timestampSkew=site.ssoConfiguration.timestampSkewInSeconds;
+                if(timestampSkew==undefined){
+                    timestampSkew="300";
+                }
+                ssoRelyingParty.setProperty("timestampSkewInSeconds", timestampSkew);
+                var isAssertionValidityPeriodValid = ssoRelyingParty.validateAssertionValidityPeriod(samlResponse);
+                if (!Boolean(isAssertionValidityPeriodValid)) {
+                    log.error("SAML response assertion validity period verification is failed.");
+                    response.sendRedirect("../site/pages/error-pages/401.html");
+                    return;
+                }
+            }
+
+            // validating the audience restrictions
+            var isAudienceRestrictionEnabled=site.ssoConfiguration.audienceRestrictionsEnabled;
+            if(isAudienceRestrictionEnabled === 'true'){
+                var isAudienceRestrictionsValid = ssoRelyingParty.validateAudienceRestrictions(samlResponse);
+                if (!Boolean(isAudienceRestrictionsValid)) {
+                    log.error("SAML response audience restrictions verification is failed.");
+                    response.sendRedirect("../site/pages/error-pages/401.html");
+                    return;
+                }
+            }
+
+            var fullUserName = ssoRelyingParty.getSAMLResponseNameId(samlResponse);
+            var MultitenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+            var domainName = null;
+            if(fullUserName != null){
+                domainName = MultitenantUtils.getTenantDomain(fullUserName);
+            }
+
+            // relay state value should be a valid value, this value is mapped with request uri.
+            var relayState = request.getParameter("RelayState");
+            var requestedURI = ssoRelyingParty.getRelayStateProperty(relayState);
+            if (requestedURI == null) {
+                log.error("Relaystate value is invalid.");
+                response.sendRedirect("../site/pages/error-pages/401.html");
+                return;
+            }
+
+
+            // validating the signature
+            if(site.ssoConfiguration.responseSigningEnabled === 'true'){
+
+                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName) {
+                    jagg.module("manager").loadTenantRegistry(String(domainName));
+                }
+                var isSignatureValid = ssoRelyingParty.validateSignature(samlResponse);
+                if (!Boolean(isSignatureValid)) {
+                    log.error("SAML response signature is verification failed.");
+                    response.sendRedirect("../site/pages/error-pages/401.html");
+                    return;
+                }
+            }
+
+            // validating the saml assertion signature
+            if(site.ssoConfiguration.assertionSigningEnabled === 'true'){
+                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME !== domainName) {
+                    jagg.module("manager").loadTenantRegistry(String(domainName));
+                }
+                var isAssertionSignatureValid = ssoRelyingParty.validateAssertionSignature(samlResponse);
+                if (!Boolean(isAssertionSignatureValid)) {
+                    log.error("SAML assertion signature is verification failed.");
+                    response.sendRedirect("../site/pages/error-pages/401.html");
+                    return;
+                }
+            }
+
+            ssoRelyingParty.setSessionAuthenticated(sessionId, samlResponse, session);
+            session.put("showLogin", "false");
+            session.put("LOGGED_IN_USER", ssoRelyingParty.getLoggedInUser(sessionId));
+
+            var userModule = jagg.module("user");
+            var isAllowed = Packages.org.wso2.carbon.apimgt.impl.utils.APIUtil.hasPermission(fullUserName,
+                    site.allowedPermission);
+
+            var isSuperTenant = false;
+            if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME == domainName) {
+                isSuperTenant = true;
+            }
+            if (isAllowed) {
+                jagg.setUser({
+                    username: fullUserName,
+                    isSuperTenant: isSuperTenant,
+                    cookie: null,
+                    userDomain: String(domainName)
+                });
+                userModule.getWorkflowCookieBySAMLToken();
+
+                //------------------------------ Start of Cloud specific implementation ------------------------------
+
+                //Getting Tenant ID
+                var PrivilegedCarbonContext = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
+                var context = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                var realmService = context.getOSGiService((java.lang.Class).forName('org.wso2.carbon.user.core.service.RealmService'));
+                var tenantManager = realmService.getTenantManager();
+                var tenantId = tenantManager.getTenantId(domainName);
+
+                //Getting firstname lastname and email
+                var carbon = require('carbon');
+                var server = carbon.server;
+                var userManager = new carbon.user.UserManager(server, tenantId);
+                var username = ssoRelyingParty.getLoggedInUser(sessionId);
+                var user = new carbon.user.User(userManager, username.substring(0, username.lastIndexOf("@")));
+
+                try {
+                    var result = user.getClaims('default');
+                    var claims = {};
+                    if(result != null){
+                        for (var i = 0; i < result.length; i++) {
+                            var uri = result[i].getClaimUri();
+
+                            if (uri.indexOf("wso2.org") > 0) {
+                                if (uri.indexOf("lastname") > 0) {
+                                    var tmp = result[i].getValue();
+                                    if(tmp.indexOf("@") < 0 && tmp.indexOf("$") != 0){
+                                        claims.lastname = result[i].getValue();
+                                    }
+                                } else if (uri.indexOf("givenname") > 0) {
+                                    var tmp = result[i].getValue();
+                                    if(tmp.indexOf("$") != 0){
+                                        claims.firstname = result[i].getValue();
+                                    }
+                                } else if (uri.indexOf("emailaddress") > 0) {
+                                    claims.email = result[i].getValue();
+                                }
+                            }
+                        }
+                    }
+
+                    //Checking wheather the user is Tenant Admin
+                    var adminRoles = ['admin'];
+                    var isTenantAdmin = user.hasRoles(adminRoles);
+
+                    //getting tenant display name
+                    var db = new Database("cloud_mgt");
+                    var results = db.query("SELECT displayName FROM ORGANIZATIONS WHERE tenantDomain='" + domainName + "';");
+                    var tenantDisplayName = results[0]["displayName"];
+                    db.close();
+
+                    jagg.setUser({
+                        username: jagg.getUser().username,
+                        isSuperTenant: isSuperTenant,
+                        cookie: null,
+                        userDomain: String(domainName),
+                        fullName: claims.firstname + " " + claims.lastname,
+                        email: claims.email,
+                        tenantDomain: domainName,
+                        tenantDisplayName: tenantDisplayName,
+                        isTenantAdmin: isTenantAdmin
+                    });
+
+                    log.info("Admin-Dashboard Logged in User [ User : " + jagg.getUser().username +
+                            ", Full Name : " + jagg.getUser().fullName +
+                            ", Email : " + jagg.getUser().email +
+                            ", Tenant : " + jagg.getUser().tenantDomain +
+                            ", Is Admin : " + jagg.getUser().isTenantAdmin +
+                            ", Tenant Display Name : " + jagg.getUser().tenantDisplayName + " ]");
+
+                }catch (e) {
+                    log.error("Error while getting user information for the user : "
+                            + ssoRelyingParty.getLoggedInUser(sessionId));
+                    log.error(e);
+                }
+
+                //------------------------------ End of Cloud specific implementation ------------------------------
+                response.sendRedirect(requestedURI);
+            } else {
+                response.sendRedirect("../site/pages/error-pages/401.html");
+                return;
+            }
+        } else {
+            // if the saml response is log out request from IDP, we log out from web app.
+            try {
+                ssoRelyingParty.invalidateSessionBySessionId(sessionId);
+            } catch (e) {
+                log.error("Session has already been invalidated");
+            }
+            response.sendRedirect("../");
+            return;
+        }
+
+    }
+
+    // if saml request is a log out request, then invalidate session.
+    if (samlRequest != null) {
+        isLogoutRequest = ssoRelyingParty.isLogoutRequest(samlRequest);
+        if (Boolean(isLogoutRequest)) {
+            try {
+                ssoRelyingParty.invalidateSessionBySAMLResponse(samlRequest);
+            } catch (e) {
+                log.error("Session has already been invalidated");
+            }
+        }
+    }
+
+}());
+%>
+</body>
+</html>

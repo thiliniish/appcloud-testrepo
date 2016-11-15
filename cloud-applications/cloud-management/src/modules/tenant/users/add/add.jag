@@ -323,19 +323,86 @@ var sendEmail = function(to,link,domain,roles,message) {
     } else{
       displayRoles = displayRoles + " roles";
     }
-    var body = jagg.module("util").getObjFromFile("/site/conf/emails/user_invitation_email.body.txt");
 
-    body = body.replace("$link",link).replace("$link",link);
-    body = body.replace("$tenant",domain);
-    body = body.replace("$roles",displayRoles);
-    if(message != null && message != "" && message != "null" && message !=undefined){
-        body = body.replace("$message",message);
-    }else{
-        body = body.replace("$message","");
+    var body = getCustomEmailBody(userRoleArray);
+    if (body) {
+        var customLogo = getCustomLogo();
+        if (customLogo) {
+            body = body.replace("$logo", customLogo);
+        }
+    } else {
+        body = jagg.module("util").getObjFromFile("/site/conf/emails/user_invitation_email.body.txt");
+        body = body.replace("$tenant", domain);
+        if (message != null && message != "" && message != "null" && message != undefined) {
+            body = body.replace("$message", message);
+        } else {
+            body = body.replace("$message", "");
+        }
     }
+    body = body.replace("$link", link).replace("$link", link);
+    body = body.replace("$roles", displayRoles);
     var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
     jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
     log.info("Successfully sent the email to [ " + to + " ], with the link : " + link);
+};
+
+var getCustomEmailBody = function(userRoleArray) {
+    var path;
+    if (userRoleArray.length == 1) {
+        if (userRoleArray[0] == ROLE_SUBSCRIBER) {
+            path = getEmailTemplatePath(ROLE_SUBSCRIBER);
+        } else if (userRoleArray[0] == ROLE_PUBLISHER) {
+            path = getEmailTemplatePath(ROLE_PUBLISHER);
+        } else {
+            path = getEmailTemplatePath("other");
+        }
+    } else {
+        path = getEmailTemplatePath("other");
+    }
+    var file = new File(path);
+    if (file.isExists()) {
+        return jagg.module("util").getObjFromFile(path);
+    } else {
+        return null;
+    }
+};
+
+var getEmailTemplatePath = function(tag) {
+    var path = "file://" + getCustomEmailDir() + "custom_" + tag + "_invitation_email.txt";
+    return path;
+};
+
+var getCustomEmailDir = function() {
+    var tenantDomain = modManager.getTenantDomain();
+    var tenantId = modManager.getTenantId(tenantDomain);
+    var carbonHome = Packages.java.lang.System.getProperty("carbon.home");
+    var path = carbonHome + "/repository/tenants/" + tenantId + "/customizations/emailTemplates/";
+    return path;
+};
+
+var getCustomLogo = function() {
+    var path = "file://" + getCustomEmailDir() + "custom-logo";
+    var file = new File(path);
+    if (file.isExists()) {
+        return 'data:image/png;base64,' + base64EncodedImg(path);
+    } else {
+        log.error("Could not find custom logo : " + path);
+    }
+};
+
+var base64EncodedImg = function(pathToFile) {
+    try {
+        var path = pathToFile.replace("file://", "");
+        var file = new Packages.java.io.File(path);
+        var bufferedImg = Packages.javax.imageio.ImageIO.read(file);
+        var byteArrayOutputStream = new Packages.java.io.ByteArrayOutputStream;
+        Packages.javax.imageio.ImageIO.write(bufferedImg, "png", byteArrayOutputStream);
+        var base64 = new Packages.org.apache.commons.codec.binary.Base64();
+        return new java.lang.String(base64.encodeBase64(byteArrayOutputStream.toByteArray()));
+    } catch (e) {
+        log.error("Error while reading file " + pathToFile);
+        log.error(e);
+    }
 };
 
 var sendUserInvite = function (emails,roles){

@@ -1,0 +1,37 @@
+<%
+jagg.initializer("pricing/payment-method/add", {
+    preInitialize: function () {
+
+
+        jagg.addHeaderCSS("pricing/payment-method/add", "common",
+                "templates/pricing/manage-account/css/common.css");
+        jagg.addHeaderCSS("pricing/payment-method/add", "custom",
+                "templates/pricing/manage-account/css/custom.css");
+        jagg.addHeaderCSS("pricing/payment-method/add", "styles", "templates/pricing/css/styles.css");
+        jagg.addHeaderCSS("pricing/payment-method/add", "style",
+                "templates/pricing/manage-account/css/style.css");
+        jagg.addHeaderCSS("pricing/payment-method/add", "Roboto",
+                "templates/pricing/css/web-fonts/Roboto.css");
+        jagg.addHeaderCSS("pricing/payment-method/add", "font-awesome.min",
+                "templates/pricing/css/font-awesome-4.2.0/font-awesome.min.css");
+
+        jagg.addHeaderJS("pricing/payment-method/add", "html5shiv.min",
+                "templates/pricing/manage-account/js/html5shiv.min.js");
+        jagg.addHeaderJS("pricing/payment-method/add", "respond.min",
+                "templates/pricing/manage-account/js/respond.min.js");
+
+        jagg.addHeaderJS("pricing/payment-method/add", "jquery.min",
+                "templates/pricing/js/jquery-1.11.1/jquery.min.js");
+        jagg.addHeaderJS("pricing/payment-method/add", "bootstrap.min",
+                "templates/pricing/manage-account/lib/bootstrap_3.3.5/js/bootstrap.min.js");
+        jagg.addHeaderJS("pricing/payment-method/add", "custom",
+                "templates/pricing/js/custom/custom.js");
+        jagg.addHeaderJS("pricing/payment-method/add", "add-payment-method",
+                "templates/pricing/payment-method/add/js/add-payment-method.js");
+
+        jagg.addHeaderCode("pricing/payment-method/add", "stripe", '<script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>');
+        jagg.addHeaderCode("pricing/payment-method/add", "charset", '<meta charset="utf-8">');
+        jagg.addHeaderCode("pricing/payment-method/add", "viewpoint", '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+    }
+});
+%>
