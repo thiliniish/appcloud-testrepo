@@ -3,7 +3,7 @@ include("/jagg/jagg.jag");
 include("/jagg/cloud/constants.jag");
 include("/modules/pricing/utils.jag");
 
-var billingConstants = Packages.org.wso2.carbon.cloud.billing.commons.BillingConstants;
+var monetizationConstants = Packages.org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
 var msg;
 var log = new Log("modules.pricing.manager.jag");
 var errorObj = {
@@ -121,7 +121,7 @@ var removePaymentMethod = function (methodId) {
     try {
         var accountId = getAccountId();
         var tenantDomain = getTenantDomain();
-        var result = JSON.parse(apiMonService.removePaymentMethod(tenantDomain, accountId ,methodId));
+        var result = JSON.parse(apiMonService.removePaymentMethod(tenantDomain, accountId, methodId));
         if (result.success) {
             return {
                 error: false,
@@ -555,6 +555,7 @@ var populateSubscriptionInfo = function (customer, ratePlanId) {
     var data = {};
     data.customer = customer;
     data.plan = ratePlanId;
+    data.application_fee_percent = monetizationConstants.APPLICATION_FEE_PERCENT;
     return data;
 };
 
