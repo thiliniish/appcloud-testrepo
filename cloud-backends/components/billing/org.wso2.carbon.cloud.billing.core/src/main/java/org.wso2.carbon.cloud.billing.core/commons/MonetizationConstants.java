@@ -76,6 +76,7 @@ public final class MonetizationConstants {
     public static final String API_SUBSCRIPTION_BLOCKED_STATUS = "BLOCKED";
     public static final String FREE_TIER = "freeTier";
     public static final String FREE = "FREE";
+    public static final int APPLICATION_FEE_PERCENT = 5;
 
     public static final String ACCOUNT = "Account";
     public static final String RATE_PLAN = "RatePlan";
