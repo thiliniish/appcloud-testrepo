@@ -582,6 +582,7 @@ public final class APICloudMonetizationUtils {
             JsonObject subscriptionObj = new JsonObject();
             subscriptionObj.addProperty("plan", ratePlanId);
             subscriptionObj.addProperty("customer", accountNumber);
+            subscriptionObj.addProperty("application_fee_percent", MonetizationConstants.APPLICATION_FEE_PERCENT);
 
             CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
             String vendorResponse = provider.createSubscription(subscriptionObj.toString());
