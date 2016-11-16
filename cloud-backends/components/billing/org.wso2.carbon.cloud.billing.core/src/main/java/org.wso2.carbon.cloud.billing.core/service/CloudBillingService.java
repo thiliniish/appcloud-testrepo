@@ -887,6 +887,21 @@ public class CloudBillingService extends AbstractAdmin {
             throw ex;
         }
     }
+    /**
+     * Get billed organization Name
+     *
+     * @param customerId customer id
+     * @return current billed organization Name
+     * @throws CloudBillingException
+     */
+    public String getBilledOrganizationName(String customerId) throws CloudBillingException {
+        try {
+            return init().getBilledOrganizationName(customerId);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while retrieving the billed organization of the customer : " + customerId, ex);
+            throw ex;
+        }
+    }
 
     /**
      * Method to get that the billing trial period

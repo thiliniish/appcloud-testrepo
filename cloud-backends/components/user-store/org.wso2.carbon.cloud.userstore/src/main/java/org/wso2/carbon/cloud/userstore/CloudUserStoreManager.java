@@ -84,7 +84,9 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
                     continue;
                 }
                 String[] usersInRole = userStoreManager.getUserListOfRole(role);
-                users.addAll(Arrays.asList(usersInRole));
+                if (usersInRole != null && usersInRole.length != 0) {
+                    users.addAll(Arrays.asList(usersInRole));
+                }
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String msg = "Unable to list users for the search filter : " + searchFilter;

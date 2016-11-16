@@ -220,8 +220,8 @@ function getCheckoutHandler() {
         }
     });
     handler.open({
-        name: 'Secure Stripe Gateway',
-        description: 'Credit card billing information',
+        name: 'Credit Card Information',
+        description: 'Payment processed securely through Stripe',
         email: userEmail
     });
 
