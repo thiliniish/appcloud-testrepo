@@ -273,4 +273,14 @@ public interface CloudBillingServiceProvider {
      */
     public String getCurrencyUsed() throws CloudBillingException;
 
+    /**
+     * Get billed organization Name
+     *
+     * @param customerId customer id
+     * @return current billed organization Name
+     * @throws CloudBillingException
+     */
+    public String getBilledOrganizationName(String customerId) throws CloudBillingException;
+
+
 }

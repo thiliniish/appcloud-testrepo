@@ -1059,4 +1059,30 @@ public class StripeCloudMonetization implements CloudBillingServiceProvider {
             }.getType());
         }
     }
+
+    /**
+     * Get billed organization Name
+     *
+     * @param customerId customer id
+     * @return current billed organization Name
+     * @throws CloudBillingVendorException
+     */
+    @Override public String getBilledOrganizationName(String customerId) throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
+        try {
+            Customer customer = Customer.retrieve(customerId);
+            JsonObject customerJsonObj =
+                    new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(customer.toString()))
+                                    .getAsJsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, customerJsonObj.get("description"));
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while retrieving customer details : ", ex);
+        }
+        return response.toString();
+    }
 }

@@ -714,12 +714,23 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
             var invoiceItems = invoiceObj.lines.data;
             var invoiceData = {};
             var dateFormat = dateTimeFormatter(DATE_FORMAT);
+            var totalDiscount = 0;
 
             invoiceData["accountName"] = invoiceObj.customer;
             invoiceData["invoiceDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
             invoiceData["invoiceNumber"] = invoiceObj.id;
-            invoiceData["amount"] = invoiceObj.amount_due / CENTS;
+            invoiceData["amount"] = (invoiceObj.amount_due / CENTS).toFixed(2);
             invoiceData["invoiceItems"] = [];
+            if (invoiceObj.starting_balance != 0) {
+                var itemData = {};
+                itemData["subscriptionName"] = "";
+                itemData["chargeName"] = "Starting customer balance";
+                itemData["discount"] = 0.0;
+                itemData["amount"] = invoiceObj.starting_balance / CENTS;
+                itemData["servicePeriod"] = "";
+                itemData["chargeDate"] = "";
+                invoiceData["invoiceItems"].push(itemData);
+            }
 
             for (var i = 0; i < invoiceItems.length; i++) {
                 var item = {};
@@ -729,21 +740,36 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
                     item["chargeName"] = invoiceItem.plan.statement_descriptor;
                 }
                 item["subscriptionName"] = invoiceItem.plan.name;
-                item["amount"] = invoiceItem.amount / CENTS;
+                item["amount"] = (invoiceItem.amount / CENTS).toFixed(2);
                 item["servicePeriod"] = dateFormat.format(invoiceItem.period.start * THOUSAND) + " to "
-                + dateFormat.format(invoiceItem.period.end * THOUSAND);
+                        + dateFormat.format(invoiceItem.period.end * THOUSAND);
                 item["chargeDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
                 item["discount"] = 0.0;
                 if (invoiceItem.discountable && invoiceObj.discount != null) {
                     if (invoiceObj.discount.coupon.amount_off != null) {
                         item["discount"] = -invoiceObj.discount.coupon.amount_off / CENTS;
+                        totalDiscount = totalDiscount + (invoiceObj.discount.coupon.amount_off / CENTS);
                     } else {
                         item["discount"] = -(invoiceItem.amount * (invoiceObj.discount.coupon.percent_off / 100)) /
-                        CENTS;
+                                CENTS;
+                        totalDiscount = totalDiscount + ((invoiceItem.amount * (invoiceObj.discount.coupon
+                                        .percent_off / 100)) / CENTS);
                     }
                 }
                 invoiceData["invoiceItems"].push(item);
             }
+            if (totalDiscount != 0) {
+                var itemData = {};
+                itemData["subscriptionName"] = "";
+                itemData["chargeName"] = "Balance brought-forward";
+                itemData["discount"] = 0.0;
+                itemData["amount"] = (-totalDiscount).toFixed(2);
+                itemData["servicePeriod"] = "";
+                itemData["chargeDate"] = "";
+                invoiceData["invoiceItems"].push(itemData);
+            }
+
+
             return invoiceData;
         }
     } catch (e) {
@@ -1028,5 +1054,33 @@ function addCloudSubmissionToMailCampaign(email, domain, type) {
     var result = post(URL, data, {}, 'text');
     return result;
 }
+
+var verifyEvent = function (id) {
+    try {
+        var eventDataJson = JSON.parse(billingCoreService.callVendorMethod("getEventDetails", id));
+        var description = "";
+        if (eventDataJson.success) {
+            var invoiceData = getBillingInvoiceData(SUPER_TENANT_ID, eventDataJson.data.data.object.invoice);
+            var orgNameObj = JSON.parse(billingCoreService.getBilledOrganizationName(eventDataJson.data.data.object
+                    .customer));
+            if (orgNameObj.success) {
+                description = orgNameObj.data;
+            }
+            var invoiceAddressObj = {};
+            invoiceAddressObj.source = eventDataJson.data.data.object.source;
+            invoiceAddressObj.description = description;
+            invoiceAddressObj.email = eventDataJson.data.data.object.receipt_email;
+            jagg.module("util").sendInvoiceEmail(invoiceData, eventDataJson.data.data.object
+                    .receipt_email, invoiceAddressObj);
+
+        } else {
+            log.error(eventDataJson.message);
+        }
+
+    } catch (e) {
+        log.error("Error retrieving the event " + e);
+        throw Error(e);
+    }
+};
 
 %>
