@@ -33,6 +33,7 @@ import com.stripe.model.Charge;
 import com.stripe.model.Coupon;
 import com.stripe.model.Customer;
 import com.stripe.model.CustomerSubscriptionCollection;
+import com.stripe.model.Event;
 import com.stripe.model.ExternalAccount;
 import com.stripe.model.Invoice;
 import com.stripe.model.Plan;
@@ -1023,6 +1024,32 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
+     * Get billed organization Name
+     *
+     * @param customerId customer id
+     * @return current billed organization Name
+     * @throws CloudBillingVendorException
+     */
+    @Override public String getBilledOrganizationName(String customerId) throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
+        try {
+            Customer customer = Customer.retrieve(customerId);
+            JsonObject customerJsonObj =
+                    new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(customer.toString()))
+                                    .getAsJsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, customerJsonObj.get("description"));
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while retrieving customer details : ", ex);
+        }
+        return response.toString();
+    }
+
+    /**
      * Inner class to set parameters to vendor model class objects
      */
     private static class ObjectParams {
@@ -1030,5 +1057,29 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             return gsonObj.fromJson(objectInfoJson, new TypeToken<Map<String, Object>>() {
             }.getType());
         }
+    }
+
+    /**
+     * Get the event details
+     *
+     * @param eventId event id
+     * @return json response string
+     */
+    public String getEventDetails(String eventId) throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
+        try {
+            JsonObject eventJsonObj = new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(
+                    Event.retrieve(eventId).toString()))
+                                                      .getAsJsonObject();
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.add(BillingVendorConstants.RESPONSE_DATA, eventJsonObj);
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while getting the event details : ", ex);
+        }
+        return response.toString();
     }
 }

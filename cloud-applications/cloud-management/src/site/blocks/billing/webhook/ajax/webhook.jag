@@ -1,0 +1,38 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log("site/block/account/billing/webhook/ajax/webhook.jag");
+(function () {
+    var mod = jagg.module("billing");
+    var carbon = require('carbon');
+
+    var jsonContent = request.getContent();
+
+    if (jsonContent.type == "charge.succeeded") {
+        response.status = 200;
+        setTimeout(function () {
+            mod.verifyEvent(jsonContent.id);
+            return;
+        }, 0);
+
+        print({
+            error: true,
+            statusCode: 400,
+            message: "Received the event"
+        });
+
+    } else {
+        message = "Invalid Request";
+        log.error(message);
+        response.status = 400;
+        print({
+            error: true,
+            statusCode: 400,
+            message: message
+        });
+    }
+
+    return;
+}());
+%>
