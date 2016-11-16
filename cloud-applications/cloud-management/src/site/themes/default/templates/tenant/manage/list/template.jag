@@ -97,7 +97,6 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
        }
 
        $(document).ready(function($){
-           initializeUserActivity("Manage Organization");
     	   getOrganizations();
            /*getting the total number of pages using max items in a page
            checking if the number of Organization are equal to the max Organization in a page,else add a new page to the total*/

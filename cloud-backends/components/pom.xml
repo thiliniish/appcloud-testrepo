@@ -39,6 +39,8 @@
         <module>gitblit-plugin/org.wso2.carbon.cloud.gitblit.plugin</module>
         <module>jenkins-plugin/org.wso2.carbon.cloud.jenkins.authentication.plugin</module>
         <module>listeners/org.wso2.carbon.cloud.tenant.creation.listener</module>
+        <module>listeners/org.wso2.carbon.cloud.appcloudlistener</module>
+        <module>listeners/org.wso2.carbon.cloud.listener</module>
         <module>selfSignup/org.wso2.carbon.cloud.selfSignup</module>
     </modules>
 </project>
