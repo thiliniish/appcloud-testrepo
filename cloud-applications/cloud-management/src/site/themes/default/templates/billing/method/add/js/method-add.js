@@ -221,7 +221,7 @@ function getCheckoutHandler() {
     });
     handler.open({
         name: 'Credit Card Information',
-        description: 'Payment processed securely through Stripe',
+        description: 'Processed securely through Stripe',
         email: userEmail
     });
 

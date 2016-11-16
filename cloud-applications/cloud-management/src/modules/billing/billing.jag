@@ -724,9 +724,9 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
             if (invoiceObj.starting_balance != 0) {
                 var itemData = {};
                 itemData["subscriptionName"] = "";
-                itemData["chargeName"] = "Starting customer balance";
+                itemData["chargeName"] = "Balance brought-forward";
                 itemData["discount"] = 0.0;
-                itemData["amount"] = invoiceObj.starting_balance / CENTS;
+                itemData["amount"] = -(invoiceObj.starting_balance / CENTS);
                 itemData["servicePeriod"] = "";
                 itemData["chargeDate"] = "";
                 invoiceData["invoiceItems"].push(itemData);
@@ -737,7 +737,11 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
                 var invoiceItem = invoiceItems[i];
                 item["chargeName"] = invoiceItem.description;
                 if (invoiceItem.description == null) {
-                    item["chargeName"] = invoiceItem.plan.statement_descriptor;
+                    if( invoiceItem.plan.statement_descriptor != null) {
+                        item["chargeName"] = invoiceItem.plan.statement_descriptor;
+                    } else {
+                        item["chargeName"] = invoiceItem.plan.name + " Subscription";
+                    }
                 }
                 item["subscriptionName"] = invoiceItem.plan.name;
                 item["amount"] = (invoiceItem.amount / CENTS).toFixed(2);
@@ -761,7 +765,7 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
             if (totalDiscount != 0) {
                 var itemData = {};
                 itemData["subscriptionName"] = "";
-                itemData["chargeName"] = "Balance brought-forward";
+                itemData["chargeName"] = "Discounted Amount";
                 itemData["discount"] = 0.0;
                 itemData["amount"] = (-totalDiscount).toFixed(2);
                 itemData["servicePeriod"] = "";
