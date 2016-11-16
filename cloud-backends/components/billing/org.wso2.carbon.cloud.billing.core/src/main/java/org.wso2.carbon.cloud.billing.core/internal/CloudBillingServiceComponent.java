@@ -116,7 +116,7 @@ public class CloudBillingServiceComponent {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Cloud billing  bundle is activated");
             }
-            LOGGER.info("########## Cloud billing Core bundle is activated ##################");
+            LOGGER.info("Cloud billing Core bundle is activated");
         } catch (Exception e) {
             LOGGER.error("Failed to activate the Cloud Billing service.", e);
         }
