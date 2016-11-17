@@ -227,7 +227,7 @@ var sendInvoiceEmail = function(jsonContent, sender, invoiceObj) {
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudMailAddress = cloudConfig.supportContact.to;
 
-    sendEmailWithCC(body, subject, userMail, cloudMailAddress);
+    sendEmailWithBCC(body, subject, userMail, cloudMailAddress);
     return true;
 };
 
@@ -279,7 +279,7 @@ var sendEmail = function (body, subject, receiverAddress) {
     return true;
 };
 
-var sendEmailWithCC = function (body, subject, receiverAddress, ccAddress) {
+var sendEmailWithBCC = function (body, subject, receiverAddress, bccAddress) {
 
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var from = cloudConfig.registrationEmail.from;
@@ -302,7 +302,7 @@ var sendEmailWithCC = function (body, subject, receiverAddress, ccAddress) {
     if (receiverAddress == null) {
         receiverAddress = cloudConfig.supportContact.to;
     }
-    sender.cc = ccAddress;
+    sender.bcc = bccAddress;
     sender.to = receiverAddress;
     sender.subject = subject;
     sender.html = body;
