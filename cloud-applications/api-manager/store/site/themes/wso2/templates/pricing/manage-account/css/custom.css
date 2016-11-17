@@ -433,3 +433,7 @@ h4 {
 	color: #08c;
 	text-decoration: none;
 }
+
+#submitbtn[disabled] {
+	background-color: #999999;
+}
