@@ -46,10 +46,10 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         return;
     }
 
-    if (action != null && action == "generateParams") {
-        var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
+    if (action != null && action == "generateParameters") {
+        var workflowReferenceForKeys = encoder.getSafeText(request.getParameter("workflowReference"));
         try {
-            result = mod.generateParams(tenantDomain, workflowReference);
+            result = mod.generateParameters(tenantDomain, workflowReferenceForKeys);
             if (result != null) {
                 print(result);
             } else {
@@ -62,6 +62,20 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
             print(errorObj);
         }
 
+    } else if (action == "addPaymentMethod") {
+        var tokenId = request.getParameter("tokenId");
+        try {
+            result = mod.addPaymentMethod(tokenId);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while adding the payment method";
+            }
+        } catch (e) {
+            log.error("Error while adding the payment method " + e.message);
+            log.error(e);
+            throw new Error("Error while adding the payment method " + e.message);
+        }
     } else {
         log.error("No action specified..");
         response.status = 400;

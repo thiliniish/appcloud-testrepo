@@ -162,6 +162,11 @@
          <with-param name="NEW_SUBSCRIPTION_ID" query-param="NEW_SUBSCRIPTION_ID"/>
       </call-query>
    </operation>
+   <operation name="getAccountNumber">
+      <call-query href="getAccountFromUserNameQ">
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
+      </call-query>
+   </operation>
    <resource method="GET" path="requestcount">
       <call-query href="getTotalRequestCountPerDayQ">
          <with-param name="year" query-param="year"/>
@@ -219,6 +224,11 @@
    <resource method="GET" path="mappingforsubscription">
       <call-query href="getMappingForSubscriptionQ">
          <with-param name="NEW_SUBSCRIPTION_ID" query-param="NEW_SUBSCRIPTION_ID"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="getaccountnumber">
+      <call-query href="getAccountFromUserNameQ">
+         <with-param name="TENANT_DOMAIN" query-param="TENANT_DOMAIN"/>
       </call-query>
    </resource>
 </data>

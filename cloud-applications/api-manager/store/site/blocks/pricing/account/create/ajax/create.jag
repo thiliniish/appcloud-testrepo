@@ -59,6 +59,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         metaData.refId = encoder.getSafeText(request.getParameter("refId"));
         metaData.signature = encoder.getSafeText(request.getParameter("signature"));
         metaData.field_passthrough1 = encoder.getSafeText(request.getParameter("field_passthrough1"));
+        metaData.field_passthrough5 = encoder.getSafeText(request.getParameter("field_passthrough5"));
         var workflowReference = encoder.getSafeText(request.getParameter("workflowReference"));
         try {
             result = mod.createAccount(user.username, accountData, metaData, workflowReference);

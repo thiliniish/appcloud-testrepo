@@ -328,27 +328,6 @@ public class CloudBillingService extends AbstractAdmin {
     }
 
     /**
-     * Get current plan subscribed to a service
-     *
-     * @param tenantDomain tenant domain
-     * @param productName  subscribed service
-     * @return current rate plan list (this is a list because it contains coupon plans as well)
-     * @throws CloudBillingException
-     */
-    public JSONArray getCurrentRatePlan(String tenantDomain, String productName) throws CloudBillingException {
-        try {
-            String accountId = CloudBillingServiceUtils.getAccountIdForTenant(tenantDomain);
-            return (accountId != null && !accountId.isEmpty()) ?
-                    ZuoraRESTUtils.getCurrentRatePlan(productName, accountId) :
-                    null;
-        } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while retrieving the current rate plan of the tenant: " + tenantDomain + " " +
-                    "for subscription: " + productName, ex);
-            throw ex;
-        }
-    }
-
-    /**
      * Prepare access parameters required for client to query iframe
      *
      * @return json string of parameters
@@ -381,19 +360,27 @@ public class CloudBillingService extends AbstractAdmin {
     }
 
     /**
-     * Generate a MDA hash
+     * Generate MDA hash value for the data with the given MDA hash algorithm
      *
      * @param data        data which need a hash
-     * @param mdAlgorithm mda algorithm
-     * @return hashed data
-     * @throws CloudBillingException
+     * @param mdAlgorithm MDA algorithm
+     * @return hash string
+     * @throws CloudBillingSecurityException
      */
-    public String generateHash(String data, String mdAlgorithm) throws CloudBillingException {
+    public static String generateHash(String data, String mdAlgorithm) throws CloudBillingSecurityException {
         try {
-            return ZuoraHPMUtils.generateHash(data, mdAlgorithm);
-        } catch (CloudBillingException ex) {
-            LOGGER.error("Error occurred while generating hash value ", ex);
-            throw ex;
+            Security.addProvider(new BouncyCastleProvider());
+            MessageDigest mda = MessageDigest.getInstance(mdAlgorithm, BOUNCY_CASTLE_PROVIDER);
+            byte[] encodedData = Base64
+                    .encodeBase64(mda.digest(data.getBytes(Charset.forName(BillingConstants.ENCODING))));
+
+            if (encodedData != null) {
+                return new String(encodedData, Charset.forName(BillingConstants.ENCODING));
+            } else {
+                throw new CloudBillingSecurityException("Encoded data cannot be null");
+            }
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new CloudBillingSecurityException("Error while generating hash.", e);
         }
     }
 

@@ -16,16 +16,12 @@ var createAccount = function (serviceId){
     var isFromChangePlan = request.getParameter("isFromChangePlan");
     session.put("PRODUCT_PLAN_ID",productRatePlanId);
     var accountId =  mod.getAccountId();
-    var couponId = mod.getCouponProductRatePlanId(couponData,serviceId);
+    var validateCoupon = mod.isValidCoupon(couponData,serviceId);
 
 	// Getting actual payment amount
 	var ratePlans = session.get("RATE_PLANS");
 	var actualPaymentAmount = null;
-	if (isFromChangePlan == "true") {
-		actualPaymentAmount = mod.getActualPaymentAmount(accountId, productRatePlanId, ratePlans, serviceId, couponData);
-	}
-
-    if((couponData != "" && couponData != "null" && couponData != null) && (couponId == null)){
+    if((couponData != "" && couponData != "null" && couponData != null) && (!validateCoupon)){
     	log.error("Given Coupon " + couponData +" is invalid for : " + accountId);
     	print ("Given Coupon " + couponData +" is invalid." );
     }

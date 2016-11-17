@@ -1,6 +1,0 @@
-<%
-jagg.block("pricing/usage", {
-	initialize:function (data) {
-	}
-});
-%>

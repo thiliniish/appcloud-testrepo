@@ -1,0 +1,31 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+var redirector = request.getParameter("redirector");
+
+function openRedirectValidation(url) {
+    var storecontext = new RegExp(jagg.getSiteContext(), 'g');
+    if (url.match(storecontext)) {
+        return url;
+    } else {
+        return jagg.getSiteContext();
+    }
+}
+
+var tenant = jagg.getTenantDomain();
+var queryString = "";
+
+if (tenant == "null") {
+    queryString = "?tenant=carbon.super";
+} else {
+    queryString = "?tenant=" + tenant;
+}
+
+var redirectUrl = jagg.getHttpsUrl("/") + queryString;
+
+if (redirector == "login") {
+    session.put("showLogin", "true");
+}
+
+response.sendRedirect(redirectUrl);
+%>

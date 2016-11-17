@@ -1,0 +1,156 @@
+<%
+    var toplinks = toplinks || (function () {
+
+        var log = new Log("jagg/cloud/toplinks");
+        var logo;
+        var mainMenu;
+        var userMenu;
+        var expandMenu;
+
+        var readTopLinks = function () {
+            var file = new File("/site/conf/toplink-menu.json");
+            file.open("r");
+            var data = file.readAll();
+            file.close();
+            var jsonObj = parse(data);
+            logo = jsonObj.Logo;
+            mainMenu = jsonObj.Main;
+            userMenu = jsonObj.User;
+            expandMenu = jsonObj.Expand;
+        };
+
+        var getLogoJson = function (){
+            return logo;
+        };
+
+        var getMainMenuJson = function (){
+            return mainMenu;
+        };
+
+        var getUserMenuJson = function (){
+            return userMenu;
+        };
+
+        var getExpandMenuJson = function (){
+            return expandMenu;
+        };
+
+        return {
+            readTopLinks:readTopLinks,
+            getLogoJson:getLogoJson,
+            getMainMenuJson:getMainMenuJson,
+            getUserMenuJson:getUserMenuJson,
+            getExpandMenuJson:getExpandMenuJson
+        };
+
+    }());
+
+
+    var billing = billing || (function () {
+
+        var log = new Log("jagg/cloud/billing");
+        var isExpired;
+        var isTrial;
+        var accountContent;
+        var subscription = "api_cloud";
+
+        var isTrailExpired = function (){
+            return isExpired;
+        };
+
+        var isTrialAccount = function (){
+            return isTrial;
+        };
+
+        var getAccountContent = function (){
+            return accountContent;
+        };
+
+        var getSubscription = function (){
+            return subscription;
+        };
+
+        var initBillingInfo = function (cloudMgtUrl) {
+
+
+            var user = jagg.getUser();
+            var tenantDomain = user.tenantDomain;
+            var type = {PAID : "PAID", TRIAL: "TRIAL", FREE : "FREE"};
+            var status = {ACTIVE : "ACTIVE", INACTIVE : "INACTIVE", EXTENDED : "EXTENDED", PENDING_DISABLE: "PENDING_DISABLE", DISABLED : "DISABLED"};
+
+            var cloudMgtIndexPage = cloudMgtUrl + "site/pages/index.jag";
+
+            var trialPeriod = 14;
+            var date;
+            var noOfDays;
+            var queryString ="SELECT TYPE, STATUS, DATE_FORMAT(END_DATE,'%Y-%m-%d %T') AS END_DATE FROM BILLING_STATUS " +
+                                "WHERE TENANT_DOMAIN='" + tenantDomain + "' && SUBSCRIPTION='" + subscription + "' ORDER BY TYPE;";
+            var db = new Database("cloud_mgt");
+            var sqlDateFormatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            var results = db.query(queryString);
+            db.close();
+            var addDays = function (date, days){
+                var cal = Packages.java.util.Calendar.getInstance();
+                cal.setTime(date);
+                cal.add(Packages.java.util.Calendar.DATE, days);
+                return cal.getTime();
+            };
+
+            if(results.length > 0) {
+                var potentialDisabled = false;
+                for (var rowNum in results) {
+                    if((results[rowNum]["STATUS"] === status.ACTIVE || results[rowNum]["STATUS"] === status.PENDING_DISABLE) && results[rowNum]["TYPE"] === type.PAID) {
+                        accountContent="Account";
+                        isExpired = false;
+                        break;
+                    } else if((results[rowNum]["STATUS"] === status.ACTIVE || results[rowNum]["STATUS"] === status.EXTENDED) && results[rowNum]["TYPE"] === type.TRIAL) {
+                        date=results[0]["END_DATE"];
+                        var currDate = new java.util.Date();
+                        var endDate =  sqlDateFormatter.parse(date);
+                        var diff = endDate.getTime() - currDate.getTime();
+                        if(diff > 0) {
+                            isExpired = false;
+                            isTrial = true;
+                            noOfDays = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(diff);
+                            accountContent = "Trial - " + (noOfDays+1) + " days to upgrade";
+                        } else {
+                            isExpired = true;
+                            accountContent="Trial Expired";
+                        }
+                        break;
+                    } else if(results[rowNum]["STATUS"] === status.INACTIVE && results[rowNum]["TYPE"] === type.TRIAL) {
+                        var acStartDate = new Packages.java.util.Date();
+                        var acEndDate = sqlDateFormatter.format(addDays(acStartDate, trialPeriod));
+                        db = new Database("cloud_mgt");
+                        queryString = "UPDATE BILLING_STATUS SET STATUS = ('ACTIVE'), START_DATE " +
+                                  "= ('"+ sqlDateFormatter.format(acStartDate) +"') , END_DATE = " +
+                                  "('"+ acEndDate +"') WHERE (TENANT_DOMAIN, SUBSCRIPTION, TYPE) = ('" + tenantDomain + "','" + subscription + "','" + type.TRIAL + "')";
+                        db.query(queryString);
+                        log.info("Trial account activated for tenant: " + tenantDomain);
+                        db.close();
+                        isExpired = false;
+                        isTrial = true;
+                        accountContent = "Trial – "+ (trialPeriod)  +" days to upgrade";
+                        break;
+                    } else if (results[rowNum]["STATUS"] === status.DISABLED && (results[rowNum]["TYPE"] === type.PAID || results[rowNum]["TYPE"] === type.TRIAL)) {
+                        if (potentialDisabled){
+                            log.info("Access denied for tenant: " +tenantDomain + " with a DISABLED subscription. Redirected to CloudMgt");
+                            response.sendRedirect(cloudMgtIndexPage);
+                        } else {
+                            potentialDisabled = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return {
+            isTrailExpired:isTrailExpired,
+            isTrialAccount:isTrialAccount,
+            getAccountContent:getAccountContent,
+            getSubscription:getSubscription,
+            initBillingInfo:initBillingInfo
+        };
+    }());
+
+%>

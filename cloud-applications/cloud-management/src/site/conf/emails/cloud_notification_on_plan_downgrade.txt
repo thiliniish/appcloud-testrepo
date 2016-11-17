@@ -17,7 +17,7 @@
                     Hi,
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
-                  Tenant <span style="color: #141414;">$tenant</span>'s request to downgrade the <span style="color: #141414;">$service</span> subscription plan to <span style="color: #141414;">$to_plan</span> from <span style="color: #141414;">$from_plan</span> has been processed. The plan changes will go into effect on the user's next billing date - <span style="color: #141414;">$effective-date</span>. Request triggered by user <span style="color: #141414;">$user</span>.
+                  Tenant <span style="color: #141414;">$tenant</span>'s request to downgrade the <span style="color: #141414;">$service</span> subscription plan to <span style="color: #141414;">$to_plan</span> from <span style="color: #141414;">$from_plan</span>  has been processed and went into effect. Request triggered by user <span style="color: #141414;">$user</span>.
                 </p>
                 <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 20px 0px 5px;">
                     Regards,

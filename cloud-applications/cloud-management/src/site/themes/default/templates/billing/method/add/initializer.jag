@@ -1,6 +1,9 @@
 <%
 jagg.initializer("billing/method/add", {
     preInitialize:function () {
+        // UI related CSS files
+        jagg.addHeaderCSS("method/add", "billing.css", "new-assets/css/billing.css");
+
         if (session.get("PRODUCT_PLAN_ID") == null && request.getParameter("accountId") == null){
             response.sendRedirect("../pages/index.jag");
         }
@@ -8,6 +11,8 @@ jagg.initializer("billing/method/add", {
         if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) {
             response.sendRedirect("../pages/index.jag");
         }
+        // Custom JS file
+        jagg.addFooterJS("method/add", "method-add", "templates/billing/method/add/js/method-add.js");
     }
 });
 %>

@@ -1,8 +1,8 @@
 <%
 var carbon = require('carbon');
 var server = carbon.server;
-var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
-var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.service.APICloudMonetizationService');
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.CloudBillingService');
+var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService');
 var cloudUserService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 var EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
@@ -35,17 +35,22 @@ var getConfigInJson = function () {
 
 var zuoraObj = (getConfigInJson()).zuoraConfig;
 var getCurrencyUsed = function () {
-    return zuoraObj.currency;
+    return CURRENCY;
 };
 
 var getAccountId = function () {
+
     try {
         var user = jagg.getUser().username;
         var tenantDomain = multiTenantUtils.getTenantDomain(user);
         var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfo(user, tenantDomain));
-        if (subscriberData.Subscribers.Subscriber != null) {
-            var accountNumber = subscriberData.Subscribers.Subscriber.AccountNumber;
-            return accountNumber;
+        if (subscriberData.data.Subscriber != null) {
+            var accountNumber = subscriberData.data.Subscriber.AccountNumber;
+            if (typeof accountNumber == 'object') {
+                return null;
+            } else {
+                return accountNumber;
+            }
         } else {
             return null;
         }
@@ -62,7 +67,7 @@ var dateTimeFormatter = function (dateTimeFormat) {
 
 //validate passthrough token
 var validatePassThroughHash = function (token) {
-    var tokenHash = session.get(ZUORA_SIGNATURE_HASH);
+    var tokenHash = session.get(STRIPE_SIGNATURE_HASH);
     return billingService.validateHash(token, tokenHash, mdAlgorithm);
 };
 
@@ -85,30 +90,35 @@ var decryptWorkflowData = function (workflowData) {
 };
 
 //populate account information object
-var populateAccountInfo = function (accountData, metaData, effectiveDate, ratePlanId) {
-    var subscribeToRatePlans = [];
+var populateAccountInfo = function (accountData, metaData, isEdit) {
     var data = {};
-    var dateFormatter = dateTimeFormatter(ZUORA_DATE_FORMAT);
+    data.description = accountData.organization;
+    if(!isEdit) {
+        data.source = metaData.field_passthrough5;
+    }
+    data.email = accountData.workEmail;
+    data.shipping = {};
+    data.metadata = {};
 
-    data.name = accountData.organization;
-    delete accountData.organization;
-    data.autoPay = true;
-    data.currency = "USD";
-    data.billToContact = {};
-    var item = {};
-    item["productRatePlanId"] = ratePlanId;
-    subscribeToRatePlans.push(item);
-    data.subscription = {
-        "termType": "EVERGREEN",
-        "autoRenew": true,
-        "subscribeToRatePlans": subscribeToRatePlans,
-        "contractEffectiveDate": dateFormatter.format(effectiveDate)
-    };
+    var shippingDetails = {};
+    var shippingObj = {};
+    shippingObj.line1 = accountData.address1;
+    shippingObj.line2 = accountData.address2;
+    shippingObj.city = accountData.city;
+    shippingObj.state = accountData.state;
+    shippingObj.postal_code = accountData.zipCode;
+    shippingObj.country = accountData.country;
 
-    data.hpmCreditCardPaymentMethodId = metaData.refId;
-    data.billToContact = accountData;
-    data.invoiceCollect = true;
-    data.invoiceTargetDate = dateFormatter.format(effectiveDate);
+
+    shippingDetails.address = shippingObj;
+    shippingDetails.name = accountData.firstName + " " + accountData.lastName;
+    data.shipping = shippingDetails;
+
+    var metaDetails = {};
+    metaDetails.firstName = accountData.firstName;
+    metaDetails.lastName = accountData.lastName;
+    data.metadata = metaDetails;
+
     return data;
 };
 
