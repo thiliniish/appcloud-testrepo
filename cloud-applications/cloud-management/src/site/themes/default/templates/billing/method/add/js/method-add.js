@@ -10,6 +10,7 @@ var iframeDescription = $("#iframeDescription").attr('value');
 $(document).ready(function ($) {
     // Check for billing enable/disable mode
     var isBillingEnabled = $("#isBillingEnabled").attr('value');
+    document.getElementById("submitbtn").disabled = true;
 
     if (isBillingEnabled) {
         document.getElementById("cardDetails").style.display = "none";
@@ -207,6 +208,7 @@ function getCheckoutHandler() {
             document.getElementById("cardDetailHeader").style.display = "none";
             document.getElementById("cardDetails").style.display = "block";
             document.getElementById("cardSuccessHeader").style.display = "block";
+            document.getElementById("submitbtn").disabled = false;
             $("#paymentType").text(response.card.brand);
             $("#ccName").text(response.card.name);
             $("#ccNum").text("************" + response.card.last4);
@@ -221,7 +223,7 @@ function getCheckoutHandler() {
     });
     handler.open({
         name: 'Credit Card Information',
-        description: 'Payment processed securely through Stripe',
+        description: 'Processed securely through Stripe',
         email: userEmail
     });
 
