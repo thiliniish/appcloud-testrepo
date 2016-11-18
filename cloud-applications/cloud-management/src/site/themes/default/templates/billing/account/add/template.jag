@@ -206,7 +206,7 @@
         if ($("#" + id).val() == "") {
             validInputObj.isValid = false;
             error = '<%=FIELD_REQUIRED_MESSAGE%>';
-        } else if(id == "email"){
+        } else if (id == "email") {
             var email = $("#" + id).val();
             var patternForEmailValidation =/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     	    var isEmailValid = patternForEmailValidation.test(email);
