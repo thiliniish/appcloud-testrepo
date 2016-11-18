@@ -39,11 +39,12 @@ function validateForm() {
     validateRequiredInput('firstName', validInputObj);
     validateRequiredInput('lastName', validInputObj);
     validateRequiredInput('email', validInputObj);
-    validateInput('addressLine1', validInputObj);
-    validateInput('addressLine2', validInputObj);
-    validateInput('city', validInputObj);
-    validateInput('state', validInputObj);
-    validateInput('postalCode', validInputObj);
+    validateRequiredInput('addressLine1', validInputObj);
+    validateRequiredInput('addressLine2', validInputObj);
+    validateRequiredInput('country', validInputObj);
+    validateRequiredInput('city', validInputObj);
+    validateRequiredInput('state', validInputObj);
+    validateRequiredInput('postalCode', validInputObj);
     return validInputObj.isValid;
 }
 

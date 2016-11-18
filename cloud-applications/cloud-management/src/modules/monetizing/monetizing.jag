@@ -719,7 +719,8 @@ var getOrdedInvoices = function (accountId, invoiceId) {
 
 var getBillingAccountSummary = function (subscribersAccountId) {
     try {
-        var summary = billingService.getAccountSummary(subscribersAccountId);
+        var tenantDomain = modManager.getTenantDomain();
+        var summary = monetizationService.retrieveAccountInfo(tenantDomain, subscribersAccountId);
         message = "Successfully retrieved the Billing data for the accountId [" + subscribersAccountId + "] :"
         return {
             error: false,
@@ -1049,7 +1050,7 @@ var addProductRatePlan = function (planName, planDescription, pricing, overageCh
         metaDataObj.product = API_CLOUD;
         metaDataObj.description = planDescription;
         planObj.metadata = metaDataObj;
-        var addProductPlanResult = JSON.parse(billingService.createProductRatePlan(tenantDomain, stringify(planObj)));
+        var addProductPlanResult = JSON.parse(monetizationService.createProductRatePlan(tenantDomain, stringify(planObj)));
         if (addProductPlanResult.id != null) {
             addProductPlanDetailsToMonetizationTables(tenantDomain, addProductPlanResult.id, planName, pricing, overageCharge, overageLimit, dailyUsage);
             var msg = "Successfully added the product rate plan: " + planName + " for the tenant " + tenantDomain;

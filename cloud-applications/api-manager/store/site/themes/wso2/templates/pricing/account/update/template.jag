@@ -44,7 +44,7 @@
                     <select id="country" name="country" onchange='populateStateValue("")'></select>
                 </div>
                 <script type="text/javascript">
-                    var countryCode = "<%=outputs.creditCardCountry%>";
+                    var countryCode = getCountryCode("<%=outputs.creditCardCountry%>");
                     postCountry = countryCode;
                     populateCountry(countryCode);
                 </script>

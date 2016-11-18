@@ -49,7 +49,7 @@ var isPaidAccount = function () {
     }
 };
 
-var notifyMailCampaignForUnfinishedUpgrades = function(cType, domainName) {
+var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
 
     var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
 
@@ -79,7 +79,7 @@ var notifyMailCampaignForUnfinishedUpgrades = function(cType, domainName) {
         } else {
             actionString = actionString + "Failed";
             log.error(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Start' failed for the user " + jagg.getUser() + " " +
-                    msg);
+            msg);
         }
         var event = {};
         event.item = item;
@@ -91,7 +91,7 @@ var notifyMailCampaignForUnfinishedUpgrades = function(cType, domainName) {
     }
 };
 
-var getCloudURL = function(serviceName) {
+var getCloudURL = function (serviceName) {
     for (i = 0; i < subscriptionsType.length; i++) {
         if ((subscriptionsType[i].id).equals(serviceName)) {
             subscriptionsURL = subscriptionsType[i].urls.cloudTypeUrl;
@@ -101,7 +101,7 @@ var getCloudURL = function(serviceName) {
     return cloudmgtURL + "/site/pages/index.jag";
 };
 
-var getDisplayNameFromTenantDomain = function(tenantDomain) {
+var getDisplayNameFromTenantDomain = function (tenantDomain) {
     var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
     var parameters = [tenantDomain];
     var result = jagg.module("database").executeQuery(queryString, parameters);
@@ -114,7 +114,7 @@ var getDisplayNameFromTenantDomain = function(tenantDomain) {
 };
 
 //TODO Get the account id from the service
-var getAccountId = function() {
+var getAccountId = function () {
     if ((session.get("TENANT_INFO")) != null) {
         var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
         var queryString = SQL_QUERY_STRINGS.SELECT_ACCOUNT_NUMBER_FROM_BILLING_ACCOUNT;
@@ -138,7 +138,7 @@ var getAccountId = function() {
     }
 };
 //Getting product rate plans
-var getRatePlans = function(serviceId) {
+var getRatePlans = function (serviceId) {
     try {
         var subscriptions = billingCoreService.getPaymentPlansForServiceId(serviceId);
         var subscriptionJson = {
@@ -165,7 +165,7 @@ var getRatePlans = function(serviceId) {
         throw Error(e);
     }
 };
-var validateServiceId = function(serviceId) {
+var validateServiceId = function (serviceId) {
     try {
         return billingCoreService.validateServiceId(serviceId);
     } catch (e) {
@@ -174,7 +174,7 @@ var validateServiceId = function(serviceId) {
     }
 };
 
-var isValidCoupon = function(couponData, serviceId) {
+var isValidCoupon = function (couponData, serviceId) {
     //Currently the serviceId is not necessary when retrieving the coupons.
     try {
         if (couponData != null) {
@@ -186,22 +186,22 @@ var isValidCoupon = function(couponData, serviceId) {
         }
         return false;
     } catch (e) {
-        log.warn ("Error while validating the coupon: " +e );
+        log.warn("Error while validating the coupon: " + e);
         return false;
     }
 };
 
-var getAccountStatus = function(subscription, type) {
+var getAccountStatus = function (subscription, type) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-    var queryString  = SQL_QUERY_STRINGS.SELECT_STATUS_FROM_BILLING_STATUS;
+    var queryString = SQL_QUERY_STRINGS.SELECT_STATUS_FROM_BILLING_STATUS;
     var parameters = [tenantDomain, subscription, type];
 
     return modDb.executeQuery(queryString, parameters);
 };
 
-var getCurrentRatePlan = function() {
+var getCurrentRatePlan = function () {
     var accountId = getAccountId();
-    if ((session.get("TENANT_INFO")) != null  && accountId != null) {
+    if ((session.get("TENANT_INFO")) != null && accountId != null) {
         return JSON.parse(billingCoreService.getCurrentRatePlan(accountId));
     } else {
         return null;
@@ -209,14 +209,14 @@ var getCurrentRatePlan = function() {
 };
 
 // Checking whether the Billing functionality is enable/disable
-var isBillingEnabled = function(serviceId) {
+var isBillingEnabled = function (serviceId) {
     return billingCoreService.isBillingEnabled(serviceId);
 };
 
-var getPublicKeyParams = function(serviceId, productRatePlanId) {
+var getPublicKeyParams = function (serviceId, productRatePlanId) {
     try {
         var clientParams = {};
-        clientParams.field_passthrough1 = billingCoreService.callVendorMethod("getPublishableKey",null);
+        clientParams.field_passthrough1 = billingCoreService.callVendorMethod("getPublishableKey", null);
         clientParams.field_passthrough2 = serviceId;
         clientParams.field_passthrough3 = productRatePlanId;
         return clientParams;
@@ -229,7 +229,7 @@ var getPublicKeyParams = function(serviceId, productRatePlanId) {
 };
 
 // Get the discount value for the coupon
-var calculateDiscountForCoupon = function(couponData) {
+var calculateDiscountForCoupon = function (couponData) {
     var serviceId = session.get("SERVICE_ID");
     var premium = session.get("MONTHLY_RENTAL");
     var discount = 0.00;
@@ -253,15 +253,15 @@ var calculateDiscountForCoupon = function(couponData) {
 };
 
 
-var createAccount = function(accountData, metaData, organizationName) {
+var createAccount = function (accountData, metaData, organizationName) {
 
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
-    if (validateRatePlanId(metaData.serviceId , metaData.productRatePlanId)) {
+    if (validateRatePlanId(metaData.serviceId, metaData.productRatePlanId)) {
 
         var effectiveDate = new Packages.java.util.Date();
         var data = populateAccountInfo(organizationName, accountData, metaData, false);
-        if (log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Creating account with data: " + data);
         }
         var response = JSON.parse(billingCoreService.createCustomer(JSON.stringify(data)));
@@ -273,7 +273,7 @@ var createAccount = function(accountData, metaData, organizationName) {
 
             if (responseSubscriptionCreation.data.subscriptionNumber != null) {
                 //update BILLING_ACCOUNT table
-                var queryString  = SQL_QUERY_STRINGS.INSERT_ACCOUNT_NUMBER_TO_BILLING_ACCOUNT;
+                var queryString = SQL_QUERY_STRINGS.INSERT_ACCOUNT_NUMBER_TO_BILLING_ACCOUNT;
                 var parameters = [response.id, tenantDomain];
                 modDb.executeQuery(queryString, parameters);
 
@@ -337,11 +337,11 @@ var createAccount = function(accountData, metaData, organizationName) {
                                 if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                                     actionString = actionString + "Success";
                                     log.info(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' is successful for " +
-                                            email);
+                                    email);
                                 } else {
                                     actionString = actionString + "Failed";
                                     log.error(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' failed for the user "
-                                            + jagg.getUser() + " " + msg);
+                                    + jagg.getUser() + " " + msg);
                                 }
                                 var event = {};
                                 event.item = item;
@@ -353,7 +353,7 @@ var createAccount = function(accountData, metaData, organizationName) {
                             }
                             return true;
                         } catch (e) {
-                            log.error("Error while sending notification for paid plan subscription: "+e);
+                            log.error("Error while sending notification for paid plan subscription: " + e);
                             return true;
                         } finally {
                             tenantDisplayName = null;
@@ -367,7 +367,7 @@ var createAccount = function(accountData, metaData, organizationName) {
                 }
                 return response.id;
             } else {
-                log.error("Error occurred while subscribing to the "+ planName + "for customer account "+ response.id );
+                log.error("Error occurred while subscribing to the " + planName + "for customer account " + response.id);
             }
         } else {
             log.error("Error occurred while creating the customer account");
@@ -379,7 +379,7 @@ var createAccount = function(accountData, metaData, organizationName) {
 };
 
 // Function for change the current subscription plan
-var changeSubscriptionPlan = function(accountId, newProductRatePlanId, ratePlans, serviceId, couponData) {
+var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlans, serviceId, couponData) {
 
     var previewMode = false;
     var parameters;
@@ -414,10 +414,10 @@ var changeSubscriptionPlan = function(accountId, newProductRatePlanId, ratePlans
 
         //add to BILLING_ACCOUNT_AMENDMENTS
         queryString = SQL_QUERY_STRINGS.INSERT_BILLING_ACCOUNT_AMENDMENTS;
-        parameters = [accountId, newProductRatePlanId, formattedEffectiveDate,MYSQL_MAX_DATETIME_STRING, serviceId];
+        parameters = [accountId, newProductRatePlanId, formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING, serviceId];
         modDb.executeQuery(queryString, parameters);
 
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Rate plan changed for Account Id: " + accountId + " into plan: " + newProductRatePlanId);
         }
 
@@ -425,12 +425,12 @@ var changeSubscriptionPlan = function(accountId, newProductRatePlanId, ratePlans
         var newPlanName = getPaymentPlanFromId(serviceId, newProductRatePlanId);
         var previousPlan = getPaymentPlanFromId(serviceId, currentRatePlanId);
         if (tenantDisplayName != null) {
-            setTimeout( function () {
+            setTimeout(function () {
                 try {
                     jagg.module("util").sendBillingPlanChangedEmail(tenantDisplayName, serviceId, newPlanName, effectiveDate, isUpgrade);
                     jagg.module("util").sendBillingPlanChangedNotification(tenantDisplayName, serviceId, effectiveDate, newPlanName, previousPlan, isUpgrade);
                     return true;
-                } catch (e){
+                } catch (e) {
                     log.error("Error while sending notifications for subscription plan change: " + e);
                     return true;
                 } finally {
@@ -445,7 +445,7 @@ var changeSubscriptionPlan = function(accountId, newProductRatePlanId, ratePlans
         return true;
     } else {
         throw new Error("Rate plan change failed for account: " + accountId + " into plan: " + newProductRatePlanId + " from plan: "
-                + currentRatePlanId + "Error : " + JSON.stringify(response.message));
+        + currentRatePlanId + "Error : " + JSON.stringify(response.message));
     }
 };
 
@@ -474,7 +474,7 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 };
 
 //populate account information object
-var populateAccountInfo = function (organizationName, accountData, metaData,isEdit) {
+var populateAccountInfo = function (organizationName, accountData, metaData, isEdit) {
     var data = {};
     data.description = organizationName;
     if (!isEdit) {
@@ -497,12 +497,12 @@ var populateAccountInfo = function (organizationName, accountData, metaData,isEd
     return data;
 };
 
-var populateSubscriptionInfo = function(customer,ratePlanId) {
+var populateSubscriptionInfo = function (customer, ratePlanId) {
     var couponData = session.get("PRODUCT_COUPON_DATA");
     var serviceId = session.get("SERVICE_ID");
     session.remove("PRODUCT_COUPON_DATA");
     var data = {};
-    if (couponData != "" && couponData != "null" && couponData != null && isValidCoupon(couponData,serviceId)) {
+    if (couponData != "" && couponData != "null" && couponData != null && isValidCoupon(couponData, serviceId)) {
         var newCouponId = BILLING_COUPON_HEADER + couponData;
         data.coupon = newCouponId;
     }
@@ -512,7 +512,7 @@ var populateSubscriptionInfo = function(customer,ratePlanId) {
 };
 
 //Validate rate plan Id with the service type
-var validateRatePlanId = function(serviceId , productRatePlanId) {
+var validateRatePlanId = function (serviceId, productRatePlanId) {
     try {
         var response = billingCoreService.validateRatePlanId(serviceId, productRatePlanId);
         return response;
@@ -522,7 +522,7 @@ var validateRatePlanId = function(serviceId , productRatePlanId) {
     }
 };
 
-var dateTimeFormatter = function(dateTimeFormat) {
+var dateTimeFormatter = function (dateTimeFormat) {
     return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
 };
 
@@ -591,16 +591,16 @@ var getAccountDetails = function () {
 };
 
 //add tenant to billing account tables at the tenant registration
-var addTenantToBilling = function(tenantId, tenantDomain) {
+var addTenantToBilling = function (tenantId, tenantDomain) {
     var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
 
     var queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_ACCOUNT;
-    var parameters = [ null, tenantDomain ];
+    var parameters = [null, tenantDomain];
 
     var result = modDb.executeQuery(queryString, parameters);
     if (log.isDebugEnabled()) {
         log.debug("Tenant : " + tenantDomain + " (tenant id: " + tenantId
-                + ") added to BILLING_ACCOUNT table");
+        + ") added to BILLING_ACCOUNT table");
     }
 
     var subscriptions = cloudConfig.subscriptions.type;
@@ -622,25 +622,25 @@ var addTenantToBilling = function(tenantId, tenantDomain) {
                 billingType = type.FREE;
                 endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
             } else {
-                log.error("No service type found for: "+ subscription
-                        + "in cloud_mgt config. It should be either free or commercial");
-                parameters = [ tenantDomain ];
+                log.error("No service type found for: " + subscription
+                + "in cloud_mgt config. It should be either free or commercial");
+                parameters = [tenantDomain];
                 queryString = SQL_QUERY_STRINGS.DELETE_FROM_BILLING_ACCOUNT;
-                log.info("Tenant : " + tenantDomain + " (tenant id: "+ tenantId
-                        + ") deleted from BILLING_ACCOUNT table. [As a rollback operation] ");
+                log.info("Tenant : " + tenantDomain + " (tenant id: " + tenantId
+                + ") deleted from BILLING_ACCOUNT table. [As a rollback operation] ");
                 result = modDb.executeQuery(queryString, parameters);
                 throw new Error(
                         "Tenant billing account registration failure: Configuration failure ");
             }
             queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
-            parameters = [ tenantDomain, subscription, billingType,billingAccountStatus, sqlDateFormat.format(startDate),
-                sqlDateFormat.format(endDate) ];
+            parameters = [tenantDomain, subscription, billingType, billingAccountStatus, sqlDateFormat.format(startDate),
+                sqlDateFormat.format(endDate)];
             result = modDb.executeQuery(queryString, parameters);
         }
     }
     if (log.isDebugEnabled()) {
         log.debug("Tenant : " + tenantDomain + " (tenant id: " + tenantId
-                + ") added to BILLING_STATUS table with params: " + parameters);
+        + ") added to BILLING_STATUS table with params: " + parameters);
     }
 };
 
@@ -655,7 +655,7 @@ var getCurrentRatePlan = function (serviceId) {
     return null;
 };
 
-var getCurrentSubscription = function(serviceId) {
+var getCurrentSubscription = function (serviceId) {
     if ((session.get("TENANT_INFO")) != null) {
         var susbcriptionData = getCustomerDetails();
         return susbcriptionData.data.subscriptions.data[0];
@@ -663,12 +663,12 @@ var getCurrentSubscription = function(serviceId) {
         return null;
     }
 };
-var getCustomerDetails = function() {
+var getCustomerDetails = function () {
     var accountId = getAccountId();
     return JSON.parse(billingCoreService.getCustomerDetails(accountId));
 };
 
-var getAccountInfo = function() {
+var getAccountInfo = function () {
     try {
         var accountId = getAccountId();
         return billingCoreService.retrieveAccountInfo(accountId);
@@ -678,7 +678,7 @@ var getAccountInfo = function() {
     }
 };
 
-var updateContactInfo = function(organizationName, accountData, metaData) {
+var updateContactInfo = function (organizationName, accountData, metaData) {
     try {
         var accountId = getAccountId();
         var data = populateAccountInfo(organizationName, accountData, metaData,
@@ -696,7 +696,7 @@ var updateContactInfo = function(organizationName, accountData, metaData) {
     }
 };
 
-var getCurrencyUsed = function() {
+var getCurrencyUsed = function () {
     return CURRENCY;
 };
 
@@ -714,22 +714,37 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
             var invoiceItems = invoiceObj.lines.data;
             var invoiceData = {};
             var dateFormat = dateTimeFormatter(DATE_FORMAT);
+            var totalDiscount = 0;
 
             invoiceData["accountName"] = invoiceObj.customer;
             invoiceData["invoiceDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
             invoiceData["invoiceNumber"] = invoiceObj.id;
-            invoiceData["amount"] = invoiceObj.amount_due / CENTS;
+            invoiceData["amount"] = (invoiceObj.amount_due / CENTS).toFixed(2);
             invoiceData["invoiceItems"] = [];
+            if (invoiceObj.starting_balance != 0) {
+                var itemData = {};
+                itemData["subscriptionName"] = "";
+                itemData["chargeName"] = "Balance brought-forward";
+                itemData["discount"] = 0.0;
+                itemData["amount"] = -(invoiceObj.starting_balance / CENTS);
+                itemData["servicePeriod"] = "";
+                itemData["chargeDate"] = "";
+                invoiceData["invoiceItems"].push(itemData);
+            }
 
             for (var i = 0; i < invoiceItems.length; i++) {
                 var item = {};
                 var invoiceItem = invoiceItems[i];
                 item["chargeName"] = invoiceItem.description;
                 if (invoiceItem.description == null) {
-                    item["chargeName"] = invoiceItem.plan.statement_descriptor;
+                    if( invoiceItem.plan.statement_descriptor != null) {
+                        item["chargeName"] = invoiceItem.plan.statement_descriptor;
+                    } else {
+                        item["chargeName"] = invoiceItem.plan.name + " Subscription";
+                    }
                 }
                 item["subscriptionName"] = invoiceItem.plan.name;
-                item["amount"] = invoiceItem.amount / CENTS;
+                item["amount"] = (invoiceItem.amount / CENTS).toFixed(2);
                 item["servicePeriod"] = dateFormat.format(invoiceItem.period.start * THOUSAND) + " to "
                         + dateFormat.format(invoiceItem.period.end * THOUSAND);
                 item["chargeDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
@@ -737,13 +752,28 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
                 if (invoiceItem.discountable && invoiceObj.discount != null) {
                     if (invoiceObj.discount.coupon.amount_off != null) {
                         item["discount"] = -invoiceObj.discount.coupon.amount_off / CENTS;
+                        totalDiscount = totalDiscount + (invoiceObj.discount.coupon.amount_off / CENTS);
                     } else {
                         item["discount"] = -(invoiceItem.amount * (invoiceObj.discount.coupon.percent_off / 100)) /
                                 CENTS;
+                        totalDiscount = totalDiscount + ((invoiceItem.amount * (invoiceObj.discount.coupon
+                                        .percent_off / 100)) / CENTS);
                     }
                 }
                 invoiceData["invoiceItems"].push(item);
             }
+            if (totalDiscount != 0) {
+                var itemData = {};
+                itemData["subscriptionName"] = "";
+                itemData["chargeName"] = "Discounted Amount";
+                itemData["discount"] = 0.0;
+                itemData["amount"] = (-totalDiscount).toFixed(2);
+                itemData["servicePeriod"] = "";
+                itemData["chargeDate"] = "";
+                invoiceData["invoiceItems"].push(itemData);
+            }
+
+
             return invoiceData;
         }
     } catch (e) {
@@ -753,7 +783,7 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
     }
 };
 
-var addPaymentMethod = function(tokenId) {
+var addPaymentMethod = function (tokenId) {
     try {
         var accountId = getAccountId();
         var data = {};
@@ -771,7 +801,7 @@ var addPaymentMethod = function(tokenId) {
     }
 };
 
-var getAllPaymentMethods = function(tenantDomain) {
+var getAllPaymentMethods = function (tenantDomain) {
     var accountId = getAccountId();
     var accInfo = JSON.parse(billingCoreService.getCustomerDetails(accountId));
     if (accInfo.success) {
@@ -787,7 +817,7 @@ var getAllPaymentMethods = function(tenantDomain) {
 
 };
 
-var updateDefaultPaymentMethod = function(methodId) {
+var updateDefaultPaymentMethod = function (methodId) {
     if (methodId) {
         var accountId = getAccountId();
         var data = {};
@@ -806,7 +836,7 @@ var updateDefaultPaymentMethod = function(methodId) {
     }
 };
 
-var removePaymentMethod = function(methodId) {
+var removePaymentMethod = function (methodId) {
     try {
         var accountId = getAccountId();
         return JSON.parse(billingCoreService.removePaymentMethod(accountId, methodId));
@@ -817,7 +847,7 @@ var removePaymentMethod = function(methodId) {
     }
 };
 
-var cancelSubscription = function(serviceName) {
+var cancelSubscription = function (serviceName) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     var effectiveDate = setChangePlanEffectiveDate(false);
     var dateFormatter = dateTimeFormatter(DATE_FORMAT);
@@ -1028,5 +1058,33 @@ function addCloudSubmissionToMailCampaign(email, domain, type) {
     var result = post(URL, data, {}, 'text');
     return result;
 }
+
+var verifyEvent = function (id) {
+    try {
+        var eventDataJson = JSON.parse(billingCoreService.callVendorMethod("getEventDetails", id));
+        var description = "";
+        if (eventDataJson.success) {
+            var invoiceData = getBillingInvoiceData(SUPER_TENANT_ID, eventDataJson.data.data.object.invoice);
+            var orgNameObj = JSON.parse(billingCoreService.getBilledOrganizationName(eventDataJson.data.data.object
+                    .customer));
+            if (orgNameObj.success) {
+                description = orgNameObj.data;
+            }
+            var invoiceAddressObj = {};
+            invoiceAddressObj.source = eventDataJson.data.data.object.source;
+            invoiceAddressObj.description = description;
+            invoiceAddressObj.email = eventDataJson.data.data.object.receipt_email;
+            jagg.module("util").sendInvoiceEmail(invoiceData, eventDataJson.data.data.object
+                    .receipt_email, invoiceAddressObj);
+
+        } else {
+            log.error(eventDataJson.message);
+        }
+
+    } catch (e) {
+        log.error("Error retrieving the event " + e);
+        throw Error(e);
+    }
+};
 
 %>

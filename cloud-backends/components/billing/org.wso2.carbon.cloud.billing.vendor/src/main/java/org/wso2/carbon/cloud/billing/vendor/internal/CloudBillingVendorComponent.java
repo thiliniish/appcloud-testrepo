@@ -35,7 +35,7 @@ public class CloudBillingVendorComponent {
     private static final Log LOGGER = LogFactory.getLog(CloudBillingVendorComponent.class);
 
     protected void activate(ComponentContext context) {
-        LOGGER.info("###################### Billing Vendor Component activated. ##########################");
+        LOGGER.info("Billing Vendor Component activated.");
 
     }
 

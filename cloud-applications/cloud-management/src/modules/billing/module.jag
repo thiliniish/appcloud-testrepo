@@ -95,6 +95,9 @@ jagg.module("billing", {
     },
     getAPICloudUsageDisplayPeriod: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAPICloudUsageDisplayPeriod.apply(this, arguments);
+    },
+    verifyEvent: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").verifyEvent.apply(this, arguments);
     }
 
 });

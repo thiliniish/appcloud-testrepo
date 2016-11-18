@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import com.stripe.Stripe;
 import com.stripe.exception.APIConnectionException;
 import com.stripe.exception.APIException;
 import com.stripe.exception.AuthenticationException;
@@ -33,11 +32,11 @@ import com.stripe.model.Charge;
 import com.stripe.model.Coupon;
 import com.stripe.model.Customer;
 import com.stripe.model.CustomerSubscriptionCollection;
-import com.stripe.model.Event;
 import com.stripe.model.ExternalAccount;
 import com.stripe.model.Invoice;
 import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
+import com.stripe.net.RequestOptions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
@@ -57,29 +56,57 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents class for Stripe related functionalities.
+ * Represents class for Stripe related monetization functionalities.
  */
-public class StripeCloudBilling implements CloudBillingServiceProvider {
+public class StripeCloudMonetization implements CloudBillingServiceProvider {
 
-    private static final Log LOGGER = LogFactory.getLog(StripeCloudBilling.class);
+    private static final Log LOGGER = LogFactory.getLog(StripeCloudMonetization.class);
     private static Gson gsonObj = new Gson();
     private Map<String, Object> customerParams = new HashMap<>();
     private Map<String, Object> planParams = new HashMap<>();
     private Map<String, Object> subscriptionParams = new HashMap<>();
     private Map<String, Object> cardParams = new HashMap<>();
     private Map<String, Object> invoiceParams = new HashMap<>();
+    private static RequestOptions requestOptions;
 
-    public StripeCloudBilling() {
-        setApiKey();
-    }
-
-    private final void setApiKey () {
-        Stripe.apiKey =
-                BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey();
+    public StripeCloudMonetization(String tenantDomain) throws CloudBillingVendorException {
+        setRequestOptions(tenantDomain);
     }
 
     /**
-     * Create the Customer
+     * Method to set the request option
+     *
+     * @param tenantDomain api key of tenant
+     */
+    private static void setRequestOptions(String tenantDomain) throws CloudBillingVendorException {
+        try {
+            String apiKey = getSecretKey(tenantDomain);
+            requestOptions = (new RequestOptions.RequestOptionsBuilder()).setApiKey(apiKey).build();
+        } catch (CloudBillingVendorException e) {
+            throw new CloudBillingVendorException(
+                    "Cloud Billing Exception Occurred while setting vendor request option for tenant : " + tenantDomain,
+                    e);
+        }
+    }
+
+    /**
+     * Get secret key for the tenant
+     *
+     * @param tenantDomain tenant domain
+     * @return secret key
+     * @throws CloudBillingVendorException
+     */
+    private static String getSecretKey(String tenantDomain) throws CloudBillingVendorException {
+        try {
+            return APICloudMonetizationUtils.getSecretKey(tenantDomain);
+        } catch (CloudBillingVendorException e) {
+            throw new CloudBillingVendorException(
+                    "Cloud Billing Exception Occurred while getting Secret key for tenant : " + tenantDomain, e);
+        }
+    }
+
+    /**
+     * Create the Customer for monetization
      *
      * @param customerInfoJson customer details
      *                         {
@@ -96,23 +123,24 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         try {
             customerParams.clear();
             customerParams = ObjectParams.setObjectParams(customerInfoJson);
-            return CloudBillingVendorUtils.validateResponseString(Customer.create(customerParams).toString());
+            return CloudBillingVendorUtils
+                    .validateResponseString(Customer.create(customerParams, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while creating customer : ", ex);
         }
     }
 
-    /**ls
+    /**
+     * Retrieve customer details  for Monetization
      *
-     * Retrieve customer detai
      * @param customerId customer id
      * @return json string of customer information
      */
     @Override public String getCustomerDetails(String customerId) throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
-            Customer customer = Customer.retrieve(customerId);
+            Customer customer = Customer.retrieve(customerId, requestOptions);
             JsonObject customerJsonObj =
                     new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(customer.toString()))
                                     .getAsJsonObject();
@@ -129,7 +157,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Update Customer Info
+     * Update Customer Info for monetization
      *
      * @param customerId       customerId Id
      * @param customerInfoJson customer details
@@ -147,13 +175,11 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
-            Customer customer = Customer.retrieve(customerId);
+            Customer customer = Customer.retrieve(customerId, requestOptions);
             customerParams.clear();
             customerParams = ObjectParams.setObjectParams(customerInfoJson);
-            JsonObject customerJsonObj =
-                    new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(customer.update(
-                            customerParams).toString()))
-                                    .getAsJsonObject();
+            JsonObject customerJsonObj = new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(
+                    customer.update(customerParams, requestOptions).toString())).getAsJsonObject();
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
             response.add(BillingVendorConstants.RESPONSE_DATA, customerJsonObj);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
@@ -167,15 +193,15 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Delete customer
+     * Delete customer for monetization
      *
      * @param customerId customer Id
      * @return success json string
      */
     @Override public String deleteCustomer(String customerId) throws CloudBillingVendorException {
         try {
-            Customer customer = Customer.retrieve(customerId);
-            return CloudBillingVendorUtils.validateResponseString(customer.delete().toString());
+            Customer customer = Customer.retrieve(customerId, requestOptions);
+            return CloudBillingVendorUtils.validateResponseString(customer.delete(requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while deleting customer : ", ex);
@@ -204,7 +230,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         try {
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
-            return CloudBillingVendorUtils.validateResponseString(Plan.create(planParams).toString());
+            return CloudBillingVendorUtils.validateResponseString(Plan.create(planParams, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while creating rate-plan : ", ex);
@@ -212,14 +238,14 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * retrieve a specific rate plan
+     * retrieve a specific rate plan for monetization
      *
      * @param ratePlanId rate-plan Id
      * @return success json string
      */
     @Override public String getProductRatePlan(String ratePlanId) throws CloudBillingVendorException {
         try {
-            return CloudBillingVendorUtils.validateResponseString(Plan.retrieve(ratePlanId).toString());
+            return CloudBillingVendorUtils.validateResponseString(Plan.retrieve(ratePlanId, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while retrieving rate-plan : ", ex);
@@ -227,7 +253,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Method to update Product rate plan
+     * Method to update Product rate plan for monetization
      *
      * @param planId           rate plan ID
      * @param ratePlanInfoJson rate-plan details
@@ -243,10 +269,10 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String updateProductRatePlan(String planId, String ratePlanInfoJson)
             throws CloudBillingVendorException {
         try {
-            Plan plan = Plan.retrieve(planId);
+            Plan plan = Plan.retrieve(planId, requestOptions);
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
-            return CloudBillingVendorUtils.validateResponseString(plan.update(planParams).toString());
+            return CloudBillingVendorUtils.validateResponseString(plan.update(planParams, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while updating rate-plan : ", ex);
@@ -254,14 +280,14 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Method to delete a specific Product rate plan
+     * Method to delete a specific Product rate plan for monetization
      *
      * @param ratePlanId rate-plan Id
      * @return success json string
      */
     @Override public String deleteProductRatePlan(String ratePlanId) throws CloudBillingVendorException {
         try {
-            return CloudBillingVendorUtils.validateResponseString(Plan.retrieve(ratePlanId).toString());
+            return CloudBillingVendorUtils.validateResponseString(Plan.retrieve(ratePlanId, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while deleting rate-plan : ", ex);
@@ -269,7 +295,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Method to retrieve all the product rate-plans
+     * Method to retrieve all the product rate-plans for monetization
      *
      * @param ratePlanInfoJson rate-plan details
      *                         {
@@ -283,7 +309,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         try {
             planParams.clear();
             planParams = ObjectParams.setObjectParams(ratePlanInfoJson);
-            return CloudBillingVendorUtils.validateResponseString(Plan.list(planParams).toString());
+            return CloudBillingVendorUtils.validateResponseString(Plan.list(planParams, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while retrieving all rate-plans : ", ex);
@@ -291,7 +317,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Create a subscription
+     * Create a subscription for monetization
      *
      * @param subscriptionInfoJson subscription details. This includes customer id and the product rate-plan id
      *                             {
@@ -306,7 +332,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             subscriptionParams.clear();
             subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
 
-            Subscription subscription = Subscription.create(subscriptionParams);
+            Subscription subscription = Subscription.create(subscriptionParams, requestOptions);
 
             JsonObject dataObj = new JsonObject();
             dataObj.addProperty(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, subscription.getId());
@@ -323,14 +349,15 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Retrieve a subscription
+     * Retrieve a subscription for monetization
      *
      * @param subscriptionId subscription Id
      * @return success Json string
      */
     @Override public String getSubscription(String subscriptionId) throws CloudBillingVendorException {
         try {
-            return CloudBillingVendorUtils.validateResponseString(Subscription.retrieve(subscriptionId).toString());
+            return CloudBillingVendorUtils
+                    .validateResponseString(Subscription.retrieve(subscriptionId, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while retrieving subscription : ", ex);
@@ -338,7 +365,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Method to retrieve all the subscriptions
+     * Method to retrieve all the subscriptions for monetization
      *
      * @param subscriptionInfoJson subscription details.
      * @return a list of subscriptions
@@ -347,7 +374,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         try {
             subscriptionParams.clear();
             subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
-            return CloudBillingVendorUtils.validateResponseString(Subscription.list(subscriptionParams).toString());
+            return CloudBillingVendorUtils
+                    .validateResponseString(Subscription.list(subscriptionParams, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while retrieving all subscriptions : ", ex);
@@ -355,7 +383,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Update subscription
+     * Update subscription for monetization
      *
      * @param subscriptionId       subscription Id
      * @param subscriptionInfoJson subscription details for downgrade or upgrade. This includes customer id and the
@@ -380,16 +408,14 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         try {
             subscriptionParams.clear();
             subscriptionParams = ObjectParams.setObjectParams(subscriptionInfoJson);
-            Subscription subscription = Subscription.retrieve(subscriptionId);
+            Subscription subscription = Subscription.retrieve(subscriptionId, requestOptions);
 
             //Remove discount if avail
             if (subscription.getDiscount() != null) {
                 deleteSubscriptionDiscount(subscriptionId);
             }
-            JsonObject response =
-                    new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(subscription.update(
-                            subscriptionParams).toString()))
-                                    .getAsJsonObject();
+            JsonObject response = new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(
+                    subscription.update(subscriptionParams, requestOptions).toString())).getAsJsonObject();
             LOGGER.info("Subscription has being successfully updated for customer: " + subscription.getCustomer());
 
             // if successfully update the if its and upgrade then immediately charge for the proration
@@ -405,8 +431,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                     JsonNode chargeInvoiceResultobj = APICloudMonetizationUtils.getJsonList(chargeInvoiceResult);
                     if (chargeInvoiceResultobj.get("success").asBoolean()) {
                         LOGGER.info(
-                                "Successfully charged the prorated amount for customer: " + subscription.getCustomer
-                                        ());
+                                "Successfully charged the prorated amount for customer: " + subscription.getCustomer());
                     }
                 }
             }
@@ -423,7 +448,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Cancel subscription by the subscription id
+     * Cancel subscription by the subscription id for monetization
      *
      * @param subscriptionId       subscription id
      * @param subscriptionInfoJson this is not required for Stripe
@@ -432,11 +457,11 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String cancelSubscription(String subscriptionId, String subscriptionInfoJson)
             throws CloudBillingVendorException {
         try {
-            Subscription subscription = Subscription.retrieve(subscriptionId);
+            Subscription subscription = Subscription.retrieve(subscriptionId, requestOptions);
             subscriptionParams.clear();
-            //We cancel the subscription at the end of currently subscribed time period
+            // We cancel the subscription at the end of currently subscribed time period
             subscriptionParams.put(BillingVendorConstants.AT_PERIOD_END, true);
-            subscription = subscription.cancel(subscriptionParams);
+            subscription = subscription.cancel(subscriptionParams, requestOptions);
 
             JsonObject subscriptionJsonObj =
                     new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(subscription.toString()))
@@ -460,7 +485,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Add default payment method to a specific customer
+     * Add default payment method to a specific customer for monetization
      *
      * @param customerId            customer Id
      * @param paymentMethodInfoJson payment method details
@@ -470,13 +495,12 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
-            Customer customer = Customer.retrieve(customerId);
+            Customer customer = Customer.retrieve(customerId, requestOptions);
             cardParams.clear();
             cardParams = ObjectParams.setObjectParams(paymentMethodInfoJson);
             JsonElement customerDetails = new JsonParser().parse(getCustomerDetails(customerId));
-            JsonElement paymentMethodSuccess =
-                    new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(customer.getSources().create(
-                            cardParams).toString()));
+            JsonElement paymentMethodSuccess = new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(
+                    customer.getSources().create(cardParams, requestOptions).toString()));
             JsonObject responseData = new JsonObject();
             responseData.add("default_payment_method",
                              customerDetails.getAsJsonObject().get("data").getAsJsonObject().get("default_source"));
@@ -491,7 +515,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Set specific payment method of a specific customer as default
+     * Set specific payment method of a specific customer as default for monetization
      *
      * @param customerId            customer Id
      * @param paymentMethodInfoJson payment method details
@@ -520,7 +544,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Update default payment method
+     * Update default payment method for monetization
      *
      * @param customerId            customer Id
      * @param paymentMethodId       payment method id
@@ -543,15 +567,15 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *                              for its currency.
      * @return success Json string
      */
-    @Override public String updatePaymentMethod(String customerId, String paymentMethodId, String 
-            paymentMethodInfoJson)
+    @Override public String updatePaymentMethod(String customerId, String paymentMethodId, String paymentMethodInfoJson)
             throws CloudBillingVendorException {
         try {
-            Customer customer = Customer.retrieve(customerId);
-            ExternalAccount cardInfo = customer.getSources().retrieve(paymentMethodId);
+            Customer customer = Customer.retrieve(customerId, requestOptions);
+            ExternalAccount cardInfo = customer.getSources().retrieve(paymentMethodId, requestOptions);
             cardParams.clear();
             cardParams = ObjectParams.setObjectParams(paymentMethodInfoJson);
-            return CloudBillingVendorUtils.validateResponseString(cardInfo.update(cardParams).toString());
+            return CloudBillingVendorUtils
+                    .validateResponseString(cardInfo.update(cardParams, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while updating payment method : ", ex);
@@ -559,7 +583,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Retrieve all payment methods of a specific customer
+     * Retrieve all payment methods of a specific customer for monetization
      *
      * @param customerId            customer Id
      * @param paymentMethodInfoJson payment method details
@@ -579,7 +603,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             cardParams.clear();
             cardParams = ObjectParams.setObjectParams(paymentMethodInfoJson);
             JsonElement paymentMethod = new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(
-                    Customer.retrieve(customerId).getSources().all(cardParams).toString()));
+                    Customer.retrieve(customerId, requestOptions).getSources().all(cardParams, requestOptions)
+                            .toString()));
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
             response.add(BillingVendorConstants.RESPONSE_DATA, paymentMethod);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
@@ -590,7 +615,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Remove payment method/ card of a customer
+     * Remove payment method/ card of a customer for monetization
      *
      * @param customerId      customer Id
      * @param paymentMethodId payment method id
@@ -601,7 +626,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         JsonObject response = new JsonObject();
         try {
             JsonElement deleteStatus = new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(
-                    Customer.retrieve(customerId).getSources().retrieve(paymentMethodId).delete().toString()));
+                    Customer.retrieve(customerId, requestOptions).getSources().retrieve(paymentMethodId, requestOptions)
+                            .delete(requestOptions).toString()));
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
             response.add(BillingVendorConstants.RESPONSE_DATA, deleteStatus);
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
@@ -615,7 +641,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Method to create Monetization account
+     * Method to create Monetization account for monetization
      *
      * @param customerId                  monetization customer id
      * @param monetizationAccountInfoJson monetization account info
@@ -640,7 +666,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Retrieve invoices associated with a customer
+     * Retrieve invoices associated with a customer for monetization
      *
      * @param invoiceInfoJson invoice retrieval info for a specific customer
      *                        {
@@ -657,7 +683,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         try {
             invoiceParams.clear();
             invoiceParams = ObjectParams.setObjectParams(invoiceInfoJson);
-            return CloudBillingVendorUtils.validateResponseString(Invoice.list(invoiceParams).toString());
+            return CloudBillingVendorUtils
+                    .validateResponseString(Invoice.list(invoiceParams, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while getting invoices : ", ex);
@@ -665,14 +692,15 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Retrieve invoice details
+     * Retrieve invoice details for monetization
      *
      * @param invoiceId invoice id
      * @return json string of invoice information
      */
     @Override public String getInvoiceDetails(String invoiceId) throws CloudBillingVendorException {
         try {
-            return CloudBillingVendorUtils.validateResponseString(Invoice.retrieve(invoiceId).toString());
+            return CloudBillingVendorUtils
+                    .validateResponseString(Invoice.retrieve(invoiceId, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException("Error while retrieving invoice : ", ex);
@@ -680,7 +708,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Retrieve invoices associated with a customer
+     * Retrieve invoices associated with a customer for monetization
      *
      * @param invoiceInfoJson invoice creation info
      * @return String of invoices id
@@ -689,7 +717,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         JsonObject response = new JsonObject();
         try {
             Map<String, Object> invoiceParam = ObjectParams.setObjectParams(invoiceInfoJson);
-            Invoice invoice = Invoice.create(invoiceParam);
+            Invoice invoice = Invoice.create(invoiceParam, requestOptions);
             JsonObject invoiceJsonObj =
                     new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(invoice.toString()))
                                     .getAsJsonObject();
@@ -706,7 +734,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Charge the customer associated with the given invoice
+     * Charge the customer associated with the given invoice for monetization
      *
      * @param invoiceId invoice id
      * @return json string of invoice information
@@ -714,8 +742,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     @Override public String chargeInvoice(String invoiceId) throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
         try {
-            Invoice invoice = Invoice.retrieve(invoiceId);
-            Invoice invoiceData = invoice.pay();
+            Invoice invoice = Invoice.retrieve(invoiceId, requestOptions);
+            Invoice invoiceData = invoice.pay(requestOptions);
             JsonObject invoiceJsonObj =
                     new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(invoiceData.toString()))
                                     .getAsJsonObject();
@@ -732,14 +760,14 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Get current plan subscribed to a service
+     * Get current plan subscribed to a service for monetization
      *
      * @param customerId customer id
      * @return current active rate plan
      */
     @Override public String getCurrentRatePlan(String customerId) throws CloudBillingVendorException {
         try {
-            Customer customer = Customer.retrieve(customerId);
+            Customer customer = Customer.retrieve(customerId, requestOptions);
             CustomerSubscriptionCollection subscriptionCollection = customer.getSubscriptions();
             for (int i = 0; i < subscriptionCollection.getData().size(); i++) {
                 if (customer.getSubscriptions().getData().get(i).getStatus()
@@ -756,7 +784,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Get customer coupons
+     * Get customer coupons for monetization
      *
      * @param customerId customer id
      * @return current coupons
@@ -764,8 +792,8 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String getCustomerCoupons(String customerId) throws CloudBillingVendorException {
         try {
-            return CloudBillingVendorUtils.validateResponseString(Customer.retrieve(customerId).getDiscount()
-                                                                          .toString());
+            return CloudBillingVendorUtils
+                    .validateResponseString(Customer.retrieve(customerId, requestOptions).getDiscount().toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException(
@@ -774,7 +802,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Get a specific coupon details
+     * Get a specific coupon details for monetization
      *
      * @param couponID coupon id
      * @return coupon data
@@ -782,7 +810,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      */
     @Override public String retrieveCouponInfo(String couponID) throws CloudBillingVendorException {
         try {
-            return CloudBillingVendorUtils.validateResponseString(Coupon.retrieve(couponID).toString());
+            return CloudBillingVendorUtils.validateResponseString(Coupon.retrieve(couponID, requestOptions).toString());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
                 APIException ex) {
             throw new CloudBillingVendorException(
@@ -791,16 +819,21 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Retrieve the publishable key
+     * Retrieve the publishable key for monetization
      *
      * @return json publishable key
      */
-    public String getPublishableKey() throws CloudBillingVendorException {
-        return BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getPublishableKey();
+    public String getPublishableKeyForTenant(String tenantDomain) throws CloudBillingVendorException {
+        try {
+            return APICloudMonetizationUtils.getPublishableKeyForTenant(tenantDomain);
+        } catch (CloudBillingVendorException e) {
+            throw new CloudBillingVendorException("Error while obtaining publishable key for tenant : " + tenantDomain,
+                                                  e);
+        }
     }
 
     /**
-     * Get a specific account details
+     * Get a specific account details for monetization
      *
      * @param customerId coupon id
      * @return account information
@@ -846,8 +879,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                         .addProperty("isCancelled", subscriptionNode.get("cancel_at_period_end").asText());
 
                 // payment Details
-                JsonNode paymentNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("sources").get
-                        ("data");
+                JsonNode paymentNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("sources").get("data");
                 JsonNode defaultPaymentNode = null;
                 for (int x = 0; x < paymentNode.size(); x++) {
                     String defualtPaymentId =
@@ -858,8 +890,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 }
                 if (defaultPaymentNode != null) {
                     defaultPaymentMethodObj.addProperty("paymentId", defaultPaymentNode.get("id").asText());
-                    defaultPaymentMethodObj.addProperty("paymentMethodType", defaultPaymentNode.get("object").asText
-                            ());
+                    defaultPaymentMethodObj.addProperty("paymentMethodType", defaultPaymentNode.get("object").asText());
                     defaultPaymentMethodObj.addProperty("paymentType", defaultPaymentNode.get("brand").asText());
                     defaultPaymentMethodObj
                             .addProperty("expirationMonth", defaultPaymentNode.get("exp_month").asText());
@@ -879,8 +910,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                                                              .get("lastName").asText());
                 contactInformationObj.addProperty("state", contactDetailsNode.get("address").get("state").asText());
                 contactInformationObj.addProperty("city", contactDetailsNode.get("address").get("city").asText());
-                contactInformationObj.addProperty("country", contactDetailsNode.get("address").get("country").asText
-                        ());
+                contactInformationObj.addProperty("country", contactDetailsNode.get("address").get("country").asText());
                 contactInformationObj
                         .addProperty("postalcode", contactDetailsNode.get("address").get("postal_code").asText());
                 contactInformationObj.addProperty("address1", contactDetailsNode.get("address").get("line1").asText());
@@ -949,7 +979,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Get Charge information
+     * Get Charge information for monetization
      *
      * @param chargeId subscription id
      * @return json charge information json string
@@ -958,7 +988,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
 
         JsonObject response = new JsonObject();
         try {
-            Charge charge = Charge.retrieve(chargeId);
+            Charge charge = Charge.retrieve(chargeId, requestOptions);
             JsonObject chargeJsonObj =
                     new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(charge.toString()))
                                     .getAsJsonObject();
@@ -984,15 +1014,15 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Remove the discount in the subscription
+     * Remove the discount in the subscription for monetization
      *
      * @param subscriptionId subscription id
      * @return json response string
      */
     public String deleteSubscriptionDiscount(String subscriptionId) throws CloudBillingVendorException {
         try {
-            Subscription.retrieve(subscriptionId).deleteDiscount();
-            if (Subscription.retrieve(subscriptionId).getDiscount() == null) {
+            Subscription.retrieve(subscriptionId, requestOptions).deleteDiscount();
+            if (Subscription.retrieve(subscriptionId, requestOptions).getDiscount() == null) {
                 return "success";
             }
             return null;
@@ -1003,24 +1033,31 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
     }
 
     /**
-     * Returns currency and conversion used by the vendor
-     *
-     * @return
-     * { "success" : "true",
-     * "data" : {
-     * "currency" : "USD",
-     * "conversion" : "CENTS"
-     * }
-     * }
+     * @return Currency Used by Vendor for monetization
      */
     @Override public String getCurrencyUsed() {
         JsonObject response = new JsonObject();
         JsonObject currencyData = new JsonObject();
-        currencyData.addProperty("currency", BillingVendorConfigUtils.getBillingVendorConfiguration().getCurrency());
+        String currency = BillingVendorConfigUtils.getBillingVendorConfiguration().getCurrency();
+        if (currency != null) {
+            currencyData.addProperty("currency", currency);
+        } else {
+            currencyData.addProperty("currency", "USD");
+        }
         currencyData.addProperty("conversion", "CENTS");
         response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
         response.add(BillingVendorConstants.RESPONSE_DATA, currencyData);
         return response.toString();
+    }
+
+    /**
+     * Inner class to set parameters to vendor model class objects
+     */
+    private static class ObjectParams {
+        protected static Map<String, Object> setObjectParams(String objectInfoJson) {
+            return gsonObj.fromJson(objectInfoJson, new TypeToken<Map<String, Object>>() {
+            }.getType());
+        }
     }
 
     /**
@@ -1045,40 +1082,6 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
             response.add(BillingVendorConstants.RESPONSE_DATA, null);
             LOGGER.error("Error while retrieving customer details : ", ex);
-        }
-        return response.toString();
-    }
-
-    /**
-     * Inner class to set parameters to vendor model class objects
-     */
-    private static class ObjectParams {
-        protected static Map<String, Object> setObjectParams(String objectInfoJson) {
-            return gsonObj.fromJson(objectInfoJson, new TypeToken<Map<String, Object>>() {
-            }.getType());
-        }
-    }
-
-    /**
-     * Get the event details
-     *
-     * @param eventId event id
-     * @return json response string
-     */
-    public String getEventDetails(String eventId) throws CloudBillingVendorException {
-        JsonObject response = new JsonObject();
-        try {
-            JsonObject eventJsonObj = new JsonParser().parse(CloudBillingVendorUtils.validateResponseString(
-                    Event.retrieve(eventId).toString()))
-                                                      .getAsJsonObject();
-            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
-            response.add(BillingVendorConstants.RESPONSE_DATA, eventJsonObj);
-        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
-                APIException ex) {
-            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
-            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
-            response.add(BillingVendorConstants.RESPONSE_DATA, null);
-            LOGGER.error("Error while getting the event details : ", ex);
         }
         return response.toString();
     }
