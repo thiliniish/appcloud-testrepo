@@ -123,32 +123,6 @@
                                                 <p id="account-balance"></p>
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <span>last invoiced:</span>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p id="last-invoice"></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-5 col-md-offset-1">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <span>Last payment:</span>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p id="last-Payment"></p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <span>Last payment date:</span>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p id="last-payment-date"></p>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
@@ -197,7 +171,6 @@
                                                 <th>Invoice No</th>
                                                 <th>Target Date</th>
                                                 <th>Amount ($)</th>
-                                                <th>Balance ($)</th>
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
@@ -222,7 +195,6 @@
                                                 <th>Effective Date</th>
                                                 <th>Payment No</th>
                                                 <th>Paid Invoices</th>
-                                                <th>Paid Amount</th>
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
