@@ -292,7 +292,7 @@ function updateSubscriberData(result) {
 
     if (result != null) {
         $(".Monetization-Data").show();
-        //Account Summery
+        //Account Summary
         $("#account-name").text(result.data.accountSummary.accountName);
         $("#account-balance").text(result.data.accountSummary.accountBalance);
 
@@ -326,13 +326,13 @@ function updateSubscriberData(result) {
                 {
                     "data": "invoice-num", "width": "5%",
                     "render": function (data, type, full, meta) {
-                        return  full['invoice-num'];
+                        return full['invoice-num'];
                     }
                 },
                 {"data": "target-date", "width": "20%"},
                 {"data": "amount", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
                 {"data": "status", "width": "20%", "sClass": "dt-body-center  dt-head-center"}
-            ],
+            ]
         });
     } else {
         $(".Monetization-Data").hide();
@@ -474,9 +474,9 @@ function ShowComplimentaryMessage(dataObj) {
 
 function goToInvoicePage(accountId, invoiceId) {
     var formInvoice = $('<form action="monetization-invoice.jag" method="post">' +
-    '<input type="hidden" name="invoiceId" value="' + invoiceId + '"/>' +
-    '<input type="hidden" name="accountId" value="' + accountId + '"/>' +
-    '</form>');
+        '<input type="hidden" name="invoiceId" value="' + invoiceId + '"/>' +
+        '<input type="hidden" name="accountId" value="' + accountId + '"/>' +
+        '</form>');
     $('body').append(formInvoice);
     $(formInvoice).submit();
 }
