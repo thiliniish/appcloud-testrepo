@@ -246,7 +246,8 @@ function getSubscriberInfo() {
             result = JSON.parse(result);
             if (!result.error) {
                 updateSubscriberData(result.data);
-                getPaymentInfo();
+                var dataObj = JSON.parse(result.data);
+                getPaymentInfo(dataObj.data.chargeInformation);
             } else {
                 showErrorMessage(result);
             }
@@ -256,19 +257,11 @@ function getSubscriberInfo() {
     }
 };
 
-function getPaymentInfo() {
+function getPaymentInfo(data) {
     if (selectedAccountNumber != null) {
-        jagg.post("../blocks/monetizing/account/info/ajax/get.jag", {
-            action: "get-payment-info",
-            accountId: selectedAccountNumber
-        }, function (result) {
-            result = JSON.parse(result);
-            if (!result.error) {
-                updatePaymentData(result.data);
-            } else {
-                showErrorMessage(result);
-            }
-        });
+        if (data != null) {
+            updatePaymentData(data);
+        }
     } else {
         updatePaymentData(null);
     }
@@ -290,7 +283,7 @@ function updateBasicInfo() {
     $("#subscriber-name").text(usersList[selectedUserId].text);
     $("#complimentary-account").text(usersList[selectedUserId].complimentary);
     $("#email").text(usersList[selectedUserId].email);
-    document.getElementById("chkbox-complimentary").checked = usersList[selectedUserId].complimentary;
+    // document.getElementById("chkbox-complimentary").checked = usersList[selectedUserId].complimentary;
 }
 
 function updateSubscriberData(result) {
@@ -299,30 +292,28 @@ function updateSubscriberData(result) {
     if (result != null) {
         $(".Monetization-Data").show();
         //Account Summery
-        $("#account-name").text(result.basicInfo.name);
-        $("#account-balance").text(result.basicInfo.balance);
-        $("#last-invoice").text((result.basicInfo.lastInvoiceDate != null) ? result.basicInfo.lastInvoiceDate : "-");
-        $("#last-Payment").text((result.basicInfo.lastPaymentAmount != null) ? result.basicInfo.lastPaymentAmount : "-");
-        $("#last-payment-date").text((result.basicInfo.lastPaymentDate != null) ? result.basicInfo.lastPaymentDate : "-");
+        $("#account-name").text(result.data.accountSummary.accountName);
+        $("#account-balance").text(result.data.accountSummary.accountBalance);
 
         //Invoice Data
         var invoiceList = [];
-        for (var index in result.invoices) {
+        var dataObj = result.data;
+        for (var index in dataObj.invoicesInformation) {
+            var invoiceInfoObj =JSON.parse(dataObj.invoicesInformation[index]);
             var data = {
-                "date": result.invoices[index].invoiceDate,
-                "invoice-num": result.invoices[index].invoiceNumber,
-                "target-date": result.invoices[index].dueDate,
-                "amount": result.invoices[index].amount,
-                "balance": result.invoices[index].balance,
-                "status": result.invoices[index].status,
-                "id": result.invoices[index].id
-
+                "date": invoiceInfoObj.date,
+                "invoice-num": invoiceInfoObj.InvoiceId,
+                "target-date": invoiceInfoObj.TargetDate,
+                "amount": invoiceInfoObj.Amount,
+                "status": invoiceInfoObj.paid,
+                "id": invoiceInfoObj.InvoiceId
             };
             invoiceList.push(data);
         }
         if ($.fn.DataTable.isDataTable("#invoice-info")) {
             jQuery("#invoice-info").dataTable().fnDestroy();
         }
+
         $("#invoice-info").DataTable({
             responsive: true,
             "data": invoiceList,
@@ -334,14 +325,11 @@ function updateSubscriberData(result) {
                 {
                     "data": "invoice-num", "width": "5%",
                     "render": function (data, type, full, meta) {
-                        return "<a class='editroles' onclick='return goToInvoicePage(\""
-                            + selectedAccountNumber + "\" , \"" + full['id'] + "\")'' ><u>" + full['invoice-num']
-                            + "</u></a> ";
+                        return  full['invoice-num'];
                     }
                 },
                 {"data": "target-date", "width": "20%"},
                 {"data": "amount", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-                {"data": "balance", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
                 {"data": "status", "width": "20%", "sClass": "dt-body-center  dt-head-center"}
             ],
         });
@@ -351,44 +339,19 @@ function updateSubscriberData(result) {
 }
 
 function updatePaymentData(result) {
-    result = JSON.parse(result);
-    //Payment Data
-    var paymentsList = [];
-    for (var index in result.payments) {
-        var payment = result.payments[index];
-        var paidInvoices = null;
-        var paidInvoicesArray = payment.paidInvoices;
-        for (var k = 0; k < paidInvoicesArray.length; k++) {
-            var paidInvoice = payment.paidInvoices[k];
-            if (paidInvoices == null) {
-                paidInvoices = paidInvoice.invoiceNumber;
-            } else {
-                paidInvoices = ", " + paidInvoice.invoiceNumber;
-            }
-        }
-        var data = {
-            "type": payment.type,
-            "effective-date": payment.effectiveDate,
-            "payment-num": payment.paymentNumber,
-            "paid-invoices": paidInvoices,
-            "paid-amount": payment.amount,
-            "status": payment.status
-        };
-        paymentsList.push(data);
-    }
-    if ($.fn.DataTable.isDataTable("#payments-info")) {
-        jQuery("#payments-info").dataTable().fnDestroy();
+    var chargeInformation = result;
+    for (i = 0; i < chargeInformation.length; i++) {
+        chargeInformation[i] = JSON.parse(chargeInformation[i]);
     }
     $("#payments-info").DataTable({
         responsive: true,
-        "data": paymentsList,
+        "data": chargeInformation,
         "columns": [
-            {"data": "type", "width": "10%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "effective-date", "width": "5%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "payment-num", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "paid-invoices", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "paid-amount", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "status", "width": "20%", "sClass": "dt-body-center  dt-head-center"}
+            {"data": "type", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
+            {"data": "effectiveDate", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
+            {"data": "paymentNumber", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
+            {"data": "invoiceNumber.", "width": "20%", "sClass": "dt-body-right dt-head-center"},
+            {"data": "Status", "width": "20%", "sClass": "dt-body-center  dt-head-center"}
         ]
     });
 }
@@ -510,9 +473,9 @@ function ShowComplimentaryMessage(dataObj) {
 
 function goToInvoicePage(accountId, invoiceId) {
     var formInvoice = $('<form action="monetization-invoice.jag" method="post">' +
-        '<input type="hidden" name="invoiceId" value="' + invoiceId + '"/>' +
-        '<input type="hidden" name="accountId" value="' + accountId + '"/>' +
-        '</form>');
+    '<input type="hidden" name="invoiceId" value="' + invoiceId + '"/>' +
+    '<input type="hidden" name="accountId" value="' + accountId + '"/>' +
+    '</form>');
     $('body').append(formInvoice);
     $(formInvoice).submit();
 }
