@@ -719,7 +719,8 @@ var getOrdedInvoices = function (accountId, invoiceId) {
 
 var getBillingAccountSummary = function (subscribersAccountId) {
     try {
-        var summary = billingService.getAccountSummary(subscribersAccountId);
+        var tenantDomain = modManager.getTenantDomain();
+        var summary = monetizationService.retrieveAccountInfo(tenantDomain, subscribersAccountId);
         message = "Successfully retrieved the Billing data for the accountId [" + subscribersAccountId + "] :"
         return {
             error: false,
