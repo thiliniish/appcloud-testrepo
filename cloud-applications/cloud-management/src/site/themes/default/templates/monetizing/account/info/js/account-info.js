@@ -283,6 +283,7 @@ function updateBasicInfo() {
     $("#subscriber-name").text(usersList[selectedUserId].text);
     $("#complimentary-account").text(usersList[selectedUserId].complimentary);
     $("#email").text(usersList[selectedUserId].email);
+    // TO DO execution of below check is removed temporarily since this is not implemented
     // document.getElementById("chkbox-complimentary").checked = usersList[selectedUserId].complimentary;
 }
 
