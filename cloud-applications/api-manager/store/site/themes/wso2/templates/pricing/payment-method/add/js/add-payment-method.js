@@ -6,7 +6,6 @@ var cardDetails = {};
 $(document).ready(function ($) {
     document.getElementById("cardDetails").style.visibility = "hidden";
     document.getElementById("submitbtn").disabled = true;
-    document.getElemntById("submitbtn").style. = "#999";
     if (!isSecondaryPaymentMethod) {
         var error = decodeURIComponent(($("#errorObj").attr('value')));
         var errorObj = JSON.parse(error);
