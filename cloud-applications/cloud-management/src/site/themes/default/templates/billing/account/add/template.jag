@@ -187,60 +187,116 @@
             });
     }
 
+    function validateForm() {
+        var validInputObj = {"isValid": true};
+        validateRequiredInput('orgName', validInputObj);
+        validateRequiredInput('firstName', validInputObj);
+        validateRequiredInput('lastName', validInputObj);
+        validateRequiredInput('addressLine1', validInputObj);
+        validateRequiredInput('city', validInputObj);
+        validateRequiredInput('country', validInputObj);
+        validateRequiredInput('postalCode', validInputObj);
+        validateRequiredInput('email', validInputObj);
+        return validInputObj.isValid;
+    }
 
-        function doSubmit() {
+    function validateRequiredInput(id, validInputObj) {
+        var error = "";
+        var illegalChars = /([~!#$;%^*+={}\|\\<>\"\'\/,])/;
+        if ($("#" + id).val() == "") {
+            validInputObj.isValid = false;
+            error = '<%=FIELD_REQUIRED_MESSAGE%>';
+        } else if (id == "email") {
+            var email = $("#" + id).val();
+            var patternForEmailValidation =/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    	    var isEmailValid = patternForEmailValidation.test(email);
+    	    if(!isEmailValid){
+                validInputObj.isValid = false;
+                error = '<%=INVALID_EMAIL_MESSAGE%>';
+    	    }
+        }else if (/(["\'])/g.test($("#" + id).val())) {
+            validInputObj.isValid = false;
+            error = '<%=ILLEGAL_CHARACTERS_MESSAGE%>'+ ' ( " \' )';
+        } else if ($("#" + id).val().search(illegalChars) != -1) {
+            validInputObj.isValid = false;
+            error = '<%=ILLEGAL_CHARACTERS_MESSAGE%>';
+        }
+        handleError(id, error);
+    }
+
+    function handleError(id, error) {
+        if (error != "") {
+            $("#" + id).addClass('error');
+            if (!$("#" + id).next().hasClass('error')) {
+                $("#" + id).parent().append('<label class="error">' + error + '</label>');
+            } else {
+                $("#" + id).next().show().html(error);
+            }
+        } else {
+            $("#" + id).removeClass('error');
+            $("#" + id).next().hide();
+        }
+    }
+
+    function doSubmit() {
+        var isValid = validateForm();
+        if (isValid) {
             disable();
-            var responseFrom = '<%= responseFrom %>';
-            var EDIT_USER_INFO = '<%= EDIT_USER_INFO %>';
-            var IS_FROM_CHANGE_PLAN = '<%= IS_FROM_CHANGE_PLAN %>';
-            var organizationName =  '<%= tenantDomain %>';
-            if($("#orgName").attr('value') != ""){
+            var responseFrom = '<%=responseFrom%>';
+            var EDIT_USER_INFO = '<%=EDIT_USER_INFO %>';
+            var IS_FROM_CHANGE_PLAN = '<%=IS_FROM_CHANGE_PLAN%>';
+            var organizationName = '<%=tenantDomain%>';
+            if ($("#orgName").attr('value') != "") {
                 organizationName = $("#orgName").attr('value');
             }
-
-            var cloudmgtURL =  $("#cloudmgtURL").attr('value');
-
-            jagg.message({content:'Please wait. Your request is being processed..',type:'success'});
-            jagg.post("../blocks/billing/account/add/ajax/add.jag", {
-                action:"createAccount",
-                orgName : organizationName,
-                firstName :$("#firstName").attr('value'),
-                lastName :$("#lastName").attr('value'),
-                address1 :$("#addressLine1").attr('value'),
-                city :$("#city").attr('value'),
-                zipCode :$("#postalCode").attr('value'),
-                country :$("#country").attr('value'),
-                refId :$("#refId").attr('value'),
-                signature :$("#signature").attr('value'),
-                field_passthrough1 :$("#field_passthrough1").attr('value'),
-                serviceId :$("#field_passthrough2").attr('value'),
-                productRatePlanId :$("#field_passthrough3").attr('value'),
-                email:$("#email").attr('value'),
-                responseFrom: "<%=responseFrom%>",
-                accountId : "<%= accountId%>",
-                field_passthrough4:$("#field_passthrough4").attr('value'),
-
-            },
-            function (result) {
-                document.getElementById("spinner").style.display = 'none';
-                if(responseFrom == EDIT_USER_INFO){
-                    window.location.href = cloudmgtURL + "/site/pages/account-summary.jag";
-                }else {
-                    window.location.href = cloudmgtURL + "/site/pages/payment-confirmation.jag?discount=<%=couponDiscount%>&monthly-rental=<%=monthlyRental%>&responseFrom=<%=responseFrom%>";
-                }
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                $('.message_box').empty();
-                jagg.message({content:"Unable to complete the task at the moment. Please contact WSO2 Cloud Team for help", type:'error',cbk:function(){
-                        window.location.href = cloudmgtURL +"/site/pages/contact-us.jag" ;
-                    }
-                });
+            var cloudmgtURL = $("#cloudmgtURL").attr('value');
+            jagg.message({
+                content: 'Please wait. Your request is being processed..',
+                type: 'success'
             });
+            jagg.post("../blocks/billing/account/add/ajax/add.jag", {
+                    action: "createAccount",
+                    orgName: organizationName,
+                    firstName: $("#firstName").attr('value'),
+                    lastName: $("#lastName").attr('value'),
+                    address1: $("#addressLine1").attr('value'),
+                    city: $("#city").attr('value'),
+                    zipCode: $("#postalCode").attr('value'),
+                    country: $("#country").attr('value'),
+                    refId: $("#refId").attr('value'),
+                    signature: $("#signature").attr('value'),
+                    field_passthrough1: $("#field_passthrough1").attr('value'),
+                    serviceId: $("#field_passthrough2").attr('value'),
+                    productRatePlanId: $("#field_passthrough3").attr('value'),
+                    email: $("#email").attr('value'),
+                    responseFrom: "<%=responseFrom%>",
+                    accountId: "<%=accountId%>",
+                    field_passthrough4: $("#field_passthrough4").attr('value'),
+                },
+                function(result) {
+                    document.getElementById("spinner").style.display = 'none';
+                    if (responseFrom == EDIT_USER_INFO) {
+                        window.location.href = cloudmgtURL + "/site/pages/account-summary.jag";
+                    } else {
+                        window.location.href = cloudmgtURL +
+                            "/site/pages/payment-confirmation.jag?discount=<%=couponDiscount%>&monthly-rental=<%=monthlyRental%>&responseFrom=<%=responseFrom %> ";
+                    }
+                },
+                function(jqXHR, textStatus, errorThrown) {
+                    $('.message_box').empty();
+                    jagg.message({
+                        content: "Unable to complete the task at the moment. Please contact WSO2 Cloud Team for help",
+                        type: 'error',
+                        cbk: function() {
+                            window.location.href = cloudmgtURL + "/site/pages/contact-us.jag";
+                        }
+                    });
+                });
+            };
         }
 
 
-        function validateEmail(){
-
+    function validateEmail() {
         var isEmailValid=true;
         var email = $("#email").val();
         var patternForEmailValidation =/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -506,7 +562,10 @@
 			<label class="input-label col-md-5">E-mail</label>
 			<div class="input-control input-full-width col-md-7 text">
 				<input type="text" id="email" name="email" value="<%=userEmail%>" placeholder=""/>
-                <p>This email address will be used to send invoices and payment information</p>
+			</div>
+			<label class="input-label col-md-5"></label>
+			<div class="input-control input-full-width col-md-7 text">
+			    <p>This email address will be used to send invoices and payment information</p>
 			</div>
 			<%if(responseFrom != EDIT_USER_INFO) {  %>
 			<div class="col-md-12 text">
