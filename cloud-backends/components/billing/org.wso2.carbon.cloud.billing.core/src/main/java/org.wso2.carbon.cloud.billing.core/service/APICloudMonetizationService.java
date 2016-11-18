@@ -280,10 +280,10 @@ public class APICloudMonetizationService {
      * @param accountNumber account number. this would be null for non paid subscribers
      * @throws CloudMonetizationException
      */
-    public void updateAPISubscriberInfo(String tenantDomain, String username, boolean isTestAccount,
+    public boolean updateAPISubscriberInfo(String tenantDomain, String username, boolean isTestAccount,
                                         String accountNumber) throws CloudMonetizationException {
         try {
-            APICloudMonetizationUtils
+            return APICloudMonetizationUtils
                     .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
         } catch (CloudMonetizationException ex) {
             LOGGER.error(
