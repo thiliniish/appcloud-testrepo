@@ -654,7 +654,7 @@ var getCurrentRatePlan = function (serviceId) {
     }
     return null;
 };
-
+//TODO if more than one subscription is created for the customer
 var getCurrentSubscription = function (serviceId) {
     if ((session.get("TENANT_INFO")) != null) {
         var susbcriptionData = getCustomerDetails();
