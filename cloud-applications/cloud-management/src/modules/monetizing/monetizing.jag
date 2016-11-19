@@ -94,7 +94,6 @@ var getSubscribersOfTenant = function () {
 var makeSubscriberAccountTest = function (subscriberString) {
     var tenantDomain = modManager.getTenantDomain();
     var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
-    var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
     var sqlDateFormat = modUtil.dateTimeFormatter(MYSQL_DATETIME_FORMAT);
     var dateFormatter = modUtil.dateTimeFormatter(DATE_FORMAT);
     var effectiveDate = new Packages.java.util.Date();
@@ -111,7 +110,10 @@ var makeSubscriberAccountTest = function (subscriberString) {
                     log.debug("Updating account to test for subscriber: " + username + " of tenant: " + tenantDomain + ".");
                 }
                 if (subscriber.subscriptionType == ACC_PAID) {
-                    var subscriptionIds = JSON.parse(monetizationService.getActiveSubscriptionIdsForAccountId(accountId, productName));
+                    var subscriberObj = {};
+                    subscriberObj.customer = accountId;
+                    subscriberObj.status = "active";
+                    var subscriptionIds = JSON.parse(monetizationService.getAllSubscriptions(tenantDomain, stringify(subscriberObj)));
                     var subsLen = subscriptionIds.length;
                     var jsonData = {};
                     jsonData.cancellationPolicy = 'SpecificDate';

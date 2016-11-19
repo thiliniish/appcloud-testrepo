@@ -326,7 +326,9 @@ function updateSubscriberData(result) {
                 {
                     "data": "invoice-num", "width": "5%",
                     "render": function (data, type, full, meta) {
-                        return full['invoice-num'];
+                        return "<a class='editroles' onclick='return goToInvoicePage(\""
+                            + selectedAccountNumber + "\" , \"" + full['id'] + "\")'' ><u>" + full['invoice-num']
+                            + "</u></a> ";
                     }
                 },
                 {"data": "target-date", "width": "20%"},
