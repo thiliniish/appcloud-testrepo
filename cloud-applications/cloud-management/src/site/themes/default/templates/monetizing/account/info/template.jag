@@ -136,7 +136,7 @@
                                 <div class="datatable">
                                     <div class="col-lg-3 col-md-3" style="padding-bottom: 15px;">
                                     </div>
-                                    <table id="sub-info" class="display" cellspacing="0" width="100%" align="center">
+                                    <table id="sub-info" class="display" cellspacing="0" width="100%"  align="left">
                                         <thead>
                                             <tr>
                                                 <th>API Name</th>
@@ -161,7 +161,7 @@
                             </div>
                             <div class="box-content">
                                 <div class="datatable">
-                                    <table id="invoice-info" class="display" cellspacing="0" width="100%" align="center">
+                                    <table id="invoice-info" class="display" cellspacing="0" width="100%" align="left">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
@@ -185,7 +185,7 @@
                             </div>
                             <div class="box-content">
                                 <div class="datatable">
-                                    <table id="payments-info" class="display" cellspacing="0" width="100%">
+                                    <table id="payments-info" class="display" cellspacing="0" width="100%"  align="left">
                                         <thead>
                                             <tr>
                                                 <th>Type</th>
