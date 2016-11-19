@@ -53,13 +53,13 @@ function validateRequiredInput(id, validInputObj) {
     var illegalChars = /([~!#$;%^*+={}\|\\<>\"\'\/,])/;
     if ($("#" + id).val() == "") {
         validInputObj.isValid = false;
-        error = i18n.t('validationMsgs.fieldRequired');
+        error = i18n.t('This field is required.');
     } else if (/(["\'])/g.test($("#" + id).val())) {
         validInputObj.isValid = false;
-        error = i18n.t('validationMsgs.illegalChars') + '( " \' )';
+        error = i18n.t('Input contains one or more illegal characters') + '( " \' )';
     } else if ($("#" + id).val().search(illegalChars) != -1) {
         validInputObj.isValid = false;
-        error = i18n.t('validationMsgs.illegalChars');
+        error = i18n.t('Input contains one or more illegal characters');
     }
     handleError(id, error);
 }
@@ -69,10 +69,10 @@ function validateInput(id, validInputObj) {
     var illegalChars = /([~!#$;%^*+={}\|\\<>\"\'\/,])/;
     if ($("#" + id).val() != "" && /(["\'])/g.test($("#" + id).val())) {
         validInputObj.isValid = false;
-        error = i18n.t('validationMsgs.illegalChars') + '( " \' )';
+        error = i18n.t('Input contains one or more illegal characters') + '( " \' )';
     } else if ($("#" + id).val() != "" && $("#" + id).val().search(illegalChars) != -1) {
         validInputObj.isValid = false;
-        error = i18n.t('validationMsgs.illegalChars');
+        error = i18n.t('Input contains one or more illegal characters');
     }
     handleError(id, error);
 }
