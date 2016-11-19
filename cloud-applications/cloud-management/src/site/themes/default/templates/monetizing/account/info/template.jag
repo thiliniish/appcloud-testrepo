@@ -74,10 +74,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="accordion">
-                        <!-- TO DO -->
-                        <!-- Temporarily Removed making account complimentary during the deployment due to
-                        unavailability of the backend function -->
-                        <!-- div class="box">
+                        <div class="box">
                             <div class="box-header">
                                 <h4 class="pull-left">Account Type</h4>
                                 <i class="fw fw-right pull-right"></i>
@@ -96,7 +93,7 @@
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
-                        </div -->
+                        </div>
 
                         <div class="box Monetization-Data">
                             <div class="box-header">
@@ -139,7 +136,7 @@
                                 <div class="datatable">
                                     <div class="col-lg-3 col-md-3" style="padding-bottom: 15px;">
                                     </div>
-                                    <table id="sub-info" class="display" cellspacing="0" width="100%" align="center">
+                                    <table id="sub-info" class="display" cellspacing="0" width="100%"  align="left">
                                         <thead>
                                             <tr>
                                                 <th>API Name</th>
@@ -164,7 +161,7 @@
                             </div>
                             <div class="box-content">
                                 <div class="datatable">
-                                    <table id="invoice-info" class="display" cellspacing="0" width="100%" align="center">
+                                    <table id="invoice-info" class="display" cellspacing="0" width="100%" align="left">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
@@ -188,7 +185,7 @@
                             </div>
                             <div class="box-content">
                                 <div class="datatable">
-                                    <table id="payments-info" class="display" cellspacing="0" width="100%">
+                                    <table id="payments-info" class="display" cellspacing="0" width="100%"  align="left">
                                         <thead>
                                             <tr>
                                                 <th>Type</th>
