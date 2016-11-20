@@ -767,4 +767,36 @@ public class APICloudMonetizationService {
     public String callVendorMethod(String tenantDomain, String methodName, String params) throws CloudBillingException {
         return (String) BillingVendorInvoker.invokeMethodForMonetization(tenantDomain, methodName, params);
     }
+
+    /**
+     * Method to retrieve all the subscriptions
+     *
+     * @param subscriptionInfoJson subscription details.
+     * @return a list of subscriptions
+     */
+    public String getAllSubscriptions(String tenantDomain, String subscriptionInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).getAllSubscriptions(subscriptionInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving all subscriptions.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Retrieve invoice details
+     *
+     * @param invoiceId invoice id
+     * @return json string of invoice information
+     */
+    public String getInvoiceDetails(String tenantDomain, String invoiceId) throws CloudBillingException {
+        try {
+            return init(tenantDomain).getInvoiceDetails(invoiceId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving invoice details.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
 }
