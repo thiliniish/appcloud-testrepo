@@ -19,8 +19,9 @@ var log = new Log("site/block/account/billing/add/ajax/add.jag");
 
 	if (action == "cancelSubscription") {
 		try {
-			var serviceId=request.getParameter("serviceId");
-			result = mod.cancelSubscription(serviceId);
+			var serviceId = request.getParameter("serviceId");
+			var serviceName = request.getParameter("serviceName");
+			result = mod.cancelSubscription(serviceName, serviceId);
 			if (result != null) {
 				print(result);
 			} else {
