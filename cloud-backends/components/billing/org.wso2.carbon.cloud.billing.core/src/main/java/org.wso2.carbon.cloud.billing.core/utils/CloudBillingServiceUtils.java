@@ -21,6 +21,7 @@ package org.wso2.carbon.cloud.billing.core.utils;
 import com.google.gson.Gson;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +45,7 @@ import org.wso2.carbon.core.util.CryptoUtil;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Iterator;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -91,7 +93,7 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
-     * Get plans for Id
+     * Get plans for specific cloud type
      *
      * @param cloudId Unique ID for the cloud (i.e api_cloud)
      * @return rate plans in billing.xml
@@ -102,12 +104,80 @@ public final class CloudBillingServiceUtils {
     }
 
     /**
+     * Get Information on rate plan for the given cloud type
+     *
+     * @param cloudType  Subscription Id of the user
+     * @param ratePlanId Rate Plan Id
+     * @return Plan information of the subscribed
+     * @throws CloudBillingException
+     * @throws XMLStreamException
+     */
+    public static Plan getSubscriptionPlanForRatePlanId(String cloudType, String ratePlanId)
+            throws CloudBillingException {
+        try {
+            Plan plan = getSubscriptionInfo(cloudType, ratePlanId);
+            OMElement subscriptionElements;
+            if (plan == null) {
+                String subscriptionMappingResponse;
+                subscriptionMappingResponse = getSubscriptionMapping(ratePlanId);
+                if (subscriptionMappingResponse != null) {
+                    subscriptionElements = AXIOMUtil.stringToOM(subscriptionMappingResponse);
+                    Iterator<?> iterator =
+                            subscriptionElements.getChildrenWithName(new QName(BillingConstants.PRODUCT_RATE_PLAN_ID));
+                    while (iterator.hasNext()) {
+                        OMElement ratePlanIdElement = (OMElement) iterator.next();
+                        String productRatePlanId = ratePlanIdElement.getText();
+                        plan = getSubscriptionInfo(cloudType, productRatePlanId);
+                    }
+                }
+            }
+            return plan;
+        } catch (XMLStreamException | CloudBillingException e) {
+            throw new CloudBillingException("Error while retrieving rate plan information for Rate Plan Id " +
+                                            ratePlanId + " in " + cloudType + " subscription ", e);
+        }
+    }
+
+    /**
+     * Find subscription plan for the subscription Id from Configuration
+     *
+     * @param cloudType Cloud Type
+     * @param id        Plan Id
+     * @return Plan Information
+     * @throws CloudBillingException
+     */
+    private static Plan getSubscriptionInfo(String cloudType, String id) throws CloudBillingException {
+        Plan[] plans = getSubscriptions(cloudType);
+        for (Plan plan : plans) {
+            if (plan.getId().equals(id)) {
+                return plan;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Retrieve the billing vendor class name
      *
      * @return Billing Vendor service class name
      */
     public static String getBillingVendorServiceUtilClass() {
         return BillingConfigManager.getBillingConfiguration().getBillingVendorClass();
+    }
+
+    /**
+     * Get Subscription mapping for ratePlanIds which are not in billing-core.xml
+     * These plans are created to map A new plan against existing plan
+     *
+     * @param ratePlanId    New Rate Plan Id
+     * @return              Mapped Rate plan
+     * @throws CloudBillingException
+     */
+    private static String getSubscriptionMapping(String ratePlanId) throws CloudBillingException {
+        String url = BillingConfigManager.getBillingConfiguration().getDataServiceConfig().getCloudBillingServiceUri() +
+                     BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
+        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId) };
+        return dsBRProcessor.doGet(url, null, nameValuePairs);
     }
 
     /**
