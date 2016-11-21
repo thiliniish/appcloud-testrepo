@@ -239,7 +239,10 @@
     }
 
     function doSubmit() {
-        var isValid = validateForm();
+        var isValid = true;
+        if ('<%=responseFrom%>' !=  '<%=IS_FROM_CHANGE_PLAN%>') {
+            isValid = validateForm();
+        }
         if (isValid) {
             disable();
             var responseFrom = '<%=responseFrom%>';
