@@ -278,7 +278,7 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
     log.info("Creating the tenant with tenant domain [ "+tenantDomain+" ] for the admin user [" +
             adminUser+" ] with usage plan [ "+usagePlan+" ]");
 	var ws = require("ws");
-	var creatTenant = new ws.WSRequest();
+	var createTenant = new ws.WSRequest();
 	var options = new Array();
 	options.useSOAP = 1.1;
 	options.action = "urn:registerTenantForTrustedUser";
@@ -306,9 +306,9 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
 		var result;
 		try {
 			var endPoint = CLOUDMGT_SERVICES + "TenantMgtService";
-			creatTenant.open(options,endPoint, false);
-			creatTenant.send(payload);
-			result = creatTenant.responseE4X;
+			createTenant.open(options,endPoint, false);
+			createTenant.send(payload);
+			result = createTenant.responseE4X;
             log.info("Tenant creation completed for tenant domain [ "+tenantDomain+" ]");
 			return result;
 		} catch (e) {
