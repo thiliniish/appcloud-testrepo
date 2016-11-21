@@ -67,7 +67,7 @@ public final class BillingConstants {
 
     public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
     public static final String BILLING_DB_UPDATE_TASK_CLASS_NAME =
-            "org.wso2.carbon.cloud.billing.subscription.tasks" + ".BillingDbUpdateTask";
+            "org.wso2.carbon.cloud.billing.core.subscription.tasks" + ".BillingDbUpdateTask";
     public static final String PENDING_DISABLES_URL_KEY = "__PENDING_DISABLES__";
     public static final String DISABLE_TENANT_URL_KEY = "__DISABLE_TENANT__";
     public static final String UPDATE_SUBSCRIPTION_STATUS_URL_KEY = "__UPDATE_SUBSCRIPTION_STATUS__";
@@ -135,6 +135,10 @@ public final class BillingConstants {
 
     public static final String START_DATE = "START_DATE";
     public static final String END_DATE = "END_DATE";
+    public static final String PENDING_DISABLE_TENANT_DOMAIN = "TenantDomain";
+    public static final String PENDING_DISABLE_START_DATE = "StartDate";
+    public static final String PENDING_DISABLE_END_DATE = "EndDate";
+    public static final String PENDING_DISABLE_SUBSCRIPTION = "Subscription";
 
     //Should generalize
     public static final String TENANT_DOMAIN_QUERY_PARAM = "TENANT_DOMAIN";
