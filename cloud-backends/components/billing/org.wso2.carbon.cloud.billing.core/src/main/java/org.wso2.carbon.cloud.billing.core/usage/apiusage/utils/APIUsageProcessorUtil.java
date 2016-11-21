@@ -147,18 +147,20 @@ public class APIUsageProcessorUtil {
      * @return
      */
     public static float calculateCharge(int maxUsage, int currUsage, String rate) {
-        // calculate overUsage
-        int overUsage = currUsage - maxUsage;
-        if (overUsage < BillingConstants.OVER_USAGE_THRESHOLD) {
-            return 0;
-        }
         // get the amount of dollars which needs to be added
         int ratePrice = Integer.parseInt(rate.split("/")[0].replace("$", ""));
         // Max number of API calls per a given rate
         int overageValue = Integer.parseInt(rate.split("/")[1]);
-
-        int dailyPriceRate = overUsage / overageValue;
-        return dailyPriceRate * ratePrice;
+        // calculate overUsage
+        int overUsage = currUsage - maxUsage;
+        if (overUsage < BillingConstants.OVER_USAGE_THRESHOLD) {
+            return 0;
+        } else if (overUsage < overageValue) {
+            return ratePrice;
+        } else {
+            int dailyPriceRate = overUsage / overageValue;
+            return dailyPriceRate * ratePrice;
+        }
     }
 
     /**
