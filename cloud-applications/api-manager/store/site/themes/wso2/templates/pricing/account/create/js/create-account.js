@@ -69,6 +69,9 @@ function validateRequiredOnly(id, validInputObj){
     if ($("#" + id).val() == "") {
         validInputObj.isValid = false;
         error = i18n.t('This field is required.');
+    }  else if (/(["\'])/g.test($("#" + id).val())) {
+        validInputObj.isValid = false;
+        error = i18n.t('Input contains one or more illegal characters') + '( " \' )';
     }
     handleError(id, error);
 }
