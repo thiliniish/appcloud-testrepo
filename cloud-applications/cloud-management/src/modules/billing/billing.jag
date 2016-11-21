@@ -526,6 +526,17 @@ var dateTimeFormatter = function (dateTimeFormat) {
     return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
 };
 
+var updateBillingStatus = function (status, effectiveDate, serviceType, serviceId, tenantDomain) {
+
+    var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+    var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
+
+    //updating the billing status
+    var queryString  = SQL_QUERY_STRINGS.UPDATE_SUBSCRIPTION_TYPE_STATUS_IN_BILLING_STATUS;
+    var parameters = [status, formattedEffectiveDate, tenantDomain, serviceId, serviceType];
+    modDb.executeQuery(queryString, parameters);
+};
+
 var getCancelSubscriptionEffectiveDate = function () {
     var dateFormatter = dateTimeFormatter(DATE_FORMAT);
     try {
@@ -544,24 +555,12 @@ var setChangePlanEffectiveDate = function (isUpgrade) {
     try {
         if (!isUpgrade) {
             //TODO  GEt the correct downgrade dates.
-            var customerDetails = getCustomerDetails();
-            if (customerDetails.success) {
-                var createdDate = customerDetails.data.subscriptions.data[0].created;
-                var date = new Date(createdDate * 1000);
-                var billCycleDay = date.getDate();
-                //to calculate effectiveDate
-                var cal = Packages.java.util.Calendar.getInstance();
-                //to get the current value
-                var tempCal = Packages.java.util.Calendar.getInstance();
-                var dayOfMonth = Packages.java.util.Calendar.DAY_OF_MONTH;
-                cal.set(dayOfMonth, billCycleDay);
-
-                if (tempCal.get(dayOfMonth) >= cal.get(dayOfMonth)) {
-                    cal.add(Packages.java.util.Calendar.MONTH, 1);
-                }
-                return cal.getTime();
+            var currentSubscription = getCurrentSubscription();
+            if (currentSubscription != null) {
+                var currentPeriodEnd = currentSubscription.current_period_end;
+                return new Date(currentPeriodEnd * 1000);
             }
-            return customerDetails;
+            return currentSubscription;
         } else {
             return new Packages.java.util.Date();
         }
@@ -847,17 +846,9 @@ var removePaymentMethod = function (methodId) {
     }
 };
 
-var cancelSubscription = function (serviceName) {
+var cancelSubscription = function (serviceName, serviceId) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     var effectiveDate = setChangePlanEffectiveDate(false);
-    var dateFormatter = dateTimeFormatter(DATE_FORMAT);
-    var serviceId = null;
-    for (var i = 0; i < subscriptionsType.length; i++) {
-        if ((subscriptionsType[i].name).equals(serviceName)) {
-            serviceId = subscriptionsType[i].id;
-            break;
-        }
-    }
 
     try {
         var subscriptionId = getCurrentSubscription().id;
