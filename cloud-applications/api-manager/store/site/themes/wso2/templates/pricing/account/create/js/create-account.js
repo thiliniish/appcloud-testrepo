@@ -39,7 +39,7 @@ function validateForm() {
     validateRequiredInput('firstName', validInputObj);
     validateRequiredInput('lastName', validInputObj);
     validateRequiredInput('email', validInputObj);
-    validateRequiredInput('addressLine1', validInputObj);
+    validateRequiredOnly('addressLine1', validInputObj);
     validateRequiredInput('addressLine2', validInputObj);
     validateRequiredInput('country', validInputObj);
     validateRequiredInput('city', validInputObj);
@@ -60,6 +60,18 @@ function validateRequiredInput(id, validInputObj) {
     } else if ($("#" + id).val().search(illegalChars) != -1) {
         validInputObj.isValid = false;
         error = i18n.t('Input contains one or more illegal characters');
+    }
+    handleError(id, error);
+}
+
+function validateRequiredOnly(id, validInputObj){
+    var error = "";
+    if ($("#" + id).val() == "") {
+        validInputObj.isValid = false;
+        error = i18n.t('This field is required.');
+    }  else if (/(["\'])/g.test($("#" + id).val())) {
+        validInputObj.isValid = false;
+        error = i18n.t('Input contains one or more illegal characters') + '( " \' )';
     }
     handleError(id, error);
 }
