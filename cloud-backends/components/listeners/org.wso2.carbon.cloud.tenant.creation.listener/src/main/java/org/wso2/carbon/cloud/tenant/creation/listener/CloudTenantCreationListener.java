@@ -195,6 +195,11 @@ public class CloudTenantCreationListener implements TenantMgtListener {
 
     }
 
+    @Override
+    public void onTenantDelete(int i) {
+
+    }
+
     public void onTenantRename(int i, String s, String s1) throws StratosException {
 
     }
@@ -217,5 +222,10 @@ public class CloudTenantCreationListener implements TenantMgtListener {
 
     public int getListenerOrder() {
         return 0;
+    }
+
+    @Override
+    public void onPreDelete(int i) throws StratosException {
+
     }
 }
