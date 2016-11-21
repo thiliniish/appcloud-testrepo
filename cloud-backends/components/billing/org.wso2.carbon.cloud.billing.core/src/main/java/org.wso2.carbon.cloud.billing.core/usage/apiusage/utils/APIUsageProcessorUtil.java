@@ -153,7 +153,7 @@ public class APIUsageProcessorUtil {
         int overageValue = Integer.parseInt(rate.split("/")[1]);
         // calculate overUsage
         int overUsage = currUsage - maxUsage;
-        if (overUsage < BillingConstants.OVER_USAGE_THRESHOLD) {
+        if (overUsage <= BillingConstants.OVER_USAGE_THRESHOLD) {
             return 0;
         } else if (overUsage < overageValue) {
             return ratePrice;
