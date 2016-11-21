@@ -43,6 +43,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
     @XmlElement(name = "CloudTypes", nillable = false, required = true) private CloudTypes cloudTypes;
 
+    @XmlElement(name = "Crons", nillable = false, required = true) private Crons crons;
+
     public String getBillingVendorClass() {
         return billingVendorClass;
     }
@@ -78,5 +80,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     public CloudType getCloudTypeById(String cloudId) {
         return cloudTypes.getCloudTypeById(cloudId);
     }
-
+    public Crons getCrons() {
+        return crons;
+    }
 }
