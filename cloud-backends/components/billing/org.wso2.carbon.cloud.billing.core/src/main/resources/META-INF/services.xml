@@ -109,6 +109,9 @@
         <operation name="callVendorMethod">
             <parameter name="superTenantService" locked="true">true</parameter>
         </operation>
+        <operation name="cancelSubscriptionForSubscriptionId">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
         <parameter name="adminService" locked="true">true</parameter>
         <parameter name="hiddenService" locked="true">true</parameter>
         <parameter name="AuthorizationAction" locked="true">/permission/admin/billing</parameter>

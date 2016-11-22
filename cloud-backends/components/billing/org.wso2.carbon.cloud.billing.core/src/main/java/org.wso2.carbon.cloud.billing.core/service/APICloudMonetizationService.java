@@ -143,6 +143,25 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * Cancel subscription by the subscription id
+     *
+     * @param subscriptionId       subscription id
+     * @param subscriptionInfoJson subscription information in json
+     * @return success jason string
+     */
+    public String cancelSubscriptionForSubscriptionId(String tenantDomain, String subscriptionId, String
+            subscriptionInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).cancelSubscription(subscriptionId, subscriptionInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while cancelling the subscription with id : " + subscriptionId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
      * Remove Application related api subscriptions
      *
      * @param accountNumber subscriber account number
@@ -280,10 +299,10 @@ public class APICloudMonetizationService {
      * @param accountNumber account number. this would be null for non paid subscribers
      * @throws CloudMonetizationException
      */
-    public void updateAPISubscriberInfo(String tenantDomain, String username, boolean isTestAccount,
+    public boolean updateAPISubscriberInfo(String tenantDomain, String username, boolean isTestAccount,
                                         String accountNumber) throws CloudMonetizationException {
         try {
-            APICloudMonetizationUtils
+            return APICloudMonetizationUtils
                     .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
         } catch (CloudMonetizationException ex) {
             LOGGER.error(
@@ -766,5 +785,37 @@ public class APICloudMonetizationService {
      */
     public String callVendorMethod(String tenantDomain, String methodName, String params) throws CloudBillingException {
         return (String) BillingVendorInvoker.invokeMethodForMonetization(tenantDomain, methodName, params);
+    }
+
+    /**
+     * Method to retrieve all the subscriptions
+     *
+     * @param subscriptionInfoJson subscription details.
+     * @return a list of subscriptions
+     */
+    public String getAllSubscriptions(String tenantDomain, String subscriptionInfoJson) throws CloudBillingException {
+        try {
+            return init(tenantDomain).getAllSubscriptions(subscriptionInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving all subscriptions.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
+     * Retrieve invoice details
+     *
+     * @param invoiceId invoice id
+     * @return json string of invoice information
+     */
+    public String getInvoiceDetails(String tenantDomain, String invoiceId) throws CloudBillingException {
+        try {
+            return init(tenantDomain).getInvoiceDetails(invoiceId);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while retrieving invoice details.";
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
     }
 }

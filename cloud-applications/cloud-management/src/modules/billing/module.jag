@@ -98,7 +98,9 @@ jagg.module("billing", {
     },
     verifyEvent: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").verifyEvent.apply(this, arguments);
+    },
+    getTenantUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTenantUsage .apply(this, arguments);
     }
-
 });
 %>

@@ -90,11 +90,14 @@ var getSubscribersOfTenant = function () {
     }
 };
 
+var dateTimeFormatter = function (dateTimeFormat) {
+    return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
+};
+
 // Make subscriber account as test account
 var makeSubscriberAccountTest = function (subscriberString) {
     var tenantDomain = modManager.getTenantDomain();
     var tenantDisplayName = modManager.getTenantDisplayName(tenantDomain);
-    var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
     var sqlDateFormat = modUtil.dateTimeFormatter(MYSQL_DATETIME_FORMAT);
     var dateFormatter = modUtil.dateTimeFormatter(DATE_FORMAT);
     var effectiveDate = new Packages.java.util.Date();
@@ -111,7 +114,10 @@ var makeSubscriberAccountTest = function (subscriberString) {
                     log.debug("Updating account to test for subscriber: " + username + " of tenant: " + tenantDomain + ".");
                 }
                 if (subscriber.subscriptionType == ACC_PAID) {
-                    var subscriptionIds = JSON.parse(monetizationService.getActiveSubscriptionIdsForAccountId(accountId, productName));
+                    var subscriberObj = {};
+                    subscriberObj.customer = accountId;
+                    subscriberObj.status = "active";
+                    var subscriptionIds = JSON.parse(monetizationService.getAllSubscriptions(tenantDomain, stringify(subscriberObj)));
                     var subsLen = subscriptionIds.length;
                     var jsonData = {};
                     jsonData.cancellationPolicy = 'SpecificDate';
@@ -121,7 +127,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                         //Cancel subscriptions
                         var subscriptionId = subscriptionIds[j];
                         //Cancel paid subscriptions
-                        var cancellationResponse = billingService.cancelSubscription(subscriptionId, stringify(jsonData));
+                        var cancellationResponse = monetizationService.cancelSubscriptionForSubscriptionId(tenantDomain, subscriptionId, stringify(jsonData));
                         if (JSON.parse(cancellationResponse).success === true) {
                             if (log.isDebugEnabled()) {
                                 log.debug(" Subscription: " + subscriptionId + " of subscriber: " + username + " of "
@@ -679,9 +685,87 @@ var getApiListFromAccountId = function (accountId) {
         };
     }
 };
+
+var getBillingInvoiceData = function (tenantDomain, invoiceId) {
+    try {
+        var summary = monetizationService.getInvoiceDetails(tenantDomain, invoiceId);
+        var invoiceObj = JSON.parse(summary);
+        if (invoiceObj.id != null) {
+            var invoiceItems = invoiceObj.lines.data;
+            var invoiceData = {};
+            var dateFormat = dateTimeFormatter(DATE_FORMAT);
+            var totalDiscount = 0;
+
+            invoiceData["accountName"] = invoiceObj.customer;
+            invoiceData["subscription"] = invoiceObj.subscription;
+            invoiceData["invoiceDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
+            invoiceData["invoiceNumber"] = invoiceObj.id;
+            invoiceData["amount"] = (invoiceObj.amount_due / CENTS).toFixed(2);
+            invoiceData["invoiceItems"] = [];
+            if (invoiceObj.starting_balance != 0) {
+                var itemData = {};
+                itemData["subscriptionName"] = "";
+                itemData["chargeName"] = "Balance brought-forward";
+                itemData["discount"] = 0.0;
+                itemData["amount"] = -(invoiceObj.starting_balance / CENTS);
+                itemData["servicePeriod"] = "";
+                itemData["chargeDate"] = "";
+                invoiceData["invoiceItems"].push(itemData);
+            }
+
+            for (var i = 0; i < invoiceItems.length; i++) {
+                var item = {};
+                var invoiceItem = invoiceItems[i];
+                item["chargeName"] = invoiceItem.description;
+                if (invoiceItem.description == null) {
+                    if( invoiceItem.plan.statement_descriptor != null) {
+                        item["chargeName"] = invoiceItem.plan.statement_descriptor;
+                    } else {
+                        item["chargeName"] = invoiceItem.plan.name + " Subscription";
+                    }
+                }
+                item["subscriptionName"] = invoiceItem.plan.name;
+                item["amount"] = (invoiceItem.amount / CENTS).toFixed(2);
+                item["servicePeriod"] = dateFormat.format(invoiceItem.period.start * THOUSAND) + " to "
+                + dateFormat.format(invoiceItem.period.end * THOUSAND);
+                item["chargeDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
+                item["discount"] = 0.0;
+                if (invoiceItem.discountable && invoiceObj.discount != null) {
+                    if (invoiceObj.discount.coupon.amount_off != null) {
+                        item["discount"] = -invoiceObj.discount.coupon.amount_off / CENTS;
+                        totalDiscount = totalDiscount + (invoiceObj.discount.coupon.amount_off / CENTS);
+                    } else {
+                        item["discount"] = -(invoiceItem.amount * (invoiceObj.discount.coupon.percent_off / 100)) /
+                        CENTS;
+                        totalDiscount = totalDiscount + ((invoiceItem.amount * (invoiceObj.discount.coupon
+                                .percent_off / 100)) / CENTS);
+                    }
+                }
+                invoiceData["invoiceItems"].push(item);
+            }
+            if (totalDiscount != 0) {
+                var itemData = {};
+                itemData["subscriptionName"] = "";
+                itemData["chargeName"] = "Discounted Amount";
+                itemData["discount"] = 0.0;
+                itemData["amount"] = (-totalDiscount).toFixed(2);
+                itemData["servicePeriod"] = "";
+                itemData["chargeDate"] = "";
+                invoiceData["invoiceItems"].push(itemData);
+            }
+            return invoiceData;
+        }
+    } catch (e) {
+        log.error("ERROR in getting Billing invoice data for tenant : " + tenantDomain + " : " + e.message);
+        log.error(e);
+        throw e;
+    }
+};
+
 var getOrdedInvoices = function (accountId, invoiceId) {
     try {
-        var result = modBilling.getBillingInvoiceData(accountId, invoiceId);
+        var tenantDomain = modManager.getTenantDomain();
+        var result = getBillingInvoiceData(tenantDomain, invoiceId);
         var orderedInvoiceList = {};
         var subscriptionDetails = {};
 
@@ -692,12 +776,13 @@ var getOrdedInvoices = function (accountId, invoiceId) {
                 orderedInvoiceList[invoiceItem.subscriptionName].push(invoiceItem);
             } else {
                 orderedInvoiceList[invoiceItem.subscriptionName] = [invoiceItem];
-                subscriptionDetails[invoiceItem.subscriptionName] = getSubscriptionDataFromName(invoiceItem.subscriptionName);
+                subscriptionDetails[invoiceItem.subscriptionName] = getSubscriptionDataFromName(result
+                        .subscription);
             }
         }
         result.invoiceItems = orderedInvoiceList;
         result.subscriptionData = subscriptionDetails;
-        message = "Successfully retreived the invoice data for the accountId [" + accountId + "] :";
+        message = "Successfully retrieved the invoice data for the accountId [" + accountId + "] :";
         return {
             error: false,
             message: message,
@@ -770,7 +855,7 @@ var getSubscriptionDataFromName = function (subscriptionName) {
     var result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
     // If subscription is not available in subscription table search in the history table.
     if (result.length == 0) {
-        var queryStringForSubscriptionHistory = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_HISTORY_DATA_FROM_SUBSCRIPTION_ID
+        var queryStringForSubscriptionHistory = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_HISTORY_DATA_FROM_SUBSCRIPTION_ID;
         result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
     }
     var subscriptionData = new Array();

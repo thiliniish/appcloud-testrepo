@@ -302,11 +302,12 @@
 			});
         }
 
-        function cancelSubscription(serviceId) {
+        function cancelSubscription(serviceName) {
             jagg.syncPost("../blocks/billing/account/remove/ajax/remove.jag",
                 { 
                 action: "cancelSubscription",
-                serviceId:serviceId
+                serviceId: "api_cloud",
+                serviceName: serviceName
                 },
                 function (result) {
                     if(result == true || result == 'true') {

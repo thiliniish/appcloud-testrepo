@@ -51,6 +51,13 @@
         </HttpClientConfig>
     </APIMRestAPI>
 
+    <Crons>
+        <SubscriptionCleanUp>
+            <EnableCleanUp>true</EnableCleanUp>
+            <Cron>0 57 23 ? * * *</Cron>
+        </SubscriptionCleanUp>
+    </Crons>
+
     <!--TODO This should be removable -->
     <Security>
         <TrustStore>
