@@ -302,7 +302,7 @@ function updateSubscriberData(result) {
                 "date": invoiceInfoObj.date,
                 "invoice-num": invoiceInfoObj.InvoiceId,
                 "target-date": invoiceInfoObj.TargetDate,
-                "amount": invoiceInfoObj.Amount,
+                "amount": invoiceInfoObj.Amount/100,
                 "status": invoiceInfoObj.paid,
                 "id": invoiceInfoObj.InvoiceId
             };
