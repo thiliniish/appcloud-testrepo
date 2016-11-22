@@ -127,7 +127,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                         //Cancel subscriptions
                         var subscriptionId = subscriptionIds[j];
                         //Cancel paid subscriptions
-                        var cancellationResponse = billingService.cancelSubscription(subscriptionId, stringify(jsonData));
+                        var cancellationResponse = monetizationService.cancelSubscriptionForSubscriptionId(tenantDomain, subscriptionId, stringify(jsonData));
                         if (JSON.parse(cancellationResponse).success === true) {
                             if (log.isDebugEnabled()) {
                                 log.debug(" Subscription: " + subscriptionId + " of subscriber: " + username + " of "

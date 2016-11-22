@@ -143,6 +143,25 @@ public class APICloudMonetizationService {
     }
 
     /**
+     * Cancel subscription by the subscription id
+     *
+     * @param subscriptionId       subscription id
+     * @param subscriptionInfoJson subscription information in json
+     * @return success jason string
+     */
+    public String cancelSubscriptionForSubscriptionId(String tenantDomain, String subscriptionId, String
+            subscriptionInfoJson)
+            throws CloudBillingException {
+        try {
+            return init(tenantDomain).cancelSubscription(subscriptionId, subscriptionInfoJson);
+        } catch (CloudBillingException ex) {
+            String message = "Error occurred while cancelling the subscription with id : " + subscriptionId;
+            LOGGER.error(message, ex);
+            throw new CloudBillingException(message, ex);
+        }
+    }
+
+    /**
      * Remove Application related api subscriptions
      *
      * @param accountNumber subscriber account number
