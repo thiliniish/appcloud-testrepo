@@ -5,26 +5,51 @@ include("/jagg/constants.jag");
 var log = new Log("site/block/account/billing/webhook/ajax/webhook.jag");
 (function () {
     var mod = jagg.module("billing");
+    var modUser = jagg.module("user/authenticate");
     var carbon = require('carbon');
-
+    var base64 = new Packages.org.apache.commons.codec.binary.Base64();
     var jsonContent = request.getContent();
-
-    if (jsonContent.type == "charge.succeeded") {
-        response.status = 200;
-        setTimeout(function () {
-            mod.verifyEvent(jsonContent.id);
-            return;
-        }, 0);
-
-        print({
-            error: true,
-            statusCode: 400,
-            message: "Received the event"
-        });
-
-    } else {
+    var authorization = request.getHeader('authorization');
+    try {
+        //removing the Basic part from the auth header
+        var auth = (authorization.split(" "))[1];
+        var authDetails = (new java.lang.String(base64.decodeBase64(auth))).split(":");
+        var username = new java.lang.String(base64.decodeBase64(authDetails[0]));
+        var password = new java.lang.String(base64.decodeBase64(authDetails[1]));
+        var isLoggedIn = JSON.parse(modUser.login(username, password));
+        if (isLoggedIn) {
+            if (jsonContent.type == "charge.succeeded") {
+                response.status = 200;
+                setTimeout(function () {
+                    mod.verifyEvent(jsonContent.id);
+                    return;
+                }, 0);
+                print({
+                    error: true,
+                    statusCode: 400,
+                    message: "Received the event"
+                });
+            } else {
+                message = "Invalid Request";
+                log.error(message);
+                response.status = 400;
+                print({
+                    error: true,
+                    statusCode: 400,
+                    message: message
+                });
+            }
+            var isLogout = JSON.parse(modUser.logout());
+            if (log.isDebugEnabled()) {
+                log.debug(isLogout.message);
+            }
+        } else {
+            throw "Received an unauthorized request"
+        }
+    } catch (e) {
+        //Considered all the other requests as invalid requests other than the charge succeed
         message = "Invalid Request";
-        log.error(message);
+        log.error(message + " - " + e);
         response.status = 400;
         print({
             error: true,
@@ -32,7 +57,6 @@ var log = new Log("site/block/account/billing/webhook/ajax/webhook.jag");
             message: message
         });
     }
-
     return;
 }());
 %>
