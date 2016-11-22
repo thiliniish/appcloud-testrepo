@@ -697,6 +697,7 @@ var getBillingInvoiceData = function (tenantDomain, invoiceId) {
             var totalDiscount = 0;
 
             invoiceData["accountName"] = invoiceObj.customer;
+            invoiceData["subscription"] = invoiceObj.subscription;
             invoiceData["invoiceDate"] = dateFormat.format(invoiceObj.date * THOUSAND);
             invoiceData["invoiceNumber"] = invoiceObj.id;
             invoiceData["amount"] = (invoiceObj.amount_due / CENTS).toFixed(2);
@@ -775,7 +776,8 @@ var getOrdedInvoices = function (accountId, invoiceId) {
                 orderedInvoiceList[invoiceItem.subscriptionName].push(invoiceItem);
             } else {
                 orderedInvoiceList[invoiceItem.subscriptionName] = [invoiceItem];
-                subscriptionDetails[invoiceItem.subscriptionName] = getSubscriptionDataFromName(invoiceItem.subscriptionName);
+                subscriptionDetails[invoiceItem.subscriptionName] = getSubscriptionDataFromName(result
+                        .subscription);
             }
         }
         result.invoiceItems = orderedInvoiceList;
