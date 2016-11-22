@@ -25,8 +25,8 @@ var log = new Log("site/block/account/billing/webhook/ajax/webhook.jag");
                     return;
                 }, 0);
                 print({
-                    error: true,
-                    statusCode: 400,
+                    error: false,
+                    statusCode: 200,
                     message: "Received the event"
                 });
             } else {
