@@ -108,7 +108,6 @@ public class EmailSender {
             return from;
         } catch (MessagingException e) {
             String errorMsg = "Error while getting the From address of the email";
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         }
     }
@@ -127,7 +126,6 @@ public class EmailSender {
             message.setFrom(new InternetAddress(from));
         } catch (MessagingException e) {
             String errorMsg = "Error while setting the From address of the email. Address :" + from;
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         }
     }
@@ -224,7 +222,6 @@ public class EmailSender {
             return message.getSubject();
         } catch (MessagingException e) {
             String errorMsg = "Error while getting the Subject of the email";
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         }
     }
@@ -243,7 +240,6 @@ public class EmailSender {
             message.setSubject(subject);
         } catch (MessagingException e) {
             String errorMsg = "Error while getting the Subject of the email.Subject :" + subject;
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         }
     }
@@ -276,7 +272,8 @@ public class EmailSender {
             messageBodyPart.setText(text);
             multipart.addBodyPart(messageBodyPart);
         } catch (MessagingException e) {
-            throw new CloudMgtException(e);
+            String msg = "Error while setting the email body content. Content. Content :" + text;
+            throw new CloudMgtException(msg, e);
         }
     }
 
@@ -311,11 +308,9 @@ public class EmailSender {
             multipart.addBodyPart(messageBodyPart);
         } catch (IOException e) {
             String errorMsg = "Error while setting the email body content. Content :" + html;
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         } catch (MessagingException e) {
             String errorMsg = "Error while setting the email body content. Content :" + html;
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         }
     }
@@ -344,7 +339,6 @@ public class EmailSender {
         } catch (MessagingException e) {
             String errorMsg = String.format("Error while add attachment to email.Attachment : [path : %s, cid: %s, " +
                                                     "Content-Type: %s]", path, cid, contentType);
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         }
     }
@@ -365,7 +359,6 @@ public class EmailSender {
             Transport.send(message);
         } catch (MessagingException e) {
             String errorMsg = "Error while sending the email with subject : " + this.getSubject();
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         } finally {
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -401,7 +394,6 @@ public class EmailSender {
             }
         } catch (MessagingException e) {
             String errorMsg = "Error while adding recipients. Recipient type: " + recipientType.toString();
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         }
     }
@@ -423,7 +415,6 @@ public class EmailSender {
         } catch (MessagingException e) {
             String errorMsg = "Error while getting the recipients.Recipient type: " +
                     recipientType.toString();
-            log.error(errorMsg, e);
             throw new CloudMgtException(errorMsg, e);
         }
     }
