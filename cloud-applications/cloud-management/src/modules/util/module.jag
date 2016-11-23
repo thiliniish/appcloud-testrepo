@@ -87,6 +87,9 @@ jagg.module("util", {
     sendEmail: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").sendEmail.apply(this, arguments);
     },
+    sendEmailWithAttachment: function() {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendEmailWithAttachment.apply(this, arguments);
+    },
     isSessionAuthenticated: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").isSessionAuthenticated.apply(this, arguments);
     },

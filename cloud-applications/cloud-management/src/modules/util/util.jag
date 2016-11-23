@@ -279,6 +279,38 @@ var sendEmail = function (body, subject, receiverAddress) {
     return true;
 };
 
+var sendEmailWithAttachment = function(body, subject, receiverAddress, attachment) {
+    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var from = cloudConfig.registrationEmail.from;
+    var senderEmail = cloudConfig.registrationEmail.username;
+    var senderPort = cloudConfig.registrationEmail.port;
+    var senderPassword = cloudConfig.registrationEmail.password;
+    var senderHost = cloudConfig.registrationEmail.host;
+    var tls = cloudConfig.registrationEmail.tls.toString();
+
+    var EmailSender = Packages.org.wso2.carbon.cloud.common.email.EmailSender;
+    var emailSender;
+    if (tls == "true") {
+        emailSender = new EmailSender(senderHost, senderPort, senderEmail, senderPassword, true);
+    } else {
+        emailSender = new EmailSender(senderHost, senderPort, senderEmail, senderPassword, false);
+    }
+
+    emailSender.setFrom(from);
+    //By Default it will send to notifications
+    if (receiverAddress == null) {
+        receiverAddress = cloudConfig.supportContact.to;
+    }
+    emailSender.setTo(receiverAddress);
+    emailSender.setSubject(subject);
+    emailSender.setHTML(body);
+    if (attachment) {
+        emailSender.addAttachment(attachment.path, attachment.cid, attachment.contentType);
+    }
+    emailSender.send();
+    return true;
+};
+
 var sendEmailWithBCC = function (body, subject, receiverAddress, bccAddress) {
 
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
