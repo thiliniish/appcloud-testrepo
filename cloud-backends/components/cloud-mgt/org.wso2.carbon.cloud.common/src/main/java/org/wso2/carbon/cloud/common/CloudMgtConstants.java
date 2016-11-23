@@ -37,5 +37,8 @@ public class CloudMgtConstants {
 
     public static final String TENANT_ROLES_ROLE = "TenantRoles.Role";
 
+    //HTTP headers
+    public static final String CONTENT_ID = "Content-ID";
+    public static final String CONTENT_TYPE = "Content-Type";
 }
 
