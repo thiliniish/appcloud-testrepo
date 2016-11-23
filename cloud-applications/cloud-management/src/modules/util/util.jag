@@ -199,6 +199,38 @@ var sendSubscriptionCancellationEmail = function (displayName, service, endDate)
     return true;
 };
 
+var sendInvoiceEmail = function(jsonContent, sender, invoiceObj) {
+    var body = jagg.module("util").getObjFromFile("/site/conf/emails/billing_invoice.txt");
+    var data = "";
+    for (var x = 0; x < jsonContent.invoiceItems.length; x++) {
+        data = data + "<tr><td>" + jsonContent.invoiceItems[x].subscriptionName + "</td> " +
+                "<td>" + jsonContent.invoiceItems[x].chargeName + "</td>" +
+                "<td>" + jsonContent.invoiceItems[x].servicePeriod + "</td>" +
+                "<td>" + jsonContent.invoiceItems[x].amount + "</td>" +
+                "</tr>";
+    }
+
+    body = body.replace("$data", data).replace("$Description", invoiceObj.description).replace("$address_line1",
+            invoiceObj.source.address_line1).replace("$address_line2", invoiceObj.source.address_line2)
+            .replace("$address_city", invoiceObj.source.address_city)
+            .replace("$address_state", invoiceObj.source.address_state)
+            .replace("$address_zip", invoiceObj.source.address_zip)
+            .replace("$email", invoiceObj.email)
+            .replace("$address_country", invoiceObj.source.address_country);
+
+    body = body.replace("$invoiceId", jsonContent.invoiceNumber).replace("$date", jsonContent.invoiceDate)
+            .replace("$customerAccount", jsonContent.accountName).replace("$total", jsonContent.amount);
+    body = body.replace(/null/g, "");
+
+    var subject = "Your payment was successfully processed";
+    var userMail = sender;
+    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudMailAddress = cloudConfig.supportContact.to;
+
+    sendEmailWithBCC(body, subject, userMail, cloudMailAddress);
+    return true;
+};
+
 var sendBillingTrialExtendedMailToUser = function (displayName, serviceId, endDate) {
     var body = getObjFromFile("/site/conf/emails/trial_extended_user_email_body.txt");
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
@@ -240,6 +272,37 @@ var sendEmail = function (body, subject, receiverAddress) {
     if (receiverAddress == null){
         receiverAddress = cloudConfig.supportContact.to;
     }
+    sender.to = receiverAddress;
+    sender.subject = subject;
+    sender.html = body;
+    sender.send();
+    return true;
+};
+
+var sendEmailWithBCC = function (body, subject, receiverAddress, bccAddress) {
+
+    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var from = cloudConfig.registrationEmail.from;
+    var senderEmail = cloudConfig.registrationEmail.username;
+    var senderPort = parseInt(cloudConfig.registrationEmail.port);
+    var senderPassword = cloudConfig.registrationEmail.password;
+    var senderHost = cloudConfig.registrationEmail.host;
+    var tls = cloudConfig.registrationEmail.tls.toString();
+
+    var email = require('email');
+    var sender;
+    if (tls == "true") {
+        sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword, "tls");
+    } else {
+        sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword);
+
+    }
+    sender.from = from;
+    //By default it will send to notifications
+    if (receiverAddress == null) {
+        receiverAddress = cloudConfig.supportContact.to;
+    }
+    sender.bcc = bccAddress;
     sender.to = receiverAddress;
     sender.subject = subject;
     sender.html = body;

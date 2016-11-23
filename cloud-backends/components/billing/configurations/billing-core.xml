@@ -24,6 +24,7 @@
     <MgtModeEnabled>true</MgtModeEnabled>
 
     <BillingVendorClass>org.wso2.carbon.cloud.billing.vendor.stripe.StripeCloudBilling</BillingVendorClass>
+    <BillingVendorMonetizationClass>org.wso2.carbon.cloud.billing.vendor.stripe.StripeCloudMonetization</BillingVendorMonetizationClass>
 
     <DataServiceAPI>
         <CloudBillingServiceURI>/services/WSO2CloudBillingDS.SecureHTTPEndpoint</CloudBillingServiceURI>
@@ -49,6 +50,13 @@
             <MaxTotalConnections>50</MaxTotalConnections>
         </HttpClientConfig>
     </APIMRestAPI>
+
+    <Crons>
+        <SubscriptionCleanUp>
+            <EnableCleanUp>true</EnableCleanUp>
+            <Cron>0 57 23 ? * * *</Cron>
+        </SubscriptionCleanUp>
+    </Crons>
 
     <!--TODO This should be removable -->
     <Security>

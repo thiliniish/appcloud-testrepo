@@ -206,10 +206,10 @@ public class SubscriptionDeletionWorkflowExecutor extends AbstractSubscriptionWo
         }
 
         payload = CustomWorkFlowConstants.CANCEL_SUBSCRIPTION_PAYLOAD
-                .replace("$1", subscriptionWorkflowDTO.getTenantDomain()).replace("$2", accountNumber)
-                .replace("$3", subscriptionWorkflowDTO.getApplicationName())
-                .replace("$4", subscriptionWorkflowDTO.getApiName())
-                .replace("$5", subscriptionWorkflowDTO.getApiVersion());
+                .replace("$1", accountNumber)
+                .replace("$2", subscriptionWorkflowDTO.getApplicationName())
+                .replace("$3", subscriptionWorkflowDTO.getApiName())
+                .replace("$4", subscriptionWorkflowDTO.getApiVersion());
         client = WorkFlowUtils
                 .getClient(CustomWorkFlowConstants.SOAP_ACTION_CANCEL_SUBSCRIPTION, serviceEndpoint, contentType,
                            username, password);

@@ -124,6 +124,7 @@ var USER_SEARCH_STATUS = "EnableUserSearch";
 var COOKIE_REFRESH_INTERVAL = "CookieRefreshInterval";
 var APPFAC_BACKEND_COOKIE = "APPFAC.backendCookie";
 var SUPER_TENANT_DOMAIN_NAME = "carbon.super";
+var SUPER_TENANT_ID = "-1234";
 var TENANT_DOMAIN_NAME = "APPFAC.domainName";
 
 //Rss related
@@ -256,6 +257,9 @@ var CLOUD_DEFAULT_ROLE = "default";
 
 //Error messages
 var COMMON_ERROR_MESSAGE = "An error occurred while processing the request. Please contact WSO2 Cloud Team for help.";
+var INVALID_EMAIL_MESSAGE = 'Valid email address is required';
+var ILLEGAL_CHARACTERS_MESSAGE = 'Contains one or more illegal characters';
+var FIELD_REQUIRED_MESSAGE = 'This field is required';
 
 var TIME_STAMP_SKEW_IN_SECONDS = "300";
 

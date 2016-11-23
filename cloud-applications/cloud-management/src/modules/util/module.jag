@@ -101,6 +101,9 @@ jagg.module("util", {
     },
     isCarbonSuperAdmin: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").isCarbonSuperAdmin.apply(this, arguments);
+    },
+    sendInvoiceEmail: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendInvoiceEmail.apply(this, arguments);
     }
 });
 %>

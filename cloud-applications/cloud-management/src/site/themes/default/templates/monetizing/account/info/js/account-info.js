@@ -246,7 +246,8 @@ function getSubscriberInfo() {
             result = JSON.parse(result);
             if (!result.error) {
                 updateSubscriberData(result.data);
-                getPaymentInfo();
+                var dataObj = JSON.parse(result.data);
+                getPaymentInfo(dataObj.data.chargeInformation);
             } else {
                 showErrorMessage(result);
             }
@@ -256,19 +257,11 @@ function getSubscriberInfo() {
     }
 };
 
-function getPaymentInfo() {
+function getPaymentInfo(data) {
     if (selectedAccountNumber != null) {
-        jagg.post("../blocks/monetizing/account/info/ajax/get.jag", {
-            action: "get-payment-info",
-            accountId: selectedAccountNumber
-        }, function (result) {
-            result = JSON.parse(result);
-            if (!result.error) {
-                updatePaymentData(result.data);
-            } else {
-                showErrorMessage(result);
-            }
-        });
+        if (data != null) {
+            updatePaymentData(data);
+        }
     } else {
         updatePaymentData(null);
     }
@@ -290,39 +283,35 @@ function updateBasicInfo() {
     $("#subscriber-name").text(usersList[selectedUserId].text);
     $("#complimentary-account").text(usersList[selectedUserId].complimentary);
     $("#email").text(usersList[selectedUserId].email);
-    document.getElementById("chkbox-complimentary").checked = usersList[selectedUserId].complimentary;
+     document.getElementById("chkbox-complimentary").checked = usersList[selectedUserId].complimentary;
 }
 
 function updateSubscriberData(result) {
     result = JSON.parse(result);
-
     if (result != null) {
         $(".Monetization-Data").show();
-        //Account Summery
-        $("#account-name").text(result.basicInfo.name);
-        $("#account-balance").text(result.basicInfo.balance);
-        $("#last-invoice").text((result.basicInfo.lastInvoiceDate != null) ? result.basicInfo.lastInvoiceDate : "-");
-        $("#last-Payment").text((result.basicInfo.lastPaymentAmount != null) ? result.basicInfo.lastPaymentAmount : "-");
-        $("#last-payment-date").text((result.basicInfo.lastPaymentDate != null) ? result.basicInfo.lastPaymentDate : "-");
-
+        //Account Summary
+        $("#account-name").text(result.data.accountSummary.accountName);
+        $("#account-balance").text(result.data.accountSummary.accountBalance);
         //Invoice Data
         var invoiceList = [];
-        for (var index in result.invoices) {
+        var dataObj = result.data;
+        for (var index in dataObj.invoicesInformation) {
+            var invoiceInfoObj =JSON.parse(dataObj.invoicesInformation[index]);
             var data = {
-                "date": result.invoices[index].invoiceDate,
-                "invoice-num": result.invoices[index].invoiceNumber,
-                "target-date": result.invoices[index].dueDate,
-                "amount": result.invoices[index].amount,
-                "balance": result.invoices[index].balance,
-                "status": result.invoices[index].status,
-                "id": result.invoices[index].id
-
+                "date": invoiceInfoObj.date,
+                "invoice-num": invoiceInfoObj.InvoiceId,
+                "target-date": invoiceInfoObj.TargetDate,
+                "amount": invoiceInfoObj.Amount/100,
+                "status": invoiceInfoObj.paid,
+                "id": invoiceInfoObj.InvoiceId
             };
             invoiceList.push(data);
         }
         if ($.fn.DataTable.isDataTable("#invoice-info")) {
             jQuery("#invoice-info").dataTable().fnDestroy();
         }
+
         $("#invoice-info").DataTable({
             responsive: true,
             "data": invoiceList,
@@ -330,20 +319,19 @@ function updateSubscriberData(result) {
             "searching": false,
 
             "columns": [
-                {"data": "date", "width": "10%"},
+                {"data": "date", "width": "15%", "sClass": "dt-head-left  dt-head-left"},
                 {
-                    "data": "invoice-num", "width": "5%",
+                    "data": "invoice-num", "width": "30%", "sClass": "dt-head-left  dt-head-left",
                     "render": function (data, type, full, meta) {
                         return "<a class='editroles' onclick='return goToInvoicePage(\""
                             + selectedAccountNumber + "\" , \"" + full['id'] + "\")'' ><u>" + full['invoice-num']
                             + "</u></a> ";
                     }
                 },
-                {"data": "target-date", "width": "20%"},
-                {"data": "amount", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-                {"data": "balance", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-                {"data": "status", "width": "20%", "sClass": "dt-body-center  dt-head-center"}
-            ],
+                {"data": "target-date", "width": "15%", "sClass": "dt-head-left  dt-head-left"},
+                {"data": "amount", "width": "20%", "sClass": "dt-head-left  dt-head-left"},
+                {"data": "status", "width": "20%", "sClass": "dt-head-left  dt-head-left"}
+            ]
         });
     } else {
         $(".Monetization-Data").hide();
@@ -351,44 +339,19 @@ function updateSubscriberData(result) {
 }
 
 function updatePaymentData(result) {
-    result = JSON.parse(result);
-    //Payment Data
-    var paymentsList = [];
-    for (var index in result.payments) {
-        var payment = result.payments[index];
-        var paidInvoices = null;
-        var paidInvoicesArray = payment.paidInvoices;
-        for (var k = 0; k < paidInvoicesArray.length; k++) {
-            var paidInvoice = payment.paidInvoices[k];
-            if (paidInvoices == null) {
-                paidInvoices = paidInvoice.invoiceNumber;
-            } else {
-                paidInvoices = ", " + paidInvoice.invoiceNumber;
-            }
-        }
-        var data = {
-            "type": payment.type,
-            "effective-date": payment.effectiveDate,
-            "payment-num": payment.paymentNumber,
-            "paid-invoices": paidInvoices,
-            "paid-amount": payment.amount,
-            "status": payment.status
-        };
-        paymentsList.push(data);
-    }
-    if ($.fn.DataTable.isDataTable("#payments-info")) {
-        jQuery("#payments-info").dataTable().fnDestroy();
+    var chargeInformation = result;
+    for (i = 0; i < chargeInformation.length; i++) {
+        chargeInformation[i] = JSON.parse(chargeInformation[i]);
     }
     $("#payments-info").DataTable({
         responsive: true,
-        "data": paymentsList,
+        "data": chargeInformation,
         "columns": [
-            {"data": "type", "width": "10%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "effective-date", "width": "5%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "payment-num", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "paid-invoices", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "paid-amount", "width": "20%", "sClass": "dt-body-center  dt-head-center"},
-            {"data": "status", "width": "20%", "sClass": "dt-body-center  dt-head-center"}
+            {"data": "type", "width": "20%", "sClass": "dt-body-left  dt-head-left"},
+            {"data": "effectiveDate", "width": "20%", "sClass": "dt-body-left  dt-head-left"},
+            {"data": "paymentNumber", "width": "20%", "sClass": "dt-body-left  dt-head-left"},
+            {"data": "invoiceNumber.", "width": "20%", "sClass": "dt-body-left dt-head-left"},
+            {"data": "Status", "width": "20%", "sClass": "dt-body-left  dt-head-left"}
         ]
     });
 }
@@ -408,7 +371,7 @@ function updateSubscriptionData(result) {
                 "app-name": result.data[index].AM_APP_NAME,
                 "rate-plan-name": result.data[index].RATE_PLAN_NAME,
                 "start-date": result.data[index].START_DATE,
-                "end-date": result.data[index].END_DATE,
+                "end-date": result.data[index].END_DATE
             };
             subscriptionList.push(data);
         }
@@ -420,12 +383,12 @@ function updateSubscriptionData(result) {
             responsive: true,
             "data": subscriptionList,
             "columns": [
-                {"data": "api-name", "width": "15%", "sClass": "dt-body-center dt-head-center"},
-                {"data": "api-version", "width": "10%", "sClass": "dt-body-center dt-head-center"},
-                {"data": "app-name", "width": "15%", "sClass": "dt-body-center  dt-head-center"},
-                {"data": "rate-plan-name", "width": "30%", "sClass": "dt-body-center  dt-head-center"},
-                {"data": "start-date", "width": "10%", "sClass": "dt-body-center dt-head-center"},
-                {"data": "end-date", "width": "10%", "sClass": "dt-body-center  dt-head-center"}
+                {"data": "api-name", "width": "20%", "sClass": "dt-body-left dt-head-left"},
+                {"data": "api-version", "width": "10%", "sClass": "dt-body-left dt-head-left"},
+                {"data": "app-name", "width": "20%", "sClass": "dt-body-left  dt-head-left"},
+                {"data": "rate-plan-name", "width": "20%", "sClass": "dt-body-left  dt-head-left"},
+                {"data": "start-date", "width": "15%", "sClass": "dt-body-left dt-head-left"},
+                {"data": "end-date", "width": "15%", "sClass": "dt-body-left  dt-head-left"}
             ]
         });
     } else {

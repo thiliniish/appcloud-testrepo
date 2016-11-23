@@ -4,7 +4,7 @@
 </div>
 <div class="content-section shadow-up">
    <div class="content-data">
-      <div class="container clearfix">
+      <div class="clearfix">
          <div class="row wr-wizard">
             <div class="col-md-4">
                <div class="itm-wiz">
@@ -29,14 +29,14 @@
             </div>
          </div>
          <div class="row">
-            <div class="container col-md-12">
+            <div class="col-md-12">
                <div class="wr-head">
                   <h2>Contact Information</h2>
                </div>
             </div>
          </div>
          <div class="row">
-            <div class="container-fluid col-md-8 wr-text-wrapper">
+            <div class="col-md-8 wr-text-wrapper">
                 <div class="form-group">
                    <div class="row">
                       <label class="input-label col-md-5">Organization Name</label>
@@ -102,7 +102,6 @@
                       </div>
                    </div>
                    <div>
-                   <% var log = new Log(); log.info(outputs.field_passthrough5); %>
                         <input type="hidden" name="refId" id="refId" value="<%=outputs.refId%>"/>
                         <input type="hidden" name="signature" id="signature" value="<%=outputs.signature%>"/>
                         <input type="hidden" name="field_passthrough1" id="field_passthrough1" value="<%=outputs.field_passthrough1%>"/>
@@ -113,7 +112,7 @@
                    </div>
                </div>
             </div>
-            <div class="container-fluid col-md-4 sidebar">
+            <div class="col-md-4 sidebar">
                <div class="wr-text">
                   <div id="product-container">
                      <h2 class="product-summery">SUMMARY</h2>
