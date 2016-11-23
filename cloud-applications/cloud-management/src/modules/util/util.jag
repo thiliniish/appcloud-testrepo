@@ -440,7 +440,7 @@ function addUserToOT (email, pass, firstName, lastName) {
 			"auth_email" : AUTH_EMAIL,
 			"auth_pass" : AUTH_PASSWORD
 		};
-		if(enabled.toString() == "true") {
+		if(enabled) {
 			var result = post(URL,data,undefined, 'text');
 		}
         log.info("Response from OT - " + stringify(result));
@@ -470,7 +470,7 @@ function updateUserProfileInOT(email, firstName, lastName) {
             "auth_pass": AUTH_PASSWORD
         };
 
-        if (enabled.toString() == "true") {
+        if (enabled) {
             var response = post(URL, payload, {});
             var httpStatus = response.xhr.statusText;
             var responseData;
@@ -545,7 +545,7 @@ function changeOTUserPass (email,pass) {
 			"auth_email" : AUTH_EMAIL,
 			"auth_pass" : AUTH_PASSWORD
 		};
-		if(enabled.toString() == "true") {
+		if(enabled) {
 			var result = post(URL,data,undefined, 'text');
 		}
 		log.info("response "+stringify(result));

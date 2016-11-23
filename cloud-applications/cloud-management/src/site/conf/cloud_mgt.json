@@ -159,7 +159,7 @@
     "subject": "WSO2 Cloud Services - Password Reset"
   },
   "OTUserApi": {
-    "enable": "false",
+    "enable": false,
     "auth_email": "cloud_emai@wso2.com",
     "auth_pass": "pass",
     "add_url": "add_url",
