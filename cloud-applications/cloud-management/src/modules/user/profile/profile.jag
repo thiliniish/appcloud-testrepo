@@ -9,7 +9,7 @@ var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
 var userName = session.get("LOGGED_IN_USER");
-
+var userEmail = session.get("LOGGED_IN_USER_EMAIL");
 
 var getProfile = function (user) {
     if(userName != null){
@@ -55,6 +55,8 @@ var updateProfile = function (firstName, lastName) {
         userStoreManager.setUserClaimValue(user, "http://wso2.org/claims/lastname", lastName, "default");
         var fullName = firstName + " " +lastName;
         userStoreManager.setUserClaimValue(user, "http://wso2.org/claims/fullname", fullName, "default");
+        //update user profile in OT
+        jagg.module("util").updateUserProfileInOT(userEmail, firstName, lastName);
         log.info("Successfully updated profile for user : " + user);
         return true;
     } catch (e) {
