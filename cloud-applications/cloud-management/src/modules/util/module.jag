@@ -96,6 +96,9 @@ jagg.module("util", {
     getDistinctStringsInArray: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getDistinctStringsInArray.apply(this, arguments);
     },
+    getAuthHeader: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getAuthHeader.apply(this, arguments);
+    },
     isCarbonSuperAdmin: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").isCarbonSuperAdmin.apply(this, arguments);
     }

@@ -127,7 +127,17 @@
     "defaultStoreUrl" : "api.cloud.wso2.com",
     "defaultGatewayUrl" : "gateway.api.cloud.wso2.com",
     "httpsGatewayPort" : "8243",
-    "pointingUrl" : "customdns.api.cloud.wso2.com"
+    "apiCloudPointingUrl" : "customdns.api.cloud.wso2.com",
+    "appCloud" : {
+      "pointingUrl" : "customdns.wso2apps.com",
+      "serverBlockBaseUrl" : "https://localhost:9543/appmgt/site/blocks/",
+      "loginBlockSuffix" : "user/login/ajax/login.jag",
+      "loginAction" : "loginWithJWT",
+      "applicationBlockSuffix" : "application/application.jag",
+      "urlMapperBlockSuffix" : "urlmapper/urlmapper.jag",
+      "getCustomDomainDetailsForTenantAction" : "getCustomDomainDetailsForTenant",
+      "isCustomDomainAvailableAction" : "isCustomDomainAvailable"
+    }
   },
   "invitationEmail": {
     "subject": "WSO2 Cloud Services - Invitation from: "
