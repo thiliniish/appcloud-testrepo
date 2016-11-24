@@ -24,6 +24,9 @@ jagg.module("util", {
      addUserToOT: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").addUserToOT.apply(this, arguments);
     },
+    updateUserProfileInOT: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").updateUserProfileInOT.apply(this, arguments);
+    },
     changeOTUserPass: function () {
             return jagg.require(jagg.getModulesDir() + "util/util.jag").changeOTUserPass.apply(this, arguments);
     },
@@ -86,6 +89,9 @@ jagg.module("util", {
     },
     sendEmail: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").sendEmail.apply(this, arguments);
+    },
+    sendEmailWithAttachment: function() {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendEmailWithAttachment.apply(this, arguments);
     },
     isSessionAuthenticated: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").isSessionAuthenticated.apply(this, arguments);

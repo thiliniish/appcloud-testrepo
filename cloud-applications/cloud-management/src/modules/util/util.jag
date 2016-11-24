@@ -279,6 +279,38 @@ var sendEmail = function (body, subject, receiverAddress) {
     return true;
 };
 
+var sendEmailWithAttachment = function(body, subject, receiverAddress, attachment) {
+    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var from = cloudConfig.registrationEmail.from;
+    var senderEmail = cloudConfig.registrationEmail.username;
+    var senderPort = cloudConfig.registrationEmail.port;
+    var senderPassword = cloudConfig.registrationEmail.password;
+    var senderHost = cloudConfig.registrationEmail.host;
+    var tls = cloudConfig.registrationEmail.tls.toString();
+
+    var EmailSender = Packages.org.wso2.carbon.cloud.common.email.EmailSender;
+    var emailSender;
+    if (tls == "true") {
+        emailSender = new EmailSender(senderHost, senderPort, senderEmail, senderPassword, true);
+    } else {
+        emailSender = new EmailSender(senderHost, senderPort, senderEmail, senderPassword, false);
+    }
+
+    emailSender.setFrom(from);
+    //By Default it will send to notifications
+    if (receiverAddress == null) {
+        receiverAddress = cloudConfig.supportContact.to;
+    }
+    emailSender.setTo(receiverAddress);
+    emailSender.setSubject(subject);
+    emailSender.setHTML(body);
+    if (attachment) {
+        emailSender.addAttachment(attachment.path, attachment.cid, attachment.contentType);
+    }
+    emailSender.send();
+    return true;
+};
+
 var sendEmailWithBCC = function (body, subject, receiverAddress, bccAddress) {
 
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
@@ -503,13 +535,59 @@ function addUserToOT (email, pass, firstName, lastName) {
 			"auth_email" : AUTH_EMAIL,
 			"auth_pass" : AUTH_PASSWORD
 		};
-		if(enabled.toString() == "true") {
+		if(enabled) {
 			var result = post(URL,data,undefined, 'text');
 		}
         log.info("Response from OT - " + stringify(result));
 	} catch (e){
 		log.error(e)
 	}
+};
+
+function updateUserProfileInOT(email, firstName, lastName) {
+    try {
+        log.info("Updating profile of user [ " + email + " ] in OT");
+
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var AUTH_EMAIL = cloudConfig.OTUserApi.auth_email;
+        var AUTH_PASSWORD = cloudConfig.OTUserApi.auth_pass;
+        var URL = cloudConfig.OTUserApi.update_url;
+        var enabled = cloudConfig.OTUserApi.enable;
+        var data = {
+            "category": "Personal Information",
+            "profile_first_name": firstName,
+            "profile_last_name": lastName
+        };
+        var payload = {
+            "uid": email,
+            "data": stringify(data),
+            "auth_email": AUTH_EMAIL,
+            "auth_pass": AUTH_PASSWORD
+        };
+
+        if (enabled) {
+            var response = post(URL, payload, {});
+            var httpStatus = response.xhr.statusText;
+            var responseData;
+
+            if (response.data) {
+                responseData = new XML(response.data);
+            }
+
+            if (httpStatus == "OK" && responseData && responseData == 1) {
+                return;
+            } else {
+                var response = { "data ": response.data, "statusText": response.xhr.statusText};
+                var errorMsg = "Error while updating the user profile of "
+                                       + email + " in OT. Response from OT : " + stringify(response);
+                log.error(errorMsg);
+            }
+        }
+    } catch (e) {
+        var errorMsg = "Error while updating the user profile of " + email + " in OT";
+        log.error(errorMsg);
+        log.error(e)
+    }
 };
 
 //<TODO>Needs to be modified for Pardot</TODO>
@@ -562,7 +640,7 @@ function changeOTUserPass (email,pass) {
 			"auth_email" : AUTH_EMAIL,
 			"auth_pass" : AUTH_PASSWORD
 		};
-		if(enabled.toString() == "true") {
+		if(enabled) {
 			var result = post(URL,data,undefined, 'text');
 		}
 		log.info("response "+stringify(result));
