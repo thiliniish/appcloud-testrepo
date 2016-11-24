@@ -2,13 +2,13 @@
 
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudMgtUrl = cloudConfig.ServerUrls.cloudmgt;
+    var contactUsUrl = cloudMgtUrl + "/site/pages/contact-us.jag";
     var username = session.get("LOGGED_IN_USER");
     if (username != null) {
         var tenantDomain = jagg.module("manager").getTenantDomain();
         var documentationLink = cloudConfig.documentation.selfSignUpDocumentationLink;
-        var type = cloudConfig.subscriptions.type;
-        var publisherUrl = type[1].urls.cloudTypeUrl;
-        var storeUrl = type[1].urls.storeUrl + "/?tenant=" + tenantDomain;
+        var publisherUrl = cloudConfig.ServerUrls.apiManager + "publisher";
+        var storeUrl = cloudConfig.ServerUrls.apiManager + "?tenant=" + tenantDomain;
         var signupConfigResult = jagg.module("selfSignup").checkSignupConfiguredInRegistry(username);
         jagg.includeBlock("page/messages", null);
         %>
@@ -41,6 +41,7 @@
 
                   //if the feature has already been configured.
                   if ("configured" == configResult) {
+                   var publisherUrl = $("#publisherUrl").attr('value');
                       $('#btn_submit').attr('disabled',true);
                           jagg.message({content:'Self signup is already enabled.', type:'error', cbk:function() {
                            window.location.href = publisherUrl;
@@ -66,18 +67,33 @@
                         $("#helper_text").hide();
                         $("#success-message").show();
                    } else if ("resourcePending" == configResult) {
-                        jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.', type:'success', cbk:function() {
+                        var publisherUrl = $("#publisherUrl").attr('value');
+                        jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.', type:'success',
+                        cbk:function() {
                           window.location.href = publisherUrl;
                           }
                         });
+                   } else if ("unauthenticatedSession" == configResult) {
+                        var cloudMgtUrl = $("#cloudMgtUrl").attr('value');
+                        jagg.message({content:'An error occurred while enabling the self signup feature since the session has expired. You will be redirected to login again', type:'error', cbk:function() {
+                          window.location.href = cloudMgtUrl;
+                          }
+                        });
+                   } else if ("invalidCookie" == configResult) {
+                        var contactUsUrl = $("#contactUsUrl").attr('value');
+                        jagg.message({content:'An error occurred while enabling the self signup feature. Please contact the WSO2 Cloud team', type:'error', cbk:function() {
+                          window.location.href = contactUsUrl;
+                          }
+                        });
                    } else {
+                        var publisherUrl = $("#publisherUrl").attr('value');
                         jagg.message({content:'An error occurred while configuring the self signup feature for your organization.', type:'error', cbk:function() {
                           window.location.href = publisherUrl;
                           }
                         });
                    }
-                 },
-                  function (jqXHR, textStatus, errorThrown) {
+                 }, function (jqXHR, textStatus, errorThrown) {
+                   var cloudMgtUrl = $("#cloudMgtUrl").attr('value');
                       jagg.message({content:jqXHR.responseText, type:'error', cbk:function() {
                               window.location.href = cloudMgtUrl;
                           }
@@ -330,6 +346,9 @@
                 %>"/>
              <input type="hidden" name="cloudMgtUrl" id="cloudMgtUrl" value="<%=
                 cloudMgtUrl
+                %>"/>
+                 <input type="hidden" name="contactUsUrl" id="contactUsUrl" value="<%=
+                contactUsUrl
                 %>"/>
                          </div>
                       </div>
