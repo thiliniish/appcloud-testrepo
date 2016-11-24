@@ -80,13 +80,13 @@
 			indexingVectorResource.setContent(encodedIndexingVectorContent);
 
 			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
-					+ ttenantDomain + "-" + node + ".pem", sslFileResource);
+					+ tenantDomain + "-" + node + ".pem", sslFileResource);
 			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
-					+ ttenantDomain + "-" + node + ".key", keyFileResource);
+					+ tenantDomain + "-" + node + ".key", keyFileResource);
 			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
-					+ ttenantDomain + "-" + node + ".pub", chainFileResource);
+					+ tenantDomain + "-" + node + ".pub", chainFileResource);
 			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
-					+ ttenantDomain + "-" + node + ".iv", indexingVectorResource);
+					+ tenantDomain + "-" + node + ".iv", indexingVectorResource);
 
 			registry.commitTransaction();
 			if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {

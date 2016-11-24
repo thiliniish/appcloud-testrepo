@@ -213,7 +213,7 @@ function publishCustomUrl(node) {
     }
     formData.append("action", 'publishVal');
     formData.append("node", node);
-    formData.append("tenantDomain", "<%=tenantDomain%>");
+    formData.append("tenantDomain", tenantDomain);
     formData.append("cloudProfile", cloudProfile);
     $.ajax({
         url: '../../site/blocks/customurl/ajax/customurl.jag',
@@ -290,7 +290,7 @@ function verifyCustomDomain(node) {
 function getCurrentUserMapping() {
     jagg.syncPost('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'getCurrentMapping',
-        tenantDomain: "<%=tenantDomain%>",
+        tenantDomain: tenantDomain,
         cloudType: 'api-cloud'
     }, function(result) {
         $("#currentStoreMapping").val(result.store.customUrl);
