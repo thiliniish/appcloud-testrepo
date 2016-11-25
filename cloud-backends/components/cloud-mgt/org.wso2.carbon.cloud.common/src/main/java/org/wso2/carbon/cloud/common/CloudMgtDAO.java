@@ -1,5 +1,7 @@
 package org.wso2.carbon.cloud.common;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 
 import java.sql.Connection;
@@ -11,6 +13,8 @@ import java.sql.SQLException;
  * This class acts ass the database access class for the cloudmgt operations.
  */
 public class CloudMgtDAO {
+    private static final Log LOG = LogFactory.getLog(CloudMgtDAO.class);
+
     private static final String selectEmailFromTempInviteeQuery = "SELECT email FROM TEMP_INVITEE WHERE uuid=(?)";
     private static final String selectEmailFromTempRegistrationQuery =
             "SELECT email FROM TEMP_REGISTRATION WHERE uuid=(?)";
@@ -21,6 +25,12 @@ public class CloudMgtDAO {
             "DUPLICATE KEY UPDATE uuid=(?), roles=(?), isSelfSigned=(?) , dateTime = CURRENT_TIMESTAMP";
     private static final String selectUUIDAndRolesOfTempInviteeQuery =
             "SELECT uuid, roles FROM TEMP_INVITEE WHERE email=(?) AND tenantDomain = (?)";
+    private String selectRightwaveCloudSubscriptionQuery =
+            "SELECT $SUBSCRIPTIONTYPE FROM RIGHTWAVE_CLOUD_SUBSCRIPTION WHERE TENANT_DOMAIN=(?) AND EMAIL=(?)";
+    private String insertRightwaveCloudSubscriptionQuery =
+            "INSERT INTO RIGHTWAVE_CLOUD_SUBSCRIPTION (TENANT_DOMAIN,$SUBSCRIPTIONTYPE,EMAIL) VALUES (?,?,?)";
+    private String updateRightwaveCloudSubscriptionQuery =
+            "UPDATE RIGHTWAVE_CLOUD_SUBSCRIPTION SET $SUBSCRIPTIONTYPE = ? WHERE TENANT_DOMAIN=? AND EMAIL=?;";
 
     /**
      * This method returns the emails for the self-registered and the invited users from the cloud_mgt database
@@ -191,5 +201,144 @@ public class CloudMgtDAO {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
         return resultObj;
+    }
+
+    /**
+     * This is the method which selects the cloud subscriptions for a given user
+     *
+     * @param type
+     * @param tenantDomain
+     * @param email
+     * @return if the subscription is available for the given cloud type
+     * @throws CloudMgtException
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            justification = "Since a column name is passed as a parameter")
+    public JSONObject selectCloudSubscription(String type, String tenantDomain, String email)
+            throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        int subscriptionStatus = 0;
+
+        JSONObject resultObj = null;
+
+        try {
+            conn = CloudMgtDBConnectionManager
+                    .getDbConnection();
+            if (conn != null) {
+                selectRightwaveCloudSubscriptionQuery =
+                        selectRightwaveCloudSubscriptionQuery
+                                .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
+                ps = conn.prepareStatement(selectRightwaveCloudSubscriptionQuery);
+                ps.setString(1, tenantDomain);
+                ps.setString(2, email);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    subscriptionStatus = resultSet.getInt(type);
+                }
+                if (subscriptionStatus == 0 || subscriptionStatus == 1) {
+                    resultObj = new JSONObject();
+                    resultObj.put(type, subscriptionStatus);
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException(
+                    "Failed to retrieve the subscription for the user " + email + " of the tenant domain " +
+                    tenantDomain + " for the subscription type " + type, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultObj;
+    }
+
+    /**
+     * This inserts a new record for the cloud subscription for the given user
+     *
+     * @param subscriptionType
+     * @param tenantDomain
+     * @param subscriptionValue
+     * @param email
+     * @throws CloudMgtException
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            justification = "Since a column name is passed as a parameter")
+    public void insertCloudSubscription(String subscriptionType, String tenantDomain, int subscriptionValue,
+                                        String email) throws CloudMgtException {
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = CloudMgtDBConnectionManager
+                    .getDbConnection();
+            if (conn != null) {
+                insertRightwaveCloudSubscriptionQuery =
+                        insertRightwaveCloudSubscriptionQuery
+                                .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+                ps = conn.prepareStatement(insertRightwaveCloudSubscriptionQuery);
+                ps.setString(1, tenantDomain);
+                ps.setInt(2, subscriptionValue);
+                ps.setString(3, email);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException(
+                    "Failed to insert the subscription for the user " + email + " of the tenant domain " +
+                    tenantDomain + " for the subscription type " + subscriptionType, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+    }
+
+    /**
+     * This method updates the cloud subscriptions for the given user
+     *
+     * @param subscriptionType
+     * @param subscriptionValue
+     * @param tenantDomain
+     * @param email
+     * @throws CloudMgtException
+     */
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            justification = "Since a column name is passed as a parameter")
+    public void updateCloudSubscription(String subscriptionType, int subscriptionValue,
+                                        String tenantDomain, String email) throws CloudMgtException {
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager
+                    .getDbConnection();
+            if (conn != null) {
+                updateRightwaveCloudSubscriptionQuery =
+                        updateRightwaveCloudSubscriptionQuery
+                                .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+                ps = conn.prepareStatement(updateRightwaveCloudSubscriptionQuery);
+                ps.setInt(1, subscriptionValue);
+                ps.setString(2, tenantDomain);
+                ps.setString(3, email);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException(
+                    "Failed to update the subscription for the user " + email + " of the tenant domain " +
+                    tenantDomain + " for the subscription type " + subscriptionType, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
     }
 }
