@@ -74,4 +74,5 @@
             <DisplayRole>true</DisplayRole>
         </Role>
     </TenantRoles>
+    <cloudDatasourceName>cloud_mgt</cloudDatasourceName>
 </CloudMgt>
