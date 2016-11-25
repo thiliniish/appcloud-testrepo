@@ -481,7 +481,11 @@ var resendInvite = function resendInvite(email) {
             var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
             var cloudmgtDAO;
             cloudmgtDAO = new CloudMgtDAO();
-            var results = JSON.parse(cloudmgtDAO.getRolesAndUUIDOfTempInvitees(email, tenantDomain));
+            var results = "";
+            var queryResults = JSON.parse(cloudmgtDAO.getRolesAndUUIDOfTempInvitees(email, tenantDomain));
+            if (queryResults != null) {
+                results = JSON.parse(queryResults);
+            }
         } catch (e) {
             log.error(e);
             log.error("Error while re-sending invitation to " + email);
