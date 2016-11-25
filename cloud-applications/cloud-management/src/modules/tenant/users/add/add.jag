@@ -482,7 +482,7 @@ var resendInvite = function resendInvite(email) {
             var cloudmgtDAO;
             cloudmgtDAO = new CloudMgtDAO();
             var results = "";
-            var queryResults = JSON.parse(cloudmgtDAO.getRolesAndUUIDOfTempInvitees(email, tenantDomain));
+            var queryResults = cloudmgtDAO.getRolesAndUUIDOfTempInvitees(email, tenantDomain);
             if (queryResults != null) {
                 results = JSON.parse(queryResults);
             }

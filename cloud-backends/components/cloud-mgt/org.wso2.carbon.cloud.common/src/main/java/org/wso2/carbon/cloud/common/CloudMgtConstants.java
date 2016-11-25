@@ -44,5 +44,6 @@ public class CloudMgtConstants {
     //Cloud datasource properties
     public static final String CLOUD_DB_PROPERTY = "cloudDatasourceName";
     public static final String CLOUD_DATASOURCE_PREFIX = "jdbc";
+    public static final String SUBSCRIPTION_TYPE_PLACEHOLDER = "$SUBSCRIPTIONTYPE";
 }
 
