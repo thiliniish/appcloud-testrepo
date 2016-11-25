@@ -46,7 +46,7 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
         var cloudmgtDAO;
         cloudmgtDAO = new CloudMgtDAO();
 
-        var email = cloudmgtDAO.getEmailForTempUser(confirm,isInvitedUser);
+        var email = cloudmgtDAO.getEmailForUUID(confirm,isInvitedUser);
         email = String(email);
         if (email != null) {
             var username = modManager.getUserNameFromEmail(email);

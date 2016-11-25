@@ -51,6 +51,16 @@
             <artifactId>org.wso2.carbon.stratos.common</artifactId>
             <version>${af.stratos.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.json.wso2</groupId>
+            <artifactId>json</artifactId>
+            <version>${orbit.version.json}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple.wso2</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${orbit.version.json-simple}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -75,6 +85,8 @@
                         <Import-Package>
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             org.apache.commons.logging.*,
+                            org.json,
+                            org.json.simple.*,
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>
