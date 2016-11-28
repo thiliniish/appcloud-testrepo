@@ -1,3 +1,21 @@
+/*
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package org.wso2.carbon.cloud.common;
 
 import org.apache.commons.logging.Log;
@@ -48,8 +66,7 @@ public class CloudMgtDAO {
         String email = null;
 
         try {
-            conn = CloudMgtDBConnectionManager
-                    .getDbConnection();
+            conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
                 if (isInvitedUser) {
                     ps = conn.prepareStatement(selectEmailFromTempInviteeQuery);
@@ -88,8 +105,7 @@ public class CloudMgtDAO {
         String roles = null;
 
         try {
-            conn = CloudMgtDBConnectionManager
-                    .getDbConnection();
+            conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
                 ps = conn.prepareStatement(selectRolesFromTempInviteeQuery);
                 ps.setString(1, tenantDomain);
@@ -130,8 +146,7 @@ public class CloudMgtDAO {
         boolean executionResult = false;
 
         try {
-            conn = CloudMgtDBConnectionManager
-                    .getDbConnection();
+            conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
                 ps = conn.prepareStatement(insertIntoTempInviteeQuery);
                 ps.setString(1, tenantDomain);
@@ -176,8 +191,7 @@ public class CloudMgtDAO {
         JSONObject resultObj = null;
 
         try {
-            conn = CloudMgtDBConnectionManager
-                    .getDbConnection();
+            conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
                 ps = conn.prepareStatement(selectUUIDAndRolesOfTempInviteeQuery);
                 ps.setString(1, email);
@@ -213,8 +227,8 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            {"SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+             "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"},
             justification = "Since a column name is passed as a parameter")
     public JSONObject selectCloudSubscription(String type, String tenantDomain, String email)
             throws CloudMgtException {
@@ -227,12 +241,9 @@ public class CloudMgtDAO {
         JSONObject resultObj = null;
 
         try {
-            conn = CloudMgtDBConnectionManager
-                    .getDbConnection();
+            conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
-                selectRightwaveCloudSubscriptionQuery =
-                        selectRightwaveCloudSubscriptionQuery
-                                .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
+                selectRightwaveCloudSubscriptionQuery = selectRightwaveCloudSubscriptionQuery.replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
                 ps = conn.prepareStatement(selectRightwaveCloudSubscriptionQuery);
                 ps.setString(1, tenantDomain);
                 ps.setString(2, email);
@@ -267,8 +278,8 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            {"SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+             "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"},
             justification = "Since a column name is passed as a parameter")
     public void insertCloudSubscription(String subscriptionType, String tenantDomain, int subscriptionValue,
                                         String email) throws CloudMgtException {
@@ -277,12 +288,9 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
 
         try {
-            conn = CloudMgtDBConnectionManager
-                    .getDbConnection();
+            conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
-                insertRightwaveCloudSubscriptionQuery =
-                        insertRightwaveCloudSubscriptionQuery
-                                .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+                insertRightwaveCloudSubscriptionQuery = insertRightwaveCloudSubscriptionQuery.replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
                 ps = conn.prepareStatement(insertRightwaveCloudSubscriptionQuery);
                 ps.setString(1, tenantDomain);
                 ps.setInt(2, subscriptionValue);
@@ -310,8 +318,8 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            {"SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+             "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"},
             justification = "Since a column name is passed as a parameter")
     public void updateCloudSubscription(String subscriptionType, int subscriptionValue,
                                         String tenantDomain, String email) throws CloudMgtException {
@@ -319,12 +327,9 @@ public class CloudMgtDAO {
         ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
-            conn = CloudMgtDBConnectionManager
-                    .getDbConnection();
+            conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
-                updateRightwaveCloudSubscriptionQuery =
-                        updateRightwaveCloudSubscriptionQuery
-                                .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+                updateRightwaveCloudSubscriptionQuery = updateRightwaveCloudSubscriptionQuery.replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
                 ps = conn.prepareStatement(updateRightwaveCloudSubscriptionQuery);
                 ps.setInt(1, subscriptionValue);
                 ps.setString(2, tenantDomain);
