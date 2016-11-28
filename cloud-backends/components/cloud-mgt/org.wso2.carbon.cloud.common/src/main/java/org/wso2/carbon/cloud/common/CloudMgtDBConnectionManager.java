@@ -91,7 +91,7 @@ public class CloudMgtDBConnectionManager {
                     }
                 } catch (NamingException e) {
                     throw new CloudMgtException(
-                            "Error while looking up the data source: " + cloudDBName, e);
+                            "Error while looking up the cloudmgt data source", e);
                 } finally {
                     PrivilegedCarbonContext.endTenantFlow();
                 }
