@@ -75,16 +75,16 @@ public class CloudMgtDBConnectionManager {
                 try {
                     //get the name of the cloud management data source
                     cloudDBName = getCloudDatasourceName();
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Initializing data source for : " + cloudDBName);
-                    }
-                    PrivilegedCarbonContext.startTenantFlow();
-                    PrivilegedCarbonContext privilegedCarbonContext =
-                            PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                    privilegedCarbonContext.setTenantId(tenantId);
-                    privilegedCarbonContext.setTenantDomain(tenantDomain);
                     if (cloudDBName != null) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Initializing data source for : " + cloudDBName);
+                        }
+                        PrivilegedCarbonContext.startTenantFlow();
+                        PrivilegedCarbonContext privilegedCarbonContext =
+                                PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                        privilegedCarbonContext.setTenantId(tenantId);
+                        privilegedCarbonContext.setTenantDomain(tenantDomain);
+
                         dataSource = (DataSource) privilegedCarbonContext.getJNDIContext().lookup(cloudDBName);
                     } else {
                         throw new CloudMgtException("Unable to initiate the cloud management dataSource");
