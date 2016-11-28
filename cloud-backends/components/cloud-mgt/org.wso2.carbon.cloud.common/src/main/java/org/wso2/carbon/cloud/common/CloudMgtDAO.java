@@ -243,7 +243,8 @@ public class CloudMgtDAO {
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
-                selectRightwaveCloudSubscriptionQuery = selectRightwaveCloudSubscriptionQuery.replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
+                selectRightwaveCloudSubscriptionQuery = selectRightwaveCloudSubscriptionQuery.replace
+                        (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
                 ps = conn.prepareStatement(selectRightwaveCloudSubscriptionQuery);
                 ps.setString(1, tenantDomain);
                 ps.setString(2, email);
@@ -290,7 +291,8 @@ public class CloudMgtDAO {
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
-                insertRightwaveCloudSubscriptionQuery = insertRightwaveCloudSubscriptionQuery.replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+                insertRightwaveCloudSubscriptionQuery = insertRightwaveCloudSubscriptionQuery.replace
+                        (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
                 ps = conn.prepareStatement(insertRightwaveCloudSubscriptionQuery);
                 ps.setString(1, tenantDomain);
                 ps.setInt(2, subscriptionValue);
@@ -329,7 +331,8 @@ public class CloudMgtDAO {
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
-                updateRightwaveCloudSubscriptionQuery = updateRightwaveCloudSubscriptionQuery.replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+                updateRightwaveCloudSubscriptionQuery = updateRightwaveCloudSubscriptionQuery.replace
+                        (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
                 ps = conn.prepareStatement(updateRightwaveCloudSubscriptionQuery);
                 ps.setInt(1, subscriptionValue);
                 ps.setString(2, tenantDomain);

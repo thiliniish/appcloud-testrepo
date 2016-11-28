@@ -38,6 +38,11 @@ import javax.sql.DataSource;
 public class CloudMgtDBConnectionManager {
     private static final Log LOG = LogFactory.getLog(CloudMgtDBConnectionManager.class);
 
+    private CloudMgtDBConnectionManager() {
+    }
+
+    private static volatile DataSource dataSource = null;
+
     /**
      * Utility method to get a new database connection
      *
@@ -45,35 +50,53 @@ public class CloudMgtDBConnectionManager {
      * @throws CloudMgtException if it fails to get the db connection
      */
     public static Connection getDbConnection() throws CloudMgtException {
-        int tenantId = MultitenantConstants.SUPER_TENANT_ID;
-        String tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-        //changing the tenant flow to the supper tenant
-        Connection conn = null;
+        if (dataSource == null) {
+            initializeDatasource();
+        }
         try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            privilegedCarbonContext.setTenantId(tenantId);
-            privilegedCarbonContext.setTenantDomain(tenantDomain);
-
-            //get the name of the cloud management data source
-            String cloudDBName = getCloudDatasourceName();
-            cloudDBName = CloudMgtConstants.CLOUD_DATASOURCE_PREFIX + File.separator + cloudDBName;
-            if (cloudDBName != null) {
-                DataSource ds = (DataSource) privilegedCarbonContext.getJNDIContext().lookup(cloudDBName);
-                conn = ds.getConnection();
-            } else {
-                throw new CloudMgtException("Unable to initiate the cloud management dataSource");
-            }
-        } catch (NamingException e) {
-            throw new CloudMgtException(
-                    "An error occurred while getting the dataSource for the cloud management database " + e);
+            return dataSource.getConnection();
         } catch (SQLException e) {
             throw new CloudMgtException(
-                    "An SQL error occurred while getting the dataSource for cloud management database", e);
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
+                    "Error when getting a database connection object from the Cloud Mgt data source.", e);
         }
-        return conn;
+    }
+
+    /**
+     * Initializes the cloudmgt data source
+     *
+     * @throws CloudMgtException if an error occurs while loading DB configuration
+     */
+    private static void initializeDatasource() throws CloudMgtException {
+        synchronized (CloudMgtDBConnectionManager.class) {
+            int tenantId = MultitenantConstants.SUPER_TENANT_ID;
+            String tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            String cloudDBName = null;
+            if (dataSource == null) {
+                try {
+                    //get the name of the cloud management data source
+                    cloudDBName = getCloudDatasourceName();
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Initializing data source for : " + cloudDBName);
+                    }
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext privilegedCarbonContext =
+                            PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                    privilegedCarbonContext.setTenantId(tenantId);
+                    privilegedCarbonContext.setTenantDomain(tenantDomain);
+                    if (cloudDBName != null) {
+                        dataSource = (DataSource) privilegedCarbonContext.getJNDIContext().lookup(cloudDBName);
+                    } else {
+                        throw new CloudMgtException("Unable to initiate the cloud management dataSource");
+                    }
+                } catch (NamingException e) {
+                    throw new CloudMgtException(
+                            "Error while looking up the data source: " + cloudDBName, e);
+                } finally {
+                    PrivilegedCarbonContext.endTenantFlow();
+                }
+            }
+        }
     }
 
     /**

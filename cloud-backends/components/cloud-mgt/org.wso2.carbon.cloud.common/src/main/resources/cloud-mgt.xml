@@ -74,5 +74,5 @@
             <DisplayRole>true</DisplayRole>
         </Role>
     </TenantRoles>
-    <cloudDatasourceName>cloud_mgt</cloudDatasourceName>
+    <CloudDatasourceName>jdbc/cloud_mgt</CloudDatasourceName>
 </CloudMgt>
