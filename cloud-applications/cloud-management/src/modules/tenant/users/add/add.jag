@@ -68,15 +68,26 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
     var message;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         //Get the existing roles in the invitation
-        var queryStringForRoles = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
-        var parameters = [tenantDomain, email];
-        var existingRoles = jagg.module("database").executeQuery(queryStringForRoles, parameters);
         var currentRoles = [];
         var role = '';
 
-        var tmpRoles = existingRoles[0]["roles"].split(',');
-        for (var k = 0; k < tmpRoles.length; k++) {
-            currentRoles.push(tmpRoles[k]);
+        //Calling the db
+        var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+        var cloudmgtDAO;
+        cloudmgtDAO = new CloudMgtDAO();
+        var existingRoles = null;
+        try {
+            existingRoles = cloudmgtDAO.getRolesOfTempInvitees(tenantDomain, email);
+        } catch(e) {
+            log.error("An error occurred while getting the roles for the user " + email);
+            log.error(e);
+        }
+        if (existingRoles != "" && existingRoles != null) {
+            existingRoles = String(existingRoles);
+            var tmpRoles = existingRoles.split(',');
+            for (var k = 0; k < tmpRoles.length; k++) {
+                currentRoles.push(tmpRoles[k]);
+            }
         }
         //Get roles to be added and deleted into arrays
         var roles = [];
@@ -256,11 +267,21 @@ var sendInvite = function (email, tenant, roles, message) {
     var displayName = modManager.getTenantDisplayName(tenant);
     var uuid = generateUUId();
     log.info("Adding the user [ " + email + " ] to TEMP_INVITEE");
-    var getRolesQueryString = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
-    var parameters = [tenant, email];
-    var existingRecord = jagg.module("database").executeQuery(getRolesQueryString, parameters);
+
+    //Calling the db
+    var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+    var cloudmgtDAO;
+    cloudmgtDAO = new CloudMgtDAO();
+    var existingRecord = null;
+    try {
+        existingRecord = cloudmgtDAO.getRolesOfTempInvitees(tenant, email);
+    } catch(e) {
+        log.error("An error occurred while getting the roles for the user " + email);
+        log.error(e);
+    }
     if (existingRecord != "" && existingRecord != null) {
-        var existingRoles = existingRecord[0]["roles"].split(",");
+        existingRecord = String(existingRecord);
+        var existingRoles = existingRecord.split(",");
         var userRoleArray = roles.split(",");
         for (var i = 0; i < existingRoles.length; i++) {
             var exsistingRole = existingRoles[i].trim();
@@ -276,26 +297,23 @@ var sendInvite = function (email, tenant, roles, message) {
             }
         }
     }
-    var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
-    parameters = [tenant, email, uuid, roles, 0, uuid, roles, 0];
-    var results = jagg.module("database").executeQuery(queryString, parameters);
-
-    log.info("Successfully added the user by email [ " + email + " ] to TEMP_INVITEE");
-    var link = getInvitationLink(tenant, roles, uuid);    
-    sendEmail(email, link, displayName, roles, message);
-    var modEvents = jagg.module("events");
-    var type = "CloudMgt";
-    var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsignup{Invite}:Success";
-    var page = MAIL_CAMPAIGN;
-    var events = [];
-    var event = {};
-    event.item = type;
-    event.timestamp = new Date().getTime();
-    event.pageName = page;
-    event.action = actionString;
-    events[events.length] = event;
-    modEvents.publishUserActivity(events, email, tenant);
-    return email;
+        var results = cloudmgtDAO.insertIntoTempInvitee(tenant, email, uuid, roles, 0);
+        log.info("Successfully added the user by email [ " + email + " ] to TEMP_INVITEE");
+        var link = getInvitationLink(tenant, roles, uuid);
+        sendEmail(email, link, displayName, roles, message);
+        var modEvents = jagg.module("events");
+        var type = "CloudMgt";
+        var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsignup{Invite}:Success";
+        var page = MAIL_CAMPAIGN;
+        var events = [];
+        var event = {};
+        event.item = type;
+        event.timestamp = new Date().getTime();
+        event.pageName = page;
+        event.action = actionString;
+        events[events.length] = event;
+        modEvents.publishUserActivity(events, email, tenant);
+        return email;
 };
 
 var sendEmail = function(to,link,domain,roles,message) {
@@ -460,17 +478,22 @@ var resendInvite = function resendInvite(email) {
         try {
             log.info("Re-sending invitation to invited user " + email);
             var displayName = modManager.getTenantDisplayName(tenantDomain);
-            var queryString = SQL_QUERY_STRINGS.SELECT_UUID_AND_ROLES_FROM_TEMP_INVITEE;
-            var parameters = [email, tenantDomain];
-            var results = jagg.module("database").executeQuery(queryString, parameters);
+            var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+            var cloudmgtDAO;
+            cloudmgtDAO = new CloudMgtDAO();
+            var results = "";
+            var queryResults = cloudmgtDAO.getRolesAndUUIDOfTempInvitees(email, tenantDomain);
+            if (queryResults != null) {
+                results = JSON.parse(queryResults);
+            }
         } catch (e) {
             log.error(e);
             log.error("Error while re-sending invitation to " + email);
             throw "Error while re-sending invitation to " + email;
         }
         if (results != null && results != "") {
-            var uuid = results[0]["uuid"];
-            var userRoles = results[0]["roles"];
+            var uuid = results.uuid;
+            var userRoles = results.roles;
             var link = getInvitationLink(tenantDomain, userRoles, uuid);
             sendEmail(email, link, displayName, userRoles);
             log.info("Re-sending invitation to invited user " + email +" successful")

@@ -18,6 +18,7 @@
   -->
 
 <CloudMgt xmlns="http://www.wso2.org/cloud/">
+    <CloudDatasourceName>jdbc/cloud_mgt</CloudDatasourceName>
     <TenantRoles>
         <Role name="default">
             <Permission>
