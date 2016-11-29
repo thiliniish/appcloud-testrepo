@@ -2,6 +2,7 @@
 <%
     var userName = session.get("LOGGED_IN_USER");
     var email = session.get("LOGGED_IN_USER_EMAIL");
+    var Encode = Packages.org.owasp.encoder.Encode;
 
     var isExtensionRequest = null;
     if (jagg.module("util").isUserInAdminRole()) {
@@ -40,7 +41,7 @@
     function doSubmit() {
         var from = $("#from").attr('value');
         var subject  = $("#subject").attr('value');
-        var cloudType = '<%= cloudType %>';
+        var cloudType = '<%=Encode.forJavaScriptAttribute(cloudType)%>';
         var body  = $("#body").attr('value');
         var cloudmgtURL =  $("#cloudmgtURL").attr('value');
         var publisherUrl = $("#publisherUrl").attr('value');
@@ -152,11 +153,12 @@
         <div class="col-lg-12 content-section">
             <form method='post' name="inputData" class='form-horizontal' id='userForm' action="javascript:doSubmit()" role="form">
                 <%if (email == null && isRegistrationHelp == 'true'){ %>
-                    <input type="hidden" id="from" name="from"value="<%=userEmail%>" />
+                    <input type="hidden" id="from" name="from" value="<%=Encode.forHtmlAttribute
+    (userEmail)%>" />
                 <%} else { %>
-                    <input type="hidden" id="from" name="from" value="<%=email%>" />
+                    <input type="hidden" id="from" name="from" value="<%=Encode.forHtmlAttribute(email)%>" />
                 <% } %>
-                <input type="hidden" id="to" name="to" readonly value="<%=to%>" size="50"   style="width:60%"  />
+                <input type="hidden" id="to" name="to" readonly value="<%=Encode.forHtmlAttribute(to)%>" size="50"   style="width:60%"  />
                 <div class="form-group">
                     <label for="subject1" class="col-sm-2 control-label">Summary</label>
                     <div class="col-sm-8">
@@ -164,7 +166,7 @@
                             <input type="text" id="subject" name="subject" class="required" size="50" value="Trial Extension Request" style="width:90%" />
                         <% } else { %>
                             <input type="text" id="subject" name="subject" class="required" size="50"
-                            placeholder="Need help with WSO2 Cloud" value="<%=customSubject%>" style="width:90%" />
+                            placeholder="Need help with WSO2 Cloud" value="<%=Encode.forHtmlAttribute(customSubject)%>" style="width:90%" />
                         <% } %>
                     </div>
                 </div>
@@ -189,10 +191,10 @@
                 </div>
                 <input type="hidden" name="secretKey" id="secretKey" value=""/>
                 <input type="hidden" name="imagePath" id="imagePath" value=""/>
-                <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>"/>
-                <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=publisherUrl%>"/>
-                <input type="hidden" name="isExtensionRequest" id="isExtensionRequest" value="<%=isExtensionRequest%>"/>
-                <input type="hidden" name="serviceId" id="serviceId" value="<%=serviceId%>"/>
+                <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=Encode.forHtmlAttribute(cloudmgtURL)%>"/>
+                <input type="hidden" name="publisherUrl" id="publisherUrl" value="<%=Encode.forHtmlAttribute(publisherUrl)%>"/>
+                <input type="hidden" name="isExtensionRequest" id="isExtensionRequest" value="<%=Encode.forHtmlAttribute(isExtensionRequest)%>"/>
+                <input type="hidden" name="serviceId" id="serviceId" value="<%=Encode.forHtmlAttribute(serviceId)%>"/>
             </form>
         </div>
     </div>
