@@ -157,6 +157,7 @@ var status = {ACTIVE : "ACTIVE", INACTIVE : "INACTIVE", EXTENDED : "EXTENDED", P
 var service = {COMMERCIAL : "commercial", FREE : "free"};
 
 var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
+var UNAUTHORIZED = "Unauthorized";
 var PROFILE_PAGE = "site/pages/user-profile.jag";
 
 var productIdFromServiceId = {api_cloud: "API Cloud", app_cloud: "APP Cloud"};
