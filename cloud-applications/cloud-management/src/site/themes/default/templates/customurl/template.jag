@@ -30,6 +30,8 @@
     var appCloudPointingUrl = "<%=cloudConfig.customUrl.appCloud.pointingUrl%>";
     var customUrlDocumentationLink = "<%=cloudConfig.documentation.customUrlDocumentationLink%>";
     var tenantDomain = "<%=tenantDomain%>";
+
+    initializeUserActivity("Custom URL Page");
 </script>
 <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/styles.css'))%>" rel="stylesheet">
 <div class="container2 padding-double">
