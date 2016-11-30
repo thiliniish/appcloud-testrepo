@@ -27,6 +27,7 @@ logged into that tenant
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.samlsso.AuthenticationClient" %>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.samlsso.DBClient" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
@@ -77,36 +78,28 @@ logged into that tenant
         String userName = request.getParameter("username");
         Object password = request.getParameter("password");
 
-        if(userName.equals("") || userName == null || password.equals("") || password == null){
+        if(userName.equals("") || userName == null || password.equals("") || password == null) {
             loginFailed = "true";
             errorMessage = "Login failed. username and password cannot be empty.";
-        } else{
-            String email = userName;
-
-            //If useEmail enabled in web.xml there will not be a conversion of '@' sign
-            if ("false".equals(useEmail) && userName.contains("@")) {
-                userName = userName.replace("@", replaceWith);
-            }
+        } else {
 
             //Authenticates the user
-            AuthenticationClient authenticationClient = new AuthenticationClient(baseURL);
-            boolean loginStatus;
-            if (storeTenantDomain != null && !storeTenantDomain.equals("") && !storeTenantDomain.equals("null")) {
-                loginStatus = authenticationClient.login(userName, password, "localhost", storeTenantDomain);
+            if (!StringUtils.isEmpty(storeTenantDomain) && !storeTenantDomain.equals("null")) {
+                // Authentication request initiated for user portal.
+                singleTenant = true;
+                tenantDomain = storeTenantDomain;
             } else {
-                loginStatus = authenticationClient.login(userName + "@carbon.super", password, "localhost", null);
-            }
+                // Authentication request initiated for cloud or admin portal
 
-            if (!loginStatus) {
-                loginFailed = "true";
-            }
+                String email = userName;
 
-            //Only if authenticated, get tenants the user belonging to
-            if (loginStatus) {
-                if (storeTenantDomain != null && !storeTenantDomain.equals("") && !storeTenantDomain.equals("null")) {
-                    singleTenant = true;
-                    tenantDomain = storeTenantDomain;
-                } else {
+                //If useEmail is not enabled in web.xml convert '@' sign from '.'
+                if ("false".equals(useEmail) && userName.contains("@")) {
+                    userName = userName.replace("@", replaceWith);
+                }
+                //Only if authenticated, get tenants the user belonging to
+                AuthenticationClient authenticationClient = new AuthenticationClient(baseURL);
+                if(authenticationClient.login(userName + "@carbon.super", password, "localhost", null)) {
                     DBClient dbClient = new DBClient(cloudMgtDataSource);
                     tenantDomains = dbClient.getTenantDisplayNames(userName);
                     if (tenantDomains.size() == 1) {
@@ -118,9 +111,12 @@ logged into that tenant
                         String redirectUrl = cloudMgtUrl + "/site/pages/confirm-verification.jag?confirmation=" + uuid.toString();
                         response.sendRedirect(redirectUrl);
                     }
+                } else {
+                    loginFailed = "true";
                 }
             }
         }
+
         String queryString1 = "../authenticationendpoint/samlsso_login_redirect.jsp?SAMLRequest="
                 + CharacterEncoder.getSafeText(request.getParameter("SAMLRequest"))
                 + "&relyingParty="
