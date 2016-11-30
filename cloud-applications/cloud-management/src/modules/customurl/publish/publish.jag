@@ -464,8 +464,9 @@
 				return loginResult.xhr;
 			}
 		} catch (e) {
-			var errorMessage = "Exception occurred during establishing connection to AppCloud. " + e;
+			var errorMessage = "Exception occurred during establishing connection to AppCloud.";
 			log.error(errorMessage);
+			log.error(e);
 			throw e;
 		}
 	}
