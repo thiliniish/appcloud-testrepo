@@ -16,5 +16,6 @@
     <name>SSO Web applications</name>
     <modules>
         <module>IS-5.1.0</module>
+        <module>IS-5.2.0</module>
     </modules>
 </project>
