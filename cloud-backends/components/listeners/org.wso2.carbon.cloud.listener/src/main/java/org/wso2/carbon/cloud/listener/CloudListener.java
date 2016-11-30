@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.cloud.listener;
 
-import org.wso2.carbon.cloud.common.CloudMgtException;
-
 import java.util.HashMap;
 
 /**

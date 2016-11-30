@@ -13,52 +13,71 @@ include("/jagg/constants.jag");
     var mod = jagg.module("customurl");
     var action = request.getParameter("action");
     var cloudType = request.getParameter("cloudType");
-    var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
+    var utilModule = jagg.module("util");
+    var cloudConfigFile = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
 
     if (action == "publishVal") {
         var node = request.getParameter("node");
         var customDomain = request.getParameter("customDomain");
-
         var sslFile = request.getFile("sslFile");
         var keyFile = request.getFile("keyFile");
         var chainFile = request.getFile("chainFile");
+        var cloudProfile = request.getParameter("cloudProfile");
 
+        try {
+            sslFile.open("r");
+            var sslFileContent = sslFile.readAll();
+            sslFile.close();
 
-        sslFile.open("r");
-        var sslFileContent = sslFile.readAll();
-        sslFile.close();
+            keyFile.open("r");
+            var keyFileContent = keyFile.readAll();
+            keyFile.close();
 
-        keyFile.open("r");
-        var keyFileContent = keyFile.readAll();
-        keyFile.close();
+            chainFile.open("r");
+            var chainFileContent = chainFile.readAll();
+            chainFile.close();
 
-        chainFile.open("r");
-        var chainFileContent = chainFile.readAll();
-        chainFile.close();
-
-        var status = mod.publish(tenantDomain, cloudType, node, customDomain, sslFileContent, keyFileContent, chainFileContent);
-        print(status);
+            var status = mod.publish(tenantDomain, cloudProfile, node, customDomain, sslFileContent, keyFileContent,
+                    chainFileContent);
+            print(status);
+        } catch (e) {
+            var errorMessage = "Error occurred while publishing custom domain value.";
+            log.error(errorMessage);
+            log.error(e);
+            response.status = 500;
+            response.content = errorMessage;
+        }
     } else if (action == "validateUrl") {
         var nodeType = request.getParameter("nodeType");
         var customUrl = request.getParameter("customDomain");
-        var cname = cloudConfigFile.customUrl.pointingUrl;
-
+        var pointingUrl = cloudConfigFile.customUrl.apiCloudPointingUrl;
         var urlValidation = {};
 
-        if (mod.validateUrl(customUrl, cname)) {
-            if (mod.isUrlAvailable(customUrl, nodeType, tenantDomain)) {
-                urlValidation.error = "false";
+        try {
+            if(nodeType == APPLICATION_NODE_TYPE) {
+                pointingUrl = cloudConfigFile.customUrl.appCloud.pointingUrl;
+            }
+            if (mod.validateUrl(customUrl, pointingUrl)) {
+                if (mod.isUrlAvailable(customUrl, nodeType, tenantDomain)) {
+                    urlValidation.error = "false";
+                } else {
+                    urlValidation.error = "true";
+                    urlValidation.message = "Url mapping is not available.";
+                }
             } else {
                 urlValidation.error = "true";
-                urlValidation.message = "Url mapping is not available.";
+                urlValidation.message = "CNAME verifying failed. Please follow this <a href='" + cloudConfigFile.documentation.customUrlDocumentationLink +
+                        "' target='_blank'>documentation</a> to add new CANME in domain registrar";
             }
-        } else {
-            urlValidation.error = "true";
-            urlValidation.message = "CNAME verifying failed. Please follow this <a href='"+cloudConfigFile.documentation.customUrlDocumentationLink
-                    +"' target='_blank'>documentation</a> to add new CANME in domain registrar";
+            print(urlValidation);
+        } catch (e) {
+            var errorMessage = "Error occurred while validating url.";
+            log.error(errorMessage);
+            log.error(e);
+            response.status = 500;
+            response.content = errorMessage;
         }
-        print(urlValidation);
     } else if (action == "getCurrentMapping") {
         var tenantDomain = request.getParameter("tenantDomain");
         var value = mod.getCurrentUserMapping(tenantDomain, cloudType);
@@ -73,6 +92,17 @@ include("/jagg/constants.jag");
             value = jsonObj;
         }
     	print(value);
+    } else if (action == "getCustomDomainDetailsForTenant") {
+        try {
+            var result = mod.getCustomDomainDetailsForTenant();
+            print(result);
+        } catch (e) {
+            var errorMessage = "Error occurred while getting custom domain details for tenant.";
+            log.error(errorMessage);
+            log.error(e);
+            response.status = 500;
+            response.content = errorMessage;
+        }
     }
 
 }());
