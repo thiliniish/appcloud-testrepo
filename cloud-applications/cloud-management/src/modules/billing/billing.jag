@@ -231,9 +231,12 @@ var getPublicKeyParams = function (serviceId, productRatePlanId) {
 // Get the discount value for the coupon
 var calculateDiscountForCoupon = function (couponData) {
     var serviceId = session.get("SERVICE_ID");
-    var premium = session.get("MONTHLY_RENTAL");
+    var productRatePlanId = session.get("PRODUCT_PLAN_ID");
+    var ratePlanInfo = billingCoreService.getRatePlanInfo(serviceId, productRatePlanId);
+    var premium = ratePlanInfo.getProperty("MonthlyRental").substring(1);
     var discount = 0.00;
     var couponString = BILLING_COUPON_HEADER + couponData;
+
     try {
         //coupon validity should be checked before calculating the discount.
         var getCouponPlan = JSON.parse(billingCoreService.retrieveCouponInfo(couponString));
@@ -521,6 +524,17 @@ var validateRatePlanId = function (serviceId, productRatePlanId) {
         return false;
     }
 };
+
+var getRatePlanInfo = function (serviceId, productRatePlanId){
+    try {
+        var response = billingCoreService.getRatePlanInfo(serviceId, productRatePlanId);
+        return response;
+    } catch (e) {
+        log.error("Error while retrieving rate plan information for, service: " + serviceId + ", and ratePlanId: " +
+        productRatePlanId);
+        return false;
+    }
+}
 
 var dateTimeFormatter = function (dateTimeFormat) {
     return new Packages.java.text.SimpleDateFormat(dateTimeFormat);

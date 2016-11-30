@@ -3,57 +3,35 @@
     include("/jagg/constants.jag");
 
     var log = new Log("site/themes/default/templates/billing/account/add/template.jag");
-    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-
-    var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
-    var userName =  session.get("LOGGED_IN_USER");
-    var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
-    var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3, field_passthrough4;
-    var creditCardCity, creditCardCountry, creditCardAddress1, creditCardAddress2, creditCardState, creditCardPostalCode;
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
-    var eulaData = jagg.module("util").getObjFromFile("/site/conf/eula.xml");
-    var eulaDoc= new XML(eulaData);
-    var eulaContent =  eulaDoc.EULA.text();
-    var responseFrom = request.getParameter("responseFrom");
+    var responseFrom = inputs.responseFrom;
+    var accounts =  inputs.ratePlanInfo.getProperty("MaxAccounts");
+    var callsPerDay =  inputs.ratePlanInfo.getProperty("MaxDailyUsage");
+    var callsAbovePlan =  inputs.ratePlanInfo.getProperty("OverUsage");
+    var monthlyRental =  inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
+    var couponDiscount =  session.get("COUPON_DISCOUNT");
+
+    var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3, field_passthrough4;
+    var creditCardCity, creditCardCountry, creditCardAddress1, creditCardAddress2, creditCardState, creditCardPostalCode;
     var paymentPlanName = "";
     var profileFirstName = null;
     var profileLastName = null;
     var organizationName = "";
     var currRatePlan =  session.get("CURRENT_RATE_PLAN");
-    var accounts =  session.get("ACCOUNTS");
-    var callsPerDay =  session.get("CALLS_PER_DAY");
-    var callsAbovePlan =  session.get("CALLS_ABOVE_PLAN");
-    var monthlyRental =  session.get("MONTHLY_RENTAL");
-    var couponDiscount =  session.get("COUPON_DISCOUNT");
     var isFromChangePlan = request.getParameter("isFromChangePlan");
     var accountId = request.getParameter("accountId");
-    var actualPaymentAmount = session.get("ACTUAL_PAYMENT_AMOUNT");
+    var isDowngrade = session.get("IS_DOWNGRADE");
+
     var l = Packages.java.util.Locale.getDefault();
     var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-    var selectedRatePlanId =  session.get("PRODUCT_PLAN_ID");
-    var previousRatePlanId =  session.get("OLD_PLAN_ID");
-    var ratePlans =  session.get("RATE_PLANS");
-    // verifying a downgrade/upgrade
-    if (responseFrom == IS_FROM_CHANGE_PLAN) {
-        // Check for upgrade
-        var isUpgrade = jagg.module("billing").isPlanUpgrade(ratePlans, previousRatePlanId, selectedRatePlanId);
-        if (isUpgrade) {
-            session.put("IS_DOWNGRADE", false);
-        } else {
-            session.put("IS_DOWNGRADE", true);
-        }
-    }
-
-    var isDowngrade = session.get("IS_DOWNGRADE");
     if(callsPerDay != null){
         callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
     }
+
     if("Response_From_Submit_Page" == responseFrom) {
         if("true" == request.getParameter("success")) {
-            var claims = jagg.module("user/profile").getProfile();
+            var claims = inputs.claims;
             profileFirstName = claims.firstname || "";
             profileLastName = claims.lastname || "";
             signature = request.getParameter("signature");
@@ -63,7 +41,7 @@
             field_passthrough3 = request.getParameter("field_passthrough3");
 
             //field_passthrough2 is the serviceId
-            paymentPlanName = jagg.module("billing").getPaymentPlanFromId(field_passthrough2, field_passthrough3);
+            paymentPlanName = inputs.paymentPlanName;
             creditCardCity = request.getParameter("creditCardCity") || "";
             creditCardCountry = request.getParameter("creditCardCountry") || "";
             creditCardAddress1 = request.getParameter("creditCardAddress1") || "";
@@ -87,95 +65,94 @@
     } else {
         log.debug("Request received directly");
     }
-%>
+    %>
 
-    <style type="text/css">
-            #backbtn{
-                background-color: #5e5e5e;
-                color: #fff;
-            }
+        <style type="text/css">
+                #backbtn{
+                    background-color: #5e5e5e;
+                    color: #fff;
+                }
 
-            #backbtn:hover {
-                background-color: #7d7d7d;
-            }
+                #backbtn:hover {
+                    background-color: #7d7d7d;
+                }
 
-            #backbtn:active {
-                background-color: #e6e6e6;
-            }
+                #backbtn:active {
+                    background-color: #e6e6e6;
+                }
 
-            #redeembtn{
-                background: #0395d0 none repeat scroll 0 0;
-                color: #fff;
-            }
+                #redeembtn{
+                    background: #0395d0 none repeat scroll 0 0;
+                    color: #fff;
+                }
 
-            #redeembtn:hover {
-                background: #00a1e2 none repeat scroll 0 0;
-            }
+                #redeembtn:hover {
+                    background: #00a1e2 none repeat scroll 0 0;
+                }
 
-            #redeembtn:active {
-                background: #95D0FF;
-            }
+                #redeembtn:active {
+                    background: #95D0FF;
+                }
 
-            #submitbtn{
-                background: #0395d0 none repeat scroll 0 0;
-                color: #fff;
-                margin-left: 0;
-            }
+                #submitbtn{
+                    background: #0395d0 none repeat scroll 0 0;
+                    color: #fff;
+                    margin-left: 0;
+                }
 
-            #submitbtn:hover {
-                background: #00a1e2 none repeat scroll 0 0;
-            }
+                #submitbtn:hover {
+                    background: #00a1e2 none repeat scroll 0 0;
+                }
 
-            #submitbtn:active{
-                background: #95D0FF;
-            }
-    </style>
-    <script type="text/javascript">
+                #submitbtn:active{
+                    background: #95D0FF;
+                }
+        </style>
+        <script type="text/javascript">
 
-    function disable() {
-         document.getElementById("spinner").style.display = '';
-         var submitButton = document.getElementById('submitbtn');
-         $('#submitbtn').css('background-color','#F9BFBB');
-         submitButton.disabled = true;
-    }
-
-    function activateSubmit(fld) {
-    	var submitButton = document.getElementById('submitbtn');
-    	submitButton.disabled = !fld;
-    	if(fld){
-            $('#submitbtn').css('background-color','#EB7067');
-        }else{
-            $('#submitbtn').css('background-color','#F9BFBB');
+        function disable() {
+             document.getElementById("spinner").style.display = '';
+             var submitButton = document.getElementById('submitbtn');
+             $('#submitbtn').css('background-color','#F9BFBB');
+             submitButton.disabled = true;
         }
 
-    }
+        function activateSubmit(fld) {
+            var submitButton = document.getElementById('submitbtn');
+            submitButton.disabled = !fld;
+            if(fld){
+                $('#submitbtn').css('background-color','#EB7067');
+            }else{
+                $('#submitbtn').css('background-color','#F9BFBB');
+            }
 
-    function enable() {
-         document.getElementById("spinner").style.display = 'none';
-         var submitButton = document.getElementById('submitbtn');
-         $('#submitbtn').css('background-color','#0395d0');
-         submitButton.disabled = false;
-    }
+        }
 
-    function calculateDiscount() {
-            jagg.post("../blocks/billing/account/add/ajax/add.jag", {
-                action:"calculateDiscount",
-                couponData : $("#coupon").attr('value')
-            },
-            function (result) {
-                    document.getElementById("spinner").style.display = 'none';
-                    couponDiscount = result;
-                    if(result <= 0) {
-                        document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
-                    } else {
-                        document.getElementById('couponValidator').innerHTML = " ";
-                    }
+        function enable() {
+             document.getElementById("spinner").style.display = 'none';
+             var submitButton = document.getElementById('submitbtn');
+             $('#submitbtn').css('background-color','#0395d0');
+             submitButton.disabled = false;
+        }
 
-                    $('#discountPara').text(Number(couponDiscount).toFixed(2));
-                    $('#actual-payable-amount-txt').text(Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2));
-                    $('#monthly-payable-amount-txt').text(Number(<%= monthlyRental %> - couponDiscount).toFixed(2));
+        function calculateDiscount() {
+                jagg.post("../blocks/billing/account/add/ajax/add.jag", {
+                    action:"calculateDiscount",
+                    couponData : $("#coupon").attr('value')
+                },
+                function (result) {
+                        document.getElementById("spinner").style.display = 'none';
+                        couponDiscount = result;
+                        if(result <= 0) {
+                            document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
+                        } else {
+                            document.getElementById('couponValidator').innerHTML = " ";
+                        }
+
+                        $('#discountPara').text(Number(couponDiscount).toFixed(2));
+                        $('#monthly-payable-amount-txt').text(Number(<%= monthlyRental %> - couponDiscount).toFixed(2));
                     $('#payable-amount-txt').text(Number(<%= monthlyRental %> - couponDiscount).toFixed(2));
-                    document.getElementById("payable-amount").innerHTML = Number(<%= actualPaymentAmount %> - couponDiscount).toFixed(2);
+                    document.getElementById("payable-amount").innerHTML = Number(<%= monthlyRental %> - couponDiscount).toFixed(2);
             },
             function (jqXHR, textStatus, errorThrown) {
             var cloudmgtURL =  $("#cloudmgtURL").attr('value');
@@ -561,7 +538,8 @@
 			</div>
 			<label class="input-label col-md-5">E-mail</label>
 			<div class="input-control input-full-width col-md-7 text">
-				<input type="text" id="email" name="email" value="<%=userEmail%>" placeholder=""/>
+				<input type="text" id="email" name="email" value="<%= session.get("LOGGED_IN_USER_EMAIL") %>"
+				placeholder=""/>
 			</div>
 			<label class="input-label col-md-5"></label>
 			<div class="input-control input-full-width col-md-7 text">
@@ -570,7 +548,7 @@
 			<%if(responseFrom != EDIT_USER_INFO) {  %>
 			<div class="col-md-12 text">
 					<textarea rows="10"  readonly="readonly" class="license_txt wr-agreement col-md-12" name="license-text">
-						<%=eulaContent%>
+						<%=inputs.eulaContent%>
 					</textarea>
 				<br class="c-both" />
 			</div>
@@ -628,15 +606,14 @@
 					<p class="col-md-8 nopad">Subscription Fee (per/m)</p><p id="monthlyRentalPara" class="col-md-4 nopad tright"><%=Number(monthlyRental).toFixed(2)%></p>
 					<p class="col-md-8 nopad">Discount from coupon</p><p id="discountPara" class="col-md-4 nopad tright"><%=Number(couponDiscount).toFixed(2)%></p>
 
-						<% if(isUpgrade) {  %>
+						<% if(inputs.isUpgrade) {  %>
 						<p class="col-md-12 nopad">*Please note that prorated charges are applicable when upgrading</p>
 					<% } else {  %>
-					<p class="col-md-8 nopad">Remaining account balance</p><p id="accountBalancePara" class="col-md-4 nopad tright"><%=Number(monthlyRental - actualPaymentAmount).toFixed(2)%></p>
 					<br class="c-both" />
 					<div class="col-md-8 nopad blue">&nbsp;</div>
 					<div class="col-md-4 nopad tright ">
 						<p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
-						<p id="payableAmountPara" class="col-md-12 nopad nomargin blue-line-right"><span id="payable-amount"><%=Number(actualPaymentAmount - couponDiscount).toFixed(2)%></span></p>
+						<p id="payableAmountPara" class="col-md-12 nopad nomargin blue-line-right"><span id="payable-amount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span></p>
 					</div>
 					<% } %>
 					<br class="c-both" />
@@ -660,10 +637,10 @@
 		</div>
 		<br class="c-both" />
 	</div>
-            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
-            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
-            <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
-            <input type="hidden" name="userName" id="userName" value="<%=userName%>" />
+            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=inputs.isBillingEnabled%>" />
+            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=inputs.cloudmgtURL%>" />
+            <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= UNAVAILABLE_ERROR_PAGE %>" />
+            <input type="hidden" name="userName" id="userName" value="<%=session.get("LOGGED_IN_USER")%>" />
             <input type="hidden" name="refId" id="refId" value="<%=refId%>" />
             <input type="hidden" name="signature" id="signature" value="<%=signature%>" />
             <input type="hidden" name="field_passthrough1" id="field_passthrough1" value="<%=field_passthrough1%>" />

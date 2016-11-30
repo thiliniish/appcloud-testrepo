@@ -15,6 +15,9 @@ jagg.module("billing", {
     getCurrentRatePlan: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCurrentRatePlan.apply(this, arguments);
     },
+    getRatePlanInfo: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getRatePlanInfo.apply(this, arguments);
+    },
     getAccountId: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAccountId.apply(this, arguments);
     },
