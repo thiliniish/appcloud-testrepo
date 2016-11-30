@@ -78,7 +78,7 @@ logged into that tenant
         String userName = request.getParameter("username");
         Object password = request.getParameter("password");
 
-        if(userName.equals("") || userName == null || password.equals("") || password == null) {
+        if(StringUtils.isEmpty(userName) || password == null || password.equals("")) {
             loginFailed = "true";
             errorMessage = "Login failed. username and password cannot be empty.";
         } else {
