@@ -252,10 +252,18 @@ public class APIUsageProcessorUtil {
      * @return
      * @throws CloudBillingException
      */
-    private static Usage getUsageForApiM(OMElement usageEle) throws CloudBillingException {
+    private static Usage getUsageForApiM(OMElement usageEle, String accountId) throws CloudBillingException {
         Usage usage = new Usage();
         usage.setUom(BillingConstants.UNIT_OF_MEASURE); // TODO get it from the
         // config
+        CloudBillingService cloudBillingService = new CloudBillingService();
+        String ratePlanId = cloudBillingService.getCurrentRatePlan(accountId);
+        Plan plan = CloudBillingServiceUtils
+                .getSubscriptionPlanForRatePlanId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, ratePlanId);
+        String priceValue = plan.getProperty((BillingConstants.API_CLOUD_OVERUSAGE)).split("/")[0];
+        if (priceValue != null) {
+            usage.setUnitPrice(Double.parseDouble(priceValue.replace("$", "")));
+        }
         String tenantDomain =
                 ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.API_PUBLISHER)).next()).getText();
         String date = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.MONTH)).next()).getText() +
@@ -288,7 +296,7 @@ public class APIUsageProcessorUtil {
 
                 if (accounts.getChildElements().next() != null) {
                     OMElement account = (OMElement) accounts.getChildElements().next();
-                    Usage usage = APIUsageProcessorUtil.getUsageForApiM(usageEle);
+                    Usage usage = APIUsageProcessorUtil.getUsageForApiM(usageEle, account.getFirstElement().getText());
                     usage.setAccountId(account.getFirstElement().getText());
                     int qty = Integer.parseInt(
                             ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TOTAL_COUNT)).next())
@@ -319,21 +327,19 @@ public class APIUsageProcessorUtil {
      */
     private static int calculateOverUsage(int usage, String accountId, String productName)
             throws CloudBillingException, XMLStreamException {
-
-        /*JSONArray ratePlans = ZuoraRESTUtils.getCurrentRatePlan(productName, accountId);
-        String productRatePlanId = getCurrentRatePlanId(ratePlans);
-        APICloudPlan plan = (APICloudPlan) CloudBillingServiceUtils
-                .getSubscriptionPlanForRatePlanId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, productRatePlanId);
+        CloudBillingService cloudBillingService = new CloudBillingService();
+        String ratePlanId = cloudBillingService.getCurrentRatePlan(accountId);
+        Plan plan = CloudBillingServiceUtils
+                .getSubscriptionPlanForRatePlanId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, ratePlanId);
         if (plan != null) {
-            String overUsageRate = plan.getOverUsage();
+            String overUsageRate = plan.getProperty(BillingConstants.API_CLOUD_OVERUSAGE);
             int overageValue = Integer.parseInt(overUsageRate.split("/")[1]);
-            int maxUsage = plan.getMaxDailyUsage();
+            int maxUsage = Integer.parseInt(plan.getProperty(BillingConstants.API_CLOUD_MAX_DAILY_USAGE));
             int overUsage = usage - maxUsage;
             return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage / overageValue : 0;
         } else {
             throw new CloudBillingException("Subscription plan for accountId: " + accountId + " cannot be null");
-        }*/
-        return 1;
+        }
     }
 
     /**
@@ -357,6 +363,10 @@ public class APIUsageProcessorUtil {
 
                     Usage usage = APIUsageProcessorUtil.getUsageForPaidSubscribers(usageEle);
                     usage.setAccountId(account.getFirstElement().getText());
+                    String tenantDomain =
+                            ((OMElement) account.getChildrenWithName(new QName(MonetizationConstants.TENANT_DOMAIN))
+                                                .next()).getText();
+                    usage.setTenantDomain(tenantDomain);
                     int dailyUsage = Integer.parseInt(
                             ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.TOTAL_COUNT))
                                                  .next()).getText());
@@ -374,6 +384,9 @@ public class APIUsageProcessorUtil {
                             .getChildrenWithName(new QName(MonetizationConstants.MAX_DAILY_USAGE)).next()).getText()));
                     int unitOfMeasure = Integer.parseInt((((OMElement) ratePlanDetails
                             .getChildrenWithName(new QName(MonetizationConstants.UNIT_OF_MEASURE)).next()).getText()));
+                    double unitPrice = Double.parseDouble((((OMElement) ratePlanDetails
+                            .getChildrenWithName(new QName(MonetizationConstants.UNIT_PRICE)).next()).getText()));
+                    usage.setUnitPrice(unitPrice);
 
                     //Calculating the over used Api calls
                     int overUsageCount = dailyUsage - maxDailyUsage;

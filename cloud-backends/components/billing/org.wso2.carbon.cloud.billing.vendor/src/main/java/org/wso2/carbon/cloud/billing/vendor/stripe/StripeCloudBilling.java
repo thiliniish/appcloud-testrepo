@@ -36,6 +36,7 @@ import com.stripe.model.CustomerSubscriptionCollection;
 import com.stripe.model.Event;
 import com.stripe.model.ExternalAccount;
 import com.stripe.model.Invoice;
+import com.stripe.model.InvoiceItem;
 import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
 import org.apache.commons.logging.Log;
@@ -1079,6 +1080,36 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
             response.add(BillingVendorConstants.RESPONSE_DATA, null);
             LOGGER.error("Error while getting the event details : ", ex);
+        }
+        return response.toString();
+    }
+
+    /**
+     * Create invoice Item
+     *
+     * @param invoiceInfoJson customer details
+     *                         {
+     *                         "customer": "cus_xxx",
+     *                         "amount": 0,
+     *                         "currency": "usd",
+     *                         "description": "WSO2 Customer"
+     *                         }
+     * @return success Json string
+     */
+    public String createInvoiceItems(String invoiceInfoJson) throws CloudBillingVendorException {
+        JsonObject response = new JsonObject();
+        Map<String, Object> invoiceItemParams;
+        try {
+            invoiceItemParams =  ObjectParams.setObjectParams(invoiceInfoJson);
+            InvoiceItem invoiceItemObj = InvoiceItem.create(invoiceItemParams);
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+            response.addProperty(BillingVendorConstants.RESPONSE_DATA, invoiceItemObj.getId());
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while creating the invoice items : ", ex);
         }
         return response.toString();
     }

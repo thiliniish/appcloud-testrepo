@@ -31,6 +31,7 @@ public final class BillingConstants {
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/billing";
     public static final String EMPTY_STRING = "";
     public static final String COLON = ":";
+    public static final String CURRENCY = "usd";
 
     // Registry Related Conf
     public static final String GOVERNANCE_REGISTRY = "/_system/governance";
@@ -62,7 +63,7 @@ public final class BillingConstants {
 
     public static final String USAGE_UPLOADER_TASK_NAME = "usageUploader";
     public static final String USAGE_UPLOADER_TASK_CLASS_NAME =
-            "org.wso2.carbon.cloud.billing.usage.scheduler" + ".UsageUploaderTask";
+            "org.wso2.carbon.cloud.billing.core.usage.scheduler" + ".UsageUploaderTask";
     public static final String USAGE_UPLOADER_TASK_TENANT_ID_KEY = "__TENANT_ID_PROP__";
 
     public static final String BILLING_DB_UPDATE_TASK_NAME = "updateBillingDbTask";
@@ -206,6 +207,18 @@ public final class BillingConstants {
     public static final String EEROR_RESPONSE_PROPERTY_SUCCESS_SPECIFIED = "successSpecified";
     public static final String EEROR_RESPONSE_PROPERTY_ERRORS_SPECIFIED = "errorsSpecified";
     public static final String ENABLE_MONETIZATION_REGISTRY_PROPERTY = "EnableMonetization";
+
+    // API Cloud Billing related
+    public static final String API_CLOUD_OVERUSAGE = "OverUsage";
+    public static final String API_CLOUD_MAX_DAILY_USAGE = "MaxDailyUsage";
+    public static final int CENTS = 100;
+
+    //Email related Constants
+    public static final String EMAIL_BODY_OVERAGE_FAILURE =
+            "Hi Cloud Team, \n Error has occurred while uploading " + "the" +
+            " overage data on {today}. Please verify.";
+    public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data ";
+    public static final String REPLACE_TODAY = "{today}";
 
     private BillingConstants() {
     }
