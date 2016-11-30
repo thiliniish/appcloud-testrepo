@@ -21,13 +21,12 @@
 the user and create a drop down containing the tenant display names. When the user selects a particular tenant he will be
 logged into that tenant
 -->
-<%@ page import="java.util.Map"%>
-<%@ page import="java.util.UUID" %>
+<%@ page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.Constants" %>
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.samlsso.AuthenticationClient" %>
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.samlsso.DBClient" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.samlsso.DBClient"%>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.UUID" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
@@ -99,7 +98,7 @@ logged into that tenant
                 }
                 //Only if authenticated, get tenants the user belonging to
                 AuthenticationClient authenticationClient = new AuthenticationClient(baseURL);
-                if(authenticationClient.login(userName + "@carbon.super", password, "localhost", null)) {
+                if (authenticationClient.login(userName + "@carbon.super", password, "localhost", null)) {
                     DBClient dbClient = new DBClient(cloudMgtDataSource);
                     tenantDomains = dbClient.getTenantDisplayNames(userName);
                     if (tenantDomains.size() == 1) {
