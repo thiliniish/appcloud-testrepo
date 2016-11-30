@@ -24,31 +24,43 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
     var modEvents = jagg.module("events");
     var billing = jagg.module("billing");
     var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
-
+    var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+    var cloudmgtDAO;
+    cloudmgtDAO = new CloudMgtDAO();
     if (action == "addCloudUserSubscription") {
         if(isEnabled == true) {
             var domainName = request.getParameter("domain");
             var type = request.getParameter("type");
             type = type.toUpperCase();
             var userEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-            var queryString = SQL_QUERY_STRINGS.SELECT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
-            var parameters = [type, domainName, userEmail];
-            var result = modDb.executeQuery(queryString, parameters);
+            var result = null;
+            try {
+                var queryResults = cloudmgtDAO.selectCloudSubscription(type, domainName, userEmail);
+                if (queryResults != null) {
+                    result = JSON.parse(queryResults);
+                }
+            } catch(e) {
+                log.error("An error occurred while retrieving the cloud subscription for the subscription type " + type + " for the user " + userEmail);
+                log.error(e);
+            }
             var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsubmission:";
             var page = MAIL_CAMPAIGN;
             var item = type;
             var events = [];
-            if (result[0] != null && result[0] != "undefined") {
-                var cloudSubscription =  result[0][type];
+            if (result != null && result != "undefined") {
+                var cloudSubscription =  result[type];
                 if (cloudSubscription == 1) {
                     //already added to MailCampaign ignore
                 } else {
                     var MailCampaignResponse = billing.addCloudSubmissionToMailCampaign(userEmail, domainName, type);
                     var msg = MailCampaignResponse['data'];
                         if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
-                            queryString = SQL_QUERY_STRINGS.UPDATE_RIGHTWAVE_CLOUD_SUBSCRIPTION;
-                            parameters = [type, 1, domainName, userEmail];
-                            modDb.executeQuery(queryString, parameters);
+                            try {
+                                cloudmgtDAO.updateCloudSubscription(type, 1, domainName, userEmail);
+                            } catch(e) {
+                                 log.error("An error occurred while updating the cloud subscription for the subscription type " + type + " for the user " + userEmail);
+                                 log.error(e);
+                            }
                             actionString = actionString + "Success";
                             log.info(MAIL_CAMPAIGN + " api call UPDATE MAIL_CAMPAIGN CLOUD SUBSCRIPTION is success for " + userEmail);
                         } else {
@@ -68,9 +80,12 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                 var MailCampaignResponse = billing.addCloudSubmissionToMailCampaign(userEmail, domainName, type);
                 var msg = MailCampaignResponse['data'];
                     if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
-                        queryString = SQL_QUERY_STRINGS.INSERT_RIGHTWAVE_CLOUD_SUBSCRIPTION;
-                        parameters = [type, domainName, 1, userEmail];
-                        modDb.executeQuery(queryString, parameters);
+                        try {
+                            cloudmgtDAO.insertCloudSubscription(type, domainName, 1, userEmail);
+                        } catch(e) {
+                            log.error("An error occurred while inserting the cloud subscription for the subscription type " + type + " for the user " + userEmail);
+                            log.error(e);
+                        }
                         actionString = actionString + "Success";
                         log.info(MAIL_CAMPAIGN + " api call INSERT MAIL_CAMPAIGN CLOUD SUBSCRIPTION is success for " + userEmail);
                     } else {

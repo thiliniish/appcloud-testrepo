@@ -79,7 +79,11 @@
                         </Export-Package>
                         <Import-Package>
                             org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
-                            org.wso2.carbon.cloud.listener.*; version="${cloud.listener.version}"
+                            org.wso2.carbon.cloud.listener.*; version="${cloud.listener.version}",
+                            org.osgi.framework.*; version="${imp.pkg.version.osgi.framework}",
+                            org.osgi.service.component.*; version="${imp.pkg.version.osgi.service.component}",
+                            org.wso2.carbon.utils.*; version="${imp.pkg.version.carbon.platform}",
+                            org.wso2.carbon.base.* ; version="${carbon.base.version}"
                         </Import-Package>
                         <Embed-Dependency>
                             httpclient;scope=compile|runtime;inline=false,
@@ -94,6 +98,7 @@
     <properties>
         <apache.httpcomponents.httpcore.version>4.4.1</apache.httpcomponents.httpcore.version>
         <cloud.listener.version>1.0.0</cloud.listener.version>
+        <carbon.base.version>1.0.0</carbon.base.version>
     </properties>
 
 </project>

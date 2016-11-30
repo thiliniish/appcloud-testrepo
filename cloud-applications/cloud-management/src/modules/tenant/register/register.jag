@@ -9,6 +9,7 @@ var modManager = jagg.module("manager");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 var CLOUDMGT_SERVICES =  cloudConfig.ServerUrls.cloudmgtServices.toString();
+var IS_URL =  cloudConfig.ServerUrls.identity.toString();
 
 var body = jagg.module("util").getObjFromFile("/site/conf/emails/new_registration_email.body.txt");
 
@@ -29,24 +30,26 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
     try {
         var isUserInvitee = (isInvitee != null && isInvitee == "true");
         var isStoreInvitee = (isStoreInvitee != null && isStoreInvitee == "true");
-
+        var isInvitedUser = false;
         if (isUserInvitee) {
             session.put('isInvitee', true);
             session.put('isStoreInvitee', false);
-            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
+            isInvitedUser = true;
         } else if (isStoreInvitee) {
             session.put('isStoreInvitee', true);
             session.put('isInvitee', true);
-            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
+            isInvitedUser = true;
         } else {
             session.put('isInvitee', false);
             session.put('isStoreInvitee', false);
-            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
         }
-        var parameters = [confirm];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        if (results.length >= 1) {
-            var email = results[0]["email"];
+        var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+        var cloudmgtDAO;
+        cloudmgtDAO = new CloudMgtDAO();
+
+        var email = cloudmgtDAO.getEmailForUUID(confirm,isInvitedUser);
+        email = String(email);
+        if (email != null) {
             var username = modManager.getUserNameFromEmail(email);
             var isUserAvailable = modManager.isExistingUser(username);
             if ((isUserAvailable && isStoreInvitee) || (isUserAvailable && isUserInvitee)) {
@@ -278,14 +281,14 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
     log.info("Creating the tenant with tenant domain [ "+tenantDomain+" ] for the admin user [" +
             adminUser+" ] with usage plan [ "+usagePlan+" ]");
 	var ws = require("ws");
-	var creatTenant = new ws.WSRequest();
+	var createTenant = new ws.WSRequest();
 	var options = new Array();
 	options.useSOAP = 1.1;
 	options.action = "urn:registerTenantForTrustedUser";
 	options.timeout = 1000000;
 	options["HTTPHeaders"] = [
 	{
-		name : "Cookie", value :modManager.getAdminCookie(CLOUDMGT_SERVICES)}
+		name : "Cookie", value :modManager.getAdminCookie(IS_URL)}
 		];
 		var payload = '<p:registerTenantForTrustedUser xmlns:p="http://services.mgt.tenant.carbon.wso2.org">' +
 		'<tenantInfoBean xmlns="http://services.mgt.tenant.carbon.wso2.org">' +
@@ -305,10 +308,10 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
 
 		var result;
 		try {
-			var endPoint = CLOUDMGT_SERVICES + "TenantMgtService";
-			creatTenant.open(options,endPoint, false);
-			creatTenant.send(payload);
-			result = creatTenant.responseE4X;
+			var endPoint = IS_URL + "TenantMgtService";
+			createTenant.open(options,endPoint, false);
+			createTenant.send(payload);
+			result = createTenant.responseE4X;
             log.info("Tenant creation completed for tenant domain [ "+tenantDomain+" ]");
 			return result;
 		} catch (e) {
