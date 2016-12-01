@@ -236,7 +236,7 @@ public class CloudMgtDAO {
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
-        int subscriptionStatus = 0;
+        int subscriptionStatus = -1;
 
         JSONObject resultObj = null;
 
