@@ -38,7 +38,6 @@ $(document).ready(function() {
         window.location.replace(backUrl);
     });
     defaultUIView();
-    initializeUserActivity("Custom URL Page");
 });
 
 function defaultUIView() {
