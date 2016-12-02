@@ -215,9 +215,9 @@ public final class BillingConstants {
 
     //Email related Constants
     public static final String EMAIL_BODY_OVERAGE_FAILURE =
-            "Hi Cloud Team, \n Error has occurred while uploading " + "the" +
+            "Hi Cloud Team, \n Error has occurred while uploading the" +
             " overage data on {today}. Please verify.";
-    public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error Uploading overage data ";
+    public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error uploading overage data ";
     public static final String REPLACE_TODAY = "{today}";
 
     private BillingConstants() {

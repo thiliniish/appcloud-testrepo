@@ -31,7 +31,7 @@ public class Usage {
     private String description;
     private String startDate;
     private String endDate;
-    private Double unitPrice;
+    private double unitPrice;
     private String tenantDomain;
 
     public String getAccountId() {
@@ -98,11 +98,11 @@ public class Usage {
         this.endDate = endDate;
     }
 
-    public Double getUnitPrice() {
+    public double getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
     }
 
