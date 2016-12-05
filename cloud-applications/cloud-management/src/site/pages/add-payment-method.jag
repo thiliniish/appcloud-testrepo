@@ -6,12 +6,11 @@ var log = new Log();
 (function () {
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-    var serviceId = session.get("SERVICE_ID");
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled(serviceId);
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
 
     if (isBillingEnabled) {
         var productRatePlanId = session.get("PRODUCT_PLAN_ID");
-        var ratePlanInfo = jagg.module("billing").getRatePlanInfo(serviceId, productRatePlanId);
+        var ratePlanInfo = jagg.module("billing").getRatePlanInfo("api_cloud", productRatePlanId);
         var userEmail = session.get("LOGGED_IN_USER_EMAIL");
         var currRatePlan = session.get("CURRENT_RATE_PLAN");
         var couponDiscount = session.get("COUPON_DISCOUNT");

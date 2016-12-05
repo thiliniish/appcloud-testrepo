@@ -15,6 +15,7 @@
 	var callsAbovePlan =  inputs.ratePlanInfo.getProperty("OverUsage");
 	var monthlyRental =  inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
 	var couponDiscount =  session.get("COUPON_DISCOUNT");
+	var actualPaymentAmount = session.get("ACTUAL_PAYMENT_AMOUNT");
 
     var cloudName =inputs.serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
     var bttnLabel = "Go to " + cloudName;
@@ -40,7 +41,7 @@
         }
     </style>
 
-    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript">
 

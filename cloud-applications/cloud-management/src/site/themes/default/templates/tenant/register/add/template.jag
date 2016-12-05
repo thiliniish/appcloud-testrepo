@@ -51,7 +51,7 @@
                <% if (!outputs.isUserAvail) { %>
                   <h5>Create password for <%=outputs.email%></h5>
                   <% } else { %>
-                  <h5>Enter the password for your <a href="http://wso2.com/">wso2.com</a> user account <%=outputs
+                  <h5>Enter the password for your <a href="https://wso2.com/">wso2.com</a> user account <%=outputs
             .email%></h5>
                   <% } %>
                </label>

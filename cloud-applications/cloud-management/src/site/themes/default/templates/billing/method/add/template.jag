@@ -1,20 +1,22 @@
 <% jagg.template("billing/method/add", function(inputs, outputs, jagg) { %>
 <%
     if(inputs.isBillingEnabled){
-        var accounts =  inputs.ratePlanInfo.getProperty("MaxAccounts");
-        var callsPerDay =  inputs.ratePlanInfo.getProperty("MaxDailyUsage");
-        var callsAbovePlan =  inputs.ratePlanInfo.getProperty("OverUsage");
-        var monthlyRental =  inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
-        var couponDiscount =  session.get("COUPON_DISCOUNT");
+        if(inputs.ratePlanInfo) {
+            var accounts = inputs.ratePlanInfo.getProperty("MaxAccounts");
+            var callsPerDay = inputs.ratePlanInfo.getProperty("MaxDailyUsage");
+            var callsAbovePlan = inputs.ratePlanInfo.getProperty("OverUsage");
+            var monthlyRental = inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
+            var couponDiscount = session.get("COUPON_DISCOUNT");
 
-        var l = Packages.java.util.Locale.getDefault();
-        var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-        if (callsPerDay != null) {
-            callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
+            var l = Packages.java.util.Locale.getDefault();
+            var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+            if (callsPerDay != null) {
+                callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
+            }
         }
     }
     %>
-<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://checkout.stripe.com/checkout.js"></script>
 <div class="container col-lg-12 col-md-12 col-sm-12">
     <div class="container content-starter">
