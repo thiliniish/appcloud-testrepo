@@ -68,7 +68,7 @@
                         $("#success-message").show();
                    } else if ("resourcePending" == configResult) {
                         var publisherUrl = $("#publisherUrl").attr('value');
-                        jagg.message({content:'Some configuration files needed for the feature have not been created. Please login to the API Cloud once and try this again.', type:'success',
+                        jagg.message({content:'An error occurred while enabling the self signup feature. Please login to the API Cloud once and try this again.', type:'success',
                         cbk:function() {
                           window.location.href = publisherUrl;
                           }
