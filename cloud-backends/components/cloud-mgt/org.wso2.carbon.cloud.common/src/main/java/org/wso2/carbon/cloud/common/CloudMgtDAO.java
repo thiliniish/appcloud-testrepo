@@ -373,6 +373,7 @@ public class CloudMgtDAO {
      * This method checks if the invitation to the email is permitted or not.
      * This is checked by verifying that the number of retries made for this particular email
      * does not exceed three times for the given hour.
+     *
      * @param email
      * @param isInvitee
      * @return if the inviting of the given email is permitted or not
@@ -420,6 +421,13 @@ public class CloudMgtDAO {
                             LOG.debug("The email " + email + " has exceeded the maximum retry count for this hour. " +
                                       "Number of hours:" + diffHours + ". Retry Count: " + retryCount);
                         }
+                        try {
+                            updateRetryCount(retryCount, email, isInvitee);
+                        } catch (CloudMgtException e) {
+                            throw new CloudMgtException(
+                                    "Failed to update the retry count for the the user " +
+                                    "email " + email, e);
+                        }
                         isRetryPermitted = false;
                     } else if (diffHours >= CloudMgtConstants.REINVITE_TIME_LIMIT_IN_HOURS) {
                         try {
@@ -446,26 +454,12 @@ public class CloudMgtDAO {
                         }
                     } else {
                         try {
-                            int newRetryCount = retryCount + 1;
-                            if (isInvitee) {
-                                ps = conn.prepareStatement(updateRetryCountFromTempInviteeQuery);
-                            } else {
-                                ps = conn.prepareStatement(updateRetryCountFromTempRegistrationQuery);
-                            }
-                            ps.setInt(1, newRetryCount);
-                            ps.setString(2, email);
-                            ps.executeUpdate();
-
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("updating the retry count to " + retryCount + " for the email" + email);
-                            }
+                            updateRetryCount(retryCount, email, isInvitee);
                             isRetryPermitted = true;
-                        } catch (SQLException e) {
+                        } catch (CloudMgtException e) {
                             throw new CloudMgtException(
-                                    "Failed to update the retry count for the temp registration for the user " +
+                                    "Failed to update the retry count for the the user " +
                                     "email " + email, e);
-                        } finally {
-                            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
                         }
                     }
                 } else {
@@ -485,5 +479,42 @@ public class CloudMgtDAO {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
         return isRetryPermitted;
+    }
+
+    /**
+     * Updates the retry count for the particular user in the TEMP invitee/registration tables
+     * @param currentRetryCount
+     * @param email
+     * @param isInvitee
+     * @throws CloudMgtException
+     */
+    private void updateRetryCount(int currentRetryCount, String email, boolean isInvitee) throws CloudMgtException {
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                int newRetryCount = currentRetryCount + 1;
+                if (isInvitee) {
+                    ps = conn.prepareStatement(updateRetryCountFromTempInviteeQuery);
+                } else {
+                    ps = conn.prepareStatement(updateRetryCountFromTempRegistrationQuery);
+                }
+                ps.setInt(1, newRetryCount);
+                ps.setString(2, email);
+                ps.executeUpdate();
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("updating the retry count to " + newRetryCount + " for the email" + email);
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException(
+                    "Failed to update the retry count for the temp registration for the user " +
+                    "email " + email, e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
     }
 }
