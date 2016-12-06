@@ -225,9 +225,12 @@ var sendInvoiceEmail = function(jsonContent, sender, invoiceObj) {
     var subject = "Your payment was successfully processed";
     var userMail = sender;
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var cloudMailAddress = cloudConfig.supportContact.to;
-
-    sendEmailWithBCC(body, subject, userMail, cloudMailAddress);
+    var cloudMailAddress = cloudConfig.invoiceEmails;
+    var emailList = null;
+    if (cloudMailAddress != null) {
+        emailList = cloudMailAddress.split(",");
+    }
+    sendEmailWithBCC(body, subject, userMail, emailList);
     return true;
 };
 
@@ -334,7 +337,9 @@ var sendEmailWithBCC = function (body, subject, receiverAddress, bccAddress) {
     if (receiverAddress == null) {
         receiverAddress = cloudConfig.supportContact.to;
     }
-    sender.bcc = bccAddress;
+    if (bccAddress != null) {
+        sender.bcc = bccAddress;
+    }
     sender.to = receiverAddress;
     sender.subject = subject;
     sender.html = body;
