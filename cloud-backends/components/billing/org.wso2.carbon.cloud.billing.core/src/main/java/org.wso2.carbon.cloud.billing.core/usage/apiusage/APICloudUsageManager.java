@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.cloud.billing.core.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.core.beans.usage.Usage;
@@ -93,18 +94,34 @@ public class APICloudUsageManager {
         SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT);
         LOGGER.info("Started the daily usage task for  " + dateFormat.format(new Date(System.currentTimeMillis())));
         // get daily usage from data services and create a usage array
-        String response = getDailyUsage(dailyUsageUrl);
-        String responseForMonetizationUsage = getDailyUsageForMonetization(dailyMonetizationUsageUrl);
+        boolean isError = false;
+        try {
+            LOGGER.info("Started the billing daily over usage calculation");
+            String response = getDailyUsage(dailyUsageUrl);
+            Usage[] usageList = APIUsageProcessorUtil.getDailyUsageDataForApiM(response);
+            uploadDailyAPIUsage(usageList, false);
+        } catch (CloudBillingException e) {
+            LOGGER.error("Error occurred while uploading billing daily usage ", e);
+            isError = true;
+        }
+        try {
+            LOGGER.info("Started the monetization daily over usage calculation");
+            String responseForMonetizationUsage = getDailyUsageForMonetization(dailyMonetizationUsageUrl);
+            Usage[] monetizationEnabledUsageList =
+                    APIUsageProcessorUtil.getDailyUsageDataForPaidSubscribers(responseForMonetizationUsage);
+            uploadDailyAPIUsage(monetizationEnabledUsageList, true);
+        } catch (CloudBillingException ex) {
+            LOGGER.error("Error occurred while uploading monetization daily usage ", ex);
+            isError = true;
+        }
 
-        Usage[] usageList = APIUsageProcessorUtil.getDailyUsageDataForApiM(response);
-        Usage[] monetizationEnabledUsageList =
-                APIUsageProcessorUtil.getDailyUsageDataForPaidSubscribers(responseForMonetizationUsage);
-        uploadDailyAPIUsage(usageList, false);
-        uploadDailyAPIUsage(monetizationEnabledUsageList, true);
+        if (isError) {
+            throw new CloudBillingException("Error occurred while uploading usage for " +
+                                            dateFormat.format(new Date(System.currentTimeMillis())));
+        }
     }
 
     private String getDailyUsage(String usageUrl) throws CloudBillingException {
-
         Date currentDate = new Date();
         Calendar cal = Calendar.getInstance();
         cal.setTime(currentDate);
@@ -129,7 +146,7 @@ public class APICloudUsageManager {
     private void uploadDailyAPIUsage(Usage[] usages, Boolean isMoentizationUsage) throws CloudBillingException {
         SimpleDateFormat dateFormat = new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT);
         String today = dateFormat.format(new Date(System.currentTimeMillis()));
-
+        String errorAccounts = null;
         try {
             for (int x = 0; x < usages.length; x++) {
                 Double usageAmount = (usages[x].getUnitPrice() * usages[x].getQty() * BillingConstants.CENTS);
@@ -141,23 +158,26 @@ public class APICloudUsageManager {
                 String invoiceItemResponse = null;
                 if (!isMoentizationUsage) {
                     CloudBillingService cloudBillingService = new CloudBillingService();
+                    LOGGER.info("Uploading billing over-usage for  " + usages[x].getAccountId());
                     invoiceItemResponse =
                             cloudBillingService.callVendorMethod("createInvoiceItems", invoiceItem.toString());
                 } else {
                     APICloudMonetizationService cloudMonetizationService = new APICloudMonetizationService();
+                    LOGGER.info("Uploading monetization over-usage for  " + usages[x].getAccountId());
                     invoiceItemResponse = cloudMonetizationService
                             .callVendorMethod(usages[x].getTenantDomain(), "createInvoiceItems",
                                               invoiceItem.toString());
                 }
-
                 JSONObject object = new JSONObject(invoiceItemResponse);
                 if ((!(Boolean) object.get("success"))) {
-                    throw new CloudBillingException(
-                            "Error occurred while uploading daily usage for " + usages[x].getAccountId());
+                    errorAccounts += usages[x].getAccountId() + " ";
+
                 }
             }
-
-        } catch (Exception e) {
+            if (errorAccounts != null) {
+                throw new CloudBillingException("Error occurred while uploading daily usage for " + errorAccounts);
+            }
+        } catch (JSONException | CloudBillingException e) {
             String subject = BillingConstants.EMAIL_SUBJECT_OVERAGE_FAILURE + today;
             String messageBody =
                     BillingConstants.EMAIL_BODY_OVERAGE_FAILURE.replace(BillingConstants.REPLACE_TODAY, today);

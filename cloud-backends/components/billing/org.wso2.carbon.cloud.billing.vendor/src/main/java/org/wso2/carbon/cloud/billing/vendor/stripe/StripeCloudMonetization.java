@@ -1098,12 +1098,12 @@ public class StripeCloudMonetization implements CloudBillingServiceProvider {
      *                         "description": "WSO2 Customer"
      *                         }
      * @return success Json string
+     * @throws CloudBillingVendorException
      */
     public String createInvoiceItems(String invoiceInfoJson) throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
-        Map<String, Object> invoiceItemParams;
         try {
-            invoiceItemParams =  ObjectParams.setObjectParams(invoiceInfoJson);
+            Map<String, Object> invoiceItemParams = ObjectParams.setObjectParams(invoiceInfoJson);
             InvoiceItem invoiceItemObj = InvoiceItem.create(invoiceItemParams);
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
             response.addProperty(BillingVendorConstants.RESPONSE_DATA, invoiceItemObj.getId());

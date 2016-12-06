@@ -1065,6 +1065,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *
      * @param eventId event id
      * @return json response string
+     * @throws CloudBillingVendorException
      */
     public String getEventDetails(String eventId) throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
@@ -1095,12 +1096,12 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *                         "description": "WSO2 Customer"
      *                         }
      * @return success Json string
+     * @throws CloudBillingVendorException
      */
     public String createInvoiceItems(String invoiceInfoJson) throws CloudBillingVendorException {
         JsonObject response = new JsonObject();
-        Map<String, Object> invoiceItemParams;
         try {
-            invoiceItemParams =  ObjectParams.setObjectParams(invoiceInfoJson);
+            Map<String, Object> invoiceItemParams = ObjectParams.setObjectParams(invoiceInfoJson);
             InvoiceItem invoiceItemObj = InvoiceItem.create(invoiceItemParams);
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
             response.addProperty(BillingVendorConstants.RESPONSE_DATA, invoiceItemObj.getId());

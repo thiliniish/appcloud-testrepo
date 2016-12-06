@@ -155,7 +155,7 @@
     </query>
     <query id="getAccountDetailsForUserQ" useConfig="cloud_mgt">
         <sql>SELECT ACCOUNT_NUMBER, TENANT_DOMAIN FROM MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE USER_NAME =
-            SUBSTRING_INDEX(:USER_NAME,'@',1);
+            SUBSTRING_INDEX(:USER_NAME,'@',1) AND TENANT_DOMAIN = SUBSTRING_INDEX(:USER_NAME,'@',-1);
         </sql>
         <result element="Account" rowName="">
             <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
