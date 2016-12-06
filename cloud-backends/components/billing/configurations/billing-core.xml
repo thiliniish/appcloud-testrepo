@@ -56,6 +56,11 @@
             <EnableCleanUp>true</EnableCleanUp>
             <Cron>0 57 23 ? * * *</Cron>
         </SubscriptionCleanUp>
+        <UsageUpload>
+            <EnableUsageUploading>true</EnableUsageUploading>
+            <!--	<Cron>0 mm hh ? * * *</Cron> -->
+            <Cron>0 30 23 ? * * *</Cron>
+        </UsageUpload>
     </Crons>
 
     <!--TODO This should be removable -->

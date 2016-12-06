@@ -22,20 +22,20 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents the Crons Configurations
+ * SubscriptionCleanUp related configurations
  */
-@XmlRootElement(name = "Crons") public class Crons {
+@XmlRootElement(name = "UsageUpload") public class UsageUpload {
 
-    @XmlElement(name = "SubscriptionCleanUp", nillable = true) private SubscriptionCleanUp subscriptionCleanUp;
+    @XmlElement(name = "EnableUsageUploading", nillable = false) private Boolean enableUsageUploading;
 
-    @XmlElement(name = "UsageUpload", nillable = true) private UsageUpload usageUpload;
+    @XmlElement(name = "Cron", nillable = false) private String cron;
 
-    public SubscriptionCleanUp getSubscriptionCleanUp() {
-        return subscriptionCleanUp;
+    public Boolean isEnableUsageUploading() {
+        return enableUsageUploading;
     }
 
-    public UsageUpload getUsageUpload() {
-        return usageUpload;
+    public String getCron() {
+        return cron;
     }
 
 }
