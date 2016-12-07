@@ -794,14 +794,13 @@ var changePassword=function(oldPassword,newPassword){
 
 var getBlockedSubscriptions = function(tenantDomain) {
 	var roleList= new Array();
-	//var tenantId = modManager.getTenantId(tenantDomain);
+	var tenantId = modManager.getTenantId(tenantDomain);
 	//getting the paid and inactive subscriptions
-	var queryString =SQL_QUERY_STRINGS.SELECT_BLOCKED_SUBSCRIPTION_FROM_BILLING_STATUS;
-			var parameters =[tenantDomain,"PAID","DISABLED"];
-	        var results = jagg.module("database").executeQuery(queryString, parameters);
-	        for(var i =0; i< results.length; i++){
-	        	roleList.push(results[i]["SUBSCRIPTION"]);
-	        }
+    var cloudBillingDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudBillingDAO();
+    var results = JSON.parse(cloudBillingDAO.getSubscriptionsForBillingAccount(tenantDomain,"PAID","DISABLED"));
+    for(var i =0; i< results.length; i++){
+        roleList.push(results[i]["SUBSCRIPTION"]);
+    }
 	return roleList;
 };
 

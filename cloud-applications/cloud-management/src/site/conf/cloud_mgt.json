@@ -210,5 +210,6 @@
   "billingVendor": {
     "oAuthEndpoint": "https://local.stripe.com/oauth/",
     "clientId" : "ca_97VFwjhWbMGj8SXqwS3ODTeZBivcD4KT"
-  }
+  },
+  "invoiceEmails": "cloud+staging@wso2com,cloud+invoice@wso2"
 }
