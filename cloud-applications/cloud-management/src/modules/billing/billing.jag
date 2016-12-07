@@ -186,7 +186,7 @@ var isValidCoupon = function (couponData, serviceId) {
 
 var getAccountStatus = function (subscription, type) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-    return JSON.parse(cloudBillingDAO.selectStatusFromBillingStatus(tenantDomain, subscription, type));
+    return cloudBillingDAO.selectStatusFromBillingStatus(tenantDomain, subscription, type);
 };
 
 var getCurrentRatePlan = function () {

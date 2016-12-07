@@ -49,11 +49,11 @@ var createAccount = function (serviceId){
 	        if (log.isDebugEnabled()){
 	            log.debug("in gotToCreateAccount for account id  "+ accountId);
 	        }
-	        
+
 	       	 var ratePlans = session.get("RATE_PLANS");
 	     	 var result = mod.changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
 	      	 print(result);
-	        
+
 	    }
     }
 };
@@ -90,8 +90,8 @@ var createAccount = function (serviceId){
             session.remove("COUPON_DISCOUNT");
         }
         var accountStatus = jagg.module("billing").getAccountStatus(serviceId,"PAID");
-        if (accountStatus[0] != null && accountStatus[0] != "undefined") {
-            if (accountStatus[0]["STATUS"] === "PENDING_DISABLE" || accountStatus[0]["STATUS"] === "DISABLED"){
+        if (accountStatus != null && accountStatus != "undefined") {
+            if (accountStatus == "PENDING_DISABLE" || accountStatus == "DISABLED"){
                 print("Your subscription cancellation is in effect. If you want to resubscribe please contact support. ");
             } else {
                 createAccount(serviceId);

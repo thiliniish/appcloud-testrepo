@@ -285,6 +285,14 @@ public class CloudMonetizationDAO {
         return resultArray;
     }
 
+    /**
+     * Get number of registered Product plans for a Tenant
+     *
+     * @param tenantDomain  tenant domain
+     * @param productName   Product names
+     * @return
+     * @throws CloudBillingException
+     */
     public String getNumberOfProductPlansForTenant(String tenantDomain, String productName)
             throws CloudBillingException {
         Connection conn = null;
