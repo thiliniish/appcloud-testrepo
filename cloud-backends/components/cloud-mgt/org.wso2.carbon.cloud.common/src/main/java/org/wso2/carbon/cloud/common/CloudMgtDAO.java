@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.sql.Connection;
@@ -49,6 +50,40 @@ public class CloudMgtDAO {
             "INSERT INTO RIGHTWAVE_CLOUD_SUBSCRIPTION (TENANT_DOMAIN,$SUBSCRIPTIONTYPE,EMAIL) VALUES (?,?,?)";
     private String updateRightwaveCloudSubscriptionQuery =
             "UPDATE RIGHTWAVE_CLOUD_SUBSCRIPTION SET $SUBSCRIPTIONTYPE = ? WHERE TENANT_DOMAIN=? AND EMAIL=?;";
+
+    private static final String deleteRecordFromTempRegistration = "DELETE FROM TEMP_REGISTRATION WHERE  uuid = (?);";
+    private static final String deleteRecordFromTempInvitee = "DELETE FROM TEMP_INVITEE WHERE uuid = (?);";
+    private static final String deleteTempInviteeInvite =
+            "DELETE FROM TEMP_INVITEE WHERE tenantDomain=(?) AND email = (?);";
+
+    private static final String insertIntoTenantUserMapping = "INSERT INTO TENANT_USER_MAPPING VALUES (? , ? );";
+    private static final String insertIntoOrganizations = "INSERT INTO ORGANIZATIONS VALUES (? , ? );";
+    private static final String insertIntoSubscriptions = "INSERT INTO SUBSCRIPTIONS VALUES (?,1,1,1)";
+    private static final String insertIntoTempRegistration =
+            "INSERT INTO TEMP_REGISTRATION VALUES (? , ? , ?, CURRENT_TIMESTAMP) ON" +
+            " DUPLICATE KEY UPDATE uuid= (?), dateTime = CURRENT_TIMESTAMP;";
+
+    private static final String updateDisplayNameIntoOrganization =
+            "UPDATE ORGANIZATIONS SET displayName = (?) WHERE tenantDomain = (?);";
+    private static final String updateRolesIntoTempInvitee =
+            "UPDATE TEMP_INVITEE SET roles= (?) WHERE tenantDomain = (?) AND email = (?);";
+
+    private static final String selectDisplayNameFromOrganization =
+            "SELECT displayName FROM ORGANIZATIONS WHERE tenantDomain = (?);";
+    private static final String selectUsernameFromTenantUserMapping =
+            "SELECT userName FROM TENANT_USER_MAPPING WHERE userName = (?);";
+    private static final String selectDisplayNameAvaliForOrganization =
+            "SELECT displayName FROM ORGANIZATIONS WHERE displayName = (?);";
+    private static final String selectOrganizationDetailsForTenant =
+            "SELECT * FROM ORGANIZATIONS WHERE tenantDomain=(?);";
+    private static final String selectAllOganizationsForUser =
+            "SELECT * FROM ORGANIZATIONS WHERE tenantDomain IN (SELECT tenantDomain FROM TENANT_USER_MAPPING WHERE " +
+            "userName=(?));";
+    private static final String selectAllFromTempInvitee =
+            "SELECT email, roles, tenantDomain FROM TEMP_INVITEE WHERE uuid = (?) ;";
+    private static final String selectFromTempInviteeByTenantDomain =
+            "SELECT email, roles FROM TEMP_INVITEE WHERE tenantDomain = (?)";
+    private static final String selectUUIDFromEmail = "SELECT UUID FROM TEMP_REGISTRATION WHERE EMAIL= (?);";
 
     /**
      * This method returns the emails for the self-registered and the invited users from the cloud_mgt database
@@ -348,5 +383,563 @@ public class CloudMgtDAO {
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
+    }
+
+    /**
+     * This method is to remove the records related to the uuid from the temp_registration table
+     *
+     * @param uuid
+     * @throws CloudMgtException
+     */
+    public void removeTempRegistrationRecord(String uuid) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(deleteRecordFromTempRegistration);
+                ps.setString(1, uuid);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to remove the temp registration record for uuid " + uuid, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to remove the records related to the uuid from the TEMP_INVITEE table
+     *
+     * @param uuid
+     * @throws CloudMgtException
+     */
+    public void removeTempInviteeRecord(String uuid) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(deleteRecordFromTempInvitee);
+                ps.setString(1, uuid);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to remove the temp invitee record for uuid " + uuid, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to remove the invite from the temp invitee
+     *
+     * @param tenantDomain
+     * @param email
+     * @return result
+     * @throws CloudMgtException
+     */
+    public int removeTempInviteeInvite(String tenantDomain, String email) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        int result = 0;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(deleteTempInviteeInvite);
+                ps.setString(1, tenantDomain);
+                ps.setString(2, email);
+                result = ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to remove the temp invitee record for tenant " + tenantDomain, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+        return result;
+    }
+
+    /**
+     * This method is to add tenant user mappings
+     *
+     * @param username
+     * @param tenantDomain
+     * @throws CloudMgtException
+     */
+    public void addTenantUserMapping(String username, String tenantDomain) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(insertIntoTenantUserMapping);
+                ps.setString(1, username);
+                ps.setString(2, tenantDomain);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException(
+                    "Failed to insert user mapping for user " + username + " to tenant " + tenantDomain, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to add organization details
+     *
+     * @param tenantDomain
+     * @param displayName
+     * @throws CloudMgtException
+     */
+    public void addOrganizationsDetails(String tenantDomain, String displayName) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(insertIntoOrganizations);
+                ps.setString(1, tenantDomain);
+                ps.setString(2, displayName);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to insert organization details for tenant " + tenantDomain, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to add subscription details
+     *
+     * @param tenantDomain
+     * @throws CloudMgtException
+     */
+    public void addsubscriptionDetails(String tenantDomain) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(insertIntoSubscriptions);
+                ps.setString(1, tenantDomain);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to insert subscription for tenant " + tenantDomain, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to add temp registration details
+     *
+     * @param email
+     * @param uuid
+     * @param isInvitee
+     * @throws CloudMgtException
+     */
+    public void addTempRegistrationDetails(String email, String uuid, int isInvitee) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(insertIntoTempRegistration);
+                ps.setString(1, email);
+                ps.setString(2, uuid);
+                ps.setInt(3, isInvitee);
+                ps.setString(4, uuid);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException(
+                    "Failed to insert to temp registration details for user [ " + email + "] and UUID [" + uuid + "] ",
+                    e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to update the organization display name
+     *
+     * @param tenantDomain
+     * @param displayName
+     * @throws CloudMgtException
+     */
+    public void updateOrganizationName(String tenantDomain, String displayName) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(updateDisplayNameIntoOrganization);
+                ps.setString(1, displayName);
+                ps.setString(2, tenantDomain);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException(
+                    "Failed to update the organization name as " + displayName + " for tenant " + tenantDomain, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to update the roles of a temp invitee
+     *
+     * @param roles
+     * @param tenantDomain
+     * @param email
+     * @throws CloudMgtException
+     */
+    public int updateTempInviteeRoles(String roles, String tenantDomain, String email) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        int results = 0;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(updateRolesIntoTempInvitee);
+                ps.setString(1, roles);
+                ps.setString(2, tenantDomain);
+                ps.setString(3, email);
+                results = ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException(
+                    "Failed to update the roles " + roles + " for user " + email + " in tenant " + tenantDomain, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+        return results;
+    }
+
+    /**
+     * This method retrieves the display name of an organization
+     *
+     * @param tenantDomain
+     * @return the display name string
+     * @throws CloudMgtException
+     */
+    public String getDisplayNamefromTenant(String tenantDomain) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        String displayName = null;
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectDisplayNameFromOrganization);
+                ps.setString(1, tenantDomain);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    displayName = resultSet.getString("displayName");
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to retrieve the displayName of the tenant " + tenantDomain, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return displayName;
+    }
+
+    /**
+     * This method verify the avaiability of the username
+     *
+     * @param username
+     * @return the username availability
+     * @throws CloudMgtException
+     */
+    public Boolean isUsernameAvail(String username) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        Boolean isAvailable = false;
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectUsernameFromTenantUserMapping);
+                ps.setString(1, username);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    if (resultSet.getString("userName") != null) {
+                        isAvailable = true;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to retrieve the availability of the username" + username, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return isAvailable;
+    }
+
+    /**
+     * This method verify the availability of the organization
+     *
+     * @param displayName
+     * @return the organization availability
+     * @throws CloudMgtException
+     */
+    public Boolean isOrganizationAvail(String displayName) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        Boolean isAvailable = false;
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectDisplayNameAvaliForOrganization);
+                ps.setString(1, displayName);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    if (resultSet.getString("displayName") != null) {
+                        isAvailable = true;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to retrieve the availability of the organization" + displayName, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return isAvailable;
+    }
+
+    /**
+     * This method retrieves the organization details tenant
+     *
+     * @param tenantDomain
+     * @return a json object containing the tenantDomain and the displayName
+     * @throws CloudMgtException
+     */
+    public JSONObject getOrganizationDetailsForTenant(String tenantDomain) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONObject resultObj = null;
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectOrganizationDetailsForTenant);
+                ps.setString(1, tenantDomain);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    resultObj = new JSONObject();
+                    resultObj.put("tenantDomain", resultSet.getString("tenantDomain"));
+                    resultObj.put("displayName", resultSet.getString("displayName"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to retrieve the organization details for tenant domain " + tenantDomain,
+                                        e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultObj;
+    }
+
+    /**
+     * This method retrieves all the organization details user
+     *
+     * @param username
+     * @return a json object containing the roles and the uuid
+     * @throws CloudMgtException
+     */
+    public JSONArray getAllOrganizationsForUser(String username) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONArray resultObj = new JSONArray();
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectAllOganizationsForUser);
+                ps.setString(1, username);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    JSONObject resultSetObj = new JSONObject();
+                    resultSetObj.put("tenantDomain", resultSet.getString("tenantDomain"));
+                    resultSetObj.put("displayName", resultSet.getString("displayName"));
+                    resultObj.put(resultSetObj);
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to retrieve the organization details for user " + username, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultObj;
+    }
+
+    /**
+     * This method retrieves email, roles and tenantDomain from the temp invitee
+     *
+     * @param uuid
+     * @return results object
+     * @throws CloudMgtException
+     */
+    public JSONObject getTempInviteeDetails(String uuid) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONObject resultObj = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectAllFromTempInvitee);
+                ps.setString(1, uuid);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    resultObj = new JSONObject();
+                    resultObj.put("tenantDomain", resultSet.getString("tenantDomain"));
+                    resultObj.put("email", resultSet.getString("email"));
+                    resultObj.put("roles", resultSet.getString("roles"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to retrieve the temp invitee details for uuid " + uuid, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultObj;
+    }
+
+    /**
+     * This method retrieves all the users for tenant
+     *
+     * @param tenantDomain
+     * @return a json array object containing the roles and the email
+     * @throws CloudMgtException
+     */
+    public JSONArray getTempInviteeByTenantDomain(String tenantDomain) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONArray resultObj = new JSONArray();
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectFromTempInviteeByTenantDomain);
+                ps.setString(1, tenantDomain);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    JSONObject resultSetObj = new JSONObject();
+                    resultSetObj.put("email", resultSet.getString("email"));
+                    resultSetObj.put("roles", resultSet.getString("roles"));
+                    resultObj.put(resultSetObj);
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to retrieve the users details for tenant " + tenantDomain, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultObj;
+    }
+
+    /**
+     * This method retrieve the uuid from email
+     *
+     * @param email
+     * @return the uuid
+     * @throws CloudMgtException
+     */
+    public JSONArray getUUIDFromEmail(String email) throws CloudMgtException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONArray resultObj = new JSONArray();
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectUUIDFromEmail);
+                ps.setString(1, email);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    JSONObject resultSetObj = new JSONObject();
+                    resultSetObj.put("uuid", resultSet.getString("uuid"));
+                    resultObj.put(resultSetObj);
+                }
+            }
+        } catch (SQLException e) {
+            throw new CloudMgtException("Failed to retrieve the uuid for the email " + email, e);
+        } catch (CloudMgtException e) {
+            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultObj;
     }
 }
