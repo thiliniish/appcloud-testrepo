@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.billing.core.commons.dataaccess;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
 import org.json.simple.JSONObject;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.common.CloudMgtDBConnectionManager;
@@ -33,8 +34,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Cloud Billing DAO
@@ -127,14 +126,14 @@ public class CloudBillingDAO {
      * @return
      * @throws CloudBillingException
      */
-    public List selectAllFromBillingStatus(String tenantDomain, String subscription, String type)
+    public JSONArray selectAllFromBillingStatus(String tenantDomain, String subscription, String type)
             throws CloudBillingException {
 
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
         JSONObject jsonObject;
-        List resultList = new ArrayList();
+        JSONArray resultArray = new JSONArray();
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -152,7 +151,7 @@ public class CloudBillingDAO {
                     jsonObject.put("STATUS", resultSet.getString("STATUS"));
                     jsonObject.put("START_DATE", resultSet.getString("START_DATE"));
                     jsonObject.put("END_DATE", resultSet.getString("END_DATE"));
-                    resultList.add(jsonObject);
+                    resultArray.put(jsonObject);
                 }
             }
         } catch (SQLException | CloudMgtException e) {
@@ -161,7 +160,7 @@ public class CloudBillingDAO {
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
-        return resultList;
+        return resultArray;
     }
 
     /**
@@ -171,12 +170,12 @@ public class CloudBillingDAO {
      * @return String ACCOUNT_NUMBER
      * @throws CloudBillingException
      */
-    public List getBillingAccountNumber(String tenantDomain) throws CloudBillingException {
+    public JSONArray getBillingAccountNumber(String tenantDomain) throws CloudBillingException {
 
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
-        List accountList = new ArrayList();
+        JSONArray accountArray = new JSONArray();
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -187,7 +186,7 @@ public class CloudBillingDAO {
                 while (resultSet.next()) {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("ACCOUNT_NUMBER", resultSet.getString("ACCOUNT_NUMBER"));
-                    accountList.add(jsonObject);
+                    accountArray.put(jsonObject);
                 }
             }
         } catch (SQLException | CloudMgtException e) {
@@ -196,7 +195,7 @@ public class CloudBillingDAO {
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
-        return accountList;
+        return accountArray;
     }
 
     /**
@@ -246,13 +245,14 @@ public class CloudBillingDAO {
      * @return
      * @throws CloudBillingException
      */
-    public List getTypeForTenantSubscription(String subscription, String tenantDomain) throws CloudBillingException {
+    public JSONArray getTypeForTenantSubscription(String subscription, String tenantDomain)
+            throws CloudBillingException {
 
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
         String type = null;
-        List typeList = new ArrayList<>();
+        JSONArray typeArray = new JSONArray();
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -264,7 +264,7 @@ public class CloudBillingDAO {
                 while (resultSet.next()) {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("TYPE", resultSet.getString("TYPE"));
-                    typeList.add(jsonObject);
+                    typeArray.put(jsonObject);
                 }
             }
         } catch (SQLException | CloudMgtException e) {
@@ -274,7 +274,7 @@ public class CloudBillingDAO {
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
-        return typeList;
+        return typeArray;
     }
 
     /**
@@ -283,17 +283,17 @@ public class CloudBillingDAO {
      * @param tenantDomain tenant domain
      * @param type         subscription type
      * @param status       subscription status
-     * @return List subscriptions list which matches parsed parameters
+     * @return JSONArray subscriptions array which matches parsed parameters
      * @throws CloudBillingException
      */
-    public List getSubscriptionsForBillingAccount(String tenantDomain, String type, String status)
+    public JSONArray getSubscriptionsForBillingAccount(String tenantDomain, String type, String status)
             throws CloudBillingException {
 
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
         String subscription = null;
-        List subscriptionList = new ArrayList<>();
+        JSONArray subscriptionArray = new JSONArray();
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -306,7 +306,7 @@ public class CloudBillingDAO {
                 while (resultSet.next()) {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("SUBSCRIPTION", resultSet.getString("SUBSCRIPTION"));
-                    subscriptionList.add(jsonObject);
+                    subscriptionArray.put(jsonObject);
                 }
             }
         } catch (SQLException | CloudMgtException e) {
@@ -315,7 +315,7 @@ public class CloudBillingDAO {
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
-        return subscriptionList;
+        return subscriptionArray;
     }
 
     /**
