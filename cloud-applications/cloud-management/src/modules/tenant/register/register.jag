@@ -25,6 +25,8 @@ var targetEpr = cloudConfig.registrationEmail.targetEpr.toString();
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
+//Calling the db
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
 
 var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
     try {
@@ -43,10 +45,6 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
             session.put('isInvitee', false);
             session.put('isStoreInvitee', false);
         }
-        var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
-        var cloudmgtDAO;
-        cloudmgtDAO = new CloudMgtDAO();
-
         var email = cloudmgtDAO.getEmailForUUID(confirm,isInvitedUser);
         email = String(email);
         if (email != null) {
@@ -93,22 +91,17 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
     }
 };
 
-var getConfirmationEmail = function(confirm){
+var getConfirmationEmail = function (confirm) {
     try {
-        var queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
-        var parameters = [confirm];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        var email = null;
-            if (results.length >= 1) {
-                email = results[0]["email"];
-                var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
-                var parameters = [confirm];
-                var results = jagg.module("database").executeQuery(deleteString, parameters);
-                log.info("Retrieved the email [ " + email + " ] from TEMP_REGISTRATION table");
-            } else {
-                log.error("For email [ " + email + " ] no temporary record for confirmation code [ " + confirm + "]");
-            }
-    return email;
+        var email = cloudmgtDAO.getEmailForUUID(confirm, false);
+        email = String(email);
+        if (email != null) {
+            cloudmgtDAO.removeTempRegistrationRecord(confirm);
+            log.info("Retrieved the email [ " + email + " ] from TEMP_REGISTRATION table");
+        } else {
+            log.error("Unable to find a temporary record for confirmation code [ " + confirm + "]");
+        }
+        return email;
     } catch (e) {
         log.error("Error while getting confirmation email: " + confirm);
         log.error(e);
@@ -194,8 +187,9 @@ var hasATenant = function (userName) {
     try {
         var queryString =SQL_QUERY_STRINGS.SELECT_USR_NAME_FROM_TENANT_USER_MAPPING;
         var parameters =[userName];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        if(results[0] == null ) {
+        var results = cloudmgtDAO.isUsernameAvail(userName);
+
+        if(String(results) != "true") {
             return false;
         } else {
             log.info("Username [ " + results[0]["userName"] + " ] already in the cloud system");
@@ -265,9 +259,7 @@ var addDefaultLoginRole = function(userName) {
 var storeSubscription = function( domain) {
     try{
         log.info("Adding subscriptions to the domain [ " + domain + " ]");
-        var queryString =SQL_QUERY_STRINGS.INSERT_INTO_SUBSCRIPTIONS;
-        var parameters =[domain];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
+        cloudmgtDAO.addsubscriptionDetails(domain);
         log.info("Subscriptions added successfully to the domain [ " + domain + " ]");
     }catch (e){
         log.error("Error while storing subscription for domain [ " + domain + " ]");
@@ -324,13 +316,13 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
 var checkDomainAvailability = function (domainName) {
     log.info("Checking the organization name availability");
     var isDomainAvailable = false;
+    var isOrgAvailable ='';
     try{
         var companyDisplayName = jagg.module("util").escapeSpecialChars(domainName);
-        var queryString =SQL_QUERY_STRINGS.SELECT_DIS_NAME_FROM_ORGANIZATIONS;
-        var parameters =[companyDisplayName];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        isDomainAvailable = results.length == 0;
-        if(isDomainAvailable){
+        var results = cloudmgtDAO.isOrganizationAvail(companyDisplayName);
+        isOrgAvailable = String(results);
+        if(isOrgAvailable != "true"){
+            isDomainAvailable = true
             log.info("The organization name [ " + domainName + " ] is available");
         }else{
             log.info("The organization name [ " + domainName + " ] is not available");
@@ -362,16 +354,14 @@ var checkTenantDomainAvailability = function (domainName) {
     return availability;
 };
 
-var storeTenantMGTRegistration = function (userName,tenantDomain) {
+var storeTenantMGTRegistration = function (username,tenantDomain) {
     try {
         //Adding User -Tenant Mapping
-        log.info("Adding user [ " + userName + " ] and tenantDomain [ " + tenantDomain + " ] as a tenant user mapping");
-        var queryString1 = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
-        var parameters =[userName,tenantDomain];
-        var results = jagg.module("database").executeQuery(queryString1, parameters);
-        log.info("Successfully added tenant details for user [ " + userName + " ] and tenant [ " + tenantDomain + " ]");
+        log.info("Adding user [ " + username + " ] and tenantDomain [ " + tenantDomain + " ] as a tenant user mapping");
+        cloudmgtDAO.addTenantUserMapping(username, tenantDomain);
+        log.info("Successfully added tenant details for user [ " + username + " ] and tenant [ " + tenantDomain + " ]");
     }catch (e){
-        log.error("Error while storing tenant details for tenant [ " + tenantDomain + " ] of user [ " + userName +" ]");
+        log.error("Error while storing tenant details for tenant [ " + tenantDomain + " ] of user [ " + username +" ]");
         log.error(e);
         throw (e);
     }
@@ -382,11 +372,9 @@ var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
         //Adding Tenant - Display Name mapping
         log.info("Adding tenantDomain [ "+tenantDomain+" ] and displayName [ "+displayName+" ] as a tenant display name mapping");
         var displayName = jagg.module("util").escapeSpecialChars(displayName);   //company display name
-        var queryString2 = SQL_QUERY_STRINGS.INSERT_INTO_ORGANIZATIONS;
-        var parameters =[tenantDomain,displayName];
-        var results = jagg.module("database").executeQuery(queryString2, parameters);
+        cloudmgtDAO.addOrganizationsDetails(tenantDomain, displayName);
         log.info("Successfully added the tenant display name mapping for tenant [ " + tenantDomain + " ]");
-    }catch (e){
+    } catch (e) {
         log.error("Error while adding the tenant display name mapping for tenant [ " + tenantDomain + " ]");
         log.error(e);
         throw (e);
@@ -396,9 +384,7 @@ var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
 var storeTempRegistration = function (email, uuid, isInvitee) {
     log.info("Adding temporary registration for user [ " + email + "]");
     try {
-        var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_REGISTRATION;
-        var parameters = [email, uuid, isInvitee, uuid];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
+        cloudmgtDAO.addTempRegistrationDetails(email, uuid, isInvitee);
     } catch (e) {
         log.error("Error while adding the temporary registration for user [ " + email + " ]");
         log.error(e);
@@ -475,9 +461,12 @@ var sendInvite = function (email, token) {
 var reInvite = function (email) {
     try{
         log.info("Resending the sign up email for [ " + email + " ]");
-        var queryString1 = SQL_QUERY_STRINGS.SELECT_UUID_FROM_TEMP_REGISTRATION;
-        var parameters =[email];
-        var results = jagg.module("database").executeQuery(queryString1, parameters);
+        var results;
+        var queryResults = cloudmgtDAO.getUUIDFromEmail(email);
+
+        if (queryResults != null) {
+            results = JSON.parse(queryResults);
+        }
         var uuid;
         if (results.length >= 1) {
             uuid = results[0]["UUID"];

@@ -15,6 +15,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 var billingCoreService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.CloudBillingService');
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
 var cloudBillingDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudBillingDAO();
 
 var getPaymentPlanFromId = function (serviceId, paymentPlanId) {
@@ -102,15 +103,8 @@ var getCloudURL = function (serviceName) {
 };
 
 var getDisplayNameFromTenantDomain = function (tenantDomain) {
-    var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-    var parameters = [tenantDomain];
-    var result = jagg.module("database").executeQuery(queryString, parameters);
-
-    if (result.length > 0) {
-        return result[0]["displayName"];
-    } else {
-        return null;
-    }
+    var results = cloudmgtDAO.getDisplayNamefromTenant(tenantDomain);
+    return  String(results);
 };
 
 //TODO Get the account id from the service
