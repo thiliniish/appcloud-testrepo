@@ -103,7 +103,7 @@ public class CloudBillingDAO {
                 ps = conn.prepareStatement(selectStatusFromBillingStatusQuery);
                 ps.setString(1, tenantDomain);
                 ps.setString(2, subscription);
-                ps.setString(1, type);
+                ps.setString(3, type);
                 resultSet = ps.executeQuery();
                 while (resultSet.next()) {
                     status = resultSet.getString("STATUS");
@@ -617,8 +617,8 @@ public class CloudBillingDAO {
                 executionResult = true;
             }
         } catch (SQLException | CloudMgtException | ParseException e) {
-            throw new CloudBillingException("Failed inserting BILLING_STATUS_HISTORY table for tenant : " +
-                                            tenantDomain, e);
+            throw new CloudBillingException(
+                    "Failed inserting BILLING_STATUS_HISTORY table for tenant : " + tenantDomain, e);
         } finally {
             CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
         }
@@ -657,8 +657,8 @@ public class CloudBillingDAO {
                 executionResult = true;
             }
         } catch (SQLException | CloudMgtException | ParseException e) {
-            throw new CloudBillingException("Failed to update BILLING_ACCOUNT_AMENDMENTS table for account : " +
-                                            accountNumber, e);
+            throw new CloudBillingException(
+                    "Failed to update BILLING_ACCOUNT_AMENDMENTS table for account : " + accountNumber, e);
         } finally {
             CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
         }
