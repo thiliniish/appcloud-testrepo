@@ -148,7 +148,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                 }
                 else {
                     //Insert into monetization subscriber table
-                    cloudMonetizationDAO.insertMonetizationSubscriber(username, tenantDomain, true, null, true)
+                    cloudMonetizationDAO.insertMonetizationSubscriber(username, tenantDomain, true, null)
                     //Send notification email
                     sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
                 }
