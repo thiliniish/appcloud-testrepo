@@ -69,9 +69,55 @@ public class CloudMonetizationDAO {
     private static final String selectNumberOfProductPlansForTenantQuery =
             "SELECT COUNT(*) as PRODUCT_PLAN_COUNT from MONETIZATION_PRODUCT_PLANS WHERE TENANT_DOMAIN = (?) and " +
             "PRODUCT_NAME = (?)";
+    private static final String insertIntoMonetizationProductPlans =
+            "INSERT INTO MONETIZATION_PRODUCT_PLANS (TENANT_DOMAIN, PRODUCT_NAME,RATE_PLAN_NAME, RATE_PLAN_ID)" +
+            " VALUES (?, ?, ?, ?);";
 
     private static final String selectAccountNumberForSubscribersQuery =
             "SELECT ACCOUNT_NUMBER FROM  MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE USER_NAME = ? AND  TENANT_DOMAIN = ?";
+
+    private static final String insertIntoMonetizationApiCloudPlanInfo =
+            "INSERT INTO MONETIZATION_API_CLOUD_PLANS_INFO (RATE_PLAN_ID, MAX_DAILY_USAGE, MONTHLY_RENTAL, UOM_UNIT, " +
+            "UOM_PRICE) VALUES (?, ?, ?, ?, ?);";
+
+    private static final String updateMonetizationApiCloudPlanInfo =
+            "UPDATE MONETIZATION_API_CLOUD_PLANS_INFO SET MAX_DAILY_USAGE = (?), MONTHLY_RENTAL = (?), " +
+            "UOM_UNIT = (?),UOM_PRICE = (?) WHERE (RATE_PLAN_ID) = (?)";
+
+    private static final String getMonetizationProductPlanForTenant =
+            "SELECT COUNT(*) as COUNT FROM MONETIZATION_PRODUCT_PLANS WHERE TENANT_DOMAIN = (?) AND" +
+            " RATE_PLAN_NAME = (?);";
+
+    private static final String getMonetizationSubscriptionDataFromId =
+            "SELECT  MAPICS.AM_API_NAME , MAPICS.AM_API_VERSION ," +
+            " MPP.RATE_PLAN_NAME FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS MAPICS INNER JOIN " +
+            "MONETIZATION_PRODUCT_PLANS MPP ON  MAPICS.RATE_PLAN_ID = MPP.RATE_PLAN_ID WHERE " +
+            "MAPICS.SUBSCRIPTION_NUMBER = ? limit 1;";
+
+    private static final String getMonetizationSubscriptionForAccount =
+            "SELECT DISTINCT AM_API_NAME, AM_API_VERSION FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS" +
+            " WHERE ACCOUNT_NUMBER = (?);";
+    private static final String getMonetizationProductPlans =
+            "SELECT MPP.RATE_PLAN_NAME, MACPP.MAX_DAILY_USAGE, MACPP.MONTHLY_RENTAL," +
+            "MACPP.UOM_UNIT, MACPP.UOM_PRICE  FROM MONETIZATION_PRODUCT_PLANS MPP INNER JOIN " +
+            "MONETIZATION_API_CLOUD_PLANS_INFO MACPP ON MPP.RATE_PLAN_ID = MACPP.RATE_PLAN_ID WHERE MPP.TENANT_DOMAIN" +
+            " = (?);";
+
+    private static final String getMonetizationSubscriptionQuery =
+            "SELECT MAPICS.SUBSCRIPTION_NUMBER, '-' END_DATE, DATE_FORMAT(MAPICS.START_DATE,'%Y-%m-%d') START_DATE, " +
+            "MAPICS.AM_APP_NAME, MAPICS.AM_API_NAME, MAPICS.AM_API_VERSION, MPP.RATE_PLAN_NAME  FROM" +
+            " MONETIZATION_API_CLOUD_SUBSCRIPTIONS MAPICS INNER JOIN MONETIZATION_PRODUCT_PLANS MPP ON " +
+            " MAPICS.RATE_PLAN_ID = MPP.RATE_PLAN_ID WHERE ACCOUNT_NUMBER = (?) UNION ALL " +
+            "SELECT MAPICSH.SUBSCRIPTION_NUMBER, MAPICSH.END_DATE, " +
+            "DATE_FORMAT(MAPICSH.START_DATE,'%Y-%m-%d') AS START_DATE," +
+            " MAPICSH.AM_APP_NAME, MAPICSH.AM_API_NAME,  MAPICSH.AM_API_VERSION, MPP.RATE_PLAN_NAME  FROM " +
+            "MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY MAPICSH INNER JOIN MONETIZATION_PRODUCT_PLANS MPP " +
+            "ON MAPICSH.RATE_PLAN_ID = MPP.RATE_PLAN_ID WHERE  MAPICSH.ACCOUNT_NUMBER= (?)  ORDER BY  START_DATE DESC;";
+
+    private static final String getMonetizationSubscriptionHistoryQuery =
+            "SELECT  MAPICS.AM_API_NAME, MAPICS.AM_API_VERSION, MPP.RATE_PLAN_NAME FROM " +
+            "MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY  MAPICS INNER JOIN MONETIZATION_PRODUCT_PLANS MPP ON " +
+            "MAPICS.RATE_PLAN_ID = MPP.RATE_PLAN_ID WHERE MAPICS.SUBSCRIPTION_NUMBER = (?) limit 1;";
 
     /**
      * Insert into Monetization_STATUS table
@@ -321,6 +367,335 @@ public class CloudMonetizationDAO {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
         return count;
+    }
+
+    /**
+     * This method is to insert product plan details
+     *
+     * @param tenantDomain
+     * @param productName
+     * @param planName
+     * @param ratePlanId
+     * @throws CloudBillingException
+     */
+    public void insertProductPlanDetails(String tenantDomain, String productName, String planName, String ratePlanId)
+            throws CloudBillingException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(insertIntoMonetizationProductPlans);
+                ps.setString(1, tenantDomain);
+                ps.setString(2, productName);
+                ps.setString(3, planName);
+                ps.setString(4, ratePlanId);
+                ps.executeUpdate();
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to insert product plan details for tenant : " + tenantDomain, e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to insert product plan info details
+     *
+     * @param ratePlanId
+     * @param dailyUsage
+     * @param pricing
+     * @param overageLimit
+     * @param overageCharge
+     * @throws CloudBillingException
+     */
+    public void insertIntoMonetizationApiCloudPlanInfo(String ratePlanId, int dailyUsage, double pricing,
+                                                       int overageLimit, double overageCharge)
+            throws CloudBillingException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(insertIntoMonetizationApiCloudPlanInfo);
+                ps.setString(1, ratePlanId);
+                ps.setInt(2, dailyUsage);
+                ps.setDouble(3, pricing);
+                ps.setInt(4, overageLimit);
+                ps.setDouble(5, overageCharge);
+                ps.executeUpdate();
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to insert product plan info details for rate plan : " + ratePlanId,
+                                            e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This method is to update product plan info details
+     *
+     * @param ratePlanId
+     * @param dailyUsage
+     * @param pricing
+     * @param overageLimit
+     * @param overageCharge
+     * @throws CloudBillingException
+     */
+    public void updateMonetizationApiCloudPlanInfo(int dailyUsage, double pricing, int overageLimit,
+                                                   double overageCharge, String ratePlanId)
+            throws CloudBillingException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(updateMonetizationApiCloudPlanInfo);
+
+                ps.setInt(1, dailyUsage);
+                ps.setDouble(2, pricing);
+                ps.setInt(3, overageLimit);
+                ps.setDouble(4, overageCharge);
+                ps.setString(5, ratePlanId);
+                ps.executeUpdate();
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to update product plan info details for rate plan : " + ratePlanId,
+                                            e);
+        } finally {
+            CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
+        }
+    }
+
+    /**
+     * This is to verify the availability for the product rate plan to the tenant domain
+     *
+     * @param tenantDomain tenant domain
+     * @param ratePlanName product rate plan
+     * @return
+     * @throws CloudBillingException
+     */
+    public int getMonetizationProductPlanForTenant(String tenantDomain, String ratePlanName)
+            throws CloudBillingException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        int count = 0;
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(getMonetizationProductPlanForTenant);
+                ps.setString(1, tenantDomain);
+                ps.setString(2, ratePlanName);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    count = Integer.parseInt(resultSet.getString("Count"));
+
+                }
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to get monetization product plan count for tenant " + tenantDomain,
+                                            e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return count;
+    }
+
+    /**
+     * Get subscription information
+     *
+     * @param subscriptionNumber
+     * @return json array of subscription information
+     * @throws CloudBillingException
+     */
+    public JSONArray getSubscriptionDataforSubscriptionId(String subscriptionNumber) throws CloudBillingException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONObject jsonObject;
+        JSONArray resultArray = new JSONArray();
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(getMonetizationSubscriptionDataFromId);
+                ps.setString(1, subscriptionNumber);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    jsonObject = new JSONObject();
+                    jsonObject.put("AM_API_NAME", resultSet.getString("AM_API_NAME"));
+                    jsonObject.put("AM_API_VERSION", resultSet.getString("AM_API_VERSION"));
+                    jsonObject.put("RATE_PLAN_NAME", resultSet.getString("RATE_PLAN_NAME"));
+                    resultArray.put(jsonObject);
+                }
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException(
+                    "Failed to get subscription information for subscription Id " + subscriptionNumber, e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultArray;
+    }
+
+    /**
+     * Get subscription information for account
+     *
+     * @param accountNumber
+     * @return json array of subscription information
+     * @throws CloudBillingException
+     */
+    public JSONArray getMonetizationSubscriptionsForAccount(String accountNumber) throws CloudBillingException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONObject jsonObject;
+        JSONArray resultArray = new JSONArray();
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(getMonetizationSubscriptionForAccount);
+                ps.setString(1, accountNumber);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    jsonObject = new JSONObject();
+                    jsonObject.put("AM_API_NAME", resultSet.getString("AM_API_NAME"));
+                    jsonObject.put("AM_API_VERSION", resultSet.getString("AM_API_VERSION"));
+                    resultArray.put(jsonObject);
+                }
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to subscription information for account Id " + accountNumber, e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultArray;
+    }
+
+    /**
+     * Get monetization product plans
+     *
+     * @param tenantDomain
+     * @return json array of product plan information
+     * @throws CloudBillingException
+     */
+    public JSONArray getMonetizationProductPlans(String tenantDomain) throws CloudBillingException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONObject jsonObject;
+        JSONArray resultArray = new JSONArray();
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(getMonetizationProductPlans);
+                ps.setString(1, tenantDomain);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    jsonObject = new JSONObject();
+                    jsonObject.put("RATE_PLAN_NAME", resultSet.getString("RATE_PLAN_NAME"));
+                    jsonObject.put("MAX_DAILY_USAGE", resultSet.getInt("MAX_DAILY_USAGE"));
+                    jsonObject.put("MONTHLY_RENTAL", resultSet.getDouble("MONTHLY_RENTAL"));
+                    jsonObject.put("UOM_UNIT", resultSet.getInt("UOM_UNIT"));
+                    jsonObject.put("UOM_PRICE", resultSet.getInt("UOM_PRICE"));
+                    resultArray.put(jsonObject);
+                }
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to get product plans for tenant domain " + tenantDomain, e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultArray;
+    }
+
+    /**
+     * Get monetization subscriptions
+     *
+     * @param accountNumber
+     * @return json array of subscription information
+     * @throws CloudBillingException
+     */
+    public JSONArray getMonetizationSubscriptions(String accountNumber) throws CloudBillingException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONObject jsonObject;
+        JSONArray resultArray = new JSONArray();
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(getMonetizationSubscriptionQuery);
+                ps.setString(1, accountNumber);
+                ps.setString(2, accountNumber);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    jsonObject = new JSONObject();
+                    jsonObject.put("SUBSCRIPTION_NUMBER", resultSet.getString("SUBSCRIPTION_NUMBER"));
+                    jsonObject.put("END_DATE", resultSet.getDate("END_DATE"));
+                    jsonObject.put("START_DATE", resultSet.getDate("START_DATE"));
+                    jsonObject.put("AM_APP_NAME", resultSet.getString("AM_APP_NAME"));
+                    jsonObject.put("AM_API_VERSION", resultSet.getString("AM_API_VERSION"));
+                    jsonObject.put("RATE_PLAN_NAME", resultSet.getString("RATE_PLAN_NAME"));
+                    resultArray.put(jsonObject);
+                }
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to get subscriptions for account " + accountNumber, e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultArray;
+    }
+
+    /**
+     * Get monetization subscriptions history
+     *
+     * @param subscriptionNumber
+     * @return json array of porduct plan information
+     * @throws CloudBillingException
+     */
+    public JSONArray getMonetizationSubscriptionHistory(String subscriptionNumber) throws CloudBillingException {
+
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        JSONObject jsonObject;
+        JSONArray resultArray = new JSONArray();
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(getMonetizationSubscriptionHistoryQuery);
+                ps.setString(1, subscriptionNumber);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    jsonObject = new JSONObject();
+                    jsonObject.put("AM_API_NAME", resultSet.getString("AM_API_NAME"));
+                    jsonObject.put("AM_API_VERSION", resultSet.getString("AM_API_VERSION"));
+                    jsonObject.put("RATE_PLAN_NAME", resultSet.getString("RATE_PLAN_NAME"));
+                    resultArray.put(jsonObject);
+                }
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to get subscriptions history data for subscription " +
+                                            subscriptionNumber, e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultArray;
     }
 
     /**
