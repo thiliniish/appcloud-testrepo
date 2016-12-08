@@ -270,7 +270,7 @@ public class CloudMonetizationDAO {
                 resultSet = ps.executeQuery();
                 while (resultSet.next()) {
                     jsonObject = new JSONObject();
-                    jsonObject.put("TEST_ACCOUNT", resultSet.getString("TEST_ACCOUNT"));
+                    jsonObject.put("TEST_ACCOUNT", resultSet.getBoolean("TEST_ACCOUNT"));
                     jsonObject.put("ACCOUNT_NUMBER", resultSet.getString("ACCOUNT_NUMBER"));
                     resultArray.put(jsonObject);
                 }
