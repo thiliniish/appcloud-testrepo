@@ -46,8 +46,9 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
             session.put('isStoreInvitee', false);
         }
         var email = cloudmgtDAO.getEmailForUUID(confirm,isInvitedUser);
-        email = String(email);
+
         if (email != null) {
+            email = String(email);
             var username = modManager.getUserNameFromEmail(email);
             var isUserAvailable = modManager.isExistingUser(username);
             if ((isUserAvailable && isStoreInvitee) || (isUserAvailable && isUserInvitee)) {

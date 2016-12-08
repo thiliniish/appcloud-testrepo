@@ -104,7 +104,8 @@ public class CloudMonetizationDAO {
             " = (?);";
 
     private static final String getMonetizationSubscriptionQuery =
-            "SELECT MAPICS.SUBSCRIPTION_NUMBER, '-' END_DATE, DATE_FORMAT(MAPICS.START_DATE,'%Y-%m-%d') START_DATE, " +
+            "SELECT MAPICS.SUBSCRIPTION_NUMBER,DATE_FORMAT(MAPICS.START_DATE,'%Y-%m-%d') END_DATE, DATE_FORMAT(MAPICS" +
+            ".START_DATE,'%Y-%m-%d') START_DATE, " +
             "MAPICS.AM_APP_NAME, MAPICS.AM_API_NAME, MAPICS.AM_API_VERSION, MPP.RATE_PLAN_NAME  FROM" +
             " MONETIZATION_API_CLOUD_SUBSCRIPTIONS MAPICS INNER JOIN MONETIZATION_PRODUCT_PLANS MPP ON " +
             " MAPICS.RATE_PLAN_ID = MPP.RATE_PLAN_ID WHERE ACCOUNT_NUMBER = (?) UNION ALL " +
@@ -643,6 +644,7 @@ public class CloudMonetizationDAO {
                 resultSet = ps.executeQuery();
                 while (resultSet.next()) {
                     jsonObject = new JSONObject();
+                    jsonObject.put("AM_API_NAME", resultSet.getString("AM_API_NAME"));
                     jsonObject.put("SUBSCRIPTION_NUMBER", resultSet.getString("SUBSCRIPTION_NUMBER"));
                     jsonObject.put("END_DATE", resultSet.getDate("END_DATE"));
                     jsonObject.put("START_DATE", resultSet.getDate("START_DATE"));
@@ -690,8 +692,8 @@ public class CloudMonetizationDAO {
                 }
             }
         } catch (SQLException | CloudMgtException e) {
-            throw new CloudBillingException("Failed to get subscriptions history data for subscription " +
-                                            subscriptionNumber, e);
+            throw new CloudBillingException(
+                    "Failed to get subscriptions history data for subscription " + subscriptionNumber, e);
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
@@ -701,8 +703,8 @@ public class CloudMonetizationDAO {
     /**
      * Get account number for a subscriber
      *
-     * @param username      username of the subscriber
-     * @param tenantDomain  tenant domain
+     * @param username     username of the subscriber
+     * @param tenantDomain tenant domain
      * @return
      * @throws CloudBillingException
      */

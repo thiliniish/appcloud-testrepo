@@ -2,7 +2,6 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/modules/database/dataaccess.jag");
-include("/modules/database/sql.jag");
 
 var log = new Log("modules.tenant.users.add.add.jag");
 var modManager = jagg.module("manager");
