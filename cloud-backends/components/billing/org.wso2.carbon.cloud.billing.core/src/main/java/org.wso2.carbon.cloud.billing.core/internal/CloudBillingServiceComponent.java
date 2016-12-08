@@ -30,6 +30,7 @@ import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotificatio
 import org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService;
 import org.wso2.carbon.cloud.billing.core.service.CloudBillingService;
 import org.wso2.carbon.cloud.billing.core.subscription.tasks.BillingDbUpdateScheduler;
+import org.wso2.carbon.cloud.billing.core.usage.scheduler.UsageUploadScheduler;
 import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.service.TaskService;
@@ -270,17 +271,14 @@ public class CloudBillingServiceComponent {
         BillingConfig configuration = BillingConfigManager.getBillingConfiguration();
         // TODO: 10/8/16 need to check for each cloud and schedule tasks
         if (configuration.getCloudTypeById("api_cloud").isBillingEnabled() && configuration.isMgtModeEnabled()) {
-            // TODO: need to check for usage upload schedule tasks
-//
-//            boolean enableDailyUsageUpload = configuration.getZuoraConfig().getUsageConfig().isEnableUsageUploading();
-//
-//            if (enableDailyUsageUpload) {
-//                UsageUploadScheduler usageScheduler = new UsageUploadScheduler();
-//                String cronExpression = configuration.getZuoraConfig().getUsageConfig().getCron();
-//                usageScheduler.invokeUsageUpload(cronExpression);
-//            } else {
-//                LOGGER.warn("Usage uploader disabled");
-//            }
+            boolean enableDailyUsageUpload = configuration.getCrons().getUsageUpload().isEnableUsageUploading();
+            if (enableDailyUsageUpload) {
+                UsageUploadScheduler usageScheduler = new UsageUploadScheduler();
+                String cronExpression = configuration.getCrons().getUsageUpload().getCron();
+                usageScheduler.invokeUsageUpload(cronExpression);
+            } else {
+                LOGGER.warn("Usage uploader disabled");
+            }
 
             boolean enableSubscriptionCleanUp = configuration.getCrons().getSubscriptionCleanUp().getEnableCleanUp();
             if (enableSubscriptionCleanUp) {
