@@ -394,7 +394,6 @@ public class CloudMgtDAO {
     public void removeTempRegistrationRecord(String uuid) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -421,7 +420,6 @@ public class CloudMgtDAO {
     public void removeTempInviteeRecord(String uuid) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -450,7 +448,6 @@ public class CloudMgtDAO {
     public int removeTempInviteeInvite(String tenantDomain, String email) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         int result = 0;
         try {
@@ -481,7 +478,6 @@ public class CloudMgtDAO {
     public void addTenantUserMapping(String username, String tenantDomain) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -511,7 +507,6 @@ public class CloudMgtDAO {
     public void addOrganizationsDetails(String tenantDomain, String displayName) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -539,7 +534,6 @@ public class CloudMgtDAO {
     public void addsubscriptionDetails(String tenantDomain) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -568,7 +562,6 @@ public class CloudMgtDAO {
     public void addTempRegistrationDetails(String email, String uuid, int isInvitee) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -601,7 +594,6 @@ public class CloudMgtDAO {
     public void updateOrganizationName(String tenantDomain, String displayName) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -632,7 +624,6 @@ public class CloudMgtDAO {
     public int updateTempInviteeRoles(String roles, String tenantDomain, String email) throws CloudMgtException {
 
         Connection conn = null;
-        ResultSet resultSet = null;
         PreparedStatement ps = null;
         int results = 0;
         try {
