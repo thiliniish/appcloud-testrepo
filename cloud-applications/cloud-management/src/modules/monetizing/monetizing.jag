@@ -22,6 +22,7 @@ var responseMessage = "";
 var account;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.CloudBillingService');
 var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService');
+var cloudMonetizationDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudMonetizationDAO();
 var contactUsURL = cloudmgtURL + CLOUD_CONTACT_US_URI;
 var data;
 
@@ -40,9 +41,7 @@ var getSubscribersOfTenant = function () {
                 tmpSubscriber.userName = userName;
                 tmpSubscriber.displayName = tmpUser.displayName;
                 tmpSubscriber.email = tmpUser.email;
-                var queryString = SQL_QUERY_STRINGS.SELECT_SUBSCRIBER_FROM_MONETIZATION_API_CLOUD_SUBSCRIBERS;
-                var parameters = [userName, tenantDomain];
-                var results = modDb.executeQuery(queryString, parameters);
+                var results = JSON.parse(cloudMonetizationDAO.getSubscriberFromAccount(userName, tenantDomain));
                 if (results == null || results == "") {
                     tmpSubscriber.subscriptionType = ACC_FREE;
                     tmpSubscriber.complimentary = false;
@@ -134,13 +133,10 @@ var makeSubscriberAccountTest = function (subscriberString) {
                                 + "tenant: " + tenantDomain + " cancellation successful.");
                             }
                             //Insert in to monetization subscription history table
-                            var insertSubHistoryQuery = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY;
-                            var parameters = [formattedEffectiveDate, accountId, subscriptionId];
-                            modDb.executeQuery(insertSubHistoryQuery, parameters);
+                            cloudMonetizationDAO.insertMonetizationSubscriptionHistory (formattedEffectiveDate,
+                                    accountId, subscriptionId);
                             //Delete subscription from monetization subscription table
-                            var deleteSubscriptionQuery = SQL_QUERY_STRINGS.DELETE_FROM_MONETIZATION_API_CLOUD_SUBSCRIPTIONS;
-                            parameters = [accountId, subscriptionId];
-                            modDb.executeQuery(deleteSubscriptionQuery, parameters);
+                            cloudBillingDAO.deleteMonetizationSubscription(accountId, subscriptionId);
                         } else {
                             throw "Subscription cancellation failed for user: " + username + " of tenant: " + tenantDomain + ".";
                         }
@@ -152,9 +148,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                 }
                 else {
                     //Insert into monetization subscriber table
-                    var insertQueryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIBERS;
-                    var parameters = [username, tenantDomain, true, null, true];
-                    modDb.executeQuery(insertQueryString, parameters);
+                    cloudMonetizationDAO.insertMonetizationSubscriber(username, tenantDomain, true, null, true)
                     //Send notification email
                     sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
                 }
@@ -553,9 +547,7 @@ var isMonetizationEnabled = function (tenantDomain) {
 };
 
 var updateMonetizationSubscriberTable = function (isTest, userName, tenantDomain) {
-    var queryString = SQL_QUERY_STRINGS.UPDATE_MONETIZATION_API_CLOUD_SUBSCRIBERS;
-    var parameters = [isTest, userName, tenantDomain];
-    modDb.executeQuery(queryString, parameters);
+    cloudMonetizationDAO.updateMonetizationSubscribers(isTest, userName, tenantDomain);
 };
 
 var sendSubsriberNotificationEmail = function (endDate, userEmail, tenantDomain, displayName, mailType) {
@@ -894,9 +886,7 @@ var getCurrentPaymentPlan = function () {
 
 // Function for insert monetization enabled status
 var addStatusToMonetizationStatusTable = function (tenantDomain, cloudType) {
-    var queryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_STATUS;
-    var parameters = [tenantDomain, cloudType];
-    var result = modDb.executeQuery(queryString, parameters);
+    var result = cloudMonetizationDAO.insertIntoMonetizationStatus(tenantDomain, cloudType);
     return (null != result);
 };
 
@@ -922,10 +912,7 @@ var sendProductEnableNotificationEmailToUser = function (displayName, effectiveS
 var getNumberOfProductPlansForTenant = function (tenantDomain) {
     var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
     try {
-        var queryString = SQL_QUERY_STRINGS.SELECT_NUMBER_OF_MONETIZATION_PRODUCT_PLANS_FOR_TENANT;
-        var parameters = [tenantDomain, productName];
-        var result = modDb.executeQuery(queryString, parameters);
-        data = result[0]["PRODUCT_PLAN_COUNT"];
+        data = cloudMonetizationDAO.getNumberOfProductPlansForTenant(tenantDomain, productName);
         var message = "Successfully retrieved the number of product plans for the tenant: " + tenantDomain;
         return {
             error: false,
