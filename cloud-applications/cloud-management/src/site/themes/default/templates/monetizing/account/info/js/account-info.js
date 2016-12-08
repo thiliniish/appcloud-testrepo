@@ -222,11 +222,11 @@ function getApisListOfUser() {
                         $("#customer-status").text("Paying Customer");
                     } else {
                         apiList = null;
-                        $("#customer-status").text("Customer dose not have any subscribed APIs");
+                        $("#customer-status").text("Customer does not have any subscribed APIs");
                     }
                 } else {
                     apiList = [{id: 0, text: "No Subscribed APIs"}];
-                    $("#customer-status").text("Customer dose not have any subscribed APIs");
+                    $("#customer-status").text("Customer does not have any subscribed APIs");
                 }
             } else {
                 selectedAccountNumber = null;

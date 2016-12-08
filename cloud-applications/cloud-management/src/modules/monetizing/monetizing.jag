@@ -614,14 +614,12 @@ var getSubscriptions = function (accountNumber) {
 var getAccountIdFromUserName = function (username) {
     try {
         var tenantDomain = modManager.getTenantDomain();
-        var parameters = [username, tenantDomain];
-        var queryString = SQL_QUERY_STRINGS.SELECT_ACCOUNT_ID_FROM_USER;
-        var result = modDb.executeQuery(queryString, parameters);
+        var result = JSON.parse(cloudMonetizationDAO.getAccountNumberForSubscribers(username, tenantDomain));
         var accountNumber = null;
         if (result.length > 0) {
-            accountNumber = result[0].ACCOUNT_NUMBER;
+            accountNumber = result[0]["ACCOUNT_NUMBER"];
         }
-        message = "Successfully retrieved the account id from the username - " + username
+        message = "Successfully retrieved the account id from the username - " + username;
         return {
             error: false,
             message: message,
