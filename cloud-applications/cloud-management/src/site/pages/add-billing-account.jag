@@ -1,9 +1,65 @@
 <%
 include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
 var site = require("/site/conf/site.json");
 var log = new Log();
 (function () {
     var sessionId = session.getId();
+
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
+    var userName =  session.get("LOGGED_IN_USER");
+    var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
+
+    var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3, field_passthrough4;
+    var creditCardCity, creditCardCountry, creditCardAddress1, creditCardAddress2, creditCardState, creditCardPostalCode;
+
+    var eulaData = jagg.module("util").getObjFromFile("/site/conf/eula.xml");
+    var eulaDoc= new XML(eulaData);
+    var eulaContent =  eulaDoc.EULA.text();
+
+
+
+    var responseFrom = request.getParameter("responseFrom");
+    var paymentPlanName = "";
+    var profileFirstName = null;
+    var profileLastName = null;
+    var organizationName = "";
+    var currRatePlan =  session.get("CURRENT_RATE_PLAN");
+    var selectedRatePlanId =  session.get("PRODUCT_PLAN_ID");
+    var ratePlanInfo = jagg.module("billing").getRatePlanInfo("api_cloud",selectedRatePlanId);
+
+    var couponDiscount =  session.get("COUPON_DISCOUNT");
+    var isFromChangePlan = request.getParameter("isFromChangePlan");
+    var accountId = request.getParameter("accountId");
+    var l = Packages.java.util.Locale.getDefault();
+    var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+
+    var previousRatePlanId =  session.get("OLD_PLAN_ID");
+    var ratePlans =  session.get("RATE_PLANS");
+    // verifying a downgrade/upgrade
+    if (responseFrom == IS_FROM_CHANGE_PLAN) {
+        // Check for upgrade
+        var isUpgrade = jagg.module("billing").isPlanUpgrade(ratePlans, previousRatePlanId, selectedRatePlanId);
+        if (isUpgrade) {
+            session.put("IS_DOWNGRADE", false);
+        } else {
+            session.put("IS_DOWNGRADE", true);
+        }
+    }
+
+    if ("Response_From_Submit_Page" == responseFrom) {
+        if("true" == request.getParameter("success")) {
+            var claims = jagg.module("user/profile").getProfile();
+            field_passthrough2 = request.getParameter("field_passthrough2");
+            field_passthrough3 = request.getParameter("field_passthrough3");
+
+            //field_passthrough2 is the serviceId
+            paymentPlanName = jagg.module("billing").getPaymentPlanFromId(field_passthrough2, field_passthrough3);
+        }
+    }
 
     jagg.render({
                     "name":"page/base",
@@ -17,7 +73,17 @@ var log = new Log();
                                     "title":"Billing",
                                     "middle":[
                                         {
-                                            "name":"billing/account/add"
+                                            "name":"billing/account/add",
+                                            "inputs": {
+                                                "isBillingEnabled": isBillingEnabled,
+                                                "eulaContent": eulaContent,
+                                                "cloudmgtURL": cloudmgtURL,
+                                                "responseFrom": responseFrom,
+                                                "claims": claims,
+                                                "paymentPlanName": paymentPlanName,
+                                                "isUpgrade": isUpgrade,
+                                                "ratePlanInfo": ratePlanInfo
+                                            }
                                         }
                                     ]
                                 }
