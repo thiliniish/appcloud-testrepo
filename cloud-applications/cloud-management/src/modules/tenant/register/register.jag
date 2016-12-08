@@ -186,8 +186,6 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
 
 var hasATenant = function (userName) {
     try {
-        var queryString =SQL_QUERY_STRINGS.SELECT_USR_NAME_FROM_TENANT_USER_MAPPING;
-        var parameters =[userName];
         var results = JSON.parse(cloudmgtDAO.isUsernameAvail(userName));
 
         if(String(results) != "true") {
