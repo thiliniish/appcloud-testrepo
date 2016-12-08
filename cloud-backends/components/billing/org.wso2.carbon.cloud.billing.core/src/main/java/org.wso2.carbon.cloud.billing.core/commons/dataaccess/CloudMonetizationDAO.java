@@ -66,9 +66,12 @@ public class CloudMonetizationDAO {
             "SELECT TEST_ACCOUNT,ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE USER_NAME= ? AND " +
             "TENANT_DOMAIN= ?";
 
-    private static final String getNumberOfProductPlansForTenantQuery =
+    private static final String selectNumberOfProductPlansForTenantQuery =
             "SELECT COUNT(*) as PRODUCT_PLAN_COUNT from MONETIZATION_PRODUCT_PLANS WHERE TENANT_DOMAIN = (?) and " +
             "PRODUCT_NAME = (?)";
+
+    private static final String selectAccountNumberForSubscribersQuery =
+            "SELECT ACCOUNT_NUMBER FROM  MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE USER_NAME = ? AND  TENANT_DOMAIN = ?";
 
     /**
      * Insert into Monetization_STATUS table
@@ -105,14 +108,14 @@ public class CloudMonetizationDAO {
     /**
      * Add Monetization subscriber
      *
-     * @param userName      subscribers username
+     * @param username      subscribers username
      * @param tenantDomain  tenant domain subscribed to
      * @param testAccount   test account status
      * @param accountNumber account number
      * @return
      * @throws CloudBillingException
      */
-    public boolean insertMonetizationSubscriber(String userName, String tenantDomain, boolean testAccount,
+    public boolean insertMonetizationSubscriber(String username, String tenantDomain, boolean testAccount,
                                                 String accountNumber) throws CloudBillingException {
 
         Connection conn = null;
@@ -123,7 +126,7 @@ public class CloudMonetizationDAO {
             conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
                 ps = conn.prepareStatement(insertMonetizationSubscriberQuery);
-                ps.setString(1, userName);
+                ps.setString(1, username);
                 ps.setString(2, tenantDomain);
                 ps.setBoolean(3, testAccount);
                 ps.setString(4, accountNumber);
@@ -181,12 +184,12 @@ public class CloudMonetizationDAO {
      * Update test account status for Monetization subscriber
      *
      * @param testAccount  test account status
-     * @param userName     username of subscriber
+     * @param username     username of subscriber
      * @param tenantDomain tenant domain
      * @return
      * @throws CloudBillingException
      */
-    public boolean updateMonetizationSubscribers(boolean testAccount, String userName, String tenantDomain)
+    public boolean updateMonetizationSubscribers(boolean testAccount, String username, String tenantDomain)
             throws CloudBillingException {
 
         Connection conn = null;
@@ -198,7 +201,7 @@ public class CloudMonetizationDAO {
             if (conn != null) {
                 ps = conn.prepareStatement(updateMonetizationSubscribersQuery);
                 ps.setBoolean(1, testAccount);
-                ps.setString(2, userName);
+                ps.setString(2, username);
                 ps.setString(3, tenantDomain);
                 ps.executeUpdate();
                 executionResult = true;
@@ -248,12 +251,12 @@ public class CloudMonetizationDAO {
     /**
      * Get subscriber account information
      *
-     * @param userName     user name
+     * @param username     user name
      * @param tenantDomain tenant domain
      * @return
      * @throws CloudBillingException
      */
-    public JSONArray getSubscriberFromAccount(String userName, String tenantDomain) throws CloudBillingException {
+    public JSONArray getSubscriberFromAccount(String username, String tenantDomain) throws CloudBillingException {
 
         Connection conn = null;
         ResultSet resultSet = null;
@@ -265,7 +268,7 @@ public class CloudMonetizationDAO {
             conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
                 ps = conn.prepareStatement(selectSubscriberFromAccountQuery);
-                ps.setString(1, userName);
+                ps.setString(1, username);
                 ps.setString(2, tenantDomain);
                 resultSet = ps.executeQuery();
                 while (resultSet.next()) {
@@ -288,8 +291,8 @@ public class CloudMonetizationDAO {
     /**
      * Get number of registered Product plans for a Tenant
      *
-     * @param tenantDomain  tenant domain
-     * @param productName   Product names
+     * @param tenantDomain tenant domain
+     * @param productName  Product names
      * @return
      * @throws CloudBillingException
      */
@@ -303,7 +306,7 @@ public class CloudMonetizationDAO {
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
             if (conn != null) {
-                ps = conn.prepareStatement(getNumberOfProductPlansForTenantQuery);
+                ps = conn.prepareStatement(selectNumberOfProductPlansForTenantQuery);
                 ps.setString(1, tenantDomain);
                 ps.setString(2, productName);
                 resultSet = ps.executeQuery();
@@ -319,4 +322,42 @@ public class CloudMonetizationDAO {
         }
         return count;
     }
+
+    /**
+     * Get account number for a subscriber
+     *
+     * @param username      username of the subscriber
+     * @param tenantDomain  tenant domain
+     * @return
+     * @throws CloudBillingException
+     */
+    public JSONArray getAccountNumberForSubscribers(String username, String tenantDomain) throws CloudBillingException {
+        Connection conn = null;
+        ResultSet resultSet = null;
+        PreparedStatement ps = null;
+        String count = null;
+        JSONObject jsonObject;
+        JSONArray resultArray = new JSONArray();
+
+        try {
+            conn = CloudMgtDBConnectionManager.getDbConnection();
+            if (conn != null) {
+                ps = conn.prepareStatement(selectAccountNumberForSubscribersQuery);
+                ps.setString(1, username);
+                ps.setString(2, tenantDomain);
+                resultSet = ps.executeQuery();
+                while (resultSet.next()) {
+                    jsonObject = new JSONObject();
+                    jsonObject.put("ACCOUNT_NUMBER", resultSet.getString("ACCOUNT_NUMBER"));
+                    resultArray.put(jsonObject);
+                }
+            }
+        } catch (SQLException | CloudMgtException e) {
+            throw new CloudBillingException("Failed to Account Number for user : " + username + "" + tenantDomain, e);
+        } finally {
+            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+        }
+        return resultArray;
+    }
+
 }
