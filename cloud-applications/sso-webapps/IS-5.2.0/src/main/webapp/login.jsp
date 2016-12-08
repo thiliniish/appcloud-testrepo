@@ -31,7 +31,7 @@
     private static final String FIDO_AUTHENTICATOR = "FIDOAuthenticator";
     private static final String IWA_AUTHENTICATOR = "IWAAuthenticator";
     private static final String IS_SAAS_APP = "isSaaSApp";
-    private static final String BASIC_AUTHENTICATOR = "BasicAuthenhticator";
+    private static final String BASIC_AUTHENTICATOR = "BasicAuthenticator";
     private static final String BASIC_IDENTITY_CLOUD_AUTHENTICATOR = "BasicIdentityCloudAuthenticator";
     private static final String OPEN_ID_AUTHENTICATOR = "OpenIDAuthenticator";
 %><fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
