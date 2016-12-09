@@ -191,7 +191,7 @@ var hasATenant = function (userName) {
         if(String(results) != "true") {
             return false;
         } else {
-            log.info("Username [ " + results[0]["userName"] + " ] already in the cloud system");
+            log.info("Username [ " + userName + " ] already in the cloud system");
             return true;
         }
     }catch (e){
