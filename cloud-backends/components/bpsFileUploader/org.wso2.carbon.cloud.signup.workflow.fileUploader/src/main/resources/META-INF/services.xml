@@ -1,0 +1,8 @@
+<serviceGroup>
+    <service name="FileUploaderService" scope="transportsession">
+        <transports>
+            <transport>https</transport>
+        </transports>
+        <parameter name="ServiceClass">org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader</parameter>
+    </service>
+</serviceGroup>
