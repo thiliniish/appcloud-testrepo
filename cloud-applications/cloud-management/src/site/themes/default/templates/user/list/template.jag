@@ -50,7 +50,7 @@ if (user != null) {
     var allRolesForInvitations = [];
     var  finalUsers=[];//globally declared
     var finalInvitations = [];
-    
+
  </script>
 
 <div class="container content-starter">
@@ -209,5 +209,6 @@ if (user != null) {
 
 
 <input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/user/list/js/user-list.js'))%>"></script>
 <% }
 }); %>
