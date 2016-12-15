@@ -67,7 +67,6 @@ public class CloudMgtDAO {
     private static final String updateRetryCountFromTempInviteeQuery = "UPDATE TEMP_INVITEE SET " +
                                                                        "retryCount=(?) WHERE email=(?)";
 
-
     /**
      * This method returns the emails for the self-registered and the invited users from the cloud_mgt database
      *
@@ -96,6 +95,9 @@ public class CloudMgtDAO {
                 while (resultSet.next()) {
                     email = resultSet.getString("email");
                 }
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to retrieve email for the uuid " + uuid, e);
@@ -132,6 +134,9 @@ public class CloudMgtDAO {
                 while (resultSet.next()) {
                     roles = resultSet.getString("roles");
                 }
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -178,6 +183,9 @@ public class CloudMgtDAO {
                 ps.setInt(8, isSelfSigned);
                 ps.executeUpdate();
                 executionResult = true;
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -223,6 +231,9 @@ public class CloudMgtDAO {
                 resultObj = new JSONObject();
                 resultObj.put("roles", roles);
                 resultObj.put("uuid", uuid);
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -246,8 +257,8 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            {"SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-             "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"},
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
             justification = "Since a column name is passed as a parameter")
     public JSONObject selectCloudSubscription(String type, String tenantDomain, String email)
             throws CloudMgtException {
@@ -275,6 +286,9 @@ public class CloudMgtDAO {
                     resultObj = new JSONObject();
                     resultObj.put(type, subscriptionStatus);
                 }
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -298,8 +312,8 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            {"SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-             "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"},
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
             justification = "Since a column name is passed as a parameter")
     public void insertCloudSubscription(String subscriptionType, String tenantDomain, int subscriptionValue,
                                         String email) throws CloudMgtException {
@@ -317,6 +331,9 @@ public class CloudMgtDAO {
                 ps.setInt(2, subscriptionValue);
                 ps.setString(3, email);
                 ps.executeUpdate();
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -339,8 +356,8 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            {"SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-             "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"},
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
             justification = "Since a column name is passed as a parameter")
     public void updateCloudSubscription(String subscriptionType, int subscriptionValue,
                                         String tenantDomain, String email) throws CloudMgtException {
@@ -357,6 +374,9 @@ public class CloudMgtDAO {
                 ps.setString(2, tenantDomain);
                 ps.setString(3, email);
                 ps.executeUpdate();
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -450,7 +470,7 @@ public class CloudMgtDAO {
                                     "Failed to reset the retry count for the temp registration for the user " +
                                     "email " + email, e);
                         } finally {
-                            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
+                            ps.close();
                         }
                     } else {
                         try {
@@ -469,6 +489,9 @@ public class CloudMgtDAO {
                     }
                     isRetryPermitted = true;
                 }
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -483,6 +506,7 @@ public class CloudMgtDAO {
 
     /**
      * Updates the retry count for the particular user in the TEMP invitee/registration tables
+     *
      * @param currentRetryCount
      * @param email
      * @param isInvitee
@@ -508,6 +532,9 @@ public class CloudMgtDAO {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("updating the retry count to " + newRetryCount + " for the email" + email);
                 }
+            } else {
+                throw new CloudMgtException(
+                        "An error occurred while obtaining a database connection from the cloudmgt db");
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
