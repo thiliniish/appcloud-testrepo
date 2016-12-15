@@ -43,8 +43,7 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
             session.put('isStoreInvitee', false);
         }
         var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
-        var cloudmgtDAO;
-        cloudmgtDAO = new CloudMgtDAO();
+        var cloudmgtDAO = new CloudMgtDAO();
 
         var email = cloudmgtDAO.getEmailForUUID(confirm,isInvitedUser);
         email = String(email);
@@ -419,8 +418,7 @@ var storeTempRegistration = function (email, uuid, isInvitee) {
 var sendInvite = function (email, token) {
     try {
         var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
-        var cloudmgtDAO;
-        cloudmgtDAO = new CloudMgtDAO();
+        var cloudmgtDAO = new CloudMgtDAO();
         var isInvitePermitted = cloudmgtDAO.isInvitePermitted(email, false);
         if (isInvitePermitted) {
             log.info("Sending the sign up email for user [ " + email + " ]");
@@ -442,7 +440,7 @@ var sendInvite = function (email, token) {
 
             //adding signed up user to MailCampaign
             var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
-            if (isEnabled == true) {
+            if (isEnabled) {
                 setTimeout(function () {
                     var modEvents = jagg.module("events");
                     var URL = cloudConfig.MailCampaignAddUserApi.cloudSignup;
@@ -487,14 +485,19 @@ var sendInvite = function (email, token) {
         }
     } catch(e) {
         log.error("An error occurred while retrieving the retry count for the email " + email);
+        return {
+            error: true,
+            status: 500,
+            message: "An error occurred while retrieving the retry count for the email " + email,
+            data: email
+        };
     }
 };
 
 var reInvite = function (email) {
     try {
         var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
-        var cloudmgtDAO;
-        cloudmgtDAO = new CloudMgtDAO();
+        var cloudmgtDAO = new CloudMgtDAO();
         var isInvitePermitted = cloudmgtDAO.isInvitePermitted(email, false);
         if (isInvitePermitted) {
             try {
@@ -540,6 +543,12 @@ var reInvite = function (email) {
         }
     } catch(e) {
         log.error("An error occurred while retrieving the retry count for the email " + email);
+        return {
+            error: true,
+            status: 500,
+            message: "An error occurred while retrieving the retry count for the email " + email,
+            data: email
+        };
     }
 };
 
