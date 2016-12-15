@@ -50,15 +50,17 @@ public class CloudMgtDBConnectionManager {
      * @throws CloudMgtException if it fails to get the db connection
      */
     public static Connection getDbConnection() throws CloudMgtException {
+        Connection conn = null;
         if (dataSource == null) {
             initializeDatasource();
         }
         try {
-            return dataSource.getConnection();
+            conn = dataSource.getConnection();
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Error when getting a database connection object from the Cloud Mgt data source.", e);
         }
+        return conn;
     }
 
     /**

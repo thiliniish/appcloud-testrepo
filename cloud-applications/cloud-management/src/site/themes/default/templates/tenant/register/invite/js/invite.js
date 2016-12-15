@@ -96,14 +96,23 @@ function doSubmit() {
                                     $(".content-section-wrapper").hide();
                                     $("#success-message").show();
                                 } else {
-                                    jagg.message({
-                                        content: 'Error Sending the Registration Email',
-                                        type: 'error',
-                                        cbk: function () {
-                                            window.location.href = "index.jag";
-                                        }
-                                    });
-                                    enable();
+                                    if(result.status = 405) {
+                                        jagg.message({content: result.message,
+                                                      type: 'error',
+                                                      cbk: function () {
+                                                          window.location.href = "index.jag";
+                                                      }
+                                                     });
+                                        enable();
+                                    } else {
+                                        jagg.message({content: 'Error Sending the Registration Email',
+                                                      type: 'error',
+                                                      cbk: function () {
+                                                          window.location.href = "index.jag";
+                                                      }
+                                                     });
+                                        enable();
+                                    }
                                 }
                             });
                     } else {
@@ -153,7 +162,11 @@ function resendInvitationEmail() {
             if (!result.error) {
                 $('#resend-mail').text("We have re-sent your email. Please check your inbox.");
             } else {
-                $('#resend-mail').text("Error re-sending email. Please Please contact support.");
+                if(result.status = 405) {
+                    $('#resend-mail').text(result.message);
+                } else {
+                    $('#resend-mail').text("Error re-sending email. Please Please contact support.");
+                }
             }
         });
     $('#resent-success').show();
