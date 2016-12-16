@@ -240,7 +240,7 @@ var getAdminCookieBySAMLToken = function (serverUrl) {
         var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
         if (session != null && session.getId() != null) {
             var token = ssoRelyingParty.getSAMLToken(session.getId());
-            if(token != null) {
+            if (token != null) {
                 var xhr = new XMLHttpRequest();
                 var endPoint = serverUrl + "SAML2SSOAuthenticationService";
                 xhr.open("POST", endPoint);
@@ -249,7 +249,8 @@ var getAdminCookieBySAMLToken = function (serverUrl) {
                 xhr.setRequestHeader('Content-Type', 'application/soap+xml');
                 xhr.send(payload);
                 var responseTxt = xhr.responseText;
-                if (responseTxt.indexOf("false") === -1 && responseTxt.indexOf("faultstring") === -1) {
+                if (responseTxt != null && responseTxt.indexOf("false") === -1
+                        && responseTxt.indexOf("faultstring") === -1) {
                     cookie = xhr.getResponseHeader("Set-Cookie");
                     result = {
                         error: false,
@@ -264,7 +265,8 @@ var getAdminCookieBySAMLToken = function (serverUrl) {
                         error: true,
                         message: errorMessage,
                         cookie: cookie,
-                        statusCode: 400
+                        invalidCookie: true,
+                        statusCode: 500
                     }
                 }
             } else {

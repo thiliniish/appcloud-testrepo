@@ -104,12 +104,12 @@ include("/jagg/constants.jag");
                                 response: "unauthenticatedSession",
                                 statusCode: 401
                             }
-                        } else if (cookieResponse.statusCode == 400) {
+                        } else if (cookieResponse.invalidCookie != null && cookieResponse.invalidCookie) {
                             result = {
                                 error: true,
                                 message: cookieResponse.message,
                                 response: "invalidCookie",
-                                statusCode: 400
+                                statusCode: 500
                             }
                         } else {
                             result = {
