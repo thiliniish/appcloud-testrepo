@@ -171,22 +171,17 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(insertIntoTempInviteeQuery);
-                ps.setString(1, tenantDomain);
-                ps.setString(2, email);
-                ps.setString(3, uuid);
-                ps.setString(4, roles);
-                ps.setInt(5, isSelfSigned);
-                ps.setString(6, uuid);
-                ps.setString(7, roles);
-                ps.setInt(8, isSelfSigned);
-                ps.executeUpdate();
-                executionResult = true;
-            } else {
-                throw new CloudMgtException(
-                        "An error occurred while obtaining a database connection from the cloudmgt db");
-            }
+            ps = conn.prepareStatement(insertIntoTempInviteeQuery);
+            ps.setString(1, tenantDomain);
+            ps.setString(2, email);
+            ps.setString(3, uuid);
+            ps.setString(4, roles);
+            ps.setInt(5, isSelfSigned);
+            ps.setString(6, uuid);
+            ps.setString(7, roles);
+            ps.setInt(8, isSelfSigned);
+            ps.executeUpdate();
+            executionResult = true;
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Failed to insert the temp invitee details for the " + email + " of the tenant domain " +
@@ -219,22 +214,17 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectUUIDAndRolesOfTempInviteeQuery);
-                ps.setString(1, email);
-                ps.setString(2, tenantDomain);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    roles = resultSet.getString("roles");
-                    uuid = resultSet.getString("uuid");
-                }
-                resultObj = new JSONObject();
-                resultObj.put("roles", roles);
-                resultObj.put("uuid", uuid);
-            } else {
-                throw new CloudMgtException(
-                        "An error occurred while obtaining a database connection from the cloudmgt db");
+            ps = conn.prepareStatement(selectUUIDAndRolesOfTempInviteeQuery);
+            ps.setString(1, email);
+            ps.setString(2, tenantDomain);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                roles = resultSet.getString("roles");
+                uuid = resultSet.getString("uuid");
             }
+            resultObj = new JSONObject();
+            resultObj.put("roles", roles);
+            resultObj.put("uuid", uuid);
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Failed to retrieve the roles and uuid for the user " + email + " of the tenant domain " +
@@ -272,23 +262,18 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                selectRightwaveCloudSubscriptionQuery = selectRightwaveCloudSubscriptionQuery.replace
-                        (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
-                ps = conn.prepareStatement(selectRightwaveCloudSubscriptionQuery);
-                ps.setString(1, tenantDomain);
-                ps.setString(2, email);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    subscriptionStatus = resultSet.getInt(type);
-                }
-                if (subscriptionStatus == 0 || subscriptionStatus == 1) {
-                    resultObj = new JSONObject();
-                    resultObj.put(type, subscriptionStatus);
-                }
-            } else {
-                throw new CloudMgtException(
-                        "An error occurred while obtaining a database connection from the cloudmgt db");
+            selectRightwaveCloudSubscriptionQuery = selectRightwaveCloudSubscriptionQuery.replace
+                    (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
+            ps = conn.prepareStatement(selectRightwaveCloudSubscriptionQuery);
+            ps.setString(1, tenantDomain);
+            ps.setString(2, email);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                subscriptionStatus = resultSet.getInt(type);
+            }
+            if (subscriptionStatus == 0 || subscriptionStatus == 1) {
+                resultObj = new JSONObject();
+                resultObj.put(type, subscriptionStatus);
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -323,18 +308,13 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                insertRightwaveCloudSubscriptionQuery = insertRightwaveCloudSubscriptionQuery.replace
-                        (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
-                ps = conn.prepareStatement(insertRightwaveCloudSubscriptionQuery);
-                ps.setString(1, tenantDomain);
-                ps.setInt(2, subscriptionValue);
-                ps.setString(3, email);
-                ps.executeUpdate();
-            } else {
-                throw new CloudMgtException(
-                        "An error occurred while obtaining a database connection from the cloudmgt db");
-            }
+            insertRightwaveCloudSubscriptionQuery = insertRightwaveCloudSubscriptionQuery.replace
+                    (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+            ps = conn.prepareStatement(insertRightwaveCloudSubscriptionQuery);
+            ps.setString(1, tenantDomain);
+            ps.setInt(2, subscriptionValue);
+            ps.setString(3, email);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Failed to insert the subscription for the user " + email + " of the tenant domain " +
@@ -366,18 +346,13 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                updateRightwaveCloudSubscriptionQuery = updateRightwaveCloudSubscriptionQuery.replace
-                        (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
-                ps = conn.prepareStatement(updateRightwaveCloudSubscriptionQuery);
-                ps.setInt(1, subscriptionValue);
-                ps.setString(2, tenantDomain);
-                ps.setString(3, email);
-                ps.executeUpdate();
-            } else {
-                throw new CloudMgtException(
-                        "An error occurred while obtaining a database connection from the cloudmgt db");
-            }
+            updateRightwaveCloudSubscriptionQuery = updateRightwaveCloudSubscriptionQuery.replace
+                    (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+            ps = conn.prepareStatement(updateRightwaveCloudSubscriptionQuery);
+            ps.setInt(1, subscriptionValue);
+            ps.setString(2, tenantDomain);
+            ps.setString(3, email);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Failed to update the subscription for the user " + email + " of the tenant domain " +
@@ -404,94 +379,92 @@ public class CloudMgtDAO {
         ResultSet resultSet = null;
         PreparedStatement ps = null;
         boolean isRetryPermitted = false;
-        try {
+        CloudMgtUtils cloudMgtUtils = new CloudMgtUtils();
+        int maxReInviteCount;
+            try {
+            maxReInviteCount = cloudMgtUtils.getCloudInviteeRetryCount();
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                if (isInvitee) {
-                    ps = conn.prepareStatement(selectRetryCountFromTempInviteeQuery);
-                } else {
-                    ps = conn.prepareStatement(selectRetryCountFromTempRegistrationQuery);
+            if (isInvitee) {
+                ps = conn.prepareStatement(selectRetryCountFromTempInviteeQuery);
+            } else {
+                ps = conn.prepareStatement(selectRetryCountFromTempRegistrationQuery);
+            }
+            ps.setString(1, email);
+            resultSet = ps.executeQuery();
+            if (resultSet.next()) {
+                Timestamp dateTime = resultSet.getTimestamp("dateTime");
+                int retryCount = resultSet.getInt("retryCount");
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("The retry count for the timestamp " + dateTime.toString() + " is " + retryCount);
                 }
-                ps.setString(1, email);
-                resultSet = ps.executeQuery();
-                if (resultSet.next()) {
-                    Timestamp dateTime = resultSet.getTimestamp("dateTime");
-                    int retryCount = resultSet.getInt("retryCount");
+                Date newdateTime = new java.util.Date();
+                Date sqlDate = (Date) new Date(dateTime.getTime());
+
+                //Calculating the time difference(milliseconds) between the current time and the one in the table
+                long diff = newdateTime.getTime() - sqlDate.getTime();
+
+                //Calculating the time difference in hours
+                long diffHours = diff / (60 * 60 * 1000);
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("The time difference for the current date " + newdateTime.toString()
+                              + " and the date of the registration " + sqlDate.toString()
+                              + " is " + diffHours + " hours");
+                }
+                if (diffHours < 1 && retryCount >= maxReInviteCount) {
 
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("The retry count for the timestamp " + dateTime.toString() + " is " + retryCount);
+                        LOG.debug("The email " + email + " has exceeded the maximum retry count for this hour. " +
+                                  "Number of hours:" + diffHours + ". Retry Count: " + retryCount);
                     }
-                    Date newdateTime = new java.util.Date();
-                    Date sqlDate = (Date) new Date(dateTime.getTime());
-
-                    //Calculating the time difference(milliseconds) between the current time and the one in the table
-                    long diff = newdateTime.getTime() - sqlDate.getTime();
-
-                    //Calculating the time difference in hours
-                    long diffHours = diff / (60 * 60 * 1000);
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("The time difference for the current date " + newdateTime.toString()
-                                  + " and the date of the registration " + sqlDate.toString()
-                                  + " is " + diffHours + " hours");
+                    try {
+                        updateRetryCount(retryCount, email, isInvitee);
+                    } catch (CloudMgtException e) {
+                        throw new CloudMgtException(
+                                "Failed to update the retry count for the the user " +
+                                "email " + email, e);
                     }
-                    if (diffHours < 1 && retryCount >= CloudMgtConstants.REINVITE_THRESHOLD_COUNT) {
+                    isRetryPermitted = false;
+                } else if (diffHours >= CloudMgtConstants.REINVITE_TIME_LIMIT_IN_HOURS) {
+                    try {
+                        //Update the table and reset the request count
+                        if (isInvitee) {
+                            ps = conn.prepareStatement(resetRetryCountFromTempInviteeQuery);
+                        } else {
+                            ps = conn.prepareStatement(resetRetryCountFromTempRegistrationQuery);
+                        }
+                        ps.setString(1, email);
+                        ps.executeUpdate();
 
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("The email " + email + " has exceeded the maximum retry count for this hour. " +
-                                      "Number of hours:" + diffHours + ". Retry Count: " + retryCount);
+                            LOG.debug("Resetting the dateTime column for the Temp Registration of the user " + email
+                                      + " to " + newdateTime);
                         }
-                        try {
-                            updateRetryCount(retryCount, email, isInvitee);
-                        } catch (CloudMgtException e) {
-                            throw new CloudMgtException(
-                                    "Failed to update the retry count for the the user " +
-                                    "email " + email, e);
-                        }
-                        isRetryPermitted = false;
-                    } else if (diffHours >= CloudMgtConstants.REINVITE_TIME_LIMIT_IN_HOURS) {
-                        try {
-                            //Update the table and reset the request count
-                            if (isInvitee) {
-                                ps = conn.prepareStatement(resetRetryCountFromTempInviteeQuery);
-                            } else {
-                                ps = conn.prepareStatement(resetRetryCountFromTempRegistrationQuery);
-                            }
-                            ps.setString(1, email);
-                            ps.executeUpdate();
-
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Resetting the dateTime column for the Temp Registration of the user " + email
-                                          + " to " + newdateTime);
-                            }
-                            isRetryPermitted = true;
-                        } catch (SQLException e) {
-                            throw new CloudMgtException(
-                                    "Failed to reset the retry count for the temp registration for the user " +
-                                    "email " + email, e);
-                        } finally {
-                            ps.close();
-                        }
-                    } else {
-                        try {
-                            updateRetryCount(retryCount, email, isInvitee);
-                            isRetryPermitted = true;
-                        } catch (CloudMgtException e) {
-                            throw new CloudMgtException(
-                                    "Failed to update the retry count for the the user " +
-                                    "email " + email, e);
-                        }
+                        isRetryPermitted = true;
+                    } catch (SQLException e) {
+                        throw new CloudMgtException(
+                                "Failed to reset the retry count for the temp registration for the user " +
+                                "email " + email, e);
+                    } finally {
+                        ps.close();
                     }
                 } else {
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("An email entry was not found in the database for the email " + email);
+                    try {
+                        updateRetryCount(retryCount, email, isInvitee);
+                        isRetryPermitted = true;
+                    } catch (CloudMgtException e) {
+                        throw new CloudMgtException(
+                                "Failed to update the retry count for the the user " +
+                                "email " + email, e);
                     }
-                    isRetryPermitted = true;
                 }
             } else {
-                throw new CloudMgtException(
-                        "An error occurred while obtaining a database connection from the cloudmgt db");
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("An email entry was not found in the database for the email " + email);
+                }
+                isRetryPermitted = true;
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
@@ -518,23 +491,18 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                int newRetryCount = currentRetryCount + 1;
-                if (isInvitee) {
-                    ps = conn.prepareStatement(updateRetryCountFromTempInviteeQuery);
-                } else {
-                    ps = conn.prepareStatement(updateRetryCountFromTempRegistrationQuery);
-                }
-                ps.setInt(1, newRetryCount);
-                ps.setString(2, email);
-                ps.executeUpdate();
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("updating the retry count to " + newRetryCount + " for the email" + email);
-                }
+            int newRetryCount = currentRetryCount + 1;
+            if (isInvitee) {
+                ps = conn.prepareStatement(updateRetryCountFromTempInviteeQuery);
             } else {
-                throw new CloudMgtException(
-                        "An error occurred while obtaining a database connection from the cloudmgt db");
+                ps = conn.prepareStatement(updateRetryCountFromTempRegistrationQuery);
+            }
+            ps.setInt(1, newRetryCount);
+            ps.setString(2, email);
+            ps.executeUpdate();
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("updating the retry count to " + newRetryCount + " for the email" + email);
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
