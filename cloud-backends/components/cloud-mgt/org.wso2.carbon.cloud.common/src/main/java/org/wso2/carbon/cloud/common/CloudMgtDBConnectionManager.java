@@ -60,7 +60,13 @@ public class CloudMgtDBConnectionManager {
             throw new CloudMgtException(
                     "Error when getting a database connection object from the Cloud Mgt data source.", e);
         }
-        return conn;
+
+        if (conn != null) {
+            return conn;
+        } else {
+            throw new CloudMgtException(
+                    "An error when getting a database connection object from the Cloud Mgt data source");
+        }
     }
 
     /**
