@@ -16,7 +16,7 @@ var createAccount = function (serviceId){
         session.put("PRODUCT_PLAN_ID", productRatePlanId);
     } else {
         var message = "Error while creating account for rate plan id " + productRatePlanId;
-        log.info(message);
+        log.error(message);
         response.status = 400;
         print(message);
         return;
