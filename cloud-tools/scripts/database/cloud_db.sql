@@ -10,6 +10,7 @@ CREATE TABLE TEMP_REGISTRATION (
   uuid      VARCHAR(500) NOT NULL,
   isInvitee TINYINT(1),
   dateTime DATETIME NOT NULL,
+  retryCount int NOT NULL DEFAULT '0',
   PRIMARY KEY (email)
 );
 
