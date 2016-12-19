@@ -77,6 +77,8 @@
                     Finance<br/>
                     Authorized Signatory<br/> WS02, Inc.</p>
                 <br/><br/><br/><br/><br/>
+                <p style="padding: 0px 20px 0px 0px; float: center;font-size: 10px; line-height: 100%">
+                This is a computer generated document. No signature is required.</p>
                  <p> <br/><br/></p>
             </div>
             <br/>
