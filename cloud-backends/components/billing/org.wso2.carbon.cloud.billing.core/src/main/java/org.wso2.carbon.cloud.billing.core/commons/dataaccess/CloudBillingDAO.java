@@ -570,8 +570,7 @@ public class CloudBillingDAO {
                 executionResult = true;
             }
         } catch (SQLException | CloudMgtException | ParseException e) {
-            throw new CloudBillingException("Failed to update end date for the account number : " + accountNumber + "" +
-                                            " " +
+            throw new CloudBillingException("Failed to update end date for the account number : " + accountNumber +
                                             "to : " + newEndDate, e);
         } finally {
             CloudMgtDBConnectionManager.closePSAndConnection(ps, conn);
