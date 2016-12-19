@@ -31,6 +31,7 @@
         <osgi.core.version>4.1.0</osgi.core.version>
         <osgi.service.component.version>1.2.0</osgi.service.component.version>
         <javax.activation.version>1.1</javax.activation.version>
+        <carbon.logging.version>4.2.0</carbon.logging.version>
         <!-- checkstyle skipped since package names had to be changed
         which would also need refactoring of the cloudmgt app -->
         <checkstyle.skip>true</checkstyle.skip>
@@ -142,7 +143,7 @@
     <dependency>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>org.wso2.carbon.logging</artifactId>
-        <version>${commons.logging.version}</version>
+        <version>${carbon.logging.version}</version>
         <scope>provided</scope>
     </dependency>
     <dependency>
