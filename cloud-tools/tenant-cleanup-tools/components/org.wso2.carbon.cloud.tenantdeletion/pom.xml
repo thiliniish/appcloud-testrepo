@@ -33,6 +33,35 @@
     <name>Cloud - Tenant Deletion Component</name>
     <description>Automated components and bundle for tenant deletion automation</description>
 
+    <profiles>
+   	<profile>
+      		<id>is</id>
+      		<properties> 
+         		<wso2carbon.version>4.4.7</wso2carbon.version>        
+                        <um.ws.api.groupId>org.wso2.carbon.identity</um.ws.api.groupId>
+                        <um.ws.api.version>5.1.1</um.ws.api.version>
+                        <imp.pkg.version.carbon.apimgt>6.0.4</imp.pkg.version.carbon.apimgt>
+      		</properties>
+   	</profile>
+        <profile>
+                <id>das</id>
+                <properties>
+                        <wso2carbon.version>4.4.9</wso2carbon.version>
+                        <um.ws.api.groupId>org.wso2.carbon.identity</um.ws.api.groupId>
+                        <um.ws.api.version>5.1.1</um.ws.api.version>
+                        <imp.pkg.version.carbon.apimgt>6.0.4</imp.pkg.version.carbon.apimgt>
+                </properties>
+        </profile>
+        <profile>
+                <id>as</id>
+                <properties>
+                        <um.ws.api.groupId>org.wso2.carbon</um.ws.api.groupId>
+                        <um.ws.api.version>4.2.0</um.ws.api.version>
+                        <imp.pkg.version.carbon.apimgt>[1.2.0, 5.0.4)</imp.pkg.version.carbon.apimgt>
+                </properties>
+        </profile>
+   </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -78,6 +107,16 @@
             <groupId>org.wso2.carbon.apimgt</groupId>
             <artifactId>org.wso2.carbon.apimgt.impl</artifactId>
             <version>${deletion.org.wso2.carbon.apimgt.api.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.ws.commons.axiom</groupId>
+                    <artifactId>axiom-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.ws.commons.axiom</groupId>
+                    <artifactId>axiom-impl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.apimgt</groupId>
@@ -100,9 +139,9 @@
             <version>${wso2carbon.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>${um.ws.api.groupId}</groupId>
             <artifactId>org.wso2.carbon.um.ws.api</artifactId>
-            <version>${wso2carbon.version}</version>
+            <version>${um.ws.api.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -111,9 +150,10 @@
         </dependency>
     </dependencies>
     <properties>
-        <deletion.org.wso2.carbon.apimgt.api.version>5.0.3</deletion.org.wso2.carbon.apimgt.api.version>
+        <deletion.org.wso2.carbon.apimgt.api.version>6.0.4</deletion.org.wso2.carbon.apimgt.api.version>
         <deletion.javax.mail.version>1.4.7</deletion.javax.mail.version>
-        <imp.pkg.version.carbon.apimgt>[1.2.0, 5.0.4)</imp.pkg.version.carbon.apimgt>
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
     </properties>
     <build>
         <plugins>
@@ -170,10 +210,7 @@
                             resolution:=optional,
                             org.wso2.carbon.apimgt.*; version="${imp.pkg.version.carbon.apimgt}";resolution:=optional,
                             org.wso2.carbon.governance.api.*; resolution:=optional,
-                            org.wso2.carbon.bpel.*; resolution:=optional,
-                            org.json.simple.*,
                             javax.xml.xpath,
-                            javax.xml.parsers,
                             javax.xml.namespace,
                             javax.sql,
                             javax.naming,
