@@ -43,6 +43,9 @@ public class CloudMgtConstants {
 
     //Cloud datasource properties
     public static final String CLOUD_DB_PROPERTY = "CloudDatasourceName";
+    public static final String CLOUD_INVITEE_RETRY_COUNT_PROPERTY = "CloudInviteeRetryCount";
     public static final String SUBSCRIPTION_TYPE_PLACEHOLDER = "$SUBSCRIPTIONTYPE";
+
+    public static final int REINVITE_TIME_LIMIT_IN_HOURS = 1;
 }
 

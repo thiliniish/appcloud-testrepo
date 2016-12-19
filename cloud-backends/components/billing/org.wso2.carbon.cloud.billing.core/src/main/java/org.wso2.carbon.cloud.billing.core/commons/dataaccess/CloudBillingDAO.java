@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.simple.JSONObject;
+import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.common.CloudMgtDBConnectionManager;
 import org.wso2.carbon.cloud.common.CloudMgtException;
@@ -156,7 +157,7 @@ public class CloudBillingDAO {
             }
         } catch (SQLException | CloudMgtException e) {
             throw new CloudBillingException(
-                    "Failed to retrieve status from BILLING_STATUS for tenant : " + tenantDomain, e);
+                    "Failed to retrieve status information from BILLING_STATUS for tenant : " + tenantDomain, e);
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
@@ -191,7 +192,7 @@ public class CloudBillingDAO {
             }
         } catch (SQLException | CloudMgtException e) {
             throw new CloudBillingException(
-                    "Failed to retrieve status from BILLING_STATUS for tenant : " + tenantDomain, e);
+                    "Failed to retrieve Account Number from Billing Account for tenant : " + tenantDomain, e);
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
@@ -404,7 +405,7 @@ public class CloudBillingDAO {
         String email = null;
         boolean executionResult = false;
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat format = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -446,7 +447,7 @@ public class CloudBillingDAO {
         PreparedStatement ps = null;
         boolean executionResult = false;
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat format = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -488,7 +489,7 @@ public class CloudBillingDAO {
         PreparedStatement ps = null;
         boolean executionResult = false;
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat format = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -555,7 +556,7 @@ public class CloudBillingDAO {
         PreparedStatement ps = null;
         boolean executionResult = false;
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat format = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -599,7 +600,7 @@ public class CloudBillingDAO {
         PreparedStatement ps = null;
         boolean executionResult = false;
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat format = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
@@ -642,7 +643,7 @@ public class CloudBillingDAO {
         PreparedStatement ps = null;
         boolean executionResult = false;
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateFormat format = new SimpleDateFormat(BillingConstants.DATE_FORMAT);
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();

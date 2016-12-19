@@ -143,7 +143,7 @@
                 function (result) {
                         document.getElementById("spinner").style.display = 'none';
                         couponDiscount = result;
-                        if(result <= 0) {
+                        if (result <= 0) {
                             document.getElementById('couponValidator').innerHTML = "You have provided an invalid coupon.";
                         } else {
                             document.getElementById('couponValidator').innerHTML = " ";

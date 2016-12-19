@@ -495,7 +495,6 @@ public class CloudMonetizationDAO {
                 resultSet = ps.executeQuery();
                 while (resultSet.next()) {
                     count = Integer.parseInt(resultSet.getString("Count"));
-
                 }
             }
         } catch (SQLException | CloudMgtException e) {
