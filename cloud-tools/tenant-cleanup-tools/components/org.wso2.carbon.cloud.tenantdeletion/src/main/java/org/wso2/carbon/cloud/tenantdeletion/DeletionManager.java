@@ -166,7 +166,7 @@ public class DeletionManager {
         try {
             Class<?> aClass = Class.forName(deleteObject.getClassName());
             Object obj = aClass.newInstance();
-            Method method = aClass.getDeclaredMethod(DeletionConstants.DELETE, String.class);
+            Method method = aClass.getDeclaredMethod(DeletionConstants.DELETE, int.class);
             DataAccessManager dataAccessManager = DataAccessManager.getInstance();
             deletionLimit = dataAccessManager.getDeletionLimit();
             method.invoke(obj, deletionLimit);
