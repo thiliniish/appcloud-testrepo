@@ -28,7 +28,6 @@
     <packaging>pom</packaging>
     <name>Cloud Backend Components</name>
     <modules>
-        <module>cloud-mgt/org.wso2.carbon.cloud.common</module>
         <module>billing/org.wso2.carbon.cloud.billing.core</module>
         <module>billing/org.wso2.carbon.cloud.billing.vendor</module>
         <module>billing/org.wso2.carbon.cloud.billing.apihandler</module>
@@ -36,6 +35,7 @@
         <module>user-store/org.wso2.carbon.cloud.userstore</module>
         <module>user-manager/org.wso2.carbon.cloud.user.manager</module>
         <module>cloud-mgt/org.wso2.carbon.cloud.users</module>
+        <module>cloud-mgt/org.wso2.carbon.cloud.common</module>
         <module>gitblit-plugin/org.wso2.carbon.cloud.gitblit.plugin</module>
         <module>jenkins-plugin/org.wso2.carbon.cloud.jenkins.authentication.plugin</module>
         <module>listeners/org.wso2.carbon.cloud.tenant.creation.listener</module>
