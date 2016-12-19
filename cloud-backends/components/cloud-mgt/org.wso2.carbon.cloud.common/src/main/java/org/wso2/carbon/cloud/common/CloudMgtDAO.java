@@ -445,7 +445,7 @@ public class CloudMgtDAO {
 
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("The email " + email + " has exceeded the maximum retry count for this hour. " +
-                                  "Number of hours:" + diffHours + ". Retry Count: " + retryCount);
+                                  "Difference of hours:" + diffHours + ". Retry Count: " + retryCount);
                     }
                     try {
                         updateRetryCount(retryCount, email, isInvitee);
