@@ -10,6 +10,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
+    <version>5.0.7</version>
     <packaging>war</packaging>
     <name>Cloud - Identity 5.1.0 Single Sign On Application</name>
     <description>Identity Application Authentication Endpoint (SSO Web app)</description>
