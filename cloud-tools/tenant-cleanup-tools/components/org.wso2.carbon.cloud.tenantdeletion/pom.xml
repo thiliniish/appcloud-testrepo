@@ -138,16 +138,6 @@
             <artifactId>org.wso2.carbon.core.services</artifactId>
             <version>${wso2carbon.version}</version>
         </dependency>
-        <!--<dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.um.ws.api</artifactId>
-            <version>${wso2carbon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.um.ws.api</artifactId>
-            <version>5.1.1</version>
-        </dependency>-->
         <dependency>
             <groupId>${um.ws.api.groupId}</groupId>
             <artifactId>org.wso2.carbon.um.ws.api</artifactId>
@@ -162,7 +152,6 @@
     <properties>
         <deletion.org.wso2.carbon.apimgt.api.version>6.0.4</deletion.org.wso2.carbon.apimgt.api.version>
         <deletion.javax.mail.version>1.4.7</deletion.javax.mail.version>
-        <!--<imp.pkg.version.carbon.apimgt>[1.2.0, 5.0.4)</imp.pkg.version.carbon.apimgt>-->
         <checkstyle.skip>true</checkstyle.skip>
         <findbugs.skip>true</findbugs.skip>
     </properties>
