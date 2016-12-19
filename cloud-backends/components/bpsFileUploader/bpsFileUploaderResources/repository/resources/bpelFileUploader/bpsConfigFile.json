@@ -1,0 +1,50 @@
+{
+"BPSFiles":{
+   "bpelFiles":[
+      "deploy.xml",
+      "SecuredService-service.xml",
+      "UserApprovalTask.wsdl",
+      "UserSignupProcess.bpel",
+      "UserSignupProcess.epr",
+      "UserSignupProcessArtifacts.wsdl",
+      "UserSignupService.epr",
+      "WorkflowCallbackService.wsdl"
+   ],
+   "humanTaskFiles":[
+      "htconfig.xml",
+      "UserApprovalTask.ht",
+      "UserApprovalTask.wsdl"
+   ]
+},
+   "fileLocations":{
+      "HT_FILES_SOURCE_LOCATION":"resources/bpelFileUploader/humanTaskFiles/",
+      "BPEL_FILES_SOURCE_LOCATION":"resources/bpelFileUploader/businessProcessFiles/"
+   },
+"configUrls":{
+      "WORKFLOW_SERVICE_ADDRESS":"http://local.cloudmgt.wso2.com:9863",
+      "BPS_BACKEND_URL":"https://local.cloudmgt.wso2.com:9543",
+      "GATEWAY_CALLBACK_URL": "https://local.cloudmgt.wso2.com:9643/services/WorkflowCallbackService"
+   },
+"adminUser":{
+      "ADMIN_USERNAME":"admin",
+      "ADMIN_PASSWORD":"admin"
+},
+
+   "trustStoreProperties":{
+      "trustStoreLocation":"repository/resources/security/wso2carbon.jks",
+      "trustStorePassword":"",
+      "trustStoreType":"JKS"
+   },
+"tenantSpecificBPSFiles":{
+      "BPEL_SIGNUP_SERVICE_EPR_FILE":"UserSignupService.epr",
+      "BPEL_SIGNUP_PROCESS_EPR_FILE":"UserSignupProcess.epr",
+      "HT_USER_APPROVAL_TASK_WSDL_FILE":"UserApprovalTask.wsdl"
+
+   },
+   "archiveConfigurations":{
+      "HT_ARCHIVE_FILE_LOCATION":"resources/bpelFileUploader/archiveFiles/HumanTask",
+      "BPEL_ARCHIVE_FILE_LOCATION":"resources/bpelFileUploader/archiveFiles/BPEL",
+      "BPEL_ARCHIVE_FILE_NAME":"UserSignupApprovalProcess-1.0.0-",
+      "HT_ARCHIVE_FILE_NAME":"UserApprovalTask-1.0.0-"
+   }
+}
