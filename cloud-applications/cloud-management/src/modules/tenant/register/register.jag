@@ -483,27 +483,17 @@ var sendInvite = function (email, token) {
 };
 
 var reInvite = function (email) {
-    try{
-        log.info("Resending the sign up email for [ " + email + " ]");
-        var results;
-        var queryResults = cloudmgtDAO.getUUIDFromEmail(email);
-
-        if (queryResults != null) {
-            results = JSON.parse(queryResults);
-        }
-        var uuid;
-        if (results.length >= 1) {
-            uuid = results[0]["UUID"];
-
-        var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
-        var cloudmgtDAO = new CloudMgtDAO();
+    try {
         var isInvitePermitted = cloudmgtDAO.isInvitePermitted(email, false);
         if (isInvitePermitted) {
             try {
                 log.info("Resending the sign up email for [ " + email + " ]");
-                var queryString1 = SQL_QUERY_STRINGS.SELECT_UUID_FROM_TEMP_REGISTRATION;
-                var parameters = [email];
-                var results = jagg.module("database").executeQuery(queryString1, parameters);
+                var results;
+                var queryResults = cloudmgtDAO.getUUIDFromEmail(email);
+
+                if (queryResults != null) {
+                    results = JSON.parse(queryResults);
+                }
                 var uuid;
                 if (results.length >= 1) {
                     uuid = results[0]["UUID"];
@@ -539,7 +529,7 @@ var reInvite = function (email) {
                 message: "The number of retries has exceeded for the email " + email + " Please try again after an hour",
                 data: email
             };
-        }}
+        }
     } catch(e) {
         log.error("An error occurred while retrieving the retry count for the email " + email);
         return {
