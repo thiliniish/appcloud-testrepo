@@ -98,8 +98,7 @@ public class CloudMgtDBConnectionManager {
                         throw new CloudMgtException("Unable to initiate the cloud management dataSource");
                     }
                 } catch (NamingException e) {
-                    throw new CloudMgtException(
-                            "Error while looking up the cloudmgt data source", e);
+                    throw new CloudMgtException("Error while looking up the cloudmgt data source", e);
                 } finally {
                     PrivilegedCarbonContext.endTenantFlow();
                 }
@@ -117,6 +116,17 @@ public class CloudMgtDBConnectionManager {
     public static void closeAllConnections(PreparedStatement preparedStatement, Connection connection,
                                            ResultSet resultSet) {
         closeResultSet(resultSet);
+        closeStatement(preparedStatement);
+        closeConnection(connection);
+    }
+
+    /**
+     * Method used to close connection stream and prepared statement in database upadate scenario
+     *
+     * @param preparedStatement PreparedStatement
+     * @param connection        Connection
+     */
+    public static void closePSAndConnection(PreparedStatement preparedStatement, Connection connection) {
         closeStatement(preparedStatement);
         closeConnection(connection);
     }

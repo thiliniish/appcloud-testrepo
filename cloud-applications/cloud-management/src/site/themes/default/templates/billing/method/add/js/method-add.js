@@ -197,7 +197,7 @@ function calculateDiscount() {
 function getCheckoutHandler() {
     var handler = StripeCheckout.configure({
         key: field_passthrough1,
-        image: 'http://b.content.wso2.com/sites/all/cloudmicro/images/icon-wso2.jpg',
+        image: 'https://b.content.wso2.com/sites/all/cloudmicro/images/icon-wso2.jpg',
         locale: 'auto',
         zipCode: true,
         allowRememberMe: false,

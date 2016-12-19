@@ -1,54 +1,27 @@
 <% jagg.template("billing/method/add", function(inputs, outputs, jagg) { %>
 <%
-    var log = new Log("site/themes/default/templates/billing/method/add/template.jag");
-    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var serviceId = session.get("SERVICE_ID");
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
-    if (isBillingEnabled) {
-        var errorMessage = "NA";
-        var userName = session.get("LOGGED_IN_USER");
-        var userEmail = session.get("LOGGED_IN_USER_EMAIL");
-
-        var currRatePlan = session.get("CURRENT_RATE_PLAN");
-        var accounts = session.get("ACCOUNTS");
-        var callsPerDay = session.get("CALLS_PER_DAY");
-        var callsAbovePlan = session.get("CALLS_ABOVE_PLAN");
-        var monthlyRental = session.get("MONTHLY_RENTAL");
-        var couponDiscount = session.get("COUPON_DISCOUNT");
-        var iframeDescription = IFRAME_DESCRIPTION;
-        var l = Packages.java.util.Locale.getDefault();
-        var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-        if (callsPerDay != null) {
-            callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
-        }
-        //TODO improve error handling
-        if ("Response_From_Submit_Page" == (request.getParameter("responseFrom"))) {
-            if ("false" == jagg.module("util").escapeSpecialChars(request.getParameter("success")[0])) {
-                errorMessage = "Invalid in your payment information The reason is: " + request.getParameter("errorMessage");
+    if(inputs.isBillingEnabled){
+        if(inputs.ratePlanInfo) {
+            var accounts = inputs.ratePlanInfo.getProperty("MaxAccounts");
+            var callsPerDay = inputs.ratePlanInfo.getProperty("MaxDailyUsage");
+            var callsAbovePlan = inputs.ratePlanInfo.getProperty("OverUsage");
+            var monthlyRental = inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
+            var couponDiscount = session.get("COUPON_DISCOUNT");
+            var defaultLocale = Packages.java.util.Locale.getDefault();
+            var numFormat = new Packages.java.text.NumberFormat.getInstance(defaultLocale);
+            if (callsPerDay != null) {
+                callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
             }
         }
-        var accountId = "";
-        if (request.getParameter("accountId") != null) {
-            accountId = jagg.module("util").escapeSpecialChars(request.getParameter("accountId"));
-        }
-        var productRatePlanId = session.get("PRODUCT_PLAN_ID");
-        session.remove("PRODUCT_PLAN_ID");
-        var paymentPlanName;
-        if (accountId == "") {
-            paymentPlanName = jagg.module("billing").getPaymentPlanFromId(serviceId, productRatePlanId);
-        }
     }
-
     %>
-<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://checkout.stripe.com/checkout.js"></script>
 <div class="container col-lg-12 col-md-12 col-sm-12">
     <div class="container content-starter">
         <div class="row">
             <div class="col-lg-12">
-                <% if (accountId !="" ) { %>
+                <% if (inputs.accountId !="" ) { %>
                     <h1>New Payment Method</h1>
                 <% } else { %>
                     <h1>Upgrade Account</h1>
@@ -62,7 +35,7 @@
     <!-- content/body -->
     <div class="container c-both wr-billing-white info-message-parent">
     <% jagg.includeBlock( "page/billing-messages", null); %>
-        <%if (accountId=="" ){ %>
+        <%if (inputs.accountId=="" ){ %>
             <div class="row wr-wizard">
                     <div class="col-md-3 col-xs-3">
                         <div class="itm-wiz">
@@ -109,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-            <% var buttonValue; if (accountId !="" ) { buttonValue="Proceed"; } else { buttonValue="Continue"; } %>
+            <% var buttonValue; if (inputs.accountId !="" ) { buttonValue="Proceed"; } else { buttonValue="Continue"; } %>
             <div class="row">
             <form class='form-horizontal'>
                 <div class="container col-md-8 wr-text-gray">
@@ -142,7 +115,7 @@
 
                 </form>
 
-                <%if (accountId !="" ) { %>
+                <%if (inputs.accountId !="" ) { %>
                     <div class="wr-text col-sm-8">
                         <input id="submitbtn" type='button' value=<%=buttonValue%> style="font-weight:normal;" class="btn btn-default btn-redeem col-md-6 col-xs-12 submit" /> <a id="btn_cancel" href="javascript:location.href='/cloudmgt/site/pages/account-summary.jag'">Cancel</a> <i class="fa fa-spinner fa-spin fa-3x" id="spinner" class="spinner" style="display: none; margin-left: 10px;"></i>
                     </div>
@@ -163,7 +136,8 @@
                                 <div id="product-container">
                                     <p class="product-summery">PRODUCT SUMMARY</p>
                                     <p>
-                                        <span class="selected-plan-txt">SELECTED PLAN: </span> <span class="product-planname"><%=currRatePlan%></span>
+                                        <span class="selected-plan-txt">SELECTED PLAN: </span> <span
+                                        class="product-planname"><%=inputs.currRatePlan%></span>
                                     </p>
                                     <ul>
                                         <li>
@@ -186,14 +160,15 @@
                                     </p>
                                     <p class="col-md-8 nopad">Discount from coupon</p>
                                     <p id="discountPara" class="col-md-4 nopad tright">
-                                        <%=Number(couponDiscount).toFixed(2)%>
+                                        <%=Number(inputs.couponDiscount).toFixed(2)%>
                                     </p>
                                     <br class="c-both" />
                                     <div class="col-md-8 nopad blue">&nbsp;</div>
                                     <div class="col-md-4 nopad tright ">
                                         <p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
                                         <p id="payableAmountPara" class="col-md-12 nopad nomargin blue-line-right">
-                                            <span id="payable-ammount"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span>
+                                            <span id="payable-ammount"><%=Number(monthlyRental - inputs.couponDiscount)
+            .toFixed(2)%></span>
                                         </p>
                                     </div>
                                     <br class="c-both" />
@@ -207,17 +182,22 @@
                             </div>
                         </div>
                         <% }%>
-                            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled" value="<%=isBillingEnabled%>" />
-                            <input type="hidden" name="monthlyRental" id="monthlyRental" value="<%=monthlyRental%>" />
-                            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=cloudmgtURL%>" />
-                            <input type="hidden" name="errorMessage" id="errorMessage" value="<%=errorMessage%>" />
-                            <input type="hidden" name="serviceId" id="serviceId" value="<%=serviceId%>" />
-                            <input type="hidden" name="productRatePlanId" id="productRatePlanId" value="<%=productRatePlanId%>" />
-                            <input type="hidden" name="accountId" id="accountId" value="<%=accountId%>" />
-                            <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage" value="<%= unavailableErrorPage %>" />
-                            <input type="hidden" name="userEmail" id="userEmail" value="<%= userEmail %>" />
+                            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"
+                            value="<%=inputs.isBillingEnabled%>" />
+                            <input type="hidden" name="monthlyRental" id="monthlyRental"
+                            value="<%=monthlyRental%>" />
+                            <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=inputs.cloudmgtURL%>" />
+                            <input type="hidden" name="errorMessage" id="errorMessage"
+                            value="<%=inputs.errorMessage%>" />
+                            <input type="hidden" name="serviceId" id="serviceId" value="<%=inputs.serviceId%>" />
+                            <input type="hidden" name="productRatePlanId" id="productRatePlanId"
+                            value="<%=inputs.productRatePlanId%>" />
+                            <input type="hidden" name="accountId" id="accountId" value="<%=inputs.accountId%>" />
+                            <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage" value="<%=
+    UNAVAILABLE_ERROR_PAGE %>">
+                            <input type="hidden" name="userEmail" id="userEmail" value="<%= session.get("LOGGED_IN_USER_EMAIL") %>" />
                             <input type="hidden" name="iframDescription" id="iframeDescription"
-                            value="<%=iframeDescription %>" />
+                            value="<%=IFRAME_DESCRIPTION %>" />
             </div>
             <div class="row pad-bot-50">
                 <div class="container col-md-8">&nbsp;</div>

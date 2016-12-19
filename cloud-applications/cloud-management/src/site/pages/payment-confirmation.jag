@@ -1,9 +1,17 @@
 <%
 include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
 var site = require("/site/conf/site.json");
 var log = new Log();
+
 (function () {
     var sessionId = session.getId();
+
+    var selectedRatePlanId =  session.get("PRODUCT_PLAN_ID");
+    var ratePlanInfo = jagg.module("billing").getRatePlanInfo("api_cloud", selectedRatePlanId);
+    var responseFrom = request.getParameter("responseFrom");
+    var serviceId = session.get("SERVICE_ID");
+    var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
 
     jagg.render({
                     "name":"page/base",
@@ -17,7 +25,13 @@ var log = new Log();
                                     "title":"Billing",
                                     "middle":[
                                         {
-                                            "name":"billing/payment/confirm"
+                                            "name":"billing/payment/confirm",
+                                            "inputs": {
+                                                "responseFrom": responseFrom,
+                                                "subscribedCloudURL": subscribedCloudURL,
+                                                "serviceId": serviceId,
+                                                "ratePlanInfo": ratePlanInfo
+                                            }
                                         }
                                     ]
                                 }

@@ -1,7 +1,6 @@
 <%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
-include("/modules/database/sql.jag");
 
 var log = new Log("modules/database/dataaccess.jag");
 /*

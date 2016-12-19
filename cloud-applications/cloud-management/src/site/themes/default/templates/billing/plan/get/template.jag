@@ -33,7 +33,7 @@
         if (ratePlan != null) {
             currentRatePlanId = ratePlan.id;
         }
-        var isFromChangePlan = request.getParameter("is-from-change-plan");
+        var isFromChangePlan = inputs.isFromChangePlan;
         var paymentPlans = ratePlansObj.entry;
         var l = Packages.java.util.Locale.getDefault();
         var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
@@ -56,7 +56,7 @@
     }
 %>
 
-<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index.css'))%>" />
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>" />
@@ -194,17 +194,17 @@
                     if (currentRatePlanId == paymentPlans[i].id) {
                     %>
 
-                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
+                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', <%=isFromChangePlan%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
                     <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
                     <%
                 } else {
                     var paymentPlanName = paymentPlans[i].name.toUpperCase();
                     if (isMonetizationEnabled && paymentPlans[i].name == BILLING_STARTER_PLAN) {%>
-                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" disabled>Select</button>
+                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', <%=isFromChangePlan%>)" disabled>Select</button>
                     <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
                     </p>
                     <%} else {%>
-                            <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" >Select</button>
+                            <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', <%=isFromChangePlan%>)" >Select</button>
                             <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
                             </p>
                     <%}

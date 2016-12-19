@@ -10,15 +10,11 @@ var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
 var username =  session.get("LOGGED_IN_USER");
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
 
 var getTenantDisplayName = function (tenantDomain) {
-    var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-    var parameters =[tenantDomain];
-    var results = jagg.module("database").executeQuery(queryString, parameters);
-
-    var displayName = results[0]["displayName"];
-    return displayName;
-
+    var results = cloudmgtDAO.getDisplayNamefromTenant(tenantDomain);
+    return String(results);
 };
 
 var isUserInAdminRole = function () {
