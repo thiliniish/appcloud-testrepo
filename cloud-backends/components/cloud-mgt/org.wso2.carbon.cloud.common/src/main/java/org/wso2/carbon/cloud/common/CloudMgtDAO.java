@@ -821,13 +821,12 @@ public class CloudMgtDAO {
      * @return the username availability
      * @throws CloudMgtException
      */
-    public Boolean isUsernameAvail(String username) throws CloudMgtException {
+    public boolean isUsernameAvail(String username) throws CloudMgtException {
 
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
-        Boolean isAvailable = false;
-
+        boolean isAvailable = false;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
             ps = conn.prepareStatement(selectUsernameFromTenantUserMapping);
@@ -855,13 +854,12 @@ public class CloudMgtDAO {
      * @return the organization availability
      * @throws CloudMgtException
      */
-    public Boolean isOrganizationAvail(String displayName) throws CloudMgtException {
+    public boolean isOrganizationAvail(String displayName) throws CloudMgtException {
 
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
-        Boolean isAvailable = false;
-
+        boolean isAvailable = false;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
             ps = conn.prepareStatement(selectDisplayNameAvaliForOrganization);
