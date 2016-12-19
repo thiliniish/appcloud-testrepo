@@ -190,8 +190,7 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
 var hasATenant = function (userName) {
     try {
         var results = JSON.parse(cloudmgtDAO.isUsernameAvail(userName));
-
-        if(String(results) != "true") {
+        if(!results) {
             return false;
         } else {
             log.info("Username [ " + userName + " ] already in the cloud system");
@@ -322,9 +321,8 @@ var checkDomainAvailability = function (domainName) {
     try{
         var companyDisplayName = jagg.module("util").escapeSpecialChars(domainName);
         var results = cloudmgtDAO.isOrganizationAvail(companyDisplayName);
-        isOrgAvailable = String(results);
-        if(isOrgAvailable != "true"){
-            isDomainAvailable = true
+        if(!results){
+            isDomainAvailable = true;
             log.info("The organization name [ " + domainName + " ] is available");
         }else{
             log.info("The organization name [ " + domainName + " ] is not available");
@@ -496,7 +494,7 @@ var reInvite = function (email) {
         var uuid;
         if (results.length >= 1) {
             uuid = results[0]["UUID"];
-    try {
+
         var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
         var cloudmgtDAO = new CloudMgtDAO();
         var isInvitePermitted = cloudmgtDAO.isInvitePermitted(email, false);
@@ -541,7 +539,7 @@ var reInvite = function (email) {
                 message: "The number of retries has exceeded for the email " + email + " Please try again after an hour",
                 data: email
             };
-        }
+        }}
     } catch(e) {
         log.error("An error occurred while retrieving the retry count for the email " + email);
         return {
