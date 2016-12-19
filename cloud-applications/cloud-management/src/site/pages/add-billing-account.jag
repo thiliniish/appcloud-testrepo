@@ -19,9 +19,6 @@ var log = new Log();
     var eulaData = jagg.module("util").getObjFromFile("/site/conf/eula.xml");
     var eulaDoc= new XML(eulaData);
     var eulaContent =  eulaDoc.EULA.text();
-
-
-
     var responseFrom = request.getParameter("responseFrom");
     var paymentPlanName = "";
     var profileFirstName = null;

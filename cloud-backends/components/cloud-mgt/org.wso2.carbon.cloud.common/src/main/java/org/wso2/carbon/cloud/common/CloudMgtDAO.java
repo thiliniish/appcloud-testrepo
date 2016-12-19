@@ -53,20 +53,20 @@ public class CloudMgtDAO {
             "INSERT INTO RIGHTWAVE_CLOUD_SUBSCRIPTION (TENANT_DOMAIN,$SUBSCRIPTIONTYPE,EMAIL) VALUES (?,?,?)";
     private String updateRightwaveCloudSubscriptionQuery =
             "UPDATE RIGHTWAVE_CLOUD_SUBSCRIPTION SET $SUBSCRIPTIONTYPE = ? WHERE TENANT_DOMAIN=? AND EMAIL=?;";
-    private static final String selectRetryCountFromTempRegistrationQuery = "SELECT retryCount,dateTime " +
-                                                                            "FROM TEMP_REGISTRATION WHERE email=(?)";
+    private static final String selectRetryCountFromTempRegistrationQuery =
+            "SELECT retryCount,dateTime " + "FROM TEMP_REGISTRATION WHERE email=(?)";
     private static final String resetRetryCountFromTempRegistrationQuery = "UPDATE TEMP_REGISTRATION SET " +
                                                                            "dateTime=CURRENT_TIMESTAMP,retryCount=1" +
                                                                            " WHERE email=(?)";
-    private static final String updateRetryCountFromTempRegistrationQuery = "UPDATE TEMP_REGISTRATION SET " +
-                                                                            "retryCount=(?) WHERE email=(?)";
-    private static final String selectRetryCountFromTempInviteeQuery = "SELECT retryCount,dateTime FROM " +
-                                                                       "TEMP_INVITEE WHERE email=(?)";
+    private static final String updateRetryCountFromTempRegistrationQuery =
+            "UPDATE TEMP_REGISTRATION SET " + "retryCount=(?) WHERE email=(?)";
+    private static final String selectRetryCountFromTempInviteeQuery =
+            "SELECT retryCount,dateTime FROM " + "TEMP_INVITEE WHERE email=(?)";
     private static final String resetRetryCountFromTempInviteeQuery = "UPDATE TEMP_INVITEE SET " +
                                                                       "dateTime=CURRENT_TIMESTAMP," +
                                                                       " retryCount=1 WHERE email=(?)";
-    private static final String updateRetryCountFromTempInviteeQuery = "UPDATE TEMP_INVITEE SET " +
-                                                                       "retryCount=(?) WHERE email=(?)";
+    private static final String updateRetryCountFromTempInviteeQuery =
+            "UPDATE TEMP_INVITEE SET " + "retryCount=(?) WHERE email=(?)";
 
     private static final String deleteRecordFromTempRegistration = "DELETE FROM TEMP_REGISTRATION WHERE  uuid = (?);";
     private static final String deleteRecordFromTempInvitee = "DELETE FROM TEMP_INVITEE WHERE uuid = (?);";
@@ -175,8 +175,7 @@ public class CloudMgtDAO {
             }
         } catch (SQLException e) {
             throw new CloudMgtException(
-                    "Failed to retrieve the roles for the user " + email + " of the tenant domain "
-                    + tenantDomain, e);
+                    "Failed to retrieve the roles for the user " + email + " of the tenant domain " + tenantDomain, e);
         } catch (CloudMgtException e) {
             throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
         } finally {
@@ -282,12 +281,9 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
-            justification = "Since a column name is passed as a parameter")
-    public JSONObject selectCloudSubscription(String type, String tenantDomain, String email)
-            throws CloudMgtException {
-
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE", "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            justification = "Since a column name is passed as a parameter") public JSONObject selectCloudSubscription(
+            String type, String tenantDomain, String email) throws CloudMgtException {
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
@@ -297,8 +293,8 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            selectRightwaveCloudSubscriptionQuery = selectRightwaveCloudSubscriptionQuery.replace
-                    (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
+            selectRightwaveCloudSubscriptionQuery = selectRightwaveCloudSubscriptionQuery
+                    .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, type);
             ps = conn.prepareStatement(selectRightwaveCloudSubscriptionQuery);
             ps.setString(1, tenantDomain);
             ps.setString(2, email);
@@ -332,19 +328,18 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
-            justification = "Since a column name is passed as a parameter")
-    public void insertCloudSubscription(String subscriptionType, String tenantDomain, int subscriptionValue,
-                                        String email) throws CloudMgtException {
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE", "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            justification = "Since a column name is passed as a parameter") public void insertCloudSubscription(
+            String subscriptionType, String tenantDomain, int subscriptionValue, String email)
+            throws CloudMgtException {
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            insertRightwaveCloudSubscriptionQuery = insertRightwaveCloudSubscriptionQuery.replace
-                    (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+            insertRightwaveCloudSubscriptionQuery = insertRightwaveCloudSubscriptionQuery
+                    .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
             ps = conn.prepareStatement(insertRightwaveCloudSubscriptionQuery);
             ps.setString(1, tenantDomain);
             ps.setInt(2, subscriptionValue);
@@ -371,18 +366,17 @@ public class CloudMgtDAO {
      * @throws CloudMgtException
      */
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value =
-            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
-              "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
-            justification = "Since a column name is passed as a parameter")
-    public void updateCloudSubscription(String subscriptionType, int subscriptionValue,
-                                        String tenantDomain, String email) throws CloudMgtException {
+            { "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE", "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" },
+            justification = "Since a column name is passed as a parameter") public void updateCloudSubscription(
+            String subscriptionType, int subscriptionValue, String tenantDomain, String email)
+            throws CloudMgtException {
         Connection conn = null;
         ResultSet resultSet = null;
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            updateRightwaveCloudSubscriptionQuery = updateRightwaveCloudSubscriptionQuery.replace
-                    (CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
+            updateRightwaveCloudSubscriptionQuery = updateRightwaveCloudSubscriptionQuery
+                    .replace(CloudMgtConstants.SUBSCRIPTION_TYPE_PLACEHOLDER, subscriptionType);
             ps = conn.prepareStatement(updateRightwaveCloudSubscriptionQuery);
             ps.setInt(1, subscriptionValue);
             ps.setString(2, tenantDomain);
@@ -416,7 +410,7 @@ public class CloudMgtDAO {
         boolean isRetryPermitted = false;
         CloudMgtUtils cloudMgtUtils = new CloudMgtUtils();
         int maxReInviteCount;
-            try {
+        try {
             maxReInviteCount = cloudMgtUtils.getCloudInviteeRetryCount();
             conn = CloudMgtDBConnectionManager.getDbConnection();
             if (isInvitee) {
@@ -443,9 +437,9 @@ public class CloudMgtDAO {
                 long diffHours = diff / (60 * 60 * 1000);
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("The time difference for the current date " + newdateTime.toString()
-                              + " and the date of the registration " + sqlDate.toString()
-                              + " is " + diffHours + " hours");
+                    LOG.debug("The time difference for the current date " + newdateTime.toString() +
+                              " and the date of the registration " + sqlDate.toString() + " is " + diffHours +
+                              " hours");
                 }
                 if (diffHours < 1 && retryCount >= maxReInviteCount) {
 
@@ -456,9 +450,8 @@ public class CloudMgtDAO {
                     try {
                         updateRetryCount(retryCount, email, isInvitee);
                     } catch (CloudMgtException e) {
-                        throw new CloudMgtException(
-                                "Failed to update the retry count for the the user " +
-                                "email " + email, e);
+                        throw new CloudMgtException("Failed to update the retry count for the the user " +
+                                                    "email " + email, e);
                     }
                     isRetryPermitted = false;
                 } else if (diffHours >= CloudMgtConstants.REINVITE_TIME_LIMIT_IN_HOURS) {
@@ -473,8 +466,8 @@ public class CloudMgtDAO {
                         ps.executeUpdate();
 
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Resetting the dateTime column for the Temp Registration of the user " + email
-                                      + " to " + newdateTime);
+                            LOG.debug("Resetting the dateTime column for the Temp Registration of the user " + email +
+                                      " to " + newdateTime);
                         }
                         isRetryPermitted = true;
                     } catch (SQLException e) {
@@ -489,9 +482,8 @@ public class CloudMgtDAO {
                         updateRetryCount(retryCount, email, isInvitee);
                         isRetryPermitted = true;
                     } catch (CloudMgtException e) {
-                        throw new CloudMgtException(
-                                "Failed to update the retry count for the the user " +
-                                "email " + email, e);
+                        throw new CloudMgtException("Failed to update the retry count for the the user " +
+                                                    "email " + email, e);
                     }
                 }
             } else {
@@ -540,9 +532,8 @@ public class CloudMgtDAO {
                 LOG.debug("updating the retry count to " + newRetryCount + " for the email" + email);
             }
         } catch (SQLException e) {
-            throw new CloudMgtException(
-                    "Failed to update the retry count for the temp registration for the user " +
-                    "email " + email, e);
+            throw new CloudMgtException("Failed to update the retry count for the temp registration for the user " +
+                                        "email " + email, e);
         } finally {
             CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
         }
@@ -560,11 +551,9 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(deleteRecordFromTempRegistration);
-                ps.setString(1, uuid);
-                ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(deleteRecordFromTempRegistration);
+            ps.setString(1, uuid);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to remove the temp registration record for uuid " + uuid, e);
         } catch (CloudMgtException e) {
@@ -586,11 +575,9 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(deleteRecordFromTempInvitee);
-                ps.setString(1, uuid);
-                ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(deleteRecordFromTempInvitee);
+            ps.setString(1, uuid);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to remove the temp invitee record for uuid " + uuid, e);
         } catch (CloudMgtException e) {
@@ -615,12 +602,10 @@ public class CloudMgtDAO {
         int result = 0;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(deleteTempInviteeInvite);
-                ps.setString(1, tenantDomain);
-                ps.setString(2, email);
-                result = ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(deleteTempInviteeInvite);
+            ps.setString(1, tenantDomain);
+            ps.setString(2, email);
+            result = ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to remove the temp invitee record for tenant " + tenantDomain, e);
         } catch (CloudMgtException e) {
@@ -644,12 +629,10 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(insertIntoTenantUserMapping);
-                ps.setString(1, username);
-                ps.setString(2, tenantDomain);
-                ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(insertIntoTenantUserMapping);
+            ps.setString(1, username);
+            ps.setString(2, tenantDomain);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Failed to insert user mapping for user " + username + " to tenant " + tenantDomain, e);
@@ -673,12 +656,10 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(insertIntoOrganizations);
-                ps.setString(1, tenantDomain);
-                ps.setString(2, displayName);
-                ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(insertIntoOrganizations);
+            ps.setString(1, tenantDomain);
+            ps.setString(2, displayName);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to insert organization details for tenant " + tenantDomain, e);
         } catch (CloudMgtException e) {
@@ -700,11 +681,9 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(insertIntoSubscriptions);
-                ps.setString(1, tenantDomain);
-                ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(insertIntoSubscriptions);
+            ps.setString(1, tenantDomain);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to insert subscription for tenant " + tenantDomain, e);
         } catch (CloudMgtException e) {
@@ -728,14 +707,12 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(insertIntoTempRegistration);
-                ps.setString(1, email);
-                ps.setString(2, uuid);
-                ps.setInt(3, isInvitee);
-                ps.setString(4, uuid);
-                ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(insertIntoTempRegistration);
+            ps.setString(1, email);
+            ps.setString(2, uuid);
+            ps.setInt(3, isInvitee);
+            ps.setString(4, uuid);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Failed to insert to temp registration details for user [ " + email + "] and UUID [" + uuid + "] ",
@@ -760,12 +737,10 @@ public class CloudMgtDAO {
         PreparedStatement ps = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(updateDisplayNameIntoOrganization);
-                ps.setString(1, displayName);
-                ps.setString(2, tenantDomain);
-                ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(updateDisplayNameIntoOrganization);
+            ps.setString(1, displayName);
+            ps.setString(2, tenantDomain);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Failed to update the organization name as " + displayName + " for tenant " + tenantDomain, e);
@@ -791,13 +766,11 @@ public class CloudMgtDAO {
         int results = 0;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(updateRolesIntoTempInvitee);
-                ps.setString(1, roles);
-                ps.setString(2, tenantDomain);
-                ps.setString(3, email);
-                results = ps.executeUpdate();
-            }
+            ps = conn.prepareStatement(updateRolesIntoTempInvitee);
+            ps.setString(1, roles);
+            ps.setString(2, tenantDomain);
+            ps.setString(3, email);
+            results = ps.executeUpdate();
         } catch (SQLException e) {
             throw new CloudMgtException(
                     "Failed to update the roles " + roles + " for user " + email + " in tenant " + tenantDomain, e);
@@ -825,13 +798,11 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectDisplayNameFromOrganization);
-                ps.setString(1, tenantDomain);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    displayName = resultSet.getString("displayName");
-                }
+            ps = conn.prepareStatement(selectDisplayNameFromOrganization);
+            ps.setString(1, tenantDomain);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                displayName = resultSet.getString("displayName");
             }
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to retrieve the displayName of the tenant " + tenantDomain, e);
@@ -859,14 +830,12 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectUsernameFromTenantUserMapping);
-                ps.setString(1, username);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    if (resultSet.getString("userName") != null) {
-                        isAvailable = true;
-                    }
+            ps = conn.prepareStatement(selectUsernameFromTenantUserMapping);
+            ps.setString(1, username);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                if (resultSet.getString("userName") != null) {
+                    isAvailable = true;
                 }
             }
         } catch (SQLException e) {
@@ -895,14 +864,12 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectDisplayNameAvaliForOrganization);
-                ps.setString(1, displayName);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    if (resultSet.getString("displayName") != null) {
-                        isAvailable = true;
-                    }
+            ps = conn.prepareStatement(selectDisplayNameAvaliForOrganization);
+            ps.setString(1, displayName);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                if (resultSet.getString("displayName") != null) {
+                    isAvailable = true;
                 }
             }
         } catch (SQLException e) {
@@ -931,15 +898,13 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectOrganizationDetailsForTenant);
-                ps.setString(1, tenantDomain);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    resultObj = new JSONObject();
-                    resultObj.put("tenantDomain", resultSet.getString("tenantDomain"));
-                    resultObj.put("displayName", resultSet.getString("displayName"));
-                }
+            ps = conn.prepareStatement(selectOrganizationDetailsForTenant);
+            ps.setString(1, tenantDomain);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                resultObj = new JSONObject();
+                resultObj.put("tenantDomain", resultSet.getString("tenantDomain"));
+                resultObj.put("displayName", resultSet.getString("displayName"));
             }
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to retrieve the organization details for tenant domain " + tenantDomain,
@@ -968,16 +933,14 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectAllOganizationsForUser);
-                ps.setString(1, username);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    JSONObject resultSetObj = new JSONObject();
-                    resultSetObj.put("tenantDomain", resultSet.getString("tenantDomain"));
-                    resultSetObj.put("displayName", resultSet.getString("displayName"));
-                    resultObj.put(resultSetObj);
-                }
+            ps = conn.prepareStatement(selectAllOganizationsForUser);
+            ps.setString(1, username);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                JSONObject resultSetObj = new JSONObject();
+                resultSetObj.put("tenantDomain", resultSet.getString("tenantDomain"));
+                resultSetObj.put("displayName", resultSet.getString("displayName"));
+                resultObj.put(resultSetObj);
             }
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to retrieve the organization details for user " + username, e);
@@ -1004,16 +967,14 @@ public class CloudMgtDAO {
         JSONObject resultObj = null;
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectAllFromTempInvitee);
-                ps.setString(1, uuid);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    resultObj = new JSONObject();
-                    resultObj.put("tenantDomain", resultSet.getString("tenantDomain"));
-                    resultObj.put("email", resultSet.getString("email"));
-                    resultObj.put("roles", resultSet.getString("roles"));
-                }
+            ps = conn.prepareStatement(selectAllFromTempInvitee);
+            ps.setString(1, uuid);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                resultObj = new JSONObject();
+                resultObj.put("tenantDomain", resultSet.getString("tenantDomain"));
+                resultObj.put("email", resultSet.getString("email"));
+                resultObj.put("roles", resultSet.getString("roles"));
             }
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to retrieve the temp invitee details for uuid " + uuid, e);
@@ -1041,16 +1002,14 @@ public class CloudMgtDAO {
 
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectFromTempInviteeByTenantDomain);
-                ps.setString(1, tenantDomain);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    JSONObject resultSetObj = new JSONObject();
-                    resultSetObj.put("email", resultSet.getString("email"));
-                    resultSetObj.put("roles", resultSet.getString("roles"));
-                    resultObj.put(resultSetObj);
-                }
+            ps = conn.prepareStatement(selectFromTempInviteeByTenantDomain);
+            ps.setString(1, tenantDomain);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                JSONObject resultSetObj = new JSONObject();
+                resultSetObj.put("email", resultSet.getString("email"));
+                resultSetObj.put("roles", resultSet.getString("roles"));
+                resultObj.put(resultSetObj);
             }
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to retrieve the users details for tenant " + tenantDomain, e);
@@ -1077,15 +1036,13 @@ public class CloudMgtDAO {
         JSONArray resultObj = new JSONArray();
         try {
             conn = CloudMgtDBConnectionManager.getDbConnection();
-            if (conn != null) {
-                ps = conn.prepareStatement(selectUUIDFromEmail);
-                ps.setString(1, email);
-                resultSet = ps.executeQuery();
-                while (resultSet.next()) {
-                    JSONObject resultSetObj = new JSONObject();
-                    resultSetObj.put("uuid", resultSet.getString("uuid"));
-                    resultObj.put(resultSetObj);
-                }
+            ps = conn.prepareStatement(selectUUIDFromEmail);
+            ps.setString(1, email);
+            resultSet = ps.executeQuery();
+            while (resultSet.next()) {
+                JSONObject resultSetObj = new JSONObject();
+                resultSetObj.put("uuid", resultSet.getString("uuid"));
+                resultObj.put(resultSetObj);
             }
         } catch (SQLException e) {
             throw new CloudMgtException("Failed to retrieve the uuid for the email " + email, e);

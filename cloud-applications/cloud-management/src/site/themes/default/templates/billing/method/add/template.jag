@@ -7,9 +7,8 @@
             var callsAbovePlan = inputs.ratePlanInfo.getProperty("OverUsage");
             var monthlyRental = inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
             var couponDiscount = session.get("COUPON_DISCOUNT");
-
-            var l = Packages.java.util.Locale.getDefault();
-            var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+            var defaultLocale = Packages.java.util.Locale.getDefault();
+            var numFormat = new Packages.java.text.NumberFormat.getInstance(defaultLocale);
             if (callsPerDay != null) {
                 callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
             }
