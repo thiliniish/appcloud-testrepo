@@ -24,43 +24,40 @@ package org.wso2.carbon.cloud.monetization.apimgt.workflows;
 public final class CustomWorkFlowConstants {
 
     public static final String SUBSCRIBER_INFO_PAYLOAD =
-            "<ser:getAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
-                    "  <ser:username>$1</ser:username>\n" +
-                    "  <ser:tenantDomain>$2</ser:tenantDomain>\n" +
-                    "</ser:getAPISubscriberInfo>";
+            "<ser:getAPISubscriberInfo xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
+            "  <ser:username>$1</ser:username>\n" +
+            "</ser:getAPISubscriberInfo>";
 
     public static final String ADD_SUBSCRIBER_PAYLOAD =
-            "<ser:addAPISubscriberInfo xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
-                    "  <ser:username>$1</ser:username>\n" +
-                    "  <ser:tenantDomain>$2</ser:tenantDomain>\n" +
-                    "  <ser:isTestAccount>$3</ser:isTestAccount>\n" +
-                    "  <ser:accountNumber ser:nil=\"true\"/>\n" +
-                    "</ser:addAPISubscriberInfo>";
+            "<ser:addAPISubscriberInfo xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
+            "  <ser:username>$1</ser:username>\n" +
+            "  <ser:isTestAccount>$2</ser:isTestAccount>\n" +
+            "  <ser:accountNumber ser:nil=\"true\"/>\n" +
+            "</ser:addAPISubscriberInfo>";
 
     public static final String CANCEL_SUBSCRIPTION_PAYLOAD =
-            "<ser:cancelSubscription xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
-                    " <ser:accountNumber>$1</ser:accountNumber>\n" +
-                    " <ser:appName>$2</ser:appName>\n" +
-                    " <ser:apiName>$3</ser:apiName>\n" +
-                    " <ser:apiVersion>$4</ser:apiVersion>\n" +
-                    " </ser:cancelSubscription>";
+            "<ser:cancelSubscription xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
+            " <ser:accountNumber>$1</ser:accountNumber>\n" +
+            " <ser:appName>$2</ser:appName>\n" +
+            " <ser:apiName>$3</ser:apiName>\n" +
+            " <ser:apiVersion>$4</ser:apiVersion>\n" +
+            " </ser:cancelSubscription>";
 
     public static final String REMOVE_APP_SUBSCRIPTIONS_PAYLOAD =
-            "<ser:removeAppSubscriptions xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
-                    " <ser:accountNumber>$1</ser:accountNumber>\n" +
-                    " <ser:appName>$2</ser:appName>\n" +
-                    " </ser:removeAppSubscriptions>";
+            "<ser:removeAppSubscriptions xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
+            " <ser:accountNumber>$1</ser:accountNumber>\n" +
+            " <ser:appName>$2</ser:appName>\n" +
+            " </ser:removeAppSubscriptions>";
 
     public static final String CREATE_API_SUBSCRIPTION_PAYLOAD =
-            "<ser:createAPISubscription xmlns:ser=\"http://service.billing.cloud.carbon.wso2.org\">\n" +
-                    " <ser:accountNumber>$1</ser:accountNumber>\n" +
-                    " <ser:tenantDomain>$2</ser:tenantDomain>\n" +
-                    " <ser:tierName>$3</ser:tierName>\n" +
-                    " <ser:appName>$4</ser:appName>\n" +
-                    " <ser:apiName>$5</ser:apiName>\n" +
-                    " <ser:apiVersion>$6</ser:apiVersion>\n" +
-                    " <ser:apiProvider>$7</ser:apiProvider>\n" +
-                    " </ser:createAPISubscription>";
+            "<ser:createAPISubscription xmlns:ser=\"http://service.core.billing.cloud.carbon.wso2.org\">\n" +
+            " <ser:accountNumber>$1</ser:accountNumber>\n" +
+            " <ser:tierName>$2</ser:tierName>\n" +
+            " <ser:appName>$3</ser:appName>\n" +
+            " <ser:apiName>$4</ser:apiName>\n" +
+            " <ser:apiVersion>$5</ser:apiVersion>\n" +
+            " <ser:apiProvider>$6</ser:apiProvider>\n" +
+            " </ser:createAPISubscription>";
 
     /*SOAP actions*/
     public static final String SOAP_ACTION_GET_SUBSCRIBER = "urn:getAPISubscriberInfo";
@@ -80,10 +77,14 @@ public final class CustomWorkFlowConstants {
     public static final String SUBSCRIBERS_OBJ = "Subscribers";
     public static final String SUBSCRIBER_OBJ = "Subscriber";
 
-    public static final String ZUORA_RESPONSE_SUCCESS = "success";
     public static final String MONETIZATION_TABLES_UPDATED = "monetizationDbUpdated";
     public static final String REMOVED_SUBSCRIPTIONS = "removedSubscriptions";
     public static final String SOAP_RETURN_ELEMENT = "return";
+
+    public static final String RESPONSE_SUCCESS = "success";
+    public static final String RESPONSE_DATA = "data";
+
+    public static final String SUBSCRIPTION_INFO_NOT_AVAILABLE = "subscriptionInfoNotAvailable";
 
     private CustomWorkFlowConstants() {
     }

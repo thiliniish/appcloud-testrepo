@@ -1,0 +1,121 @@
+<% jagg.template("pricing/account/invoice", function (inputs, outputs, jagg) {
+    %>
+
+    <div class="page-header">
+        <h2>Invoice</h2>
+    </div>
+
+   <div class="container-fluid" id="form_div">
+      <div class="row">
+               <input type="hidden" id="invoiceId" name="invoiceId" value="<%=outputs.invoiceId%>" />
+                  <div class="row">
+                     <div class="col-md-12">
+                          <div class="box-header">
+                             <h4 class="pull-left">Basic Information</h4>
+                             <div class="clearfix"></div>
+                          </div>
+                          <div class="box-content active">
+                             <div class="row">
+                                <div class="col-md-8 col-md-offset-1">
+                                   <div class="row">
+                                      <div class="col-md-4">
+                                         <label class="control-label  title-label  label-style" > Account
+                                         Name :</label>
+                                      </div>
+                                      <div class="col-md-4">
+                                         <label id="lblOrg" name="lblOrg"
+                                            class="control-label  label-style" ><%=outputs.accountName%></label>
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+                             <div class="row">
+                                <div class="col-md-8 col-md-offset-1">
+                                   <div class="row" >
+                                   <div class="col-md-4">
+                                      <label class="control-label label-style title-label">Invoice
+                                      Number :</label>
+                                   </div>
+                                   <div class="col-md-4">
+                                      <label id="lblInvoiceNum" name="lblInvoiceNum"
+                                      class="control-label  label-style"></label>
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+
+
+                             <div class="row">
+                                <div class="col-md-8 col-md-offset-1">
+                                   <div class="row" >
+                                   <div class="col-md-4">
+                                      <label class="control-label  title-label  label-style">Invoice
+                                      Date :</label>
+                                   </div>
+                                   <div class="col-md-4">
+                                     <label id="lblInvoiceDate" name="lblInvoiceDate"
+                                         class="control-label  label-style"></label>
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+                             <div class="row">
+                                <div class="col-md-8 col-md-offset-1">
+                                   <div class="row" >
+                                   <div class="col-md-4">
+                                         <label class="control-label  title-label  label-style">Invoiced
+                                      Amount :</label>
+                                   </div>
+                                   <div class="col-md-4">
+                                     <label id="lblInvoiceAmount"
+                                         name="lblInvoiceAmount" class="control-label  label-style"></label>
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                    <div class="box-header">
+                       <h4 class="pull-left">Invoice Details</h4>
+                          <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-body box-content">
+                    <br class="clearfix" />
+                       <table class="table table-bordered table-hover">
+                          <thead>
+                             <tr>
+                                <th>Charge Date</th>
+                                <th>Charge Name</th>
+                                <th>Service Period</th>
+                                <th>Amount </th>
+                                <th>Discount </th>
+                                <th>Total </th>
+                             </tr>
+                          </thead>
+                          <tbody id="payments-tbody">
+                          </tbody>
+                       </table>
+                    </div>
+                 </div>
+                    <div class="form-group">
+                       <div class=" col-md-12">
+                          <div class="box-content">
+                          <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="gotoAccountPage();" >
+                          <span class="fw-stack btn-action-ico">
+                          <i class="fw fw-ring fw-stack-2x"></i>
+                          <i class="fw fw-left-arrow fw-stack-1x"></i>
+                          </span>
+                          Back
+                          </button>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+              </div>
+           </div>
+        </div>
+<%
+}); %>

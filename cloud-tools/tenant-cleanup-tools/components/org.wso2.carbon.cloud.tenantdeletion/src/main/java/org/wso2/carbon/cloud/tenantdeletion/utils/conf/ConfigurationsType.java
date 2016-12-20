@@ -1,13 +1,16 @@
-
 package org.wso2.carbon.cloud.tenantdeletion.utils.conf;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for ConfigurationsType complex type.
- * 
+ * <p/>
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="ConfigurationsType">
  *   &lt;complexContent>
@@ -19,26 +22,17 @@ import javax.xml.bind.annotation.*;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ConfigurationsType", propOrder = {
-    "datasources"
-})
-@XmlRootElement(name = "Configurations")
-public class ConfigurationsType {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "ConfigurationsType", propOrder = {
+        "datasources" }) @XmlRootElement(name = "Configurations") public class ConfigurationsType {
 
-    @XmlElement(required = true)
-    protected DatasourcesType datasources;
+    @XmlElement(required = true) protected DatasourcesType datasources;
 
     /**
      * Gets the value of the datasources property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link DatasourcesType }
-     *     
+     *
+     * @return possible object is
+     * {@link DatasourcesType }
      */
     public DatasourcesType getDatasources() {
         return datasources;
@@ -46,11 +40,9 @@ public class ConfigurationsType {
 
     /**
      * Sets the value of the datasources property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link DatasourcesType }
-     *     
+     *
+     * @param value allowed object is
+     *              {@link DatasourcesType }
      */
     public void setDatasources(DatasourcesType value) {
         this.datasources = value;

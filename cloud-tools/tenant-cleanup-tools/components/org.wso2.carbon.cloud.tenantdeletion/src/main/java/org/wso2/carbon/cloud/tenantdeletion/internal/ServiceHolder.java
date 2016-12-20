@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,24 +18,94 @@
 
 package org.wso2.carbon.cloud.tenantdeletion.internal;
 
+import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * Represent the data holder for the service component
  */
 public class ServiceHolder {
-	private static final ServiceHolder instance = new ServiceHolder();
-	private RealmService realmService;
+    private static final ServiceHolder instance = new ServiceHolder();
+    private RealmService realmService;
+    private RegistryService registryService;
+    private TenantRegistryLoader tenantRegLoader;
+    private ConfigurationContextService configurationContextService;
 
-	public static ServiceHolder getInstance() {
-		return instance;
-	}
+    public static ServiceHolder getInstance() {
+        return instance;
+    }
 
-	public RealmService getRealmService() {
-		return realmService;
-	}
+    /**
+     * Method to get RegistryService.
+     *
+     * @return registryService.
+     */
+    public RegistryService getRegistryService() {
+        return registryService;
+    }
 
-	public void setRealmService(RealmService realmService) {
-		this.realmService = realmService;
-	}
+    /**
+     * Method to set registry RegistryService.
+     *
+     * @param service registryService.
+     */
+    public void setRegistryService(RegistryService service) {
+        this.registryService = service;
+    }
+
+    /**
+     * This method used to get RealmService.
+     *
+     * @return RealmService.
+     */
+    public RealmService getRealmService() {
+        return realmService;
+    }
+
+    /**
+     * Method to set registry RealmService.
+     *
+     * @param service RealmService.
+     */
+    public void setRealmService(RealmService service) {
+        this.realmService = service;
+    }
+
+    /**
+     * This method used to get TenantRegistryLoader
+     *
+     * @return tenantRegLoader  Tenant registry loader for load tenant registry
+     */
+    public TenantRegistryLoader getTenantRegLoader() {
+        return tenantRegLoader;
+    }
+
+    /**
+     * This method used to set TenantRegistryLoader
+     *
+     * @param service Tenant registry loader for load tenant registry
+     */
+    public void setTenantRegLoader(TenantRegistryLoader service) {
+        this.tenantRegLoader = service;
+    }
+
+    /**
+     * Method to get ConfigurationContextService
+     *
+     * @return configurationContextService
+     */
+    public ConfigurationContextService getConfigurationContextService() {
+        return configurationContextService;
+    }
+
+    /**
+     * Method used to set ConfigurationContextService
+     *
+     * @param ccService configuration context service
+     */
+    public void setConfigurationContextService(ConfigurationContextService ccService) {
+        this.configurationContextService = ccService;
+    }
 }

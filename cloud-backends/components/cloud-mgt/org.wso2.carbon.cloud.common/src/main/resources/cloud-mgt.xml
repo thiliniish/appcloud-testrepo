@@ -18,6 +18,8 @@
   -->
 
 <CloudMgt xmlns="http://www.wso2.org/cloud/">
+    <CloudDatasourceName>jdbc/cloud_mgt</CloudDatasourceName>
+    <CloudInviteeRetryCount>3</CloudInviteeRetryCount>
     <TenantRoles>
         <Role name="default">
             <Permission>
@@ -63,7 +65,13 @@
         <Role name="appclouduser">
             <DisplayName>AppCloudUser</DisplayName>
             <Permission>
-                /permission/admin/manage/appCloudLogin
+                /permission/admin/manage/appCloudLogin,
+                /permission/admin/manage/rssmanager,
+                /permission/admin/manage/analytics/dashboard,
+                /permission/admin/manage/analytics/records/get,
+                /permission/admin/manage/analytics/table/list,
+                /permission/admin/manage/analytics/webservice,
+                /permission/admin/manage/portal/login
             </Permission>
             <DisplayRole>true</DisplayRole>
         </Role>

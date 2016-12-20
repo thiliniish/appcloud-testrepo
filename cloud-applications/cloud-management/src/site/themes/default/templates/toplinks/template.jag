@@ -20,7 +20,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
     var jsonObjCloudmgt = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
     var typeList = jsonObjCloudmgt.subscriptions.type;
     var subscriptionInfo = jagg.module("subscriptions").getSubscriptionInfo(typeList, username);
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
 
     if((session.get("TENANT_INFO")) != null ){
     	var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
@@ -36,7 +36,6 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
     else if (username != null) {
 %>
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <!--<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-1.11.1/jquery.min.js'))%>"></script>-->
 
 <!-- BOF cloud menu -->
@@ -156,15 +155,17 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
                         <%
                         var actions = expandMenu.Manage;
                         for (var action in actions) {
-                            var icon = actions[action].icon;
-                            var url = actions[action].url;
-                            var target = actions[action].target;
+                            if (action != "Custom Url" || (action == "Custom Url" && isUserAdmin)) {
+                                var icon = actions[action].icon;
+                                var url = actions[action].url;
+                                var target = actions[action].target;
                         %>
-                        <a class="cloud-block-invert" href="<%=url%>" target="<%=target%>">
-                            <i class="<%=icon%>"></i>
-                            <div class="cloud-name"><%=action%></div>
-                        </a>
+                                <a class="cloud-block-invert" href="<%=url%>" target="<%=target%>">
+                                    <i class="<%=icon%>"></i>
+                                    <div class="cloud-name"><%=action%></div>
+                                </a>
                         <%
+                            }
                         }
                         %>
                     </div>

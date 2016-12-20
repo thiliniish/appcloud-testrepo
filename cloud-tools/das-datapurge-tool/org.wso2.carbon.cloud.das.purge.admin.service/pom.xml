@@ -90,6 +90,8 @@
     <properties>
         <wso2das.registry.version>4.4.3</wso2das.registry.version>
         <wso2analytics.api.version>1.0.5</wso2analytics.api.version>
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
     </properties>
 
 </project>

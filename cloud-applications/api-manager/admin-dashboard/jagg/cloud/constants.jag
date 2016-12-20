@@ -1,7 +1,0 @@
-<%
-//Refresh interval for the admin cookie
-var DEFAULT_COOKIE_REFRESH_INTERVAL = 300000;
-
-//Name of the admin role
-var ADMIN_ROLE = "admin";
-%>

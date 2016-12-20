@@ -19,9 +19,18 @@ var site = require("/site/conf/site.json");
         return;
     }
     var isMonetizationEnabledObj = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+    var isStripeSuccessResponse = false;
+    var isStripeError = false;
+    var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
+    var stripeAuthcode = encoder.getSafeText(request.getParameter("stripe-authcode"));
+    var stripeError = encoder.getSafeText(request.getParameter("stripe-error"));
+    if ("" != stripeAuthcode && null != stripeAuthcode && typeof stripeAuthcode != 'undefined'){
+        isStripeSuccessResponse = true;
+    } else if ("" != stripeError && null != stripeError && typeof stripeError != 'undefined'){
+        isStripeError = true;
+    }
     var eligibleForMonetization = false;
     var paymentPlanName = jagg.module("monetizing").getCurrentPaymentPlan();
-
     if (paymentPlanName != null && BILLING_STARTER_PLAN != paymentPlanName) {
         eligibleForMonetization = true;
     }
@@ -48,7 +57,9 @@ var site = require("/site/conf/site.json");
                                     "eligibleForMonetization": eligibleForMonetization,
                                     "isFromChangePlan": isFromChangePlan,
                                     "userName": userName,
-                                    "cloudmgtURI": cloudmgtURI
+                                    "cloudmgtURI": cloudmgtURI,
+                                    "isStripeSuccessResponse": isStripeSuccessResponse,
+                                    "isStripeError": isStripeError
                                 }
                             }
                         ], "breadcrumb": [

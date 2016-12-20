@@ -20,7 +20,39 @@
             xmlns:throttle="http://www.wso2.org/products/wso2commons/throttle">
     <throttle:MediatorThrottleAssertion>
         <wsp:Policy>
-            <throttle:ID throttle:type="ROLE">2c92c0f949ac00830149b83db24f1b77</throttle:ID>
+            <throttle:ID throttle:type="ROLE">2c92a0fd57271b450157285eaa6e49b6</throttle:ID>
+            <wsp:Policy>
+                <throttle:Control>
+                    <wsp:Policy>
+                        <throttle:MaximumCount>10</throttle:MaximumCount>
+                        <throttle:UnitTime>1000</throttle:UnitTime>
+                        <wsp:Policy>
+                            <throttle:Attributes>
+                                <throttle:Name>Starter 2015</throttle:Name>
+                            </throttle:Attributes>
+                        </wsp:Policy>
+                    </wsp:Policy>
+                </throttle:Control>
+            </wsp:Policy>
+        </wsp:Policy>
+        <wsp:Policy>
+            <throttle:ID throttle:type="ROLE">2c92a0fc57271b220157285f6924539e</throttle:ID>
+            <wsp:Policy>
+                <throttle:Control>
+                    <wsp:Policy>
+                        <throttle:MaximumCount>25</throttle:MaximumCount>
+                        <throttle:UnitTime>1000</throttle:UnitTime>
+                        <wsp:Policy>
+                            <throttle:Attributes>
+                                <throttle:Name>Getting Traction 2015</throttle:Name>
+                            </throttle:Attributes>
+                        </wsp:Policy>
+                    </wsp:Policy>
+                </throttle:Control>
+            </wsp:Policy>
+        </wsp:Policy>
+        <wsp:Policy>
+            <throttle:ID throttle:type="ROLE">2c92a0fd57271b450157285eaa6e49b6</throttle:ID>
             <wsp:Policy>
                 <throttle:Control>
                     <wsp:Policy>

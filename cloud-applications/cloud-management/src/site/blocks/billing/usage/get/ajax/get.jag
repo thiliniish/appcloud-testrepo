@@ -8,6 +8,7 @@ var log = new Log("site/blocks/billing/usage/get/ajax/get.jag");
     var loginStatus = jagg.isUserLoggedIn();
     if (loginStatus.error) {
         response.status = 401;
+        log.warn("Unauthorized action, User is not authenticated");
         print(loginStatus);
         return;
     }
@@ -21,7 +22,7 @@ var log = new Log("site/blocks/billing/usage/get/ajax/get.jag");
 		try {
 			var fromDate = request.getParameter("fromDate");
 			var toDate = request.getParameter("toDate");
-			result = mod.getTenantUsage(fromDate,toDate);
+			result = mod.getTenantUsage(fromDate, toDate);
 			if (result != null) {
 				print(result);
 			} else {

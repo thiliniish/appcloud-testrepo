@@ -41,11 +41,12 @@ import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
+
+import javax.xml.stream.XMLStreamException;
 
 import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.APPROVED;
 import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.REJECTED;
@@ -59,13 +60,17 @@ import static org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus.REJECTED;
  * /_system/governance/apimgt/applicationdata/workflow-extensions.xml
  * <p/>
  * ex config:
- *    <SubscriptionCreation executor="org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionCreationWorkflowExecutor">
- *         <Property name="serviceEndpoint">https://milestones.appfactory.wso2.com:9443/services/APICloudMonetizationService/</Property>
+ *    <SubscriptionCreation
+ *          executor="org.wso2.carbon.cloud.monetization.apimgt.workflows.SubscriptionCreationWorkflowExecutor">
+ *         <Property name="serviceEndpoint">
+ *              https://milestones.appfactory.wso2.com:9443/services/APICloudMonetizationService/</Property>
  *         <Property name="username">rajith.siriw.ardana.gmail.com@mustanggt350</Property>
  *         <Property name="password">Admin</Property>
  *    </SubscriptionCreation>
  */
 public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWorkflowExecutor {
+
+    private static final long serialVersionUID = 2409089612001513775L;
 
     private static final Log LOGGER = LogFactory.getLog(SubscriptionCreationWorkflowExecutor.class);
     private static final String ERROR_MSG = "Could not complete the subscription creation workflow.";
@@ -94,7 +99,8 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
      * @return Workflow Response
      * @throws WorkflowException
      */
-    protected WorkflowResponse handleFreePlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws WorkflowException {
+    protected WorkflowResponse handleFreePlan(SubscriptionWorkflowDTO subscriptionWorkflowDTO)
+            throws WorkflowException {
         subscriptionWorkflowDTO.setStatus(APPROVED);
         WorkflowResponse workflowResponse = complete(subscriptionWorkflowDTO);
         super.publishEvents(subscriptionWorkflowDTO);
@@ -119,17 +125,21 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             httpworkflowResponse.setRedirectConfirmationMsg(null);
 
             //Encrypt and base64 encode api data
-            String apiInfo = URLEncoder.encode(getEncryptionInfo(subscriptionWorkflowDTO), CustomWorkFlowConstants.ENCODING);
+            String apiInfo = URLEncoder
+                    .encode(getEncryptionInfo(subscriptionWorkflowDTO), CustomWorkFlowConstants.ENCODING);
             //Check subscriber information availability
-            if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonObject()) {
-                JsonObject subscriber = responseObj.getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBERS_OBJ)
-                        .getAsJsonObject(CustomWorkFlowConstants.SUBSCRIBER_OBJ);
-                boolean isTestAccount = subscriber.get(CustomWorkFlowConstants.IS_TEST_ACCOUNT_PROPERTY).getAsBoolean();
+            if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBER_OBJ) != null) {
+                JsonObject subscriberJsonObj = responseObj.get(CustomWorkFlowConstants.SUBSCRIBER_OBJ)
+                        .getAsJsonObject();
+                boolean isTestAccount = subscriberJsonObj.get(CustomWorkFlowConstants.IS_TEST_ACCOUNT_PROPERTY)
+                        .getAsBoolean();
 
                 //Check subscribers is a test/complementary subscriber
                 if (!isTestAccount) {
-                    String accountNumber = subscriber.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY).isJsonPrimitive()
-                            ? subscriber.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY).getAsString() : null;
+                    String accountNumber = subscriberJsonObj.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY)
+                            .isJsonPrimitive() ?
+                            subscriberJsonObj.get(CustomWorkFlowConstants.ACCOUNT_NUMBER_PROPERTY).getAsString() :
+                            null;
                     httpworkflowResponse.setAdditionalParameters(WORKFLOW_REF_PARAM, apiInfo);
                     if (StringUtils.isNotBlank(accountNumber)) {
                         return createSubscription(accountNumber, subscriptionWorkflowDTO, httpworkflowResponse);
@@ -140,7 +150,7 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
                 } else {
                     return handleFreePlan(subscriptionWorkflowDTO);
                 }
-            } else if (responseObj.get(CustomWorkFlowConstants.SUBSCRIBERS_OBJ).isJsonPrimitive()) {
+            } else if (responseObj.get(CustomWorkFlowConstants.SUBSCRIPTION_INFO_NOT_AVAILABLE).isJsonPrimitive()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Subscriber information is not available. adding subscriber");
                 }
@@ -164,10 +174,11 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
      * @throws CryptoException
      */
     private String getEncryptionInfo(SubscriptionWorkflowDTO subscriptionWorkflowDTO) throws CryptoException {
-        String stringBuilder = subscriptionWorkflowDTO.getExternalWorkflowReference() + DATA_SEPARATOR +
-                subscriptionWorkflowDTO.getTierName() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApplicationName() +
-                DATA_SEPARATOR + subscriptionWorkflowDTO.getApiName() + DATA_SEPARATOR + subscriptionWorkflowDTO
-                .getApiVersion() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApiProvider();
+        String stringBuilder =
+                subscriptionWorkflowDTO.getExternalWorkflowReference() + DATA_SEPARATOR + subscriptionWorkflowDTO
+                        .getTierName() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApplicationName() + DATA_SEPARATOR
+                        + subscriptionWorkflowDTO.getApiName() + DATA_SEPARATOR + subscriptionWorkflowDTO
+                        .getApiVersion() + DATA_SEPARATOR + subscriptionWorkflowDTO.getApiProvider();
         return CryptoUtil.getDefaultCryptoUtil()
                 .encryptAndBase64Encode(stringBuilder.getBytes(Charset.defaultCharset()));
     }
@@ -186,11 +197,11 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             LOGGER.debug("Subscriber not available. adding subscriber");
         }
 
-        payload = CustomWorkFlowConstants.ADD_SUBSCRIBER_PAYLOAD
-                .replace("$1", subscriptionWorkflowDTO.getSubscriber())
-                .replace("$2", subscriptionWorkflowDTO.getTenantDomain()).replace("$3", "false");
-        client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_UPDATE_SUBSCRIBER, serviceEndpoint,
-                contentType, username, password);
+        payload = CustomWorkFlowConstants.ADD_SUBSCRIBER_PAYLOAD.replace("$1", subscriptionWorkflowDTO.getSubscriber
+                ()).replace("$2", "false");
+        client = WorkFlowUtils
+                .getClient(CustomWorkFlowConstants.SOAP_ACTION_UPDATE_SUBSCRIBER, serviceEndpoint, contentType,
+                        username, password);
         client.fireAndForget(AXIOMUtil.stringToOM(payload));
     }
 
@@ -206,16 +217,17 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
      * @throws WorkflowException
      */
     private WorkflowResponse createSubscription(String accountNumber, SubscriptionWorkflowDTO subscriptionWorkflowDTO,
-                                                HttpWorkflowResponse httpworkflowResponse) throws AxisFault, XMLStreamException,
-            WorkflowException {
-        String payload = CustomWorkFlowConstants.CREATE_API_SUBSCRIPTION_PAYLOAD
-                .replace("$1", accountNumber).replace("$2", subscriptionWorkflowDTO.getTenantDomain())
-                .replace("$3", subscriptionWorkflowDTO.getTierName()).replace("$4", subscriptionWorkflowDTO.getApplicationName())
-                .replace("$5", subscriptionWorkflowDTO.getApiName()).replace("$6", subscriptionWorkflowDTO
-                        .getApiVersion()).replace("$7", subscriptionWorkflowDTO.getApiProvider());
+            HttpWorkflowResponse httpworkflowResponse) throws AxisFault, XMLStreamException, WorkflowException {
+        String payload = CustomWorkFlowConstants.CREATE_API_SUBSCRIPTION_PAYLOAD.replace("$1", accountNumber)
+                .replace("$2", subscriptionWorkflowDTO.getTierName())
+                .replace("$3", subscriptionWorkflowDTO.getApplicationName())
+                .replace("$4", subscriptionWorkflowDTO.getApiName())
+                .replace("$5", subscriptionWorkflowDTO.getApiVersion())
+                .replace("$6", subscriptionWorkflowDTO.getApiProvider());
 
-        ServiceClient client = WorkFlowUtils.getClient(CustomWorkFlowConstants.SOAP_ACTION_CREATE_API_SUBSCRIPTION,
-                serviceEndpoint, contentType, username, password);
+        ServiceClient client = WorkFlowUtils
+                .getClient(CustomWorkFlowConstants.SOAP_ACTION_CREATE_API_SUBSCRIPTION, serviceEndpoint, contentType,
+                        username, password);
 
         OMElement element = client.sendReceive(AXIOMUtil.stringToOM(payload));
         OMTextImpl response = (OMTextImpl) (((OMElement) element.getFirstOMChild()).getFirstOMChild());
@@ -225,20 +237,24 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             if (responseObj == null) {
                 throw new WorkflowException("Could not complete workflow. Subscription creation failure.");
             }
-            if (responseObj.get(CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS) != null &&
-                    responseObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj.get
-                    (CustomWorkFlowConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean() && responseObj.get
-                    (CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
+
+            JsonObject dataObj = responseObj.get(CustomWorkFlowConstants.RESPONSE_DATA).getAsJsonObject();
+            if (responseObj.get(CustomWorkFlowConstants.RESPONSE_SUCCESS) != null
+                    && dataObj.get(CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED) != null && responseObj
+                    .get(CustomWorkFlowConstants.RESPONSE_SUCCESS).getAsBoolean() && dataObj.get(
+                            CustomWorkFlowConstants.MONETIZATION_TABLES_UPDATED).getAsBoolean()) {
                 subscriptionWorkflowDTO.setStatus(APPROVED);
                 complete(subscriptionWorkflowDTO);
-                httpworkflowResponse.setAdditionalParameters(SELECTED_APP_PARAM, subscriptionWorkflowDTO.getApplicationName());
+                httpworkflowResponse
+                        .setAdditionalParameters(SELECTED_APP_PARAM, subscriptionWorkflowDTO.getApplicationName());
                 httpworkflowResponse.setAdditionalParameters(ACTION_PARAM, SUBSCRIPTION_SUCCESS_PARAM_VALUE);
                 return httpworkflowResponse;
             } else {
-                LOGGER.error("Failure in zuora subscription creation. tenant: " + subscriptionWorkflowDTO
-                        .getTenantDomain() + " subscriber: " + accountNumber + " application: " +
-                        subscriptionWorkflowDTO.getApplicationName() + " api: " + subscriptionWorkflowDTO.getApiName
-                        () + " api version: " + subscriptionWorkflowDTO.getApiVersion());
+                LOGGER.error(
+                        "Failure to create subscription. Tenant: " + subscriptionWorkflowDTO.getTenantDomain()
+                                + " subscriber: " + accountNumber + " application: " + subscriptionWorkflowDTO
+                                .getApplicationName() + " api: " + subscriptionWorkflowDTO.getApiName()
+                                + " api version: " + subscriptionWorkflowDTO.getApiVersion());
                 subscriptionWorkflowDTO.setStatus(REJECTED);
                 return complete(subscriptionWorkflowDTO);
             }
@@ -287,20 +303,19 @@ public class SubscriptionCreationWorkflowExecutor extends AbstractSubscriptionWo
             LOGGER.debug("Subscription Creation [Complete] Workflow Invoked. Workflow ID : " + workflowDTO
                     .getExternalWorkflowReference() + "Workflow State : " + workflowDTO.getStatus());
         }
-        ApiMgtDAO apiMgtDAO = new ApiMgtDAO();
-
+        ApiMgtDAO apiMgtDAO = ApiMgtDAO.getInstance();
         try {
             switch (workflowDTO.getStatus()) {
-                case APPROVED:
-                    apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
-                            APIConstants.SubscriptionStatus.UNBLOCKED);
-                    break;
-                case REJECTED:
-                    apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
-                            APIConstants.SubscriptionStatus.REJECTED);
-                    break;
-                default:
-                    throw new WorkflowException(ERROR_MSG + "workflow status undefined. " + workflowDTO.getStatus());
+            case APPROVED:
+                apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
+                        APIConstants.SubscriptionStatus.UNBLOCKED);
+                break;
+            case REJECTED:
+                apiMgtDAO.updateSubscriptionStatus(Integer.parseInt(workflowDTO.getWorkflowReference()),
+                        APIConstants.SubscriptionStatus.REJECTED);
+                break;
+            default:
+                throw new WorkflowException(ERROR_MSG + "workflow status undefined. " + workflowDTO.getStatus());
             }
             return new GeneralWorkflowResponse();
         } catch (APIManagementException e) {

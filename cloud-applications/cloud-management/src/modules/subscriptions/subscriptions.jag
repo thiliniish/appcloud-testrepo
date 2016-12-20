@@ -26,7 +26,7 @@ var getWelcomeMsg = function (username) {
             }
         }
     }
-    welcomeMsg = welcomeMsg + "..!";
+    welcomeMsg = welcomeMsg + "!";
     return welcomeMsg;
 };
 
@@ -40,11 +40,15 @@ var getSubscriptionInfo = function (types, username) {
         if (types[i].id != DEFAULT_SUBSCRIPTION) {
             cloudType = types[i].id;
             roleTypes = types[i].roleTypes;
-            for (var j = 0; j < roleTypes.length; j++) {
-                if (username != null) {
-                    if (modUserManagement.hasUserRole(username, roleTypes[j].roleName)) {
-                        isSubscribed = true;
-                        break;
+            if (username != null) {
+                if (modUserManagement.hasUserRole(username, ROLE_ADMIN)) {
+                    isSubscribed = true;
+                } else {
+                    for (var j = 0; j < roleTypes.length; j++) {
+                        if (modUserManagement.hasUserRole(username, roleTypes[j].roleName)) {
+                            isSubscribed = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -59,10 +63,9 @@ var getBillingTypeInfo = function (types, domainName) {
     for (var i = 0; i < types.length; i++) {
         if (types[i].id != DEFAULT_SUBSCRIPTION) {
             var columnName = types[i].id;
-            var parameters = [columnName, domainName];
             //Get the type of billing ( Paid, trial or free)
-            var queryStringForBillingType = SQL_QUERY_STRINGS.SELECT_TYPE_FROM_BILLING_STATUS;
-            var billingType = jagg.module("database").executeQuery(queryStringForBillingType, parameters);
+            var cloudBillingDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudBillingDAO();
+            var billingType = JSON.parse(cloudBillingDAO.getTypeForTenantSubscription(columnName, domainName));
             if (billingType.length > 0) {
                 billingTypeInfo[columnName] = billingType[0][TYPE_COLUMN];
             } else {

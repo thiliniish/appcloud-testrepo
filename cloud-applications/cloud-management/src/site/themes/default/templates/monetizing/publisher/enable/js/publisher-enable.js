@@ -1,8 +1,13 @@
 $(document).ready(function ($) {
     var eligibleForMonetization = $("#eligibleForMonetization").attr('value');
+    var isStripeError = $("#isStripeError").attr('value');
     if (eligibleForMonetization == "false") {
         var requirementMessage = document.getElementById("requirement-Message").textContent;
         showRequirementMessage(requirementMessage);
+    }
+    if (isStripeError == "true") {
+        var contactUsURI = $("#cloudmgtURI").attr('value') + "/site/pages/contact-us.jag";
+        showMessage("Error occurred while authenticating the Stripe account. Please contact WSO2 Cloud", "error", contactUsURI);
     }
     var clickwithblur = false;
     jQuery.validator.addMethod("validatePassword", function (value) {
@@ -55,12 +60,14 @@ function doSubmit() {
     document.getElementById("spinner").style.display = '';
     document.getElementById("btn_enable-monetization").disabled = true;
     var tenantPassword = $("#password").attr('value');
+    var stripeAuthCode = $("#stripeAuthCode").attr('value');
     if (tenantPassword != "") {
         $.ajax({
             url: "../blocks/monetizing/publisher/enable/ajax/enable.jag",
             data: {
                 "action": "enableMonetization",
-                "tenantPassword": tenantPassword
+                "tenantPassword": tenantPassword,
+                "stripeAuthCode": stripeAuthCode
             },
             success: function (result) {
                     result = JSON.parse(result);

@@ -52,27 +52,27 @@ public class APICloudMonetizationService {
      * @param tenantDomain tenant domain
      * @return
      * {
-     * 	"Subscribers": {
-     * 		"Subscriber": {
-     * 		    "Tenant": "chargerhellcat"
-     * 		    "Username": "kaiphaes.fakeinbox.com"
-     * 		    "TestAccount": "false"
-     * 		    "AccountNumber": "A00000622"
-     * 		}
-     * 	}
+     *  "Subscribers": {
+     *      "Subscriber": {
+     *          "Tenant": "chargerhellcat"
+     *          "Username": "kaiphaes.fakeinbox.com"
+     *          "TestAccount": "false"
+     *          "AccountNumber": "A00000622"
+     *      }
+     *  }
      * }
-     *
+     * <p>
      * if AccountNumber is null then
      * <p/>
      * {
-     * 	"Subscribers": {
-     * 		"Subscriber": {
-     * 		    "Tenant": "chargerhellcat"
-     * 		    "Username": "kaiphaes.fakeinbox.com"
-     * 		    "TestAccount": "false"
-     * 		    "AccountNumber": {"@nil": "true"}
-     * 		}
-     * 	}
+     *  "Subscribers": {
+     *      "Subscriber": {
+     *          "Tenant": "chargerhellcat"
+     *          "Username": "kaiphaes.fakeinbox.com"
+     *          "TestAccount": "false"
+     *          "AccountNumber": {"@nil": "true"}
+     *      }
+     *  }
      * }
      * @throws CloudMonetizationException
      */
@@ -95,10 +95,11 @@ public class APICloudMonetizationService {
      * @param accountNumber account number. this would be null for non paid subscribers
      * @throws CloudMonetizationException
      */
-    public void addAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-                                     String accountNumber) throws CloudMonetizationException {
+    public void addAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount, String accountNumber)
+            throws CloudMonetizationException {
         try {
-            APICloudMonetizationUtils.updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, false);
+            APICloudMonetizationUtils
+                    .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, false);
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error while adding subscriber information. Tenant: " + tenantDomain + " Subscriber: " +
                     username + " Account number: " + accountNumber, ex);
@@ -116,9 +117,10 @@ public class APICloudMonetizationService {
      * @throws CloudMonetizationException
      */
     public boolean updateAPISubscriberInfo(String username, String tenantDomain, boolean isTestAccount,
-                                           String accountNumber) throws CloudMonetizationException {
+            String accountNumber) throws CloudMonetizationException {
         try {
-            return APICloudMonetizationUtils.updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
+            return APICloudMonetizationUtils
+                    .updateAPISubscriberInfo(username, tenantDomain, isTestAccount, accountNumber, true);
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error while updating subscriber information. Tenant: " + tenantDomain + " Subscriber: " +
                     username + " Account No: " + accountNumber, ex);
@@ -134,7 +136,8 @@ public class APICloudMonetizationService {
      */
     public boolean isMonetizationEnabled(String tenantDomain) throws CloudMonetizationException {
         try {
-            return CloudBillingServiceUtils.isMonetizationEnabled(tenantDomain, BillingConstants.API_CLOUD_SUBSCRIPTION_ID);
+            return CloudBillingServiceUtils
+                    .isMonetizationEnabled(tenantDomain, BillingConstants.API_CLOUD_SUBSCRIPTION_ID);
         } catch (CloudBillingException e) {
             String errorMsg = "Error while checking monetization status for tenant: " + tenantDomain;
             LOGGER.error(errorMsg, e);
@@ -218,12 +221,12 @@ public class APICloudMonetizationService {
      * Get tier details from tiers.xml
      *
      * @param tenantDomain
-     * @return json object array of tiers
+     * @return json string of array of tiers
      * @throws CloudMonetizationException
      */
-    public JsonArray getTiers(String tenantDomain) throws CloudMonetizationException {
+    public String getTiers(String tenantDomain) throws CloudMonetizationException {
         try {
-            JsonArray tierList = APICloudMonetizationUtils.getTiersOfTenant(tenantDomain);
+            String tierList = APICloudMonetizationUtils.getTiersOfTenant(tenantDomain);
             return tierList;
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error occurred while getting the tier details of tenant: " + tenantDomain, ex);
@@ -240,10 +243,11 @@ public class APICloudMonetizationService {
      * @throws CloudMonetizationException
      */
     public boolean addSubscriptionInformation(String tenantDomain, String accountNumber, String apiData,
-                                              String effectiveDate) throws CloudMonetizationException {
+            String effectiveDate) throws CloudMonetizationException {
         try {
             JsonObject apiDataObj = new JsonParser().parse(apiData).getAsJsonObject();
-            return APICloudMonetizationUtils.addSubscriptionInformation(tenantDomain, accountNumber, apiDataObj, effectiveDate);
+            return APICloudMonetizationUtils
+                    .addSubscriptionInformation(tenantDomain, accountNumber, apiDataObj, effectiveDate);
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error while adding subscription information. Tenant: " + tenantDomain + " Account no: " +
                     accountNumber + " Api data: " + apiData, ex);
@@ -287,9 +291,9 @@ public class APICloudMonetizationService {
      *  "totalDeltaMrr": 0,
      *  "totalDeltaTcv": null
      * }
-     *
+     * <p>
      * failure
-     *
+     * <p>
      * {
      *  "success": false,
      *  "processId": "2E185B5582D256E7",
@@ -300,14 +304,13 @@ public class APICloudMonetizationService {
      *      }
      *  ]
      * }
-     *
+     * <p>
      * When subscription data not available on databases
      * it would be
-     *
+     * <p>
      * {
      *  "subscriptionInfoNotAvailable":true
      * }
-     *
      * @throws CloudMonetizationException
      */
     public String cancelSubscription(String accountNumber, String appName, String apiName, String apiVersion)
@@ -325,36 +328,34 @@ public class APICloudMonetizationService {
      * Remove Application related api subscriptions
      *
      * @param accountNumber subscriber account number
-     * @param appName application name
-     * @return
-     * {
-     *     "removedSubscriptions": [
-     *         {
-     *             "AccountNumber": "A00000657",
-     *             "ApiName": "CalculatorAPI",
-     *             "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
-     *             "ApiVersion": "1.0",
-     *             "AppName": "TESTAAA1",
-     *             "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
-     *             "StartDate": "2016-01-06T14:37:30.000+05:30",
-     *             "SubscriptionNumber": "A-S00000699"
-     *         },
-     *         {
-     *             "AccountNumber": "A00000657",
-     *             "ApiName": "PhoneVerify",
-     *             "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
-     *             "ApiVersion": "1.0.0",
-     *             "AppName": "TESTAAA1",
-     *             "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
-     *             "StartDate": "2016-01-06T14:43:38.000+05:30",
-     *             "SubscriptionNumber": "A-S00000700"
-     *         }
-     *     ],
-     *     "success": true
-     * }
-     *
+     * @param appName       application name
+     * @return {
+     *      "removedSubscriptions": [
+     *          {
+     *              "AccountNumber": "A00000657",
+     *              "ApiName": "CalculatorAPI",
+     *              "ApiProvider": "rajith.siriw.ardana.gmail.com-AT-mustanggt350",
+     *              "ApiVersion": "1.0",
+     *              "AppName": "TESTAAA1",
+     *              "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *              "StartDate": "2016-01-06T14:37:30.000+05:30",
+     *              "SubscriptionNumber": "A-S00000699"
+     *          },
+     *          {
+     *              "AccountNumber": "A00000657",
+     *              "ApiName": "PhoneVerify",
+     *              "ApiProvider": "criachae.fakeinbox.com -AT-mustanggt350",
+     *              "ApiVersion": "1.0.0",
+     *              "AppName": "TESTAAA1",
+     *              "RatePlanId": "2c92c0f8516cc19e0151854814d367ff",
+     *              "StartDate": "2016-01-06T14:43:38.000+05:30",
+     *              "SubscriptionNumber": "A-S00000700"
+     *          }
+     *      ],
+     *      "success": true
+     *  }
+     * <p>
      * If one of the subscriptions in the application isn't removed, the "success" attribute will be set to false
-     *
      * @throws CloudMonetizationException
      */
     public String removeAppSubscriptions(String accountNumber, String appName) throws CloudMonetizationException {
@@ -381,8 +382,7 @@ public class APICloudMonetizationService {
      * @throws CloudMonetizationException
      */
     public String createAPISubscription(String accountNumber, String tenantDomain, String tierName, String appName,
-                                        String apiName, String apiVersion, String apiProvider) throws
-            CloudMonetizationException {
+            String apiName, String apiVersion, String apiProvider) throws CloudMonetizationException {
         Date planEffectiveDate = new Date();
         String ratePlanId = getRatePlanId(tenantDomain, tierName);
         if (StringUtils.isBlank(ratePlanId)) {
@@ -393,7 +393,8 @@ public class APICloudMonetizationService {
             String zuoraResponse = ZuoraRESTUtils.createSubscription(accountNumber, ratePlanId, planEffectiveDate);
             JsonObject zuoraResObj = new JsonParser().parse(zuoraResponse).getAsJsonObject();
             if (zuoraResObj != null && zuoraResObj.isJsonObject()) {
-                String mysqlFormatDate = new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT).format(planEffectiveDate);
+                String mysqlFormatDate = new SimpleDateFormat(BillingConstants.DATE_TIME_FORMAT)
+                        .format(planEffectiveDate);
 
                 if (zuoraResObj.get(BillingConstants.ZUORA_RESPONSE_SUCCESS).getAsBoolean()) {
                     JsonObject apiDataObj = new JsonObject();
@@ -402,17 +403,18 @@ public class APICloudMonetizationService {
                     apiDataObj.addProperty(MonetizationConstants.SOAP_API_VERSION, apiVersion);
                     apiDataObj.addProperty(MonetizationConstants.SOAP_API_PROVIDER, apiProvider);
                     apiDataObj.addProperty(BillingConstants.PARAM_RATE_PLAN_ID, ratePlanId);
-                    apiDataObj.addProperty(BillingConstants.PARAM_SUBSCRIPTION_NUMBER, zuoraResObj.get
-                            (BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString());
-                    boolean addSubscriptionStatus = APICloudMonetizationUtils.addSubscriptionInformation(tenantDomain,
-                            accountNumber, apiDataObj, mysqlFormatDate);
+                    apiDataObj.addProperty(BillingConstants.PARAM_SUBSCRIPTION_NUMBER,
+                            zuoraResObj.get(BillingConstants.PARAM_SUBSCRIPTION_NUMBER).getAsString());
+                    boolean addSubscriptionStatus = APICloudMonetizationUtils
+                            .addSubscriptionInformation(tenantDomain, accountNumber, apiDataObj, mysqlFormatDate);
 
                     //ToDo This email and manual recovering process is a temporary fix for the MVP
                     if (!addSubscriptionStatus) {
-                        String msgBody = "Error while updating subscription information in the database. Please update " +
-                                "the subscriptions table. Tenant: " + tenantDomain + ", Account number: "
-                                + accountNumber + ", Effective date: " + mysqlFormatDate + ", API data: " +
-                                apiDataObj.toString();
+                        String msgBody =
+                                "Error while updating subscription information in the database. Please update " +
+                                        "the subscriptions table. Tenant: " + tenantDomain + ", Account number: "
+                                        + accountNumber + ", Effective date: " + mysqlFormatDate + ", API data: " +
+                                        apiDataObj.toString();
                         String msgSubject = "[Monetization][API Cloud][ALERT] Subscription db update failure";
                         //sending as a notification for cloud
                         CloudBillingServiceUtils.sendNotificationToCloud(msgBody, msgSubject);
@@ -521,7 +523,7 @@ public class APICloudMonetizationService {
      * Get the list of applications by looking at the user name and api name from API Stat tables
      *
      * @param username
-     * @param apiName API Name
+     * @param apiName  API Name
      * @return JSON object of Application names
      * @throws CloudMonetizationException
      */
@@ -540,20 +542,20 @@ public class APICloudMonetizationService {
      * @param tenantDomain tenant
      * @return rate plan information in json
      *[
-     *    {
-     *        "MaxDailyUsage": "10000",
-     *        "MonthlyRental": "5000.0",
-     *        "OverUsageUnits": "1000",
-     *        "OverUsageUnitsPrice": "5.0",
-     *        "RatePlanName": "Gold"
-     *    },
-     *    {
-     *        "MaxDailyUsage": "10000",
-     *        "MonthlyRental": "7000.0",
-     *        "OverUsageUnits": "1000",
-     *        "OverUsageUnitsPrice": "5.0",
-     *        "RatePlanName": "Platinum"
-     *    }
+     *      {
+     *          "MaxDailyUsage": "10000",
+     *          "MonthlyRental": "5000.0",
+     *          "OverUsageUnits": "1000",
+     *          "OverUsageUnitsPrice": "5.0",
+     *          "RatePlanName": "Gold"
+     *      },
+     *      {
+     *          "MaxDailyUsage": "10000",
+     *          "MonthlyRental": "7000.0",
+     *          "OverUsageUnits": "1000",
+     *          "OverUsageUnitsPrice": "5.0",
+     *          "RatePlanName": "Platinum"
+     *      }
      *]
      * @throws CloudMonetizationException
      */
@@ -593,6 +595,22 @@ public class APICloudMonetizationService {
 
         } catch (CloudMonetizationException ex) {
             LOGGER.error("Error while getting Rate plans for tenant: " + tenantDomain, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Retrieve available tiers of the tenant
+     *
+     * @param tenantDomain tenant
+     * @return Tiers information in a json string
+     * @throws CloudMonetizationException
+     */
+    public String getTiersOfTenant(String tenantDomain) throws CloudMonetizationException {
+        try {
+            return APICloudMonetizationUtils.getTiersOfTenant(tenantDomain);
+        } catch (CloudMonetizationException ex) {
+            LOGGER.error("Error occurred while retrieving throttling tiers of tenant: " + tenantDomain, ex);
             throw ex;
         }
     }

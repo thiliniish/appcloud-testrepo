@@ -30,15 +30,15 @@ import org.wso2.carbon.cloud.throttling.common.Constants;
 import org.wso2.carbon.cloud.throttling.tasks.CacheCleaner;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /*
 * This class holds data related to throttle handler
@@ -54,7 +54,13 @@ public class ThrottleDataHolder {
     private static String id;
     private static Timer cacheCleanerTimer;
     private static Timer throttleOutHandlerTimer;      //todo
-    private static OMElement policyElement = null;
+    private static OMElement defaultPolicyElement = null;
+
+    /**
+     * To keep track of special policies against tenant ID
+     */
+    private static Map<Integer, OMElement> tenantIdToPolicyElement = new ConcurrentHashMap<Integer, OMElement>();
+
     /*
     * Used to keep throttle objects per tenant as to avoid confusion in high concurrency
     * */
@@ -79,19 +85,33 @@ public class ThrottleDataHolder {
         return CLOUD_TYPE;
     }
 
-    /*
-    * Use to get the throttle object for a given tenant domain. It creates if not already created.
-    * @param String tenantDomain
-    * @return Throttle throttle object
-    * @throws CloudThrottlingException
-    * */
-    public Throttle getThrottle(String tenantDomain) throws CloudThrottlingException {
+    /**
+     * Use to get the throttle object for a given tenant domain. It creates if not already created.
+     *
+     * @param tenantDomain tenant domain of the current tenant
+     * @param tenantId tenant Id of the current tenant
+     * @return throttle object
+     * @throws CloudThrottlingException
+     */
+    public Throttle getThrottle(String tenantDomain, int tenantId) throws CloudThrottlingException {
         /* load the policy xml from the file system */
-        if (policyElement == null) {
-            policyElement = getPolicy();
+        OMElement policyElementForTenant;
+        if(isSpecialPolicyFileAvailableForTenant(tenantId)){
+            policyElementForTenant = tenantIdToPolicyElement.get(tenantId);
+            if(policyElementForTenant == null){
+                policyElementForTenant = getPolicy(tenantId);
+                tenantIdToPolicyElement.put(tenantId, policyElementForTenant);
+            }
+        } else {
+            if (defaultPolicyElement == null) {
+                defaultPolicyElement = getPolicy(tenantId);
+            }
+            policyElementForTenant = defaultPolicyElement;
         }
+
+
         try {
-            if (policyElement != null) {
+            if (policyElementForTenant != null) {
                 Throttle throttle = null;
                 // Get the throttle object for the tenantDomain
                 if (tenantThrottleMap.containsKey(tenantDomain)) {
@@ -99,13 +119,14 @@ public class ThrottleDataHolder {
                 } else {
                     // Creates the throttle object from the policy
                     throttle = ThrottleFactory.createMediatorThrottle(
-                            PolicyEngine.getPolicy(policyElement));
+                            PolicyEngine.getPolicy(policyElementForTenant));
                     tenantThrottleMap.put(tenantDomain, throttle);
                 }
                 return throttle;
 
             } else {
-                throw new CloudThrottlingException("Unable to load throttling policy from policy key " + Constants.POLICY_KEY + " policyElement is null");
+                throw new CloudThrottlingException("Unable to load throttling policy from policy key " + Constants
+                        .POLICY_KEY + " policyElement is null");
             }
 
         } catch (ThrottleException e) {
@@ -113,21 +134,28 @@ public class ThrottleDataHolder {
         }
     }
 
-    /*
-    * This method read the policy file from the file system and creates an OMElement
-    * @return OMElement policy
-    * @throws CloudThrottlingException if en exception throws
-    * */
-    private OMElement getPolicy() throws CloudThrottlingException {
+    /**
+     * This method read the policy file from the file system and creates an OMElement
+     *
+     * @param tenantId tenant Id of the current tenant
+     * @return OMElement policy
+     * @throws CloudThrottlingException if en exception throws
+     */
+    private OMElement getPolicy(int tenantId) throws CloudThrottlingException {
         /* Get policy file from the file system*/
-        String policyConfigLocation = CarbonUtils.getCarbonConfigDirPath() + Constants.POLICY_KEY;
+        String policyConfigLocation = CarbonUtils.getCarbonTenantsDirPath() + "/" + tenantId + Constants.POLICY_KEY;
         File tenantTiersConfig = new File(policyConfigLocation);
+        if (!tenantTiersConfig.isFile()) {
+            policyConfigLocation = CarbonUtils.getCarbonConfigDirPath() + Constants.POLICY_KEY;
+            tenantTiersConfig = new File(policyConfigLocation);
+        }
         //create the parser
         XMLStreamReader parser = null;
         try {
             parser = XMLInputFactory.newInstance().createXMLStreamReader(new FileInputStream(tenantTiersConfig));
         } catch (XMLStreamException e) {
-            throw new CloudThrottlingException("Error Reading tenant throttle policy from resource " + Constants.POLICY_KEY, e);
+            throw new CloudThrottlingException("Error Reading tenant throttle policy from resource " + Constants
+                    .POLICY_KEY, e);
         } catch (FileNotFoundException e) {
             throw new CloudThrottlingException("Tenant tier policy file is not found.", e);
         }
@@ -140,6 +168,19 @@ public class ThrottleDataHolder {
         return policyElement;
 
     }
+
+    /**
+     * Check whether there is a special policy file associate with the tenant.
+     *
+     * @param tenantId  tenant Id
+     * @return whether there is a special policy file
+     */
+    private boolean isSpecialPolicyFileAvailableForTenant(int tenantId){
+        String policyConfigLocation = CarbonUtils.getCarbonTenantsDirPath() + "/" + tenantId + Constants.POLICY_KEY;
+        File tenantTiersConfig = new File(policyConfigLocation);
+        return tenantTiersConfig.isFile();
+    }
+
 
     /*
     * Start a background task to cleanup the caches

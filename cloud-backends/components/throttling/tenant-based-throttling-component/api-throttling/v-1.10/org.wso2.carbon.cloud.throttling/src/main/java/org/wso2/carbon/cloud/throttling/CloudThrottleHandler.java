@@ -91,11 +91,12 @@ public class CloudThrottleHandler extends AbstractHandler {
 
         //get the tenant domain..
         final String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        final int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Check for clustering enabled. isClusteringEnable = " + isClusteringEnable);
         }
         try {
-            throttle = ThrottleDataHolder.getInstance().getThrottle(tenantDomain);
+            throttle = ThrottleDataHolder.getInstance().getThrottle(tenantDomain, tenantId);
         } catch (CloudThrottlingException e) {
             LOG.warn("Exception in creating throttle from policy key " + Constants.POLICY_KEY, e);
         }
@@ -223,13 +224,6 @@ public class CloudThrottleHandler extends AbstractHandler {
         org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext) messageContext).
                 getAxis2MessageContext();
 
-        if (Utils.isCORSEnabled()) {
-            /* For CORS support adding required headers to the fault response */
-            Map<String, String> headers = (Map<String, String>) axis2MC.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
-            headers.put(APIConstants.CORSHeaders.ACCESS_CONTROL_ALLOW_METHODS, Utils.getAllowedMethods());
-            headers.put(APIConstants.CORSHeaders.ACCESS_CONTROL_ALLOW_HEADERS, Utils.getAllowedHeaders());
-            axis2MC.setProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS, headers);
-        }
         Utils.sendFault(messageContext, APIThrottleConstants.SC_TOO_MANY_REQUESTS);
 
     }

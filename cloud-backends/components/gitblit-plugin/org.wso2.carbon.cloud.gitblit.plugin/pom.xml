@@ -114,4 +114,9 @@
             <version>${wso2.oath.version}</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
+    </properties>
 </project>

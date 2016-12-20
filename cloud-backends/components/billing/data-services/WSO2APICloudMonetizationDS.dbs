@@ -135,18 +135,18 @@
         <param name="DAY" sqlType="STRING"/>
     </query>
     <query id="getSubscriptionNumberForAppQ" useConfig="cloud_mgt">
-        <sql>SELECT SUBSCRIPTION_NUMBER, START_DATE, RATE_PLAN_ID FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS WHERE
-            ACCOUNT_NUMBER= :ACCOUNT_NUMBER AND AM_API_NAME=:API_NAME AND AM_API_VERSION = :API_VERSION AND AM_APP_NAME
-            =:APP_NAME UNION ALL (SELECT SUBSCRIPTION_NUMBER, START_DATE, RATE_PLAN_ID FROM
-            MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY WHERE ACCOUNT_NUMBER=:ACCOUNT_NUMBER AND AM_API_NAME=:API_NAME
-            AND AM_API_VERSION = :API_VERSION AND AM_APP_NAME=:APP_NAME ORDER BY START_DATE DESC Limit 1) ORDER BY
-            START_DATE DESC LIMIT 1;
+        <sql>SELECT SUBSCRIPTION_NUMBER, START_DATE, RATE_PLAN_ID FROM MONETIZATION_API_CLOUD_SUBSCRIPTIONS
+            WHERE ACCOUNT_NUMBER= :ACCOUNT_NUMBER AND AM_API_NAME=:API_NAME AND AM_API_VERSION = :API_VERSION AND AM_APP_NAME=:APP_NAME UNION ALL
+            (SELECT SUBSCRIPTION_NUMBER, START_DATE, RATE_PLAN_ID FROM  MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY
+            WHERE ACCOUNT_NUMBER=:ACCOUNT_NUMBER AND AM_API_NAME=:API_NAME  AND AM_API_VERSION = :API_VERSION AND AM_APP_NAME=:APP_NAME ORDER BY START_DATE DESC Limit 1)
+            ORDER BY START_DATE DESC LIMIT 1;
         </sql>
         <result element="Subscription" rowName="">
             <element column="SUBSCRIPTION_NUMBER" name="SubscriptionNumber" xsdType="string"/>
             <call-query href="getRatePlanDetailsForPlanIdQ" requiredRoles="">
-                <with-param name="RATE_PLAN_ID" query-param="RATE_PLAN_ID"/>
+               <with-param name="RATE_PLAN_ID" query-param="RATE_PLAN_ID"/>
             </call-query>
+
         </result>
         <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
         <param name="APP_NAME" sqlType="STRING"/>
@@ -154,11 +154,12 @@
         <param name="API_NAME" sqlType="STRING"/>
     </query>
     <query id="getAccountDetailsForUserQ" useConfig="cloud_mgt">
-        <sql>SELECT ACCOUNT_NUMBER FROM MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE USER_NAME =
-            SUBSTRING_INDEX(:USER_NAME,'@',1);
+        <sql>SELECT ACCOUNT_NUMBER, TENANT_DOMAIN FROM MONETIZATION_API_CLOUD_SUBSCRIBERS WHERE USER_NAME =
+            SUBSTRING_INDEX(:USER_NAME,'@',1) AND TENANT_DOMAIN = SUBSTRING_INDEX(:USER_NAME,'@',-1);
         </sql>
         <result element="Account" rowName="">
             <element column="ACCOUNT_NUMBER" name="AccountNumber" xsdType="string"/>
+            <element column="TENANT_DOMAIN" name="TenantDomain" xsdType="string"/>
             <call-query href="getSubscriptionNumberForAppQ" requiredRoles="">
                 <with-param column="ACCOUNT_NUMBER" name="ACCOUNT_NUMBER"/>
                 <with-param column="APP_NAME" name="APP_NAME"/>
@@ -195,21 +196,21 @@
         <param name="END_DATE" sqlType="STRING"/>
     </query>
     <query id="getRatePlanDetailsForPlanIdQ" useConfig="cloud_mgt">
-        <sql>SELECT RATE_PLAN_NAME, MAX_DAILY_USAGE,UOM_UNIT FROM MONETIZATION_PRODUCT_PLANS INNER JOIN
-            MONETIZATION_API_CLOUD_PLANS_INFO ON MONETIZATION_PRODUCT_PLANS.RATE_PLAN_ID =
-            MONETIZATION_API_CLOUD_PLANS_INFO.RATE_PLAN_ID WHERE MONETIZATION_PRODUCT_PLANS.RATE_PLAN_ID = :RATE_PLAN_ID
-        </sql>
+    <sql>SELECT RATE_PLAN_NAME, MAX_DAILY_USAGE,UOM_UNIT, UOM_PRICE FROM MONETIZATION_PRODUCT_PLANS INNER JOIN
+                MONETIZATION_API_CLOUD_PLANS_INFO ON MONETIZATION_PRODUCT_PLANS.RATE_PLAN_ID = MONETIZATION_API_CLOUD_PLANS_INFO.RATE_PLAN_ID
+                WHERE MONETIZATION_PRODUCT_PLANS.RATE_PLAN_ID = :RATE_PLAN_ID</sql>
         <result element="RatePlan" rowName="">
             <element column="RATE_PLAN_NAME" name="RatePlanName" xsdType="string"/>
             <element column="MAX_DAILY_USAGE" name="MaxDailyUsage" xsdType="string"/>
             <element column="UOM_UNIT" name="OverUsageUnits" xsdType="integer"/>
+            <element column="UOM_PRICE" name="overUsagePrice" xsdType="double"/>
         </result>
         <param name="RATE_PLAN_ID" sqlType="STRING"/>
     </query>
     <query id="getRatePlansInfoForTenantQ"  useConfig="cloud_mgt">
       <sql>SELECT RATE_PLAN_NAME, MAX_DAILY_USAGE, MONTHLY_RENTAL, UOM_UNIT, UOM_PRICE FROM
       MONETIZATION_API_CLOUD_PLANS_INFO AS A INNER JOIN (SELECT RATE_PLAN_ID, RATE_PLAN_NAME FROM
-      MONETIZATION_PRODUCT_PLANS WHERE TENANT_DOMAIN=(:TENANT_DOMAIN) AND ZUORA_PRODUCT_NAME=CONCAT(
+      MONETIZATION_PRODUCT_PLANS WHERE TENANT_DOMAIN=(:TENANT_DOMAIN) AND PRODUCT_NAME=CONCAT(
       (:TENANT_DOMAIN), '_api_cloud')) AS B ON A.RATE_PLAN_ID=B.RATE_PLAN_ID;</sql>
         <result element="Entry" rowName="RatePlans">
             <element column="RATE_PLAN_NAME" name="RatePlanName" xsdType="string"/>
@@ -342,6 +343,18 @@
       <param name="END_DATE" sqlType="STRING"/>
       <param name="GROUP_BY_QUERY" sqlType="QUERY_STRING"/>
    </query>
+   <query id="addMonetizationAccountQ" useConfig="cloud_mgt">
+      <sql>INSERT INTO MONETIZATION_API_CLOUD_ACCOUNT (ACCOUNT_NUMBER,TOKEN_TYPE,STRIPE_PUBLISHABLE_KEY,SCOPE,LIVE_MODE,STRIPE_USER_ID,REFRESH_TOKEN,ACCESS_TOKEN,ACCOUNT_CREATION_DATE) VALUES (:ACCOUNT_NUMBER,:TOKEN_TYPE,:STRIPE_PUBLISHABLE_KEY,:SCOPE,:LIVE_MODE,:STRIPE_USER_ID,:REFRESH_TOKEN,:ACCESS_TOKEN,:ACCOUNT_CREATION_DATE)</sql>
+      <param name="ACCOUNT_NUMBER" sqlType="STRING"/>
+      <param name="TOKEN_TYPE" sqlType="STRING"/>
+      <param name="STRIPE_PUBLISHABLE_KEY" sqlType="STRING"/>
+      <param name="SCOPE" sqlType="STRING"/>
+      <param name="STRIPE_USER_ID" sqlType="STRING"/>
+      <param name="REFRESH_TOKEN" sqlType="STRING"/>
+      <param name="ACCESS_TOKEN" sqlType="STRING"/>
+      <param name="ACCOUNT_CREATION_DATE" sqlType="STRING"/>
+      <param name="LIVE_MODE" sqlType="TINYINT"/>
+   </query>
     <operation name="getSubscriber">
         <call-query href="getSubscriberInfoQ">
             <with-param name="TENANT_DOMAIN" query-param="tenant"/>
@@ -424,6 +437,9 @@
         <call-query href="getRatePlansInfoForTenantQ">
             <with-param name="TENANT_DOMAIN" query-param="tenantDomain"/>
         </call-query>
+    </operation>
+    <operation name="addMonetizationAccount">
+        <call-query href="addMonetizationAccountQ"/>
     </operation>
     <resource method="GET" path="v1/subscribers/{tenant}/{username}">
         <call-query href="getSubscriberInfoQ">
@@ -564,7 +580,7 @@
          <with-param name="START_DATE" query-param="startDate"/>
          <with-param name="END_DATE" query-param="endDate"/>
       </call-query>
-   </resource>   
+   </resource>
     <!--path="v1/usage/subscribers/apis/{username}" -->
     <resource method="GET" path="v1/apis/{username}" >
       <call-query href="getApiListForUserQ">
@@ -591,6 +607,19 @@
          <with-param name="START_DATE" query-param="startDate"/>
          <with-param name="END_DATE" query-param="endDate"/>
          <with-param name="GROUP_BY_QUERY" query-param="groupByQuery"/>
+      </call-query>
+   </resource>
+   <resource method="POST" path="v1/accounts/{accountNumber}" returnRequestStatus="true">
+      <call-query href="addMonetizationAccountQ">
+         <with-param name="ACCOUNT_NUMBER" query-param="accountNumber"/>
+         <with-param name="TOKEN_TYPE" query-param="token_type"/>
+         <with-param name="STRIPE_PUBLISHABLE_KEY" query-param="stripe_publishable_key"/>
+         <with-param name="SCOPE" query-param="scope"/>
+         <with-param name="STRIPE_USER_ID" query-param="stripe_user_id"/>
+         <with-param name="REFRESH_TOKEN" query-param="refresh_token"/>
+         <with-param name="ACCESS_TOKEN" query-param="access_token"/>
+         <with-param name="ACCOUNT_CREATION_DATE" query-param="account_creation_date"/>
+         <with-param name="LIVE_MODE" query-param="livemode"/>
       </call-query>
    </resource>
 </data>

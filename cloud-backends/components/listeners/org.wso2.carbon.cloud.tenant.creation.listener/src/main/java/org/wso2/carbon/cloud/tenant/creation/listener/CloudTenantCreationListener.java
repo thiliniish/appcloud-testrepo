@@ -39,74 +39,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Implementation of TenantManager Listener to create Role information
+ */
 public class CloudTenantCreationListener implements TenantMgtListener {
     private static final Log log = LogFactory.getLog(CloudTenantCreationListener.class);
-
-    public void onTenantCreate(TenantInfoBean tenantInfoBean) throws StratosException {
-        log.info("Adding Tenant Roles on tenant creation.");
-        Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
-        try {
-            roleBeanList.addAll(getRolePermissionConfigurations(CloudMgtConstants.TENANT_ROLES_ROLE, tenantInfoBean.getAdmin()));
-        } catch (CloudMgtException e) {
-            String message = "Failed to read default roles from cloud-mgt configuration.";
-            log.error(message);
-            throw new StratosException(message, e);
-        }
-
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            privilegedCarbonContext.setTenantId(tenantInfoBean.getTenantId());
-            privilegedCarbonContext.setTenantDomain(tenantInfoBean.getTenantDomain());
-            UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
-                    getUserRealm().getUserStoreManager();
-            AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
-                    getUserRealm().getAuthorizationManager();
-            addRolePermissions(userStoreManager, authorizationManager, roleBeanList);
-
-        } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            String message = "Failed to add default roles to tenant : " + tenantInfoBean.getTenantDomain()
-                    + "(" + tenantInfoBean.getTenantId() + ")";
-            log.error(message);
-            throw new StratosException(message, e);
-        } catch (UserStoreException e) {
-            String message = "Failed to add default roles to tenant : " + tenantInfoBean.getTenantDomain()
-                    + "(" + tenantInfoBean.getTenantId() + ")";
-            log.error(message);
-            throw new StratosException(message, e);
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-
-    }
-
-    public void onTenantUpdate(TenantInfoBean tenantInfoBean) throws StratosException {
-
-    }
-
-    public void onTenantRename(int i, String s, String s1) throws StratosException {
-
-    }
-
-    public void onTenantInitialActivation(int i) throws StratosException {
-
-    }
-
-    public void onTenantActivation(int i) throws StratosException {
-
-    }
-
-    public void onTenantDeactivation(int i) throws StratosException {
-
-    }
-
-    public void onSubscriptionPlanChange(int i, String s, String s1) throws StratosException {
-
-    }
-
-    public int getListenerOrder() {
-        return 0;
-    }
 
     private static Set<RoleBean> getRolePermissionConfigurations(String rolePermissionConfigPath, String defaultUser)
             throws CloudMgtException {
@@ -117,9 +54,8 @@ public class CloudTenantCreationListener implements TenantMgtListener {
             log.warn("No roles permissions are configured for " + rolePermissionConfigPath + " path in cloud-mgt.xml");
         } else {
             for (String role : roles) {
-                String permissionIdString =
-                        configuration.getFirstProperty(rolePermissionConfigPath + "." + role +
-                                ".Permission");
+                String permissionIdString = configuration.getFirstProperty(rolePermissionConfigPath + "." + role +
+                                                                           ".Permission");
                 String[] permissionIds = permissionIdString.split(",");
                 RoleBean roleBean = new RoleBean(role.trim());
                 roleBean.addUser(defaultUser);
@@ -132,16 +68,14 @@ public class CloudTenantCreationListener implements TenantMgtListener {
 
                     String[] resourceAndActionParts = permissionId.split(":");
                     if (resourceAndActionParts.length == 2) {
-                        Permission permission =
-                                new Permission(
-                                        resourceAndActionParts[0],
-                                        replaceRegistryPermissionAction(resourceAndActionParts[1]));
+                        Permission permission = new Permission(resourceAndActionParts[0],
+                                                               replaceRegistryPermissionAction(
+                                                                       resourceAndActionParts[1]));
                         roleBean.addPermission(permission, !isDeniedPermission);
 
                     } else if (resourceAndActionParts.length == 1) {
                         Permission permission =
-                                new Permission(resourceAndActionParts[0],
-                                        CarbonConstants.UI_PERMISSION_ACTION);
+                                new Permission(resourceAndActionParts[0], CarbonConstants.UI_PERMISSION_ACTION);
                         roleBean.addPermission(permission, !isDeniedPermission);
                     }
                 }
@@ -176,16 +110,16 @@ public class CloudTenantCreationListener implements TenantMgtListener {
             if (!userStoreManager.isExistingRole(roleBean.getRoleName())) {
                 // add role and authorize given authorized permission list
                 userStoreManager.addRole(roleBean.getRoleName(),
-                        roleBean.getUsers().toArray(new String[roleBean.getUsers().size()]),
-                        roleBean.getPermissions(true)
-                                .toArray(new Permission[roleBean.getPermissions(true).size()]));
+                                         roleBean.getUsers().toArray(new String[roleBean.getUsers().size()]),
+                                         roleBean.getPermissions(true)
+                                                 .toArray(new Permission[roleBean.getPermissions(true).size()]));
                 if (log.isDebugEnabled()) {
-                    StringBuilder permissionLog = new StringBuilder("Role:" + roleBean.getRoleName()
-                            + " is added with below permissions;");
+                    StringBuilder permissionLog =
+                            new StringBuilder("Role:" + roleBean.getRoleName() + " is added with below permissions;");
                     List<Permission> permissions = roleBean.getPermissions(true);
                     for (Permission permission : permissions) {
                         permissionLog.append("resource:").append(permission.getResourceId()).append(" action:")
-                                .append(permission.getAction()).append("\n");
+                                     .append(permission.getAction()).append("\n");
                     }
                     log.debug(permissionLog.toString());
                 }
@@ -193,12 +127,13 @@ public class CloudTenantCreationListener implements TenantMgtListener {
                 // authorize given authorized permission list
                 for (Permission permission : roleBean.getPermissions(true)) {
                     if (!authorizationManager.isRoleAuthorized(roleBean.getRoleName(), permission.getResourceId(),
-                            permission.getAction())) {
+                                                               permission.getAction())) {
                         authorizationManager.authorizeRole(roleBean.getRoleName(), permission.getResourceId(),
-                                permission.getAction());
+                                                           permission.getAction());
                         if (log.isDebugEnabled()) {
                             log.debug("Role:" + roleBean.getRoleName() + " is authorized with permission;\n" +
-                                    "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
+                                      "resource:" + permission.getResourceId() + " action:" + permission.getAction() +
+                                      "\n");
                         }
                     }
                 }
@@ -206,14 +141,91 @@ public class CloudTenantCreationListener implements TenantMgtListener {
 
             // deny given denied permission list
             for (Permission permission : roleBean.getPermissions(false)) {
-                authorizationManager.denyRole(roleBean.getRoleName(), permission.getResourceId(),
-                        permission.getAction());
+                authorizationManager
+                        .denyRole(roleBean.getRoleName(), permission.getResourceId(), permission.getAction());
                 if (log.isDebugEnabled()) {
                     log.debug("Role:" + roleBean.getRoleName() + " is denied with permissions;\n" +
-                            "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
+                              "resource:" + permission.getResourceId() + " action:" + permission.getAction() + "\n");
                 }
             }
         }
+
+    }
+
+    public void onTenantCreate(TenantInfoBean tenantInfoBean) throws StratosException {
+        log.info("Adding Tenant Roles on tenant creation.");
+        Set<RoleBean> roleBeanList = new HashSet<RoleBean>();
+        try {
+            roleBeanList.addAll(getRolePermissionConfigurations(CloudMgtConstants.TENANT_ROLES_ROLE,
+                                                                tenantInfoBean.getAdmin()));
+        } catch (CloudMgtException e) {
+            String message = "Failed to read default roles from cloud-mgt configuration.";
+            log.error(message);
+            throw new StratosException(message, e);
+        }
+
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            privilegedCarbonContext.setTenantId(tenantInfoBean.getTenantId());
+            privilegedCarbonContext.setTenantDomain(tenantInfoBean.getTenantDomain());
+            UserStoreManager userStoreManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                    getUserRealm().getUserStoreManager();
+            AuthorizationManager authorizationManager = PrivilegedCarbonContext.getThreadLocalCarbonContext().
+                    getUserRealm().getAuthorizationManager();
+            addRolePermissions(userStoreManager, authorizationManager, roleBeanList);
+
+        } catch (org.wso2.carbon.user.core.UserStoreException e) {
+            String message = "Failed to add default roles to tenant : " + tenantInfoBean.getTenantDomain() + "(" +
+                             tenantInfoBean.getTenantId() + ")";
+            log.error(message);
+            throw new StratosException(message, e);
+        } catch (UserStoreException e) {
+            String message = "Failed to add default roles to tenant : " + tenantInfoBean.getTenantDomain() + "(" +
+                             tenantInfoBean.getTenantId() + ")";
+            log.error(message);
+            throw new StratosException(message, e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+
+    }
+
+    public void onTenantUpdate(TenantInfoBean tenantInfoBean) throws StratosException {
+
+    }
+
+    @Override
+    public void onTenantDelete(int i) {
+
+    }
+
+    public void onTenantRename(int i, String s, String s1) throws StratosException {
+
+    }
+
+    public void onTenantInitialActivation(int i) throws StratosException {
+
+    }
+
+    public void onTenantActivation(int i) throws StratosException {
+
+    }
+
+    public void onTenantDeactivation(int i) throws StratosException {
+
+    }
+
+    public void onSubscriptionPlanChange(int i, String s, String s1) throws StratosException {
+
+    }
+
+    public int getListenerOrder() {
+        return 0;
+    }
+
+    @Override
+    public void onPreDelete(int i) throws StratosException {
 
     }
 }

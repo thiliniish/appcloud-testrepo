@@ -13,7 +13,6 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     var user = jagg.getUser(), isMonetizationEnabledObj, selectedApp, middleObj;
 
     isMonetizationEnabledObj = jagg.module("pricing").isMonetizationEnabled(tenantDomain);
-    isTenantAllowed();
     //if user is not logged in
     if (!user) {
         response.sendRedirect(getRedirectPathForNonAuthenticatedUser());
@@ -46,6 +45,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
 
     } else if ("editUserInfo".equals(action)) {
         var cloudmgtURL =  jagg.module("pricing").getCloudmgtURL();
+        var organization = encoder.getSafeText(request.getParameter("accountName"));
         var profileFirstName = encoder.getSafeText(request.getParameter("firstName"));
         var userEmail = encoder.getSafeText(request.getParameter("email"));
         var profileLastName = encoder.getSafeText(request.getParameter("lastName"));
@@ -58,6 +58,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
         var user = jagg.getUser().username;
         var inputsObj = {};
         inputsObj.cloudmgtURL = cloudmgtURL;
+        inputsObj.organization = (organization == null ? "" : organization);
         inputsObj.profileFirstName = (profileFirstName == null ? "" : profileFirstName);
         inputsObj.userEmail = (userEmail == null ? "" : userEmail);
         inputsObj.profileLastName = (profileLastName == null ? "" : profileLastName);
@@ -117,10 +118,12 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
             var refId = encoder.getSafeText(request.getParameter("refId"));
             var field_passthrough1 = encoder.getSafeText(request.getParameter("field_passthrough1"));
             selectedApp = encoder.getSafeText(request.getParameter("field_passthrough4"));
+            var field_passthrough5 = encoder.getSafeText(request.getParameter("field_passthrough5"));
 
             inputsObj.refId = refId;
             inputsObj.signature = signature;
             inputsObj.field_passthrough1 = field_passthrough1;
+            inputsObj.field_passthrough5 = field_passthrough5;
             inputsObj.selectedApp = selectedApp;
 
             middleObj = [{
@@ -143,9 +146,9 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
                 log.error("Required parameters are not available to send subscription notifications for the tenant " + tenantDomain);
             }
 
-            var uri = jagg.getAbsoluteUrl("/site/pages/subscriptions.jag") + jagg.getTenantURLPrefix("?");
+            var uri = jagg.getAbsoluteUrl("/site/pages/application.jag") + jagg.getTenantURLPrefix("?");
             if (selectedApp != null && !"".equals(selectedApp)) {
-                uri = uri + "&selectedApp=" + selectedApp;
+                uri = uri + "&name=" + selectedApp;
             }
             inputsObj.redirectUrl = uri;
             middleObj = [{
@@ -160,12 +163,12 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
     jagg.render({
         "name": "page/base",
         "inputs": {
-            "title": "My Account",
+            "title": i18n.localize("My Account"),
             "pagePath": "/site/pages/pricing/manage-account.jag",
             "body": [
                 {
                     "name": "layout/base",
-                    "title": "My Account",
+                    "title": i18n.localize("My Account"),
                     "inputs": {
                         "top": [
 
@@ -180,8 +183,7 @@ var encoder = Packages.org.wso2.carbon.ui.util.CharacterEncoder;
                                 "inputs": {"tenant": tenantDomain}
                             }
                         ],
-                        "middle": middleObj,
-                        "right": null
+                        "middle": middleObj
                     }
                 }
             ]

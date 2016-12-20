@@ -1,188 +1,71 @@
 <% jagg.template("billing/plan/get", function(inputs, outputs, jagg) {%>
 
-<style>
-table, th, td {
-	border: 1px solid black;
-	border-collapse: collapse;
-}
-
-th, td {
-	padding: 5px;
-}
-
-.helper_text_home p {
-	color: hsl(0, 0%, 100%);
-	font-size: 30px;
-	text-align: center;
-}
-
-.helper_text_home sub {
-	color: hsl(0, 0%, 100%);
-	font-size: 20px;
-	margin-left: 0;
-	margin-right: 0;
-	text-align: center;
-	line-height: 1.5;
-	margin-bottom: 8.71429em;
-}
-
-.packages {
-	text-align: center;
-	background-color: white;
-	border-radius: 10px;
-	font-family: 'Open Sans', sans-serif;
-	margin-left: 0px;
-	margin-right: 0px;
-	padding-left: 0px;
-	padding-right: 0px;
-	padding-bottom: 10px;
-}
-
-.package-name {
-	font-size: 15px;
-	font-family: 'Open Sans', sans-serif;
-	font-weight: bold;
-	background-color: rgb(73, 73, 73);
-	margin: -15px -15px 15px;
-	color: #fff;
-	padding: 10px;
-	border-radius: 10px 10px 0px 0px;
-	margin-left: 0px;
-	margin-right: 0px;
-	padding-left: 0px;
-	padding-right: 0px;
-}
-
-.package-content {
-	font-size: 14px;
-	line-height: 30px;
-	padding-bottom: 30px;
-}
-
-.package-price {
-	font-size: 20px;
-	font-weight: bold;
-	margin-bottom: 20px;
-}
-
-span.error {
-	position: absolute;
-	margin-top: 71px;
-	margin-left: -14px;
-	padding-left: 0;
-}
-
-input+input.txtCoupon {
-	display: none;
-}
-
-input:checked+input.txtCoupon {
-	display: block;
-}
-
-.txtCoupon {
-	position: absolute;
-	align:center;
-	width: 75%;
-	margin-left: 7px;
-	background-color:#efefef;
-}
-
-.askUs {
-	position: relative; 
-	color: #FFFFFF;
-	font-size: 15px;
-}
-
-#goToCloudType {
-    background-color: #5e5e5e;
-    color: #fff;
-}
-
-#goToCloudType:hover {
-    background-color: #7d7d7d;
-}
-
-#goToCloudType:active {
-    background-color: #e6e6e6;
-}
-</style>
 
 <%
-var log = new Log("site/themes/default/templates/billing/plan/get/template.jag");
-var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-var isBillingEnabled = jagg.module("billing").isBillingEnabled();
-var tenantDomain;
-var isMonetizationEnabled = false;
-if (session.get("TENANT_INFO") != null) {
-	tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-	var result = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
-	if (!result.error) {
-		isMonetizationEnabled = result.monetizationEnabled;
-	}
-}
-if (isBillingEnabled) {
-	var serviceId = session.get("SERVICE_ID");
-	var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
-	var ratePlans = jagg.module("billing").getCurrentRatePlan(serviceId);
-	session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "true:" + serviceId);
-	var currRatePlanId = null;
-	var currRatePlan = null;
-	var accounts = null;
-	var callsPerDay = null;
-	var callsAbovePlan = null;
-	if (ratePlans != null) {
-		for (var i = 0; i < ratePlans.length; i++) {
-			if ((ratePlans[i]["ratePlanName"].indexOf("coupon") < 0)) {
-				currRatePlan = ratePlans[i];
-				break;
-			}
-		}
-		currRatePlanId = currRatePlan.productRatePlanId;
-	}
-	var paymentPlans = ratePlansObj.entry;
-	var l = Packages.java.util.Locale.getDefault();
-	var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
-	var marketing = request.getParameter("isFromOTPricingPage");
-	var isFromChangePlan = request.getParameter("is-from-change-plan");
-	if (marketing) {
-		if (ratePlans == null) {
-			var selectedPlanId = request.getParameter("productRatePlanId");
-		} else {
-			isFromChangePlan = true;
-		}
-	}
-	session.put("RATE_PLANS", paymentPlans);
-	session.put("OLD_PLAN_ID", currRatePlanId);
-	if (isFromChangePlan == null || isFromChangePlan == 'null') {
-		isFromChangePlan = false;
-	}
+    var log = new Log("site/themes/default/templates/billing/plan/get/template.jag");
 
-	var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
-	var bttnLabel = "Cancel";
-}
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var ratePlans = null;
+    var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
+
+    var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
+    var serviceId = session.get("SERVICE_ID");
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled(serviceId);
+    var tenantDomain;
+    // TO DO Monetization Enabled need to be added
+    var isMonetizationEnabled = false;
+    if (session.get("TENANT_INFO") != null) {
+        tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+        var result = jagg.module("monetizing").isMonetizationEnabled(tenantDomain);
+        if (!result.error) {
+            isMonetizationEnabled = result.monetizationEnabled;
+        }
+    }
+    if (isBillingEnabled) {
+        var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
+        var accountId = jagg.module("billing").getAccountId(serviceId);
+        if (accountId != null) {
+            var ratePlan = jagg.module("billing").getCurrentRatePlan(serviceId);
+        }
+        session.put("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE", "true:" + serviceId);
+        var currentRatePlanId = null;
+        //TO DO Remove the comment
+        if (ratePlan != null) {
+            currentRatePlanId = ratePlan.id;
+        }
+        var isFromChangePlan = inputs.isFromChangePlan;
+        var paymentPlans = ratePlansObj.entry;
+        var l = Packages.java.util.Locale.getDefault();
+        var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+        var marketing = request.getParameter("isFromOTPricingPage");
+        var selectedPlanId = null;
+        if (marketing) {
+            if (ratePlans == null) {
+                var selectedPlanId = request.getParameter("productRatePlanId");
+            } else {
+                isFromChangePlan = true;
+            }
+        }
+        session.put("RATE_PLANS", paymentPlans);
+        session.put("OLD_PLAN_ID", currentRatePlanId);
+        if (isFromChangePlan == null || isFromChangePlan == 'null') {
+            isFromChangePlan = false;
+        }
+        var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
+        var bttnLabel = "Cancel";
+    }
 %>
 
-<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index.css'))%>" />
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>" />
 <div class="container col-lg-12 col-md-12 col-sm-12">
 
-<!-- header -->
-<!--header>
-<div class="row wr-global-header">
-	<div class="col-sm-12 app-logo"><img src="images/logo.png" /><h2 class="app-title">Cloud Billing</h2>
-	</div>
-</div>
-</header-->
-<!-- /header -->
 <div class="container content-starter">
 	<div class="row">
 		<div class="col-lg-12">
-		    <%if(isFromChangePlan == false) { %>
+		    <%if (isFromChangePlan == false) { %>
 			    <h1>Upgrade Account</h1>
 			    <div class="helper_text" id="helper_text">
 			        <p>Please select a plan to upgrade your account</p>
@@ -202,7 +85,7 @@ if (isBillingEnabled) {
 <div class="container c-both wr-billing-white info-message-parent">
 <% jagg.includeBlock("page/billing-messages", null); %>
 	<div class="row wr-wizard ">
-	    <%if(isFromChangePlan == false) { %>
+	    <%if (isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz itm-wiz-current"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
 			<br class="c-both" />
@@ -213,31 +96,36 @@ if (isBillingEnabled) {
 			<br class="c-both" />
 		</div>
 		<%}
-		if(isFromChangePlan == false) { %>
+		if (isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
-			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs"><span>Billing Information</span></div></div>
+			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs">
+			<span>Billing Information</span></div></div>
 			<br class="c-both" />
 		</div>
 		<%} else {%>
 		<div class="col-md-4 col-xs-4">
-			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs"><span>Payment Confirmation</span></div></div>
+			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs">
+			<span>Payment Confirmation</span></div></div>
 			<br class="c-both" />
 		</div>
 		<%}
-        if(isFromChangePlan == false) { %>
+        if (isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
-			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs"><span>Contact Information</span></div></div>
+			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs">
+			<span>Contact Information</span></div></div>
 			<br class="c-both" />
 		</div>
 		<%} %>
-		<%if(isFromChangePlan == false) { %>
+		<%if (isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
-			<div class="itm-wiz"><div class="wiz-no">4</div><div class="wiz-lbl hidden-xs"><span>Summary</span></div></div>
+			<div class="itm-wiz"><div class="wiz-no">4</div><div class="wiz-lbl hidden-xs">
+			<span>Summary</span></div></div>
 			<br class="c-both" />
 		</div>
         <%} else {%>
 		<div class="col-md-4 col-xs-4">
-			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs"><span>Summary</span></div></div>
+			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs">
+			<span>Summary</span></div></div>
 			<br class="c-both" />
 		</div>
         <%} %>
@@ -267,65 +155,68 @@ if (isBillingEnabled) {
 			// Check for billing enable/disable mode
 
             if (isBillingEnabled) {
-                for(var i = 0; i < paymentPlans.length; i++) {
-                    var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
-                    var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
-                    var maxUsageStr = numFormat.format(maxUsageAmmount);
-                    var monthlyRentalAmount = new Packages.java.math.BigDecimal(monthlyRental);
-                    var rental = numFormat.format(monthlyRentalAmount);
-                    if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currRatePlanId == null) {%>
-                        <div class="tiny selected">
-                <%  } else { %>
-                        <div class="tiny">
-                <%  } %>
+                for (var i = 0; i < paymentPlans.length; i++) {
+                    if (paymentPlans[i].visibility == "true") {
+                        var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
+                        var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
+                        var maxUsageStr = numFormat.format(maxUsageAmmount);
+                        var monthlyRentalAmount = new Packages.java.math.BigDecimal(monthlyRental);
+                        var rental = numFormat.format(monthlyRentalAmount);
+                        if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currentRatePlanId == null) {%>
+                            <div class="tiny selected">
+                    <%  } else { %>
+                            <div class="tiny">
+                    <%  } %>
 
-                <div class="pricing-table-header-tiny">
-                    <h3><%=paymentPlans[i].name%></h3>
-                    <div class="price">
-                    	<h2 class="col-md-10"><span>$</span><%=rental%></h2>
-                    	<p class="col-md-2">per<br>month</p>
-                    	<br class="c-both" />
+                    <div class="pricing-table-header-tiny">
+                        <h3><%=paymentPlans[i].name%></h3>
+                        <div class="price">
+                            <h2 class="col-md-10"><span>$</span><%=rental%></h2>
+                            <p class="col-md-2">per<br>month</p>
+                            <br class="c-both" />
+                        </div>
+                    </div>
+                        <div class="pricing-table-features">
+                        <p><%=paymentPlans[i].maxAccounts%></p>
+                        <p><%=maxUsageStr%></p>
+                        <p><%=paymentPlans[i].overUsage%></p>
+                        <p><%if (paymentPlans[i].name == BILLING_STARTER_PLAN) {
+                            %>No<%
+                        } else {
+                            %>Yes<%
+                        }%>
+                   </p>
+                    </div>
+                    <div class="pricing-table-signup-tiny">
+                <%
+                    var spinner = "spinner_"+paymentPlans[i].id;
+                    var selectbtn = "selectbtn_"+paymentPlans[i].id;
+                    if (currentRatePlanId == paymentPlans[i].id) {
+                    %>
+
+                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', <%=isFromChangePlan%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
+                    <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
+                    <%
+                } else {
+                    var paymentPlanName = paymentPlans[i].name.toUpperCase();
+                    if (isMonetizationEnabled && paymentPlans[i].name == BILLING_STARTER_PLAN) {%>
+                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', <%=isFromChangePlan%>)" disabled>Select</button>
+                    <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
+                    </p>
+                    <%} else {%>
+                            <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', <%=isFromChangePlan%>)" >Select</button>
+                            <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
+                            </p>
+                    <%}
+                }
+                %>
                     </div>
                 </div>
-                <div class="pricing-table-features">
-                    <p><%=paymentPlans[i].maxAccounts%></p>
-                    <p><%=maxUsageStr%></p>
-                    <p><%=paymentPlans[i].overUsage%></p>
-                    <p><%if (paymentPlans[i].name == BILLING_STARTER_PLAN) {
-				%>No<%
-			} else {
-				%>Yes<%
-			}%>
- 	           </p>
-                </div>
-                <div class="pricing-table-signup-tiny">
-	        <%
-                var spinner = "spinner_"+paymentPlans[i].id;
-                var selectbtn = "selectbtn_"+paymentPlans[i].id;
-                if (currRatePlanId == paymentPlans[i].id) {
-                %>
+                 <% }
+                } if (!isFromChangePlan) { %> <button id="goToCloudType" type="button" class="btn btn-default
+			 btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
+            <% }%>
 
-                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
-                    <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
-                	<%
-                } else {
-			var paymentPlanName = paymentPlans[i].name.toUpperCase();
-			if (isMonetizationEnabled && paymentPlans[i].name == BILLING_STARTER_PLAN) {%>
-				<p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" disabled>Select</button>
-		        	<i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
-		        	</p>
-		        <%} else {%>
-                        	<p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', '<%=paymentPlans[i].maxAccounts%>', '<%=paymentPlans[i].maxDailyUsage%>', '<%=paymentPlans[i].overUsage%>', '<%=monthlyRental%>', <%=isFromChangePlan%>)" >Select</button>
-			       	<i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
-			       	</p>
-			<%}
-		}
-            %>
-                </div>
-			</div>
-
-			 <% } %><%if(!isFromChangePlan) { %> <button id="goToCloudType" type="button" class="btn btn-default btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
-			 <% }%>
             <input type="hidden" name="secretKey" id="secretKey" value=""/>
             <input type="hidden" name="imagePath" id="imagePath" value=""/>
             <input type="hidden" name="isFromChangePlan" id="isFromChangePlan" value="true"/>
@@ -333,11 +224,9 @@ if (isBillingEnabled) {
             <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
             <input type="hidden" name="isMonetizationEnabled" id="isMonetizationEnabled"  value="<%=isMonetizationEnabled%>" />
             <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
-
             <input type="hidden" name="marketing" id="marketing"  value="<%= marketing %>" />
             <input type="hidden" name="ratePlansObj" id="ratePlansObj"  value= '<%= ratePlansObj %>'/>
             <input type="hidden" name="selectedPlanId" id="selectedPlanId"  value='<%= selectedPlanId %>' />
-            <input type="hidden" name="ratePlans" id="ratePlans"  value='<%= ratePlans %>' />
 		</div>
 	</div>
 	<div class="row pad-bot-50">

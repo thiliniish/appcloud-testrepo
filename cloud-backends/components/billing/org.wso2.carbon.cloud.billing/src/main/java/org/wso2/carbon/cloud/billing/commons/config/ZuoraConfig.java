@@ -25,8 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Config element that represent the ZuoraAPI xml object
  */
-@XmlRootElement(name = "Zuora")
-public class ZuoraConfig {
+@XmlRootElement(name = "Zuora") public class ZuoraConfig {
 
     private String user;
     private String password;
@@ -42,8 +41,7 @@ public class ZuoraConfig {
     private UsageConfig usageConfig;
     private SubscriptionCleanUp subscriptionCleanUp;
 
-    @XmlElement(name = "User", nillable = false)
-    public String getUser() {
+    @XmlElement(name = "User", nillable = false) public String getUser() {
         return user;
     }
 
@@ -51,8 +49,7 @@ public class ZuoraConfig {
         this.user = user;
     }
 
-    @XmlElement(name = "Password", nillable = false)
-    public String getPassword() {
+    @XmlElement(name = "Password", nillable = false) public String getPassword() {
         return password;
     }
 
@@ -60,8 +57,7 @@ public class ZuoraConfig {
         this.password = password;
     }
 
-    @XmlElement(name = "Currency", nillable = false)
-    public String getCurrency() {
+    @XmlElement(name = "Currency", nillable = false) public String getCurrency() {
         return currency;
     }
 
@@ -69,8 +65,7 @@ public class ZuoraConfig {
         this.currency = currency;
     }
 
-    @XmlElement(name = "SessionExpired", nillable = false)
-    public long getSessionExpired() {
+    @XmlElement(name = "SessionExpired", nillable = false) public long getSessionExpired() {
         return sessionExpired;
     }
 
@@ -78,8 +73,7 @@ public class ZuoraConfig {
         this.sessionExpired = sessionExpired;
     }
 
-    @XmlElement(name = "TermType", nillable = false)
-    public String getTermType() {
+    @XmlElement(name = "TermType", nillable = false) public String getTermType() {
         return termType;
     }
 
@@ -87,8 +81,7 @@ public class ZuoraConfig {
         this.termType = termType;
     }
 
-    @XmlElement(name = "SignatureExpired", nillable = false)
-    public String getSignatureExpired() {
+    @XmlElement(name = "SignatureExpired", nillable = false) public String getSignatureExpired() {
         return signatureExpired;
     }
 
@@ -96,8 +89,7 @@ public class ZuoraConfig {
         this.signatureExpired = signatureExpired;
     }
 
-    @XmlElement(name = "EnabledProtocols", nillable = false)
-    public String getEnabledProtocols() {
+    @XmlElement(name = "EnabledProtocols", nillable = false) public String getEnabledProtocols() {
         return sslEnabledProtocols;
     }
 
@@ -105,8 +97,7 @@ public class ZuoraConfig {
         this.sslEnabledProtocols = enabledProtocols;
     }
 
-    @XmlElement(name = "HttpClientConfig", nillable = false)
-    public HttpClientConfig getHttpClientConfig() {
+    @XmlElement(name = "HttpClientConfig", nillable = false) public HttpClientConfig getHttpClientConfig() {
         return httpClientConfig;
     }
 
@@ -114,8 +105,7 @@ public class ZuoraConfig {
         this.httpClientConfig = httpClientConfig;
     }
 
-    @XmlElement(name = "HostedPage", nillable = false)
-    public HostedPageConfig getHostedPageConfig() {
+    @XmlElement(name = "HostedPage", nillable = false) public HostedPageConfig getHostedPageConfig() {
         return hostedPageConfig;
     }
 
@@ -123,8 +113,7 @@ public class ZuoraConfig {
         this.hostedPageConfig = hostedPageConfig;
     }
 
-    @XmlElement(name = "ServiceURLHost", nillable = false)
-    public String getServiceUrlHost() {
+    @XmlElement(name = "ServiceURLHost", nillable = false) public String getServiceUrlHost() {
         return serviceUrlHost;
     }
 
@@ -132,18 +121,20 @@ public class ZuoraConfig {
         this.serviceUrlHost = serviceUrlHost;
     }
 
-    @XmlElementWrapper(name = "Subscriptions", nillable = false, required = true)
-    @XmlElement(name = "Subscription", nillable = false, required = true)
-    public Subscription[] getSubscriptions() {
-        return subscriptions.clone();
+    @XmlElementWrapper(name = "Subscriptions", nillable = false, required = true) @XmlElement(name = "Subscription",
+            nillable = false, required = true) public Subscription[] getSubscriptions() {
+        Subscription[] subs = null;
+        if (subscriptions != null) {
+            subs = subscriptions.clone();
+        }
+        return subs;
     }
 
     public void setSubscriptions(Subscription[] subscriptions) {
         this.subscriptions = subscriptions.clone();
     }
 
-    @XmlElement(name = "Usage", nillable = false, required = true)
-    public UsageConfig getUsageConfig() {
+    @XmlElement(name = "Usage", nillable = false, required = true) public UsageConfig getUsageConfig() {
         return usageConfig;
     }
 
@@ -151,8 +142,8 @@ public class ZuoraConfig {
         this.usageConfig = usageConfig;
     }
 
-    @XmlElement(name = "SubscriptionCleanUp", nillable = false, required = true)
-    public SubscriptionCleanUp getSubscriptionCleanUp() {
+    @XmlElement(name = "SubscriptionCleanUp", nillable = false, required = true) public SubscriptionCleanUp
+    getSubscriptionCleanUp() {
         return subscriptionCleanUp;
     }
 

@@ -29,7 +29,7 @@ public class APICloudPlan extends Plan {
     protected String overUsage;
     protected String monthlyRental;
     protected int premiumLevel;
-
+    protected boolean visibility;
 
     public String getName() {
         return name;
@@ -54,4 +54,9 @@ public class APICloudPlan extends Plan {
     public int getPremiumLevel() {
         return premiumLevel;
     }
+
+    public boolean isVisible() {
+        return visibility;
+    }
+
 }

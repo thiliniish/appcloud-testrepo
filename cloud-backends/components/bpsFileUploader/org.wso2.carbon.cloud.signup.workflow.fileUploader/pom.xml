@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>cloud-components</artifactId>
+        <groupId>org.wso2.carbon.cloud</groupId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.wso2.carbon.cloud</groupId>
+    <artifactId>org.wso2.carbon.cloud.signup.workflow.fileUploader</artifactId>
+    <version>1.0.0</version>
+    <packaging>bundle</packaging>
+
+    <!-- versions for the dependencies -->
+    <properties>
+        <carbon.bpel.stub.version>4.2.0</carbon.bpel.stub.version>
+        <carbon.humantask.stub.version>4.2.0</carbon.humantask.stub.version>
+        <carbon.core.version>4.2.0</carbon.core.version>
+        <carbon.um.ws.api.stub.version>4.2.0</carbon.um.ws.api.stub.version>
+        <carbon.user.mgt.stub.version>4.2.0</carbon.user.mgt.stub.version>
+        <json.simple.version>[1.1.0, 2.0.0)</json.simple.version>
+        <apache.axis2.osgi.version>1.6.2</apache.axis2.osgi.version>
+        <apache.felix.osgi.core.version>1.4.0</apache.felix.osgi.core.version>
+        <nimbus.jose.jwt.version>3.9.2</nimbus.jose.jwt.version>
+        <apache.commons.logging.version>1.1.1</apache.commons.logging.version>
+        <osgi.framework.version>1.7.0</osgi.framework.version>
+        <osgi.core.version>4.1.0</osgi.core.version>
+        <osgi.service.component.version>1.2.0</osgi.service.component.version>
+        <javax.activation.version>1.1</javax.activation.version>
+        <carbon.logging.version>4.2.0</carbon.logging.version>
+        <!-- checkstyle skipped since package names had to be changed
+        which would also need refactoring of the cloudmgt app -->
+        <checkstyle.skip>true</checkstyle.skip>
+        <findbugs.skip>true</findbugs.skip>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>wso2-nexus</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+
+        <repository>
+            <id>wso2.releases</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+
+        <repository>
+            <id>wso2.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>wso2-maven2-repository-1</id>
+            <url>http://dist.wso2.org/maven2</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>wso2-maven2-repository-2</id>
+            <url>http://dist.wso2.org/snapshots/maven2</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <dependencies>
+    <dependency>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>org.wso2.carbon.bpel.stub</artifactId>
+        <version>${carbon.bpel.stub.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>org.wso2.carbon.humantask.stub</artifactId>
+        <version>${carbon.humantask.stub.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>org.wso2.carbon.core</artifactId>
+        <version>${imp.pkg.version.carbon.platform}</version>
+
+    </dependency>
+    <dependency>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>org.wso2.carbon.um.ws.api.stub</artifactId>
+        <version>${carbon.um.ws.api.stub.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
+        <version>${carbon.user.mgt.stub.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.googlecode.json-simple</groupId>
+        <artifactId>json-simple</artifactId>
+        <version>${json.simple.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.axis2.wso2</groupId>
+        <artifactId>axis2-client</artifactId>
+        <version>${apache.axis2.wso2.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>org.wso2.carbon.utils</artifactId>
+        <version>${imp.pkg.version.carbon.platform}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>${osgi.core.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>javax.activation</groupId>
+        <artifactId>activation</artifactId>
+        <version>${javax.activation.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>org.wso2.carbon.logging</artifactId>
+        <version>${carbon.logging.version}</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.axis2</groupId>
+        <artifactId>org.apache.axis2.osgi</artifactId>
+        <version>${apache.axis2.osgi.version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>${apache.felix.osgi.core.version}</version>
+    </dependency>
+</dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.3.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Bundle-Version>1.0.0</Bundle-Version>
+                        <Private-Package>
+                            org.wso2.carbon.cloud.signup.workflow.fileUploader.internal
+                        </Private-Package>
+                        <Import-Package>
+                            org.wso2.carbon.utils.multitenancy.*; version="${imp.pkg.version.carbon.platform}",
+                            org.wso2.carbon.utils.*; version="${imp.pkg.version.carbon.platform}",
+                            org.wso2.carbon.humantask.stub.upload.types.*; version="${carbon.humantask.stub.version}",
+                            org.wso2.carbon.humantask.stub.upload.*; version="${carbon.humantask.stub.version}",
+                            org.wso2.carbon.bpel.stub.upload.types.*; version="${carbon.bpel.stub.version}",
+                            org.wso2.carbon.bpel.stub.upload.*; version="${carbon.bpel.stub.version}",
+                            org.osgi.service.component.*; version="{osgi.service.component.version",
+                            org.osgi.framework.*; version="${osgi.framework.version}",
+                            org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
+                            org.apache.axis2.client.*; version="${apache.axis2.wso2.version}",
+                            org.apache.axis2.*; version="${apache.axis2.wso2.version}",
+                            org.json.simple.parser; version="0.0.0",
+                            *;resolution:=optional
+                        </Import-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Export-Packages>
+                            org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUplader;
+                            version="${project.version}",
+                            org.wso2.carbon.cloud.signup.workflow.fileUploader.businessProcessUploader;
+                            version="${project.version}",
+                            org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader;
+                            version="${project.version}",
+                            org.wso2.carbon.cloud.signup.workflow.fileUploader.constants;
+                            version="${project.version}",
+                            org.wso2.carbon.cloud.signup.workflow.fileUploader.fileReader;
+                            version="${project.version}",
+                            org.wso2.carbon.cloud.signup.workflow.fileUploader.humanTaskUploader;
+                            version="${project.version}",
+                            org.wso2.carbon.cloud.signup.workflow.fileUploader.utils;
+                            version="${project.version}"
+                        </Export-Packages>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <version>1.7.4</version>
+                <executions>
+                    <execution>
+                        <id>generate-scr-scrdescriptor</id>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

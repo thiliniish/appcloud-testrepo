@@ -23,110 +23,118 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.cloud.ssl.security.service.FileEncryptionServiceConstants;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.security.*;
 
 /**
  * AES Cipher. Encrypt the given content to
  */
 public class AESCipher {
-	private SecretKeySpec secretKeySpec;
-	private Cipher cipher;
-	private IvParameterSpec ivParameterSpec;
-	private Log log = LogFactory.getLog(AESCipher.class);
+    private SecretKeySpec secretKeySpec;
+    private Cipher cipher;
+    private IvParameterSpec ivParameterSpec;
+    private Log log = LogFactory.getLog(AESCipher.class);
 
-	public AESCipher(Key key) throws NoSuchAlgorithmException, NoSuchPaddingException {
-		try {
-			this.secretKeySpec = new SecretKeySpec(key.getEncoded(), FileEncryptionServiceConstants.SECRET_KEY_SPEC_ALGORITHM);
-			//Generating random iv(indexing vector)
-			SecureRandom secureRandom = new SecureRandom();
-			byte[] iv = new byte[16];
-			secureRandom.nextBytes(iv);
-			this.ivParameterSpec = new IvParameterSpec(iv);
-			this.cipher = Cipher.getInstance(FileEncryptionServiceConstants.AES256_ALGORITHM);
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			String errorMessage =
-					"Error occurred while initializing the cipher.Provided algorithm or padding mechanism" +
-					" is not supported by the environment. Provide algorithm/padding is : " +
-					FileEncryptionServiceConstants.AES256_ALGORITHM;
-			log.error(errorMessage, e);
-			throw e;
-		}
-	}
+    public AESCipher(Key key) throws NoSuchAlgorithmException, NoSuchPaddingException {
+        try {
+            this.secretKeySpec =
+                    new SecretKeySpec(key.getEncoded(), FileEncryptionServiceConstants.SECRET_KEY_SPEC_ALGORITHM);
+            //Generating random iv(indexing vector)
+            SecureRandom secureRandom = new SecureRandom();
+            byte[] iv = new byte[16];
+            secureRandom.nextBytes(iv);
+            this.ivParameterSpec = new IvParameterSpec(iv);
+            this.cipher = Cipher.getInstance(FileEncryptionServiceConstants.AES256_ALGORITHM);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            String errorMessage =
+                    "Error occurred while initializing the cipher.Provided algorithm or padding mechanism" +
+                    " is not supported by the environment. Provide algorithm/padding is : " +
+                    FileEncryptionServiceConstants.AES256_ALGORITHM;
+            log.error(errorMessage, e);
+            throw e;
+        }
+    }
 
-	public byte[] getIv() {
-		return ivParameterSpec.getIV();
-	}
+    public byte[] getIv() {
+        return ivParameterSpec.getIV();
+    }
 
-	/**
-	 * Get cipher for encrypt.
-	 *
-	 * @param ivParameterSpec Indexing vector parameterspec object.
-	 * @return Cipher object to encryption
-	 * @throws InvalidKeyException
-	 * @throws InvalidAlgorithmParameterException
-	 */
-	private Cipher getCipher(IvParameterSpec ivParameterSpec)
-			throws InvalidKeyException, InvalidAlgorithmParameterException {
-		try {
-			cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec(), ivParameterSpec);
-			return cipher;
-		} catch (InvalidKeyException e) {
-			String errorMessage = "Error occurred while getting cipher. Provided key is invalid : ";
-			log.error(errorMessage, e);
-			throw new InvalidKeyException(errorMessage);
-		} catch (InvalidAlgorithmParameterException e) {
-			String errorMessage = "Error occurred while getting cipher.";
-			log.error(errorMessage, e);
-			throw new InvalidAlgorithmParameterException(errorMessage);
-		}
-	}
+    /**
+     * Get cipher for encrypt.
+     *
+     * @param ivParameterSpec Indexing vector parameterspec object.
+     * @return Cipher object to encryption
+     * @throws InvalidKeyException
+     * @throws InvalidAlgorithmParameterException
+     */
+    private Cipher getCipher(IvParameterSpec ivParameterSpec)
+            throws InvalidKeyException, InvalidAlgorithmParameterException {
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec(), ivParameterSpec);
+            return cipher;
+        } catch (InvalidKeyException e) {
+            String errorMessage = "Error occurred while getting cipher. Provided key is invalid : ";
+            log.error(errorMessage, e);
+            throw new InvalidKeyException(errorMessage);
+        } catch (InvalidAlgorithmParameterException e) {
+            String errorMessage = "Error occurred while getting cipher.";
+            log.error(errorMessage, e);
+            throw new InvalidAlgorithmParameterException(errorMessage);
+        }
+    }
 
-	private SecretKeySpec getSecretKeySpec() {
-		return secretKeySpec;
-	}
+    private SecretKeySpec getSecretKeySpec() {
+        return secretKeySpec;
+    }
 
-	/**
-	 * This method will encrypt the given text
-	 *
-	 * @param message Text that need to be encrypt
-	 * @return Encrypted text
-	 * @throws InvalidAlgorithmParameterException
-	 * @throws InvalidKeyException
-	 * @throws UnsupportedEncodingException
-	 * @throws IllegalBlockSizeException
-	 * @throws BadPaddingException
-	 */
-	public String getEncryptedMessage(String message)
-			throws InvalidAlgorithmParameterException, InvalidKeyException, UnsupportedEncodingException,
-			       IllegalBlockSizeException, BadPaddingException {
-		try {
-			Cipher cipher = getCipher(ivParameterSpec);
-			byte[] encryptedTextBytes = cipher.doFinal(message.getBytes(FileEncryptionServiceConstants.ENCODING_MECHANISM));
-			return new String(new Base64().encode(encryptedTextBytes));
-		} catch (UnsupportedEncodingException e) {
-			String errorMessage = "Error occurred when encrypting the data. Provided encoding mechanism " +
-			                      FileEncryptionServiceConstants.ENCODING_MECHANISM + " is not supporting in the environment.";
-			log.error(errorMessage, e);
-			throw new UnsupportedEncodingException(errorMessage);
-		} catch (IllegalBlockSizeException e) {
-			String errorMessage = "Error occurred when encrypting the data.  Provided data does not match the block " +
-			                      "size of the cipher. Block size of the cipher  " + cipher.getBlockSize();
-			log.error(errorMessage, e);
-			throw new IllegalBlockSizeException(errorMessage);
+    /**
+     * This method will encrypt the given text
+     *
+     * @param message Text that need to be encrypt
+     * @return Encrypted text
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws UnsupportedEncodingException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     */
+    public String getEncryptedMessage(String message)
+            throws InvalidAlgorithmParameterException, InvalidKeyException, UnsupportedEncodingException,
+                   IllegalBlockSizeException, BadPaddingException {
+        try {
+            Cipher cipher = getCipher(ivParameterSpec);
+            byte[] encryptedTextBytes =
+                    cipher.doFinal(message.getBytes(FileEncryptionServiceConstants.ENCODING_MECHANISM));
+            return new String(new Base64().encode(encryptedTextBytes), StandardCharsets.UTF_8);
+        } catch (UnsupportedEncodingException e) {
+            String errorMessage = "Error occurred when encrypting the data. Provided encoding mechanism " +
+                                  FileEncryptionServiceConstants.ENCODING_MECHANISM +
+                                  " is not supporting in the environment.";
+            log.error(errorMessage, e);
+            throw new UnsupportedEncodingException(errorMessage);
+        } catch (IllegalBlockSizeException e) {
+            String errorMessage = "Error occurred when encrypting the data.  Provided data does not match the block " +
+                                  "size of the cipher. Block size of the cipher  " + cipher.getBlockSize();
+            log.error(errorMessage, e);
+            throw new IllegalBlockSizeException(errorMessage);
 
-		} catch (BadPaddingException e) {
-			String errorMessage =
-					"Error occurred when encrypting the data. The data is not padded properly to expected " +
-					"padding mechanism. ";
-			log.error(errorMessage, e);
-			throw new BadPaddingException(errorMessage);
-		}
-	}
+        } catch (BadPaddingException e) {
+            String errorMessage =
+                    "Error occurred when encrypting the data. The data is not padded properly to expected " +
+                    "padding mechanism. ";
+            log.error(errorMessage, e);
+            throw new BadPaddingException(errorMessage);
+        }
+    }
 }

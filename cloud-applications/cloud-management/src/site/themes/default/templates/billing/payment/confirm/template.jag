@@ -3,23 +3,21 @@
     include("/jagg/constants.jag");
     var log = new Log("site/themes/default/templates/billing/payment/confirm/template.jag");
 
-    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-    
     var errorMessage = "NA";
     var userName =  session.get("LOGGED_IN_USER");
     var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
     var currRatePlan =  session.get("CURRENT_RATE_PLAN");
-    var accounts =  session.get("ACCOUNTS");
-    var callsPerDay =  session.get("CALLS_PER_DAY");
-    var callsAbovePlan =  session.get("CALLS_ABOVE_PLAN");
-    var monthlyRental =   session.get("MONTHLY_RENTAL");
-    var couponDiscount =   session.get("COUPON_DISCOUNT");
-    var serviceId = session.get("SERVICE_ID");
-    var responseFrom = request.getParameter("responseFrom");
+	var selectedRatePlanId =  session.get("PRODUCT_PLAN_ID");
+
+	var responseFrom = inputs.responseFrom;
+	var accounts =  inputs.ratePlanInfo.getProperty("MaxAccounts");
+	var callsPerDay =  inputs.ratePlanInfo.getProperty("MaxDailyUsage");
+	var callsAbovePlan =  inputs.ratePlanInfo.getProperty("OverUsage");
+	var monthlyRental =  inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
+	var couponDiscount =  session.get("COUPON_DISCOUNT");
 	var actualPaymentAmount = session.get("ACTUAL_PAYMENT_AMOUNT");
-	var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
-    var cloudName =serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
+
+    var cloudName =inputs.serviceId.replace("_"," ").toUpperCase().replace("CLOUD","Cloud");
     var bttnLabel = "Go to " + cloudName;
     var l = Packages.java.util.Locale.getDefault();
     var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
@@ -27,7 +25,7 @@
         callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
     }
     var isDowngrade = session.get("IS_DOWNGRADE");
-    session.put("IS_DATA_SENT_TO_RIGHTWAVE_UNFINISHED_UPGRADE", "false");
+    session.put("IS_DATA_SENT_TO_MAIL_CAMPAIGN_UNFINISHED_UPGRADE", "false");
     %>
 
     <style type="text/css">
@@ -43,11 +41,11 @@
         }
     </style>
 
-    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript">
 
-   
+
 $(document).ready(function($){
 
 });
@@ -120,15 +118,14 @@ $(document).ready(function($){
 	<div class="row">
 		<div class="container col-md-8 wr-text">
 			<div class="wr-head"><h2 class="tcenter">Congratulations!</h2></div>
-			
-			
+
 			 <% if(isDowngrade ) {  %>
                 <p class="tcenter">You have successfully downgraded your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
                            <p class="tcenter">You will be charged USD <span id="payable-amount"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%> </span> <b>on your next renewal date</b> <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
                               <% } else if (responseFrom == IS_FROM_CHANGE_PLAN ) {  %>
                                <p class="tcenter">You have successfully upgraded your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
                                <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span>,  you will be charged USD <%=Number(monthlyRental - couponDiscount).toFixed(2)%> . Your today's payment will be USD <span id="actual-payable-ammount-txt"><%=Number(actualPaymentAmount - couponDiscount).toFixed(2)%>.</span>  </p>
-                            <% }  else {  %>     
+                            <% }  else {  %>
                             	<p class="tcenter">You have successfully subscribed to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
 								<p class="tcenter">Your next renewal will be on <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
                             <% }    %>
@@ -150,17 +147,18 @@ $(document).ready(function($){
 					<p class="col-md-8 nopad">&nbsp;</p><p class="col-md-4 nopad tright"><strong>USD</strong></p>
 					<p class="col-md-8 nopad">Subscription Fee (per/m)</p><p class="col-md-4 nopad tright"><%=Number(monthlyRental).toFixed(2)%></p>
 					<p class="col-md-8 nopad">Discount from coupon</p><p class="col-md-4 nopad tright"><%=Number(couponDiscount).toFixed(2)%></p>
-					<p class="col-md-8 nopad">Remained account balance</p><p id="accountBalancePara" class="col-md-4 nopad tright"><%=Number(monthlyRental - actualPaymentAmount).toFixed(2)%></p>
 					<br class="c-both" />
 					<div class="col-md-8 nopad blue">&nbsp;</div>
 					<div class="col-md-4 nopad tright ">
 						<p class="col-md-12 nopad nomargin blue-line-right">Total USD</p>
-						<p class="col-md-12 nopad nomargin blue-line-right"><span id="payable-amount"><%=Number(actualPaymentAmount - couponDiscount).toFixed(2)%></span></p>
+						<p class="col-md-12 nopad nomargin blue-line-right"><span id="payable-amount"><%=Number
+	(monthlyRental - couponDiscount).toFixed(2)%></span></p>
 					</div>
 					<br class="c-both" />
 				</div>
 				<div id="action-container">
-					<button id="goToAPICloudbtn" type="button" class="btn btn-default btn-back col-md-12 col-xs-12" onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button>
+					<button id="goToAPICloudbtn" type="button" class="btn btn-default btn-back col-md-12 col-xs-12"
+					onclick="location.href='<%=inputs.subscribedCloudURL%>'"><%=bttnLabel%></button>
 					<br class="c-both" />
 				</div>
 			</div>

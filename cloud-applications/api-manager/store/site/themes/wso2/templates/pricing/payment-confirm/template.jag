@@ -1,0 +1,77 @@
+<% jagg.template("pricing/payment-confirm", function(inputs, outputs, jagg) { %>
+<div class="page-header">
+	<h2>Account</h2>
+</div>
+<div class="content-section shadow-up">
+	<div class="content-data">
+		<div class="container-fluid c-both">
+			<div class="row wr-wizard">
+				<div class="col-md-4">
+					<div class="itm-wiz "><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Billing Information</span></div></div>
+					<br class="c-both" />
+				</div>
+				<div class="col-md-4">
+					<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs"><span>Contact Information</span></div></div>
+					<br class="c-both" />
+				</div>
+				<div class="col-md-4">
+					<div class="itm-wiz itm-wiz-current"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs"><span>Order Summary</span></div></div>
+					<br class="c-both" />
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="wr-head"><h2>Order Summary</h2></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 wr-text">
+					<div class="wr-head"><h2 class="tcenter">Congratulations!</h2></div>
+					<p class="tcenter">You have successfully subscribed to <span class="product-planname"><%=outputs.ratePlan.RatePlanName%></span>
+					 Plan</p>
+					<p class="tcenter">Please go to 'Applications' page to review your subscription and generate keys.</p>
+					<button type="button" id="redirect-button" onclick="window.location='<%=outputs.redirectUrl%>';"
+					class="btn btn-default btn-redeem col-md-6 col-md-offset-3">Go to My Subscriptions</button>
+				</div>
+				<div class="col-md-4 sidebar">
+					<div class="wr-text">
+						<div id="product-container">
+							<h2 class="product-summery">SUMMARY</h2>
+							<p>
+								<span class="selected-plan-txt">SELECTED PLAN</span>
+								<span class="product-planname"><%=outputs.ratePlan.RatePlanName%></span>
+							</p>
+							<ul>
+                                <li><%=outputs.ratePlan.MaxDailyUsage%> Calls/Day</li>
+                                <li>$<%=outputs.ratePlan.OverUsageUnitsPrice%>/<%=outputs.ratePlan.OverUsageUnits%> Calls Above Plan</li>
+							</ul>
+						</div>
+						<hr class="wr-separate"/>
+						<div id="pricing-container">
+							<div class="row">
+								<p class="col-md-8 nopad">&nbsp;</p><p class="col-md-4 nopad tright"><strong>USD</strong></p>
+							</div>
+							<div class="row">
+								<p class="col-md-8 nopad">Subscription Fee (per/m)</p>
+								<p class="col-md-4 nopad tright"><%=outputs.ratePlan.MonthlyRental%></p>
+							</div>
+							<br class="clearfix"/>
+							<div class="row">
+								<div class="col-md-8 nopad blue">&nbsp;</div>
+								<div class="col-md-4 nopad tright ">
+									<p class="col-md-12 nopad nomargin blue-line-right pull-right">Total USD</p>
+									<p class="col-md-12 nopad nomargin blue-line-right pull-right"><span id="payable-ammount"><%=outputs.ratePlan.MonthlyRental%></span></p>
+								</div>
+							</div>
+							<br class="clearfix" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<% }); %>

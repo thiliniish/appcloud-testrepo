@@ -19,43 +19,17 @@ i18n.init(request, localeResourcesBasePath);
         "name": "page/base",
         "inputs": {
             "title": "API Store - Pricing Information ",
-            "pagePath": "/site/pages/pricing/pricing-menu.jag",
+            "pagePath": "pricing/menu-info",
             "body": [
                 {
                     "name": "layout/base",
                     "inputs": {
-                        "top":[
-                            {
-                                "name":"banner/featured",
-                                "inputs":null
-                            }
-                        ],
-                        "top":[
-                            {
-                                "name":"banner/featured",
-                                "inputs":null
-                            },
-                            {
-                                "name":"search/api-search",
-                                "inputs":null
-                            }
-                        ],
-                        "left":[
-                            {
-                                "name":"api/recently-added",
-                                "inputs":{"tenant":tenantDomain}
-                            }
-                        ],
                         "middle":[
                             {
                                 "name": "pricing/menu-info"
                             }
-                        ],
+                        ]
                     }
-                }
-            ], "footer": [
-                {
-                    "name": "footer"
                 }
             ]
         }

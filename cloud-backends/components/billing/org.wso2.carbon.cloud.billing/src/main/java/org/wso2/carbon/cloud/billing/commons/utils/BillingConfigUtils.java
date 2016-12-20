@@ -32,11 +32,12 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
+import java.io.File;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 
 /**
  * Billing configuration utility class
@@ -80,7 +81,7 @@ public final class BillingConfigUtils {
             return docBuilder.parse(file);
         } catch (Exception e) {
             throw new CloudBillingException("Error occurred while parsing file, while converting " +
-                                            "to a org.w3c.dom.Document : " + e.getMessage(), e);
+                    "to a org.w3c.dom.Document : " + e.getMessage(), e);
         }
     }
 
@@ -92,8 +93,8 @@ public final class BillingConfigUtils {
     private static BillingConfig loadBillingConfig() {
         try {
             String configLocation = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                                    BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
-                                    BillingConstants.CONFIG_FILE_NAME;
+                    BillingConstants.CLOUD_CONFIG_FOLDER + File.separator +
+                    BillingConstants.CONFIG_FILE_NAME;
             File billingConfig = new File(configLocation);
             Document doc = convertToDocument(billingConfig);
             secureResolveDocument(doc);
@@ -102,7 +103,7 @@ public final class BillingConfigUtils {
             JAXBContext cdmContext = JAXBContext.newInstance(BillingConfig.class);
             Unmarshaller unmarshaller = cdmContext.createUnmarshaller();
             return (BillingConfig) unmarshaller.unmarshal(doc);
-        } catch (Exception e) {
+        } catch (CloudBillingException | JAXBException e) {
             throw new IllegalArgumentException("Error occurred while initializing Billing config", e);
         }
     }
@@ -125,10 +126,8 @@ public final class BillingConfigUtils {
      * @param element xml element
      */
     private static void secureLoadElement(Element element) {
-        Attr secureAttr =
-                element.getAttributeNodeNS(BillingConstants.SecureValueProperties.SECURE_VAULT_NS,
-                                           BillingConstants.SecureValueProperties
-                                                   .SECRET_ALIAS_ATTRIBUTE_NAME_WITH_NAMESPACE);
+        Attr secureAttr = element.getAttributeNodeNS(BillingConstants.SecureValueProperties.SECURE_VAULT_NS,
+                BillingConstants.SecureValueProperties.SECRET_ALIAS_ATTRIBUTE_NAME_WITH_NAMESPACE);
         if (secureAttr != null) {
             element.setTextContent(loadFromSecureVault(secureAttr.getValue()));
             element.removeAttributeNode(secureAttr);
@@ -153,8 +152,8 @@ public final class BillingConfigUtils {
     private static synchronized String loadFromSecureVault(String alias) {
         if (secretResolver == null) {
             secretResolver = SecretResolverFactory.create((OMElement) null, false);
-            secretResolver.init(ServiceDataHolder.getInstance().getSecretCallbackHandlerService()
-                                        .getSecretCallbackHandler());
+            secretResolver
+                    .init(ServiceDataHolder.getInstance().getSecretCallbackHandlerService().getSecretCallbackHandler());
         }
         return secretResolver.resolve(alias);
     }

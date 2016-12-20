@@ -3,7 +3,7 @@ include("/modules/pricing/registry.jag");
 
 var carbon = require('carbon');
 var server = carbon.server;
-var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
+var billingService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.CloudBillingService');
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 var APIUtil = Packages.org.wso2.carbon.apimgt.impl.utils.APIUtil;
 var log = new Log("modules.pricing.notifications.jag");

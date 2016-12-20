@@ -20,9 +20,7 @@ var mod = jagg.module("billing");
 		var mod = jagg.module("billing");
 		var invoiceId = request.getParameter("id");
 		var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-		var billingService = server.osgiService('org.wso2.carbon.cloud.billing.service.CloudBillingService');
-		var accountId = billingService.getAccountId(tenantDomain);
-		var result = mod.getBillingInvoiceData(accountId,invoiceId);
+		var result = mod.getBillingInvoiceData(tenantDomain,invoiceId);
 		print(result);
 	}
 

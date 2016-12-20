@@ -1,0 +1,87 @@
+.datatable{
+    background: none;
+    padding:20px;
+}
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_info{
+    color:#333;
+    font-weight:300;
+}
+
+
+
+.dataTables_wrapper .dataTables_filter input{
+    color:#333;
+    border: none;
+    font-weight:normal;
+    padding:4px 8px;
+    background:#c8c8c8;
+}
+.dataTables_wrapper .dataTables_filter input:focus{
+    background:#ddd;
+}
+.dataTables_length label select{
+    color:#333;
+    border: none;
+    margin:0px 4px;
+    font-weight:normal;
+    padding:4px 8px;
+    background:#c8c8c8;
+    -webkit-border-top-left-radius: 0px;
+        -webkit-border-top-right-radius: 0px;
+        -webkit-border-bottom-right-radius: 0px;
+        -webkit-border-bottom-left-radius: 0px;
+        -moz-border-radius-topleft: 0px;
+        -moz-border-radius-topright: 0px;
+        -moz-border-radius-bottomright: 0px;
+        -moz-border-radius-bottomleft: 0px;
+        border-top-left-radius: 0px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        border-bottom-left-radius: 0
+}
+.datatable .form-control,.datatable select{
+    color:#333;
+    border: none;
+    font-weight:normal;
+    padding:4px 8px;
+    background:#c8c8c8;
+    -webkit-border-top-left-radius: 0px;
+    -webkit-border-top-right-radius: 0px;
+    -webkit-border-bottom-right-radius: 0px;
+    -webkit-border-bottom-left-radius: 0px;
+    -moz-border-radius-topleft: 0px;
+    -moz-border-radius-topright: 0px;
+    -moz-border-radius-bottomright: 0px;
+    -moz-border-radius-bottomleft: 0px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    height:34px;
+}
+.datatable .form-control:focus, .datatable .form-control:active{
+    outline:none;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button{
+    border:none;
+    padding:0px;
+}
+.dataTables_filter input{
+    margin-left: .5em !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover{
+    padding:0px;
+    background: none;
+    border:none;
+}
+.dataTable .fa,.dataTable .fw{
+    color:#333;
+}
+.dataTable .fa:hover,.dataTable .fw:hover{
+    color:#999;
+}
+table.dataTable.no-footer,table.dataTable thead th, table.dataTable thead td{
+    border-bottom:1px solid #999;
+}

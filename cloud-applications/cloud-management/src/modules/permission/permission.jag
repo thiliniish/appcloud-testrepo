@@ -86,7 +86,7 @@ var multitenancy = carbon.multitenancy;
      var username =jagg.getUser();
             if(! username){
                 var errorMessage = "User is not authenticated. User should login first.";
-                log.error(errorMessage);
+                log.warn(errorMessage);
                 throw errorMessage;
             }
             return username;

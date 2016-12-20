@@ -45,12 +45,12 @@ import org.wso2.carbon.cloud.billing.usage.apiusage.APICloudUsageManager;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Iterator;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Model to represent Utilities for Cloud Billing module
@@ -66,12 +66,16 @@ public final class CloudBillingServiceUtils {
     private static volatile String configObj;
 
     private static BillingRequestProcessor dsBRProcessor = BillingRequestProcessorFactory.getInstance()
-            .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
+                                                                                         .getBillingRequestProcessor(
+                                                                                                 BillingRequestProcessorFactory.ProcessorType.DATA_SERVICE);
     private static BillingRequestProcessor zuoraReqProcessor = BillingRequestProcessorFactory.getInstance()
-            .getBillingRequestProcessor(BillingRequestProcessorFactory.ProcessorType.ZUORA);
+                                                                                             .getBillingRequestProcessor(
+                                                                                                     BillingRequestProcessorFactory.ProcessorType.ZUORA);
 
-    private static String billingServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri();
-    private static String monetizationServiceURI = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudMonetizationServiceUri();
+    private static String billingServiceURI =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri();
+    private static String monetizationServiceURI =
+            BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudMonetizationServiceUri();
 
     private CloudBillingServiceUtils() {
     }
@@ -87,8 +91,8 @@ public final class CloudBillingServiceUtils {
 
         String dsAccountURL = billingServiceURI.concat(BillingConstants.DS_API_URI_TENANT_ACCOUNT);
 
-        String response = dsBRProcessor.doGet(dsAccountURL.replace(BillingConstants.TENANT_DOMAIN_PARAM,
-                tenantDomain), null, null);
+        String response = dsBRProcessor
+                .doGet(dsAccountURL.replace(BillingConstants.TENANT_DOMAIN_PARAM, tenantDomain), null, null);
         try {
             if (response != null && !response.isEmpty()) {
                 OMElement elements = AXIOMUtil.stringToOM(response);
@@ -189,7 +193,6 @@ public final class CloudBillingServiceUtils {
         return plan;
     }
 
-
     private static Plan getSubscriptionInfo(String subscriptionId, String id) throws CloudBillingException {
         Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions();
         for (Subscription sub : subscriptions) {
@@ -238,7 +241,6 @@ public final class CloudBillingServiceUtils {
         return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
     }
 
-
     public static String getZuoraProductIdForServiceId(String serviceId) throws CloudBillingException {
         Subscription[] subscriptions = BillingConfigUtils.getBillingConfiguration().getZuoraConfig().getSubscriptions();
         for (Subscription subscription : subscriptions) {
@@ -259,41 +261,45 @@ public final class CloudBillingServiceUtils {
     }
 
     public static boolean isMonetizationEnabled(String tenantDomain, String application) throws CloudBillingException {
-        String monetizationStatusUrl = monetizationServiceURI
-                .concat(MonetizationConstants.DS_API_URI_MONETIZATION_STATUS);
+        String monetizationStatusUrl =
+                monetizationServiceURI.concat(MonetizationConstants.DS_API_URI_MONETIZATION_STATUS);
         String response = null;
         try {
             String url = monetizationStatusUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                    CloudBillingUtils.encodeUrlParam(tenantDomain)).replace(MonetizationConstants
-                    .RESOURCE_IDENTIFIER_CLOUD_TYPE, CloudBillingUtils.encodeUrlParam(application));
+                                                       CloudBillingUtils.encodeUrlParam(tenantDomain))
+                                              .replace(MonetizationConstants.RESOURCE_IDENTIFIER_CLOUD_TYPE,
+                                                       CloudBillingUtils.encodeUrlParam(application));
             response = dsBRProcessor.doGet(url, null, null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
-            OMElement status = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
-                    BillingConstants.STATUS));
+            OMElement status = elements.getFirstChildWithName(
+                    new QName(BillingConstants.DS_NAMESPACE_URI, BillingConstants.STATUS));
             //Since the tenants' who are not enabled monetization. will not have an entry in the rdbms.
-            return status != null && StringUtils.isNotBlank(status.getText()) && Integer.parseInt(status.getText()) == 1;
+            return status != null && StringUtils.isNotBlank(status.getText()) &&
+                   Integer.parseInt(status.getText()) == 1;
 
         } catch (XMLStreamException | UnsupportedEncodingException e) {
             throw new CloudBillingException("Error occurred while parsing response: " + response, e);
         }
     }
 
-    public static String getRatePlanId(String tenantDomain, String zuoraProductName, String ratePlanName) throws
-            CloudBillingException {
-        String ratePlanUrl = monetizationServiceURI.concat(MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN);
+    public static String getRatePlanId(String tenantDomain, String zuoraProductName, String ratePlanName)
+            throws CloudBillingException {
+        String ratePlanUrl =
+                monetizationServiceURI.concat(MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN);
         String response = null;
         try {
             String url = ratePlanUrl.replace(MonetizationConstants.RESOURCE_IDENTIFIER_TENANT,
-                    CloudBillingUtils.encodeUrlParam(tenantDomain)).replace(MonetizationConstants
-                    .RESOURCE_IDENTIFIER_ZUORA_PRODUCT_NAME, CloudBillingUtils.encodeUrlParam(zuoraProductName))
-                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_RATE_PLAN_NAME, CloudBillingUtils
-                            .encodeUrlParam(ratePlanName));
+                                             CloudBillingUtils.encodeUrlParam(tenantDomain))
+                                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_ZUORA_PRODUCT_NAME,
+                                             CloudBillingUtils.encodeUrlParam(zuoraProductName))
+                                    .replace(MonetizationConstants.RESOURCE_IDENTIFIER_RATE_PLAN_NAME,
+                                             CloudBillingUtils.encodeUrlParam(ratePlanName));
             response = dsBRProcessor.doGet(url, null, null);
             OMElement elements = AXIOMUtil.stringToOM(response);
 
-            OMElement ratePlanId = elements.getFirstChildWithName(new QName(BillingConstants.DS_NAMESPACE_URI,
-                    MonetizationConstants.RATE_PLAN_ID));
+            OMElement ratePlanId = elements.getFirstChildWithName(
+                    new QName(BillingConstants.DS_NAMESPACE_URI, MonetizationConstants.RATE_PLAN_ID));
             if (ratePlanId != null && StringUtils.isNotBlank(ratePlanId.getText())) {
                 return ratePlanId.getText().trim();
             } else {
@@ -325,7 +331,8 @@ public final class CloudBillingServiceUtils {
      * @return return json object
      * @throws CloudBillingException
      */
-    public static JsonObject createChildAccount(String tenantDomain, String accountInfoJson) throws CloudBillingException {
+    public static JsonObject createChildAccount(String tenantDomain, String accountInfoJson)
+            throws CloudBillingException {
 
         String zuoraAccountURI = BillingConstants.ZUORA_REST_API_URI_ACCOUNTS;
 
@@ -338,7 +345,8 @@ public final class CloudBillingServiceUtils {
             JsonObject childAccountObj = parser.parse(accountInfoJson).getAsJsonObject();
 
             addProfilePropertyIfExists(templateAccount, childAccountObj, BillingConstants.ZUORA_INVOICE_TEMPLATE_ID);
-            addProfilePropertyIfExists(templateAccount, childAccountObj, BillingConstants.ZUORA_COMMUNICATION_PROFILE_ID);
+            addProfilePropertyIfExists(templateAccount, childAccountObj,
+                                       BillingConstants.ZUORA_COMMUNICATION_PROFILE_ID);
             response = zuoraReqProcessor.doPost(zuoraAccountURI, null, childAccountObj.toString());
         } catch (CloudBillingException e) {
             throw new CloudBillingException("Creating child account failed. ", e);
@@ -380,33 +388,37 @@ public final class CloudBillingServiceUtils {
      * @param messageSubject message subject
      */
     public static void sendNotificationToCloud(String messageBody, String messageSubject) {
-        String receiver = BillingConfigUtils.getBillingConfiguration().getUtilsConfig()
-                                            .getNotifications().getEmailNotification().getSender();
-        EmailNotifications.getInstance().sendMail(messageBody, messageSubject, receiver,
-                                                  BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
+        String receiver =
+                BillingConfigUtils.getBillingConfiguration().getUtilsConfig().getNotifications().getEmailNotification()
+                                  .getSender();
+        EmailNotifications.getInstance()
+                          .sendMail(messageBody, messageSubject, receiver, BillingConstants.TEXT_PLAIN_CONTENT_TYPE);
     }
 
-    private static JsonObject getTemplateAccount(String tenantDomain, ZuoraAccountClient client) throws CloudBillingZuoraException {
+    private static JsonObject getTemplateAccount(String tenantDomain, ZuoraAccountClient client)
+            throws CloudBillingZuoraException {
 
-        JsonObject templateAccount = client.queryAccountByName(tenantDomain + BillingConstants.ZUORA_TEMPLATE_ACCOUNT_SUFFIX);
+        JsonObject templateAccount =
+                client.queryAccountByName(tenantDomain + BillingConstants.ZUORA_TEMPLATE_ACCOUNT_SUFFIX);
         if (!templateAccount.get("nameSpecified").getAsBoolean()) {
             templateAccount = client.queryAccountByName(BillingConstants.ZUORA_DEFAULT_TEMPLATE_ACCOUNT_SUFFIX);
         }
         return templateAccount;
     }
 
-    private static void addProfilePropertyIfExists(JsonObject templateAccount, JsonObject childAccountObj, String property)
-            throws CloudBillingException {
+    private static void addProfilePropertyIfExists(JsonObject templateAccount, JsonObject childAccountObj,
+                                                   String property) throws CloudBillingException {
         String propertySpecifiedSuffix = "Specified";
         if (templateAccount.get(property + propertySpecifiedSuffix).getAsBoolean()) {
-            childAccountObj.addProperty(property, templateAccount.get(property).getAsJsonObject().get("id").getAsString());
+            childAccountObj
+                    .addProperty(property, templateAccount.get(property).getAsJsonObject().get("id").getAsString());
         }
     }
 
     private static String getSubscriptionMapping(String ratePlanId) throws CloudBillingException {
-        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri()
-                + BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
-        NameValuePair[] nameValuePairs = new NameValuePair[]{new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId)};
+        String url = BillingConfigUtils.getBillingConfiguration().getDSConfig().getCloudBillingServiceUri() +
+                     BillingConstants.DS_API_URI_MAPPING_FOR_SUBSCRIPTION;
+        NameValuePair[] nameValuePairs = new NameValuePair[] { new NameValuePair("NEW_SUBSCRIPTION_ID", ratePlanId) };
         return dsBRProcessor.doGet(url, null, nameValuePairs);
     }
 

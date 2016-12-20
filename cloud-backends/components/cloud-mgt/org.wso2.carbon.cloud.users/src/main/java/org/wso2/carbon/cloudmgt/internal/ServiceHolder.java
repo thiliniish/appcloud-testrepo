@@ -18,17 +18,18 @@ package org.wso2.carbon.cloudmgt.internal;
 
 import org.wso2.carbon.registry.core.service.RegistryService;
 
+/**
+ * Holder Class for Service used within the service components
+ */
 public class ServiceHolder {
 
-    private static RegistryService registryService;
-
-
     private static final ServiceHolder instance = new ServiceHolder();
+    private static RegistryService registryService;
 
     private ServiceHolder() {
     }
 
-    public static ServiceHolder getInstance(){
+    public static ServiceHolder getInstance() {
         return instance;
     }
 

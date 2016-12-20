@@ -1,0 +1,175 @@
+<% jagg.template("pricing/payment-method/add", function(inputs, outputs, jagg) { %>
+<% var user = jagg.getUser(); %>
+
+<div class="page-header">
+   <h2>Account</h2>
+</div>
+<div class="content-section shadow-up">
+   <div class="content-data">
+      <div class="clearfix">
+      <%
+    if (!outputs.isSecondaryPaymentMethod) { %>
+         <div class="row wr-wizard">
+            <div class="col-md-4">
+               <div class="itm-wiz itm-wiz-current">
+                  <div class="wiz-no">1</div>
+                  <div class="wiz-lbl hidden-xs"><span>Billing Information</span></div>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="itm-wiz">
+                  <div class="wiz-no">2</div>
+                  <div class="wiz-lbl hidden-xs"><span>Contact Information</span></div>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="itm-wiz">
+                  <div class="wiz-no">3</div>
+                  <div class="wiz-lbl hidden-xs"><span>Order Summary</span></div>
+               </div>
+               <br class="c-both" />
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-md-12">
+               <div class="wr-head">
+                  <h2>Billing Information</h2>
+               </div>
+            </div>
+         </div>
+           <%
+    }
+    %>
+            <div class="row">
+               <div class="col-md-8 wr-text-gray">
+                  <p>Please Enter your card information</p>
+                        <div class="col-md-12 panel-body">
+                        <button id="redeembtn1" type="button" style="font-weight: normal;" class="btn redeembtn btn-default btn-redeem col-md-4 col-xs-12">Pay By Card</button>
+                        <div class="cardDetails" id="cardDetails">
+                            <div class="col-lg-12 content-section-wrapper">
+                                <div class="col-md-4">
+                                    <label class="control-label label-style title-label">Card type :</label>
+                                </div>
+                                <label id="paymentType" name="paymentType" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <div class="col-md-4"   >
+                                    <label class="control-label label-style title-label">Card holder name :</label>
+                                </div>
+                                <label id="ccName" name="ccName" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <div class="col-md-4">
+                                    <label class="control-label label-style title-label">Card number :</label>
+                                </div>
+                                <label id="ccNum" name="ccNum" class="control-label label-style"></label>
+                            </div>
+                            <div class="col-lg-12 content-section-wrapper">
+                                <div class="col-md-4">
+                                    <label class="control-label label-style title-label">Expiration date :</label>
+                                </div>
+                                <label id="ccExpiary" name="ccExpiary" class="control-label label-style"></label>
+                            </div>
+                        </div>
+                        <div class="signin"></div>
+                          <%
+    if (!outputs.isSecondaryPaymentMethod) {
+        %>
+                            <input type="hidden" name="workflowReference" id="workflowReference"  value="<%=outputs.workflowReference
+        %>"/>
+                              <%
+    } else {
+        %>
+                               <input type="hidden" name="accountId" id="accountId"  value="<%=outputs.accountId
+        %>"/>
+                              <%
+    }
+    %>
+                        <input type="hidden" name="tenant" id="tenant" value="<%=outputs.tenant%>"/>
+                        <input type="hidden" name="email" id="email" value="<%=user.email%>"/>
+                     <input type="hidden" name="errorObj" id="errorObj" value="<%=encodeURIComponent(JSON.stringify(outputs.errorObj))
+    %>"/>
+                   </div>
+                </div>
+                 <%
+    if (!outputs.isSecondaryPaymentMethod) {
+        %>
+                   <div class="col-md-4" style="min-height:100%">
+                      <!--<div style="position: relative; display: block;">-->
+                      <div class="wr-text myaffix">
+                         <div id="product-container">
+                            <h2 class="product-summery">SUMMARY</h2>
+                            <p>
+                               <span class="selected-plan-txt">SELECTED PLAN</span>
+                               <span class="product-planname"><%=outputs.ratePlan.RatePlanName%></span>
+                     </p>
+                     <ul>
+                        <li><%=outputs.ratePlan.MaxDailyUsage%> Calls/Day</li>
+                        <li>$<%=outputs.ratePlan.OverUsageUnitsPrice%>/<%=outputs.ratePlan.OverUsageUnits%> Calls Above Plan</li>
+                     </ul>
+                  </div>
+                  <hr class="wr-separate"/>
+                  <div id="pricing-container">
+                     <div class="row">
+                        <p class="col-md-8 nopad">&nbsp;</p>
+                        <p class="col-md-4 nopad tright"><strong>USD</strong></p>
+                     </div>
+                     <div class="row">
+                        <p class="col-md-8 nopad">Subscription Fee (per/m)</p>
+                        <p class="col-md-4 nopad tright"><%=outputs.ratePlan.MonthlyRental%></p>
+                     </div>
+                     <br class="clearfix"/>
+                     <div class="row">
+                        <div class="col-md-8 nopad blue">&nbsp;</div>
+                        <div class="col-md-4 nopad tright ">
+                           <p class="col-md-12 nopad nomargin blue-line-right pull-right">Total USD</p>
+                           <p class="col-md-12 nopad nomargin blue-line-right pull-right"><span id="payable-ammount"><%=outputs.ratePlan.MonthlyRental
+        %></span></p>
+                                </div>
+                             </div>
+                             <br class="clearfix" />
+                          </div>
+                          <div id="action-container">
+                          <div class="row">
+                           <div class="col-md-6">
+                                <button type="button" class="btn btn-default btn-back col-md-5 col-md-12" onclick="window.history.back();">Back</button>
+                           </div>
+                            <div class="col-md-6">
+                                <button id="submitbtn" type="button" onclick="submitPage()" class="btn btn-default btn-redeem
+                                 col-md6 col-md-12 pull-right submit">Proceed</button>
+                           </div>
+                          </div>
+                             <br class="c-both" />
+                          </div>
+                          <%
+    } else { %>
+                   </div>
+                   <br class="clearfix" />
+                   <div class="row">
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-gray" id="backbtn" onclick="window.history.back();">
+                               <span class="fw-stack btn-action-ico">
+                               <i class="fw fw-ring fw-stack-2x"></i>
+                               <i class="fw fw-left-arrow fw-stack-1x"></i>
+                              </span>
+                                Back
+                            </button>
+                             <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="submitbtn" onclick="submitPage()">
+                              <span class="fw-stack btn-action-ico">
+                                  <i class="fw fw-ring fw-stack-2x"></i>
+                                     <i class="fw fw-edit fw-stack-1x"></i>
+                                     </span>
+                                Proceed
+                            </button>
+                    </div>
+                  <%
+    }
+    %>
+                  </div>
+                  <!--</div>-->
+               </div>
+            </div>
+         </div>
+      </div>
+
+   <%
+}); %>

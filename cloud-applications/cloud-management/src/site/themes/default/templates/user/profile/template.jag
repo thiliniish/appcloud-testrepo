@@ -58,7 +58,6 @@
        }
 
        $(document).ready(function($){
-            initializeUserActivity("User Profile Page");
             getProfile();
             jQuery.validator.setDefaults({
                 errorElement:'span'

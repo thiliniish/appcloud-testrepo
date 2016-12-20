@@ -1,10 +1,10 @@
 <% jagg.template("billing/account/invoice", function(inputs, outputs, jagg) { 
-	
+
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-var isBillingEnabled = jagg.module("billing").isBillingEnabled();
-var currency = (jagg.module("billing").getCurrencyUsed()).toString();
+var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
+var currency = (jagg.module("billing").getCurrencyUsed());
 var invoiceId = request.getParameter("invoiceId");
 %>
 
@@ -45,15 +45,8 @@ th, td {
 	   function (data) {
 			var invoiceObj = jQuery.parseJSON(data);
 			var invoiceItems = invoiceObj.invoiceItems;
-			var fullTotal = 0;
-			var fullDiscount = 0;
-			var fullAmount = 0;
-			
             for(var i = 0; i < invoiceItems.length; i++) {
                 var invoiceItem = invoiceItems[i];
-                if(invoiceItem.amount < 0){
-                	invoiceItem.chargeName = invoiceItem.chargeName + " -- Proration Credit"
-                }
                 var displayDiscount = invoiceItem.discount;
                 if(invoiceItem.discount == 0){
                 	displayDiscount == "";
@@ -63,30 +56,13 @@ th, td {
                    + '<td>' + invoiceItem.chargeName + '</td>'
                    + '<td>' + invoiceItem.servicePeriod + '</td>'
                    + '<td id="amount'+i+'">' + invoiceItem.amount + '</td>'
-                   + '<td id="discount'+i+'">' + displayDiscount + '</td>'
-                   + '<td id="total'+i+'">' + (invoiceItem.amount+invoiceItem.discount).toFixed(2) + '</td>'
                  ));
-                fullDiscount += parseFloat(invoiceItem.discount);
-                fullAmount += parseFloat(invoiceItem.amount);
-                fullTotal += parseFloat(invoiceItem.amount+invoiceItem.discount);
                 if(invoiceItem.amount < 0){
                 	document.getElementById(("amount"+i)).style.color="red";
                 }
-                if(invoiceItem.discount < 0){
-                	document.getElementById("discount"+i).style.color="red";
-                }
-                if((invoiceItem.amount + invoiceItem.discount) < 0){
-                	document.getElementById("total"+i).style.color="red";
-                }
             }
-            if(fullDiscount < 0){
-            	document.getElementById('fDiscount').style.color="red";
-            }
-
 			//setting the total pricing values
-            $('#fTotal').text(fullTotal.toFixed(2) + " <%=currency%>");
-            $('#fDiscount').text(fullDiscount.toFixed(2) + " <%=currency%>");
-            $('#fAmount').text(fullAmount.toFixed(2) + " <%=currency%>");
+            $('#fTotal').text((invoiceObj.amount) + " <%=currency%>");
             
          	 //setting the Basic Information
             $('#lblOrg').text(invoiceObj.accountName);
@@ -165,8 +141,6 @@ th, td {
 								<th>Charge Name</th>
 								<th>Service Period</th>
 								<th>Amount (<%=currency%>)</th>
-								<th>Discount (<%=currency%>)</th>
-								<th>Total (<%=currency%>)</th>
 							</tr>
 						</thead>
 						<tbody id="payments-tbody">
@@ -177,20 +151,6 @@ th, td {
 			
 			<div class="panel panel-default">
 				<div class="panel-body" style="background-color: #E0E0E0;">
-					<div class="  col-sm-10 content-section-wrapper totalHeader">
-						<label class="control-label  title-label">Amount :</label>
-					</div>
-					<div class=" col-sm-2 content-section-wrapper">
-						<label id="fAmount" name="fAmount"
-							class="control-label label-style totalData"></label>
-					</div>
-					<div class="col-sm-10 content-section-wrapper totalHeader">
-						<label class="control-label  title-label">Discount :</label>
-					</div>
-					<div class="col-sm-2 content-section-wrapper">
-						<label id="fDiscount" name="fDiscount"
-							class="control-label totalData"></label>
-					</div>
 					<div class="col-sm-10 content-section-wrapper totalHeader">
 						<label class="control-label  title-label">Total :</label>
 					</div>
