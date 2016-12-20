@@ -105,7 +105,7 @@ public final class APICloudMonetizationUtils {
         ratePlanUrl = cloudMonUri.concat(MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN);
         ratePlanInfoUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APIC_RATE_PLANS);
 
-        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_BASIC_THROTTLING_TIERS);
+        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_ADVANCED_THROTTLING_TIERS);
         usageOfTenantUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_TENANT_USAGE);
         usageOfApiUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_API_USAGE);
         usageOfSubscriberUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE);
