@@ -219,7 +219,7 @@ var THOUSAND = 1000;
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
 var LOGGED_IN_USER_EMAIL = "LOGGED_IN_USER_EMAIL";
-var TIER_MANAGE_URL = "admin/tier-manage";
+var TIER_MANAGE_URL = "admin/subscription-policy-manage";
 
 //Monetization Account Types
 var ACC_FREE = "Free";
