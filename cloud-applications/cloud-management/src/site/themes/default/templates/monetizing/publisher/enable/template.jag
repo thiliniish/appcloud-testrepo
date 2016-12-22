@@ -55,7 +55,8 @@
                     <br/>
                     <div class="form-group col-md-6">
                         <label for="password">Your Cloud Account Password: </label>
-                        <input type="password" name="password" id="password"  class="form-control required" placeholder="Your password" />
+                        <input type="password" name="password" id="password"  class="form-control required"
+                        placeholder="Your password" autocomplete="off" />
                         <input type="hidden" name="stripeAuthCode" id="stripeAuthCode"  value=<%=request.getParameter('stripe-authcode')%> />
                     </div>
                     <div class="clearfix"></div>
