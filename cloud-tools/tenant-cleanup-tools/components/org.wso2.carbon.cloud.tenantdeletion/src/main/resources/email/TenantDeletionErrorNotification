@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>WSO2 Cloud</title>
+</head>
+<body>
+    <div>
+        <div style="width: 86%; max-width: 650px; padding: 2%; background-color: #ffffff; margin: auto; border-radius: 14px;">
+           <div style="background-color: #00e6e6 ; line-height: 0px; border-top-left-radius: 10px; border-top-right-radius: 10px; padding: 0px 10px 0px 0px;">
+                <div style="display: inline-block; line-height: 0px;font-size:20px">
+                    <p>Tenant Deletion ERROR</p>
+                </div>
+            </div>
+            <div style="background-color: #ffffff; line-height: 170%; color: #666666; padding: 20px 25px;">
+                <p style="font-size: 1em; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px 20px;">
+                    Hi,
+                </p>
+                <p>
+                                        This is to inform that there was an error occurred after starting deletion %%deletionType in %%server
+                </p>
+
+                <p>
+                    %%error
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

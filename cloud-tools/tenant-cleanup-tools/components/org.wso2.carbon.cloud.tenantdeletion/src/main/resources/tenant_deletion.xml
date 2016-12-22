@@ -32,17 +32,17 @@
         <Deleter>
             <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.CloudMgtDataDeleter</Class>
             <Dependency>API,GOVERNANCE</Dependency>
-            <ServerKey>PUBSTORE</ServerKey>
+            <ServerKey>CLOUDMGT</ServerKey>
         </Deleter>
         <Deleter>
             <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.LDAPDataDeleter</Class>
             <Dependency>API,GOVERNANCE</Dependency>
-            <ServerKey>PUBSTORE</ServerKey>
+            <ServerKey>IS</ServerKey>
         </Deleter>
         <Deleter>
             <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.UMDataDeleter</Class>
-            <Dependency>API,GOVERNANCE</Dependency>
-            <ServerKey>PUBSTORE</ServerKey>
+            <Dependency>API,GOVERNANCE,CLOUD_MGT,LDAP</Dependency>
+            <ServerKey>IS</ServerKey>
         </Deleter>
     </Deletion-Order>
 
