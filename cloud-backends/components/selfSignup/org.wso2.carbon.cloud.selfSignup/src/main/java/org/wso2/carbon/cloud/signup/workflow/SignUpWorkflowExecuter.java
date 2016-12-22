@@ -38,20 +38,22 @@ import org.wso2.carbon.apimgt.impl.workflow.UserSignUpWorkflowExecutor;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowConstants;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus;
-import org.wso2.carbon.cloud.signup.configReader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.config.reader.ConfigFileReader;
 import org.wso2.carbon.cloud.signup.constants.SignUpWorkflowConstants;
-import org.wso2.carbon.cloud.signup.dbAccess.DatabaseAccessor;
-import org.wso2.carbon.cloud.signup.emailSender.EmailManager;
+import org.wso2.carbon.cloud.signup.dba.DatabaseAccessor;
+import org.wso2.carbon.cloud.signup.email.sender.EmailManager;
 import org.wso2.carbon.cloud.signup.internal.ServiceReferenceHolder;
 import org.wso2.carbon.cloud.signup.util.Util;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.tenant.mgt.services.TenantMgtAdminService;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.naming.AuthenticationException;
-import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.naming.AuthenticationException;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * This is the class that gets triggered once the sign up button is clicked on the API Manager end,
@@ -59,6 +61,7 @@ import java.util.List;
  * self sign up
  */
 public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
+    private static final long serialVersionUID = 1L;
     private static final Log LOGGER = LogFactory.getLog(SignUpWorkflowExecuter.class);
 
     //initializing workflow specific variables
@@ -208,9 +211,10 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
             emailManager
                     .sendTenantEmail(tenantDomain, fromEmailAddress, tenantEmail, userEmail, notifyAllAdmins);
 
-            //configuring the properties and content needed for the email sent to the user regarding the status of the approval.
+            //configuring the properties and content needed for the email sent to the user regarding the status of
+            // the approval.
             emailManager.sendUserNotificationEmail(tenantDomain, getContactEmail(),
-                                                        getFromAddress(), userEmail);
+                                                   getFromAddress(), userEmail);
             super.execute(workflowDTO);
 
             LOGGER.info("Workflow execution completed for the user " + userEmail +
@@ -330,6 +334,16 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
                         "Error while accessing signup configuration for tenant " + tenantDomain;
                 LOGGER.error(errorMessage, e);
                 throw new WorkflowException(errorMessage, e);
+            } catch (UserStoreException e) {
+                errorMessage =
+                        "Error occurred while retrieving the tenant id for tenant domain " +
+                        tenantDomain;
+                LOGGER.error(errorMessage, e);
+            } catch (RegistryException e) {
+                errorMessage =
+                        "Error occurred while retrieving the tenant id for tenant domain " +
+                        tenantDomain;
+                LOGGER.error(errorMessage, e);
             }
 
             emailManager.setEmailProperyKeyValueMap(getContactAddress(getTenantDomain()),
@@ -342,15 +356,15 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
                 LOGGER.info("Sign Up Request has been approved for the user " + userEmail);
 
                 emailManager.sendApprovalStatusEmail(tenantDomain, getContactEmail(),
-                                                          getFromAddress(), userEmail,
-                                                          SignUpWorkflowConstants.TENANT_APPROVAL_EMAIL_PATH,
-                                                          "approved");
+                                                     getFromAddress(), userEmail,
+                                                     SignUpWorkflowConstants.TENANT_APPROVAL_EMAIL_PATH,
+                                                     "approved");
             } else {
 
                 emailManager.sendApprovalStatusEmail(tenantDomain, getContactEmail(),
-                                                          getFromAddress(), userEmail,
-                                                          SignUpWorkflowConstants.TENANT_REJECTION_EMAIL_PATH,
-                                                          "rejected");
+                                                     getFromAddress(), userEmail,
+                                                     SignUpWorkflowConstants.TENANT_REJECTION_EMAIL_PATH,
+                                                     "rejected");
             }
             LOGGER.info("Completed the Sign Up Workflow for the self signed up user " + userEmail +
                         " of the tenant domain " + tenantDomain);
@@ -359,11 +373,6 @@ public class SignUpWorkflowExecuter extends UserSignUpWorkflowExecutor {
                            " and the user " + userEmail;
             LOGGER.error(errorMessage, e);
             throw new WorkflowException(errorMessage, e);
-        } catch (Exception e) {
-            errorMessage = "Exception occurred for the tenant " + tenantDomain + " and the user " +
-                           userEmail;
-            LOGGER.error(e.getMessage());
-            throw new WorkflowException(e.getMessage(), e);
         }
         return new GeneralWorkflowResponse();
     }
