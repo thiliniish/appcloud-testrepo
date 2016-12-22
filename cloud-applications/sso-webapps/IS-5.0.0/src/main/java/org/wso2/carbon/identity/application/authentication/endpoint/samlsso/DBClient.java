@@ -146,7 +146,7 @@ public class DBClient {
             DataSource dataSource = (DataSource) initContext.lookup("jdbc/" + dataSourceName);
             if (dataSource != null) {
                 conn = dataSource.getConnection();
-                preparedStatement = conn.prepareStatement("INSERT INTO TEMP_REGISTRATION VALUES (?,?,?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE uuid=?, dateTime = CURRENT_TIMESTAMP;");
+                preparedStatement = conn.prepareStatement("INSERT INTO TEMP_REGISTRATION (email, uuid, isInvitee, dateTime) VALUES (?,?,?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE uuid=?, dateTime = CURRENT_TIMESTAMP;");
                 preparedStatement.setString(1,email);
                 preparedStatement.setString(2,uuid);
                 preparedStatement.setString(3,"0");
