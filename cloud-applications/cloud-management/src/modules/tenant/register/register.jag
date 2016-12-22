@@ -496,7 +496,7 @@ var reInvite = function (email) {
                 }
                 var uuid;
                 if (results.length >= 1) {
-                    uuid = results[0]["UUID"];
+                    uuid = results[0]["uuid"];
                 } else {
                     uuid = jagg.module("util").generateUUId();
                     storeTempRegistration(email, uuid, 0);
