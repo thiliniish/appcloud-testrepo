@@ -77,8 +77,8 @@ public class CloudMgtDAO {
     private static final String insertIntoOrganizations = "INSERT INTO ORGANIZATIONS VALUES (? , ? );";
     private static final String insertIntoSubscriptions = "INSERT INTO SUBSCRIPTIONS VALUES (?,1,1,1)";
     private static final String insertIntoTempRegistration =
-            "INSERT INTO TEMP_REGISTRATION VALUES (? , ? , ?, CURRENT_TIMESTAMP) ON" +
-            " DUPLICATE KEY UPDATE uuid= (?), dateTime = CURRENT_TIMESTAMP;";
+            "INSERT INTO TEMP_REGISTRATION (email, uuid, isInvitee, dateTime) VALUES (? , ? , ?, CURRENT_TIMESTAMP) " +
+            "ON DUPLICATE KEY UPDATE uuid= (?), dateTime = CURRENT_TIMESTAMP;";
 
     private static final String updateDisplayNameIntoOrganization =
             "UPDATE ORGANIZATIONS SET displayName = (?) WHERE tenantDomain = (?);";
@@ -445,7 +445,7 @@ public class CloudMgtDAO {
 
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("The email " + email + " has exceeded the maximum retry count for this hour. " +
-                                  "Number of hours:" + diffHours + ". Retry Count: " + retryCount);
+                                  "Difference of hours:" + diffHours + ". Retry Count: " + retryCount);
                     }
                     try {
                         updateRetryCount(retryCount, email, isInvitee);

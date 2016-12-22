@@ -959,12 +959,12 @@ var getProductPlans = function () {
             if (tiersList[index].billingPlan == null) {
                 tiersList[index].billingPlan = FREE_TIER;
             }
-            tmpPlanList.planName = tiersList[index].name;
-            tmpPlanList.billingActive = tiersList[index].tierPlan;
+            tmpPlanList.planName = tiersList[index].policyName;
+            tmpPlanList.billingActive = tiersList[index].billingPlan;
             var isAvailable = false;
             if (result != null) {
                 for (var count in result) {
-                    if (result[count].RATE_PLAN_NAME == tiersList[index].name) {
+                    if (result[count].RATE_PLAN_NAME == tiersList[index].policyName) {
                         isAvailable = true;
                         tmpPlanList.dailyLimit = result[count].MAX_DAILY_USAGE;
                         tmpPlanList.price = result[count].MONTHLY_RENTAL;
