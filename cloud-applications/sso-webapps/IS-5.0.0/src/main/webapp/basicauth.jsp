@@ -39,7 +39,7 @@
                                 <!--Password-->
                                 <div class="password-wrapper">
                                     <input name="password" id="password" class="input-password"
-                                           type="password" placeholder="Password" />
+                                           type="password" placeholder="Password" autocomplete="off"/>
                                     <input type="hidden" name="sessionDataKey"
                                            value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
                                     <%--<label class="checkbox" style="margin-top:10px"><input type="checkbox" id="chkRemember" name="chkRemember"><fmt:message key='remember.me'/></label>--%>
