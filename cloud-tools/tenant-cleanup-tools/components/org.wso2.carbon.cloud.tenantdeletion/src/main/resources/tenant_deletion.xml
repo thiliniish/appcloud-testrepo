@@ -22,17 +22,17 @@
         <Deleter>
             <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.ConfigDataDeleter</Class>
             <Dependency>API</Dependency>
-            <ServerKey>AF,PUBSTORE,IS,AS,BPS,DAS</ServerKey>
+            <ServerKey>AF,PUBSTORE,CLOUD_MGT,IS,BPS,DAS</ServerKey>
         </Deleter>
         <Deleter>
             <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.GovernanceDataDeleter</Class>
-            <Dependency>API,CONFIG_PUBSTORE,CONFIG_BPS,CONFIG_AS,CONFIG_IS,CONFIG_DAS</Dependency>
+            <Dependency>API,CONFIG_PUBSTORE,CONFIG_BPS,CONFIG_CLOUD_MGT,CONFIG_IS,CONFIG_DAS</Dependency>
             <ServerKey>PUBSTORE</ServerKey>
         </Deleter>
         <Deleter>
             <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.CloudMgtDataDeleter</Class>
             <Dependency>API,GOVERNANCE</Dependency>
-            <ServerKey>CLOUDMGT</ServerKey>
+            <ServerKey>CLOUD_MGT</ServerKey>
         </Deleter>
         <Deleter>
             <Class>org.wso2.carbon.cloud.tenantdeletion.deleter.LDAPDataDeleter</Class>
@@ -56,6 +56,7 @@
         <ServerKey>BPS</ServerKey>
         <ServerKey>AS</ServerKey>
         <ServerKey>DAS</ServerKey>
+        <ServerKey>CLOUD_MGT</ServerKey>
     </ServerKeys>
 
     <!-- Tenant deletion Cloud management Queries -->

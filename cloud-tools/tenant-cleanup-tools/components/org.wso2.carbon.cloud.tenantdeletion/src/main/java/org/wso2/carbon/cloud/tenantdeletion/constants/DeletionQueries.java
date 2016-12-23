@@ -67,7 +67,7 @@ public class DeletionQueries {
     public static final String QUERY_RESET_DELETION_FLAGS =
             "UPDATE " + DELETION_STATUS + " SET STATUS = 0 WHERE TYPE= ?";
     public static final String QUERY_GET_DELETION_FLAG_LIST =
-            "SELECT TYPE FROM " + DELETION_STATUS + "WHERE TYPE != 'DELETION_LIMIT'";
+            "SELECT TYPE FROM " + DELETION_STATUS + " WHERE TYPE != 'DELETION_LIMIT'";
     public static final String QUERY_GET_DELETION_STATUS_FLAG =
             "SELECT STATUS FROM " + DELETION_STATUS + " WHERE TYPE = ?";
     public static final String QUERY_SET_DELETION_STATUS =
