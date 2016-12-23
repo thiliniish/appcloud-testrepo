@@ -112,7 +112,7 @@ public class UpdateTenants {
      *
      * @param deleteMap tenant list to be notified
      */
-    public void prepareEmailList(Map<Integer, String> deleteMap) {
+    private void prepareEmailList(Map<Integer, String> deleteMap) {
         DataAccessManager dbHandler = new DataAccessManager();
         List<String> deleteTenantDomainList = dbHandler.getAllInactiveTenantDomainList();
         BufferedWriter bufferedWriter = null;

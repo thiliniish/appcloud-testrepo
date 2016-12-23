@@ -63,6 +63,7 @@ public class GovernanceDataDeleter extends RegistryDataDeleter {
                 TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.GOVERNANCE);
         //If deletion has been limited to specific number of tenants
         if (!deletionCompleted) {
+            LOG.info("Governance data deletion started for Tenant Deletion");
             if (deletionLimit != 0) {
                 tenantMap = TenantDeletionMap.getInstance()
                                              .getInactiveTenantMap(DeletionConstants.GOVERNANCE, deletionLimit);
