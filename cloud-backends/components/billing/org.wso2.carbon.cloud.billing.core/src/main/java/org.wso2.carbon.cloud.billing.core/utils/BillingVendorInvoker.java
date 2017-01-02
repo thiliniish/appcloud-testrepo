@@ -94,18 +94,18 @@ public class BillingVendorInvoker {
      */
     public static CloudBillingServiceProvider loadBillingVendorForMonetization(String tenantDomain)
             throws CloudBillingException {
-        //String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String billingVendorClassName = CloudBillingServiceUtils.getBillingVendorServiceUtilClass();
+        String billingVendorMonetizationClassName =
+                CloudBillingServiceUtils.getBillingVendorMonetizationServiceUtilClass();
         CloudBillingServiceProvider instance;
-
         try {
-            Class<?> vendorClass = Class.forName(billingVendorClassName);
+            Class<?> vendorClass = Class.forName(billingVendorMonetizationClassName);
             Constructor billingVendorConstructor = vendorClass.getConstructor(String.class);
             instance = (CloudBillingServiceProvider) billingVendorConstructor.newInstance(tenantDomain);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException
                 | InvocationTargetException e) {
             throw new CloudBillingException(
-                    "Error while loading cloud billing vendor class : " + billingVendorClassName + "for Monetization");
+                    "Error while loading cloud billing vendor class : " + billingVendorMonetizationClassName +
+                    "for Monetization");
         }
         return instance;
     }
@@ -143,13 +143,13 @@ public class BillingVendorInvoker {
     /**
      * Invoker method to call Monetization related
      *
-     * @param method          Method Name Parsed to backend
-     * @param tenantDomain    Tenant Domain To be used
-     * @param params          Parameters to be invoked
+     * @param method       Method Name Parsed to backend
+     * @param tenantDomain Tenant Domain To be used
+     * @param params       Parameters to be invoked
      * @return
      * @throws CloudBillingException
      */
-    public static Object invokeMethodForMonetization(String method, String tenantDomain, String params)
+    public static Object invokeMethodForMonetization(String tenantDomain, String method, String params)
             throws CloudBillingException {
         CloudBillingServiceProvider cloudBillingServiceProviderInstance =
                 (CloudBillingServiceProvider) loadBillingVendorForMonetization(tenantDomain);

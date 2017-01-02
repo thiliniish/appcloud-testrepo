@@ -1012,6 +1012,9 @@ a.btn-action {
     animation: ellipsis 2s infinite;
     content: "\2026"; /* ascii code for the ellipsis character */
 }
+.title-label {
+    font-weight: bold !important;
+}
 
 @keyframes fw-hide {
     0%, 30%  {

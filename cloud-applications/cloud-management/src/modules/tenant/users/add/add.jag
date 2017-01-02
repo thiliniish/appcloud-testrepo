@@ -2,7 +2,6 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/modules/database/dataaccess.jag");
-include("/modules/database/sql.jag");
 
 var log = new Log("modules.tenant.users.add.add.jag");
 var modManager = jagg.module("manager");
@@ -15,6 +14,7 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var from = cloudConfig.registrationEmail.from;
 var subject =  cloudConfig.invitationEmail.subject;
 var targetEpr = cloudConfig.registrationEmail.targetEpr.toString();
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
 
 var addUserRoles = function addUserRoles(username,userRoles) {
 	//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
@@ -68,15 +68,26 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
     var message;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         //Get the existing roles in the invitation
-        var queryStringForRoles = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
-        var parameters = [tenantDomain, email];
-        var existingRoles = jagg.module("database").executeQuery(queryStringForRoles, parameters);
         var currentRoles = [];
         var role = '';
 
-        var tmpRoles = existingRoles[0]["roles"].split(',');
-        for (var k = 0; k < tmpRoles.length; k++) {
-            currentRoles.push(tmpRoles[k]);
+        //Calling the db
+        var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+        var cloudmgtDAO;
+        cloudmgtDAO = new CloudMgtDAO();
+        var existingRoles = null;
+        try {
+            existingRoles = cloudmgtDAO.getRolesOfTempInvitees(tenantDomain, email);
+        } catch(e) {
+            log.error("An error occurred while getting the roles for the user " + email);
+            log.error(e);
+        }
+        if (existingRoles != "" && existingRoles != null) {
+            existingRoles = String(existingRoles);
+            var tmpRoles = existingRoles.split(',');
+            for (var k = 0; k < tmpRoles.length; k++) {
+                currentRoles.push(tmpRoles[k]);
+            }
         }
         //Get roles to be added and deleted into arrays
         var roles = [];
@@ -140,9 +151,7 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
                 }
             }
             try {
-                var queryString = SQL_QUERY_STRINGS.UPDATE_TEMP_INVITEE;
-                parameters = [roles, tenantDomain, email];
-                var results = jagg.module("database").executeQuery(queryString, parameters);
+                var results = cloudmgtDAO.updateTempInviteeRoles(roles, tenantDomain, email);
                 //Resend invitation email
                 resendInvite(email);
                 return {
@@ -179,9 +188,7 @@ var revokeUserInvitation = function (email) {
     var message;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         try {
-            var queryString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE_REVOKE_INVITATION;
-            var parameters = [tenantDomain, email];
-            var results = jagg.module("database").executeQuery(queryString, parameters);
+            var results = cloudmgtDAO.removeTempInviteeInvite(tenantDomain, email);
             message = "Member Invitation for " + email + " for the tenant " + tenantDomain + " has been revoked by "
                     + user;
             log.info(message);
@@ -256,11 +263,21 @@ var sendInvite = function (email, tenant, roles, message) {
     var displayName = modManager.getTenantDisplayName(tenant);
     var uuid = generateUUId();
     log.info("Adding the user [ " + email + " ] to TEMP_INVITEE");
-    var getRolesQueryString = SQL_QUERY_STRINGS.SELECT_ROLES_FROM_TEMP_INVITEE;
-    var parameters = [tenant, email];
-    var existingRecord = jagg.module("database").executeQuery(getRolesQueryString, parameters);
+
+    //Calling the db
+    var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+    var cloudmgtDAO;
+    cloudmgtDAO = new CloudMgtDAO();
+    var existingRecord = null;
+    try {
+        existingRecord = cloudmgtDAO.getRolesOfTempInvitees(tenant, email);
+    } catch(e) {
+        log.error("An error occurred while getting the roles for the user " + email);
+        log.error(e);
+    }
     if (existingRecord != "" && existingRecord != null) {
-        var existingRoles = existingRecord[0]["roles"].split(",");
+        existingRecord = String(existingRecord);
+        var existingRoles = existingRecord.split(",");
         var userRoleArray = roles.split(",");
         for (var i = 0; i < existingRoles.length; i++) {
             var exsistingRole = existingRoles[i].trim();
@@ -276,26 +293,23 @@ var sendInvite = function (email, tenant, roles, message) {
             }
         }
     }
-    var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_INVITEE;
-    parameters = [tenant, email, uuid, roles, 0, uuid, roles, 0];
-    var results = jagg.module("database").executeQuery(queryString, parameters);
-
-    log.info("Successfully added the user by email [ " + email + " ] to TEMP_INVITEE");
-    var link = getInvitationLink(tenant, roles, uuid);    
-    sendEmail(email, link, displayName, roles, message);
-    var modEvents = jagg.module("events");
-    var type = "CloudMgt";
-    var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsignup{Invite}:Success";
-    var page = MAIL_CAMPAIGN;
-    var events = [];
-    var event = {};
-    event.item = type;
-    event.timestamp = new Date().getTime();
-    event.pageName = page;
-    event.action = actionString;
-    events[events.length] = event;
-    modEvents.publishUserActivity(events, email, tenant);
-    return email;
+        var results = cloudmgtDAO.insertIntoTempInvitee(tenant, email, uuid, roles, 0);
+        log.info("Successfully added the user by email [ " + email + " ] to TEMP_INVITEE");
+        var link = getInvitationLink(tenant, roles, uuid);
+        sendEmail(email, link, displayName, roles, message);
+        var modEvents = jagg.module("events");
+        var type = "CloudMgt";
+        var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsignup{Invite}:Success";
+        var page = MAIL_CAMPAIGN;
+        var events = [];
+        var event = {};
+        event.item = type;
+        event.timestamp = new Date().getTime();
+        event.pageName = page;
+        event.action = actionString;
+        events[events.length] = event;
+        modEvents.publishUserActivity(events, email, tenant);
+        return email;
 };
 
 var sendEmail = function(to,link,domain,roles,message) {
@@ -325,11 +339,9 @@ var sendEmail = function(to,link,domain,roles,message) {
     }
 
     var body = getCustomEmailBody(userRoleArray);
+    var isCustom = false;
     if (body) {
-        var customLogo = getCustomLogo();
-        if (customLogo) {
-            body = body.replace("$logo", customLogo);
-        }
+        isCustom = true;
     } else {
         body = jagg.module("util").getObjFromFile("/site/conf/emails/user_invitation_email.body.txt");
         body = body.replace("$tenant", domain);
@@ -342,7 +354,13 @@ var sendEmail = function(to,link,domain,roles,message) {
     body = body.replace("$link", link).replace("$link", link);
     body = body.replace("$roles", displayRoles);
     var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-    jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
+    if (isCustom) {
+        var imagePath = getCustomLogoPath();
+        var attachment = {"path": imagePath, "contentType": "image/png", "cid": "<header>"};
+        jagg.module("util").sendEmailWithAttachment(body, subject + loggedInUserEmail, to, attachment);
+    } else {
+        jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
+    }
     log.info("Successfully sent the email to [ " + to + " ], with the link : " + link);
 };
 
@@ -380,29 +398,8 @@ var getCustomEmailDir = function() {
     return path;
 };
 
-var getCustomLogo = function() {
-    var path = "file://" + getCustomEmailDir() + "custom-logo";
-    var file = new File(path);
-    if (file.isExists()) {
-        return 'data:image/png;base64,' + base64EncodedImg(path);
-    } else {
-        log.error("Could not find custom logo : " + path);
-    }
-};
-
-var base64EncodedImg = function(pathToFile) {
-    try {
-        var path = pathToFile.replace("file://", "");
-        var file = new Packages.java.io.File(path);
-        var bufferedImg = Packages.javax.imageio.ImageIO.read(file);
-        var byteArrayOutputStream = new Packages.java.io.ByteArrayOutputStream;
-        Packages.javax.imageio.ImageIO.write(bufferedImg, "png", byteArrayOutputStream);
-        var base64 = new Packages.org.apache.commons.codec.binary.Base64();
-        return new java.lang.String(base64.encodeBase64(byteArrayOutputStream.toByteArray()));
-    } catch (e) {
-        log.error("Error while reading file " + pathToFile);
-        log.error(e);
-    }
+var getCustomLogoPath = function() {
+    return getCustomEmailDir() + "custom-logo";
 };
 
 var sendUserInvite = function (emails,roles){
@@ -477,17 +474,22 @@ var resendInvite = function resendInvite(email) {
         try {
             log.info("Re-sending invitation to invited user " + email);
             var displayName = modManager.getTenantDisplayName(tenantDomain);
-            var queryString = SQL_QUERY_STRINGS.SELECT_UUID_AND_ROLES_FROM_TEMP_INVITEE;
-            var parameters = [email, tenantDomain];
-            var results = jagg.module("database").executeQuery(queryString, parameters);
+            var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+            var cloudmgtDAO;
+            cloudmgtDAO = new CloudMgtDAO();
+            var results = "";
+            var queryResults = cloudmgtDAO.getRolesAndUUIDOfTempInvitees(email, tenantDomain);
+            if (queryResults != null) {
+                results = JSON.parse(queryResults);
+            }
         } catch (e) {
             log.error(e);
             log.error("Error while re-sending invitation to " + email);
             throw "Error while re-sending invitation to " + email;
         }
         if (results != null && results != "") {
-            var uuid = results[0]["uuid"];
-            var userRoles = results[0]["roles"];
+            var uuid = results.uuid;
+            var userRoles = results.roles;
             var link = getInvitationLink(tenantDomain, userRoles, uuid);
             sendEmail(email, link, displayName, userRoles);
             log.info("Re-sending invitation to invited user " + email +" successful")
@@ -550,12 +552,14 @@ var importInvitedUserAndGetDirectURL = function (confirmationKey, defaultPasswor
 var importInvitedUser = function (confirmationKey, defaultPassword, firstName, lastName) {
     try {
         //Retrieve invited user info from TEMP_INVITEE table
-        var queryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE;
-        var parameters = [confirmationKey];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        var email = results[0]["email"];
-        var roles = results[0]["roles"];
-        var tenantDomain = results[0]["tenantDomain"];
+        var results;
+        var queryResults = cloudmgtDAO.getTempInviteeDetails(confirmationKey);
+        if (queryResults != null) {
+            results = JSON.parse(queryResults);
+        }
+        var email = results["email"];
+        var roles = results["roles"];
+        var tenantDomain = results["tenantDomain"];
         session.put("TENANT_DOMAIN", tenantDomain.toString());
         var assignedRoles = roles.split(",");
         var username = modManager.getUserNameFromEmail(email);
@@ -607,15 +611,11 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
     try {
         //Adding to TENANT_USER_MAPPING
         log.info("Adding user [ " + username + " ] and tenant [ " + tenantDomain + " ] in to TENANT_USER_MAPPING");
-        var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
-        var parameters = [username, tenantDomain];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
+        cloudmgtDAO.addTenantUserMapping(username, tenantDomain);
         log.info("Tenant user mapping added successfully for [ " + username + " ] and tenant [" + tenantDomain + "]");
 
         //Deleting from TEMP_INVITEE
-        var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE;
-        parameters = [confirmationKey];
-        results = jagg.module("database").executeQuery(deleteString, parameters);
+       cloudmgtDAO.removeTempInviteeRecord(confirmationKey);
         log.info("The entry at TEMP_INVITEE is deleted for [ " + username + " ] and tenant [" + tenantDomain + "]");
 
     } catch (e) {
@@ -723,9 +723,7 @@ var importUserToTenant = function (email, defaultPassword, firstName, lastName, 
         try {
             //Adding to TENANT_USER_MAPPING
             log.info("Adding user [ " + username + " ] and tenant [ " + tenantDomain + " ] in to TENANT_USER_MAPPING");
-            var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
-            var parameters = [username, tenantDomain];
-            jagg.module("database").executeQuery(queryString, parameters);
+            cloudmgtDAO.addTenantUserMapping(username, tenantDomain);
             var message = "Successfully added the user " + email + " to the tenant " + tenantDomain;
             log.info("Tenant user mapping added successfully for [ " + username + " ] and tenant [" + tenantDomain + "]");
 
@@ -788,14 +786,13 @@ var changePassword=function(oldPassword,newPassword){
 
 var getBlockedSubscriptions = function(tenantDomain) {
 	var roleList= new Array();
-	//var tenantId = modManager.getTenantId(tenantDomain);
+	var tenantId = modManager.getTenantId(tenantDomain);
 	//getting the paid and inactive subscriptions
-	var queryString =SQL_QUERY_STRINGS.SELECT_BLOCKED_SUBSCRIPTION_FROM_BILLING_STATUS;
-			var parameters =[tenantDomain,"PAID","DISABLED"];
-	        var results = jagg.module("database").executeQuery(queryString, parameters);
-	        for(var i =0; i< results.length; i++){
-	        	roleList.push(results[i]["SUBSCRIPTION"]);
-	        }
+    var cloudBillingDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudBillingDAO();
+    var results = JSON.parse(cloudBillingDAO.getSubscriptionsForBillingAccount(tenantDomain,"PAID","DISABLED"));
+    for(var i =0; i< results.length; i++){
+        roleList.push(results[i]["SUBSCRIPTION"]);
+    }
 	return roleList;
 };
 

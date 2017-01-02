@@ -208,7 +208,7 @@
                   <div class="row-fluid">
                      <div class="span6">
                         <input type="password" id="password" name="password"
-                           class="required password " />
+                           class="required password " autocomplete="off" />
                         <div class="span6">
                            <div class="password-meter" style="display:none;">
                               <div class="password-meter-message"></div>

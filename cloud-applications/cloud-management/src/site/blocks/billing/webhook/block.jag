@@ -1,0 +1,7 @@
+<%
+jagg.block("billing/webhook", {
+    initialize:function (data) {
+
+    }
+});
+%>

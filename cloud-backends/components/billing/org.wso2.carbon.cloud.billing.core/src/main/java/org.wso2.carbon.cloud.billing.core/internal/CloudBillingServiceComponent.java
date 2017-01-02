@@ -29,6 +29,8 @@ import org.wso2.carbon.cloud.billing.core.commons.config.model.BillingConfig;
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
 import org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService;
 import org.wso2.carbon.cloud.billing.core.service.CloudBillingService;
+import org.wso2.carbon.cloud.billing.core.subscription.tasks.BillingDbUpdateScheduler;
+import org.wso2.carbon.cloud.billing.core.usage.scheduler.UsageUploadScheduler;
 import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.service.TaskService;
@@ -116,7 +118,7 @@ public class CloudBillingServiceComponent {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Cloud billing  bundle is activated");
             }
-            LOGGER.info("########## Cloud billing Core bundle is activated ##################");
+            LOGGER.info("Cloud billing Core bundle is activated");
         } catch (Exception e) {
             LOGGER.error("Failed to activate the Cloud Billing service.", e);
         }
@@ -269,26 +271,23 @@ public class CloudBillingServiceComponent {
         BillingConfig configuration = BillingConfigManager.getBillingConfiguration();
         // TODO: 10/8/16 need to check for each cloud and schedule tasks
         if (configuration.getCloudTypeById("api_cloud").isBillingEnabled() && configuration.isMgtModeEnabled()) {
-
-           /* boolean enableDailyUsageUpload = configuration.getZuoraConfig().getUsageConfig().isEnableUsageUploading();
-
+            boolean enableDailyUsageUpload = configuration.getCrons().getUsageUpload().isEnableUsageUploading();
             if (enableDailyUsageUpload) {
                 UsageUploadScheduler usageScheduler = new UsageUploadScheduler();
-                String cronExpression = configuration.getZuoraConfig().getUsageConfig().getCron();
+                String cronExpression = configuration.getCrons().getUsageUpload().getCron();
                 usageScheduler.invokeUsageUpload(cronExpression);
             } else {
                 LOGGER.warn("Usage uploader disabled");
             }
-            boolean enableSubscriptionCleanUp = configuration.getZuoraConfig().getSubscriptionCleanUp().isEnabled();
+
+            boolean enableSubscriptionCleanUp = configuration.getCrons().getSubscriptionCleanUp().getEnableCleanUp();
             if (enableSubscriptionCleanUp) {
                 BillingDbUpdateScheduler billingDbUpdateScheduler = new BillingDbUpdateScheduler();
-                String cronExpression = configuration.getZuoraConfig().getSubscriptionCleanUp().getCron();
-
+                String cronExpression = configuration.getCrons().getSubscriptionCleanUp().getCron();
                 billingDbUpdateScheduler.invokeBillingDbUpdateTask(cronExpression);
             } else {
                 LOGGER.warn("Subscription cleanup disabled");
-            }*/
-
+            }
             registerUsageUploaderTask();
         } else if (!configuration.getCloudTypeById("api_cloud").isBillingEnabled()) {
             LOGGER.warn("Billing disabled. billing related scheduler tasks will not get initialized");

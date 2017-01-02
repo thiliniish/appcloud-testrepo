@@ -1,4 +1,5 @@
 <% jagg.template("pricing/payment-method/info", function (inputs, outputs, jagg) {%>
+
 <div class="container-fluid">
     <div class="box">
         <div class="box-header">

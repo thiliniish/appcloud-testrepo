@@ -16,7 +16,7 @@ function updateContactInfo(tenantDomain, docObj) {
             city: docObj.getElementById("city").value,
             state: docObj.getElementById("state").value,
             zipCode: docObj.getElementById("postal-zip").value,
-            country: docObj.getElementById("country").value,
+            country: $("#country option:selected").text(),
             email: docObj.getElementById("email").value
         },
         success: function (data) {
@@ -33,7 +33,7 @@ function updateContactInfo(tenantDomain, docObj) {
         }
     });
 }
- 
+
 
 
 

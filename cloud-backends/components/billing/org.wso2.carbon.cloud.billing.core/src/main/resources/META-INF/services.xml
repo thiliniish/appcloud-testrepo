@@ -26,6 +26,7 @@
             org.wso2.carbon.cloud.billing.core.service.CloudBillingService
         </parameter>
         <parameter name="adminService" locked="true">true</parameter>
+        <parameter name="superTenantService" locked="true">true</parameter>
         <parameter name="hiddenService" locked="true">true</parameter>
         <parameter name="AuthorizationAction" locked="true">/permission/admin/billing</parameter>
     </service>
@@ -36,6 +37,81 @@
         <parameter name="ServiceClass" locked="true">
             org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService
         </parameter>
+        <operation name="getAPISubscriberInfoForTenant">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="updateAPISubscriberInfo">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getTiersOfTenant">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="createProductRatePlan">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="isMonetizationEnabled">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getRatePlansInfo">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getTenantMonetizationUsageDataForGivenDateRange">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getSubscriberUsageInformationForGivenDateRange">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getUserAPIs">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getUserAPIApplications">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="removePaidApiSubscriptionsOfUser">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getRatePlanId">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="createSubscription">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="addSubscriptionInformation">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="addPaymentMethod">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="setDefaultPaymentMethod">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getAllPaymentMethods">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="removePaymentMethod">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getInvoices">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="createCustomer">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="updateCustomer">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="retrieveAccountInfo">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="getCurrencyUsed">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="callVendorMethod">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
+        <operation name="cancelSubscriptionForSubscriptionId">
+            <parameter name="superTenantService" locked="true">true</parameter>
+        </operation>
         <parameter name="adminService" locked="true">true</parameter>
         <parameter name="hiddenService" locked="true">true</parameter>
         <parameter name="AuthorizationAction" locked="true">/permission/admin/billing</parameter>

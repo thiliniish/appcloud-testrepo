@@ -57,7 +57,7 @@ $(document).ready(function () {
                             + '<td>' + invoiceItem.servicePeriod + '</td>'
                             + '<td id="amount' + i + '">' + invoiceItem.amount + ' ' + "USD" + '</td>'
                             + '<td id="discount' + i + '">' + displayDiscount + ' ' + "USD" + '</td>'
-                            + '<td id="total' + i + '">' + (invoiceItem.amount + invoiceItem.discount).toFixed(2) + ' ' + "USD" + '</td>'
+                            + '<td id="total' + i + '">' + parseFloat(invoiceItem.amount + invoiceItem.discount).toFixed(2) + ' ' + "USD" + '</td>'
                         ));
                         fullDiscount += parseFloat(invoiceItem.discount);
                         fullAmount += parseFloat(invoiceItem.amount);

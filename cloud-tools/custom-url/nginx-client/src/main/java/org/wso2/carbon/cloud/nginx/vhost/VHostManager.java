@@ -35,7 +35,6 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -45,9 +44,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -106,12 +102,19 @@ public class VHostManager {
     public void addHostToNginxConfig(VHostEntry vhostEntry, String filePath) throws IOException {
         String template = buildVHostConfig(vhostEntry);
         File file = new File(filePath);
-
         if (!file.exists()) {
-            String errorMessage = "Cannot find the Nginx Configuration file for VHost in " + file.getAbsolutePath();
-            log.error(errorMessage);
-            throw new FileNotFoundException(errorMessage);
+            if (file.getParentFile().mkdirs()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Directory structure " + file.getParent() + " created for nginx config files");
+                }
+            }
+            if (file.createNewFile()) {
+                log.info("Creating a new Nginx Configuration file " + filePath + " for VHost successful");
+            } else {
+                log.error("Creating a new Nginx Configuration file " + filePath + " for VHost failed");
+            }
         }
+        //Write the vhost configs to custom location
         BufferedWriter bufferedWriter = null;
         try {
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file.getAbsoluteFile()),
@@ -127,47 +130,6 @@ public class VHostManager {
             }
         }
         log.info("Updated Nginx config file ");
-    }
-
-    /**
-     * This method will add the vhost entries to the configuration file
-     *
-     * @param vHostEntriesList List of vhost entries that needed to be add.
-     * @param filePath         File path of the configuration file
-     * @throws IOException
-     */
-    public void addHostToNginxConfig(List<VHostEntry> vHostEntriesList, String filePath) throws IOException {
-        StringBuilder stringStack = new StringBuilder();
-        File configFile = new File(filePath);
-
-        for (VHostEntry vhostEntry : vHostEntriesList) {
-            if (vhostEntry.getCloudName().equals(NginxVhostConstants.API_CLOUD_TYPE)) {
-                stringStack.append(buildVHostConfig(vhostEntry));
-            }
-        }
-        if (!configFile.exists()) {
-            if (configFile.createNewFile()) {
-                log.info("Creating a new Nginx Configuration file for VHost successful");
-            } else {
-                log.error("Creating a new Nginx Configuration file for VHost failed");
-            }
-        }
-        BufferedWriter bufferedWriter = null;
-        try {
-            bufferedWriter = new BufferedWriter(
-                    new OutputStreamWriter(new FileOutputStream(configFile.getAbsoluteFile()),
-                                           NginxVhostConstants.DEFAULT_ENCODING));
-            bufferedWriter.write(stringStack.toString());
-        } catch (IOException e) {
-            String errorMessage = "Error occurred while writing the configuration file";
-            log.error(errorMessage, e);
-            throw new IOException(errorMessage, e);
-        } finally {
-            if (bufferedWriter != null) {
-                bufferedWriter.close();
-            }
-        }
-        log.info("Updated Nginx config file for all the tenants");
     }
 
     /**
@@ -196,51 +158,35 @@ public class VHostManager {
     }
 
     protected void removeHostMapping(String domainName, String cloudType, String node) throws IOException {
-        String matchingKeyword = "## Tenant Domain: " + domainName + "".trim();
-        BufferedWriter bufferedWriter = null;
-        File file = null;
-
+        File file;
+        boolean isSuccessful;
         if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudType)) {
-            String[] configFileLocations;
             if (STORE_NODE.equals(node)) {
-                configFileLocations = new String[] { configReader.getProperty("nginx.api.store.config.path") };
-            } else {
-                configFileLocations = new String[] { configReader.getProperty("nginx.api.gateway.config.path"),
-                                                     configReader.getProperty("nginx.api.gateway.https.config.path") };
-            }
-
-            for (String configFileLocation : configFileLocations) {
-                try {
-                    file = new File(configFileLocation);
-                    String fileContent =
-                            new Scanner(file, NginxVhostConstants.DEFAULT_ENCODING).useDelimiter("//z").next();
-
-                    if (fileContent.trim().contains(matchingKeyword)) {
-                        String endOfMatchingContent = "##@";
-                        int index1 = fileContent.indexOf(matchingKeyword);
-                        int index2 = fileContent.indexOf(endOfMatchingContent, index1);
-
-                        String preContent = fileContent.substring(0, index1);
-                        String postContent = fileContent.substring(index2 + 3, fileContent.length());
-
-                        bufferedWriter = new BufferedWriter(
-                                new OutputStreamWriter(new FileOutputStream(file.getAbsoluteFile()),
-                                                       NginxVhostConstants.DEFAULT_ENCODING));
-
-                        bufferedWriter.write("");
-                        bufferedWriter.write(preContent.concat(postContent));
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
+                                        NginxVhostConstants.STORE_CUSTOM_CONFIG);
+                if (file.exists()) {
+                    isSuccessful = file.delete();
+                    if (!isSuccessful) {
+                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
                     }
-                } catch (FileNotFoundException ex) {
-                    String errorMessage = "Nginx virtual host configuration cannot be found at " + file.getPath();
-                    log.error(errorMessage, ex);
-                    throw new FileNotFoundException(errorMessage);
-                } catch (IOException ex) {
-                    String errorMessage = "Error occurred during the deletion of url-mapping of " + domainName;
-                    log.error(errorMessage, ex);
-                    throw new IOException(errorMessage, ex);
-                } finally {
-                    if (bufferedWriter != null) {
-                        bufferedWriter.close();
+                }
+            } else {
+                //Remove http config file
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
+                                        NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
+                if (file.exists()) {
+                    isSuccessful = file.delete();
+                    if (!isSuccessful) {
+                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
+                    }
+                }
+                //Remove https config file
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
+                                        NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
+                if (file.exists()) {
+                    isSuccessful = file.delete();
+                    if (!isSuccessful) {
+                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
                     }
                 }
             }
@@ -282,15 +228,12 @@ public class VHostManager {
      */
     void restoreVirtualHosts()
             throws RegistryException, JSONException, IOException, KeyStoreException, NoSuchAlgorithmException,
-                   CertificateException, UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
-                   BadPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, InterruptedException {
+                           CertificateException, UnrecoverableKeyException, NoSuchPaddingException,
+                           IllegalBlockSizeException, BadPaddingException, InvalidKeyException,
+                           InvalidAlgorithmParameterException, InterruptedException {
         String registryPath = this.configReader.getProperty("remoteregistry.path");
         RegistryManager registryManager = new RegistryManager(configReader, NginxVhostConstants.AXIS2_CONF_FILE_PATH);
         SSLFileHandler sslFileHandler = new SSLFileHandler(registryManager, configReader);
-
-        List<VHostEntry> apiGatewayHosts = new ArrayList<>();
-        List<VHostEntry> apiStoreHosts = new ArrayList<>();
-        List<VHostEntry> apiHttpsGatewayHosts = new ArrayList<>();
 
         try {
 
@@ -299,21 +242,21 @@ public class VHostManager {
                 Collection cloudCollection = (Collection) registryManager.getResourceFromRegistry(registryPath);
 
                 for (int i = 0; i < cloudCollection.getChildCount(); i++) {
-
-                    String cloudName = cloudCollection.getChildren()[i]
-                            .substring(cloudCollection.getChildren()[i].lastIndexOf("/") + 1,
-                                       cloudCollection.getChildren()[i].length());
+                    String cloudCollectionElement = cloudCollection.getChildren()[i];
+                    String cloudName = cloudCollectionElement.substring(
+                            cloudCollectionElement.lastIndexOf("/") + 1,
+                            cloudCollectionElement.length());
 
                     Collection tenantCollection =
-                            (Collection) registryManager.getResourceFromRegistry(cloudCollection.getChildren()[i]);
+                            (Collection) registryManager.getResourceFromRegistry(cloudCollectionElement);
 
                     for (int z = 0; z < tenantCollection.getChildCount(); z++) {
+                        String tenantCollectionElement = tenantCollection.getChildren()[z];
+                        String tenantId = tenantCollectionElement
+                                                  .substring(tenantCollectionElement.lastIndexOf("/") + 1,
+                                                             tenantCollectionElement.length());
 
-                        String tenantId = tenantCollection.getChildren()[z]
-                                .substring(tenantCollection.getChildren()[z].lastIndexOf("/") + 1,
-                                           tenantCollection.getChildren()[z].length());
-
-                        String urlMappingPath = tenantCollection.getChildren()[z] + "/urlMapping/" + tenantId;
+                        String urlMappingPath = tenantCollectionElement + "/urlMapping/" + tenantId;
                         Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                         byte[] r = (byte[]) resource.getContent();
                         try {
@@ -322,8 +265,10 @@ public class VHostManager {
 
                                 //Defining store virtual hosts
                                 VHostEntry storeEntry = new VHostEntry();
-                                storeEntry.setTenantDomain(
-                                        jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
+                                String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
+                                storeEntry.setTenantDomain(tenantDomain);
+                                String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) +
+                                                          tenantDomain;
                                 storeEntry.setCustomDomain(((JSONObject) jsonObject.get(STORE_NODE))
                                                                    .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
                                 storeEntry.setCloudName(cloudName);
@@ -338,24 +283,15 @@ public class VHostManager {
                                             NginxVhostConstants.KEY_FILE,
                                             jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN), STORE_NODE)
                                                                                                .getAbsolutePath());
-                                    apiStoreHosts.add(storeEntry);
+                                    addHostToNginxConfig(storeEntry,
+                                                         filePath + NginxVhostConstants.STORE_CUSTOM_CONFIG);
                                 } catch (DomainMapperException ex) {
                                     log.warn("Adding Vhost template avoided for STORE for TENANT ID " + tenantId +
-                                             " due to no STORE registry resource for certificates");
+                                                     " due to no STORE registry resource for certificates");
                                 }
 
-                                //Defining gateway virtual hosts
-                                VHostEntry gatewayEntry = new VHostEntry();
-                                gatewayEntry.setTenantDomain(
-                                        jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
-                                gatewayEntry.setCustomDomain(((JSONObject) jsonObject.get(GATEWAY_NODE)).getString(
-                                        NginxVhostConstants.PAYLOAD_CUSTOM_URL));
-                                gatewayEntry.setCloudName(cloudName);
-                                gatewayEntry.setTemplate(apiHttpGatewayVHostTemplate);
-                                gatewayEntry.setSecurityCertificateFilePath(null);
-                                gatewayEntry.setSecurityCertificateKeyFilePath(null);
-                                apiGatewayHosts.add(gatewayEntry);
-
+                                //Indicates whether to add gateway http virtual hosts
+                                boolean addHttpVhost = true;
                                 //Defining https gateway virtual hosts
                                 VHostEntry httpsGatewayEntry = new VHostEntry();
                                 httpsGatewayEntry.setTenantDomain(
@@ -373,10 +309,28 @@ public class VHostManager {
                                             NginxVhostConstants.KEY_FILE,
                                             jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN),
                                             GATEWAY_NODE).getAbsolutePath());
-                                    apiHttpsGatewayHosts.add(httpsGatewayEntry);
+                                    addHostToNginxConfig(httpsGatewayEntry,
+                                                         filePath + NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
+
                                 } catch (DomainMapperException ex) {
+                                    addHttpVhost = false;
                                     log.warn("Adding Vhost template avoided for GATEWAY for TENANT ID " + tenantId +
-                                             " due to no GATEWAY registry resource for certificates");
+                                                     " due to no GATEWAY registry resource for certificates");
+                                }
+                                if (addHttpVhost) {
+                                    //Defining gateway virtual hosts
+                                    VHostEntry gatewayEntry = new VHostEntry();
+                                    gatewayEntry.setTenantDomain(
+                                            jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN));
+                                    gatewayEntry.setCustomDomain(((JSONObject) jsonObject.get(GATEWAY_NODE)).getString(
+                                            NginxVhostConstants.PAYLOAD_CUSTOM_URL));
+                                    gatewayEntry.setCloudName(cloudName);
+                                    gatewayEntry.setTemplate(apiHttpGatewayVHostTemplate);
+                                    gatewayEntry.setSecurityCertificateFilePath(null);
+                                    gatewayEntry.setSecurityCertificateKeyFilePath(null);
+                                    //Adding gateway nodes
+                                    addHostToNginxConfig(gatewayEntry,
+                                                         filePath + NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
                                 }
                             }
                         } catch (JSONException e) {
@@ -384,25 +338,15 @@ public class VHostManager {
                             log.error(errorMessage, e);
                             throw new JSONException(errorMessage);
                         } catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException |
-                                NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
-                                InvalidKeyException | InvalidAlgorithmParameterException | InterruptedException e) {
+                                         NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
+                                         InvalidKeyException | InvalidAlgorithmParameterException |
+                                                                                               InterruptedException e) {
                             String errorMessage = "Error occurred when setting security files for " + tenantId;
                             log.error(errorMessage, e);
                             throw e;
                         }
                     }
                 }
-
-                //Adding gateway nodes
-                addHostToNginxConfig(apiGatewayHosts, configReader.getProperty("nginx.api.gateway.config.path"));
-
-                //Adding store nodes
-                addHostToNginxConfig(apiStoreHosts, configReader.getProperty("nginx.api.store.config.path"));
-
-                //Adding https gateway nodes
-                addHostToNginxConfig(apiHttpsGatewayHosts,
-                                     configReader.getProperty("nginx.api.gateway.https.config.path"));
-
                 this.restartNginX();
             }
         } catch (RegistryException ex) {

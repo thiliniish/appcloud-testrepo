@@ -66,26 +66,12 @@ public class AuthenticationClient {
         Boolean loginStatus = false;
         long timeout = 2 * 60 * 1000; // Setting the time out to Two minutes
         authenticationAdminStub._getServiceClient().getOptions().setTimeOutInMilliSeconds(timeout);
-        UserStoreManager secondaryUserStoreManager = null;
         try {
-            if (tenantDomain != null) {
-                secondaryUserStoreManager = getSecondaryUserStoreManager(tenantDomain);
-            }
-
-            if (secondaryUserStoreManager != null) {
-                loginStatus = secondaryUserStoreManager.authenticate(userName, password);
-                if (!loginStatus) { //If authentication fails from secondary user store, authenticate as a normal user i.e from primary user store
-                    loginStatus = authenticationAdminStub.login(userName + "@carbon.super", (String) password, hostWithoutHTTPSPort(host));
-                }
-            } else {
-                loginStatus = authenticationAdminStub.login(userName, (String) password, hostWithoutHTTPSPort(host));
-            }
+            loginStatus = authenticationAdminStub.login(userName, (String) password, hostWithoutHTTPSPort(host));
         } catch (RemoteException e) {
             log.error(e.getMessage());
         } catch (LoginAuthenticationExceptionException e) {
             log.error(e.getMessage());
-        } catch (UserStoreException e) {
-            log.error(e);
         }
         return loginStatus;
     }

@@ -32,7 +32,7 @@
     private static final String IWA_AUTHENTICATOR = "IWAAuthenticator";
     private static final String IS_SAAS_APP = "isSaaSApp";
     private static final String BASIC_AUTHENTICATOR = "BasicAuthenticator";
-    private static final String BASIC_CUSTOM_AUTHENTICATOR = "BasicCustomAuthenticator";
+    private static final String BASIC_IDENTITY_CLOUD_AUTHENTICATOR = "BasicIdentityCloudAuthenticator";
     private static final String OPEN_ID_AUTHENTICATOR = "OpenIDAuthenticator";
 %><fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
@@ -125,7 +125,7 @@
                             <%@ include file="openid.jsp" %>
 
                             <%
-                            } else if (localAuthenticatorNames.size() > 0 && (localAuthenticatorNames.contains(BASIC_AUTHENTICATOR) || localAuthenticatorNames.contains(BASIC_CUSTOM_AUTHENTICATOR))) {
+                            } else if (localAuthenticatorNames.size() > 0 && (localAuthenticatorNames.contains(BASIC_AUTHENTICATOR) || localAuthenticatorNames.contains(BASIC_IDENTITY_CLOUD_AUTHENTICATOR))) {
                                 hasLocalLoginOptions = true;
                             %>
 
