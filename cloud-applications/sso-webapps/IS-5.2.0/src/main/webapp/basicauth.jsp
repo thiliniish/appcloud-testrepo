@@ -100,7 +100,8 @@
                                         </div>
                                         <% } %>
                                         <div class="username-wrapper">
-                                            <input id="username" name="username" type="text" class="input-username" tabindex="0"
+                                            <input id="username" name="username" type="email" class="input-username"
+                                                   tabindex="0"
                                                    placeholder="Email">
                                         </div>
                                         <div class="password-wrapper">

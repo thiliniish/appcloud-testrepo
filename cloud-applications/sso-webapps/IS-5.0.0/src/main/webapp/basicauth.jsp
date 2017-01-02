@@ -26,7 +26,7 @@
                                     <!-- Username -->
                                     <div class="username-wrapper">
                                         <input name="username" id="username" class="input-username"
-                                               type="text" placeholder="Email" />
+                                               type="email" placeholder="Email" />
                                     </div>
 
                                 <%--<%} else { %>--%>
