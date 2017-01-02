@@ -55,7 +55,8 @@ include("/jagg/constants.jag");
                 var cookie = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
 
                 //calling the service to upload the files to the BPS server
-                result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader').bpsFileUploader(username, cookie);
+                result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader' +
+                                            '.BPSFileUploader').bpsFileUploader(username, cookie);
                 if (result) {
 
                     //Sending an email to the cloud team to inform the enabling of the self sign up feature of the tenant's API Store.

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.humanTaskUploader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.humantask.uploader;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
 import org.wso2.carbon.humantask.stub.upload.HumanTaskUploaderStub;
 import org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem;
 
+import java.io.File;
+import java.rmi.RemoteException;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import java.io.File;
-import java.rmi.RemoteException;
 
 /**
  * This Class is the client that accesses the HTUploader service stub and enables to access the methods of that service

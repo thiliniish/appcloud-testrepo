@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.humanTaskUploader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.humantask.uploader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader.ConfigFileReader;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.configreader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
 
 import java.io.IOException;
 
 /**
- * This Class handles the task of uploading of configuring the changes for the Human Task file to the BPS server in to the tenant's domain
+ * This Class handles the task of uploading of configuring the changes for the Human Task file to the BPS server in
+ * to the tenant's domain
  */
 public class HumanTaskUploader {
     private static final Log log = LogFactory.getLog(HumanTaskUploader.class);
     private String errorMessage;
 
     /**
-     * This method acts as one that configures all needed parameters and processes to get the human task file prepared to be uploaded
+     * This method acts as one that configures all needed parameters and processes to get the human task file
+     * prepared to be uploaded
      *
      * @param session    is the session cookie generated from the SAML token
      * @param username   is the username of the tenant
@@ -66,20 +68,23 @@ public class HumanTaskUploader {
                 result = true;
             } catch (InterruptedException e) {
                 errorMessage =
-                        "An exception occurred while uploading the BPEL to tbe bps server for the self sign up feature for the user " +
+                        "An exception occurred while uploading the BPEL to tbe bps server for the self sign up " +
+                        "feature for the user " +
                         username;
                 log.error(errorMessage, e);
                 throw new InterruptedException(errorMessage);
             }
         } catch (ParseException parseException) {
             errorMessage =
-                    "An error occurred while parsing the configuration file for the self sign up feature for the user " +
+                    "An error occurred while parsing the configuration file for the self sign up feature for the user" +
+                    " " +
                     username;
             log.error(errorMessage, parseException);
             throw new ParseException(0, parseException);
         } catch (IOException ioException) {
             errorMessage =
-                    "An error occurred while reading the parsed the configuration file for the self sign up feature for the user " +
+                    "An error occurred while reading the parsed the configuration file for the self sign up feature " +
+                    "for the user " +
                     username;
             log.error(errorMessage, ioException);
             throw new IOException(errorMessage, ioException);

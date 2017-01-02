@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.businessProcessUploader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.businessprocess.uploader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader.ConfigFileReader;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.configreader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
 
 import java.io.IOException;
 
 /**
- * This Class handles the task of uploading of configuring the changes for the Business Process file to the BPS server in to the tenant's domain
+ * This Class handles the task of uploading of configuring the changes for the Business Process file to the BPS
+ * server in to the tenant's domain
  */
 public class BPELUploader {
 
@@ -33,7 +34,8 @@ public class BPELUploader {
     private String errorMessage;
 
     /**
-     * This method acts as one that configures all needed parameters and processes to get the bpel file prepared to be uploaded
+     * This method acts as one that configures all needed parameters and processes to get the bpel file prepared to
+     * be uploaded
      *
      * @param sessionCookie is the authorization header to be passed
      * @param username      is the username of the tenant
@@ -73,7 +75,8 @@ public class BPELUploader {
                 uploadResult = true;
             } catch (InterruptedException e) {
                 errorMessage =
-                        "An exception occurred while uploading the BPEL to tbe bps server for the self sign up feature for the user " +
+                        "An exception occurred while uploading the BPEL to tbe bps server for the self sign up " +
+                        "feature for the user " +
                         username;
                 log.error(errorMessage, e);
                 throw new InterruptedException(errorMessage);

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.configreader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,7 +37,7 @@ import java.io.InputStreamReader;
 public class ConfigFileReader {
     private static final Log log = LogFactory.getLog(ConfigFileReader.class);
 
-    private static JSONObject jsonObjectInstance = null;
+    private static volatile JSONObject jsonObjectInstance = null;
 
     // private constructor
     private ConfigFileReader() {
@@ -49,46 +49,49 @@ public class ConfigFileReader {
      * @return jsonObjectInstance after reading the config file
      */
     public static JSONObject getJsonConfigObject() throws ParseException, IOException {
-        String errorMessage;
-        String fileName = Constants.CONFIG_FILE_NAME;
-        String filePath = Constants.CARBON_HOME + "repository" + File.separator + "resources" +
-                          File.separator + "bpelFileUploader" + File.separator + fileName;
-        //if (jsonObjectInstance == null) {
-        JSONParser parser = new JSONParser();
-        String jsonString;
-        Object jsonobject;
-        BufferedReader reader = null;
-        if (jsonObjectInstance == null) {
-            try {
-                reader = new BufferedReader(
-                        new InputStreamReader(new FileInputStream(filePath), Constants.CHARACTER_ENCODING));
-                String line = "";
-                StringBuilder stringBuilder = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                jsonString = stringBuilder.toString();
-                jsonobject = parser.parse(jsonString);
-                jsonObjectInstance = (JSONObject) jsonobject;
-            } catch (FileNotFoundException e) {
-                errorMessage = "The file " + fileName + " could not be located";
-                log.error(errorMessage, e);
-                throw new FileNotFoundException();
-            } catch (IOException e) {
-                errorMessage = "Error reading file " + fileName + " could not be located";
-                log.error(errorMessage, e);
-                throw new IOException(errorMessage, e);
-            } catch (ParseException e) {
-                errorMessage = "Error parsing the json file " + fileName + " could not be located";
-                log.error(errorMessage, e);
-                throw new ParseException(0, e);
-            } finally {
-                if (reader != null) {
-                    reader.close();
+        synchronized (ConfigFileReader.class) {
+
+            String errorMessage;
+            String fileName = Constants.CONFIG_FILE_NAME;
+            String filePath = Constants.CARBON_HOME + "repository" + File.separator + "resources" +
+                              File.separator + "bpelFileUploader" + File.separator + fileName;
+            //if (jsonObjectInstance == null) {
+            JSONParser parser = new JSONParser();
+            String jsonString;
+            Object jsonobject;
+            BufferedReader reader = null;
+            if (jsonObjectInstance == null) {
+                try {
+                    reader = new BufferedReader(
+                            new InputStreamReader(new FileInputStream(filePath), Constants.CHARACTER_ENCODING));
+                    String line = "";
+                    StringBuilder stringBuilder = new StringBuilder();
+                    while ((line = reader.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+                    jsonString = stringBuilder.toString();
+                    jsonobject = parser.parse(jsonString);
+                    jsonObjectInstance = (JSONObject) jsonobject;
+                } catch (FileNotFoundException e) {
+                    errorMessage = "The file " + fileName + " could not be located";
+                    log.error(errorMessage, e);
+                    throw new FileNotFoundException();
+                } catch (IOException e) {
+                    errorMessage = "Error reading file " + fileName + " could not be located";
+                    log.error(errorMessage, e);
+                    throw new IOException(errorMessage, e);
+                } catch (ParseException e) {
+                    errorMessage = "Error parsing the json file " + fileName + " could not be located";
+                    log.error(errorMessage, e);
+                    throw new ParseException(0, e);
+                } finally {
+                    if (reader != null) {
+                        reader.close();
+                    }
                 }
             }
+            return jsonObjectInstance;
         }
-        return jsonObjectInstance;
     }
 
     /**

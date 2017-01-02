@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.businessProcessUploader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.businessprocess.uploader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader.ConfigFileReader;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.fileReader.ArchiveConverter;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.fileReader.FileAccessor;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.utils.Utils;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.configreader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.filereader.ArchiveConverter;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.filereader.FileAccessor;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.utils.Utils;
 
 import java.io.IOException;
 
@@ -102,13 +102,15 @@ public class ConfigureBpel {
 
         } catch (ParseException parseException) {
             errorMessage =
-                    "An error occurred while parsing the configuration file for the self sign up file uploader feature for the user " +
+                    "An error occurred while parsing the configuration file for the self sign up file uploader " +
+                    "feature for the user " +
                     userName;
             log.error(errorMessage, parseException);
             throw new ParseException(0, parseException);
         } catch (IOException ioException) {
             errorMessage =
-                    "An error occurred while reading the parsed the configuration file for the self sign up file uploader feature for the user " +
+                    "An error occurred while reading the parsed the configuration file for the self sign up file " +
+                    "uploader feature for the user " +
                     userName;
             log.error(errorMessage, ioException);
             throw new IOException(errorMessage, ioException);

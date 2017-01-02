@@ -11,7 +11,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.cloud</groupId>
-    <artifactId>org.wso2.carbon.cloud.signup.workflow.fileUploader</artifactId>
+    <artifactId>org.wso2.carbon.cloud.signup.workflow.fileuploader</artifactId>
     <version>1.0.0</version>
     <packaging>bundle</packaging>
 
@@ -34,8 +34,7 @@
         <carbon.logging.version>4.2.0</carbon.logging.version>
         <!-- checkstyle skipped since package names had to be changed
         which would also need refactoring of the cloudmgt app -->
-        <checkstyle.skip>true</checkstyle.skip>
-        <findbugs.skip>true</findbugs.skip>
+        <checkstyle.skip>false</checkstyle.skip>
     </properties>
 
     <repositories>
@@ -172,7 +171,7 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Bundle-Version>1.0.0</Bundle-Version>
                         <Private-Package>
-                            org.wso2.carbon.cloud.signup.workflow.fileUploader.internal
+                            org.wso2.carbon.cloud.signup.workflow.fileuploader.internal
                         </Private-Package>
                         <Import-Package>
                             org.wso2.carbon.utils.multitenancy.*; version="${imp.pkg.version.carbon.platform}",
@@ -181,7 +180,7 @@
                             org.wso2.carbon.humantask.stub.upload.*; version="${carbon.humantask.stub.version}",
                             org.wso2.carbon.bpel.stub.upload.types.*; version="${carbon.bpel.stub.version}",
                             org.wso2.carbon.bpel.stub.upload.*; version="${carbon.bpel.stub.version}",
-                            org.osgi.service.component.*; version="{osgi.service.component.version",
+                            org.osgi.service.component; version="${osgi.service.component.version}",
                             org.osgi.framework.*; version="${osgi.framework.version}",
                             org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
                             org.apache.axis2.client.*; version="${apache.axis2.wso2.version}",
@@ -191,19 +190,19 @@
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Export-Packages>
-                            org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUplader;
+                            org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader;
                             version="${project.version}",
-                            org.wso2.carbon.cloud.signup.workflow.fileUploader.businessProcessUploader;
+                            org.wso2.carbon.cloud.signup.workflow.fileuploader.businessprocess.uploader;
                             version="${project.version}",
-                            org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader;
+                            org.wso2.carbon.cloud.signup.workflow.fileuploader.configreader;
                             version="${project.version}",
-                            org.wso2.carbon.cloud.signup.workflow.fileUploader.constants;
+                            org.wso2.carbon.cloud.signup.workflow.fileuploader.constants;
                             version="${project.version}",
-                            org.wso2.carbon.cloud.signup.workflow.fileUploader.fileReader;
+                            org.wso2.carbon.cloud.signup.workflow.fileuploader.filereader;
                             version="${project.version}",
-                            org.wso2.carbon.cloud.signup.workflow.fileUploader.humanTaskUploader;
+                            org.wso2.carbon.cloud.signup.workflow.fileuploader.humantask.uploader;
                             version="${project.version}",
-                            org.wso2.carbon.cloud.signup.workflow.fileUploader.utils;
+                            org.wso2.carbon.cloud.signup.workflow.fileuploader.utils;
                             version="${project.version}"
                         </Export-Packages>
                     </instructions>
