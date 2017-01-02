@@ -267,7 +267,8 @@ public class VHostManager {
                                 VHostEntry storeEntry = new VHostEntry();
                                 String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
                                 storeEntry.setTenantDomain(tenantDomain);
-                                String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + tenantDomain;
+                                String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) +
+                                                          tenantDomain;
                                 storeEntry.setCustomDomain(((JSONObject) jsonObject.get(STORE_NODE))
                                                                    .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
                                 storeEntry.setCloudName(cloudName);
