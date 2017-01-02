@@ -20,6 +20,8 @@ package org.wso2.carbon.cloud.billing.core.usage.apiusage.utils;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.wso2.carbon.cloud.billing.core.beans.usage.AccountUsage;
@@ -29,6 +31,7 @@ import org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.Plan;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.service.CloudBillingService;
+import org.wso2.carbon.cloud.billing.core.utils.CloudBillingServiceUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,6 +46,7 @@ import javax.xml.stream.XMLStreamException;
  * Util class to process API Usage
  */
 public class APIUsageProcessorUtil {
+    private static final Log LOGGER = LogFactory.getLog(APIUsageProcessorUtil.class);
 
     /**
      * Private constructor
@@ -70,8 +74,8 @@ public class APIUsageProcessorUtil {
             if (!hasAmendments) {
                 CloudBillingService cloudBillingService = new CloudBillingService();
                 String ratePlanId = cloudBillingService.getCurrentRatePlan(accountId);
-                /*plan = (Plan) CloudBillingServiceUtils.getSubscriptionForId(BillingConstants
-                .API_CLOUD_SUBSCRIPTION_ID, ratePlanId);*/
+                plan = CloudBillingServiceUtils
+                        .getSubscriptionPlanForRatePlanId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, ratePlanId);
             }
             elements = AXIOMUtil.stringToOM(response);
             Iterator<?> entries = elements.getChildrenWithName(new QName(BillingConstants.ENTRY));
@@ -93,12 +97,13 @@ public class APIUsageProcessorUtil {
                                     .getText();
                     if (hasAmendments) {
                         String currentRatePlan = getRatePlanIdForDate(amendmentResponse, date);
-                        /*plan = (APICloudPlan) CloudBillingServiceUtils
-                                .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, currentRatePlan);*/
+                        plan = CloudBillingServiceUtils
+                                .getSubscriptionPlanForRatePlanId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID,
+                                                                  currentRatePlan);
                     }
                     if (plan != null) {
-                        /*String overUsageRate = plan.getOverUsage();
-                        int maxUsage = plan.getMaxDailyUsage();
+                        String overUsageRate = plan.getProperty("OverUsage");
+                        int maxUsage = Integer.parseInt(plan.getProperty("MaxDailyUsage"));
                         float overage = calculateCharge(maxUsage, qty, overUsageRate);
                         usage.setAccountId(accountId);
                         usage.setDate(date);
@@ -109,7 +114,7 @@ public class APIUsageProcessorUtil {
                         usage.setRatePlan(overUsageRate);
                         usage.setTenantDomain(tenantDomain);
                         usage.setUsage(qty);
-                        usageList.add(usage);*/
+                        usageList.add(usage);
                     }
                 }
             }
@@ -177,26 +182,25 @@ public class APIUsageProcessorUtil {
                 OMElement amendEle = (OMElement) entries.next();
 
                 String amendmentStartDate =
-                        ((OMElement) amendEle.getChildrenWithName(new QName(
-                                BillingConstants.START_DATE))
-                                .next()).getText();
+                        ((OMElement) amendEle.getChildrenWithName(new QName(BillingConstants.START_DATE)).next())
+                                .getText();
 
                 String amendmentEmdDate =
-                        ((OMElement) amendEle.getChildrenWithName(new QName(BillingConstants.END_DATE))
-                                .next()).getText();
+                        ((OMElement) amendEle.getChildrenWithName(new QName(BillingConstants.END_DATE)).next())
+                                .getText();
                 Date currentDate = new SimpleDateFormat(BillingConstants.DATE_FORMAT).parse(currDate);
                 Date startDate = new SimpleDateFormat(BillingConstants.DATE_FORMAT).parse(amendmentStartDate);
                 Date endDate = new SimpleDateFormat(BillingConstants.DATE_FORMAT).parse(amendmentEmdDate);
                 if (currentDate.after(startDate) && currentDate.before(endDate) || currentDate.equals(startDate)) {
-                    return ((OMElement) amendEle.getChildrenWithName(new QName("PRODUCT_RATE_PLAN_ID"))
-                            .next()).getText();
+                    return ((OMElement) amendEle.getChildrenWithName(new QName("PRODUCT_RATE_PLAN_ID")).next())
+                            .getText();
                 }
             }
         } catch (XMLStreamException e) {
             throw new CloudBillingException("Error while reading xml response from data service", e);
         } catch (ParseException e) {
-            throw new CloudBillingException("Error Parsing the dates to date format " + BillingConstants
-                    .DATE_FORMAT, e);
+            throw new CloudBillingException("Error Parsing the dates to date format " + BillingConstants.DATE_FORMAT,
+                                            e);
         }
         return null;
     }
@@ -221,23 +225,21 @@ public class APIUsageProcessorUtil {
                 int qty = Integer.parseInt(
                         ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TOTAL_COUNT)).next())
                                 .getText());
-                String date = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.YEAR)).next())
-                                      .getText() + "/" +
-                              ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.MONTH)).next())
-                                      .getText() +
-                              "/" +
-                              ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.DAY)).next())
-                                      .getText();
-                String tenantDomain = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants
-                                                                                                  .API_PUBLISHER))
-                        .next()).getText();
+                String date =
+                        ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.YEAR)).next()).getText() +
+                        "/" +
+                        ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.MONTH)).next()).getText() +
+                        "/" +
+                        ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.DAY)).next()).getText();
+                String tenantDomain =
+                        ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.API_PUBLISHER)).next())
+                                .getText();
                 usage.setDate(date);
                 usage.setPaidAccount(false);
                 usage.setProductName(BillingConstants.API_CLOUD);
                 usage.setTenantDomain(tenantDomain);
                 usage.setUsage(qty);
                 usageList.add(usage);
-
             }
             return usageList.toArray(new AccountUsage[usageList.size()]);
         } catch (XMLStreamException e) {
@@ -253,12 +255,20 @@ public class APIUsageProcessorUtil {
      * @return
      * @throws CloudBillingException
      */
-    private static Usage getUsageForApiM(OMElement usageEle) throws CloudBillingException {
+    private static Usage getUsageForApiM(OMElement usageEle, String accountId) throws CloudBillingException {
         Usage usage = new Usage();
         usage.setUom(BillingConstants.UNIT_OF_MEASURE); // TODO get it from the
         // config
-        String tenantDomain = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.API_PUBLISHER))
-                .next()).getText();
+        CloudBillingService cloudBillingService = new CloudBillingService();
+        String ratePlanId = cloudBillingService.getCurrentRatePlan(accountId);
+        Plan plan = CloudBillingServiceUtils
+                .getSubscriptionPlanForRatePlanId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, ratePlanId);
+        String priceValue = plan.getProperty((BillingConstants.API_CLOUD_OVERUSAGE)).split("/")[0];
+        if (priceValue != null) {
+            usage.setUnitPrice(Double.parseDouble(priceValue.replace("$", "")));
+        }
+        String tenantDomain =
+                ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.API_PUBLISHER)).next()).getText();
         String date = ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.MONTH)).next()).getText() +
                       "/" +
                       ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.DAY)).next()).getText() +
@@ -285,22 +295,27 @@ public class APIUsageProcessorUtil {
             while (entries.hasNext()) {
                 OMElement usageEle = (OMElement) entries.next();
                 OMElement accounts =
-                        (OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.ACCOUNTS))
-                                .next();
+                        (OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.ACCOUNTS)).next();
 
                 if (accounts.getChildElements().next() != null) {
                     OMElement account = (OMElement) accounts.getChildElements().next();
-                    Usage usage = APIUsageProcessorUtil.getUsageForApiM(usageEle);
-                    usage.setAccountId(account.getFirstElement().getText());
-                    int qty =
-                            Integer.parseInt(((OMElement) usageEle.getChildrenWithName(new QName(
-                                    BillingConstants.TOTAL_COUNT))
-                                    .next()).getText());
+                    try {
+                        Usage usage =
+                                APIUsageProcessorUtil.getUsageForApiM(usageEle, account.getFirstElement().getText());
+                        usage.setAccountId(account.getFirstElement().getText());
 
-                    int overUsage = calculateOverUsage(qty, usage.getAccountId(), BillingConstants.API_CLOUD);
-                    if (overUsage > 0) {
-                        usage.setQty(overUsage);
-                        usageList.add(usage);
+                        int qty = Integer.parseInt(
+                                ((OMElement) usageEle.getChildrenWithName(new QName(BillingConstants.TOTAL_COUNT))
+                                                     .next()).getText());
+
+                        int overUsage = calculateOverUsage(qty, usage.getAccountId(), BillingConstants.API_CLOUD);
+                        if (overUsage > 0) {
+                            usage.setQty(overUsage);
+                            usageList.add(usage);
+                        }
+                    } catch (CloudBillingException ex) {
+                        LOGGER.error("Error occurred while calculating the over usage for account " +
+                                     account.getFirstElement().getText());
                     }
                 }
             }
@@ -322,21 +337,19 @@ public class APIUsageProcessorUtil {
      */
     private static int calculateOverUsage(int usage, String accountId, String productName)
             throws CloudBillingException, XMLStreamException {
-
-        /*JSONArray ratePlans = ZuoraRESTUtils.getCurrentRatePlan(productName, accountId);
-        String productRatePlanId = getCurrentRatePlanId(ratePlans);
-        APICloudPlan plan = (APICloudPlan) CloudBillingServiceUtils
-                .getSubscriptionForId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, productRatePlanId);
+        CloudBillingService cloudBillingService = new CloudBillingService();
+        String ratePlanId = cloudBillingService.getCurrentRatePlan(accountId);
+        Plan plan = CloudBillingServiceUtils
+                .getSubscriptionPlanForRatePlanId(BillingConstants.API_CLOUD_SUBSCRIPTION_ID, ratePlanId);
         if (plan != null) {
-            String overUsageRate = plan.getOverUsage();
+            String overUsageRate = plan.getProperty(BillingConstants.API_CLOUD_OVERUSAGE);
             int overageValue = Integer.parseInt(overUsageRate.split("/")[1]);
-            int maxUsage = plan.getMaxDailyUsage();
+            int maxUsage = Integer.parseInt(plan.getProperty(BillingConstants.API_CLOUD_MAX_DAILY_USAGE));
             int overUsage = usage - maxUsage;
             return (overUsage > BillingConstants.OVER_USAGE_THRESHOLD) ? overUsage / overageValue : 0;
         } else {
             throw new CloudBillingException("Subscription plan for accountId: " + accountId + " cannot be null");
-        }*/
-        return 1;
+        }
     }
 
     /**
@@ -354,40 +367,53 @@ public class APIUsageProcessorUtil {
             while (entries.hasNext()) {
                 OMElement usageEle = (OMElement) entries.next();
                 OMElement account =
-                        (OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.ACCOUNT))
-                                            .next();
+                        (OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.ACCOUNT)).next();
                 //filtering only the monetization enabled child accounts
                 if (account.getChildElements().next() != null) {
-
                     Usage usage = APIUsageProcessorUtil.getUsageForPaidSubscribers(usageEle);
                     usage.setAccountId(account.getFirstElement().getText());
-                    int dailyUsage = Integer.parseInt(
-                            ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.TOTAL_COUNT))
-                                                 .next()).getText());
-                    //Getting the subscription id
-                    OMElement subscription =
-                            (OMElement) account.getChildrenWithName(new QName(MonetizationConstants.SUBSCRIPTION))
-                                               .next();
-                    usage.setSubscriptionId(subscription.getFirstElement().getText());
+                    try {
+                        String tenantDomain =
+                                ((OMElement) account.getChildrenWithName(new QName(MonetizationConstants.TENANT_DOMAIN))
+                                                    .next()).getText();
+                        usage.setTenantDomain(tenantDomain);
+                        int dailyUsage = Integer.parseInt(
+                                ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.TOTAL_COUNT))
+                                                     .next()).getText());
+                        //Getting the subscription id
+                        OMElement subscription =
+                                (OMElement) account.getChildrenWithName(new QName(MonetizationConstants.SUBSCRIPTION))
+                                                   .next();
+                        usage.setSubscriptionId(((OMElement) subscription
+                                .getChildrenWithName(new QName(MonetizationConstants.SUBSCRIPTION_NUMBER)).next())
+                                .getText());
 
-                    //Getting the rate plan details
-                    OMElement ratePlanDetails =
-                            (OMElement) subscription.getChildrenWithName(new QName(MonetizationConstants.RATE_PLAN))
-                                                    .next();
-                    int maxDailyUsage = Integer.parseInt((((OMElement) ratePlanDetails
-                            .getChildrenWithName(new QName(MonetizationConstants.MAX_DAILY_USAGE)).next()).getText()));
-                    int unitOfMeasure = Integer.parseInt((((OMElement) ratePlanDetails
-                            .getChildrenWithName(new QName(MonetizationConstants.UNIT_OF_MEASURE)).next()).getText()));
+                        //Getting the rate plan details
+                        OMElement ratePlanDetails =
+                                (OMElement) subscription.getChildrenWithName(new QName(MonetizationConstants.RATE_PLAN))
+                                                        .next();
+                        int maxDailyUsage = Integer.parseInt((((OMElement) ratePlanDetails
+                                .getChildrenWithName(new QName(MonetizationConstants.MAX_DAILY_USAGE)).next())
+                                .getText()));
+                        int unitOfMeasure = Integer.parseInt((((OMElement) ratePlanDetails
+                                .getChildrenWithName(new QName(MonetizationConstants.UNIT_OF_MEASURE)).next())
+                                .getText()));
+                        double unitPrice = Double.parseDouble((((OMElement) ratePlanDetails
+                                .getChildrenWithName(new QName(MonetizationConstants.UNIT_PRICE)).next()).getText()));
+                        usage.setUnitPrice(unitPrice);
 
+                        //Calculating the over used Api calls
+                        int overUsageCount = dailyUsage - maxDailyUsage;
+                        int overUsageUnits = (overUsageCount > BillingConstants.OVER_USAGE_THRESHOLD) ?
+                                             (overUsageCount / unitOfMeasure) : 0;
 
-                    //Calculating the over used Api calls
-                    int overUsageCount = dailyUsage - maxDailyUsage;
-                    int overUsageUnits = (overUsageCount > BillingConstants.OVER_USAGE_THRESHOLD) ?
-                                         (overUsageCount / unitOfMeasure) : 0;
-
-                    if (overUsageUnits > MonetizationConstants.OVER_USAGE_THRESHOLD) {
-                        usage.setQty(overUsageUnits);
-                        usageList.add(usage);
+                        if (overUsageUnits > MonetizationConstants.OVER_USAGE_THRESHOLD) {
+                            usage.setQty(overUsageUnits);
+                            usageList.add(usage);
+                        }
+                    } catch (RuntimeException e) {
+                        LOGGER.error("Error occurred while calculating the monetization over usage for account " +
+                                     account.getFirstElement().getText(), e);
                     }
                 }
             }
@@ -409,12 +435,10 @@ public class APIUsageProcessorUtil {
         usage.setUom(MonetizationConstants.UNIT_OF_MEASURE_DISPLAY_NAME);
         String date =
                 ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.MONTH)).next()).getText() +
-                        "/" +
-                        ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.DAY)).next())
-                                .getText() +
-                        "/" +
-                        ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.YEAR)).next())
-                                .getText();
+                "/" +
+                ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.DAY)).next()).getText() +
+                "/" +
+                ((OMElement) usageEle.getChildrenWithName(new QName(MonetizationConstants.YEAR)).next()).getText();
         usage.setDescription("Usage Data");
         usage.setStartDate(date);
         usage.setEndDate(date);

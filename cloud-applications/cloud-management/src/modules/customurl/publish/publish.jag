@@ -4,9 +4,9 @@
     
 	var ActiveMQConnectionFactory = org.apache.activemq.ActiveMQConnectionFactory;
 	var Session = javax.jms.Session;
-    
-	var cloudConfigFile = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
-    
+	var utilModule = jagg.module("util");
+	var cloudConfigFile = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+	var appCloudServerBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
 	var registryPath = cloudConfigFile.customUrl.registry.registryPath;
 	var registryUsername = cloudConfigFile.customUrl.registry.registryUsername;
 	var registryPassword = cloudConfigFile.customUrl.registry.registryPassword;
@@ -30,7 +30,8 @@
 	var encryptedChainFileContent;
 	var encodedIndexingVectorContent;
 
-	var publish = function(tenantDomain, cloudtype, node, customUrl, sslCertificateContent, keyFileContent, chainFileContent) {
+	var publish = function(tenantDomain, cloudProfile, node, customUrl, sslCertificateContent, keyFileContent,
+						   chainFileContent) {
 
 		try {
 			var status = "initial";
@@ -44,23 +45,28 @@
 
 			registry.beginTransaction();
 
-			if (registry.resourceExists(registryPath + cloudtype + "/" + tenantDomain)) {
+			if (registry.resourceExists(registryPath + cloudProfile + "/" + tenantDomain)) {
 				status = "update";
-				if (registry.resourceExists(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/" + node)) {
-					registry.delete(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/" + node);
+				if (registry.resourceExists(registryPath + cloudProfile + "/" + tenantDomain
+								+ "/securityCertificates/" + node)) {
+					registry.delete(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node);
 				}
 			}
 
-			var payload = getPayLoad(node,customUrl,status,tenantDomain);
+			var payload = null;
+			if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
+				payload = getPayLoad(node, customUrl, status, tenantDomain);
+				var urlMappingContent = '{"tenantDomain" : "' + payload.tenantDomain + '", "store" : {"customUrl" : "'
+					 + payload.store.customUrl + '"}, "gateway" : {"customUrl" : "' + payload.gateway.customUrl + '"}}';
+				var urlMappingResource = registry.newResource();
+				urlMappingResource.setContent(urlMappingContent);
+				registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/urlMapping/" + tenantDomain,
+						urlMappingResource);
+			}
 
-			var urlMappingContent = '{"tenantDomain" : "' +payload.tenantDomain+ '", "store" : {"customUrl" : "' +payload.store.customUrl+
-				'"}, "gateway" : {"customUrl" : "' +payload.gateway.customUrl+ '"}}';
 			/**
 		 	* Setting resources
 		 	*/
-			var urlMappingResource = registry.newResource();
-			urlMappingResource.setContent(urlMappingContent);
-		
 			var sslFileResource = registry.newResource();
 			sslFileResource.setContent(encryptedSSLFileContent);
 		
@@ -72,21 +78,37 @@
 		
 			var indexingVectorResource = registry.newResource();
 			indexingVectorResource.setContent(encodedIndexingVectorContent);
-		
-			/**
-		 	* Initializing message brocker and publish messages
-		 	*/
-			initializeBroker();
-			publishToMessageBroker(payload, cloudtype);
-		
 
-			registry.put(registryPath + cloudtype + "/" + tenantDomain + "/urlMapping/" +tenantDomain, urlMappingResource);
-			registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".pem", sslFileResource);
-			registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".key", keyFileResource);
-			registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".pub", chainFileResource);
-			registry.put(registryPath + cloudtype + "/" + tenantDomain + "/securityCertificates/"+node+"/"+tenantDomain+"-"+node+".iv", indexingVectorResource);
+			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
+					+ tenantDomain + "-" + node + ".pem", sslFileResource);
+			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
+					+ tenantDomain + "-" + node + ".key", keyFileResource);
+			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
+					+ tenantDomain + "-" + node + ".pub", chainFileResource);
+			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
+					+ tenantDomain + "-" + node + ".iv", indexingVectorResource);
 
 			registry.commitTransaction();
+			if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
+				initializeBroker();
+				publishToMessageBroker(payload, cloudProfile);
+			} else {
+				var serverBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
+				var loginUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
+				var urlMapperUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
+				var server = carbon.server;
+				var service = server.osgiService('org.wso2.carbon.cloud.listener.CloudListener');
+				var username = session.get("LOGGED_IN_USER");
+				var parameterMap = new java.util.HashMap();
+				parameterMap.put("cloudType", cloudProfile);
+				parameterMap.put("username", username);
+				parameterMap.put("authorizationHeader", utilModule.getAuthHeader(username));
+				parameterMap.put("customUrl", customUrl);
+				parameterMap.put("applicationName", node);
+				parameterMap.put("loginUrl", loginUrl);
+				parameterMap.put("urlMapperUrl", urlMapperUrl);
+				service.triggerOnCustomUrlAddition(parameterMap);
+			}
 			return customUrlMappingStatus;
 		} catch(e) {
 			registry.rollbackTransaction();
@@ -212,23 +234,27 @@
 	};
 
 	var isUrlAvailable = function(newUrl, node, tenantDomain) {
-    	var currentUrlMapping = getCurrentUserMapping(tenantDomain, "api-cloud");
-    	if (currentUrlMapping != null) {
-			var currentUrl;
-			if (node == "store") {
-				currentUrl = currentUrlMapping.store.customUrl
-			} else {
-				currentUrl = currentUrlMapping.gateway.customUrl;
-			}
+		if (node == APPLICATION_NODE_TYPE) {
+			return (isCustomDomainAvailable(newUrl).trim() === "true");
+		} else {
+			var currentUrlMapping = getCurrentUserMapping(tenantDomain, "api-cloud");
+			if (currentUrlMapping != null) {
+				var currentUrl;
+				if (node == "store") {
+					currentUrl = currentUrlMapping.store.customUrl
+				} else {
+					currentUrl = currentUrlMapping.gateway.customUrl;
+				}
 
-			//checking whether the current-mapping is identical
-			if (currentUrl == newUrl) {
-				return true;
+				//checking whether the current-mapping is identical
+				if (currentUrl == newUrl) {
+					return true;
+				} else {
+					return checkMappingAvailable(newUrl);
+				}
 			} else {
 				return checkMappingAvailable(newUrl);
 			}
-		} else {
-			return checkMappingAvailable(newUrl);
 		}
 	};
 
@@ -394,4 +420,72 @@
 	
 	}
 
+	function getCustomDomainDetailsForTenant() {
+		var cookie = getCookieFromLoginToAppCloudUsingJWT();
+
+		//Invoke App Cloud REST API to get custom domain details for logged in tenant
+		var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.applicationBlockSuffix;
+		var getCustomDomainDetailsForTenantAction =
+				cloudConfigFile.customUrl.appCloud.getCustomDomainDetailsForTenantAction;
+		var customDomainDetailsQueryData = {
+			"action" : getCustomDomainDetailsForTenantAction
+		};
+		var customDomainDetailsQueryHeaders = {
+			"Cookie" : cookie
+		};
+		var customDomainDetailsQueryResult = post(applicationAPIUrl, customDomainDetailsQueryData,
+				customDomainDetailsQueryHeaders);
+		return customDomainDetailsQueryResult.xhr.responseText;
+	}
+
+	function getCookieFromLoginToAppCloudUsingJWT() {
+		return loginToAppCloudUsingJWT().getResponseHeader(SET_COOKIE_HEADER);
+	}
+
+	function loginToAppCloudUsingJWT() {
+		try {
+			var fullUsername = session.get("LOGGED_IN_USER");
+			var authorizationHeader = utilModule.getAuthHeader(fullUsername);
+
+			//Login to App Cloud using jwt authentication
+			var loginUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
+			var loginAction = cloudConfigFile.customUrl.appCloud.loginAction;
+			var loginData = {
+				"action": loginAction
+			};
+			var loginHeaders = {
+				"Authorization": stringify(authorizationHeader)
+			};
+			var loginResult = post(loginUrl, loginData, loginHeaders);
+			var loginResponse = loginResult.xhr.responseText;
+			if (loginResponse.error == "true") {
+				throw new Error(loginResponse.message);
+			} else {
+				return loginResult.xhr;
+			}
+		} catch (e) {
+			var errorMessage = "Exception occurred during establishing connection to AppCloud.";
+			log.error(errorMessage);
+			log.error(e);
+			throw e;
+		}
+	}
+
+	function isCustomDomainAvailable(customDomain) {
+		var cookie = getCookieFromLoginToAppCloudUsingJWT();
+
+		//Invoke App Cloud REST API to check if custom domain is available
+		var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
+		var isCustomDomainAvailableAction = cloudConfigFile.customUrl.appCloud.isCustomDomainAvailableAction;
+		var isCustomDomainAvailableQueryData = {
+			"action" : isCustomDomainAvailableAction,
+			"customDomain" : customDomain
+		};
+		var isCustomDomainAvailableQueryHeaders = {
+			"Cookie" : cookie
+		};
+		var isCustomDomainAvailableQueryResult = post(applicationAPIUrl, isCustomDomainAvailableQueryData,
+				isCustomDomainAvailableQueryHeaders);
+		return isCustomDomainAvailableQueryResult.xhr.responseText;
+	}
 %>

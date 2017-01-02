@@ -37,5 +37,15 @@ public class CloudMgtConstants {
 
     public static final String TENANT_ROLES_ROLE = "TenantRoles.Role";
 
+    //HTTP headers
+    public static final String CONTENT_ID = "Content-ID";
+    public static final String CONTENT_TYPE = "Content-Type";
+
+    //Cloud datasource properties
+    public static final String CLOUD_DB_PROPERTY = "CloudDatasourceName";
+    public static final String CLOUD_INVITEE_RETRY_COUNT_PROPERTY = "CloudInviteeRetryCount";
+    public static final String SUBSCRIPTION_TYPE_PLACEHOLDER = "$SUBSCRIPTIONTYPE";
+
+    public static final int REINVITE_TIME_LIMIT_IN_HOURS = 1;
 }
 

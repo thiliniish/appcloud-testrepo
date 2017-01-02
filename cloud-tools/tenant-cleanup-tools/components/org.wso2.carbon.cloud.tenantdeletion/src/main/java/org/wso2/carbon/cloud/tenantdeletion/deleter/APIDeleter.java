@@ -66,6 +66,7 @@ public class APIDeleter {
         Map<String, Integer> tenantMap;
         boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.API);
         if (!deletionCompleted) {
+            LOG.info("API Deletion started for tenant deletion");
             if (deletionLimit != 0) {
                 tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(DeletionConstants.API, deletionLimit);
             } else {

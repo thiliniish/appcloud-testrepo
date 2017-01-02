@@ -220,7 +220,6 @@ if (request.getParameter("cloud-type") != null) {
    });
 
    function getUsageData(fromDate,toDate){
-	   
 	    var dfromDate = new Date(fromDate);
 	    dfromDate.setDate(dfromDate.getDate() - 1);
 	    fromDate= dfromDate.getFullYear() + "-" +('0' + (dfromDate.getMonth() + 1)).slice(-2) + "-" +  ('0' +dfromDate.getDate()).slice(-2);
@@ -257,8 +256,12 @@ if (request.getParameter("cloud-type") != null) {
                          $('.pagefooter').hide();
                       }
                   },function (jqXHR, textStatus, errorThrown) {
-                        jagg.message({type:'error',content: "Unable to retrieve usage information at the moment. " +
-                         "Please contact WSO2 Cloud Team for help"});
+                      if (errorThrown == '<%=UNAUTHORIZED%>') {
+                          window.location.reload();
+                      } else {
+                          jagg.message({type:'error',content: "Unable to retrieve usage information at the moment. " +
+                              "Please contact WSO2 Cloud Team for help"});
+                      }
                   }
        );
    }

@@ -69,7 +69,7 @@
         }
 
     </style>
-    
+
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js'))%>"></script>
     <script type="text/javascript">
         var invoicesObj = null;
@@ -96,7 +96,7 @@
 
         });
 
-        
+
 		function updateAccountInfo(){
         	 //call backend and load data
             $.ajax({
@@ -122,7 +122,7 @@
                     }
                     // set account summary
                     $('#accName').text(accountSummary.accountName);
-                    $('#accBalance').text(accountSummary.accountBalance);
+                    $('#accBalance').text(accountSummary.accountBalance / 100);
 
                     // set contact info
                     $('#fname').text(contactDetails.firstName);
@@ -249,7 +249,7 @@
                 ));
             }
         }
-        
+
         function goToInvoicePage(id) {
             var formInvoice = $('<form action="invoice.jag" method="post">' +
                     '<input type="hidden" name="invoiceId" value="' + id + '"/>' +
@@ -302,11 +302,12 @@
 			});
         }
 
-        function cancelSubscription(serviceId) {
+        function cancelSubscription(serviceName) {
             jagg.syncPost("../blocks/billing/account/remove/ajax/remove.jag",
-                { 
+                {
                 action: "cancelSubscription",
-                serviceId:serviceId
+                serviceId: "api_cloud",
+                serviceName: serviceName
                 },
                 function (result) {
                     if(result == true || result == 'true') {
@@ -319,7 +320,7 @@
                     jagg.message({type:'error',content:"Unable to cancel the subscription at the moment. Please contact WSO2 Cloud Team for help. "});
                 });
         }
-    	
+
 
     </script>
 
@@ -352,7 +353,7 @@
                         <div class="col-lg-6 content-section-wrapper"></div>
                     </div>
                 </div>
-                
+
                 <div class="panel panel-default">
                     <div class="panel-heading panel-header">Subscription Information</div>
                     <div class="panel-body">
@@ -400,7 +401,7 @@
 
                 <div class="panel panel-default">
                     <!--TODO Update contact information-->
-                    <div class="panel-heading panel-header">Contact Information 
+                    <div class="panel-heading panel-header">Contact Information
 						<button type="button" id="btnUpdateContactInfo" class="btn btn-default pull-right panel-btn-style" onclick="updateContactInfo()">Update Contact Info</button>
                     </div>
                     <div class="panel-body">

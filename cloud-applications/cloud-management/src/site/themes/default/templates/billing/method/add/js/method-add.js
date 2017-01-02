@@ -10,6 +10,7 @@ var iframeDescription = $("#iframeDescription").attr('value');
 $(document).ready(function ($) {
     // Check for billing enable/disable mode
     var isBillingEnabled = $("#isBillingEnabled").attr('value');
+    document.getElementById("submitbtn").disabled = true;
 
     if (isBillingEnabled) {
         document.getElementById("cardDetails").style.display = "none";
@@ -196,7 +197,7 @@ function calculateDiscount() {
 function getCheckoutHandler() {
     var handler = StripeCheckout.configure({
         key: field_passthrough1,
-        image: 'http://b.content.wso2.com/sites/all/cloudmicro/images/icon-wso2.jpg',
+        image: 'https://b.content.wso2.com/sites/all/cloudmicro/images/icon-wso2.jpg',
         locale: 'auto',
         zipCode: true,
         allowRememberMe: false,
@@ -207,6 +208,7 @@ function getCheckoutHandler() {
             document.getElementById("cardDetailHeader").style.display = "none";
             document.getElementById("cardDetails").style.display = "block";
             document.getElementById("cardSuccessHeader").style.display = "block";
+            document.getElementById("submitbtn").disabled = false;
             $("#paymentType").text(response.card.brand);
             $("#ccName").text(response.card.name);
             $("#ccNum").text("************" + response.card.last4);
@@ -220,8 +222,8 @@ function getCheckoutHandler() {
         }
     });
     handler.open({
-        name: 'Secure Stripe Gateway',
-        description: 'Credit card billing information',
+        name: 'Credit Card Information',
+        description: 'Processed securely through Stripe',
         email: userEmail
     });
 

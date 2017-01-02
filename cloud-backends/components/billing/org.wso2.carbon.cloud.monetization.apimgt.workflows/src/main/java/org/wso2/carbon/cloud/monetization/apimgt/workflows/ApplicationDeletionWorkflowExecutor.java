@@ -99,9 +99,8 @@ public class ApplicationDeletionWorkflowExecutor extends WorkflowExecutor {
                     workflowDTO.getApplication().getName());
         }
         payload = CustomWorkFlowConstants.REMOVE_APP_SUBSCRIPTIONS_PAYLOAD
-                .replace("$1", workflowDTO.getTenantDomain())
-                .replace("$2", accountNumber)
-                .replace("$3", workflowDTO.getApplication().getName());
+                .replace("$1", accountNumber)
+                .replace("$2", workflowDTO.getApplication().getName());
         client = WorkFlowUtils
                 .getClient(CustomWorkFlowConstants.SOAP_ACTION_REMOVE_APP_SUBSCRIPTIONS, serviceEndpoint, contentType,
                            username, password);

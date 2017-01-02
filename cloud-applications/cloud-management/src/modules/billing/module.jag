@@ -15,6 +15,9 @@ jagg.module("billing", {
     getCurrentRatePlan: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getCurrentRatePlan.apply(this, arguments);
     },
+    getRatePlanInfo: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getRatePlanInfo.apply(this, arguments);
+    },
     getAccountId: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAccountId.apply(this, arguments);
     },
@@ -95,7 +98,12 @@ jagg.module("billing", {
     },
     getAPICloudUsageDisplayPeriod: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getAPICloudUsageDisplayPeriod.apply(this, arguments);
+    },
+    verifyEvent: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").verifyEvent.apply(this, arguments);
+    },
+    getTenantUsage: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTenantUsage .apply(this, arguments);
     }
-
 });
 %>

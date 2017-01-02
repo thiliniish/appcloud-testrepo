@@ -91,11 +91,12 @@ public class CloudThrottleHandler extends AbstractHandler {
 
         //get the tenant domain..
         final String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        final int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Check for clustering enabled. isClusteringEnable = " + isClusteringEnable);
         }
         try {
-            throttle = ThrottleDataHolder.getInstance().getThrottle(tenantDomain);
+            throttle = ThrottleDataHolder.getInstance().getThrottle(tenantDomain, tenantId);
         } catch (CloudThrottlingException e) {
             LOG.warn("Exception in creating throttle from policy key " + Constants.POLICY_KEY, e);
         }

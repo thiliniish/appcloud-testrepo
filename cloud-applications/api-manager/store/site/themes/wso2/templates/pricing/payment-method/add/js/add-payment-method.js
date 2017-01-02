@@ -5,6 +5,7 @@ var cardDetails = {};
 
 $(document).ready(function ($) {
     document.getElementById("cardDetails").style.visibility = "hidden";
+    document.getElementById("submitbtn").disabled = true;
     if (!isSecondaryPaymentMethod) {
         var error = decodeURIComponent(($("#errorObj").attr('value')));
         var errorObj = JSON.parse(error);
@@ -147,6 +148,7 @@ function getCheckoutHandler() {
             // Get the token ID to your server-side code for use.
             document.getElementById("redeembtn1").style.visibility = "hidden";
             document.getElementById("cardDetails").style.visibility = "visible";
+            document.getElementById("submitbtn").disabled = false;
             $("#paymentType").text(response.card.brand);
             $("#ccName").text(response.card.name);
             $("#ccNum").text("************" + response.card.last4);
@@ -162,8 +164,8 @@ function getCheckoutHandler() {
         }
     });
     handler.open({
-        name: 'WSO2 Cloud',
-        description: 'Pay securely using Stripe',
+        name: 'Credit Card Information',
+        description: 'Processed securely through Stripe',
         email: $("#email").attr('value')
     });
 

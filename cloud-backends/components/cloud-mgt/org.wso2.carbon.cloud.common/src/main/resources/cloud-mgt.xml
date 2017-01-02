@@ -18,6 +18,8 @@
   -->
 
 <CloudMgt xmlns="http://www.wso2.org/cloud/">
+    <CloudDatasourceName>jdbc/cloud_mgt</CloudDatasourceName>
+    <CloudInviteeRetryCount>3</CloudInviteeRetryCount>
     <TenantRoles>
         <Role name="default">
             <Permission>

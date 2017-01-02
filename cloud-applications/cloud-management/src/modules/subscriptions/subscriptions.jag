@@ -63,10 +63,9 @@ var getBillingTypeInfo = function (types, domainName) {
     for (var i = 0; i < types.length; i++) {
         if (types[i].id != DEFAULT_SUBSCRIPTION) {
             var columnName = types[i].id;
-            var parameters = [columnName, domainName];
             //Get the type of billing ( Paid, trial or free)
-            var queryStringForBillingType = SQL_QUERY_STRINGS.SELECT_TYPE_FROM_BILLING_STATUS;
-            var billingType = jagg.module("database").executeQuery(queryStringForBillingType, parameters);
+            var cloudBillingDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudBillingDAO();
+            var billingType = JSON.parse(cloudBillingDAO.getTypeForTenantSubscription(columnName, domainName));
             if (billingType.length > 0) {
                 billingTypeInfo[columnName] = billingType[0][TYPE_COLUMN];
             } else {

@@ -105,13 +105,13 @@ public final class APICloudMonetizationUtils {
         ratePlanUrl = cloudMonUri.concat(MonetizationConstants.DS_API_URI_MONETIZATION_TENANT_RATE_PLAN);
         ratePlanInfoUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_APIC_RATE_PLANS);
 
-        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_BASIC_THROTTLING_TIERS);
+        tiersOfTenantUri = apimRestUri.concat(BillingConstants.APIM_ADMIN_REST_URI_TENANT_ADVANCED_THROTTLING_TIERS);
         usageOfTenantUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_TENANT_USAGE);
         usageOfApiUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_API_USAGE);
         usageOfSubscriberUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE);
         usageOfApiBySubscriberUrl = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_API_USAGE);
-        usageOfApiByApplicationBySubscriberUrl = apiCloudMonUri
-                .concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION);
+        usageOfApiByApplicationBySubscriberUrl =
+                apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_API_USAGE_BY_APPLICATION);
         usageInformationUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_SUBSCRIBER_USAGE_INFORMATION);
         userAPIsUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_USER_APIS);
         userAPIApplicationsUri = apiCloudMonUri.concat(MonetizationConstants.DS_API_URI_USER_API_APPLICATIONS);
@@ -582,6 +582,7 @@ public final class APICloudMonetizationUtils {
             JsonObject subscriptionObj = new JsonObject();
             subscriptionObj.addProperty("plan", ratePlanId);
             subscriptionObj.addProperty("customer", accountNumber);
+            subscriptionObj.addProperty("application_fee_percent", MonetizationConstants.APPLICATION_FEE_PERCENT);
 
             CloudBillingServiceProvider provider = BillingVendorInvoker.loadBillingVendorForMonetization(tenantDomain);
             String vendorResponse = provider.createSubscription(subscriptionObj.toString());
@@ -758,6 +759,7 @@ public final class APICloudMonetizationUtils {
 
     /**
      * Retrieve Rate Plan Information
+     *
      * @param tenantDomain tenant domain
      * @return rate plan info
      * @throws CloudMonetizationException
@@ -803,8 +805,8 @@ public final class APICloudMonetizationUtils {
                                                 CloudBillingUtils.encodeUrlParam(api))
                                        .replace(MonetizationConstants.RESOURCE_IDENTIFIER_VERSION,
                                                 CloudBillingUtils.encodeUrlParam(version));
-                    NameValuePair tenantDomainNVP = new NameValuePair(MonetizationConstants.TENANT,
-                                                                      "%@" + tenantDomain);
+                    NameValuePair tenantDomainNVP =
+                            new NameValuePair(MonetizationConstants.TENANT, "%@" + tenantDomain);
                     nameValuePairs.add(tenantDomainNVP);
                 }
             } else {
@@ -906,12 +908,12 @@ public final class APICloudMonetizationUtils {
             return new JSONObject(response);
         } catch (JSONException e) {
             throw new CloudMonetizationException(
-                    "Error occurred while creating the JSON response object from retrieved usage information for "
-                    + "subscriber:" + subscriberId + " of tenant: " + tenantDomain, e);
+                    "Error occurred while creating the JSON response object from retrieved usage information for " +
+                    "subscriber:" + subscriberId + " of tenant: " + tenantDomain, e);
         } catch (CloudBillingException e) {
             throw new CloudMonetizationException(
-                    "Error occurred while retrieving subscriber usage information for subscriber:" + subscriberId
-                    + " of tenant: " + tenantDomain, e);
+                    "Error occurred while retrieving subscriber usage information for subscriber:" + subscriberId +
+                    " of tenant: " + tenantDomain, e);
         }
     }
 
@@ -975,9 +977,8 @@ public final class APICloudMonetizationUtils {
                     NameValuePair tmpFreeTierNVP = new NameValuePair(MonetizationConstants.FREE_TIER, freeTier.trim());
                     nameValuePairs.add(tmpFreeTierNVP);
                 }
-                String response = dsBRProcessor.doDelete(url, BillingConstants.HTTP_TYPE_APPLICATION_XML,
-                                                         nameValuePairs.toArray(
-                                                                 new NameValuePair[nameValuePairs.size()]));
+                String response = dsBRProcessor.doDelete(url, BillingConstants.HTTP_TYPE_APPLICATION_XML, nameValuePairs
+                        .toArray(new NameValuePair[nameValuePairs.size()]));
                 return DataServiceBillingRequestProcessor.isXMLResponseSuccess(response);
             } else {
                 throw new CloudMonetizationException(
@@ -1002,12 +1003,13 @@ public final class APICloudMonetizationUtils {
         JsonElement tiersObject = new JsonParser().parse(getTiersOfTenant(tenantDomain));
         JsonArray tiersArray = tiersObject.getAsJsonObject().getAsJsonArray("list");
         for (int i = 0; i < tiersArray.size(); i++) {
-            JsonElement tierName = tiersArray.get(i).getAsJsonObject().get(
-                    MonetizationConstants.TIERS_XML_TIER_NAME_ELEMENT);
-            String billingPlan = tiersArray.get(i).getAsJsonObject().get(
-                    MonetizationConstants.TIERS_XML_BILLING_PLAN_ELEMENT).getAsString();
-            if (!tierName.isJsonNull() && StringUtils.isNotBlank(billingPlan) && MonetizationConstants.FREE.equals(
-                    tierName.getAsString())) {
+            JsonElement tierName =
+                    tiersArray.get(i).getAsJsonObject().get(MonetizationConstants.TIERS_XML_TIER_NAME_ELEMENT);
+            String billingPlan =
+                    tiersArray.get(i).getAsJsonObject().get(MonetizationConstants.TIERS_XML_BILLING_PLAN_ELEMENT)
+                              .getAsString();
+            if (!tierName.isJsonNull() && StringUtils.isNotBlank(billingPlan) &&
+                MonetizationConstants.FREE.equals(tierName.getAsString())) {
                 freeTiers.add(tierName.getAsString());
             }
         }
