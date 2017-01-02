@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.constants;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.constants;
 
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 
+/**
+ * This class consists of the constants for the file uploader component.
+ */
 public class Constants {
 
     public static final String CONFIG_FILE_NAME = "bpsConfigFile.json";

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.businessProcessUploader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.businessprocess.uploader;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
@@ -23,16 +23,18 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.bpel.stub.upload.BPELUploaderStub;
 import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
 
+import java.io.File;
+import java.rmi.RemoteException;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import java.io.File;
-import java.rmi.RemoteException;
+
 
 /**
- * This Class is the client that accesses the BPELUploader service stub and enables to access the methods of that service
+ * This Class is the client that accesses the BPELUploader service stub and enables to access the methods of that
+ * service
  */
 
 public class BPELUploaderClient {
@@ -137,7 +139,8 @@ public class BPELUploaderClient {
             success = true;
         } catch (RemoteException remoteException) {
             errorMessage =
-                    "An error occurred while deploying the files to the BPS server for the self sign up feature for the user " +
+                    "An error occurred while deploying the files to the BPS server for the self sign up feature for " +
+                    "the user " +
                     userName;
             log.error(errorMessage, remoteException);
             throw new RemoteException(errorMessage, remoteException);

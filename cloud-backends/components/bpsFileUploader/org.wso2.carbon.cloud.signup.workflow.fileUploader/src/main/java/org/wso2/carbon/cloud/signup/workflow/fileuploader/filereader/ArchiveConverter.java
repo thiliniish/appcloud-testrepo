@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.fileReader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.filereader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader.ConfigFileReader;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.configreader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -46,8 +46,8 @@ public class ArchiveConverter {
     public void createNewArchive(List<String> files, String fileName, String fileLocation,
                                  String userName) throws FileNotFoundException, IOException {
         FileOutputStream fileOutputStream = null;
-        ZipOutputStream zipOutputStream;
-        FileInputStream fileInputStream;
+        ZipOutputStream zipOutputStream = null;
+        FileInputStream fileInputStream = null;
         try {
             fileOutputStream = new FileOutputStream(fileLocation + fileName + ".zip");
             if (log.isDebugEnabled()) {
@@ -70,7 +70,6 @@ public class ArchiveConverter {
                         zipOutputStream.write(temp, 0, size);
                     }
                     zipOutputStream.flush();
-                    fileInputStream.close();
                 } catch (FileNotFoundException e) {
                     errorMessage = "The file " + filePath + " could not be found";
                     log.error(errorMessage, e);
@@ -80,9 +79,10 @@ public class ArchiveConverter {
                     errorMessage = "Could not read the contents of the file " + filePath +
                                    " could not be found";
                     throw new IOException(errorMessage, e);
+                } finally {
+                    fileInputStream.close();
                 }
             }
-            zipOutputStream.close();
 
             if (log.isDebugEnabled()) {
                 log.debug("Successfully Zipped the file to " + fileLocation + fileName + ".zip");
@@ -97,9 +97,14 @@ public class ArchiveConverter {
             throw new IOException(errorMessage);
         } finally {
             try {
+                if (zipOutputStream != null) {
+                    zipOutputStream.close();
+                }
                 if (fileOutputStream != null) {
                     fileOutputStream.close();
-                    log.info("Stream was closed successfully");
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("Successfully closed all streams");
                 }
             } catch (Exception ex) {
                 errorMessage = "Error while closing the stream for the user" + userName;

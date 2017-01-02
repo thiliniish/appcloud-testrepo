@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.internal;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader.BPSFileUploader;
 
 /**
- * @scr.component name="org.wso2.signup.workflow.fileUploader" immediate="true"
+ * @scr.component name="org.wso2.signup.workflow.fileuploader" immediate="true"
  */
 
 public class FileUploaderComponent {

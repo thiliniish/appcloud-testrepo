@@ -3,6 +3,8 @@
         <transports>
             <transport>https</transport>
         </transports>
-        <parameter name="ServiceClass">org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader</parameter>
+        <parameter name="ServiceClass">
+            org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader.BPSFileUploader
+        </parameter>
     </service>
 </serviceGroup>

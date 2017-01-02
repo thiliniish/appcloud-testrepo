@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.utils;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.configreader.ConfigFileReader;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.IOException;

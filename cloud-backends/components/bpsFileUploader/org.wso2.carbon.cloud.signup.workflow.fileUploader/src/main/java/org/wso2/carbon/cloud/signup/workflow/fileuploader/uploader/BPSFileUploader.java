@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.businessProcessUploader.BPELUploader;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.configReader.ConfigFileReader;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.humanTaskUploader.HumanTaskUploader;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.utils.Utils;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.businessprocess.uploader.BPELUploader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.configreader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.humantask.uploader.HumanTaskUploader;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.utils.Utils;
 
 import java.io.IOException;
 
@@ -114,7 +114,8 @@ public class BPSFileUploader {
             }
         } catch (IOException ioException) {
             errorMessage =
-                    "An error occurred while reading the parsed the configuration file for the self sign up feature file uploader for the user " +
+                    "An error occurred while reading the parsed the configuration file for the self sign up feature " +
+                    "file uploader for the user " +
                     username;
             log.error(errorMessage, ioException);
             throw new IOException(errorMessage, ioException);

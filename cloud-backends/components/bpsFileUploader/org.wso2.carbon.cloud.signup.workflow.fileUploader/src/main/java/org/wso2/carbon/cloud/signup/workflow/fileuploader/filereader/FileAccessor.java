@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.cloud.signup.workflow.fileUploader.fileReader;
+package org.wso2.carbon.cloud.signup.workflow.fileuploader.filereader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.constants.Constants;
-import org.wso2.carbon.cloud.signup.workflow.fileUploader.utils.Utils;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.constants.Constants;
+import org.wso2.carbon.cloud.signup.workflow.fileuploader.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -96,7 +96,9 @@ public class FileAccessor {
         Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(filepath), Constants.CHARACTER_ENCODING));
         try {
-            log.info("Writing modified changes to the file " + filepath);
+            if (log.isDebugEnabled()) {
+                log.info("Writing modified changes to the file " + filepath);
+            }
             writer.write(text);
             writer.close();
 
