@@ -161,7 +161,6 @@ public class DatabaseAccessor {
             //since the list of roles need to be a comma seperated string.
             for (int counter = 0; counter < lengthOfUserRoles - 1; counter++) {
                 userRoles = roles.get(counter) + ",";
-
             }
             userRoles = userRoles + roles.get(lengthOfUserRoles - 1);
         }
