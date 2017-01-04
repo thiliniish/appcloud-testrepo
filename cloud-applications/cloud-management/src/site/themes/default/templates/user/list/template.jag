@@ -19,15 +19,14 @@
         var maxItemsPerPage = itemsPerPage/2;
 %>
 
-<script>
-    var tenantDomain = "<%=tenantDomain%>";
-    var isInvitationSent = "<%=isInvitationSent%>";
-    var permittedToInvite = "<%=outputs.hasInviteUserPermission%>";
-    var maxItemsPerPage = "<%=maxItemsPerPage%>";
-    var adminRoleDisplayName = "<%=cloudConfig.adminRoleDisplayName%>";
-    var type = "<%=cloudConfig.subscriptions.type%>";
-
-</script>
+    <script>
+        var tenantDomain = "<%=tenantDomain%>";
+        var isInvitationSent = <%=isInvitationSent%>;
+        var permittedToInvite = <%=outputs.hasInviteUserPermission%>;
+        var maxItemsPerPage = <%=maxItemsPerPage%>;
+        var adminRoleDisplayName = "<%=cloudConfig.adminRoleDisplayName%>";
+        var type = <%=cloudConfig.subscriptions.type%>;
+    </script>
 
         <div class="container content-starter">
             <div class="row">
