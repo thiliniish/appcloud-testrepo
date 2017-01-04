@@ -16,6 +16,26 @@
  *  under the License.
  */
 
+//Variables
+var usersWithRoles = [];
+var pendingUsersWithRoles = [];
+var checkedUsers = [];
+var checkedInvitations = [];
+var selectedCount = 0;
+var selectedInvitationCount = 0;
+var pageNumberForMembers = 1;
+var pageNumberForInvitations = 1;
+var totalPagesForMembers = 1;
+var totalPagesForInvitations = 1;
+var appOwners = [];
+var userCheckBoxId = "ck_";
+var invitationCheckBoxId = "ick_";
+var allRoles = [];
+var allRolesForInvitations = [];
+var  finalUsers=[];//globally declared
+var finalInvitations = [];
+var maxItemsInPage = Math.floor(maxItemsPerPage);
+
 //<Start> UI Validation functions
 
 /* Validates a single email address given as an input parameter */
@@ -398,7 +418,7 @@ function createTable(usersWithRolesArray) {
     //looping uptil the max number of users in a page is added
     for (var i = ((pageNumberForMembers - 1) * maxItemsInPage); i < usersWithRolesArray.length && i < (pageNumberForMembers * maxItemsInPage); i++) {
         var userRoles = usersWithRolesArray[i];
-        isAdminUser = false;
+        var isAdminUser = false;
         var checkBoxString = "";
         if (userRoles.displayRoles.length > 0) {
             for (var j = 0; j < userRoles.displayRoles.length; j++) {
