@@ -59,24 +59,10 @@ include("/jagg/constants.jag");
                     result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader').bpsFileUploader(username, cookie);
                     if (result) {
 
-<<<<<<< HEAD
-                        //Sending an email to the cloud team to inform the enabling of the self sign up feature of the tenant's API Store.
-                        tenantEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-                        var tenantDomain = jagg.module("manager").getTenantDomain();
-                        //populating the registry files needed for the self sign-up workflow.
-                        var statusResult = jagg.module("selfSignup").populateRegistryFiles(fromAddress, contactEmail,
-                                                                                           userPassword, username, tenantDomain, notifyAllAdmins, signupType);
-                        var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
-                        body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
-                        var subject = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.subject;
-                        var recepient = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.cloudEmail;
-                        utilModule.sendEmail(body, subject, recepient);
-=======
                 //calling the service to upload the files to the BPS server
                 result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader' +
                                             '.BPSFileUploader').bpsFileUploader(username, cookie);
                 if (result) {
->>>>>>> 0d1c1bf1e9bcfe36c667db8af492efce08261e66
 
                         if (log.isDebugEnabled()) {
                             log.debug("Notification sent to the cloud team regarding the user " + username + " enabling the self sign up feature for the tenant store " + tenantDomain);
