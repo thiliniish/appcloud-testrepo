@@ -6,6 +6,7 @@
       <input type="hidden" name="confirm" id="confirm" value="<%=outputs.confirm%>"/>
       <input type="hidden" name="isInvitee" id="isInvitee" value="<%=outputs.isInvitee%>"/>
       <input type="hidden" name="isStoreInvitee" id="isStoreInvitee" value="<%=outputs.isStoreInvitee%>"/>
+      <input type="hidden" name="tenant" id="tenant" value="<%=outputs.tenant%>"/>
    </article>
 </div>
 <% }); %>
