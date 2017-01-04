@@ -71,7 +71,6 @@ function toggleEditDeleteButtons(enableParam) {
         //enable delete and edit
         enable('jsroleAssignPopup');
         enable('removeUsers');
-
     } else {
         //disable edit and delete buttons
         disable('jsroleAssignPopup');
