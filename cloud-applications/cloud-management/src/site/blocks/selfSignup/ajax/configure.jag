@@ -52,49 +52,68 @@ include("/jagg/constants.jag");
                 var utilModule = jagg.module("util");
                 var cloudConfig = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
                 var BPSURL = cloudConfig.selfSignUpProperties.ServerUrls.bpsServerURL;
-                var cookie = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
+                var cookieResponse = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
+                if (!cookieResponse.error) {
+                    var cookie = cookieResponse.cookie;
+                    //calling the service to upload the files to the BPS server
+                    result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader').bpsFileUploader(username, cookie);
+                    if (result) {
 
                 //calling the service to upload the files to the BPS server
                 result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader' +
                                             '.BPSFileUploader').bpsFileUploader(username, cookie);
                 if (result) {
 
-                    //Sending an email to the cloud team to inform the enabling of the self sign up feature of the tenant's API Store.
-                    tenantEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
-                    var tenantDomain = jagg.module("manager").getTenantDomain();
-                    //populating the registry files needed for the self sign-up workflow.
-                    var statusResult = jagg.module("selfSignup").populateRegistryFiles(fromAddress, contactEmail,
-                            userPassword, username, tenantDomain, notifyAllAdmins, signupType);
-                    var body = utilModule.getObjFromFile("/site/conf/emails/self_signup_feature_enabled_notification_email.txt");
-                    body = body.replace("$tenant", tenantEmail).replace("$tenantDomain", tenantDomain);
-                    var subject = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.subject;
-                    var recepient = cloudConfig.selfSignUpProperties.subscriberAccessEnabledEmail.cloudEmail;
-                    utilModule.sendEmail(body, subject, recepient);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Notification sent to the cloud team regarding the user " + username + " enabling the self sign up feature for the tenant store " + tenantDomain);
+                        }
+                        message = "Completed the uploading process for the user " + username;
 
-                    if (log.isDebugEnabled()) {
-                        log.debug("Notification sent to the cloud team regarding the user " + username + " enabling the self sign up feature for the tenant store " + tenantDomain);
-                    }
-                    message = "Completed the uploading process for the user " + username;
-
-                    //Adding the submission to Mail Campaign to trigger the feature activation email to the user after 15 mins.
-                    jagg.module("selfSignup").addSelfSignupSubmissionToMailCampaign(tenantEmail);
-                    log.info(message);
-                    result = {
-                        error: false,
-                        message: message,
-                        response: statusResult.registryUpdateResult,
-                        statusCode: 200
+                        //Adding the submission to Mail Campaign to trigger the feature activation email to the user after 15 mins.
+                        jagg.module("selfSignup").addSelfSignupSubmissionToMailCampaign(tenantEmail);
+                        log.info(message);
+                        result = {
+                            error: false,
+                            message: message,
+                            response: statusResult.registryUpdateResult,
+                            statusCode: 200
+                        }
+                    } else {
+                        message = "Error while uploading the files to the BPS server for the self sign up feature for the user " + username + " Since the cookie is invalid";
+                        log.error(message);
+                        result = {
+                            error: true,
+                            message: message,
+                            response: statusMessage,
+                            statusCode: 500
+                        }
                     }
                 } else {
-                    message = "Error while uploading the files to the BPS server for the self sign up feature for the user " + username;
-                    log.error(message);
-                    result = {
-                        error: true,
-                        message: message,
-                        response: statusMessage,
-                        statusCode: 500
-                    }
+                    if (cookieResponse.cookie == null) {
+                        if (cookieResponse.statusCode == 401) {
+                            result = {
+                                error: true,
+                                message: cookieResponse.message,
+                                response: "unauthenticatedSession",
+                                statusCode: 401
+                            }
+                        } else if (cookieResponse.invalidCookie != null && cookieResponse.invalidCookie) {
+                            result = {
+                                error: true,
+                                message: cookieResponse.message,
+                                response: "invalidCookie",
+                                statusCode: 500
+                            }
+                        } else {
+                            result = {
+                                error: true,
+                                message: cookieResponse.message,
+                                response: "error",
+                                statusCode: 500
+                            }
+                        }
 
+                    }
                 }
             } catch (e) {
                 message = "An error occurred while configuring the self sign up feature for the user " + username + "\n" + e.message;
