@@ -44,30 +44,47 @@ public class FindCoordinatorTimer extends TimerTask {
         AxisConfiguration serverAxisConfig = contextService.getServerConfigContext().getAxisConfiguration();
         ClusteringAgent agent = serverAxisConfig.getClusteringAgent();
         //Clustering agent will be null if the server is not clustered
+        String isDeletionNode = System.getProperty(DeletionConstants.DELETION_NODE);
         if (agent != null) {
             boolean isCoordinator = agent.isCoordinator();
-            if (isCoordinator) {
+            if (isCoordinator && DeletionConstants.DELETION_NODE_STATUS_TRUE.equalsIgnoreCase(isDeletionNode)) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Server got elected as the coordinator");
+                    LOG.debug("Server got elected as the coordinator. Starting deletion on this node");
                 }
                 DeletionManager.getInstance().startDeletion();
             } else {
                 //If the server is not the coordinator, then the server looks at the tenant deletion start flag. If the
                 // flag is lowered, the server gets back to the first stage, which is starting conf timer to check the
                 // deletion flag again to identify conf new tenant deletion round
-                boolean isDeletionFinished = DataAccessManager.getInstance().getDeletionStatus(DeletionConstants.START);
-                if (!isDeletionFinished) {
-                    DeletionManager.getInstance().resetStartFlagTimer();
-                }
+                resetStartFlagTimer();
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Server is not the coordinator");
+                    LOG.debug("Server is not elected as a deletion node");
                 }
             }
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Clustering is disabled hence not starting the deletion on this node");
+            if (DeletionConstants.DELETION_NODE_STATUS_TRUE.equalsIgnoreCase(isDeletionNode)) {
+                DeletionManager.getInstance().startDeletion();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Clustering is disabled and server is a deletion node. Deletion started");
+                }
+            } else {
+                resetStartFlagTimer();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Clustering is disabled and server is not marked as a deletion node hence resetting " +
+                              "start timer");
+                }
             }
-            DeletionManager.getInstance().startDeletion();
+
+        }
+    }
+
+    /**
+     * Check for current deletion status and reset the start flag timer
+     */
+    private void resetStartFlagTimer(){
+        boolean isDeletionFinished = DataAccessManager.getInstance().getDeletionStatus(DeletionConstants.START);
+        if (!isDeletionFinished) {
+            DeletionManager.getInstance().resetStartFlagTimer();
         }
     }
 }

@@ -63,6 +63,7 @@ public class ConfigDataDeleter extends RegistryDataDeleter {
         String deletionFlagName = DeletionConstants.CONFIG + DeletionConstants.UNDERSCORE_SYMBOL + serverKey;
         boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(deletionFlagName);
         if (!deletionCompleted) {
+            LOG.info("Config Data deletion started for : " + serverKey + " to delete tenants");
             //If deletion has been limited to specific number of tenants
             if (deletionLimit != 0) {
                 tenantMap = TenantDeletionMap.getInstance().getInactiveTenantMap(deletionFlagName, deletionLimit);
@@ -76,7 +77,7 @@ public class ConfigDataDeleter extends RegistryDataDeleter {
                 LOG.info("No Configs to be deleted");
             }
         } else {
-            LOG.info("Api Deletion Completed Already");
+            LOG.info("Config Deletion Completed Already");
         }
         DataAccessManager.getInstance().raiseDeletionFlag(deletionFlagName);
     }

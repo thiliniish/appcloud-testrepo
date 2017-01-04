@@ -2,7 +2,6 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/modules/database/dataaccess.jag");
-include("/modules/database/sql.jag");
 
 var log = new Log("modules.tenant.users.add.add.jag");
 var modManager = jagg.module("manager");
@@ -15,6 +14,7 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var from = cloudConfig.registrationEmail.from;
 var subject =  cloudConfig.invitationEmail.subject;
 var targetEpr = cloudConfig.registrationEmail.targetEpr.toString();
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
 
 var addUserRoles = function addUserRoles(username,userRoles) {
 	//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
@@ -151,9 +151,7 @@ var updateUserInvitation = function (email, addRoles, removeRoles) {
                 }
             }
             try {
-                var queryString = SQL_QUERY_STRINGS.UPDATE_TEMP_INVITEE;
-                parameters = [roles, tenantDomain, email];
-                var results = jagg.module("database").executeQuery(queryString, parameters);
+                var results = cloudmgtDAO.updateTempInviteeRoles(roles, tenantDomain, email);
                 //Resend invitation email
                 resendInvite(email);
                 return {
@@ -190,9 +188,7 @@ var revokeUserInvitation = function (email) {
     var message;
     if (jagg.module("permission").hasTenantLevelUserMgtPermission(tenantDomain)) {
         try {
-            var queryString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE_REVOKE_INVITATION;
-            var parameters = [tenantDomain, email];
-            var results = jagg.module("database").executeQuery(queryString, parameters);
+            var results = cloudmgtDAO.removeTempInviteeInvite(tenantDomain, email);
             message = "Member Invitation for " + email + " for the tenant " + tenantDomain + " has been revoked by "
                     + user;
             log.info(message);
@@ -556,12 +552,14 @@ var importInvitedUserAndGetDirectURL = function (confirmationKey, defaultPasswor
 var importInvitedUser = function (confirmationKey, defaultPassword, firstName, lastName) {
     try {
         //Retrieve invited user info from TEMP_INVITEE table
-        var queryString = SQL_QUERY_STRINGS.SELECT_FROM_TEMP_INVITEE;
-        var parameters = [confirmationKey];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        var email = results[0]["email"];
-        var roles = results[0]["roles"];
-        var tenantDomain = results[0]["tenantDomain"];
+        var results;
+        var queryResults = cloudmgtDAO.getTempInviteeDetails(confirmationKey);
+        if (queryResults != null) {
+            results = JSON.parse(queryResults);
+        }
+        var email = results["email"];
+        var roles = results["roles"];
+        var tenantDomain = results["tenantDomain"];
         session.put("TENANT_DOMAIN", tenantDomain.toString());
         var assignedRoles = roles.split(",");
         var username = modManager.getUserNameFromEmail(email);
@@ -613,15 +611,11 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
     try {
         //Adding to TENANT_USER_MAPPING
         log.info("Adding user [ " + username + " ] and tenant [ " + tenantDomain + " ] in to TENANT_USER_MAPPING");
-        var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
-        var parameters = [username, tenantDomain];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
+        cloudmgtDAO.addTenantUserMapping(username, tenantDomain);
         log.info("Tenant user mapping added successfully for [ " + username + " ] and tenant [" + tenantDomain + "]");
 
         //Deleting from TEMP_INVITEE
-        var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_INVITEE;
-        parameters = [confirmationKey];
-        results = jagg.module("database").executeQuery(deleteString, parameters);
+       cloudmgtDAO.removeTempInviteeRecord(confirmationKey);
         log.info("The entry at TEMP_INVITEE is deleted for [ " + username + " ] and tenant [" + tenantDomain + "]");
 
     } catch (e) {
@@ -729,9 +723,7 @@ var importUserToTenant = function (email, defaultPassword, firstName, lastName, 
         try {
             //Adding to TENANT_USER_MAPPING
             log.info("Adding user [ " + username + " ] and tenant [ " + tenantDomain + " ] in to TENANT_USER_MAPPING");
-            var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
-            var parameters = [username, tenantDomain];
-            jagg.module("database").executeQuery(queryString, parameters);
+            cloudmgtDAO.addTenantUserMapping(username, tenantDomain);
             var message = "Successfully added the user " + email + " to the tenant " + tenantDomain;
             log.info("Tenant user mapping added successfully for [ " + username + " ] and tenant [" + tenantDomain + "]");
 
@@ -794,14 +786,13 @@ var changePassword=function(oldPassword,newPassword){
 
 var getBlockedSubscriptions = function(tenantDomain) {
 	var roleList= new Array();
-	//var tenantId = modManager.getTenantId(tenantDomain);
+	var tenantId = modManager.getTenantId(tenantDomain);
 	//getting the paid and inactive subscriptions
-	var queryString =SQL_QUERY_STRINGS.SELECT_BLOCKED_SUBSCRIPTION_FROM_BILLING_STATUS;
-			var parameters =[tenantDomain,"PAID","DISABLED"];
-	        var results = jagg.module("database").executeQuery(queryString, parameters);
-	        for(var i =0; i< results.length; i++){
-	        	roleList.push(results[i]["SUBSCRIPTION"]);
-	        }
+    var cloudBillingDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudBillingDAO();
+    var results = JSON.parse(cloudBillingDAO.getSubscriptionsForBillingAccount(tenantDomain,"PAID","DISABLED"));
+    for(var i =0; i< results.length; i++){
+        roleList.push(results[i]["SUBSCRIPTION"]);
+    }
 	return roleList;
 };
 

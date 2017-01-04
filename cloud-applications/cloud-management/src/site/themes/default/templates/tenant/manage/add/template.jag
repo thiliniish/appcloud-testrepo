@@ -198,7 +198,7 @@ function enable() {
 						style="font-weight: bold">Your Password</label>
 					<div class="col-sm-8">
 						<input type="password" id="password" name="password"
-							class="required password" />
+							class="required password" autocomplete="off" />
 						<p>Please enter your existing password here</p>
 					</div>
 

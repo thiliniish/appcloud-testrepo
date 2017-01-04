@@ -22,6 +22,7 @@ var responseMessage = "";
 var account;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.CloudBillingService');
 var monetizationService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService');
+var cloudMonetizationDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudMonetizationDAO();
 var contactUsURL = cloudmgtURL + CLOUD_CONTACT_US_URI;
 var data;
 
@@ -40,9 +41,7 @@ var getSubscribersOfTenant = function () {
                 tmpSubscriber.userName = userName;
                 tmpSubscriber.displayName = tmpUser.displayName;
                 tmpSubscriber.email = tmpUser.email;
-                var queryString = SQL_QUERY_STRINGS.SELECT_SUBSCRIBER_FROM_MONETIZATION_API_CLOUD_SUBSCRIBERS;
-                var parameters = [userName, tenantDomain];
-                var results = modDb.executeQuery(queryString, parameters);
+                var results = JSON.parse(cloudMonetizationDAO.getSubscriberFromAccount(userName, tenantDomain));
                 if (results == null || results == "") {
                     tmpSubscriber.subscriptionType = ACC_FREE;
                     tmpSubscriber.complimentary = false;
@@ -134,13 +133,10 @@ var makeSubscriberAccountTest = function (subscriberString) {
                                 + "tenant: " + tenantDomain + " cancellation successful.");
                             }
                             //Insert in to monetization subscription history table
-                            var insertSubHistoryQuery = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIPTIONS_HISTORY;
-                            var parameters = [formattedEffectiveDate, accountId, subscriptionId];
-                            modDb.executeQuery(insertSubHistoryQuery, parameters);
+                            cloudMonetizationDAO.insertMonetizationSubscriptionHistory (formattedEffectiveDate,
+                                    accountId, subscriptionId);
                             //Delete subscription from monetization subscription table
-                            var deleteSubscriptionQuery = SQL_QUERY_STRINGS.DELETE_FROM_MONETIZATION_API_CLOUD_SUBSCRIPTIONS;
-                            parameters = [accountId, subscriptionId];
-                            modDb.executeQuery(deleteSubscriptionQuery, parameters);
+                            cloudBillingDAO.deleteMonetizationSubscription(accountId, subscriptionId);
                         } else {
                             throw "Subscription cancellation failed for user: " + username + " of tenant: " + tenantDomain + ".";
                         }
@@ -152,9 +148,7 @@ var makeSubscriberAccountTest = function (subscriberString) {
                 }
                 else {
                     //Insert into monetization subscriber table
-                    var insertQueryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_API_CLOUD_SUBSCRIBERS;
-                    var parameters = [username, tenantDomain, true, null, true];
-                    modDb.executeQuery(insertQueryString, parameters);
+                    cloudMonetizationDAO.insertMonetizationSubscriber(username, tenantDomain, true, null)
                     //Send notification email
                     sendSubsriberNotificationEmail(effectiveDate, subscriber.email, tenantDomain, tenantDisplayName, COMPLEMENTARY_CREATED_MAIL_TYPE);
                 }
@@ -553,9 +547,7 @@ var isMonetizationEnabled = function (tenantDomain) {
 };
 
 var updateMonetizationSubscriberTable = function (isTest, userName, tenantDomain) {
-    var queryString = SQL_QUERY_STRINGS.UPDATE_MONETIZATION_API_CLOUD_SUBSCRIBERS;
-    var parameters = [isTest, userName, tenantDomain];
-    modDb.executeQuery(queryString, parameters);
+    cloudMonetizationDAO.updateMonetizationSubscribers(isTest, userName, tenantDomain);
 };
 
 var sendSubsriberNotificationEmail = function (endDate, userEmail, tenantDomain, displayName, mailType) {
@@ -596,15 +588,17 @@ var sendSubsriberNotificationEmail = function (endDate, userEmail, tenantDomain,
 
 var getSubscriptions = function (accountNumber) {
     try {
-        var parameters = [accountNumber, accountNumber];
-        var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS;
-        data = modDb.executeQuery(queryString, parameters);
+        var results;
+        var queryResults = cloudMonetizationDAO.getMonetizationSubscriptions(accountNumber);
+        if (queryResults != null) {
+            results = JSON.parse(queryResults);
+        }
         message = "Successfully retrieved the subscription information for the accountId - " + accountNumber;
         return {
             error: false,
             mesage: message,
             statusCode: 200,
-            data: data
+            data: results
         };
     } catch (e) {
         log.error("Error while getting the subscription information for accountId - " + accountNumber + ":");
@@ -622,14 +616,12 @@ var getSubscriptions = function (accountNumber) {
 var getAccountIdFromUserName = function (username) {
     try {
         var tenantDomain = modManager.getTenantDomain();
-        var parameters = [username, tenantDomain];
-        var queryString = SQL_QUERY_STRINGS.SELECT_ACCOUNT_ID_FROM_USER;
-        var result = modDb.executeQuery(queryString, parameters);
+        var result = JSON.parse(cloudMonetizationDAO.getAccountNumberForSubscribers(username, tenantDomain));
         var accountNumber = null;
         if (result.length > 0) {
-            accountNumber = result[0].ACCOUNT_NUMBER;
+            accountNumber = result[0]["ACCOUNT_NUMBER"];
         }
-        message = "Successfully retrieved the account id from the username - " + username
+        message = "Successfully retrieved the account id from the username - " + username;
         return {
             error: false,
             message: message,
@@ -652,9 +644,11 @@ var getAccountIdFromUserName = function (username) {
 
 var getApiListFromAccountId = function (accountId) {
     try {
-        var parameters = [accountId];
-        var queryString = SQL_QUERY_STRINGS.SELECT_API_LIST_FROM_ACCOUNT_NUMBER;
-        var result = modDb.executeQuery(queryString, parameters);
+        var result;
+        var queryResults = cloudMonetizationDAO.getMonetizationSubscriptionsForAccount(accountId);
+        if (queryResults != null) {
+            result = JSON.parse(queryResults);
+        }
         var apiWithVersion = [];
         for (var index in result) {
             var api = result[index].AM_API_NAME + "-" + result[index].AM_API_VERSION;
@@ -850,13 +844,17 @@ var getBillingPaymentInfo = function (subscribersAccountId) {
 };
 
 var getSubscriptionDataFromName = function (subscriptionName) {
-    var queryStringForSubscription = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_DATA_FROM_SUBSCRIPTION_ID;
-    var parameters = [subscriptionName];
-    var result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
+    var result;
+    var queryResults = cloudMonetizationDAO.getSubscriptionDataforSubscriptionId(subscriptionName);
+    if (queryResults != null) {
+        result = JSON.parse(queryResults);
+    }
     // If subscription is not available in subscription table search in the history table.
     if (result.length == 0) {
-        var queryStringForSubscriptionHistory = SQL_QUERY_STRINGS.SELECT_MONETIZATION_SUBSCRIPTIONS_HISTORY_DATA_FROM_SUBSCRIPTION_ID;
-        result = jagg.module("database").executeQuery(queryStringForSubscription, parameters);
+        queryResults = cloudMonetizationDAO.getMonetizationSubscriptionHistory(subscriptionName);
+        if (queryResults != null) {
+            result = JSON.parse(queryResults);
+        }
     }
     var subscriptionData = new Array();
     subscriptionData.push((result[0]["AM_API_NAME"]) + ":" + (result[0]["AM_API_VERSION"]));
@@ -894,9 +892,7 @@ var getCurrentPaymentPlan = function () {
 
 // Function for insert monetization enabled status
 var addStatusToMonetizationStatusTable = function (tenantDomain, cloudType) {
-    var queryString = SQL_QUERY_STRINGS.INSERT_INTO_MONETIZATION_STATUS;
-    var parameters = [tenantDomain, cloudType];
-    var result = modDb.executeQuery(queryString, parameters);
+    var result = cloudMonetizationDAO.insertIntoMonetizationStatus(tenantDomain, cloudType);
     return (null != result);
 };
 
@@ -922,10 +918,7 @@ var sendProductEnableNotificationEmailToUser = function (displayName, effectiveS
 var getNumberOfProductPlansForTenant = function (tenantDomain) {
     var productName = tenantDomain + API_CLOUD_PRODUCT_EXTENSION;
     try {
-        var queryString = SQL_QUERY_STRINGS.SELECT_NUMBER_OF_MONETIZATION_PRODUCT_PLANS_FOR_TENANT;
-        var parameters = [tenantDomain, productName];
-        var result = modDb.executeQuery(queryString, parameters);
-        data = result[0]["PRODUCT_PLAN_COUNT"];
+        data = cloudMonetizationDAO.getNumberOfProductPlansForTenant(tenantDomain, productName);
         var message = "Successfully retrieved the number of product plans for the tenant: " + tenantDomain;
         return {
             error: false,
@@ -955,22 +948,23 @@ var getProductPlans = function () {
     try {
         var tenantDomain = modManager.getTenantDomain();
         var tiersList = getTiersResponse.data;
-        var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_PRODUCT_PLANS;
-        var parameters = [tenantDomain];
-        var result = jagg.module("database").executeQuery(queryString, parameters);
-
+        var result;
+        var queryResults = cloudMonetizationDAO.getMonetizationProductPlans(tenantDomain);
+        if (queryResults != null) {
+            result = JSON.parse(queryResults);
+        }
         var planList = [];
         for (var index in tiersList) {
             var tmpPlanList = {};
             if (tiersList[index].billingPlan == null) {
                 tiersList[index].billingPlan = FREE_TIER;
             }
-            tmpPlanList.planName = tiersList[index].name;
-            tmpPlanList.billingActive = tiersList[index].tierPlan;
+            tmpPlanList.planName = tiersList[index].policyName;
+            tmpPlanList.billingActive = tiersList[index].billingPlan;
             var isAvailable = false;
             if (result != null) {
                 for (var count in result) {
-                    if (result[count].RATE_PLAN_NAME == tiersList[index].name) {
+                    if (result[count].RATE_PLAN_NAME == tiersList[index].policyName) {
                         isAvailable = true;
                         tmpPlanList.dailyLimit = result[count].MAX_DAILY_USAGE;
                         tmpPlanList.price = result[count].MONTHLY_RENTAL;
@@ -1033,13 +1027,11 @@ var getTiersOfTenant = function () {
 
 var addProductPlanDetailsToMonetizationTables = function (tenantDomain, ratePlanId, planName, pricing, overageCharge, overageLimit, dailyUsage) {
     try {
-        var queryString = SQL_QUERY_STRINGS.INSERT_PRODUCT_PLAN_INFORMATION;
-        var parameters = [tenantDomain, tenantDomain + "_" + API_CLOUD, planName, ratePlanId];
-        jagg.module("database").executeQuery(queryString, parameters);
+        cloudMonetizationDAO.insertProductPlanDetails(tenantDomain, tenantDomain + "_" + API_CLOUD, planName,
+                ratePlanId);
 
-        queryString = SQL_QUERY_STRINGS.INSERT_PRODUCT_API_CLOUD_PLANS_INFORMATION;
-        parameters = [ratePlanId, dailyUsage, pricing, overageLimit, overageCharge];
-        jagg.module("database").executeQuery(queryString, parameters);
+        cloudMonetizationDAO.insertIntoMonetizationApiCloudPlanInfo(ratePlanId, dailyUsage, pricing, overageLimit,
+                overageCharge)
 
     } catch (e) {
         var msg = "Error occurred while inserting product plan information to the monetization tables for tenant: " + tenantDomain;
@@ -1087,9 +1079,8 @@ var updateApiCloudMonetizationStatus = function () {
 
 var updateProductPlanDetailsToMonetizationTable = function (tenantDomain, ratePlanId, planName, pricing, overageCharge, overageLimit, dailyUsage) {
     try {
-        var queryString = SQL_QUERY_STRINGS.UPDATE_PRODUCT_API_CLOUD_PLANS_INFORMATION;
-        var parameters = [dailyUsage, pricing, overageLimit, overageCharge, ratePlanId];
-        jagg.module("database").executeQuery(queryString, parameters);
+        cloudMonetizationDAO.updateMonetizationApiCloudPlanInfo(dailyUsage, pricing, overageLimit, overageCharge,
+                ratePlanId);
     } catch (e) {
         var msg = "Error occurred while updating product plan " + planName + " information to the monetization tables for tenant: " + tenantDomain;
         log.error(msg);
@@ -1100,10 +1091,8 @@ var updateProductPlanDetailsToMonetizationTable = function (tenantDomain, ratePl
 var isProductPlanExistsForTenant = function (ratePlanName) {
     var tenantDomain = modManager.getTenantDomain();
     try {
-        var queryString = SQL_QUERY_STRINGS.SELECT_MONETIZATION_PRODUCT_PLANS_OF_TENANT;
-        var parameters = [tenantDomain, ratePlanName];
-        var result = modDb.executeQuery(queryString, parameters);
-        return (result != null && result[0]["COUNT"] > 0);
+        var result = cloudMonetizationDAO.getMonetizationProductPlanForTenant(tenantDomain, ratePlanName);
+        return (result != null && result > 0);
     } catch (e) {
         var msg = "Error occurred while checking the existence of the product plan: " + ratePlanName + " of the tenant: " + tenantDomain;
         log.error(msg);

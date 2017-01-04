@@ -1104,7 +1104,7 @@ public class StripeCloudMonetization implements CloudBillingServiceProvider {
         JsonObject response = new JsonObject();
         try {
             Map<String, Object> invoiceItemParams = ObjectParams.setObjectParams(invoiceInfoJson);
-            InvoiceItem invoiceItemObj = InvoiceItem.create(invoiceItemParams);
+            InvoiceItem invoiceItemObj = InvoiceItem.create(invoiceItemParams, requestOptions);
             response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
             response.addProperty(BillingVendorConstants.RESPONSE_DATA, invoiceItemObj.getId());
         } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |

@@ -8,38 +8,36 @@ var mod = jagg.module("billing");
 var createAccount = function (serviceId){
     var productRatePlanId = request.getParameter("productRatePlanId");
     var currRatePlan = request.getParameter("currRatePlan");
-    var accounts = request.getParameter("accounts");
-    var callsPerDay = request.getParameter("callsPerDay");
-    var callsAbovePlan = request.getParameter("callsAbovePlan");
-    var monthlyRental = request.getParameter("monthlyRental");
     var couponData = request.getParameter("couponData");
     var isFromChangePlan = request.getParameter("isFromChangePlan");
-    session.put("PRODUCT_PLAN_ID",productRatePlanId);
+    var ratePlanInfo = mod.getRatePlanInfo(serviceId, productRatePlanId);
+
+    if (ratePlanInfo) {
+        session.put("PRODUCT_PLAN_ID", productRatePlanId);
+    } else {
+        var message = "Error while creating account for rate plan id " + productRatePlanId;
+        log.error(message);
+        response.status = 400;
+        print(message);
+        return;
+    }
     var accountId =  mod.getAccountId();
     var validateCoupon = mod.isValidCoupon(couponData,serviceId);
 
-	// Getting actual payment amount
-	var ratePlans = session.get("RATE_PLANS");
-	var actualPaymentAmount = null;
+    var actualPaymentAmount = null;
     if((couponData != "" && couponData != "null" && couponData != null) && (!validateCoupon)){
     	log.error("Given Coupon " + couponData +" is invalid for : " + accountId);
     	print ("Given Coupon " + couponData +" is invalid." );
     }
     else {
 	    if (accountId == null || accountId =='null' || isFromChangePlan != null || isFromChangePlan != 'null') {
-	        session.put("PRODUCT_PLAN_ID", productRatePlanId);
 	        session.put("PRODUCT_COUPON_DATA", couponData);
 	        session.put("CURRENT_RATE_PLAN", currRatePlan);
-	        session.put("ACCOUNTS", accounts);
-	        session.put("CALLS_PER_DAY", callsPerDay);
-	        session.put("CALLS_ABOVE_PLAN", callsAbovePlan);
-	        session.put("MONTHLY_RENTAL", monthlyRental);
-	        session.put("ACCOUNT_ID", accountId);
-			if (actualPaymentAmount != null) {
-				session.put("ACTUAL_PAYMENT_AMOUNT", actualPaymentAmount["amount"]);
-			} else {
-				session.put("ACTUAL_PAYMENT_AMOUNT", monthlyRental);
-			}
+            if (actualPaymentAmount != null) {
+                session.put("ACTUAL_PAYMENT_AMOUNT", actualPaymentAmount["amount"]);
+            } else {
+                session.put("ACTUAL_PAYMENT_AMOUNT", ratePlanInfo.getProperty("MonthlyRental").substring(1));
+            }
 	        if(isFromChangePlan == 'true') {
 	        	print("add-billing-account.jag?isFromChangePlan=" + isFromChangePlan);
 	        } else {
@@ -49,11 +47,9 @@ var createAccount = function (serviceId){
 	        if (log.isDebugEnabled()){
 	            log.debug("in gotToCreateAccount for account id  "+ accountId);
 	        }
-	        
 	       	 var ratePlans = session.get("RATE_PLANS");
 	     	 var result = mod.changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
 	      	 print(result);
-	        
 	    }
     }
 };
@@ -90,8 +86,8 @@ var createAccount = function (serviceId){
             session.remove("COUPON_DISCOUNT");
         }
         var accountStatus = jagg.module("billing").getAccountStatus(serviceId,"PAID");
-        if (accountStatus[0] != null && accountStatus[0] != "undefined") {
-            if (accountStatus[0]["STATUS"] === "PENDING_DISABLE" || accountStatus[0]["STATUS"] === "DISABLED"){
+		if (accountStatus != null && accountStatus != "undefined") {
+			if (accountStatus == "PENDING_DISABLE" || accountStatus == "DISABLED") {
                 print("Your subscription cancellation is in effect. If you want to resubscribe please contact support. ");
             } else {
                 createAccount(serviceId);

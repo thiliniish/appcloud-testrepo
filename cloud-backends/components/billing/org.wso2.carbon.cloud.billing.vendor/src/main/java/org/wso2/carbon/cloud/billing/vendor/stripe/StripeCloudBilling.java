@@ -544,7 +544,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      *                              for its currency.
      * @return success Json string
      */
-    @Override public String updatePaymentMethod(String customerId, String paymentMethodId, String 
+    @Override public String updatePaymentMethod(String customerId, String paymentMethodId, String
             paymentMethodInfoJson)
             throws CloudBillingVendorException {
         try {

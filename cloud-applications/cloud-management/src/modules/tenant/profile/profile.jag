@@ -9,16 +9,18 @@ var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
 var userName = session.get("LOGGED_IN_USER");
-
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
 
 var getProfile = function (organization) {
-    var queryString = SQL_QUERY_STRINGS.SELECT_ALL_FROM_ORGANIZATIONS;
-    var parameters =[organization];
-    var results = jagg.module("database").executeQuery(queryString, parameters);
-    var displayName = results[0]["displayName"];
-    var tenantDomain = results[0]["tenantDomain"];
+    var results;
+    var queryResults = cloudmgtDAO.getOrganizationDetailsForTenant(organization);
+    if (queryResults != null) {
+        results = JSON.parse(queryResults);
+    }
+    var displayName = results["displayName"];
+    var tenantDomain = results["tenantDomain"];
     var organization = {};
-    organization.displayName =  results[0]["displayName"];
+    organization.displayName = results["displayName"];
     var permMod = jagg.module("permission");
     organization.adminPermission = permMod.hasOrganizationMgtPermission(tenantDomain);
     return organization;
@@ -29,9 +31,7 @@ var updateProfile = function (tenantDomain, displayName) {
         log.info("Updating Organization Display name [ Tenant: " + tenantDomain + ", Display Name: " + displayName + " ]");
         try {
             var displayNameStr = jagg.module("util").escapeSpecialChars(displayName);
-            var queryString =SQL_QUERY_STRINGS.UPDATE_ORGANIZATIONS;
-            var parameters =[displayNameStr,tenantDomain];
-            var results = jagg.module("database").executeQuery(queryString, parameters);
+            cloudmgtDAO.updateOrganizationName(tenantDomain, displayNameStr);
             log.info("Successfully updated Organization profile for " + displayName);
             return true;
         } catch (e) {
