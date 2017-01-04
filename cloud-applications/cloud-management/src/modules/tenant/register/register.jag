@@ -9,6 +9,7 @@ var modManager = jagg.module("manager");
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 
 var CLOUDMGT_SERVICES =  cloudConfig.ServerUrls.cloudmgtServices.toString();
+var IS_URL =  cloudConfig.ServerUrls.identity.toString();
 
 var body = jagg.module("util").getObjFromFile("/site/conf/emails/new_registration_email.body.txt");
 
@@ -24,29 +25,33 @@ var targetEpr = cloudConfig.registrationEmail.targetEpr.toString();
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
+//Calling the db
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
 
 var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
     try {
         var isUserInvitee = (isInvitee != null && isInvitee == "true");
         var isStoreInvitee = (isStoreInvitee != null && isStoreInvitee == "true");
-
+        var isInvitedUser = false;
         if (isUserInvitee) {
             session.put('isInvitee', true);
             session.put('isStoreInvitee', false);
-            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
+            isInvitedUser = true;
         } else if (isStoreInvitee) {
             session.put('isStoreInvitee', true);
             session.put('isInvitee', true);
-            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_INVITEE;
+            isInvitedUser = true;
         } else {
             session.put('isInvitee', false);
             session.put('isStoreInvitee', false);
-            queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
         }
-        var parameters = [confirm];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        if (results.length >= 1) {
-            var email = results[0]["email"];
+        var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+        var cloudmgtDAO = new CloudMgtDAO();
+
+        var email = cloudmgtDAO.getEmailForUUID(confirm,isInvitedUser);
+
+        if (email != null) {
+            email = String(email);
             var username = modManager.getUserNameFromEmail(email);
             var isUserAvailable = modManager.isExistingUser(username);
             if ((isUserAvailable && isStoreInvitee) || (isUserAvailable && isUserInvitee)) {
@@ -90,22 +95,17 @@ var confirmUser = function (confirm, isInvitee, isStoreInvitee) {
     }
 };
 
-var getConfirmationEmail = function(confirm){
+var getConfirmationEmail = function (confirm) {
     try {
-        var queryString = SQL_QUERY_STRINGS.SELECT_EMAIL_FROM_TEMP_REGISTRATION;
-        var parameters = [confirm];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        var email = null;
-            if (results.length >= 1) {
-                email = results[0]["email"];
-                var deleteString = SQL_QUERY_STRINGS.DELETE_FROM_TEMP_REGISTRATION;
-                var parameters = [confirm];
-                var results = jagg.module("database").executeQuery(deleteString, parameters);
-                log.info("Retrieved the email [ " + email + " ] from TEMP_REGISTRATION table");
-            } else {
-                log.error("For email [ " + email + " ] no temporary record for confirmation code [ " + confirm + "]");
-            }
-    return email;
+        var email = cloudmgtDAO.getEmailForUUID(confirm, false);
+        email = String(email);
+        if (email != null) {
+            cloudmgtDAO.removeTempRegistrationRecord(confirm);
+            log.info("Retrieved the email [ " + email + " ] from TEMP_REGISTRATION table");
+        } else {
+            log.error("Unable to find a temporary record for confirmation code [ " + confirm + "]");
+        }
+        return email;
     } catch (e) {
         log.error("Error while getting confirmation email: " + confirm);
         log.error(e);
@@ -189,13 +189,11 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
 
 var hasATenant = function (userName) {
     try {
-        var queryString =SQL_QUERY_STRINGS.SELECT_USR_NAME_FROM_TENANT_USER_MAPPING;
-        var parameters =[userName];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        if(results[0] == null ) {
+        var results = JSON.parse(cloudmgtDAO.isUsernameAvail(userName));
+        if(!results) {
             return false;
         } else {
-            log.info("Username [ " + results[0]["userName"] + " ] already in the cloud system");
+            log.info("Username [ " + userName + " ] already in the cloud system");
             return true;
         }
     }catch (e){
@@ -262,9 +260,7 @@ var addDefaultLoginRole = function(userName) {
 var storeSubscription = function( domain) {
     try{
         log.info("Adding subscriptions to the domain [ " + domain + " ]");
-        var queryString =SQL_QUERY_STRINGS.INSERT_INTO_SUBSCRIPTIONS;
-        var parameters =[domain];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
+        cloudmgtDAO.addsubscriptionDetails(domain);
         log.info("Subscriptions added successfully to the domain [ " + domain + " ]");
     }catch (e){
         log.error("Error while storing subscription for domain [ " + domain + " ]");
@@ -278,14 +274,14 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
     log.info("Creating the tenant with tenant domain [ "+tenantDomain+" ] for the admin user [" +
             adminUser+" ] with usage plan [ "+usagePlan+" ]");
 	var ws = require("ws");
-	var creatTenant = new ws.WSRequest();
+	var createTenant = new ws.WSRequest();
 	var options = new Array();
 	options.useSOAP = 1.1;
 	options.action = "urn:registerTenantForTrustedUser";
 	options.timeout = 1000000;
 	options["HTTPHeaders"] = [
 	{
-		name : "Cookie", value :modManager.getAdminCookie(CLOUDMGT_SERVICES)}
+		name : "Cookie", value :modManager.getAdminCookie(IS_URL)}
 		];
 		var payload = '<p:registerTenantForTrustedUser xmlns:p="http://services.mgt.tenant.carbon.wso2.org">' +
 		'<tenantInfoBean xmlns="http://services.mgt.tenant.carbon.wso2.org">' +
@@ -305,10 +301,10 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
 
 		var result;
 		try {
-			var endPoint = CLOUDMGT_SERVICES + "TenantMgtService";
-			creatTenant.open(options,endPoint, false);
-			creatTenant.send(payload);
-			result = creatTenant.responseE4X;
+			var endPoint = IS_URL + "TenantMgtService";
+			createTenant.open(options,endPoint, false);
+			createTenant.send(payload);
+			result = createTenant.responseE4X;
             log.info("Tenant creation completed for tenant domain [ "+tenantDomain+" ]");
 			return result;
 		} catch (e) {
@@ -321,13 +317,12 @@ var registerTenantForTrustedUser = function (tenantDomain,adminUser,adminPasswor
 var checkDomainAvailability = function (domainName) {
     log.info("Checking the organization name availability");
     var isDomainAvailable = false;
+    var isOrgAvailable ='';
     try{
         var companyDisplayName = jagg.module("util").escapeSpecialChars(domainName);
-        var queryString =SQL_QUERY_STRINGS.SELECT_DIS_NAME_FROM_ORGANIZATIONS;
-        var parameters =[companyDisplayName];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
-        isDomainAvailable = results.length == 0;
-        if(isDomainAvailable){
+        var results = cloudmgtDAO.isOrganizationAvail(companyDisplayName);
+        if(!results){
+            isDomainAvailable = true;
             log.info("The organization name [ " + domainName + " ] is available");
         }else{
             log.info("The organization name [ " + domainName + " ] is not available");
@@ -359,16 +354,14 @@ var checkTenantDomainAvailability = function (domainName) {
     return availability;
 };
 
-var storeTenantMGTRegistration = function (userName,tenantDomain) {
+var storeTenantMGTRegistration = function (username,tenantDomain) {
     try {
         //Adding User -Tenant Mapping
-        log.info("Adding user [ " + userName + " ] and tenantDomain [ " + tenantDomain + " ] as a tenant user mapping");
-        var queryString1 = SQL_QUERY_STRINGS.INSERT_INTO_TENANT_USER_MAPPING;
-        var parameters =[userName,tenantDomain];
-        var results = jagg.module("database").executeQuery(queryString1, parameters);
-        log.info("Successfully added tenant details for user [ " + userName + " ] and tenant [ " + tenantDomain + " ]");
+        log.info("Adding user [ " + username + " ] and tenantDomain [ " + tenantDomain + " ] as a tenant user mapping");
+        cloudmgtDAO.addTenantUserMapping(username, tenantDomain);
+        log.info("Successfully added tenant details for user [ " + username + " ] and tenant [ " + tenantDomain + " ]");
     }catch (e){
-        log.error("Error while storing tenant details for tenant [ " + tenantDomain + " ] of user [ " + userName +" ]");
+        log.error("Error while storing tenant details for tenant [ " + tenantDomain + " ] of user [ " + username +" ]");
         log.error(e);
         throw (e);
     }
@@ -379,11 +372,9 @@ var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
         //Adding Tenant - Display Name mapping
         log.info("Adding tenantDomain [ "+tenantDomain+" ] and displayName [ "+displayName+" ] as a tenant display name mapping");
         var displayName = jagg.module("util").escapeSpecialChars(displayName);   //company display name
-        var queryString2 = SQL_QUERY_STRINGS.INSERT_INTO_ORGANIZATIONS;
-        var parameters =[tenantDomain,displayName];
-        var results = jagg.module("database").executeQuery(queryString2, parameters);
+        cloudmgtDAO.addOrganizationsDetails(tenantDomain, displayName);
         log.info("Successfully added the tenant display name mapping for tenant [ " + tenantDomain + " ]");
-    }catch (e){
+    } catch (e) {
         log.error("Error while adding the tenant display name mapping for tenant [ " + tenantDomain + " ]");
         log.error(e);
         throw (e);
@@ -393,9 +384,7 @@ var storeTenantDisplayNameMapping = function (tenantDomain, displayName) {
 var storeTempRegistration = function (email, uuid, isInvitee) {
     log.info("Adding temporary registration for user [ " + email + "]");
     try {
-        var queryString = SQL_QUERY_STRINGS.INSERT_INTO_TEMP_REGISTRATION;
-        var parameters = [email, uuid, isInvitee, uuid];
-        var results = jagg.module("database").executeQuery(queryString, parameters);
+        cloudmgtDAO.addTempRegistrationDetails(email, uuid, isInvitee);
     } catch (e) {
         log.error("Error while adding the temporary registration for user [ " + email + " ]");
         log.error(e);
@@ -415,92 +404,141 @@ var storeTempRegistration = function (email, uuid, isInvitee) {
 };
 
 var sendInvite = function (email, token) {
-    log.info("Sending the sign up email for user [ " + email + " ]");
-    var uuid = jagg.module("util").generateUUId();
-    var link = targetEpr + "?confirmation=" + uuid;
     try {
-        storeTempRegistration(email, uuid, 0);
-        sendEmail(email, link);
-    } catch (e) {
-        log.error("Error while sending invitation to [ " + email + " ] ");
-        log.error(e);
+        var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+        var cloudmgtDAO = new CloudMgtDAO();
+        var isInvitePermitted = cloudmgtDAO.isInvitePermitted(email, false);
+        if (isInvitePermitted) {
+            log.info("Sending the sign up email for user [ " + email + " ]");
+            var uuid = jagg.module("util").generateUUId();
+            var link = targetEpr + "?confirmation=" + uuid;
+            try {
+                storeTempRegistration(email, uuid, 0);
+                sendEmail(email, link);
+            } catch (e) {
+                log.error("Error while sending invitation to [ " + email + " ] ");
+                log.error(e);
+                return {
+                    error: true,
+                    message: e.message,
+                    status: 500
+                };
+            }
+            //<TODO> getting lead source capturing token
+
+            //adding signed up user to MailCampaign
+            var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
+            if (isEnabled) {
+                setTimeout(function () {
+                    var modEvents = jagg.module("events");
+                    var URL = cloudConfig.MailCampaignAddUserApi.cloudSignup;
+                    var data = "email=" + email;
+                    var result = post(URL, data, {}, 'text');
+                    var type = "CloudMgt";
+                    var msg = result['data'];
+                    var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsignup:";
+                    var page = MAIL_CAMPAIGN;
+                    var item = type;
+                    var events = [];
+                    if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
+                        actionString = actionString + "Success";
+                        log.info(MAIL_CAMPAIGN + " cloud signup api call success for the user [ " + email + " ]");
+                    } else {
+                        actionString = actionString + "Failed";
+                        log.error(MAIL_CAMPAIGN + " cloud signup api call failed for the user [ " + email + " ] : " + msg);
+                    }
+                    var event = {};
+                    event.item = item;
+                    event.timestamp = new Date().getTime();
+                    event.pageName = page;
+                    event.action = actionString;
+                    events[events.length] = event;
+                    modEvents.publishUserActivity(events, email, "not-defined");
+                }, 0);
+            }
+            return {
+                error: false,
+                status: 200,
+                data: email
+            };
+        } else {
+            log.error("inviting is not permitted for the email " + email + " as is has exceeded the maximum " +
+                      "retry count");
+            return {
+                error: true,
+                status: 405,
+                message: "The number of retries has exceeded for the email " + email + " Please try again after an hour",
+                data: email
+            };
+        }
+    } catch(e) {
+        log.error("An error occurred while retrieving the retry count for the email " + email);
         return {
             error: true,
-            message: e.message,
-            status: 500
+            status: 500,
+            message: "An error occurred while retrieving the retry count for the email " + email,
+            data: email
         };
     }
-    //<TODO> getting lead source capturing token
-
-    //adding signed up user to MailCampaign
-    var isEnabled = cloudConfig.MailCampaignAddUserApi.enable_MailCampaignAddUserApi;
-    if (isEnabled == true) {
-        setTimeout(function () {
-            var modEvents = jagg.module("events");
-            var URL = cloudConfig.MailCampaignAddUserApi.cloudSignup;
-            var data = "email=" + email;
-            var result = post(URL, data, {}, 'text');
-            var type = "CloudMgt";
-            var msg = result['data'];
-            var actionString = MAIL_CAMPAIGN + "-" + type + "-cloudsignup:";
-            var page = MAIL_CAMPAIGN;
-            var item = type;
-            var events = [];
-            if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
-                actionString = actionString + "Success";
-                log.info(MAIL_CAMPAIGN + " cloud signup api call success for the user [ " + email + " ]");
-            } else {
-                actionString = actionString + "Failed";
-                log.error(MAIL_CAMPAIGN + " cloud signup api call failed for the user [ " + email + " ] : " + msg);
-            }
-            var event = {};
-            event.item = item;
-            event.timestamp = new Date().getTime();
-            event.pageName = page;
-            event.action = actionString;
-            events[events.length] = event;
-            modEvents.publishUserActivity(events, email, "not-defined");
-        }, 0);
-    }
-    return {
-        error: false,
-        status: 200,
-        data: email
-    };
 };
 
 var reInvite = function (email) {
-    try{
-        log.info("Resending the sign up email for [ " + email + " ]");
-        var queryString1 = SQL_QUERY_STRINGS.SELECT_UUID_FROM_TEMP_REGISTRATION;
-        var parameters =[email];
-        var results = jagg.module("database").executeQuery(queryString1, parameters);
-        var uuid;
-        if (results.length >= 1) {
-            uuid = results[0]["UUID"];
+    try {
+        var isInvitePermitted = cloudmgtDAO.isInvitePermitted(email, false);
+        if (isInvitePermitted) {
+            try {
+                log.info("Resending the sign up email for [ " + email + " ]");
+                var results;
+                var queryResults = cloudmgtDAO.getUUIDFromEmail(email);
+
+                if (queryResults != null) {
+                    results = JSON.parse(queryResults);
+                }
+                var uuid;
+                if (results.length >= 1) {
+                    uuid = results[0]["uuid"];
+                } else {
+                    uuid = jagg.module("util").generateUUId();
+                    storeTempRegistration(email, uuid, 0);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("UUID fetched from db for email " + email + " = " + uuid);
+                }
+                var link = targetEpr + "?confirmation=" + uuid;
+                sendEmail(email, link);
+            } catch (e) {
+                log.error("Resending the sign up email for [ " + email + " ] failed");
+                log.error(e);
+                return {
+                    error: true,
+                    message: e.message,
+                    status: 500
+                };
+            }
+            return {
+                error: false,
+                status: 200,
+                data: email
+            };
         } else {
-            uuid = jagg.module("util").generateUUId();
-            storeTempRegistration(email, uuid, 0);
+            log.error("Re-invite is not permitted for the email " + email + " as is has exceeded the maximum " +
+                      "retry count");
+            return {
+                error: true,
+                status: 405,
+                message: "The number of retries has exceeded for the email " + email + " Please try again after an hour",
+                data: email
+            };
         }
-        if (log.isDebugEnabled()) {
-            log.debug("UUID fetched from db for email " + email + " = " + uuid);
-        }
-        var link = targetEpr + "?confirmation=" + uuid;
-        sendEmail(email, link);
-    }catch(e){
-        log.error("Resending the sign up email for [ " + email + " ] failed");
-        log.error(e);
+    } catch(e) {
+        log.error("An error occurred while retrieving the retry count for the email " + email);
         return {
             error: true,
-            message: e.message,
-            status: 500
+            status: 500,
+            message: "An error occurred while retrieving the retry count for the email " + email,
+            data: email
         };
     }
-    return {
-        error: false,
-        status: 200,
-        data: email
-    };
 };
 
 var sendEmail = function (to, link) {

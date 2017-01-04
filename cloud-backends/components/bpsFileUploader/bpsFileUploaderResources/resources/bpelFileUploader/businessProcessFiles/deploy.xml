@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy xmlns="http://www.apache.org/ode/schemas/dd/2007/03" xmlns:callback.workflow.apimgt.carbon.wso2.org="http://callback.workflow.apimgt.carbon.wso2.org" xmlns:claims="http://org.wso2.carbon/claims/" xmlns:workflow.registeruser.apimgt.carbon.wso2.org="http://workflow.registeruser.apimgt.carbon.wso2.org"
+xmlns:b4p="http://docs.oasis-open.org/ns/bpel4people/bpel4people/200803">
+  <process name="workflow.registeruser.apimgt.carbon.wso2.org:UserSignupProcess">
+    <active>true</active>
+    <retired>false</retired>
+    <process-events generate="all"/>
+    <provide partnerLink="client">
+      <service name="workflow.registeruser.apimgt.carbon.wso2.org:UserSignupProcess" port="UserSignupProcessPort">
+     </service>
+    </provide>
+    <provide partnerLink="approvePTL" correlationFilter="b4p:b4pFilter">
+      <service name="claims:UserApprovalServiceCB" port="UserApprovalPortCB"/>
+    </provide>
+    <invoke partnerLink="client">
+      <service name="workflow.registeruser.apimgt.carbon.wso2.org:UserSignupProcessCallback" port="UserSignupProcessPortCallbackPort"/>
+    </invoke>
+    <invoke partnerLink="approvePTL">
+      <service name="claims:UserApprovalService" port="UserApprovalPort">
+      <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" endpointReference="UserSignupService.epr"></endpoint>
+      </service>
+    </invoke>
+    <invoke partnerLink="responsePTL">
+      <service name="callback.workflow.apimgt.carbon.wso2.org:WorkflowCallbackService" port="WorkflowCallbackServiceHttpSoap11Endpoint">
+      <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" endpointReference="UserSignupProcess.epr"></endpoint>
+      </service>
+    </invoke>
+  </process>
+</deploy>

@@ -95,6 +95,25 @@ public class CloudBillingService extends AbstractAdmin {
     }
 
     /**
+     * Service to retrieve subscription information for a specific cloud type and subscription id
+     *
+     * @param cloudType      Cloud Type to retrieve
+     * @param subscriptionId Id of the subscription
+     * @return
+     * @throws CloudBillingException
+     */
+    public Plan getRatePlanInfo(String cloudType, String subscriptionId) throws CloudBillingException {
+        try {
+            return CloudBillingServiceUtils.getSubscriptionPlanForRatePlanId(cloudType, subscriptionId);
+        } catch (CloudBillingException e) {
+            String message = "Error while getting the subscription information for Cloud Type : " + cloudType + " and" +
+                             " Subscription Id : " + subscriptionId;
+            LOGGER.error(message, e);
+            throw new CloudBillingException(message, e);
+        }
+    }
+
+    /**
      * Create the Customer
      *
      * @param customerInfoJson customer details
@@ -314,8 +333,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @param subscriptionInfoJson subscription information in json
      * @return success jason string
      */
-    public String cancelSubscription(String subscriptionId, String subscriptionInfoJson)
-            throws CloudBillingException {
+    public String cancelSubscription(String subscriptionId, String subscriptionInfoJson) throws CloudBillingException {
         try {
             return init().cancelSubscription(subscriptionId, subscriptionInfoJson);
         } catch (CloudBillingException ex) {
@@ -332,8 +350,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @param paymentMethodInfoJson payment method details
      * @return success Json string
      */
-    public String addPaymentMethod(String customerId, String paymentMethodInfoJson)
-            throws CloudBillingException {
+    public String addPaymentMethod(String customerId, String paymentMethodInfoJson) throws CloudBillingException {
         try {
             return init().addPaymentMethod(customerId, paymentMethodInfoJson);
         } catch (CloudBillingException ex) {
@@ -387,8 +404,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @param paymentMethodInfoJson payment method details
      * @return success Json string
      */
-    public String getAllPaymentMethods(String customerId, String paymentMethodInfoJson)
-            throws CloudBillingException {
+    public String getAllPaymentMethods(String customerId, String paymentMethodInfoJson) throws CloudBillingException {
         try {
             return init().getAllPaymentMethods(customerId, paymentMethodInfoJson);
         } catch (CloudBillingException ex) {
@@ -405,8 +421,7 @@ public class CloudBillingService extends AbstractAdmin {
      * @param paymentMethodId payment method id
      * @return success jason string
      */
-    public String removePaymentMethod(String customerId, String paymentMethodId)
-            throws CloudBillingException {
+    public String removePaymentMethod(String customerId, String paymentMethodId) throws CloudBillingException {
         try {
             return init().removePaymentMethod(customerId, paymentMethodId);
         } catch (CloudBillingException ex) {
@@ -521,10 +536,10 @@ public class CloudBillingService extends AbstractAdmin {
     /**
      * Call Vendor Method with Monetization Parameters
      *
-     * @param methodName    Method to be invoked from Vendor Class
-     * @param tenantDomain  Tenant Domain to be parsed
-     * @param params        Parameters to be used
-     * @return              String response from vendor end
+     * @param methodName   Method to be invoked from Vendor Class
+     * @param tenantDomain Tenant Domain to be parsed
+     * @param params       Parameters to be used
+     * @return String response from vendor end
      * @throws CloudBillingException
      */
     public String callVendorMethodForMonetization(String methodName, String tenantDomain, String params)
@@ -838,9 +853,10 @@ public class CloudBillingService extends AbstractAdmin {
 
     /**
      * Validate the encrypted value against the provided encryption algorithm
-     * @param token         original token
-     * @param tokenHash     encrypted token parsed
-     * @param mdAlgorithm   encryption Algorithm
+     *
+     * @param token       original token
+     * @param tokenHash   encrypted token parsed
+     * @param mdAlgorithm encryption Algorithm
      * @return
      * @throws CloudBillingException
      */
@@ -887,6 +903,7 @@ public class CloudBillingService extends AbstractAdmin {
             throw ex;
         }
     }
+
     /**
      * Get billed organization Name
      *

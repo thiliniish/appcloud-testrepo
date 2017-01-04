@@ -13,7 +13,12 @@ var DEFAULT_SUBSCRIPTION_NAME = "Common";
 var SUBSCRIPTION_API_CLOUD = "api_cloud";
 var SUBSCRIPTION_APP_CLOUD = "app_cloud";
 var API_CLOUD_TYPE = "api-cloud";
+var APP_CLOUD_TYPE = "app-cloud";
 var HTTPS = "https://";
+
+var STORE_NODE_TYPE = "store";
+var GATEWAY_NODE_TYPE = "gateway";
+var APPLICATION_NODE_TYPE = "application";
 
 // property keys of registry 'application' resource
 var APPLICATION_KEY = "applicationKey";
@@ -157,6 +162,7 @@ var status = {ACTIVE : "ACTIVE", INACTIVE : "INACTIVE", EXTENDED : "EXTENDED", P
 var service = {COMMERCIAL : "commercial", FREE : "free"};
 
 var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
+var UNAUTHORIZED = "Unauthorized";
 var PROFILE_PAGE = "site/pages/user-profile.jag";
 
 var productIdFromServiceId = {api_cloud: "API Cloud", app_cloud: "APP Cloud"};
@@ -213,7 +219,7 @@ var THOUSAND = 1000;
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
 var LOGGED_IN_USER_EMAIL = "LOGGED_IN_USER_EMAIL";
-var TIER_MANAGE_URL = "admin/tier-manage";
+var TIER_MANAGE_URL = "admin/subscription-policy-manage";
 
 //Monetization Account Types
 var ACC_FREE = "Free";
@@ -257,6 +263,13 @@ var ILLEGAL_CHARACTERS_MESSAGE = 'Contains one or more illegal characters';
 var FIELD_REQUIRED_MESSAGE = 'This field is required';
 
 var TIME_STAMP_SKEW_IN_SECONDS = "300";
+
+//JWT authetication related
+var SUPER_TENANT_ID = -1234;
+var SIGNED_JWT_AUTH_USERNAME = "Username";
+
+//App Cloud REST API related
+var SET_COOKIE_HEADER = "Set-Cookie";
 
 //content types
 var APPLICATION_JSON = "application/json";

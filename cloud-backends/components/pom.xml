@@ -42,5 +42,6 @@
         <module>listeners/org.wso2.carbon.cloud.appcloudlistener</module>
         <module>listeners/org.wso2.carbon.cloud.listener</module>
         <module>selfSignup/org.wso2.carbon.cloud.selfSignup</module>
+        <module>bpsFileUploader/org.wso2.carbon.cloud.signup.workflow.fileUploader</module>
     </modules>
 </project>

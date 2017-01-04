@@ -10,15 +10,11 @@ var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
 var username =  session.get("LOGGED_IN_USER");
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
 
 var getTenantDisplayName = function (tenantDomain) {
-    var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-    var parameters =[tenantDomain];
-    var results = jagg.module("database").executeQuery(queryString, parameters);
-
-    var displayName = results[0]["displayName"];
-    return displayName;
-
+    var results = cloudmgtDAO.getDisplayNamefromTenant(tenantDomain);
+    return String(results);
 };
 
 var isUserInAdminRole = function () {
@@ -225,9 +221,12 @@ var sendInvoiceEmail = function(jsonContent, sender, invoiceObj) {
     var subject = "Your payment was successfully processed";
     var userMail = sender;
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var cloudMailAddress = cloudConfig.supportContact.to;
-
-    sendEmailWithBCC(body, subject, userMail, cloudMailAddress);
+    var cloudMailAddress = cloudConfig.invoiceEmails;
+    var emailList = null;
+    if (cloudMailAddress != null) {
+        emailList = cloudMailAddress.split(",");
+    }
+    sendEmailWithBCC(body, subject, userMail, emailList);
     return true;
 };
 
@@ -334,7 +333,9 @@ var sendEmailWithBCC = function (body, subject, receiverAddress, bccAddress) {
     if (receiverAddress == null) {
         receiverAddress = cloudConfig.supportContact.to;
     }
-    sender.bcc = bccAddress;
+    if (bccAddress != null) {
+        sender.bcc = bccAddress;
+    }
     sender.to = receiverAddress;
     sender.subject = subject;
     sender.html = body;
@@ -863,6 +864,34 @@ function getDistinctStringsInArray(array) {
     }
     return array;
 };
+
+function getAuthHeader(username) {
+    var KeyStoreManager = Packages.org.wso2.carbon.core.util.KeyStoreManager;
+    var RSAPrivateKey = Packages.java.security.interfaces.RSAPrivateKey;
+    var JWTClaimsSet = Packages.com.nimbusds.jwt.JWTClaimsSet;
+    var RSASSASigner = Packages.com.nimbusds.jose.crypto.RSASSASigner;
+    var JWSHeader = Packages.com.nimbusds.jose.JWSHeader;
+    var JWSAlgorithm = Packages.com.nimbusds.jose.JWSAlgorithm;
+    var SignedJWT = Packages.com.nimbusds.jwt.SignedJWT;
+    var Base64Utils = Packages.org.apache.axiom.util.base64.Base64Utils;
+    //Get the filesystem keystore default primary certificate
+    var keyStoreManager = KeyStoreManager.getInstance(SUPER_TENANT_ID);
+    try {
+        keyStoreManager.getDefaultPrimaryCertificate();
+        var rsaPrivateKey = new RSAPrivateKey(keyStoreManager.getDefaultPrivateKey());
+        var signer = new RSASSASigner(rsaPrivateKey);
+        var claimsSet = new JWTClaimsSet();
+        claimsSet.setClaim(SIGNED_JWT_AUTH_USERNAME, username);
+        var signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS512), claimsSet);
+        signedJWT.sign(signer);
+        return "Bearer " + Base64Utils.encode(signedJWT.serialize().getBytes());
+    } catch (e) {
+        var msg = "Failed to get primary default certificate";
+        log.error(msg);
+        log.error(e);
+        throw Error(msg, e);
+    }
+}
 
 /**
  * Check whether user is an admin user in carbon super tenant.

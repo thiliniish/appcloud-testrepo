@@ -12,6 +12,9 @@ jagg.module("customurl", {
 	},
 	isUrlAvailable:function () {
 		return jagg.require(jagg.getModulesDir() + "customurl/publish/publish.jag").isUrlAvailable.apply(this, arguments);
+	},
+	getCustomDomainDetailsForTenant:function () {
+		return jagg.require(jagg.getModulesDir() + "customurl/publish/publish.jag").getCustomDomainDetailsForTenant.apply(this, arguments);
 	}
 });
 %>

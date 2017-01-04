@@ -15,6 +15,8 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 var billingCoreService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.CloudBillingService');
+var cloudmgtDAO = new Packages.org.wso2.carbon.cloud.common.CloudMgtDAO();
+var cloudBillingDAO = new Packages.org.wso2.carbon.cloud.billing.core.commons.dataaccess.CloudBillingDAO();
 
 var getPaymentPlanFromId = function (serviceId, paymentPlanId) {
     var subscriptions = billingCoreService.getPaymentPlansForServiceId(serviceId);
@@ -31,9 +33,8 @@ var getPaymentPlanFromId = function (serviceId, paymentPlanId) {
 var isPaidAccount = function () {
     if ((session.get("TENANT_INFO")) != null) {
         var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-        var queryString = SQL_QUERY_STRINGS.SELECT_ACCOUNT_NUMBER_FROM_BILLING_ACCOUNT;
-        var parameters = [tenantDomain];
-        var result = modDb.executeQuery(queryString, parameters);
+        var result = JSON.parse(cloudBillingDAO.getBillingAccountNumber(tenantDomain));
+
         if (result[0] != null && result[0] != "undefined") {
             var accountNumber = result[0]["ACCOUNT_NUMBER"];
             if (accountNumber == null || accountNumber == "NULL") {
@@ -102,24 +103,16 @@ var getCloudURL = function (serviceName) {
 };
 
 var getDisplayNameFromTenantDomain = function (tenantDomain) {
-    var queryString = SQL_QUERY_STRINGS.SELECT_DISPLAY_NAME;
-    var parameters = [tenantDomain];
-    var result = jagg.module("database").executeQuery(queryString, parameters);
-
-    if (result.length > 0) {
-        return result[0]["displayName"];
-    } else {
-        return null;
-    }
+    var results = cloudmgtDAO.getDisplayNamefromTenant(tenantDomain);
+    return  String(results);
 };
 
 //TODO Get the account id from the service
 var getAccountId = function () {
     if ((session.get("TENANT_INFO")) != null) {
         var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-        var queryString = SQL_QUERY_STRINGS.SELECT_ACCOUNT_NUMBER_FROM_BILLING_ACCOUNT;
-        var parameters = [tenantDomain];
-        var result = modDb.executeQuery(queryString, parameters);
+        var result = JSON.parse(cloudBillingDAO.getBillingAccountNumber(tenantDomain));
+
         try {
             var accountNumber = result[0]["ACCOUNT_NUMBER"];
             if (accountNumber == null || accountNumber == "NULL") {
@@ -193,10 +186,7 @@ var isValidCoupon = function (couponData, serviceId) {
 
 var getAccountStatus = function (subscription, type) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-    var queryString = SQL_QUERY_STRINGS.SELECT_STATUS_FROM_BILLING_STATUS;
-    var parameters = [tenantDomain, subscription, type];
-
-    return modDb.executeQuery(queryString, parameters);
+    return cloudBillingDAO.selectStatusFromBillingStatus(tenantDomain, subscription, type);
 };
 
 var getCurrentRatePlan = function () {
@@ -231,9 +221,12 @@ var getPublicKeyParams = function (serviceId, productRatePlanId) {
 // Get the discount value for the coupon
 var calculateDiscountForCoupon = function (couponData) {
     var serviceId = session.get("SERVICE_ID");
-    var premium = session.get("MONTHLY_RENTAL");
+    var productRatePlanId = session.get("PRODUCT_PLAN_ID");
+    var ratePlanInfo = billingCoreService.getRatePlanInfo(serviceId, productRatePlanId);
+    var premium = ratePlanInfo.getProperty("MonthlyRental").substring(1);
     var discount = 0.00;
     var couponString = BILLING_COUPON_HEADER + couponData;
+
     try {
         //coupon validity should be checked before calculating the discount.
         var getCouponPlan = JSON.parse(billingCoreService.retrieveCouponInfo(couponString));
@@ -269,31 +262,22 @@ var createAccount = function (accountData, metaData, organizationName) {
         if (response.id != null) {
             var planName = getPaymentPlanFromId(metaData.serviceId, metaData.productRatePlanId);
             data = populateSubscriptionInfo(response.id, metaData.productRatePlanId);
-            var responseSubscriptionCreation = JSON.parse(billingCoreService.createSubscription(JSON.stringify(data)));
+            responseSubscriptionCreation = JSON.parse(billingCoreService.createSubscription(JSON.stringify(data)));
 
             if (responseSubscriptionCreation.data.subscriptionNumber != null) {
-                //update BILLING_ACCOUNT table
-                var queryString = SQL_QUERY_STRINGS.INSERT_ACCOUNT_NUMBER_TO_BILLING_ACCOUNT;
-                var parameters = [response.id, tenantDomain];
-                modDb.executeQuery(queryString, parameters);
+                cloudBillingDAO.updateAccountNumberForTenant(response.id, tenantDomain);
 
                 var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
                 var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
 
-                //update BILLING_STATUS table with new subscription
-                queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
-                parameters = [tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE, formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING];
-                modDb.executeQuery(queryString, parameters);
+                cloudBillingDAO.insertBillingStatus(tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE,
+                        formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING);
 
-                //update the previous plan
-                queryString = SQL_QUERY_STRINGS.UPDATE_SUBSCRIPTION_TYPE_STATUS_IN_BILLING_STATUS;
-                parameters = [status.DISABLED, formattedEffectiveDate, tenantDomain, metaData.serviceId, type.TRIAL];
-                modDb.executeQuery(queryString, parameters);
+                cloudBillingDAO.updateSubscriptionStatus(status.DISABLED, formattedEffectiveDate, tenantDomain,
+                        metaData.serviceId, type.TRIAL);
 
-                //add to BILLING_ACCOUNT_AMENDMENTS
-                queryString = SQL_QUERY_STRINGS.INSERT_BILLING_ACCOUNT_AMENDMENTS;
-                parameters = [response.id, metaData.productRatePlanId, formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING, metaData.serviceId];
-                modDb.executeQuery(queryString, parameters);
+                cloudBillingDAO.insertBillingAccountAmendments(response.id, metaData.productRatePlanId, formattedEffectiveDate,
+                        MYSQL_MAX_DATETIME_STRING, metaData.serviceId);
 
                 //send an email to the user
                 var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
@@ -408,14 +392,13 @@ var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlan
         //update the previous plan
         var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
         var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
-        var queryString = SQL_QUERY_STRINGS.UPDATE_BILLING_ACCOUNT_AMENDMENTS;
-        parameters = [formattedEffectiveDate, accountId, MYSQL_MAX_DATETIME_STRING, serviceId];
-        modDb.executeQuery(queryString, parameters);
+
+        cloudBillingDAO.updateSubscriptionEndDate(formattedEffectiveDate, accountId, MYSQL_MAX_DATETIME_STRING,
+                serviceId);
 
         //add to BILLING_ACCOUNT_AMENDMENTS
-        queryString = SQL_QUERY_STRINGS.INSERT_BILLING_ACCOUNT_AMENDMENTS;
-        parameters = [accountId, newProductRatePlanId, formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING, serviceId];
-        modDb.executeQuery(queryString, parameters);
+        cloudBillingDAO.insertBillingAccountAmendments(accountId, newProductRatePlanId, formattedEffectiveDate,
+                MYSQL_MAX_DATETIME_STRING, serviceId);
 
         if (log.isDebugEnabled()) {
             log.debug("Rate plan changed for Account Id: " + accountId + " into plan: " + newProductRatePlanId);
@@ -522,6 +505,17 @@ var validateRatePlanId = function (serviceId, productRatePlanId) {
     }
 };
 
+var getRatePlanInfo = function (serviceId, productRatePlanId){
+    try {
+        var response = billingCoreService.getRatePlanInfo(serviceId, productRatePlanId);
+        return response;
+    } catch (e) {
+        log.error("Error while retrieving rate plan information for, service: " + serviceId + ", and ratePlanId: " +
+        productRatePlanId);
+        return false;
+    }
+}
+
 var dateTimeFormatter = function (dateTimeFormat) {
     return new Packages.java.text.SimpleDateFormat(dateTimeFormat);
 };
@@ -532,9 +526,7 @@ var updateBillingStatus = function (status, effectiveDate, serviceType, serviceI
     var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
 
     //updating the billing status
-    var queryString  = SQL_QUERY_STRINGS.UPDATE_SUBSCRIPTION_TYPE_STATUS_IN_BILLING_STATUS;
-    var parameters = [status, formattedEffectiveDate, tenantDomain, serviceId, serviceType];
-    modDb.executeQuery(queryString, parameters);
+    cloudBillingDAO.updateSubscriptionStatus(status, formattedEffectiveDate, tenantDomain, serviceId, serviceType);
 };
 
 var getCancelSubscriptionEffectiveDate = function () {
@@ -592,11 +584,8 @@ var getAccountDetails = function () {
 //add tenant to billing account tables at the tenant registration
 var addTenantToBilling = function (tenantId, tenantDomain) {
     var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+    var result = cloudBillingDAO.insertIntoBillingAccount("NULL", tenantDomain);
 
-    var queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_ACCOUNT;
-    var parameters = [null, tenantDomain];
-
-    var result = modDb.executeQuery(queryString, parameters);
     if (log.isDebugEnabled()) {
         log.debug("Tenant : " + tenantDomain + " (tenant id: " + tenantId
         + ") added to BILLING_ACCOUNT table");
@@ -623,18 +612,14 @@ var addTenantToBilling = function (tenantId, tenantDomain) {
             } else {
                 log.error("No service type found for: " + subscription
                 + "in cloud_mgt config. It should be either free or commercial");
-                parameters = [tenantDomain];
-                queryString = SQL_QUERY_STRINGS.DELETE_FROM_BILLING_ACCOUNT;
                 log.info("Tenant : " + tenantDomain + " (tenant id: " + tenantId
                 + ") deleted from BILLING_ACCOUNT table. [As a rollback operation] ");
-                result = modDb.executeQuery(queryString, parameters);
+                result = cloudBillingDAO.deleteBillingAccount(tenantDomain);
                 throw new Error(
                         "Tenant billing account registration failure: Configuration failure ");
             }
-            queryString = SQL_QUERY_STRINGS.INSERT_INTO_BILLING_STATUS;
-            parameters = [tenantDomain, subscription, billingType, billingAccountStatus, sqlDateFormat.format(startDate),
-                sqlDateFormat.format(endDate)];
-            result = modDb.executeQuery(queryString, parameters);
+            result =  cloudBillingDAO.insertBillingStatus(tenantDomain, subscription, billingType,
+                    billingAccountStatus, sqlDateFormat.format(startDate), sqlDateFormat.format(endDate));
         }
     }
     if (log.isDebugEnabled()) {
@@ -897,25 +882,21 @@ var extendTrial = function (serviceId, customerRequest) {
             billingCoreService.getTrialPeriod(SUBSCRIPTION_API_CLOUD)));
     var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
 
-    var queryString = SQL_QUERY_STRINGS.SELECT_ALL_FROM_BILLING_STATUS;
-    var parameters = [tenantDomain, serviceId, type.TRIAL];
-    var result = modDb.executeQuery(queryString, parameters);
+    var result = JSON.parse(cloudBillingDAO.selectAllFromBillingStatus(tenantDomain, serviceId, type.TRIAL));
+
     if (result.length > 0) {
         if (result[0]["STATUS"] === status.ACTIVE || status.EXTENDED) {
 
             var trialStartDate = result[0]["START_DATE"];
             var trialEndDate = result[0]["END_DATE"];
 
-            queryString = SQL_QUERY_STRINGS.INSERT_BILLING_STATUS_HISTORY;
             var tenantId = modManager.getTenantId(tenantDomain);
-            parameters = [serviceId, null, tenantDomain, type.TRIAL, status.EXPIRED, trialStartDate, trialEndDate,
-                tenantId];
-            modDb.executeQuery(queryString, parameters);
 
-            queryString = SQL_QUERY_STRINGS.UPDATE_BILLING_STATUS;
-            parameters = [status.EXTENDED, sqlDateFormat.format(extensionStartDate),
-                sqlDateFormat.format(extendedEndDate), tenantDomain, serviceId, type.TRIAL];
-            modDb.executeQuery(queryString, parameters);
+            cloudBillingDAO.insertBillingStatusHistory(serviceId, null, tenantDomain, type.TRIAL, status.EXPIRED, trialStartDate, trialEndDate,
+                    tenantId);
+
+            cloudBillingDAO.updateBillingStatus(status.EXTENDED, sqlDateFormat.format(extensionStartDate),
+                    sqlDateFormat.format(extendedEndDate), tenantDomain, serviceId, type.TRIAL);
 
             var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
             if (tenantDisplayName != null) {

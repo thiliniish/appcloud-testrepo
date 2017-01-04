@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>Tenant Deletion Report</title>
+</head>
+<body>
+    <div>
+        <div style="width: 86%; max-width: 650px; padding: 2%; background-color: #ffffff; margin: auto; border-radius: 14px;">
+            <div style="background-color: #00e6e6 ; line-height: 0px; border-top-left-radius: 10px; border-top-right-radius: 10px; padding: 0px 10px 0px 0px;">
+                <div align="center" style="display: inline-block; line-height: 0px;font-size:20px">
+                    <p>Tenant Deletion Report</p>
+                </div>
+            </div>
+
+            <div style="background-color: #ffffff; line-height: 170%; color: #666666;">
+            <div style="width:100%">
+                <p style="font-size: 13px; font-family: Arial, Helvetica; line-height: 170%; color: #666666; margin: 5px 0px;">
+                    &nbsp;&nbsp;Not Deleted = 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Deleted Completely = 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Deletion terminated = 2,
+                </p>
+            </div>
+
+            </div>
+            <table style="font-size:12px; border:"1"; width="100%";">
+            <tr>
+            <td>
+                <table border="1" width="100%" max-width: 50px;>
+                    <tr>
+                        <th>Domain</th>
+                        <th>APP</th>
+                        <th>API</th>
+                        <th>CONFIG_PUBSTORE</th>
+                        <th>CONFIG_BPS</th>
+                        <th>CONFIG_CLOUD_MGT</th>
+                        <th>CONFIG_IS</th>
+                        <th>CONFIG_SS</th>
+                        <th>CONFIG_DAS</th>
+                        <th>CONFIG_AF</th>
+                        <th>GOVERNANCE</th>
+                        <th>USER_M</th>
+                        <th>CLOUD_M</th>
+                        <th>LDAP</th>
+                    </tr>
+                    <tr>
+                        <td align="center";>%%tenantDomain</td>
+                        <td align="center";>%%APP</td>
+                        <td align="center";>%%API</td>
+                        <td align="center";>%%CONFIG_PUBSTORE</td>
+                        <td align="center";>%%CONFIG_BPS</td>
+                        <td align="center";>%%CONFIG_CLOUD_MGT</td>
+                        <td align="center";>%%CONFIG_IS</td>
+                        <td align="center";>%%CONFIG_SS</td>
+                        <td align="center";>%%CONFIG_DAS</td>
+                        <td align="center";>%%CONFIG_AF</td>
+                        <td align="center";>%%GOVERNANCE</td>
+                        <td align="center";>%%USER_M</td>
+                        <td align="center";>%%CLOUD_M</td>
+                        <td align="center";>%%LDAP</td>
+                    </tr>
+                    %%nextRow
+                </table>
+            </td>
+            </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -38,9 +38,7 @@ $(document).ready(function () {
             var ratePlanDetails = JSON.parse(ratePlansObj);
             for (var index in ratePlanDetails.entry) {
                 if (ratePlanDetails.entry[index].id == selectedPlanId) {
-                    createAccount(selectedPlanId, ratePlanDetails.entry[index].name, ratePlanDetails.entry[index].maxAccounts,
-                        ratePlanDetails.entry[index].maxDailyUsage, ratePlanDetails.entry[index].overUsage,
-                        ratePlanDetails.entry[index].monthlyRental.replace("$",""), false);
+                    createAccount(selectedPlanId, ratePlanDetails.entry[index].name, false);
                     break;
                 }
             }
@@ -62,17 +60,13 @@ function enableButton(id) {
     document.getElementById("selectbtn_" + id).removeAttribute("disabled", "disabled");
 }
 
-function createAccount(id, currRatePlan, accounts, callsPerDay, callsAbovePlan, monthlyRental, isFromChangePlan) {
+function createAccount(id, currRatePlan, isFromChangePlan) {
     disableButton(id);
     var cloudmgtURL = $("#cloudmgtURL").attr('value');
     jagg.post("../blocks/billing/plan/get/ajax/get.jag", {
             action: "goToCreateAccount",
             productRatePlanId: id,
             currRatePlan: currRatePlan,
-            accounts: accounts,
-            callsPerDay: callsPerDay,
-            callsAbovePlan: callsAbovePlan,
-            monthlyRental: monthlyRental,
             isFromChangePlan: isFromChangePlan
         },
         function (result) {

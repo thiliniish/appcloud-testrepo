@@ -28,8 +28,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
     @XmlElement(name = "SubscriptionCleanUp", nillable = true) private SubscriptionCleanUp subscriptionCleanUp;
 
+    @XmlElement(name = "UsageUpload", nillable = true) private UsageUpload usageUpload;
+
     public SubscriptionCleanUp getSubscriptionCleanUp() {
         return subscriptionCleanUp;
+    }
+
+    public UsageUpload getUsageUpload() {
+        return usageUpload;
     }
 
 }
