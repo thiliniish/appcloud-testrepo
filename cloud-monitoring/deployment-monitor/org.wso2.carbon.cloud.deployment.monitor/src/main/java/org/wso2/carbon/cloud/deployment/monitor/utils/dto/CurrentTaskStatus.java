@@ -60,8 +60,8 @@ public class CurrentTaskStatus {
         this.taskName = taskName;
     }
 
-    public String getState() {
-        return this.state.name();
+    public CurrentTaskStatus.State getState() {
+        return this.state;
     }
 
     public void setState(State state) {

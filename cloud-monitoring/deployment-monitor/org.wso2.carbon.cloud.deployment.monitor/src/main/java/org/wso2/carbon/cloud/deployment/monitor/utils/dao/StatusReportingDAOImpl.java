@@ -20,12 +20,12 @@ package org.wso2.carbon.cloud.deployment.monitor.utils.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.DailyServiceStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureRecord;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.SuccessRecord;
-import org.wso2.deployment.monitor.utils.database.DatabaseManager;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -43,7 +43,8 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
     private static final Logger logger = LoggerFactory.getLogger(StatusReportingDAOImpl.class);
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    @Override public void addSuccessRecord(SuccessRecord successRecord) {
+    @Override
+    public void addSuccessRecord(SuccessRecord successRecord) throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Adding Success Record {}-{}", successRecord.getServer(), successRecord.getTaskName());
         }
@@ -58,41 +59,44 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             statement.executeUpdate();
 
         } catch (SQLException e) {
-            logger.error("Error occurred while adding Success Record", e);
+            throw  new CloudMonitoringException("Error occurred while adding Success Record", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, null);
+            DatabaseManager.closeAllConnections(null, statement, connection);
         }
     }
 
-    @Override public int addFailureRecord(FailureRecord failureRecord) {
+    @Override
+    public int addFailureRecord(FailureRecord failureRecord) throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Adding Failure Record {}-{}", failureRecord.getServer(), failureRecord.getTaskName());
         }
         Connection connection = null;
-        PreparedStatement insert = null;
-        ResultSet generatedKeys = null;
+        PreparedStatement insertStmnt = null;
+        ResultSet generatedKeysRS = null;
         try {
             connection = DatabaseManager.getConnection();
-            insert = connection.prepareStatement(QueryConstants.ADD_FAILURE_RECORD, Statement.RETURN_GENERATED_KEYS);
-            insert.setString(1, failureRecord.getTaskName());
-            insert.setString(2, failureRecord.getServer());
-            insert.setString(3, sdf.format(failureRecord.getTimestamp()));
-            insert.setString(4, failureRecord.getError());
-            insert.executeUpdate();
+            insertStmnt = connection.prepareStatement(QueryConstants.ADD_FAILURE_RECORD,
+                    Statement.RETURN_GENERATED_KEYS);
+            insertStmnt.setString(1, failureRecord.getTaskName());
+            insertStmnt.setString(2, failureRecord.getServer());
+            insertStmnt.setString(3, sdf.format(failureRecord.getTimestamp()));
+            insertStmnt.setString(4, failureRecord.getError());
+            insertStmnt.executeUpdate();
 
-            generatedKeys = insert.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                return generatedKeys.getInt(1);
+            generatedKeysRS = insertStmnt.getGeneratedKeys();
+            if (generatedKeysRS.next()) {
+                return generatedKeysRS.getInt(1);
             }
         } catch (SQLException e) {
-            logger.error("Error occurred while adding Failure Record", e);
+            throw  new CloudMonitoringException("Error occurred while adding Failure Record", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, insert, generatedKeys);
+            DatabaseManager.closeAllConnections(generatedKeysRS, insertStmnt, connection);
         }
         return 0;
     }
 
-    @Override public void addFailureSummary(FailureSummary failureSummary) {
+    @Override
+    public void addFailureSummary(FailureSummary failureSummary) throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Adding Failure Summary {}-{}: Downtime {}s", failureSummary.getServer(),
                     failureSummary.getTaskName(), failureSummary.getDownTime() / 1000);
@@ -112,13 +116,14 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             statement.setInt(8, (int) (failureSummary.getDownTime() / 1000));
             statement.executeUpdate();
         } catch (SQLException e) {
-            logger.error("Error occurred while adding Failure Summary", e);
+            throw  new CloudMonitoringException("Error occurred while adding Failure Summary", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, null);
+            DatabaseManager.closeAllConnections(null, statement, connection);
         }
     }
 
-    @Override public void updateCurrentTaskStatus(CurrentTaskStatus currentTaskStatus) {
+    @Override
+    public void updateCurrentTaskStatus(CurrentTaskStatus currentTaskStatus) throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Updating Live State {}-{} : State : {}", currentTaskStatus.getServer(),
                     currentTaskStatus.getTaskName(), currentTaskStatus.getState());
@@ -130,18 +135,19 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             statement = connection.prepareStatement(QueryConstants.UPDATE_CURRENT_TASK_STATUS);
             statement.setString(1, currentTaskStatus.getTaskName());
             statement.setString(2, currentTaskStatus.getServer());
-            statement.setString(3, currentTaskStatus.getState());
-            statement.setString(4, currentTaskStatus.getState());
+            statement.setString(3, currentTaskStatus.getState().toString());
+            statement.setString(4, currentTaskStatus.getState().toString());
             statement.setString(5, sdf.format(currentTaskStatus.getLastUpdated().getTime()));
             statement.executeUpdate();
         } catch (SQLException e) {
             logger.error("Error occurred while adding Live State", e);
-        } finally {
-            DatabaseManager.closeAllConnections(connection, statement, null);
+        }  finally {
+            DatabaseManager.closeAllConnections(null, statement, connection);
         }
     }
 
-    public void updateCurrentTaskStatusForMaintenance(String serverName, String task, CurrentTaskStatus.State state) {
+    public void updateCurrentTaskStatusForMaintenance(String serverName, String task, CurrentTaskStatus.State state)
+            throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Updating Live State for maintenance in : {}", serverName);
         }
@@ -168,11 +174,11 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         } catch (SQLException e) {
             logger.error("Error occurred while updating Live State", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, null);
+            DatabaseManager.closeAllConnections(null, statement, connection);
         }
     }
 
-    public void addMaintenanceSummary(String serverName, String task) {
+    public void addMaintenanceSummary(String serverName, String task) throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Adding summary for maintenance in : {} - {}", serverName, task);
         }
@@ -194,11 +200,11 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         } catch (SQLException e) {
             logger.error("Error occurred while adding Maintenance Summary", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, null);
+            DatabaseManager.closeAllConnections(null, statement, connection);
         }
     }
 
-    public void updateMaintenanceSummary(String serverName, String task) {
+    public void updateMaintenanceSummary(String serverName, String task) throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Adding summary for maintenance in : {} - {}", serverName, task);
         }
@@ -238,12 +244,12 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
         } catch (SQLException e) {
             logger.error("Error occurred while updating Maintenance Summary", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, selectStatement, resultSet);
+            DatabaseManager.closeAllConnections(resultSet, selectStatement, connection);
             DatabaseManager.closeAllConnections(null, updateStatement, null);
         }
     }
 
-    public void addDailyServiceStatus(DailyServiceStatus dailyServiceStatus) {
+    public void addDailyServiceStatus(DailyServiceStatus dailyServiceStatus) throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Adding Daily Service Status for server : {}", dailyServiceStatus.getService());
         }
@@ -261,7 +267,7 @@ public class StatusReportingDAOImpl implements StatusReportingDAO {
             logger.error("Error occurred while adding Daily Service Status for server : {}",
                     dailyServiceStatus.getService(), e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, null);
+            DatabaseManager.closeAllConnections(null, statement, connection);
         }
     }
 }

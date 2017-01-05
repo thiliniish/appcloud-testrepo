@@ -27,7 +27,7 @@ import org.wso2.deployment.monitor.core.model.ServerGroup;
 import java.util.Properties;
 
 /**
- * Abstract Class for Cloud Tasks
+ * Abstract Class for Cloud Tasks which includes a retrying mechanism
  */
 public abstract class AbstractRetryingTask {
 

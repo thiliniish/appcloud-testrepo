@@ -34,9 +34,14 @@ import java.util.List;
 public class DailyStatusRetriever {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("dd MMM");
+    UptimeInformationDAOImpl uptimeInformationDAO;
+
+    public DailyStatusRetriever() throws CloudMonitoringException {
+        uptimeInformationDAO = new UptimeInformationDAOImpl();
+    }
 
     public JsonArray getDailyStatuses(String service, Date from, Date to) throws CloudMonitoringException {
-        UptimeInformationDAOImpl uptimeInformationDAO = new UptimeInformationDAOImpl();
+
         List<DailyServiceStatus> dailyServiceStatuses = uptimeInformationDAO.getDailyServiceStatuses(service, from, to);
         if (dailyServiceStatuses.isEmpty()) {
             throw new CloudMonitoringException("No Current Status records found for server", 404);

@@ -22,6 +22,7 @@ import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
 import org.wso2.carbon.cloud.deployment.monitor.utils.caches.FailureSummaryCache;
 import org.wso2.carbon.cloud.deployment.monitor.utils.caches.ReSchedulingCache;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.StatusReportingDAOImpl;
@@ -40,6 +41,7 @@ import org.wso2.deployment.monitor.utils.notification.sms.SMSNotifications;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Cloud Callback implementation for Single Host Test Cases
@@ -49,7 +51,8 @@ public class CloudDefaultCallBack implements OnResultCallback {
     private static final Logger logger = LoggerFactory.getLogger(CloudDefaultCallBack.class);
     private SimpleDateFormat sdf = new SimpleDateFormat(CloudMonitoringConstants.SIMPLE_DATE_FORMAT_WITH_TIME_ZONE);
 
-    @Override public void callback(RunStatus runStatus) {
+    @Override
+    public void callback(RunStatus runStatus) {
         long currentTime = System.currentTimeMillis();
 
         StatusReportingDAOImpl reportingDAO = new StatusReportingDAOImpl();
@@ -65,8 +68,6 @@ public class CloudDefaultCallBack implements OnResultCallback {
                     currentTime);
             CurrentTaskStatus currentTaskStatus = new CurrentTaskStatus(runStatus.getServerGroupName(),
                     runStatus.getTaskName(), CurrentTaskStatus.State.UP, new Date(currentTime));
-            reportingDAO.addSuccessRecord(successRecord);
-            reportingDAO.updateCurrentTaskStatus(currentTaskStatus);
 
             //If there was a failure before
             if (failureSummaryCache.getCacheEntry(cacheKey) != null) {
@@ -76,17 +77,38 @@ public class CloudDefaultCallBack implements OnResultCallback {
                 long duration = currentTime - failureSummary.getStartTime();
                 failureSummary.setDownTime((int) duration);
                 failureSummary.setEndTime(currentTime);
-                reportingDAO.addFailureSummary(failureSummary);
 
                 //Reset the scheduling
                 resetSchedule(runStatus, cacheKey);
 
+                //Send notifications
                 String emailBody =
                         runStatus.getServerGroupName() + "-" + runStatus.getTaskName() + " is UP again at : " + sdf
                                 .format(currentTime);
                 emailBody = emailBody + ", " + "Downtime : " + duration / 1000 + "s";
                 EmailNotifications.getInstance().sendMail(successMsg, emailBody);
                 SMSNotifications.getInstance().sendSMS(successMsg);
+
+                try {
+                    reportingDAO.addFailureSummary(failureSummary);
+                } catch (CloudMonitoringException e) {
+                    String msg = "Error occurred while persisting status data for : " + runStatus.getServerGroupName()
+                            + " : " + runStatus.getTaskName();
+                    logger.error(msg, e);
+                    emailBody = msg + "<br/><br/>" + e.getMessage();
+                    EmailNotifications.getInstance().sendMail(msg, emailBody);
+                }
+            }
+
+            try {
+                reportingDAO.addSuccessRecord(successRecord);
+                reportingDAO.updateCurrentTaskStatus(currentTaskStatus);
+            } catch (CloudMonitoringException e) {
+                String msg = "Error occurred while persisting status data for : " + runStatus.getServerGroupName()
+                        + " : " + runStatus.getTaskName();
+                logger.error(msg, e);
+                String emailBody = msg + "<br/><br/>" + e.getMessage();
+                EmailNotifications.getInstance().sendMail(msg, emailBody);
             }
         } else {
             String failureMsg = "[Task Failed] " + runStatus.getServerGroupName() + " : " + runStatus.getTaskName();
@@ -109,8 +131,17 @@ public class CloudDefaultCallBack implements OnResultCallback {
                     errorMsg, currentTime);
             CurrentTaskStatus currentTaskStatus = new CurrentTaskStatus(runStatus.getServerGroupName(),
                     runStatus.getTaskName(), CurrentTaskStatus.State.DOWN, new Date(currentTime));
-            int currentID = reportingDAO.addFailureRecord(failureRecord);
-            reportingDAO.updateCurrentTaskStatus(currentTaskStatus);
+            int currentID = -1;
+            try {
+                currentID = reportingDAO.addFailureRecord(failureRecord);
+                reportingDAO.updateCurrentTaskStatus(currentTaskStatus);
+            } catch (CloudMonitoringException e) {
+                String msg = "Error occurred while persisting status data for : " + runStatus.getServerGroupName()
+                        + " : " + runStatus.getTaskName();
+                logger.error(msg, e);
+                String emailBody = msg + "<br/><br/>" + e.getMessage();
+                EmailNotifications.getInstance().sendMail(msg, emailBody);
+            }
 
             if (cacheHit) {
                 FailureSummary failureSummary = failureSummaryCache.getCacheEntry(cacheKey);
@@ -132,8 +163,9 @@ public class CloudDefaultCallBack implements OnResultCallback {
         if (ReSchedulingCache.getInstance().getCacheEntry(cacheKey)) {
             return;
         }
-        TaskConfig taskConfig = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
-        if (taskConfig != null) {
+        Optional<TaskConfig> optional = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
+        if (optional.isPresent()) {
+            TaskConfig taskConfig = optional.get();
             boolean increaseFrequencyInFailure =
                     taskConfig.getTaskParams().get("increaseFrequencyInFailure") != null && (boolean) taskConfig
                             .getTaskParams().get("increaseFrequencyInFailure");
@@ -164,8 +196,9 @@ public class CloudDefaultCallBack implements OnResultCallback {
         if (ReSchedulingCache.getInstance().getCacheEntry(cacheKey)) {
             logger.info("Resetting scheduling frequency for Task : {} for Server : {}", runStatus.getTaskName(),
                     runStatus.getServerGroupName());
-            TaskConfig taskConfig = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
-            if (taskConfig != null) {
+            Optional<TaskConfig> optional = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
+            if (optional.isPresent()) {
+                TaskConfig taskConfig = optional.get();
                 try {
                     ScheduleManager.getInstance()
                             .reScheduleTaskForServer(runStatus.getTaskName(), runStatus.getServerGroupName(),

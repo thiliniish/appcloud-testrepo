@@ -24,7 +24,6 @@ import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.DailyServiceStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureSummary;
-import org.wso2.deployment.monitor.utils.database.DatabaseManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -66,10 +65,10 @@ public class UptimeInformationDAOImpl implements UptimeInformationDAO {
                         CurrentTaskStatus.State.valueOf(status), lastUpdated);
                 currentTaskStatuses.add(currentTaskStatus);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | CloudMonitoringException e) {
             throw new CloudMonitoringException("Error occurred while getting the current status of the server", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, resultSet);
+            DatabaseManager.closeAllConnections(resultSet, statement, connection);
         }
         return currentTaskStatuses;
     }
@@ -101,16 +100,17 @@ public class UptimeInformationDAOImpl implements UptimeInformationDAO {
                     currentServerStatuses.put(serverName, taskStatuses);
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | CloudMonitoringException e) {
             throw new CloudMonitoringException("Error occurred while getting the current status for all the servers",
                     e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, resultSet);
+            DatabaseManager.closeAllConnections(resultSet, statement, connection);
         }
         return currentServerStatuses;
     }
 
-    @Override public List<DailyServiceStatus> getDailyServiceStatuses(String service, Date from, Date to)
+    @Override
+    public List<DailyServiceStatus> getDailyServiceStatuses(String service, Date from, Date to)
             throws CloudMonitoringException {
         if (logger.isDebugEnabled()) {
             logger.debug("Getting Daily Statuses of service : {} from : {} to : {}", service, from, to);
@@ -137,12 +137,13 @@ public class UptimeInformationDAOImpl implements UptimeInformationDAO {
         } catch (SQLException e) {
             throw new CloudMonitoringException("Error occurred while getting the daily status of the server", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, resultSet);
+            DatabaseManager.closeAllConnections(resultSet, statement, connection);
         }
         return dailyServiceStatuses;
     }
 
-    @Override public Map<String, List<DailyServiceStatus>> getAllDailyServiceStatuses(Date from, Date to) {
+    @Override
+    public Map<String, List<DailyServiceStatus>> getAllDailyServiceStatuses(Date from, Date to) {
         return null;
     }
 
@@ -176,15 +177,16 @@ public class UptimeInformationDAOImpl implements UptimeInformationDAO {
                 failureSummary.setDownTime(downTime);
                 failureSummaries.add(failureSummary);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | CloudMonitoringException e) {
             throw new CloudMonitoringException("Error occurred while getting the daily status of the server", e);
         } finally {
-            DatabaseManager.closeAllConnections(connection, statement, resultSet);
+            DatabaseManager.closeAllConnections(resultSet, statement, connection);
         }
         return failureSummaries;
     }
 
-    @Override public Map<String, List<FailureSummary>> getAllFailureSummaries(Date from, Date to) {
+    @Override
+    public Map<String, List<FailureSummary>> getAllFailureSummaries(Date from, Date to) {
         return null;
     }
 

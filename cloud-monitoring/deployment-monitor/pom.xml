@@ -41,7 +41,7 @@
     </modules>
 
     <properties>
-        <deployment.monitore.core.version>1.0.0-beta</deployment.monitore.core.version>
+        <deployment.monitore.core.version>1.0.0-SNAPSHOT</deployment.monitore.core.version>
     </properties>
 
 </project>

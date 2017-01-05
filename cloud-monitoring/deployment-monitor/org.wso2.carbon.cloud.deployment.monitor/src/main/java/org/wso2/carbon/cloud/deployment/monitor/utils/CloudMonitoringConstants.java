@@ -25,14 +25,20 @@ public class CloudMonitoringConstants {
 
     public static final String SIMPLE_DATE_FORMAT_WITH_TIME_ZONE = "yyyy-MM-dd hh:mm:ss a z";
 
+    public static final String DATE_FORMAT_FOR_DASHBOARD = "E, dd MMM yyyy, HH:mm:ss";
+
     public static final long THREAD_SLEEP_TIME = 5000;
 
     public static final String TRIGGER_TYPE = "triggerType";
 
     public static final String TRIGGER = "trigger";
 
+    public static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
+
+    public static final String DEFAULT_DATASOURCE_NAME = "default";
+
     /**
-     * For {@link org.wso2.carbon.cloud.deployment.monitor.service.CloudMonitorService}
+     * For {@link org.wso2.carbon.cloud.deployment.monitor.services.CloudMonitorService}
      */
     public static final String SCHEDULE = "schedule";
 

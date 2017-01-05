@@ -35,12 +35,17 @@ import java.util.Map;
  */
 public class CurrentStatusRetriever {
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMM yyyy, HH:mm:ss");
-    private UptimeInformationDAOImpl uptimeInformationDAO = new UptimeInformationDAOImpl();
+    private SimpleDateFormat sdf = new SimpleDateFormat(CloudMonitoringConstants.DATE_FORMAT_FOR_DASHBOARD);
+
+    private UptimeInformationDAOImpl uptimeInformationDAO;
+
+    public CurrentStatusRetriever() throws CloudMonitoringException {
+        uptimeInformationDAO =  new UptimeInformationDAOImpl();
+    }
+
 
     public JsonObject getCurrentServerStatus(String server) throws CloudMonitoringException {
         List<CurrentTaskStatus> currentTaskStatuses = uptimeInformationDAO.getCurrentStatus(server);
-        new JsonObject();
         if (currentTaskStatuses.isEmpty()) {
             throw new CloudMonitoringException("No Current Status records found for server", 404);
         } else {
@@ -66,21 +71,25 @@ public class CurrentStatusRetriever {
     private JsonObject createServerObject(String server, List<CurrentTaskStatus> currentTaskStatuses) {
         JsonObject serverObj = new JsonObject();
         JsonArray tasks = new JsonArray();
+
         int failedTaskCount = 0;
         int maintenanceTaskCount = 0;
+
         for (CurrentTaskStatus currentTaskStatus : currentTaskStatuses) {
-            if (CurrentTaskStatus.State.DOWN.name().equalsIgnoreCase(currentTaskStatus.getState())) {
+            if (CurrentTaskStatus.State.DOWN == currentTaskStatus.getState()) {
                 failedTaskCount++;
-            } else if (CurrentTaskStatus.State.MAINTENANCE.name().equalsIgnoreCase(currentTaskStatus.getState())) {
+            } else if (CurrentTaskStatus.State.MAINTENANCE == currentTaskStatus.getState()) {
                 maintenanceTaskCount++;
             }
             JsonObject taskObj = new JsonObject();
             taskObj.addProperty("name", currentTaskStatus.getTaskName());
-            taskObj.addProperty("status", currentTaskStatus.getState());
+            taskObj.addProperty("status", currentTaskStatus.getState().toString());
             taskObj.addProperty("lastUpdated", sdf.format(currentTaskStatus.getLastUpdated()));
             tasks.add(taskObj);
         }
+
         serverObj.addProperty("server", server);
+
         if (failedTaskCount == currentTaskStatuses.size()) {
             serverObj.addProperty("status", CloudMonitoringConstants.DOWN);
         } else if (maintenanceTaskCount == currentTaskStatuses.size()) {
@@ -90,6 +99,9 @@ public class CurrentStatusRetriever {
         } else {
             serverObj.addProperty("status", CloudMonitoringConstants.UP);
         }
+
+        // Tasks are in descending order of the last updated time, hence server's last updated time is equal
+        // to the first tasks last updated time
         Date lastUpdated = currentTaskStatuses.get(0).getLastUpdated();
         serverObj.addProperty("lastUpdated", sdf.format(lastUpdated));
         serverObj.add("tasks", tasks);

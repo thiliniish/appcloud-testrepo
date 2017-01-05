@@ -16,16 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.deployment.monitor.service;
+package org.wso2.carbon.cloud.deployment.monitor.services;
 
 import com.google.gson.JsonObject;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dao.StatusReportingDAOImpl;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
-import org.wso2.deployment.monitor.core.TaskUtils;
-import org.wso2.deployment.monitor.core.model.ServerGroup;
 import org.wso2.deployment.monitor.core.scheduler.ScheduleManager;
 import org.wso2.msf4j.Microservice;
 
@@ -38,7 +37,7 @@ import javax.ws.rs.core.Response;
 /**
  * This service expose management actions of the Deployment Monitor
  */
-@Path("/deployment-monitor")
+@Path("/scheduler")
 @Produces({ "application/json" })
 public class CloudMonitorService implements Microservice {
 
@@ -148,12 +147,19 @@ public class CloudMonitorService implements Microservice {
 
         if (isSuccess) {
             StatusReportingDAOImpl reportingDAO = new StatusReportingDAOImpl();
-            if (ACTION.PAUSE == action || ACTION.UNSCHEDULE == action) {
-                reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.MAINTENANCE);
-                reportingDAO.addMaintenanceSummary(server, task);
-            } else {
-                reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.UP);
-                reportingDAO.updateMaintenanceSummary(server, task);
+            try {
+                if (ACTION.PAUSE == action || ACTION.UNSCHEDULE == action) {
+                    reportingDAO.updateCurrentTaskStatusForMaintenance(server, task,
+                            CurrentTaskStatus.State.MAINTENANCE);
+                    reportingDAO.addMaintenanceSummary(server, task);
+                } else {
+                    reportingDAO.updateCurrentTaskStatusForMaintenance(server, task, CurrentTaskStatus.State.UP);
+                    reportingDAO.updateMaintenanceSummary(server, task);
+                }
+            } catch (CloudMonitoringException e) {
+                createResponseObject(responseObj, true, "Maintenance Task was successful. "
+                        + "Database update for maintenance failed.");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseObj).build();
             }
             createResponseObject(responseObj, false, "Maintenance Task was successful");
             return Response.status(Response.Status.OK).entity(responseObj).build();

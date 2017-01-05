@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.deployment.monitor.service;
+package org.wso2.carbon.cloud.deployment.monitor.services;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.cloud.deployment.monitor.status.CurrentStatusRetriever;
 import org.wso2.carbon.cloud.deployment.monitor.status.DailyStatusRetriever;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
 import org.wso2.msf4j.Microservice;
 
@@ -45,61 +46,69 @@ import javax.ws.rs.core.Response;
 /**
  * This service exposes uptime statistics
  */
-@Path("/status") @Produces({ "application/json" }) public class CloudUptimeInformationService implements Microservice {
+@Path("/status")
+@Produces({ "application/json" })
+public class CloudUptimeInformationService implements Microservice {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudUptimeInformationService.class);
-    private CurrentStatusRetriever currentStatusRetriever = new CurrentStatusRetriever();
-    private DailyStatusRetriever dailyStatusRetriever = new DailyStatusRetriever();
 
-    @GET @Path("/current/{server}") public Response getCurrentServerStatus(@PathParam("server") String server) {
-        JsonObject object = new JsonObject();
-        try {
-            object = currentStatusRetriever.getCurrentServerStatus(server);
-        } catch (CloudMonitoringException e) {
-            createErrorObject(object, e.getErrorCode(), e.getMessage());
-            return Response.status(e.getErrorCode()).entity(object).build();
-        }
-        return Response.status(Response.Status.OK).entity(object).header("Access-Control-Allow-Origin", "*").build();
+    private DailyStatusRetriever dailyStatusRetriever;
+    private CurrentStatusRetriever currentStatusRetriever;
 
+    public CloudUptimeInformationService() throws CloudMonitoringException {
+        currentStatusRetriever = new CurrentStatusRetriever();
+        dailyStatusRetriever = new DailyStatusRetriever();
     }
 
-    @GET @Path("/current/all") public Response getAllCurrentServerStatuses() {
-        JsonArray array;
+    @GET
+    @Path("/current/{server}")
+    public Response getCurrentServerStatus(@PathParam("server") String server) {
         try {
-            array = currentStatusRetriever.getAllCurrentServerStatuses();
-        } catch (CloudMonitoringException e) {
-            JsonObject errorObj = new JsonObject();
-            createErrorObject(errorObj, e.getErrorCode(), e.getMessage());
-            return Response.status(e.getErrorCode()).entity(errorObj).build();
-        }
-        return Response.status(Response.Status.OK).entity(array).header("Access-Control-Allow-Origin", "*").build();
+            JsonObject object = currentStatusRetriever.getCurrentServerStatus(server);
+            return Response.status(Response.Status.OK).entity(object)
+                    .header(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*").build();
 
+        } catch (CloudMonitoringException e) {
+            return createErrorResponse(e);
+        }
     }
 
-    @GET @Path("/daily/{service}") public Response getDailyServiceStatuses(@PathParam("service") String service,
+    @GET
+    @Path("/current/all")
+    public Response getAllCurrentServerStatuses() {
+        try {
+            JsonArray array = currentStatusRetriever.getAllCurrentServerStatuses();
+            return Response.status(Response.Status.OK).entity(array)
+                    .header(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*").build();
+        } catch (CloudMonitoringException e) {
+            return createErrorResponse(e);
+        }
+    }
+
+    @GET
+    @Path("/daily/{service}")
+    public Response getDailyServiceStatuses(@PathParam("service") String service,
             @QueryParam("from") String fromDateStr, @QueryParam("to") String toDateStr) {
 
         Date fromDate = parseDateString(fromDateStr);
         Date toDate = parseDateString(toDateStr);
 
-        JsonObject errorObj = new JsonObject();
-
         if (fromDate != null && toDate != null) {
             try {
                 JsonArray jsonArray = dailyStatusRetriever.getDailyStatuses(service, fromDate, toDate);
-                return Response.status(Response.Status.OK).entity(jsonArray).header("Access-Control-Allow-Origin", "*")
-                        .build();
+                return Response.status(Response.Status.OK).entity(jsonArray)
+                        .header(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*").build();
             } catch (CloudMonitoringException e) {
-                createErrorObject(errorObj, e.getErrorCode(), e.getMessage());
-                return Response.status(e.getErrorCode()).entity(errorObj).build();
+                return createErrorResponse(e);
             }
         } else {
-            createErrorObject(errorObj, 400, "Invalid date range specified.");
-            return Response.status(Response.Status.BAD_REQUEST).entity(errorObj).build();
+            return createErrorResponse(new CloudMonitoringException("Invalid date range specified", 400));
         }
     }
 
-    @GET @Path("/overview") public Response getOverview() {
+    @GET
+    @Path("/overview")
+    public Response getOverview() {
 
         Calendar toDate = Calendar.getInstance();
         Calendar fromDate = Calendar.getInstance();
@@ -111,9 +120,7 @@ import javax.ws.rs.core.Response;
         try {
             servers = currentStatusRetriever.getAllCurrentServerStatuses();
         } catch (CloudMonitoringException e) {
-            JsonObject errorObj = new JsonObject();
-            createErrorObject(errorObj, e.getErrorCode(), e.getMessage());
-            return Response.status(e.getErrorCode()).entity(errorObj).build();
+            return createErrorResponse(e);
         }
 
         for (JsonElement element : servers) {
@@ -144,7 +151,8 @@ import javax.ws.rs.core.Response;
             }
             overview.add(serverObj);
         }
-        return Response.status(Response.Status.OK).entity(overview).header("Access-Control-Allow-Origin", "*").build();
+        return Response.status(Response.Status.OK).entity(overview)
+                .header(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*").build();
     }
 
     private Date parseDateString(String dateString) {
@@ -159,10 +167,12 @@ import javax.ws.rs.core.Response;
         return null;
     }
 
-    private void createErrorObject(JsonObject rootObject, int code, String msg) {
-        rootObject.addProperty("error", true);
-        rootObject.addProperty("code", code);
-        rootObject.addProperty("message", msg);
+    private Response createErrorResponse(CloudMonitoringException e) {
+        JsonObject errorObj = new JsonObject();
+        errorObj.addProperty("error", true);
+        errorObj.addProperty("code", e.getErrorCode());
+        errorObj.addProperty("message", e.getMessage());
+        return Response.status(e.getErrorCode()).entity(errorObj).build();
     }
 
 }

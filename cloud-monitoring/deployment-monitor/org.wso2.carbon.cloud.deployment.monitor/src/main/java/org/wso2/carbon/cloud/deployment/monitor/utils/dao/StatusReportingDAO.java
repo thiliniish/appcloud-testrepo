@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.cloud.deployment.monitor.utils.dao;
 
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.CurrentTaskStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.DailyServiceStatus;
 import org.wso2.carbon.cloud.deployment.monitor.utils.dto.FailureRecord;
@@ -29,18 +30,19 @@ import org.wso2.carbon.cloud.deployment.monitor.utils.dto.SuccessRecord;
  */
 public interface StatusReportingDAO {
 
-    void addSuccessRecord(SuccessRecord successRecord);
+    void addSuccessRecord(SuccessRecord successRecord) throws CloudMonitoringException;
 
-    int addFailureRecord(FailureRecord failureRecord);
+    int addFailureRecord(FailureRecord failureRecord) throws CloudMonitoringException;
 
-    void addFailureSummary(FailureSummary failureSummary);
+    void addFailureSummary(FailureSummary failureSummary) throws CloudMonitoringException;
 
-    void updateCurrentTaskStatus(CurrentTaskStatus currentTaskStatus);
+    void updateCurrentTaskStatus(CurrentTaskStatus currentTaskStatus) throws CloudMonitoringException;
 
-    void updateCurrentTaskStatusForMaintenance(String serverName, String task, CurrentTaskStatus.State state);
+    void updateCurrentTaskStatusForMaintenance(String serverName, String task, CurrentTaskStatus.State state)
+            throws CloudMonitoringException;
 
-    void updateMaintenanceSummary(String serverName, String task);
+    void updateMaintenanceSummary(String serverName, String task) throws CloudMonitoringException;
 
-    void addDailyServiceStatus(DailyServiceStatus dailyServiceStatus);
+    void addDailyServiceStatus(DailyServiceStatus dailyServiceStatus) throws CloudMonitoringException;
 
 }

@@ -34,20 +34,20 @@ import org.wso2.deployment.monitor.core.model.TaskConfig;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
  * This Task summarizes the daily status
  */
-public class DailyStatusTask implements DeploymentMonitorTask {
+public class DailyServiceStatusTask implements DeploymentMonitorTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(DailyStatusTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(DailyServiceStatusTask.class);
 
     @Override public RunStatus execute(ServerGroup serverGroup, Properties customParams) {
 
         RunStatus runStatus = new RunStatus();
         runStatus.setServerGroupName(serverGroup.getName());
-        runStatus.setTaskName("DailyStatusTask");
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
@@ -65,7 +65,6 @@ public class DailyStatusTask implements DeploymentMonitorTask {
         if (failureSummaries == null) {
             runStatus.setSuccess(false);
             runStatus.setServerGroupName(serverGroup.getName());
-            runStatus.setTaskName("DailyStatusTask");
             runStatus.setMessage("Error Occurred while getting failure summaries");
             return runStatus;
         }
@@ -75,8 +74,12 @@ public class DailyStatusTask implements DeploymentMonitorTask {
         } else {
             int totalDownTime = 0;
             for (FailureSummary failureSummary : failureSummaries) {
-                TaskConfig taskConfig = TaskUtils.getTaskConfigByName(failureSummary.getTaskName());
-                int severity = (int) taskConfig.getTaskParams().get("severity");
+                Optional<TaskConfig> optional = TaskUtils.getTaskConfigByName(runStatus.getTaskName());
+                int severity =  CloudMonitoringConstants.SEVERITY_THREE;
+                if (optional.isPresent()) {
+                    TaskConfig taskConfig = optional.get();
+                    severity = (int) taskConfig.getTaskParams().get("severity");
+                }
                 if (CloudMonitoringConstants.SEVERITY_ONE == severity) {
                     totalDownTime = totalDownTime + failureSummary.getDownTime();
                 } else if (CloudMonitoringConstants.SEVERITY_TWO == severity) {
@@ -104,10 +107,22 @@ public class DailyStatusTask implements DeploymentMonitorTask {
         }
 
         StatusReportingDAOImpl statusReportingDAO = new StatusReportingDAOImpl();
-        statusReportingDAO.addDailyServiceStatus(dailyServiceStatus);
+        try {
+            statusReportingDAO.addDailyServiceStatus(dailyServiceStatus);
+        } catch (CloudMonitoringException e) {
+            String msg = "Error occurred while adding daily status.";
+            return handleException(runStatus, e, msg);
+        }
 
         runStatus.setSuccess(true);
-        runStatus.setMessage("DailyStatusTask was executed successfully");
+        runStatus.setMessage("DailyServiceStatusTask was executed successfully");
+        return runStatus;
+    }
+
+    private RunStatus handleException(RunStatus runStatus, CloudMonitoringException e, String msg) {
+        logger.error(msg, e);
+        runStatus.setSuccess(false);
+        runStatus.setMessage(msg + " " + e.getMessage());
         return runStatus;
     }
 }
