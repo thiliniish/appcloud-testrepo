@@ -232,23 +232,73 @@ var updateAdminCookie = function (serverUrl) {
  * @return String cookie
  */
 var getAdminCookieBySAMLToken = function (serverUrl) {
+    var cookie = null;
+    var result = null;
     try {
         var security = require("sso");
+        var unauthenticatedError = "An error occurred while retrieving the BPS admin cookie as session details were not available";
         var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
-        var token = ssoRelyingParty.getSAMLToken(session.getId());
-        var xhr = new XMLHttpRequest();
-        var endPoint = serverUrl + "SAML2SSOAuthenticationService";
-        xhr.open("POST", endPoint);
-        var payload = '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sso="http://sso.saml2.authenticator.identity.carbon.wso2.org" xmlns:xsd="http://dto.sso.saml2.authenticator.identity.carbon.wso2.org/xsd"><soap:Header/><soap:Body><sso:login><sso:authDto><xsd:response>' + token + '</xsd:response></sso:authDto></sso:login></soap:Body></soap:Envelope>';
-        xhr.setRequestHeader('SOAPAction', 'urn:login');
-        xhr.setRequestHeader('Content-Type', 'application/soap+xml');
-        xhr.send(payload);
-        return xhr.getResponseHeader("Set-Cookie");
+        if (session != null && session.getId() != null) {
+            var token = ssoRelyingParty.getSAMLToken(session.getId());
+            if (token != null) {
+                var xhr = new XMLHttpRequest();
+                var endPoint = serverUrl + "SAML2SSOAuthenticationService";
+                xhr.open("POST", endPoint);
+                var payload = '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:sso="http://sso.saml2.authenticator.identity.carbon.wso2.org" xmlns:xsd="http://dto.sso.saml2.authenticator.identity.carbon.wso2.org/xsd"><soap:Header/><soap:Body><sso:login><sso:authDto><xsd:response>' + token + '</xsd:response></sso:authDto></sso:login></soap:Body></soap:Envelope>';
+                xhr.setRequestHeader('SOAPAction', 'urn:login');
+                xhr.setRequestHeader('Content-Type', 'application/soap+xml');
+                xhr.send(payload);
+                var responseTxt = xhr.responseText;
+                if (responseTxt != null && responseTxt.indexOf("false") === -1
+                        && responseTxt.indexOf("faultstring") === -1) {
+                    cookie = xhr.getResponseHeader("Set-Cookie");
+                    result = {
+                        error: false,
+                        message: "Successfully retrieved the Admin Cookie by SAML Token  for  user :  " + session.get("LOGGED_IN_USER"),
+                        cookie: cookie,
+                        statusCode: 200
+                    }
+                } else {
+                    var errorMessage = "An error occurred while retrieving the Admin Cookie by SAML Token  for  user :  " + session.get("LOGGED_IN_USER");
+                    log.error(errorMessage);
+                    result = {
+                        error: true,
+                        message: errorMessage,
+                        cookie: cookie,
+                        invalidCookie: true,
+                        statusCode: 500
+                    }
+                }
+            } else {
+                log.error(unauthenticatedError);
+                result = {
+                    error: true,
+                    message: unauthenticatedError,
+                    cookie: cookie,
+                    statusCode: 401
+                }
+            }
+        } else {
+            log.error(unauthenticatedError);
+            result = {
+                error: true,
+                message: unauthenticatedError,
+                cookie: cookie,
+                statusCode: 401
+            }
+        }
     } catch (e) {
-        log.error("Error while getting Admin Cookie by SAML Token  for  user :  " + session.get("LOGGED_IN_USER") + ":" + e.message);
+        var errorMessage = "An error occurred while getting the Admin Cookie by SAML Token  for  user :  " + session.get("LOGGED_IN_USER") + ":" + e.message
+        log.error(errorMessage);
         log.error(e);
-        throw Error(e);
+        result = {
+            error: true,
+            message: errorMessage,
+            cookie: cookie,
+            statusCode: 500
+        }
     }
+    return result;
 };
 
 %>
