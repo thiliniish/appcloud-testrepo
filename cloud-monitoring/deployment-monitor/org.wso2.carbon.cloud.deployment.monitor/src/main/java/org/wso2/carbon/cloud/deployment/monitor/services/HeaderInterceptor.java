@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.deployment.monitor.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.msf4j.Interceptor;
 import org.wso2.msf4j.Request;
 import org.wso2.msf4j.Response;
@@ -35,7 +36,7 @@ public class HeaderInterceptor implements Interceptor {
 
     @Override public boolean preCall(Request request, Response response, ServiceMethodInfo serviceMethodInfo)
             throws Exception {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
         return true;
     }
 

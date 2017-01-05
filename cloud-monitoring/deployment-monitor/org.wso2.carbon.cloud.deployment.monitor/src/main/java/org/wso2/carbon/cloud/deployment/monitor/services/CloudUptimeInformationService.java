@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.cloud.deployment.monitor.status.CurrentStatusRetriever;
 import org.wso2.carbon.cloud.deployment.monitor.status.DailyStatusRetriever;
-import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringConstants;
 import org.wso2.carbon.cloud.deployment.monitor.utils.CloudMonitoringException;
 import org.wso2.msf4j.Microservice;
 
@@ -65,8 +64,7 @@ public class CloudUptimeInformationService implements Microservice {
     public Response getCurrentServerStatus(@PathParam("server") String server) {
         try {
             JsonObject object = currentStatusRetriever.getCurrentServerStatus(server);
-            return Response.status(Response.Status.OK).entity(object)
-                    .header(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*").build();
+            return Response.status(Response.Status.OK).entity(object).build();
 
         } catch (CloudMonitoringException e) {
             return createErrorResponse(e);
@@ -78,8 +76,7 @@ public class CloudUptimeInformationService implements Microservice {
     public Response getAllCurrentServerStatuses() {
         try {
             JsonArray array = currentStatusRetriever.getAllCurrentServerStatuses();
-            return Response.status(Response.Status.OK).entity(array)
-                    .header(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*").build();
+            return Response.status(Response.Status.OK).entity(array).build();
         } catch (CloudMonitoringException e) {
             return createErrorResponse(e);
         }
@@ -96,8 +93,7 @@ public class CloudUptimeInformationService implements Microservice {
         if (fromDate != null && toDate != null) {
             try {
                 JsonArray jsonArray = dailyStatusRetriever.getDailyStatuses(service, fromDate, toDate);
-                return Response.status(Response.Status.OK).entity(jsonArray)
-                        .header(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*").build();
+                return Response.status(Response.Status.OK).entity(jsonArray).build();
             } catch (CloudMonitoringException e) {
                 return createErrorResponse(e);
             }
@@ -151,8 +147,7 @@ public class CloudUptimeInformationService implements Microservice {
             }
             overview.add(serverObj);
         }
-        return Response.status(Response.Status.OK).entity(overview)
-                .header(CloudMonitoringConstants.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*").build();
+        return Response.status(Response.Status.OK).entity(overview).build();
     }
 
     private Date parseDateString(String dateString) {
