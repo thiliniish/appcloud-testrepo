@@ -8,6 +8,7 @@ var inputsObj = {};
 inputsObj.confirm = encoder.getSafeText(request.getParameter("confirmation"));
 inputsObj.isInvitee = encoder.getSafeText(request.getParameter("isInvitee"));
 inputsObj.isStoreInvitee = encoder.getSafeText(request.getParameter("isStoreInvitee"));
+inputsObj.tenant = encoder.getSafeText(request.getParameter("tenant"));
 
 (function () {
     jagg.render({

@@ -246,22 +246,22 @@ public class VHostManager {
                     String cloudName = cloudCollectionElement.substring(
                             cloudCollectionElement.lastIndexOf("/") + 1,
                             cloudCollectionElement.length());
-
                     Collection tenantCollection =
                             (Collection) registryManager.getResourceFromRegistry(cloudCollectionElement);
+                    if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudName)) {
+                        for (int z = 0; z < tenantCollection.getChildCount(); z++) {
+                            String tenantCollectionElement = tenantCollection.getChildren()[z];
+                            String tenantId = tenantCollectionElement
+                                                      .substring(tenantCollectionElement.lastIndexOf("/") + 1,
+                                                                 tenantCollectionElement.length());
 
-                    for (int z = 0; z < tenantCollection.getChildCount(); z++) {
-                        String tenantCollectionElement = tenantCollection.getChildren()[z];
-                        String tenantId = tenantCollectionElement
-                                                  .substring(tenantCollectionElement.lastIndexOf("/") + 1,
-                                                             tenantCollectionElement.length());
-
-                        String urlMappingPath = tenantCollectionElement + "/urlMapping/" + tenantId;
-                        Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
-                        byte[] r = (byte[]) resource.getContent();
-                        try {
-                            JSONObject jsonObject = new JSONObject(new String(r, NginxVhostConstants.DEFAULT_ENCODING));
-                            if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudName)) {
+                            String urlMappingPath = tenantCollectionElement + "/urlMapping/" + tenantId;
+                            Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
+                            byte[] r = (byte[]) resource.getContent();
+                            try {
+                                JSONObject jsonObject = new JSONObject(new String(r,
+                                                                                  NginxVhostConstants
+                                                                                          .DEFAULT_ENCODING));
 
                                 //Defining store virtual hosts
                                 VHostEntry storeEntry = new VHostEntry();
@@ -332,18 +332,19 @@ public class VHostManager {
                                     addHostToNginxConfig(gatewayEntry,
                                                          filePath + NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
                                 }
+
+                            } catch (JSONException e) {
+                                String errorMessage = "Error occurred when parsing json url-mapping of " + tenantId;
+                                log.error(errorMessage, e);
+                                throw new JSONException(errorMessage);
+                            } catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException |
+                                             NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
+                                             InvalidKeyException | InvalidAlgorithmParameterException |
+                                             InterruptedException e) {
+                                String errorMessage = "Error occurred when setting security files for " + tenantId;
+                                log.error(errorMessage, e);
+                                throw e;
                             }
-                        } catch (JSONException e) {
-                            String errorMessage = "Error occurred when parsing json url-mapping of " + tenantId;
-                            log.error(errorMessage, e);
-                            throw new JSONException(errorMessage);
-                        } catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException |
-                                         NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
-                                         InvalidKeyException | InvalidAlgorithmParameterException |
-                                                                                               InterruptedException e) {
-                            String errorMessage = "Error occurred when setting security files for " + tenantId;
-                            log.error(errorMessage, e);
-                            throw e;
                         }
                     }
                 }
