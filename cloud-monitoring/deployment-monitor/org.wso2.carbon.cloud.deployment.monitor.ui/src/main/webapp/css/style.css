@@ -1,0 +1,409 @@
+/*
+ * Copyright (c) 2016 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+body {
+    font-family: Arial, Verdana, Helvetica, san-serif, serif;
+    font-size: 12px;
+    line-height: 15px;
+    color: #434343;
+    margin: 0;
+    padding: 0;
+    /*background: url(../images/body-bg.png) repeat-x left top;*/
+}
+
+a img {
+    border: 0;
+}
+
+/*a:hover img { opacity:0.7; }*/
+
+a {
+    text-decoration: none;
+}
+
+.yellow {
+    color: #974;
+}
+
+td.error {
+    color: red;
+    padding-bottom: 5px;
+}
+
+div.clear {
+    clear: both;
+}
+
+.bordered-dark {
+    border: 1px solid #888888;
+}
+
+/* Header */
+
+div.header {
+    height: 60px;
+    background: #0f0f0f;
+}
+
+img.logo {
+    margin-right: 10px;
+    width: 82px;
+}
+
+div.header ul.header-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.header ul.header-links li {
+    float: left;
+    position: relative;
+    display: inline;
+    line-height: 60px;
+    font-size: 16px;
+    padding: 0 15px;
+}
+
+div.header ul.header-links li.support, div.header ul.header-links li.contact {
+    float: right;
+}
+
+div.header ul.header-links li a {
+    color: #FF6633;
+    text-decoration: none;
+}
+
+div.header ul.header-links li a:hover {
+    color: #ffffff;
+}
+
+div.header ul.header-links li.logo {
+    margin-left: 50px;
+    margin-top: 10px;
+    width: 50px;
+}
+
+div.header ul.header-links li.cloud {
+    color: white;
+    font-size: 22px;
+    margin-left: 10px;
+}
+
+div.header ul.header-links li.contact {
+    margin-right: 50px;
+}
+
+
+h2 {
+    padding-left: 30px;
+}
+
+a {
+    cursor: pointer;
+    color: #4E84C4;
+}
+
+/*Title*/
+
+div.title {
+    font-size: 28px;
+    font-weight: bold;
+    vertical-align: middle;
+    width: 960px;
+    text-align: left;
+    margin: 30px auto;
+    padding-bottom: 0;
+}
+
+.title_table {
+    width: 100%;
+}
+
+.title_text {
+    text-align: left;
+    width: 60%;
+}
+
+.title-date {
+    text-align: right;
+    width: 40%;
+}
+
+.overview-time {
+    font-size: 16px;
+}
+
+.client-timezone-offset {
+    font-weight: normal;
+    font-size: 12px;
+}
+
+/* Accordion */
+
+.ui-accordion {
+    width: 960px;
+}
+
+#accordion .ui-icon { display: none; }
+
+#accordion h3{
+    display:block;
+    text-align:left;
+}
+
+.status-image {
+    text-align: center;
+    width: 25px;
+    height: 25px;
+    margin-left: 10px;
+    margin-right: 40px;
+}
+
+.legend-status-image {
+    width: 25px;
+    height: 25px;
+    margin-left: 15px;
+}
+
+#accordion span.last-update-date{
+    float:right;
+    text-align:right;
+    font-weight: normal;
+    font-size: 12px;
+}
+
+.ui-accordion .ui-accordion-header {
+    font-weight: bold;
+    height: 30px;
+    line-height: 2.5em;
+}
+
+/* Summary Table Inside Accordion */
+
+div.accordion-table {
+    margin: 0 auto auto;
+    width: auto;
+}
+
+div.accordion-table div.service-status {
+    background-color: #ededed;
+    border: 2px solid #dddddd;
+    padding: 10px;
+}
+
+div.accordion-table div.service-status table.content {
+    background-color: #ededed;
+    width: 100%;
+}
+div.accordion-table div.service-status table.content tr.heading {
+    font-weight: bold;
+}
+
+div.accordion-table div.service-status table.content tr.heading td {
+    background-color: #ededed;
+    font-size: 14px;
+}
+
+div.accordion-table div.service-status table.content tr.heading td.status {
+    width: 0;
+}
+
+div.accordion-table div.service-status table.content tr.heading td.uptime-last-7-days {
+    background-color: #ededed;
+    float: right;
+    text-align: right;
+    margin-right: 20px;
+}
+
+div.accordion-table div.service-status table.content tr.heading td.status .status-image {
+    width: 25px;
+    height: 25px;
+    margin-right: 2px;
+    margin-left: 2px;
+}
+
+div.accordion-table div.service-status table.content tr td {
+    padding: 12px;
+    text-align: left;
+    vertical-align: top;
+    font-size: 12px;
+}
+
+div.accordion-table div.service-status table.content tr td.service-sub {
+    padding-left: 30px;
+}
+
+div.accordion-table div.service-status table.content tr.des td div.details {
+    padding: 10px;
+    border: solid 1px #cccccc;
+    color: #555555;
+}
+
+/* Line Seperator */
+.line-separator{
+    background: #d0d0d0 none repeat scroll 0 0;
+    border-bottom: 1px solid #d9dde2;
+    height: 1px;
+    margin: 35px auto auto;
+    width: 960px;
+}
+
+/* Legend */
+
+div.legend {
+    padding: 5px;
+    -webkit-border-radius: 0 0 5px 5px;
+    border-radius: 0 0 5px 5px;
+    text-align: center;
+    margin: 0 auto auto;
+    width: 960px;
+}
+
+div.legend table {
+    padding-top: 7px;
+    margin: 0 auto auto;
+}
+
+div.legend table tr td {
+    padding: 5px;
+    color: #666666;
+}
+
+/*footer section related styles*/
+
+#footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #333333;
+    z-index: 9999;
+    text-align: center;
+}
+#footer{
+    height: 36px;
+}
+.inner-wrapper {
+    min-height: 100%;
+    height: 100%;
+    margin: 0 auto -36px;
+    width: 100%;
+    position: absolute;
+}
+.footer-text {
+    margin-top: 1em;
+    color: #fff;
+    font-size: 11px;
+}
+
+
+
+/*--------- Seven Day Table ----------*/
+.day-table {
+    border: medium none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin-top: 15px;
+    text-align: center;
+    width: 905px;
+}
+
+.day-table td {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px 5px;
+    border-style: solid;
+    border-width: 0px;
+    overflow: hidden;
+    word-break: normal;
+    border-color: #ccc;
+    color: #333;
+    background-color: #fff;
+}
+
+.day-table td .status-image {
+    width: 25px;
+    height: 25px;
+    margin-right: 2px;
+    margin-left: 2px;
+}
+
+.day-table th {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 10px 5px;
+    border-style: solid;
+    border-width: 0px;
+    overflow: hidden;
+    word-break: normal;
+    border-color: #ccc;
+    color: #333;
+    background-color: #f0f0f0;
+}
+
+.day-table .day-table-td {
+    vertical-align: top
+}
+
+/*--------- Tooltips ----------*/
+
+.ui-tooltip, .arrow:after {
+    background: white;
+    border: 2px solid white;
+}
+.ui-tooltip {
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    font: bold 14px "Helvetica Neue", Sans-Serif;
+    text-transform: uppercase;
+    box-shadow: 0 0 7px black;
+}
+.arrow {
+    width: 70px;
+    height: 16px;
+    overflow: hidden;
+    position: absolute;
+    left: 50%;
+    margin-left: -35px;
+    bottom: -16px;
+}
+.arrow.top {
+    top: -16px;
+    bottom: auto;
+}
+.arrow.left {
+    left: 20%;
+}
+.arrow:after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: -20px;
+    width: 25px;
+    height: 25px;
+    box-shadow: 6px 5px 9px -9px black;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+.arrow.top:after {
+    bottom: -20px;
+    top: auto;
+}
