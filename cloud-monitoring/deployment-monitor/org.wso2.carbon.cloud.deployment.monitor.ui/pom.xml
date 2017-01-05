@@ -30,6 +30,26 @@
 
     <artifactId>org.wso2.carbon.cloud.deployment.monitor.ui</artifactId>
     <name>Cloud - Deployment Monitor UI</name>
+    <packaging>war</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${javax.servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${maven-war-plugin.version}</version>
+            </plugin>
+        </plugins>
+        <finalName>uptime-dashboard-${project.version}</finalName>
+    </build>
 
 </project>
