@@ -101,7 +101,8 @@ public class UpdateTenants {
             dbHandler.clearTenantDeletionTable();
             dbHandler.insertInactiveTenantsInfo(deleteTenantMap);
             removePaidUsersFromDeleteList();
-            prepareEmailList(deleteTenantMap);
+            //prepareEmailList(deleteTenantMap);
+            prepareEmailListWithTenantId();
         } else {
             LOG.info("No inactive tenants");
         }
@@ -123,6 +124,39 @@ public class UpdateTenants {
                                            "UTF-8"));
             stringBuilder = new StringBuilder();
             for (String tenantDomain : deleteTenantDomainList) {
+                stringBuilder.append(tenantDomain);
+                stringBuilder.append(DeletionConstants.SEPARATOR);
+                stringBuilder.append(dbHandler.getTenantAdminEmail(tenantDomain));
+                stringBuilder.append(DeletionConstants.NEW_LINE);
+            }
+            bufferedWriter.write(stringBuilder.toString());
+            bufferedWriter.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            LOG.info("CSV file not found : ", e);
+        } catch (IOException e) {
+            LOG.info("IO Exception while writing to file : ", e);
+        }
+    }
+
+    /**
+     * Prepares the email list of the tenants with tenant Id which notification is to be sent and write it to a file
+     *
+     */
+    public void prepareEmailListWithTenantId() {
+        DataAccessManager dbHandler = new DataAccessManager();
+        Map<String,String> deleteTenantDomainMap = dbHandler.getAllInactiveTenantDomainMap();
+        BufferedWriter bufferedWriter = null;
+        StringBuilder stringBuilder = null;
+        try {
+            bufferedWriter = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(DeletionConstants.TENANT_DELETION_CSV_EXPORT_FILE_PATH),
+                            "UTF-8"));
+            stringBuilder = new StringBuilder();
+            for (Map.Entry<String, String> entry : deleteTenantDomainMap.entrySet()) {
+                String tenantId=entry.getKey();
+                String tenantDomain=entry.getValue();
+                stringBuilder.append(tenantId);
+                stringBuilder.append(DeletionConstants.SEPARATOR);
                 stringBuilder.append(tenantDomain);
                 stringBuilder.append(DeletionConstants.SEPARATOR);
                 stringBuilder.append(dbHandler.getTenantAdminEmail(tenantDomain));
