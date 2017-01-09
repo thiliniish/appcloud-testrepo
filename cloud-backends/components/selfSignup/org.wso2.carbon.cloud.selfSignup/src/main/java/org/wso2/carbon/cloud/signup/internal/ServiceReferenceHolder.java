@@ -17,9 +17,9 @@
 package org.wso2.carbon.cloud.signup.internal;
 
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
+import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
-import org.wso2.carbon.registry.core.service.RegistryService;
 
 /**
  * This class consists of the getter and setter methods needed to access the configuration parameter

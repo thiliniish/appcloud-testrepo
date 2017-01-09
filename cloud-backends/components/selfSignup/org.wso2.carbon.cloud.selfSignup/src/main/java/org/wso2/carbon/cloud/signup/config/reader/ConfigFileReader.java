@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.cloud.signup.configReader;
+package org.wso2.carbon.cloud.signup.config.reader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,13 +21,15 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
-import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.cloud.signup.constants.SignUpWorkflowConstants;
+import org.wso2.carbon.utils.CarbonUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * The ConfigFileReader class reads the configurations related to the self sign up workflow
@@ -36,7 +38,7 @@ import java.io.IOException;
 public class ConfigFileReader {
 
     private static final Log log = LogFactory.getLog(ConfigFileReader.class);
-    private static JSONObject jsonObjectInstance = null;
+    private static volatile JSONObject jsonObjectInstance = null;
 
     // private constructor
     private ConfigFileReader() {
@@ -52,20 +54,30 @@ public class ConfigFileReader {
         String errorMessage;
         String fileName = SignUpWorkflowConstants.CONFIG_FILE_NAME;
         String configFolder = SignUpWorkflowConstants.CONFIG_FILE_LOCATION;
-
+        BufferedReader reader = null;
         if (jsonObjectInstance == null) {
             JSONParser parser = new JSONParser();
-            Object jsonobject;
+            Object jsonObject;
+            String jsonString;
             try {
                 String filePath = CarbonUtils.getCarbonHome() + File.separator + "repository" +
                                   File.separator + "resources" +
                                   File.separator + configFolder + File.separator +
                                   fileName;
-                log.info(filePath);
-
-                jsonobject = parser.parse(new FileReader(filePath));
-                jsonObjectInstance = (JSONObject) jsonobject;
-
+                if (log.isDebugEnabled()) {
+                    log.debug(" The file path of the signup configuration is " + filePath);
+                }
+                reader = new BufferedReader(
+                        new InputStreamReader(new FileInputStream(filePath),
+                                              SignUpWorkflowConstants.DEFAULT_ENCODING));
+                String line = "";
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                jsonString = stringBuilder.toString();
+                jsonObject = parser.parse(jsonString);
+                jsonObjectInstance = (JSONObject) jsonObject;
             } catch (FileNotFoundException e) {
                 errorMessage = "The file " + fileName + " could not be located";
                 log.error(errorMessage, e);
@@ -78,6 +90,15 @@ public class ConfigFileReader {
                 errorMessage = "Error parsing the json file " + fileName;
                 log.error(errorMessage, e);
                 throw new WorkflowException(errorMessage, e);
+            } finally {
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    errorMessage = "An error occurred while closing the input reader";
+                    throw new WorkflowException(errorMessage, e);
+                }
             }
         }
         return jsonObjectInstance;

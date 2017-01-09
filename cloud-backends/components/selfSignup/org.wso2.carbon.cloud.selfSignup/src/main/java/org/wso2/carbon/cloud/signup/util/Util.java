@@ -17,28 +17,29 @@ package org.wso2.carbon.cloud.signup.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
-import org.wso2.carbon.cloud.signup.configReader.ConfigFileReader;
-import org.wso2.carbon.cloud.signup.constants.SignUpWorkflowConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.cloud.signup.internal.ServiceReferenceHolder;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.registry.core.Resource;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.wso2.carbon.apimgt.impl.workflow.WorkflowException;
+import org.wso2.carbon.cloud.signup.config.reader.ConfigFileReader;
+import org.wso2.carbon.cloud.signup.constants.SignUpWorkflowConstants;
+import org.wso2.carbon.cloud.signup.internal.ServiceReferenceHolder;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/*
+/**
  * Consists of all the util methods
  */
-
 public class Util implements Serializable {
+    private static final long serialVersionUID = 1L;
     private static final Log log = LogFactory.getLog(Util.class);
 
     /**
@@ -46,9 +47,7 @@ public class Util implements Serializable {
      *
      * @return the unique identifier.
      */
-    public String generateUUID()
-
-    {
+    public String generateUUID() {
         UUID uuid = UUID.randomUUID();
         String uuidString = uuid.toString();
         return uuidString;
@@ -61,7 +60,6 @@ public class Util implements Serializable {
      * @return
      */
     public String splitSlashes(String fullName) {
-
         String[] userArray = fullName.split("/");
         String name = userArray[1];
         return name;
@@ -106,7 +104,8 @@ public class Util implements Serializable {
             String path = "customurl/api-cloud/" + tenantDomain + "/urlMapping/" + tenantDomain;
             if (registry.resourceExists(path)) {
                 Resource resource = registry.get(path);
-                String jsonData = new String((byte[]) resource.getContent());
+
+                String jsonData = new String((byte[]) resource.getContent(), SignUpWorkflowConstants.DEFAULT_ENCODING);
 
                 JSONParser parser = new JSONParser();
                 JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
@@ -119,6 +118,11 @@ public class Util implements Serializable {
             throw new WorkflowException(errorMsg, e);
         } catch (ParseException e) {
             String errorMsg = "Error while parsing custom url config of tenant :" + tenantDomain;
+            log.error(errorMsg, e);
+            throw new WorkflowException(errorMsg, e);
+        } catch (UnsupportedEncodingException e) {
+            String errorMsg = "An error occurred with the encoding " + SignUpWorkflowConstants.DEFAULT_ENCODING + "" +
+                              " while retrieving the custom url mapping";
             log.error(errorMsg, e);
             throw new WorkflowException(errorMsg, e);
         }
@@ -142,7 +146,8 @@ public class Util implements Serializable {
                                                                           SignUpWorkflowConstants.DEFAULT_STORE_URL);
         if (customStoreURL != null && !customStoreURL.equals(defaultStoreURL)) {
             String verificationPagePath = ConfigFileReader.retrieveConfigAttribute(SignUpWorkflowConstants.URLS,
-                                                                     SignUpWorkflowConstants.VERIFICATION_PAGE_PATH);
+                                                                                   SignUpWorkflowConstants
+                                                                                           .VERIFICATION_PAGE_PATH);
             link = "https://" + customStoreURL + verificationPagePath;
         }
         link = link + "?confirmation=" + uuid + "&isStoreInvitee=true&tenant=" + tenantDomain;
