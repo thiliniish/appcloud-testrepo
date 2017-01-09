@@ -211,13 +211,10 @@ function updateTable() {
             createTable(usersWithRoles);
         } else {
             $('#userListContainer').html('<li class="noData-message">no data</li>');
-            //messageElement.html("No users/roles found!").fadeIn();
-
         }
     }, function (jqXHR, textStatus, errorThrown) {
-
-        //messageElement.html("Error occured while loading User/Roles information!").fadeIn();
-
+        $('#userListContainer').html('<li class="noData-message">Error Occurred while updating user list. Please' +
+            ' contact WSO2 Cloud team for help</li>');
     });
 }
 
@@ -261,7 +258,8 @@ function updateInvitationTable(isBasicPageLoad) {
             }
         }
     }, function (jqXHR, textStatus, errorThrown) {
-
+        $('#pendingUserListContainer').html('<li class="noData-message">Error Occurred while updating invitation' +
+            ' list. Please contact WSO2 Cloud team for help</li>');
     });
 }
 
@@ -345,50 +343,6 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     });
     $('.action_check_invitation').click(function () {
         enableButton(this.checked, isInvitation);
-    });
-}
-
-/* Updates Pending Invitation table */
-function updateInvitationTable(isBasicPageLoad) {
-    //Get pending invitation details
-    jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
-        action: "getPendingUsers",
-        tenantDomain: tenantDomain
-    }, function (response) {
-        if (response.error == false) {
-            var result = response.result;
-            var recordCount = 0;
-            if (result !== undefined) {
-                pendingUsersWithRoles = result;
-                recordCount = pendingUsersWithRoles.length;
-            }
-            if (recordCount > 0) {
-                if (recordCount === 1) {
-                    $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big push_bottom_40">1 ' +
-                        'Pending Invitation</h2>');
-                } else {
-                    $('#pendingMembersCount').replaceWith('<h2 id="pendingMembersCount" class="big ' +
-                        'push_bottom_40">' + recordCount + ' Pending Invitations</h2>');
-                }
-            }
-            if (isBasicPageLoad && recordCount > 0) {
-                if (recordCount == 1) {
-                    $('#invitationCount').text(recordCount + " invitation is pending... ");
-                } else {
-                    $('#invitationCount').text(recordCount + " invitations are pending... ");
-                }
-                $('#pendingInvitationsMessage').show();
-            }
-            if (!isBasicPageLoad) {
-                if (recordCount == 0) {
-                    $('#pendingInvitations').hide();
-                } else {
-                    createPendingUserTable(pendingUsersWithRoles);
-                }
-            }
-        }
-    }, function (jqXHR, textStatus, errorThrown) {
-
     });
 }
 
@@ -1217,7 +1171,8 @@ $(document).ready(function () {
                 }
             },
             function (jqXHR, textStatus, errorThrown) {
-                // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
+                $('#userListContainer').html('<li class="noData-message">Error Occurred while updating user list. Please' +
+                    ' contact WSO2 Cloud team for help</li>');
             });
 
     }
@@ -1310,7 +1265,8 @@ $(document).ready(function () {
                 }
             },
             function (jqXHR, textStatus, errorThpageNumberForMembersrown) {
-
+                $('#userListContainer').html('<li class="noData-message">Error Occurred while updating user list. Please' +
+                    ' contact WSO2 Cloud team for help</li>');
             });
 
 
@@ -1334,7 +1290,8 @@ $(document).ready(function () {
                 }
             },
             function (jqXHR, textStatus, errorThrown) {
-
+                $('#pendingUserListContainer').html('<li class="noData-message">Error Occurred while updating invitation' +
+                    ' list. Please contact WSO2 Cloud team for help</li>');
             });
     }
 });
