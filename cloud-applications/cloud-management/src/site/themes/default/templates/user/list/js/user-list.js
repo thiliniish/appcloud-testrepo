@@ -312,7 +312,6 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
             '</li>' +
             '<li onclick="selectCheckBox(' + i + ' , ' + isInvited + ')" class="list_col team_last_login">' +
             '<div class="list_col_content">' +
-            // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
             '</div>' +
             '</li>' +
             '<li onclick="selectCheckBox(' + i + ' , ' + isInvited + ')" class="list_col team_controller">' +
@@ -368,7 +367,7 @@ function createTable(usersWithRolesArray) {
         $('.pagefooter').hide();
     }
     var isInvited = false;
-    //looping uptil the max number of users in a page is added
+    //looping until the max number of users in a page is added
     for (var i = ((pageNumberForMembers - 1) * maxItemsInPage); i < usersWithRolesArray.length && i < (pageNumberForMembers * maxItemsInPage); i++) {
         var userRoles = usersWithRolesArray[i];
         var isAdminUser = false;
@@ -407,7 +406,6 @@ function createTable(usersWithRolesArray) {
             '</li>' +
             '<li onclick="selectCheckBox(' + i + ' , ' + isInvited + ')" class="list_col team_last_login">' +
             '<div class="list_col_content">' +
-            // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
             '</div>' +
             '</li>' +
             '<li onclick="selectCheckBox(' + i + ' , ' + isInvited + ')" class="list_col team_controller">' +
@@ -483,7 +481,6 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
             '</li>' +
             '<li onclick="selectCheckBox(' + i + ' , ' + isInvited + ')" class="list_col team_last_login">' +
             '<div class="list_col_content">' +
-            // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
             '</div>' +
             '</li>' +
             '<li onclick="selectCheckBox(' + i + ' , ' + isInvited + ')" class="list_col team_controller">' +
@@ -841,7 +838,6 @@ $(document).ready(function () {
                     $(this).attr('checked', 'checked');
                     selectedCount++;
                     toggleEditDeleteButtons(true);
-
                 } else {
                     $(this).removeAttr('checked');
                     selectedCount = 0;
