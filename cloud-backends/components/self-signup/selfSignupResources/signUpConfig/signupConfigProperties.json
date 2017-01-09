@@ -1,0 +1,25 @@
+{
+  "emailProperties": {
+    "port": "{email.port}",
+    "host": "{email.host}",
+    "username": "{email.username}",
+    "password": "{email.password}",
+    "fromEmail":"{cloudEmail}",
+    "fromSignature":"WSO2 Cloud Team"
+   },
+  "databaseProperties": {
+    "dataSource": "cloud_mgt"
+  },
+  "URLs": {
+    "adminDashboardUrl": "https://local.cloudmgt.wso2.com:9643/admin-dashboard/",
+    "cloudMgtVerificationUrl": "https://local.cloudmgt.wso2.com:9643/store/site/pages/confirm-verification.jag",
+    "defaultStoreUrl" : "local.cloudmgt.wso2.com:9643",
+    "verificationPagePath" : "/site/pages/confirm-verification.jag"
+  },
+ "EmailSubjects":{ 
+      "USER_EMAIL_SUBJECT":"Sign-up request approval status of API Store ",
+      "TENANT_EMAIL_SUBJECT":"New sign up request to API Store",
+      "SIGNUP_REQUEST_APPROVAL_EMAIL":"User sign-up request to API Store accepted",
+      "SIGNUP_REQUEST_REJECTION_EMAIL":"User sign-up request to API Store rejected"
+   }
+}
