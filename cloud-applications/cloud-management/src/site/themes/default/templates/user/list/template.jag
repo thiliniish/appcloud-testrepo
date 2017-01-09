@@ -159,7 +159,6 @@
     </div>
 </div>
 
-
 <input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
 <input type="hidden" id="tenantDomain" value='<%= tenantDomain %>' />
 <input type="hidden" id="adminRoleDisplayName" value='<%= cloudConfig.adminRoleDisplayName %>' />
