@@ -17,160 +17,146 @@
         //getting the max items per page
         var itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
         var maxItemsPerPage = itemsPerPage/2;
-        %>
+%>
 
-        <div class="container content-starter">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h1>Members</h1>
-                    <div class="helper_text" id="helper_text">
-                        <p>
-                            Invite new members or modify existing ones
-                        </p>
-                    </div>
-                </div>
+<div class="container content-starter">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>Members</h1>
+            <div class="helper_text" id="helper_text">
+                <p>
+                    Invite new members or modify existing ones
+                </p>
             </div>
         </div>
+    </div>
+</div>
         <% jagg.includeBlock("page/messages", null); %>
 <div class="container content-section-wrapper">
-<div class="row">
-    <div class="col-lg-12 content-section">
+    <div class="row">
+        <div class="col-lg-12 content-section">
+            <article class="main">
+                <header class="separator">
+                    <div class="content">
+                        <div class="left">
+                            <a id="btnAddMembers" href="<%=jagg.getAbsoluteUrl("/site/pages/user-import.jag")%>" class='btn btn-primary'>Invite Members</a>
+                        </div>
+                        <ul class="screen_option right">
+                            <li class="screen_option_item">
+                            <form class="left fw_250 form-container search_form" onSubmit="return false;">
+                                    <div class="input_row">
+                                        <label for="search_members" class="hide" >Search Members</label>
+                                        <input id="search_members" type="text" class="fw_250" placeholder="Search Members" name="search_members" value="" style="margin:0"  /><span class="icon-search"></span>
+                                    </div>
+                            </form>
+                            </li>
+                        </ul>
+                     </div>
+                </header>
+                <section class="separator">
+                    <div class="content">
+                        <h2 id="membersCount" class="big push_bottom_40"> Members in Team</h2>
+                        <ul class="list_table highlight" id="userListContainer">
+                            <li class="list_row_item first_list_row_item">
+                                <ul class="list_row first_list_row ">
+                                    <li class="list_col first_list_col item_select cursover_remover">
+                                            <h2 class="list_col_heading"><input type="checkbox" name="select_all" id="select_all_check" /></h2>
+                                        </li>
+                                    <li class="list_col team_member cursover_remover">
+                                            <h2 class="list_col_heading" style="padding-left:11px;">Member</h2>
+                                        </li>
+                                    <li class="list_col  team_role cursover_remover">
+                                            <h2 class="list_col_heading" style="padding-left:11px;">Role</h2>
+                                        </li>
+                                    <li class="list_col team_last_login cursover_remover">
+                                            <h2 class="list_col_heading">
+                                                &nbsp;
+                                            <!-- Todo - post 1.0 -->
+                                            <!--Last Login-->
+                                            </h2>
 
-    <article class="main">
 
-        <header class="separator">
-            <div class="content">
-                <div class="left">
-                    <a id="btnAddMembers" href="<%=jagg.getAbsoluteUrl("/site/pages/user-import.jag")%>" class='btn btn-primary'>Invite Members</a>
-                </div>
-                <ul class="screen_option right">
-                    <li class="screen_option_item">
-                    <form class="left fw_250 form-container search_form" onSubmit="return false;">
-                            <div class="input_row">
-                                <label for="search_members" class="hide" >Search Members</label>
-                                <input id="search_members" type="text" class="fw_250" placeholder="Search Members" name="search_members" value="" style="margin:0"  /><span class="icon-search"></span>
-                            </div>
-                    </form>
-                    </li>
-                </ul>
-             </div>
-        </header>
-
-        <section class="separator">
-            <div class="content">
-                <h2 id="membersCount" class="big push_bottom_40"> Members in Team</h2>
-                <ul class="list_table highlight" id="userListContainer">
-                    <li class="list_row_item first_list_row_item">
-                            <ul class="list_row first_list_row ">
+                                        </li>
+                                    <li class="list_col team_controller cursover_remover">
+                                        <div class="list_col_heading" id="editDelDiv"><!-- style="width:102px"-->
+                                            <ul class="inline_list item_right">
+                                                <li class="inline_item"><a href="#" class="icon_link" id="jsroleAssignPopup" title="Edit user roles" data-popover-my-position="top right" popover-target-position="bottom right" data-hasqtip="0" aria-describedby="qtip-0" ><span class="fa fa-pencil" title="Edit user roles"></span></a>
+                                                    <div class="popover_content hide">
+                                                            <form class="form-container" id="jsroleAssignPopupForm" />
+                                                    </div>
+                                                </li>
+                                                <li class="inline_item"><a id="removeUsers" href="#" class="icon_link" title="Remove User"><span class="fa fa-trash-o" title="Remove User"></span></a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="list_col_content"></div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <div class="clearfix"></div>
+                <div class="pagefooter" style="width:30%; margin:0 auto"></div>
+                <section class="separator">
+                    <!--This message is shown when pending invitations are available -->
+                    <div class="message" id="pendingInvitationsMessage">
+                       <div id="push"></div>
+                       <div class="alert alert-info alert-pending" role="alert">
+                          <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                          <span class="alert-content">
+                          <i class="fa fa-check-circle-o"></i> <strong id="invitationCount"></strong> <a class="click_to_expand" href="#" onclick="createPendingUserTable
+                             (pendingUsersWithRoles);">Click here to view</a>
+                          </span>
+                       </div>
+                    </div>
+                </section>
+                <section class="separator">
+                    <div class="content" id="pendingInvitations">
+                       <br><br><br>
+                       <h2 id="pendingMembersCount" class="big push_bottom_20"> Pending User Invitations</h2>
+                       <ul class="list_table highlight" id="pendingUserListContainer">
+                          <li class="list_row_item first_list_row_item">
+                             <ul class="list_row first_list_row ">
                                 <li class="list_col first_list_col item_select cursover_remover">
-                                    <h2 class="list_col_heading"><input type="checkbox" name="select_all" id="select_all_check" /></h2>
+                                   <h2 class="list_col_heading"><input type="checkbox" name="select_all" id="select_all_invitations_check" /></h2>
                                 </li>
                                 <li class="list_col team_member cursover_remover">
-                                    <h2 class="list_col_heading" style="padding-left:11px;">Member</h2>
+                                   <h2 class="list_col_heading" style="padding-left:11px;">Email</h2>
                                 </li>
                                 <li class="list_col  team_role cursover_remover">
-                                    <h2 class="list_col_heading" style="padding-left:11px;">Role</h2>
+                                   <h2 class="list_col_heading" style="padding-left:11px;">Role</h2>
                                 </li>
                                 <li class="list_col team_last_login cursover_remover">
                                     <h2 class="list_col_heading">
                                         &nbsp;
-                                    <!-- Todo - post 1.0 -->
-                                    <!--Last Login-->
                                     </h2>
-
-
                                 </li>
                                 <li class="list_col team_controller cursover_remover">
-
-                                    <div class="list_col_heading" id="editDelDiv"><!-- style="width:102px"-->
-                                        <ul class="inline_list item_right">
-
-                                            <!--li class="inline_item"><a id="assignRoles" href="<%=jagg.getAbsoluteUrl("/site/pages/user-invite.jag")%>" class="icon_link" title="Assign new roles"><span class="icon-plus" title="Assign New Roles"></span></a></li-->
-
-                                            <li class="inline_item"><a href="#" class="icon_link" id="jsroleAssignPopup" title="Edit user roles" data-popover-my-position="top right" popover-target-position="bottom right" data-hasqtip="0" aria-describedby="qtip-0" ><span class="fa fa-pencil" title="Edit user roles"></span></a>
-                                            <div class="popover_content hide">
-                                                    <form class="form-container" id="jsroleAssignPopupForm" />
+                                   <div class="list_col_heading" id="editDelDivInvitation">
+                                      <ul class="inline_list item_right">
+                                         <li class="inline_item">
+                                            <a href="#" class="icon_link" id="jsInvitationRoleAssignPopup" title="Update Invitation" data-popover-my-position="top right" popover-target-position="bottom
+                                            right" data-hasqtip="1" aria-describedby="qtip-1" ><span class="fa fa-pencil" title="Update Invitation"></span></a>
+                                            <div class="popover_content hide" id="jsinvitationPopupFormDiv">
+                                               <form class="form-container" id="jsinvitationPopupForm" />
                                             </div>
-                                            </li>
-                                            <li class="inline_item"><a id="removeUsers" href="#" class="icon_link" title="Remove User"><span class="fa fa-trash-o" title="Remove User"></span></a></li>
-
-                                        </ul>
-                                     </div>
-                                     <div class="list_col_content">
-
-                                    </div>
+                                         </li>
+                                         <li class="inline_item"><a id="revokeInvitation" href="#" class="icon_link" title="Revoke Invitation"><span class="fa fa-trash-o" title="Revoke Invitation"></span></a></li>
+                                      </ul>
+                                   </div>
+                                   <div class="list_col_content">
+                                   </div>
                                 </li>
-                              </ul>
-                       </li>
-                </ul>
-            </div>
-        </section>
-
-        <div class="clearfix"></div>
-        <div class="pagefooter" style="width:30%; margin:0 auto"></div>
-
-        <section class="separator">
-            <!--This message is shown when pending invitations are available -->
-            <div class="message" id="pendingInvitationsMessage">
-               <div id="push"></div>
-               <div class="alert alert-info alert-pending" role="alert">
-                  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                  <span class="alert-content">
-                  <i class="fa fa-check-circle-o"></i> <strong id="invitationCount"></strong> <a class="click_to_expand" href="#" onclick="createPendingUserTable
-                     (pendingUsersWithRoles);">Click here to view</a>
-                  </span>
-               </div>
-            </div>
-        </section>
-
-        <section class="separator">
-            <div class="content" id="pendingInvitations">
-               <br><br><br>
-               <h2 id="pendingMembersCount" class="big push_bottom_20"> Pending User Invitations</h2>
-               <ul class="list_table highlight" id="pendingUserListContainer">
-                  <li class="list_row_item first_list_row_item">
-                     <ul class="list_row first_list_row ">
-                        <li class="list_col first_list_col item_select cursover_remover">
-                           <h2 class="list_col_heading"><input type="checkbox" name="select_all" id="select_all_invitations_check" /></h2>
-                        </li>
-                        <li class="list_col team_member cursover_remover">
-                           <h2 class="list_col_heading" style="padding-left:11px;">Email</h2>
-                        </li>
-                        <li class="list_col  team_role cursover_remover">
-                           <h2 class="list_col_heading" style="padding-left:11px;">Role</h2>
-                        </li>
-                        <li class="list_col team_last_login cursover_remover">
-                            <h2 class="list_col_heading">
-                                &nbsp;
-                            </h2>
-                        </li>
-                        <li class="list_col team_controller cursover_remover">
-                           <div class="list_col_heading" id="editDelDivInvitation">
-                              <ul class="inline_list item_right">
-                                 <li class="inline_item">
-                                    <a href="#" class="icon_link" id="jsInvitationRoleAssignPopup" title="Update Invitation" data-popover-my-position="top right" popover-target-position="bottom
-                                    right" data-hasqtip="1" aria-describedby="qtip-1" ><span class="fa fa-pencil" title="Update Invitation"></span></a>
-                                    <div class="popover_content hide" id="jsinvitationPopupFormDiv">
-                                       <form class="form-container" id="jsinvitationPopupForm" />
-                                    </div>
-                                 </li>
-                                 <li class="inline_item"><a id="revokeInvitation" href="#" class="icon_link" title="Revoke Invitation"><span class="fa fa-trash-o" title="Revoke Invitation"></span></a></li>
-                              </ul>
-                           </div>
-                           <div class="list_col_content">
-                           </div>
-                        </li>
-                     </ul>
-                  </li>
-               </ul>
-            </div>
-        </section>
-
-    <div class="clearfix"></div>
-    <div class="pageFooterInvitations" style="width:30%; margin:0 auto"></div>
-    </article>
+                             </ul>
+                          </li>
+                       </ul>
+                    </div>
+                </section>
+                <div class="clearfix"></div>
+                <div class="pageFooterInvitations" style="width:30%; margin:0 auto"></div>
+            </article>
+        </div>
     </div>
-</div>
 </div>
 
 
