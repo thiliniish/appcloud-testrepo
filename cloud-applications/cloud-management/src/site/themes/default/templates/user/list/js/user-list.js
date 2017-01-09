@@ -149,6 +149,7 @@ function updateRolePopups() {
     var $jsroleAssignPopupForm = $('#jsroleAssignPopupForm');
     var $jsroleAssign = '';
     var blockSubscriptions = getBlockedSubscriptions();
+    var type = JSON.parse($('#type').val());
     //getting the roles of each subscriptions
     for (var i = 0; i < type.length; i++) {
         if (blockSubscriptions.indexOf(type[i].id) < 0 || blockSubscriptions == null) {
@@ -170,6 +171,7 @@ function updateRolePopupsForInvitations() {
     var $jsInvitationRoleAssignPopupForm = $('<form class="form-container" id="jsinvitationPopupForm">');
     var $jsInvitationRoleAssign = '';
     var blockedSubscriptions = getBlockedSubscriptions();
+    var type = JSON.parse($('#type').val());
     //getting the roles of each subscriptions
     for (var i = 0; i < type.length; i++) {
         if (blockedSubscriptions.indexOf(type[i].id) < 0 || blockedSubscriptions == null) {

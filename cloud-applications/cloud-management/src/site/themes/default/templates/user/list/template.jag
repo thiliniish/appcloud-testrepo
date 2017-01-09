@@ -19,10 +19,6 @@
         var maxItemsPerPage = itemsPerPage/2;
         %>
 
-            <script>
-        var type = <%=cloudConfig.subscriptions.type%>;
-    </script>
-
         <div class="container content-starter">
             <div class="row">
                 <div class="col-lg-12">
@@ -184,5 +180,6 @@
 <input type="hidden" id="isInvitationSent" value='<%= isInvitationSent %>' />
 <input type="hidden" id="permittedToInvite" value='<%= outputs.hasInviteUserPermission %>' />
 <input type="hidden" id="maxItemsPerPage" value='<%= maxItemsPerPage %>' />
+<input type="hidden" id="type" value='<%= cloudConfig.subscriptions.type %>' />
 <% }
 }); %>
