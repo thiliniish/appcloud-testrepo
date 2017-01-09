@@ -443,6 +443,7 @@ function createTable(usersWithRolesArray) {
 function createPendingUserTable(pendingUsersWithRolesArray) {
     $('.cleanableInvitation').remove();
     var $pendingUserListContainer = $('#pendingUserListContainer');
+    var maxItemsInPage = Math.floor(parseFloat($('#maxItemsPerPage').val()));
     /*getting the total number of pages using max items in a page and checking if the number of invitations are equal
      to the max items in a page,else add a new page to the total*/
     totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ? (pendingUsersWithRolesArray.length / maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
