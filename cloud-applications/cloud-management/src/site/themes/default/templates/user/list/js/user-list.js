@@ -191,6 +191,7 @@ function updateRolePopupsForInvitations() {
 
 /* Update user list */
 function updateTable() {
+    var tenantDomain = $('#tenantDomain').val();
     $('.cleanable').remove();
     jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
         action: "getUsersofTenant",
@@ -220,6 +221,7 @@ function updateTable() {
 
 /* Update invitation list */
 function updateInvitationTable(isBasicPageLoad) {
+    var tenantDomain = $('#tenantDomain').val();
     //Get pending invitation details
     jagg.syncPost("../blocks/tenant/users/get/ajax/get.jag", {
         action: "getPendingUsers",
@@ -347,6 +349,7 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
 
 /* This method will create the members list table */
 function createTable(usersWithRolesArray) {
+    var adminRoleDisplayName = $('#adminRoleDisplayName').val();
     appOwners = [];
     $('.cleanable').remove();
     var $userListContainer = $('#userListContainer');
@@ -627,7 +630,6 @@ var manageRoleCheckListForInvitations = function () {
 };
 
 $(document).ready(function () {
-
     if (isInvitationSent) {
         jagg.message({
             type: 'success',

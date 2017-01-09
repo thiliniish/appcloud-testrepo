@@ -17,14 +17,12 @@
         //getting the max items per page
         var itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty("ItemsPerPage");
         var maxItemsPerPage = itemsPerPage/2;
-%>
+        %>
 
-    <script>
-        var tenantDomain = "<%=tenantDomain%>";
-        var isInvitationSent = <%=isInvitationSent%>;
+            <script>
+                var isInvitationSent = <%=isInvitationSent%>;
         var permittedToInvite = <%=outputs.hasInviteUserPermission%>;
         var maxItemsPerPage = <%=maxItemsPerPage%>;
-        var adminRoleDisplayName = "<%=cloudConfig.adminRoleDisplayName%>";
         var type = <%=cloudConfig.subscriptions.type%>;
     </script>
 
@@ -46,7 +44,7 @@
     <div class="col-lg-12 content-section">
 
     <article class="main">
-        
+
         <header class="separator">
             <div class="content">
                 <div class="left">
@@ -184,7 +182,7 @@
 
 
 <input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
-
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js'))%>"></script>
+<input type="hidden" id="tenantDomain" value='<%= tenantDomain %>' />
+<input type="hidden" id="adminRoleDisplayName" value='<%= cloudConfig.adminRoleDisplayName %>' />
 <% }
 }); %>
