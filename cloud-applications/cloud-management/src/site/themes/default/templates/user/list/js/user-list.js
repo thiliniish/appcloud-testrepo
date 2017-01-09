@@ -34,7 +34,6 @@ var allRoles = [];
 var allRolesForInvitations = [];
 var finalUsers = [];//globally declared
 var finalInvitations = [];
-var maxItemsInPage = Math.floor(maxItemsPerPage);
 
 //<Start> UI Validation functions
 
@@ -267,6 +266,7 @@ function updateInvitationTable(isBasicPageLoad) {
 
 /*Creates pending invitations table */
 function createPendingUserTable(pendingUsersWithRolesArray) {
+    var maxItemsInPage = Math.floor(parseFloat($('#maxItemsPerPage').val()));
     $('.cleanableInvitation').remove();
     var $pendingUserListContainer = $('#pendingUserListContainer');
     /*getting the total number of pages using max items in a page and checking if the number of invitations are equal
@@ -350,11 +350,13 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
 /* This method will create the members list table */
 function createTable(usersWithRolesArray) {
     var adminRoleDisplayName = $('#adminRoleDisplayName').val();
+    var maxItemsInPage = Math.floor(parseFloat($('#maxItemsPerPage').val()));
     appOwners = [];
     $('.cleanable').remove();
     var $userListContainer = $('#userListContainer');
     var chkDisableStr = "";
-    if (!permittedToInvite) {
+    var permittedToInvite = $('#permittedToInvite').val();
+    if (permittedToInvite == "false") {
         chkDisableStr = "style = 'display:none'";
     }
     /*getting the total number of pages using max users in a page
@@ -630,7 +632,8 @@ var manageRoleCheckListForInvitations = function () {
 };
 
 $(document).ready(function () {
-    if (isInvitationSent) {
+    var isInvitationSent = $('#isInvitationSent').val();
+    if (isInvitationSent == "true") {
         jagg.message({
             type: 'success',
             content: 'You have successfully sent the member invitations.',
@@ -663,8 +666,8 @@ $(document).ready(function () {
     } else {
         $('.pagefooter').hide();
     }
-
-    if (!permittedToInvite) {
+    var permittedToInvite = $('#permittedToInvite').val();
+    if (permittedToInvite == "false") {
         $('#editDelDiv').hide();
         $('#btnAddMembers').hide();
         $('#select_all_check').parent().hide();

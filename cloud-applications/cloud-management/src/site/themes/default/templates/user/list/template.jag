@@ -20,9 +20,6 @@
         %>
 
             <script>
-                var isInvitationSent = <%=isInvitationSent%>;
-        var permittedToInvite = <%=outputs.hasInviteUserPermission%>;
-        var maxItemsPerPage = <%=maxItemsPerPage%>;
         var type = <%=cloudConfig.subscriptions.type%>;
     </script>
 
@@ -184,5 +181,8 @@
 <input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
 <input type="hidden" id="tenantDomain" value='<%= tenantDomain %>' />
 <input type="hidden" id="adminRoleDisplayName" value='<%= cloudConfig.adminRoleDisplayName %>' />
+<input type="hidden" id="isInvitationSent" value='<%= isInvitationSent %>' />
+<input type="hidden" id="permittedToInvite" value='<%= outputs.hasInviteUserPermission %>' />
+<input type="hidden" id="maxItemsPerPage" value='<%= maxItemsPerPage %>' />
 <% }
 }); %>
