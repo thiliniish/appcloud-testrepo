@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2016 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta name="generator" content="Adobe GoLive"/>
+    <title>WSO2 Cloud Monitoring Dashboard</title>
+
+    <link rel="icon" sizes="16x16 32x32" href="images/favicon.ico" type="image/x-icon"/>
+
+    <link type="text/css" href="css/style-table.css" rel="stylesheet" media="all"/>
+    <link rel="stylesheet" href="css/font-wso2/css/font-wso2.css">
+
+    <script src="js/jquery/jquery-3.1.0.min.js"></script>
+    <script src="js/pages/index-table.js"></script>
+</head>
+
+<body>
+<div class="header">
+    <ul class="header-links">
+        <li class="logo">
+            <img class="logo" src="images/logo-inverse.svg"/>
+        </li>
+        <li class="cloud">
+            Cloud
+        </li>
+        <li class="contact">
+            <a href="mailto:cloud@wso2.com">Contact : cloud@wso2.com</a>
+        </li>
+    </ul>
+</div>
+<div class="title">
+    <table class="title_table">
+        <tr>
+            <td class="title-text">WSO2 Cloud Services - Current Status</td>
+            <td class="title-date" id="title-date">
+                <p id="overview-time" class="overview-time"></p>
+                <p id="client-timezone-offset" class="client-timezone-offset"></p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="main" id="main-table">
+    <div class="service-status" id="service-status">
+    </div>
+    <div class="line-separator"></div>
+    <div class="legend">
+        <table cellspacing="0">
+            <tr>
+                <td><img src="images/live.png" alt="live"/></td>
+                <td>Service operating normally</td>
+                <td><img src="images/failure.png" alt="failure"/></td>
+                <td>Service Down</td>
+                <td><img src="images/live-with-error.png" alt="live-with-error"/></td>
+                <td>Service Maintenance</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div id="footer">
+    <div class="footer-text">WSO2 Cloud &copy; 2016 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.</div>
+</div>
+</body>
+</html>

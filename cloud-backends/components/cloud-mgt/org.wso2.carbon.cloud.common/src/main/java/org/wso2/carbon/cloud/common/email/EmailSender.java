@@ -72,7 +72,7 @@ public class EmailSender {
                                        tlsEnabled);
             log.debug(msg);
         }
-        multipart = new MimeMultipart();
+        multipart = new MimeMultipart("related");
         Properties properties = new Properties();
         properties.put(MAIL_SMTP_HOST, host);
         properties.put(MAIL_SMTP_PORT, port);

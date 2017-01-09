@@ -33,6 +33,7 @@
     <name>Cloud Monitoring</name>
     <modules>
         <!--<module>heartbeat-monitor</module>-->
+        <module>deployment-monitor</module>
     </modules>
 </project>
 
