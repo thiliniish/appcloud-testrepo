@@ -32,7 +32,7 @@ var userCheckBoxId = "ck_";
 var invitationCheckBoxId = "ick_";
 var allRoles = [];
 var allRolesForInvitations = [];
-var  finalUsers=[];//globally declared
+var finalUsers = [];//globally declared
 var finalInvitations = [];
 var maxItemsInPage = Math.floor(maxItemsPerPage);
 
@@ -535,13 +535,11 @@ var getRoleByName = function (roleName, isInvitation) {
 /* Manages role check lists for users */
 var manageRoleCheckList = function () {
     allRoles = [];
-
     $('#jsroleAssignPopupForm label').each(function () {
         var trole = $(this).attr('data-role');
         if (trole != undefined) {
             allRoles.push({dom_obj: this, role_name: trole, users: []});
         }
-
     });
     //allRoles.push({dom_obj:{}, role_name:'appowner',users:[] });
 
@@ -706,10 +704,7 @@ $(document).ready(function () {
                     $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
                     $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
                     $('.popover_content', $(this)).removeClass("hide");
-
                     manageRoleCheckList();
-
-
                 },
                 hide: function (event, api) {
                     api.elements.target.removeClass('active');
@@ -753,7 +748,6 @@ $(document).ready(function () {
                     $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
                     $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
                     $('.popover_content', $(this)).removeClass("hide");
-
                     manageRoleCheckListForInvitations();
                 },
                 hide: function (event, api) {
@@ -793,7 +787,6 @@ $(document).ready(function () {
                 $('span', this).replaceWith('<span class="checkbox-checked"></span>');
                 getRoleByName(role, isInvitation).halfUsers = checkedUsers;
             }
-
         } else {
             if ($span.hasClass('checkbox-checked')) {
                 $('span', this).replaceWith('<span class="checkbox-unchecked"></span>');
@@ -843,11 +836,9 @@ $(document).ready(function () {
     });
 
     $('#select_all_check').click(function () {
-
         $('#userListContainer .action_check').each(function () {
                 if ($('#select_all_check').is(':checked')) {
                     $(this).attr('checked', 'checked');
-
                     selectedCount++;
                     toggleEditDeleteButtons(true);
 
@@ -858,7 +849,6 @@ $(document).ready(function () {
                 }
             }
         );
-
         manageRoleCheckList();
     }).removeAttr('checked');
     toggleEditDeleteButtons(false);//disabling edit and delete button on load
@@ -910,17 +900,13 @@ $(document).ready(function () {
                 }
             }
         );
-
         var isOwner = false;
-
         for (var i in appOwners) {
             if (checkedUsers.indexOf(appOwners[i]) != -1) {
                 isOwner = true;
                 break;
             }
         }
-
-
         if (!isOwner) {
             jagg.popMessage({
                 type: 'confirm', title: 'Delete Users', content: 'Are you sure you want to delete members?',
@@ -935,8 +921,6 @@ $(document).ready(function () {
                 type: 'warning', id: 'teampageId'
             });
         }
-
-
     });
 
     $('#revokeInvitation').click(function () {
@@ -1000,7 +984,6 @@ $(document).ready(function () {
                     } else {
                         finalUsers.push(user);
                     }
-
                 } else {
                     userFromFinalUsers.roles.push(tmpRoleName);
                 }
@@ -1065,7 +1048,6 @@ $(document).ready(function () {
             }
         }
         return null;
-
     }
 
     function getInvitationFromInvitationList(email) {
@@ -1083,7 +1065,6 @@ $(document).ready(function () {
         for (var i in checkedUsers) {
             deleteUser(checkedUsers[i], i, l);
         }
-
     }
 
     function doRevokeInvitation(checkedInvitations) {
@@ -1130,7 +1111,6 @@ $(document).ready(function () {
             var user = finalUsers[u];
             doUpdateUser(user.name, user.rolesToDelete, user.rolesToAdd, u);
         }
-
     }
 
     function updateInvitations() {
@@ -1147,20 +1127,14 @@ $(document).ready(function () {
                 rolesToDelete: rolesToDel.toString(),
                 rolesToAdd: rolestoAd.toString()
             },
-
             function (result) {
-
                 if (result != undefined || result == true) {
-
-                    // TODO implement addApplicationToApp(applicationKey,
-                    // applicationName, applicationDescription);
                     var x = (finalUsers.length - 1)
                     if (count == x) {
                         window.setTimeout(function () {
                             updateTable();
 
                         }, 300);
-
                     }
                     toggleEditDeleteButtons(false);
                     $('#select_all_check').prop('checked', false);
@@ -1174,7 +1148,6 @@ $(document).ready(function () {
                 $('#userListContainer').html('<li class="noData-message">Error Occurred while updating user list. Please' +
                     ' contact WSO2 Cloud team for help</li>');
             });
-
     }
 
     function doUpdateInvitation(email, rolesToDelete, rolesToAdd, count) {
@@ -1206,7 +1179,6 @@ $(document).ready(function () {
                 rolesToDelete: rolesToDelete.toString(),
                 rolesToAdd: rolesToAdd.toString()
             },
-
             function (result) {
                 if (result != undefined || result == true) {
                     var x = (finalInvitations.length - 1);
@@ -1230,7 +1202,6 @@ $(document).ready(function () {
                 jagg.removeMessage("updateMsg" + count);
             });
     }
-
     $('#search_members').keyup(function (event) {
         doSearch($(this).val());
     });
@@ -1251,7 +1222,6 @@ $(document).ready(function () {
 
     /*delete a given user*/
     function deleteUser(username, count, length) {
-
         jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
                 action: "deleteUserFromTenant",
                 userName: username
@@ -1268,8 +1238,6 @@ $(document).ready(function () {
                 $('#userListContainer').html('<li class="noData-message">Error Occurred while updating user list. Please' +
                     ' contact WSO2 Cloud team for help</li>');
             });
-
-
     }
 
     /*Revoke a given invitation*/
