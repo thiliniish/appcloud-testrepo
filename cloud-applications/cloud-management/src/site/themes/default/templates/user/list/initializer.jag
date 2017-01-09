@@ -2,7 +2,10 @@
 jagg.initializer("user/list", {
 
     preInitialize:function () {
-
+        //custom js functions
+        jagg.addFooterJS("user/list","user-list.js","templates/user/list/js/user-list.js");
+        //jquery functions
+        jagg.addFooterJS("user/list","jquery.bootpag.min.js","js/jquery.bootpag.min.js");
     }
 });
 %>

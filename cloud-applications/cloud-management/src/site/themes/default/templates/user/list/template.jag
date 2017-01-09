@@ -184,7 +184,7 @@
 
 
 <input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/user/list/js/user-list.js'))%>"></script>
+
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js'))%>"></script>
 <% }
 }); %>
