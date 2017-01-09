@@ -403,3 +403,15 @@ body div.qtip{
     display: block;
     padding-top: 4px;
   }
+.noData-message{
+    color:#666;
+    background: #dfe9eb;
+    padding:10px;
+    font-size:13px;
+}
+.error-message{
+    color: #FF0000;
+    background: #dfe9eb;
+    padding:10px;
+    font-size:13px;
+}
