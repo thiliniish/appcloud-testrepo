@@ -156,12 +156,14 @@ function updateRolePopups() {
             var tempRoleArray = type[i].roleTypes;
             for (var count = 0; count < tempRoleArray.length; count++) {
                 $jsroleAssign = $jsroleAssign + '<div class="input_row">' +
-                    '<label class="text-box-overrider" data-role=' + tempRoleArray[count].roleName + '><span class="checkbox-unchecked"></span>' +
+                    '<label class="text-box-overrider" data-role=' + tempRoleArray[count].roleName + '>' +
+                    '<span class="checkbox-unchecked"></span>' +
                     tempRoleArray[count].displayRoles + '</label></div>';
             }
         }
     }
-    $jsAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="saveUserRoles">Save</button><a href="#" class="popover_close small">Close</a> </div>');
+    $jsAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="saveUserRoles">' +
+        'Save</button><a href="#" class="popover_close small">Close</a> </div>');
     $jsroleAssignPopupForm.append($jsroleAssign);
     $jsroleAssignPopupForm.append($jsAssignButton);
 }
@@ -178,12 +180,13 @@ function updateRolePopupsForInvitations() {
             var tempRoleArray = type[i].roleTypes;
             for (var count = 0; count < tempRoleArray.length; count++) {
                 $jsInvitationRoleAssign = $jsInvitationRoleAssign + '<div class="input_row">' + '<label ' +
-                    'class="text-box-overrider-invitations" data-role=' + tempRoleArray[count].displayRoles + '><span ' +
-                    'class="checkbox-unchecked"></span>' + tempRoleArray[count].displayRoles + '</label></div>';
+                    'class="text-box-overrider-invitations" data-role=' + tempRoleArray[count].displayRoles + '>' +
+                    '<span class="checkbox-unchecked"></span>' + tempRoleArray[count].displayRoles + '</label></div>';
             }
         }
     }
-    $jsRoleAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="updateInvitations">Update</button><a href="#" class="popover_close small">Close</a> </div></form>');
+    $jsRoleAssignButton = $('<div class="btn_row"><button class="btn main small" type="button" id="updateInvitations">' +
+        'Update</button><a href="#" class="popover_close small">Close</a> </div></form>');
     $jsInvitationRoleAssignPopupForm.append($jsInvitationRoleAssign);
     $jsInvitationRoleAssignPopupForm.append($jsRoleAssignButton);
     var $jsInvitationPopupFormDiv = $('#jsinvitationPopupFormDiv');
@@ -206,16 +209,18 @@ function updateTable() {
         if (recordCount > 0) {
             var countString = '';
             if (recordCount === 1) {
-                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">1 Member in Organization</h2>');
+                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">' +
+                    '1 Member in Organization</h2>');
             } else {
-                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">' + recordCount + ' Members in Organization</h2>');
+                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">' + recordCount +
+                    ' Members in Organization</h2>');
             }
             createTable(usersWithRoles);
         } else {
             $('#userListContainer').html('<li class="noData-message">no data</li>');
         }
     }, function (jqXHR, textStatus, errorThrown) {
-        $('#userListContainer').html('<li class="noData-message">Error Occurred while updating user list. Please' +
+        $('#userListContainer').html('<li class="error-message">Error Occurred while retrieving user list. Please' +
             ' contact WSO2 Cloud team for help</li>');
     });
 }
@@ -261,7 +266,7 @@ function updateInvitationTable(isBasicPageLoad) {
             }
         }
     }, function (jqXHR, textStatus, errorThrown) {
-        $('#pendingUserListContainer').html('<li class="noData-message">Error Occurred while updating invitation' +
+        $('#pendingUserListContainer').html('<li class="error-message">Error Occurred while retrieving invitation' +
             ' list. Please contact WSO2 Cloud team for help</li>');
     });
 }
@@ -273,7 +278,8 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     var $pendingUserListContainer = $('#pendingUserListContainer');
     /*getting the total number of pages using max items in a page and checking if the number of invitations are equal
      to the max items in a page,else add a new page to the total*/
-    totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ? (pendingUsersWithRolesArray.length / maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
+    totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ?
+        (pendingUsersWithRolesArray.length / maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
     totalPagesForInvitations = Math.floor(totalPagesForInvitations);
     if (totalPagesForInvitations > 1) {
         $('.pageFooterInvitations').show();
@@ -286,13 +292,15 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     }
     var isInvited = true;
     //looping until the max number of invitations in a page is added
-    for (var i = ((pageNumberForInvitations - 1) * maxItemsInPage); i < pendingUsersWithRolesArray.length && i < (pageNumberForInvitations * maxItemsInPage); i++) {
+    for (var i = ((pageNumberForInvitations - 1) * maxItemsInPage);
+         i < pendingUsersWithRolesArray.length && i < (pageNumberForInvitations * maxItemsInPage); i++) {
         var pendingUserRoles = pendingUsersWithRolesArray[i];
         var checkBoxString = '<input id="ick_' + i + '" type="checkbox" name="action_check_invitation" ' +
             'class="action_check_invitation" ' +
             'data-roles="' + pendingUserRoles.roles + '" data-user="' + pendingUserRoles.email + '" />';
         //Show pending invitations
-        var $pendingUserListContainerRow = $('<li class="list_row_item cleanableInvitation" data-email="' + pendingUserRoles.email + '" ' +
+        var $pendingUserListContainerRow = $('<li class="list_row_item cleanableInvitation" data-email="' +
+            pendingUserRoles.email + '" ' +
             'data-name="' + pendingUserRoles.email + '">' +
             '<ul class="list_row" id="' + pendingUserRoles.email + '">' +
             '<li class="list_col first_list_col item_select">' +
@@ -363,7 +371,8 @@ function createTable(usersWithRolesArray) {
     }
     /*getting the total number of pages using max users in a page
      checking if the number of members are equal to the max members in a page,else add a new page to the total*/
-    totalPagesForMembers = ((usersWithRolesArray.length % maxItemsInPage) == 0) ? (usersWithRolesArray.length / maxItemsInPage) : (usersWithRolesArray.length / maxItemsInPage) + 1;
+    totalPagesForMembers = ((usersWithRolesArray.length % maxItemsInPage) == 0) ?
+        (usersWithRolesArray.length / maxItemsInPage) : (usersWithRolesArray.length / maxItemsInPage) + 1;
     totalPagesForMembers = Math.floor(totalPagesForMembers);
     if (totalPagesForMembers > 1) {
         $('.pagefooter').bootpag({
@@ -375,7 +384,8 @@ function createTable(usersWithRolesArray) {
     }
     var isInvited = false;
     //looping until the max number of users in a page is added
-    for (var i = ((pageNumberForMembers - 1) * maxItemsInPage); i < usersWithRolesArray.length && i < (pageNumberForMembers * maxItemsInPage); i++) {
+    for (var i = ((pageNumberForMembers - 1) * maxItemsInPage); i < usersWithRolesArray.length &&
+    i < (pageNumberForMembers * maxItemsInPage); i++) {
         var userRoles = usersWithRolesArray[i];
         var isAdminUser = false;
         var checkBoxString = "";
@@ -387,10 +397,13 @@ function createTable(usersWithRolesArray) {
             }
         }
         if (!isAdminUser) {
-            checkBoxString = '<input id="ck_' + i + '" type="checkbox" name="action_check" class="action_check" data-roles="' + userRoles.roles + '" data-user="' + userRoles.userName + '"' + chkDisableStr + ' />';
+            checkBoxString = '<input id="ck_' + i +
+                '" type="checkbox" name="action_check" class="action_check" data-roles="' + userRoles.roles
+                + '" data-user="' + userRoles.userName + '"' + chkDisableStr + ' />';
         }
 
-        var $userListContainerRow = $('<li class="list_row_item cleanable" data-email="' + userRoles.email + '" data-name="' + userRoles.userDisplayName + '">' +
+        var $userListContainerRow = $('<li class="list_row_item cleanable" data-email="' + userRoles.email +
+            '" data-name="' + userRoles.userDisplayName + '">' +
             '<ul class="list_row" id="' + userRoles.userName + '">' +
             '<li class="list_col first_list_col item_select">' +
             '<div class="list_col_content">' +
@@ -446,7 +459,8 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     var maxItemsInPage = Math.floor(parseFloat($('#maxItemsPerPage').val()));
     /*getting the total number of pages using max items in a page and checking if the number of invitations are equal
      to the max items in a page,else add a new page to the total*/
-    totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ? (pendingUsersWithRolesArray.length / maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
+    totalPagesForInvitations = ((pendingUsersWithRolesArray.length % maxItemsInPage) == 0) ?
+        (pendingUsersWithRolesArray.length / maxItemsInPage) : (pendingUsersWithRolesArray.length / maxItemsInPage) + 1;
     totalPagesForInvitations = Math.floor(totalPagesForInvitations);
     if (totalPagesForInvitations > 1) {
         $('.pageFooterInvitations').show();
@@ -459,13 +473,16 @@ function createPendingUserTable(pendingUsersWithRolesArray) {
     }
     var isInvited = true;
     //looping until the max number of invitations in a page is added
-    for (var i = ((pageNumberForInvitations - 1) * maxItemsInPage); i < pendingUsersWithRolesArray.length && i < (pageNumberForInvitations * maxItemsInPage); i++) {
+    for (var i = ((pageNumberForInvitations - 1) * maxItemsInPage);
+         i < pendingUsersWithRolesArray.length && i < (pageNumberForInvitations * maxItemsInPage); i++) {
+
         var pendingUserRoles = pendingUsersWithRolesArray[i];
         var checkBoxString = '<input id="ick_' + i + '" type="checkbox" name="action_check_invitation" ' +
             'class="action_check_invitation" ' +
             'data-roles="' + pendingUserRoles.roles + '" data-user="' + pendingUserRoles.email + '" />';
         //Show pending invitations
-        var $pendingUserListContainerRow = $('<li class="list_row_item cleanableInvitation" data-email="' + pendingUserRoles.email + '" ' +
+        var $pendingUserListContainerRow = $('<li class="list_row_item cleanableInvitation" data-email="' +
+            pendingUserRoles.email + '" ' +
             'data-name="' + pendingUserRoles.email + '">' +
             '<ul class="list_row" id="' + pendingUserRoles.email + '">' +
             '<li class="list_col first_list_col item_select">' +
@@ -623,7 +640,8 @@ var manageRoleCheckListForInvitations = function () {
                 $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-checked"></span>');
             } else if (allRolesForInvitations[i].users.length == 0) {
                 $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
-            } else if (allRolesForInvitations[i].users.length != 0 && allRolesForInvitations[i].users.length < numberOfInvitationsChecked) {
+            } else if (allRolesForInvitations[i].users.length != 0 && allRolesForInvitations[i].users.length <
+                numberOfInvitationsChecked) {
                 $('span', allRolesForInvitations[i].dom_obj).replaceWith('<span class="checkbox-half"></span>');
             }
         }
@@ -706,8 +724,10 @@ $(document).ready(function () {
                 show: function (event, api) {
                     api.elements.target.addClass('active');
                     var $el = $(api.elements.target[0]);
-                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
-                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ?
+                        'top right' : $el.data('popover-my-position'));
+                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ?
+                        'bottom right' : $el.data('popover-target-position'));
                     $('.popover_content', $(this)).removeClass("hide");
                     manageRoleCheckList();
                 },
@@ -750,8 +770,10 @@ $(document).ready(function () {
                 show: function (event, api) {
                     api.elements.target.addClass('active');
                     var $el = $(api.elements.target[1]);
-                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
-                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' :
+                        $el.data('popover-my-position'));
+                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ?
+                        'bottom right' : $el.data('popover-target-position'));
                     $('.popover_content', $(this)).removeClass("hide");
                     manageRoleCheckListForInvitations();
                 },
@@ -781,7 +803,8 @@ $(document).ready(function () {
                 $('span', this).replaceWith('<span class="checkbox-unchecked"></span>');
                 getRoleByName(role, isInvited).users = [];
             } else if ($span.hasClass('checkbox-unchecked')) {
-                if (getRoleByName(role, isInvited).halfUsers != null && getRoleByName(role, isInvited).halfUsers != undefined) {
+                if (getRoleByName(role, isInvited).halfUsers != null &&
+                    getRoleByName(role, isInvited).halfUsers != undefined) {
                     $('span', this).replaceWith('<span class="checkbox-half"></span>');
                     getRoleByName(role, isInvited).users = getRoleByName(role, isInvited).halfUsers;
                 } else {
@@ -818,7 +841,8 @@ $(document).ready(function () {
                 $('span', this).replaceWith('<span class="checkbox-unchecked"></span>');
                 getRoleByName(role, isInvited).users = [];
             } else if ($span.hasClass('checkbox-unchecked')) {
-                if (getRoleByName(role, isInvited).halfUsers != null && getRoleByName(role, isInvited).halfUsers != undefined) {
+                if (getRoleByName(role, isInvited).halfUsers != null &&
+                    getRoleByName(role, isInvited).halfUsers != undefined) {
                     $('span', this).replaceWith('<span class="checkbox-half"></span>');
                     getRoleByName(role, isInvited).halfusers = getRoleByName(role, isInvited).halfUsers;
                 } else {
@@ -921,8 +945,8 @@ $(document).ready(function () {
             });
         } else {
             jagg.message({
-                content: "Users with 'Application Owner' role cannot be deleted. Please remove them from the selected users list.",
-                type: 'warning', id: 'teampageId'
+                content: "Users with 'Application Owner' role cannot be deleted. Please remove them from the selected " +
+                "users list.", type: 'warning', id: 'teampageId'
             });
         }
     });
@@ -1137,20 +1161,18 @@ $(document).ready(function () {
                     if (count == x) {
                         window.setTimeout(function () {
                             updateTable();
-
                         }, 300);
                     }
                     toggleEditDeleteButtons(false);
                     $('#select_all_check').prop('checked', false);
                     return result;
                 } else if (result == false) {
-
                     return result;
                 }
             },
             function (jqXHR, textStatus, errorThrown) {
-                $('#userListContainer').html('<li class="noData-message">Error Occurred while updating user list. Please' +
-                    ' contact WSO2 Cloud team for help</li>');
+                $('#userListContainer').html('<li class="error-message">Error Occurred while updating roles of user' +
+                    username + '. Please contact WSO2 Cloud team for help</li>');
             });
     }
 
@@ -1196,7 +1218,6 @@ $(document).ready(function () {
                     enableActionButtonsForInvitations(false);
                     $('#select_all_invitations_check').prop('checked', false);
                     return result;
-
                 } else if (result == false) {
                     jagg.removeMessage("updateMsg" + count);
                     return result;
@@ -1239,8 +1260,8 @@ $(document).ready(function () {
                 }
             },
             function (jqXHR, textStatus, errorThpageNumberForMembersrown) {
-                $('#userListContainer').html('<li class="noData-message">Error Occurred while updating user list. Please' +
-                    ' contact WSO2 Cloud team for help</li>');
+                $('#userListContainer').html('<li class="error-message">Error Occurred while deleting user ' + username
+                    +'. Please contact WSO2 Cloud team for help</li>');
             });
     }
 
@@ -1262,8 +1283,8 @@ $(document).ready(function () {
                 }
             },
             function (jqXHR, textStatus, errorThrown) {
-                $('#pendingUserListContainer').html('<li class="noData-message">Error Occurred while updating invitation' +
-                    ' list. Please contact WSO2 Cloud team for help</li>');
+                $('#pendingUserListContainer').html('<li class="error-message">Error Occurred while revoking' +
+                    ' invitation for ' + email + '. Please contact WSO2 Cloud team for help</li>');
             });
     }
 });
