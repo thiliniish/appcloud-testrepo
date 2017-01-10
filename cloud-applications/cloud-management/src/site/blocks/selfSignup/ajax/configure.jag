@@ -55,14 +55,11 @@ include("/jagg/constants.jag");
                 var cookieResponse = jagg.module("manager").getAdminCookieBySAMLToken(BPSURL);
                 if (!cookieResponse.error) {
                     var cookie = cookieResponse.cookie;
-                    //calling the service to upload the files to the BPS server
-                    result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileUploader.bpsFileUploader.BPSFileUploader').bpsFileUploader(username, cookie);
-                    if (result) {
 
-                //calling the service to upload the files to the BPS server
-                result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader' +
-                                            '.BPSFileUploader').bpsFileUploader(username, cookie);
-                if (result) {
+                    //calling the service to upload the files to the BPS server
+                    result = server.osgiService('org.wso2.carbon.cloud.signup.workflow.fileuploader.uploader' +
+                                                '.BPSFileUploader').bpsFileUploader(username, cookie);
+                    if (result) {
 
                         if (log.isDebugEnabled()) {
                             log.debug("Notification sent to the cloud team regarding the user " + username + " enabling the self sign up feature for the tenant store " + tenantDomain);
@@ -115,6 +112,7 @@ include("/jagg/constants.jag");
 
                     }
                 }
+
             } catch (e) {
                 message = "An error occurred while configuring the self sign up feature for the user " + username + "\n" + e.message;
                 log.error(message);
@@ -127,7 +125,8 @@ include("/jagg/constants.jag");
                 }
 
             }
-        } else if ("resourcePending".equals(isSignUpConfigured.response.trim())) {
+        }
+        else if ("resourcePending".equals(isSignUpConfigured.response.trim())) {
             message = "The resource is not available for the user " + username;
             statusMessage = "resourcePending";
             result = {
@@ -138,8 +137,8 @@ include("/jagg/constants.jag");
             }
         }
     } else {
-        log.error("No action specified");
-    }
-    print(result);
+    log.error("No action specified");
+}
+print(result);
 }());
 %>
