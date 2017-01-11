@@ -215,6 +215,7 @@ var IFRAME_DESCRIPTION = "Pay securely using Stripe";
 var IFRAME_BUTTON = "Pay Using Stripe";
 
 var THOUSAND = 1000;
+var CHARGE_FAILED_MESSAGE = "Hi Cloud Team, <br> Error has occurred while processing the payment. Please verify.";
 
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
