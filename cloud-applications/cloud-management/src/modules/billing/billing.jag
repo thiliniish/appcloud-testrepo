@@ -657,7 +657,11 @@ var getAccountInfo = function () {
         var accountId = getAccountId();
         return billingCoreService.retrieveAccountInfo(accountId);
     } catch (e) {
-        log.error("Error while getting the billing configurations as JSON");
+        var tenantDomain = null;
+        if ((session.get("TENANT_INFO")) != null) {
+            tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+        }
+        log.error("Error while getting account info for the user : " + jagg.getUser() + ", tenantDomain : " + tenantDomain);
         throw e;
     }
 };
