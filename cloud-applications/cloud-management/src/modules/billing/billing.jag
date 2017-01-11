@@ -1068,7 +1068,6 @@ var verifyEventForFailedPayment = function (id) {
                     "<br> Customer email- " + eventDataJson.data.data.object.receipt_email +
                     "<br> failure code - " + eventDataJson.data.data.object.failure_code +
                     "<br> failure message - " + eventDataJson.data.data.object.failure_message;
-
             jagg.module("util").sendEmail(message.toString(), subject, cloudConfig.registrationEmail.from);
 
         } else {
