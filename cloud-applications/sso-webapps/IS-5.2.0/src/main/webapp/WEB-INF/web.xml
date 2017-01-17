@@ -47,11 +47,6 @@
     </context-param-->
     <!-- *************** End of Global configurations ********************** -->
 
-	<context-param>
-        <param-name>cloudMgtUrl</param-name>
-        <param-value>https://cloudmgt.clouddev.wso2.com/cloudmgt</param-value>
-    </context-param>
-
     <!--Display scopes in the consent page.-->
     <context-param>
         <param-name>displayScopes</param-name>

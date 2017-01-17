@@ -61,7 +61,8 @@ logged into that tenant
             }
         }
 
-        String cloudMgtUrl = application.getInitParameter("cloudMgtUrl");
+        //This system property is set in startup script(wso2server.sh)
+        String cloudMgtUrl = System.getProperty("cloudMgt.URL");
         String cloudMgtDataSource = application.getInitParameter("cloudMgtDataSource");
         String useEmail = application.getInitParameter("useEmail");
         String replaceWith = application.getInitParameter("replaceWith");
