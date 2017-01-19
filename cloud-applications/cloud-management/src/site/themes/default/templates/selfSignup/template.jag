@@ -379,7 +379,6 @@
      </div>
      <% }
     } else {
-        log.error("Session is not authenticated, Prompted to log in");
         response.sendRedirect(cloudMgtUrl);
     }
 }); %>
