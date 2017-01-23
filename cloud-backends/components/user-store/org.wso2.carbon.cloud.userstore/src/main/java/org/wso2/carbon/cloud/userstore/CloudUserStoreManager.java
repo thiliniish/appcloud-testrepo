@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.cloud.userstore.common.UserStoreConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserRealm;
@@ -60,7 +61,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     @SuppressWarnings("deprecation")
     @Override
     public void doDeleteUser(String userName) throws UserStoreException {
-        if (!isUserInRole(userName, "default")) {
+        if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
             LOGGER.error("Error when deleting the user: " + userName + ". The user doesn't exist");
             throw new UserStoreException("Error when deleting the user: " + userName + ". The user doesn't exist");
         }
@@ -71,7 +72,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     @Override
     public void doUpdateCredential(String userName, Object newCredential,
             Object oldCredential) throws UserStoreException {
-        if (!isUserInRole(userName, "default")) {
+        if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
             LOGGER.error("Error when updating the credentials of user: " + userName + ". The user doesn't exist");
             throw new UserStoreException(
                     "Error when updating the credentials of user: " + userName + ". The user doesn't exist");
@@ -82,7 +83,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         if (newCredential != null && !"".equals(newCredential)) {
-            if (!isUserInRole(userName, "default")) {
+            if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
                 LOGGER.error("Error when updating the credentials of user: " + userName
                         + " by Admin. The user doesn't exist");
                 throw new UserStoreException("Error when updating the credentials of user: " + userName
@@ -95,7 +96,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     @Override
     protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
             throws UserStoreException {
-        if (!isUserInRole(userName, "default")) {
+        if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
             LOGGER.error("Error when updating credentials validity checks of user " + userName
                     + " by Admin. The user doesn't exist");
             throw new UserStoreException("Error when updating credentials validity checks of user: " + userName
@@ -106,7 +107,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
 
     @Override public void doDeleteUserClaimValue(String userName, String claimURI, String profileName)
             throws UserStoreException {
-        if (!isUserInRole(userName, "default")) {
+        if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
             LOGGER.error(
                     "Error when deleting the user claim value for the user: " + userName + ". The user doesn't exist");
             throw new UserStoreException(
@@ -118,7 +119,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     @Override
     public void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
             throws UserStoreException {
-        if (!isUserInRole(userName, "default")) {
+        if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
             LOGGER.error(
                     "Error when deleting the user claim values for the user: " + userName + ". The user doesn't exist");
             throw new UserStoreException(
@@ -130,7 +131,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     @Override
     public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
         if ((getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
-            if (!(isUserInRole(userName, "default"))) {
+            if (!(isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE))) {
                 String[] roles = { "default" };
                 updateRoleListOfUser(userName, null, roles);
                 LOGGER.info("Default Role assigned for user : " + userName);
@@ -146,7 +147,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
 
     @Override
     public String[] getProfileNames(String userName) throws UserStoreException {
-        if (!isUserInRole(userName, "default")) {
+        if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
             LOGGER.error("Error when getting the profile names the user: " + userName + ". The user doesn't exist");
             throw new UserStoreException(
                     "Error when getting the profile names of user: " + userName + ". The user doesn't exist");
@@ -156,7 +157,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
 
     @Override
     public Date getPasswordExpirationTime(String username) throws UserStoreException {
-        if (!isUserInRole(username, "default")) {
+        if (!isUserInRole(username, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
             LOGGER.error("Error when getting the password expiration time of user: " + username
                     + ". The user doesn't exist");
 
