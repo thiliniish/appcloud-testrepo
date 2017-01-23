@@ -132,12 +132,12 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
         if ((getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
             if (!(isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE))) {
-                String[] roles = { "default" };
+                String[] roles = { UserStoreConstants.TENANT_DEFAULT_ROLE };
                 updateRoleListOfUser(userName, null, roles);
                 LOGGER.info("Default Role assigned for user : " + userName);
             }
         } else {
-            if (!isUserInRole(userName, "default")) {
+            if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
                 LOGGER.error("Error when authenticating the user: " + userName + ". The user doesn't exist");
                 return false;
             }
