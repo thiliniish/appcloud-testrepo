@@ -20,7 +20,6 @@ package org.wso2.carbon.cloud.userstore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -156,13 +155,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
     @Override
     public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
-        String convertedUserName = doConvert(userName);
-        if (!(isUserInRole(convertedUserName, "default")) && (getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
-            String[] roles = { "default" };
-            updateRoleListOfUser(convertedUserName, null, roles);
-            LOGGER.info("Default Role assigned for user : " + convertedUserName);
-        }
-        return super.doAuthenticate(convertedUserName, credential);
+        return super.doAuthenticate(doConvert(userName), credential);
     }
 
     @Override
