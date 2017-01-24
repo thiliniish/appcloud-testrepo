@@ -32,5 +32,6 @@
     <modules>
         <module>ssl-security-service</module>
         <module>nginx-client</module>
+        <module>registry-migration-tool</module>
     </modules>
 </project>
