@@ -20,56 +20,14 @@
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
 
 <%
-    String type = request.getParameter("type");
-    if ("samlsso".equals(type)) {
-	
-		String redirectString = "../authenticationendpoint/samlsso_login_redirect.jsp?relyingParty="
-                              + CharacterEncoder.getSafeText(request.getParameter("relyingParty"))
-                              + "&sessionDataKey="
-                              + CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))
-                              + "&commonAuthCallerPath="
-                              + CharacterEncoder.getSafeText(request.getParameter("commonAuthCallerPath"))
-                              + "&forceAuth="
-                              + CharacterEncoder.getSafeText(request.getParameter("forceAuth"))
-                              + "&passiveAuth="
-                              + CharacterEncoder.getSafeText(request.getParameter("passiveAuth"))
-                              + "&RelayState="
-                              + CharacterEncoder.getSafeText(request.getParameter("RelayState"))
-                              + "&SSOAuthSessionID="
-                              + CharacterEncoder.getSafeText(request.getParameter("SSOAuthSessionID"))
-                              + "&commonAuthCallerPath="
-                              + CharacterEncoder.getSafeText(request.getParameter("commonAuthCallerPath"))
-                              + "&tenantDomain="
-                              + CharacterEncoder.getSafeText(request.getParameter("tenantDomain"))
-                              + "&type="
-                              + CharacterEncoder.getSafeText(request.getParameter("type"))
-                              + "&sp="
-                              + CharacterEncoder.getSafeText(request.getParameter("sp"))
-                              + "&isSaaSApp="
-                              + CharacterEncoder.getSafeText(request.getParameter("isSaaSApp"))
-                              + "&authenticators="
-                              + CharacterEncoder.getSafeText(request.getParameter("authenticators"))
-                              + "&storeTenantDomain="
-                              + CharacterEncoder.getSafeText(request.getParameter("storeTenantDomain"));
-
+    String loginFormActionUrl = "../authenticationendpoint/login_redirect.jsp";
+    String queryParamString = request.getQueryString();
+    if (StringUtils.isNotEmpty(queryParamString)) {
+        loginFormActionUrl = loginFormActionUrl.concat('?' + queryParamString);
+    }
 %>
-<form action="<%=redirectString%>" method="post" id="loginForm" class="form-horizontal">
+<form action="<%=Encode.forHtmlAttribute(loginFormActionUrl)%>" method="post" id="loginForm" class="form-horizontal">
     <input id="tocommonauth" name="tocommonauth" type="hidden" value="true">
-<%
-    } else if ("oauth2".equals(type)){
-%>
-    <form action="/oauth2/authorize" method="post" id="loginForm" class="form-horizontal">
-        <input id="tocommonauth" name="tocommonauth" type="hidden" value="true">
-
-<%
-    } else {
-%>
-
-<form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
-
-    <%
-        }
-    %>
 
     <% if (Boolean.parseBoolean(loginFailed)) { %>
     <%}else if((Boolean.TRUE.toString()).equals(request.getParameter("authz_failure"))){
@@ -118,11 +76,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                <%
+                                    if (StringUtils.isEmpty(request.getParameter("storeTenantDomain"))) {
+                                %>
                                 <div class="login-box-bottom">
                                     <a class="pull-left" href="<%=cloudMgtUrl%>/site/pages/initiate.jag">Forgot Password?</a>
                                     <a class="pull-right" href="<%=cloudMgtUrl%>/site/pages/signup.jag">Create an account</a>
                                     <div style="clear: both"></div>
                                 </div>
+                                <%
+                                    }
+                                %>
                             </div>
                         </div>
                     </div>
