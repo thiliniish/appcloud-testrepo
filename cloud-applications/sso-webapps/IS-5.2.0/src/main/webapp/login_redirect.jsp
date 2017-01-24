@@ -155,7 +155,7 @@ logged into that tenant
                     loginForm2ActionUrl = loginForm2ActionUrl.concat('?' + queryString);
                 }
 
-        %>      <form action="<%=loginForm2ActionUrl%>" method="post" id="loginForm2" class="form-horizontal" >
+        %>      <form action="<%=Encode.forHtmlAttribute(loginForm2ActionUrl)%>" method="post" id="loginForm2" class="form-horizontal" >
                     <div class="row">
                         <div class="span6">
                             <%@ include file="basicauth.jsp"%>
