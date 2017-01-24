@@ -82,7 +82,8 @@ public class SSLFileHandler {
 
         String defaultRegistryLocation =
                 configReader.getProperty("remoteregistry.path") + "api-cloud/" + tenantDomain + "/" +
-                "securityCertificates/" + type + "/" + tenantDomain + "-" + type;
+                        "securityCertificates/" + configReader.getProperty("region") + "/" + type + "/" + tenantDomain +
+                        "-" + type;
 
         String defaultFilePath =
                 configReader.getProperty("api_cloud_security_certificate_file_location") + "/" + tenantDomain +

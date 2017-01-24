@@ -239,6 +239,9 @@ public class VHostManager {
 
             if (registryManager.resourceExists(registryPath)) {
 
+                //Move existing configs to a backup directory
+                backupExistingConfigs();
+
                 Collection cloudCollection = (Collection) registryManager.getResourceFromRegistry(registryPath);
 
                 for (int i = 0; i < cloudCollection.getChildCount(); i++) {
@@ -255,7 +258,8 @@ public class VHostManager {
                                                       .substring(tenantCollectionElement.lastIndexOf("/") + 1,
                                                                  tenantCollectionElement.length());
 
-                            String urlMappingPath = tenantCollectionElement + "/urlMapping/" + tenantId;
+                            String urlMappingPath = tenantCollectionElement + "/urlMapping/"
+                                                            + configReader.getProperty("region") + "-" + tenantId;
                             Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                             byte[] r = (byte[]) resource.getContent();
                             try {
@@ -372,6 +376,21 @@ public class VHostManager {
                     "Error occured when setting ssl files while restoring nginx " + "configuration locally.";
             log.error(errorMessage, e);
             throw new KeyStoreException(errorMessage, e);
+        }
+    }
+
+    private void backupExistingConfigs() {
+        String currentFilePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH);
+        String backupPath = configReader.getProperty(NginxVhostConstants.NGINX_BACKUP_PATH);
+        File file = new File(currentFilePath);
+        if (file.exists()) {
+            if (file.renameTo(new File(backupPath))) {
+                log.info("Custom url configs are backed up at " + backupPath);
+            } else {
+                log.info("Custom url configs backup to " + backupPath + " failed");
+            }
+        } else {
+            log.info("There are no custom url configs to backup");
         }
     }
 

@@ -72,7 +72,8 @@ public class MessageBrokerConsumer implements MessageListener {
         this.vHostManager = vHostManager;
         this.templateManager = templateManager;
         this.configReader = configReader;
-        this.messageBrokerTopicName = configReader.getProperty("messageBrokerTopicName");
+        this.messageBrokerTopicName = configReader.getProperty("messageBrokerTopicName") + configReader.getProperty(
+                "region");
         try {
             setConnection(configReader.getProperty("messageBrokerUrl"));
             init();
