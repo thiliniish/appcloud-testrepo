@@ -1,69 +1,69 @@
 <%
-	include("/jagg/constants.jag");
-	var log = new Log("modules/customurl/publish/publish.jag");
+    include("/jagg/constants.jag");
+    var log = new Log("modules/customurl/publish/publish.jag");
 
-	var ActiveMQConnectionFactory = org.apache.activemq.ActiveMQConnectionFactory;
-	var Session = javax.jms.Session;
-	var utilModule = jagg.module("util");
-	var cloudConfigFile = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-	var appCloudServerBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
-	var registryPath = cloudConfigFile.customUrl.registry.registryPath;
-	var registryUsername = cloudConfigFile.customUrl.registry.registryUsername;
-	var registryPassword = cloudConfigFile.customUrl.registry.registryPassword;
+    var ActiveMQConnectionFactory = org.apache.activemq.ActiveMQConnectionFactory;
+    var Session = javax.jms.Session;
+    var utilModule = jagg.module("util");
+    var cloudConfigFile = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var appCloudServerBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
+    var registryPath = cloudConfigFile.customUrl.registry.registryPath;
+    var registryUsername = cloudConfigFile.customUrl.registry.registryUsername;
+    var registryPassword = cloudConfigFile.customUrl.registry.registryPassword;
 
-	var topicName = cloudConfigFile.customUrl.messageBroker.topicName;
-	var messageBrokerUrl = cloudConfigFile.customUrl.messageBroker.messageBrokerUrl;
+    var topicName = cloudConfigFile.customUrl.messageBroker.topicName;
+    var messageBrokerUrl = cloudConfigFile.customUrl.messageBroker.messageBrokerUrl;
 
-	var defaultStoreURL = cloudConfigFile.customUrl.defaultStoreUrl;
-	var defaultGatewayURL = cloudConfigFile.customUrl.defaultGatewayUrl;
-	var httpsGatewayPort = cloudConfigFile.customUrl.httpsGatewayPort;
+    var defaultStoreURL = cloudConfigFile.customUrl.defaultStoreUrl;
+    var defaultGatewayURL = cloudConfigFile.customUrl.defaultGatewayUrl;
+    var httpsGatewayPort = cloudConfigFile.customUrl.httpsGatewayPort;
 
-	var carbon = require('carbon');
-	var registry = carbon.server.osgiService('org.wso2.carbon.registry.core.service.RegistryService')
-    											.getGovernanceUserRegistry(registryUsername, registryPassword);
+    var carbon = require('carbon');
+    var registry = carbon.server.osgiService('org.wso2.carbon.registry.core.service.RegistryService')
+                                                .getGovernanceUserRegistry(registryUsername, registryPassword);
 
-	var DNS_CNAME_RECORD = "CNAME";
-	var messageBrokerConnection;
+    var DNS_CNAME_RECORD = "CNAME";
+    var messageBrokerConnection;
 
-	var encryptedSSLFileContent;
-	var encryptedKeyFileContent;
-	var encryptedChainFileContent;
-	var encodedIndexingVectorContent;
+    var encryptedSSLFileContent;
+    var encryptedKeyFileContent;
+    var encryptedChainFileContent;
+    var encodedIndexingVectorContent;
 
-	var isRegionSelectionEnabled = function () {
-		var enabledRegionSelection = false;
-		var regionSelection = null;
-		var type = cloudConfigFile.subscriptions.type;
-		//Get region selection configs
-		for (var i = 0; i < type.length; i++) {
-			if (type[i].id == SUBSCRIPTION_API_CLOUD) {
-				regionSelection = type[i].regionSelection;
-				break;
-			}
-		}
-		//Get current rate plan level
-		var currentRatePlan = jagg.module("billing").getCurrentRatePlan();
-		var ratePlansObj = jagg.module("billing").getRatePlans(SUBSCRIPTION_API_CLOUD);
-		var ratePlans = ratePlansObj.entry;
-		var currentPlanLevel = 0;
-		if (ratePlans != null) {
-			for (var j = 0; j < ratePlans.length; j++) {
-				if (ratePlans[j].id == currentRatePlan.id) {
-					currentPlanLevel = ratePlans[j].premiumLevel;
-				}
-			}
-		}
-		//Check if region selection enabled for current plan
-		if (regionSelection != null) {
-			for (var j = 0; j < regionSelection.length; j++) {
-				if (regionSelection[j].premiumLevel == currentPlanLevel) {
-					enabledRegionSelection = true;
-					break;
-				}
-			}
-		}
-		return enabledRegionSelection;
-	};
+    var isRegionSelectionEnabled = function () {
+        var enabledRegionSelection = false;
+        var regionSelection = null;
+        var type = cloudConfigFile.subscriptions.type;
+        //Get region selection configs
+        for (var i = 0; i < type.length; i++) {
+            if (type[i].id == SUBSCRIPTION_API_CLOUD) {
+                regionSelection = type[i].regionSelection;
+                break;
+            }
+        }
+        //Get current rate plan level
+        var currentRatePlan = jagg.module("billing").getCurrentRatePlan();
+        var ratePlansObj = jagg.module("billing").getRatePlans(SUBSCRIPTION_API_CLOUD);
+        var ratePlans = ratePlansObj.entry;
+        var currentPlanLevel = 0;
+        if (ratePlans != null) {
+            for (var j = 0; j < ratePlans.length; j++) {
+                if (ratePlans[j].id == currentRatePlan.id) {
+                    currentPlanLevel = ratePlans[j].premiumLevel;
+                }
+            }
+        }
+        //Check if region selection enabled for current plan
+        if (regionSelection != null) {
+            for (var j = 0; j < regionSelection.length; j++) {
+                if (regionSelection[j].premiumLevel == currentPlanLevel) {
+                    enabledRegionSelection = true;
+                    break;
+                }
+            }
+        }
+        return enabledRegionSelection;
+    };
 
     var sendGatewayMigrationEmails = function (username, userEmail, tenantDomain, region) {
         var isSuccessful = false;
@@ -113,12 +113,12 @@
 
             var customUrlMappingStatus = fileEncryptionStatus;
 
-			//Get default region
-			var defaultRegion = cloudConfigFile.customUrl.defaultRegion.id;
+            //Get default region
+            var defaultRegion = cloudConfigFile.customUrl.defaultRegion.id;
             //Determine the registry path for security certificates
             var certsRegistryPath;
             if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
-				if (region == "" || region == undefined) {
+                if (region == "" || region == undefined) {
                     region = defaultRegion;
                 }
                 certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
@@ -220,392 +220,392 @@
         }
     };
 
-	function isRepeatedGatewayMapping(tenantDomain) {
-		var isRepeated = false;
-		var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
-		if(currentMapping.gateway.customUrl !=
-				(defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")){
-			isRepeated = true;
-		}
-		return isRepeated;
-	};
+    function isRepeatedGatewayMapping(tenantDomain) {
+        var isRepeated = false;
+        var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
+        if(currentMapping.gateway.customUrl !=
+                (defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")){
+            isRepeated = true;
+        }
+        return isRepeated;
+    };
 
     function getPayLoad(node, customUrl, status, tenantDomain, region) {
-		var payload = {};
-		if (status == "initial") {
-			if (node == "store") {
-				payload.type = 'initial';
-				var storePayload = {};
-				storePayload.customUrl = customUrl;
-				var gatewayPayload = {};
-				gatewayPayload.customUrl = defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/";
-				gatewayPayload.region = region;
-				payload.store = storePayload;
-				payload.gateway = gatewayPayload;
-			} else {
-				payload.type = 'initial';
-				var storePayload = {};
-				storePayload.customUrl = defaultStoreURL + "/store";
-				var gatewayPayload = {};
-				gatewayPayload.customUrl = customUrl;
-				gatewayPayload.region = region;
-				payload.store = storePayload;
-				payload.gateway = gatewayPayload;
-			}
-		} else {
-			var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
-			if (node == 'store') {
+        var payload = {};
+        if (status == "initial") {
+            if (node == "store") {
+                payload.type = 'initial';
+                var storePayload = {};
+                storePayload.customUrl = customUrl;
+                var gatewayPayload = {};
+                gatewayPayload.customUrl = defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/";
+                gatewayPayload.region = region;
+                payload.store = storePayload;
+                payload.gateway = gatewayPayload;
+            } else {
+                payload.type = 'initial';
+                var storePayload = {};
+                storePayload.customUrl = defaultStoreURL + "/store";
+                var gatewayPayload = {};
+                gatewayPayload.customUrl = customUrl;
+                gatewayPayload.region = region;
+                payload.store = storePayload;
+                payload.gateway = gatewayPayload;
+            }
+        } else {
+            var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
+            if (node == 'store') {
                 if (currentMapping.store.customUrl == (defaultStoreURL + "/store")) {
-					payload.type = 'initial';
-				} else {
-					payload.type = 'update';
-				}
+                    payload.type = 'initial';
+                } else {
+                    payload.type = 'update';
+                }
 
-				var storePayload = {};
-				storePayload.customUrl = customUrl;
-				var gatewayPayload = {};
-				gatewayPayload.customUrl = currentMapping.gateway.customUrl;
-				gatewayPayload.region = currentMapping.gateway.region;
-				payload.store = storePayload;
-				payload.gateway = gatewayPayload;
-			} else {
-				if (currentMapping.gateway.customUrl == (defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")) {
-					payload.type = 'initial';
-				} else {
-					payload.type = 'update';
-				}
+                var storePayload = {};
+                storePayload.customUrl = customUrl;
+                var gatewayPayload = {};
+                gatewayPayload.customUrl = currentMapping.gateway.customUrl;
+                gatewayPayload.region = currentMapping.gateway.region;
+                payload.store = storePayload;
+                payload.gateway = gatewayPayload;
+            } else {
+                if (currentMapping.gateway.customUrl == (defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")) {
+                    payload.type = 'initial';
+                } else {
+                    payload.type = 'update';
+                }
 
-				var storePayload = {};
-				storePayload.customUrl = currentMapping.store.customUrl;
-				var gatewayPayload = {};
-				gatewayPayload.customUrl = customUrl;
-				gatewayPayload.region = region;
-				payload.store = storePayload;
-				payload.gateway = gatewayPayload;
-			}
-		}
-		payload.node = node;
-		payload.tenantDomain = tenantDomain;
-		return payload;
-	}
+                var storePayload = {};
+                storePayload.customUrl = currentMapping.store.customUrl;
+                var gatewayPayload = {};
+                gatewayPayload.customUrl = customUrl;
+                gatewayPayload.region = region;
+                payload.store = storePayload;
+                payload.gateway = gatewayPayload;
+            }
+        }
+        payload.node = node;
+        payload.tenantDomain = tenantDomain;
+        return payload;
+    }
 
-	function initializeBroker() {
-		try {
-			connectionFactory = new ActiveMQConnectionFactory(messageBrokerUrl);
-			this.messageBrokerConnection = connectionFactory.createConnection();
-		} catch(e) {
-			var errorMessage = "Error occurred during establishing connection with " + messageBrokerUrl;
-			log.error(errorMessage);
-			throw e;
-		}
-	}
+    function initializeBroker() {
+        try {
+            connectionFactory = new ActiveMQConnectionFactory(messageBrokerUrl);
+            this.messageBrokerConnection = connectionFactory.createConnection();
+        } catch(e) {
+            var errorMessage = "Error occurred during establishing connection with " + messageBrokerUrl;
+            log.error(errorMessage);
+            throw e;
+        }
+    }
 
-	function publishToMessageBroker(payload, cloudType) {
+    function publishToMessageBroker(payload, cloudType) {
 
-		var jsonPayload = {};
+        var jsonPayload = {};
 
-		if (cloudType == "api-cloud") {
-			jsonPayload.cloudType = cloudType;
-			jsonPayload.status = payload.type;
-			jsonPayload.node = payload.node;
-			jsonPayload.tenantDomain = payload.tenantDomain;
+        if (cloudType == "api-cloud") {
+            jsonPayload.cloudType = cloudType;
+            jsonPayload.status = payload.type;
+            jsonPayload.node = payload.node;
+            jsonPayload.tenantDomain = payload.tenantDomain;
 
-			if (payload.node == "store") {
-				jsonPayload.customUrl = payload.store.customUrl;
-				topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
-			} else {
-				jsonPayload.customUrl = payload.gateway.customUrl;
-				if (payload.gateway.region) {
-					topicName = topicName + payload.gateway.region;
-				} else {
-					topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
-				}
-			}
-		}
-		try {
-	    	var session = messageBrokerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-	    	var topic = session.createTopic(topicName);
-	    	var message = session.createTextMessage();
-	    	var messageProducer = session.createProducer(topic);
-	    	var text = stringify(jsonPayload);
-	    	message.setText(text);
-	    	messageProducer.send(message);
-		} catch(e) {
-			var errorMessage = "Exception occurred when publishing to message brocker "+ e;
-			log.error(errorMessage);
-			throw new Error(errorMessage);
-		} finally {
-			if (messageBrokerConnection != null) {
-				messageBrokerConnection.close();
-			}
-		}
-	}
+            if (payload.node == "store") {
+                jsonPayload.customUrl = payload.store.customUrl;
+                topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
+            } else {
+                jsonPayload.customUrl = payload.gateway.customUrl;
+                if (payload.gateway.region) {
+                    topicName = topicName + payload.gateway.region;
+                } else {
+                    topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
+                }
+            }
+        }
+        try {
+            var session = messageBrokerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            var topic = session.createTopic(topicName);
+            var message = session.createTextMessage();
+            var messageProducer = session.createProducer(topic);
+            var text = stringify(jsonPayload);
+            message.setText(text);
+            messageProducer.send(message);
+        } catch(e) {
+            var errorMessage = "Exception occurred when publishing to message brocker "+ e;
+            log.error(errorMessage);
+            throw new Error(errorMessage);
+        } finally {
+            if (messageBrokerConnection != null) {
+                messageBrokerConnection.close();
+            }
+        }
+    }
 
-	var getCurrentUserMapping = function(tenantDomain, cloudType) {
-		if (registry.resourceExists(registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain)) {
-			var registryLocation =registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain;
-			var resource = registry.get(registryLocation);
+    var getCurrentUserMapping = function(tenantDomain, cloudType) {
+        if (registry.resourceExists(registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain)) {
+            var registryLocation =registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain;
+            var resource = registry.get(registryLocation);
 
-			var stringOBj = String((new java.lang.String(resource.getContent())));
-			return parse(stringOBj);
-		}
-		return null;
+            var stringOBj = String((new java.lang.String(resource.getContent())));
+            return parse(stringOBj);
+        }
+        return null;
 
-	};
+    };
 
-	var isUrlAvailable = function(newUrl, node, tenantDomain) {
-		if (node == APPLICATION_NODE_TYPE) {
-			return (isCustomDomainAvailable(newUrl).trim() === "true");
-		} else {
-			var currentUrlMapping = getCurrentUserMapping(tenantDomain, "api-cloud");
-			if (currentUrlMapping != null) {
-				var currentUrl;
-				if (node == "store") {
-					currentUrl = currentUrlMapping.store.customUrl
-				} else {
-					currentUrl = currentUrlMapping.gateway.customUrl;
-				}
+    var isUrlAvailable = function(newUrl, node, tenantDomain) {
+        if (node == APPLICATION_NODE_TYPE) {
+            return (isCustomDomainAvailable(newUrl).trim() === "true");
+        } else {
+            var currentUrlMapping = getCurrentUserMapping(tenantDomain, "api-cloud");
+            if (currentUrlMapping != null) {
+                var currentUrl;
+                if (node == "store") {
+                    currentUrl = currentUrlMapping.store.customUrl
+                } else {
+                    currentUrl = currentUrlMapping.gateway.customUrl;
+                }
 
-				//checking whether the current-mapping is identical
-				if (currentUrl == newUrl) {
-					return true;
-				} else {
-					return checkMappingAvailable(newUrl);
-				}
-			} else {
-				return checkMappingAvailable(newUrl);
-			}
-		}
-	};
+                //checking whether the current-mapping is identical
+                if (currentUrl == newUrl) {
+                    return true;
+                } else {
+                    return checkMappingAvailable(newUrl);
+                }
+            } else {
+                return checkMappingAvailable(newUrl);
+            }
+        }
+    };
 
-	var checkMappingAvailable = function(newUrl) {
-		var registryLocation =registryPath + "/api-cloud";
-		var tenantCollection = registry.get(registryLocation);
+    var checkMappingAvailable = function(newUrl) {
+        var registryLocation =registryPath + "/api-cloud";
+        var tenantCollection = registry.get(registryLocation);
 
-		for (i = 0; i < tenantCollection.getChildCount(); i++) {
-			var tenantId = tenantCollection.getChildren()[i].substring(tenantCollection.getChildren()[i]
-						.lastIndexOf("/") + 1, tenantCollection.getChildren()[i].length());
-			var urlMappingPath = tenantCollection.getChildren()[i] + "/urlMapping/" + tenantId;
-			var domainResource = registry.get(urlMappingPath);
-			var urlMappingJson = parse(String((new java.lang.String(domainResource.getContent()))));
-			if (urlMappingJson.store.customUrl == newUrl) {
-				return false;
-			}
-			else if (urlMappingJson.gateway.customUrl == newUrl) {
-				return false;
-			}
-		}
-		return true;
-	};
+        for (i = 0; i < tenantCollection.getChildCount(); i++) {
+            var tenantId = tenantCollection.getChildren()[i].substring(tenantCollection.getChildren()[i]
+                        .lastIndexOf("/") + 1, tenantCollection.getChildren()[i].length());
+            var urlMappingPath = tenantCollection.getChildren()[i] + "/urlMapping/" + tenantId;
+            var domainResource = registry.get(urlMappingPath);
+            var urlMappingJson = parse(String((new java.lang.String(domainResource.getContent()))));
+            if (urlMappingJson.store.customUrl == newUrl) {
+                return false;
+            }
+            else if (urlMappingJson.gateway.customUrl == newUrl) {
+                return false;
+            }
+        }
+        return true;
+    };
 
-	var validateUrl = function(customUrl, pointedUrl) {
-		var JNDI_KEY_NAMING_FACTORY_INITIAL = "java.naming.factory.initial";
-		var JNDI_KEY_DNS_TIMEOUT = "com.sun.jndi.dns.timeout.initial";
-		var JDNI_KEY_DNS_RETRIES = "com.sun.jndi.dns.timeout.retries";
+    var validateUrl = function(customUrl, pointedUrl) {
+        var JNDI_KEY_NAMING_FACTORY_INITIAL = "java.naming.factory.initial";
+        var JNDI_KEY_DNS_TIMEOUT = "com.sun.jndi.dns.timeout.initial";
+        var JDNI_KEY_DNS_RETRIES = "com.sun.jndi.dns.timeout.retries";
 
-		var Hashtable = java.util.Hashtable;
-		var env = new Hashtable();
-		var success;
-    	// set environment configurations
-		env.put(JNDI_KEY_NAMING_FACTORY_INITIAL, "com.sun.jndi.dns.DnsContextFactory");
-		env.put(JNDI_KEY_DNS_TIMEOUT, "10000");
-		env.put(JDNI_KEY_DNS_RETRIES, "1");
+        var Hashtable = java.util.Hashtable;
+        var env = new Hashtable();
+        var success;
+        // set environment configurations
+        env.put(JNDI_KEY_NAMING_FACTORY_INITIAL, "com.sun.jndi.dns.DnsContextFactory");
+        env.put(JNDI_KEY_DNS_TIMEOUT, "10000");
+        env.put(JDNI_KEY_DNS_RETRIES, "1");
 
-		try {
-			var resolvedHosts = resolveDNS(customUrl, env);
-	   		var resolvedCnames = resolvedHosts.get(DNS_CNAME_RECORD);
-	   		if (!resolvedCnames.isEmpty() && resolvedCnames.contains(pointedUrl)) {
-	       		log.info(pointedUrl+" can be reached from: " + customUrl +" via CNAME records");
-	       		success = true;
-	   		} else {
-	       		log.warn(pointedUrl+" cannot be reached from: " + customUrl +" via CNAME records");
-	       		success = false;
-	  	}
-		} catch (e) {
-	  		log.error("Error occurred while resolving dns for: " + customUrl);
-	  		log.warn(e);
-		}
-		return success;
-	};
+        try {
+            var resolvedHosts = resolveDNS(customUrl, env);
+               var resolvedCnames = resolvedHosts.get(DNS_CNAME_RECORD);
+               if (!resolvedCnames.isEmpty() && resolvedCnames.contains(pointedUrl)) {
+                   log.info(pointedUrl+" can be reached from: " + customUrl +" via CNAME records");
+                   success = true;
+               } else {
+                   log.warn(pointedUrl+" cannot be reached from: " + customUrl +" via CNAME records");
+                   success = false;
+          }
+        } catch (e) {
+              log.error("Error occurred while resolving dns for: " + customUrl);
+              log.warn(e);
+        }
+        return success;
+    };
 
-	function resolveDNS(domain, environmentConfigs) {
-		//Import ArrayListMultimap
-		var ArrayListMultimap = com.google.common.collect.ArrayListMultimap;
-		//import InitialDirContext
-		var InitialDirContext = javax.naming.directory.InitialDirContext;
+    function resolveDNS(domain, environmentConfigs) {
+        //Import ArrayListMultimap
+        var ArrayListMultimap = com.google.common.collect.ArrayListMultimap;
+        //import InitialDirContext
+        var InitialDirContext = javax.naming.directory.InitialDirContext;
 
-		var dnsRecordsResult = ArrayListMultimap.create();
+        var dnsRecordsResult = ArrayListMultimap.create();
 
-		try {
-			if (log.isDebugEnabled()) {
-	       		log.debug("DNS validation: resolving DNS for " + domain);
-	    	}
+        try {
+            if (log.isDebugEnabled()) {
+                   log.debug("DNS validation: resolving DNS for " + domain);
+            }
 
-	    	var isCNAMEFound = false;
+            var isCNAMEFound = false;
 
-	    	var context = new InitialDirContext(environmentConfigs);
-	    	var dnsRecordsToCheck = [DNS_CNAME_RECORD];
-	    	var dnsRecords = context.getAttributes(domain, dnsRecordsToCheck);
+            var context = new InitialDirContext(environmentConfigs);
+            var dnsRecordsToCheck = [DNS_CNAME_RECORD];
+            var dnsRecords = context.getAttributes(domain, dnsRecordsToCheck);
 
-	    	// looking for CNAME records
-	    	var cnameRecords = dnsRecords.get(DNS_CNAME_RECORD);
-	    	if (cnameRecords != null && cnameRecords.size() > 0) {
-	       		var cnameRecordHosts = cnameRecords.getAll();
-	       		var cnameHost;
-	       		while (cnameRecordHosts.hasMore()) {
-	             	isCNAMEFound = true;
-	             	cnameHost = cnameRecordHosts.next().toString();
-	             	if (cnameHost.endsWith(".")) {
-	                	// Since DNS records are end with "." we are removing it.
-	                	// For example real dns entry for www.google.com is www.google.com.
-	                	cnameHost = cnameHost.substring(0, cnameHost.lastIndexOf('.'));
-	             	}
-	             	dnsRecordsResult.put(DNS_CNAME_RECORD, cnameHost);
-					if (log.isDebugEnabled()) {
-	                	log.debug("DNS validation: recurring on CNAME record towards host " + cnameHost);
-	             	}
-	             	dnsRecordsResult.putAll(resolveDNS(cnameHost, environmentConfigs)); // recursively resolve cnameHost
-	       		}
-	    	}
+            // looking for CNAME records
+            var cnameRecords = dnsRecords.get(DNS_CNAME_RECORD);
+            if (cnameRecords != null && cnameRecords.size() > 0) {
+                   var cnameRecordHosts = cnameRecords.getAll();
+                   var cnameHost;
+                   while (cnameRecordHosts.hasMore()) {
+                     isCNAMEFound = true;
+                     cnameHost = cnameRecordHosts.next().toString();
+                     if (cnameHost.endsWith(".")) {
+                        // Since DNS records are end with "." we are removing it.
+                        // For example real dns entry for www.google.com is www.google.com.
+                        cnameHost = cnameHost.substring(0, cnameHost.lastIndexOf('.'));
+                     }
+                     dnsRecordsResult.put(DNS_CNAME_RECORD, cnameHost);
+                    if (log.isDebugEnabled()) {
+                        log.debug("DNS validation: recurring on CNAME record towards host " + cnameHost);
+                     }
+                     dnsRecordsResult.putAll(resolveDNS(cnameHost, environmentConfigs)); // recursively resolve cnameHost
+                   }
+            }
 
-	    	if (!isCNAMEFound) {
-	        	log.info("DNS validation: No CNAME found for domain: '" + domain);
-	    	}
-	    	return dnsRecordsResult;
-		} catch (e) {
-			log.error("DNS validation: DNS query failed for: " + domain);
-			log.error(e);
-		}
-	}
+            if (!isCNAMEFound) {
+                log.info("DNS validation: No CNAME found for domain: '" + domain);
+            }
+            return dnsRecordsResult;
+        } catch (e) {
+            log.error("DNS validation: DNS query failed for: " + domain);
+            log.error(e);
+        }
+    }
 
-	/**
- 	* File Encryption and validation
- 	*/
-	function initializeSSLFileContent(sslFileContent, keyFileContent, chainFileContent, customUrl) {
-		var status = {};
-		status.error = false;
+    /**
+     * File Encryption and validation
+     */
+    function initializeSSLFileContent(sslFileContent, keyFileContent, chainFileContent, customUrl) {
+        var status = {};
+        status.error = false;
 
-		try {
-			var fileValidatingService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
-			fileValidatingService.init(sslFileContent, chainFileContent);
+        try {
+            var fileValidatingService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
+            fileValidatingService.init(sslFileContent, chainFileContent);
 
-			var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
+            var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
 
-			if (isSSLFileDateVerified.error == 'false') {
-				var isSelfSigned = parse(String(fileValidatingService.isCertificateSelfSigned()));
+            if (isSSLFileDateVerified.error == 'false') {
+                var isSelfSigned = parse(String(fileValidatingService.isCertificateSelfSigned()));
 
-				if (isSelfSigned.error == 'false') {
-					var isPublicKeyValid = parse(String(fileValidatingService.isPublicKeyValid()));
+                if (isSelfSigned.error == 'false') {
+                    var isPublicKeyValid = parse(String(fileValidatingService.isPublicKeyValid()));
 
-					if (isPublicKeyValid.error == 'false') {
-						var isUrlValidated = parse(String(fileValidatingService.validateIssuedUrl(customUrl)));
+                    if (isPublicKeyValid.error == 'false') {
+                        var isUrlValidated = parse(String(fileValidatingService.validateIssuedUrl(customUrl)));
 
-						if (isUrlValidated.error == 'false') {
-							status.error = false;
-						} else {
-							status.error = true;
-							status.message = isUrlValidated.message;
-						}
-					} else {
-						status.error = true;
-						status.message = isPublicKeyValid.message;
-					}
-				} else {
-					status.error = true;
-					status.message = isSelfSigned.message;
-				}
-			} else {
-				status.error = true;
-				status.message = isSSLFileDateVerified.message;
-			}
+                        if (isUrlValidated.error == 'false') {
+                            status.error = false;
+                        } else {
+                            status.error = true;
+                            status.message = isUrlValidated.message;
+                        }
+                    } else {
+                        status.error = true;
+                        status.message = isPublicKeyValid.message;
+                    }
+                } else {
+                    status.error = true;
+                    status.message = isSelfSigned.message;
+                }
+            } else {
+                status.error = true;
+                status.message = isSSLFileDateVerified.message;
+            }
 
-			if (!status.error) {
-				var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
-				fileEncryptService.init();
+            if (!status.error) {
+                var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
+                fileEncryptService.init();
 
-				encryptedSSLFileContent = fileEncryptService.encryptData(sslFileContent);
-				encryptedKeyFileContent = fileEncryptService.encryptData(keyFileContent);
-				encryptedChainFileContent = fileEncryptService.encryptData(chainFileContent);
-				encodedIndexingVectorContent = fileEncryptService.getIndexingVector();
-			}
+                encryptedSSLFileContent = fileEncryptService.encryptData(sslFileContent);
+                encryptedKeyFileContent = fileEncryptService.encryptData(keyFileContent);
+                encryptedChainFileContent = fileEncryptService.encryptData(chainFileContent);
+                encodedIndexingVectorContent = fileEncryptService.getIndexingVector();
+            }
 
-			return status;
-		} catch(e) {
-			var message = "Error occurred during file encryption.";
-			log.error(message + e);
-			status.error = true;
-			status.message = message + " Please contact WSO2 Cloud Team for help.";
-			return status;
-		}
+            return status;
+        } catch(e) {
+            var message = "Error occurred during file encryption.";
+            log.error(message + e);
+            status.error = true;
+            status.message = message + " Please contact WSO2 Cloud Team for help.";
+            return status;
+        }
 
-	}
+    }
 
-	function getCustomDomainDetailsForTenant() {
-		var cookie = getCookieFromLoginToAppCloudUsingJWT();
+    function getCustomDomainDetailsForTenant() {
+        var cookie = getCookieFromLoginToAppCloudUsingJWT();
 
-		//Invoke App Cloud REST API to get custom domain details for logged in tenant
-		var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.applicationBlockSuffix;
-		var getCustomDomainDetailsForTenantAction =
-				cloudConfigFile.customUrl.appCloud.getCustomDomainDetailsForTenantAction;
-		var customDomainDetailsQueryData = {
-			"action" : getCustomDomainDetailsForTenantAction
-		};
-		var customDomainDetailsQueryHeaders = {
-			"Cookie" : cookie
-		};
-		var customDomainDetailsQueryResult = post(applicationAPIUrl, customDomainDetailsQueryData,
-				customDomainDetailsQueryHeaders);
-		return customDomainDetailsQueryResult.xhr.responseText;
-	}
+        //Invoke App Cloud REST API to get custom domain details for logged in tenant
+        var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.applicationBlockSuffix;
+        var getCustomDomainDetailsForTenantAction =
+                cloudConfigFile.customUrl.appCloud.getCustomDomainDetailsForTenantAction;
+        var customDomainDetailsQueryData = {
+            "action" : getCustomDomainDetailsForTenantAction
+        };
+        var customDomainDetailsQueryHeaders = {
+            "Cookie" : cookie
+        };
+        var customDomainDetailsQueryResult = post(applicationAPIUrl, customDomainDetailsQueryData,
+                customDomainDetailsQueryHeaders);
+        return customDomainDetailsQueryResult.xhr.responseText;
+    }
 
-	function getCookieFromLoginToAppCloudUsingJWT() {
-		return loginToAppCloudUsingJWT().getResponseHeader(SET_COOKIE_HEADER);
-	}
+    function getCookieFromLoginToAppCloudUsingJWT() {
+        return loginToAppCloudUsingJWT().getResponseHeader(SET_COOKIE_HEADER);
+    }
 
-	function loginToAppCloudUsingJWT() {
-		try {
-			var fullUsername = session.get("LOGGED_IN_USER");
-			var authorizationHeader = utilModule.getAuthHeader(fullUsername);
+    function loginToAppCloudUsingJWT() {
+        try {
+            var fullUsername = session.get("LOGGED_IN_USER");
+            var authorizationHeader = utilModule.getAuthHeader(fullUsername);
 
-			//Login to App Cloud using jwt authentication
-			var loginUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
-			var loginAction = cloudConfigFile.customUrl.appCloud.loginAction;
-			var loginData = {
-				"action": loginAction
-			};
-			var loginHeaders = {
-				"Authorization": stringify(authorizationHeader)
-			};
-			var loginResult = post(loginUrl, loginData, loginHeaders);
-			var loginResponse = loginResult.xhr.responseText;
-			if (loginResponse.error == "true") {
-				throw new Error(loginResponse.message);
-			} else {
-				return loginResult.xhr;
-			}
-		} catch (e) {
-			var errorMessage = "Exception occurred during establishing connection to AppCloud.";
-			log.error(errorMessage);
-			log.error(e);
-			throw e;
-		}
-	}
+            //Login to App Cloud using jwt authentication
+            var loginUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
+            var loginAction = cloudConfigFile.customUrl.appCloud.loginAction;
+            var loginData = {
+                "action": loginAction
+            };
+            var loginHeaders = {
+                "Authorization": stringify(authorizationHeader)
+            };
+            var loginResult = post(loginUrl, loginData, loginHeaders);
+            var loginResponse = loginResult.xhr.responseText;
+            if (loginResponse.error == "true") {
+                throw new Error(loginResponse.message);
+            } else {
+                return loginResult.xhr;
+            }
+        } catch (e) {
+            var errorMessage = "Exception occurred during establishing connection to AppCloud.";
+            log.error(errorMessage);
+            log.error(e);
+            throw e;
+        }
+    }
 
-	function isCustomDomainAvailable(customDomain) {
-		var cookie = getCookieFromLoginToAppCloudUsingJWT();
+    function isCustomDomainAvailable(customDomain) {
+        var cookie = getCookieFromLoginToAppCloudUsingJWT();
 
-		//Invoke App Cloud REST API to check if custom domain is available
-		var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
-		var isCustomDomainAvailableAction = cloudConfigFile.customUrl.appCloud.isCustomDomainAvailableAction;
-		var isCustomDomainAvailableQueryData = {
-			"action" : isCustomDomainAvailableAction,
-			"customDomain" : customDomain
-		};
-		var isCustomDomainAvailableQueryHeaders = {
-			"Cookie" : cookie
-		};
-		var isCustomDomainAvailableQueryResult = post(applicationAPIUrl, isCustomDomainAvailableQueryData,
-				isCustomDomainAvailableQueryHeaders);
-		return isCustomDomainAvailableQueryResult.xhr.responseText;
-	}
+        //Invoke App Cloud REST API to check if custom domain is available
+        var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
+        var isCustomDomainAvailableAction = cloudConfigFile.customUrl.appCloud.isCustomDomainAvailableAction;
+        var isCustomDomainAvailableQueryData = {
+            "action" : isCustomDomainAvailableAction,
+            "customDomain" : customDomain
+        };
+        var isCustomDomainAvailableQueryHeaders = {
+            "Cookie" : cookie
+        };
+        var isCustomDomainAvailableQueryResult = post(applicationAPIUrl, isCustomDomainAvailableQueryData,
+                isCustomDomainAvailableQueryHeaders);
+        return isCustomDomainAvailableQueryResult.xhr.responseText;
+    }
 %>
