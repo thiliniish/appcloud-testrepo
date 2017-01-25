@@ -93,5 +93,26 @@ var convertClaims = function (result) {
     return claims;
 }
 
+var getDisplayName = function (username) {
+    var userDisplayName = null;
+    var profileDetails = getProfile(username);
+    if (profileDetails.firstname != null) {
+        //Checking erroneous values in LDAP
+        if (profileDetails.firstname != "undefined" && profileDetails.firstname != "$1" && profileDetails.firstname
+                != "") {
+            userDisplayName = profileDetails.firstname;
+        }
+    } else {
+        if (profileDetails.lastname != null) {
+            //Checking erroneous values in LDAP
+            if (profileDetails.lastname != "undefined" && profileDetails.lastname != "$2" && profileDetails
+                            .lastname != "") {
+                userDisplayName = profileDetails.lastname;
+            }
+        }
+    }
+    return userDisplayName;
+}
+
 %>
 

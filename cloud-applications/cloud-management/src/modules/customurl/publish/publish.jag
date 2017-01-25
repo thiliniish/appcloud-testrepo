@@ -1,7 +1,7 @@
 <%
-
+	include("/jagg/constants.jag");
 	var log = new Log("modules/customurl/publish/publish.jag");
-    
+
 	var ActiveMQConnectionFactory = org.apache.activemq.ActiveMQConnectionFactory;
 	var Session = javax.jms.Session;
 	var utilModule = jagg.module("util");
@@ -10,7 +10,7 @@
 	var registryPath = cloudConfigFile.customUrl.registry.registryPath;
 	var registryUsername = cloudConfigFile.customUrl.registry.registryUsername;
 	var registryPassword = cloudConfigFile.customUrl.registry.registryPassword;
-    
+
 	var topicName = cloudConfigFile.customUrl.messageBroker.topicName;
 	var messageBrokerUrl = cloudConfigFile.customUrl.messageBroker.messageBrokerUrl;
 
@@ -24,102 +24,213 @@
 
 	var DNS_CNAME_RECORD = "CNAME";
 	var messageBrokerConnection;
-    
+
 	var encryptedSSLFileContent;
 	var encryptedKeyFileContent;
 	var encryptedChainFileContent;
 	var encodedIndexingVectorContent;
 
-	var publish = function(tenantDomain, cloudProfile, node, customUrl, sslCertificateContent, keyFileContent,
-						   chainFileContent) {
-
-		try {
-			var status = "initial";
-			var fileEncryptionStatus = initializeSSLFileContent(sslCertificateContent, keyFileContent, chainFileContent, customUrl);
-
-			if (fileEncryptionStatus.error == true) {
-				return fileEncryptionStatus;
+	var isRegionSelectionEnabled = function () {
+		var enabledRegionSelection = false;
+		var regionSelection = null;
+		var type = cloudConfigFile.subscriptions.type;
+		//Get region selection configs
+		for (var i = 0; i < type.length; i++) {
+			if (type[i].id == SUBSCRIPTION_API_CLOUD) {
+				regionSelection = type[i].regionSelection;
+				break;
 			}
-
-			var customUrlMappingStatus = fileEncryptionStatus;
-
-			registry.beginTransaction();
-
-			if (registry.resourceExists(registryPath + cloudProfile + "/" + tenantDomain)) {
-				status = "update";
-				if (registry.resourceExists(registryPath + cloudProfile + "/" + tenantDomain
-								+ "/securityCertificates/" + node)) {
-					registry.delete(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node);
+		}
+		//Get current rate plan level
+		var currentRatePlan = jagg.module("billing").getCurrentRatePlan();
+		var ratePlansObj = jagg.module("billing").getRatePlans(SUBSCRIPTION_API_CLOUD);
+		var ratePlans = ratePlansObj.entry;
+		var currentPlanLevel = 0;
+		if (ratePlans != null) {
+			for (var j = 0; j < ratePlans.length; j++) {
+				if (ratePlans[j].id == currentRatePlan.id) {
+					currentPlanLevel = ratePlans[j].premiumLevel;
 				}
 			}
-
-			var payload = null;
-			if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
-				payload = getPayLoad(node, customUrl, status, tenantDomain);
-				var urlMappingContent = '{"tenantDomain" : "' + payload.tenantDomain + '", "store" : {"customUrl" : "'
-					 + payload.store.customUrl + '"}, "gateway" : {"customUrl" : "' + payload.gateway.customUrl + '"}}';
-				var urlMappingResource = registry.newResource();
-				urlMappingResource.setContent(urlMappingContent);
-				registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/urlMapping/" + tenantDomain,
-						urlMappingResource);
-			}
-
-			/**
-		 	* Setting resources
-		 	*/
-			var sslFileResource = registry.newResource();
-			sslFileResource.setContent(encryptedSSLFileContent);
-		
-			var keyFileResource = registry.newResource();
-			keyFileResource.setContent(encryptedKeyFileContent);
-		
-			var chainFileResource = registry.newResource();
-			chainFileResource.setContent(encryptedChainFileContent);
-		
-			var indexingVectorResource = registry.newResource();
-			indexingVectorResource.setContent(encodedIndexingVectorContent);
-
-			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
-					+ tenantDomain + "-" + node + ".pem", sslFileResource);
-			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
-					+ tenantDomain + "-" + node + ".key", keyFileResource);
-			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
-					+ tenantDomain + "-" + node + ".pub", chainFileResource);
-			registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" + node + "/"
-					+ tenantDomain + "-" + node + ".iv", indexingVectorResource);
-
-			registry.commitTransaction();
-			if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
-				initializeBroker();
-				publishToMessageBroker(payload, cloudProfile);
-			} else {
-				var serverBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
-				var loginUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
-				var urlMapperUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
-				var server = carbon.server;
-				var service = server.osgiService('org.wso2.carbon.cloud.listener.CloudListener');
-				var username = session.get("LOGGED_IN_USER");
-				var parameterMap = new java.util.HashMap();
-				parameterMap.put("cloudType", cloudProfile);
-				parameterMap.put("username", username);
-				parameterMap.put("authorizationHeader", utilModule.getAuthHeader(username));
-				parameterMap.put("customUrl", customUrl);
-				parameterMap.put("applicationName", node);
-				parameterMap.put("loginUrl", loginUrl);
-				parameterMap.put("urlMapperUrl", urlMapperUrl);
-				service.triggerOnCustomUrlAddition(parameterMap);
-			}
-			return customUrlMappingStatus;
-		} catch(e) {
-			registry.rollbackTransaction();
-			var errorMessage = "Exception occurred during establishing connection " + e;
-			log.error(errorMessage);
-			throw e;
 		}
-	
+		//Check if region selection enabled for current plan
+		if (regionSelection != null) {
+			for (var j = 0; j < regionSelection.length; j++) {
+				if (regionSelection[j].premiumLevel == currentPlanLevel) {
+					enabledRegionSelection = true;
+					break;
+				}
+			}
+		}
+		return enabledRegionSelection;
 	};
 
-	function getPayLoad(node, customUrl, status, tenantDomain) {
+    var sendGatewayMigrationEmails = function (username, userEmail, tenantDomain, region) {
+        var isSuccessful = false;
+        var userDisplayName = jagg.module("user/profile").getDisplayName(username);
+        if (userDisplayName == null) {
+            userDisplayName = username;
+        }
+        if (userEmail == null) {
+            throw "Unable to send gateway migration notification email as user email is not specified.";
+        }
+
+        //Construct email bodies
+        var userEmailBody = utilModule.getObjFromFile(
+                "/site/conf/emails/migrate_regional_gateway_user_email_body.txt");
+        userEmailBody = userEmailBody.replace("$username", userDisplayName).replace("$tenant", tenantDomain).replace
+        ("$region", region);
+        var cloudEmailBody = utilModule.getObjFromFile(
+                "/site/conf/emails/migrate_regional_gateway_notification_email_body.txt");
+        cloudEmailBody = cloudEmailBody.replace("$username", username).replace("$tenant", tenantDomain).replace
+        ("$region", region);
+
+        //Send emails
+        var gatewayMigrationProperties = utilModule.getGatewayMigrationProperties();
+        if (gatewayMigrationProperties != null) {
+            var userEmailSubject = gatewayMigrationProperties.userEmailSubject;
+            var cloudEmail = gatewayMigrationProperties.cloudEmail;
+            var cloudEmailSubject = gatewayMigrationProperties.cloudEmailSubject;
+            if (utilModule.sendEmail(userEmailBody, userEmailSubject, userEmail) && utilModule.sendEmail
+                    (cloudEmailBody, cloudEmailSubject, cloudEmail)) {
+                isSuccessful = true;
+                log.info("Successfully sent gateway migration notification emails.");
+            }
+        }
+        return isSuccessful;
+    };
+
+    var publish = function (tenantDomain, region, cloudProfile, node, customUrl, sslCertificateContent, keyFileContent,
+                            chainFileContent, previousRegion) {
+        try {
+            var status = "initial";
+            var fileEncryptionStatus = initializeSSLFileContent(sslCertificateContent, keyFileContent, chainFileContent,
+                    customUrl);
+
+            if (fileEncryptionStatus.error == true) {
+                return fileEncryptionStatus;
+            }
+
+            var customUrlMappingStatus = fileEncryptionStatus;
+
+			//Get default region
+			var defaultRegion = cloudConfigFile.customUrl.defaultRegion.id;
+            //Determine the registry path for security certificates
+            var certsRegistryPath;
+            if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
+				if (region == "" || region == undefined) {
+                    region = defaultRegion;
+                }
+                certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
+                        region + "/" + node;
+            } else {
+                certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
+                        node;
+            }
+
+            registry.beginTransaction();
+
+            if (registry.resourceExists(registryPath + cloudProfile + "/" + tenantDomain)) {
+                status = "update";
+                if (registry.resourceExists(certsRegistryPath)) {
+                    registry.delete(certsRegistryPath);
+                }
+                //If this is a gateway region migration
+                if (node == GATEWAY_NODE_TYPE && isRepeatedGatewayMapping(tenantDomain)) {
+                    var previousCertsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain +
+                            "/securityCertificates/" + previousRegion;
+                    if (registry.resourceExists(previousCertsRegistryPath)) {
+                        registry.delete(previousCertsRegistryPath);
+                    }
+                    var previousUrlMappingPath = registryPath + cloudProfile + "/" + tenantDomain +
+                            "/urlMapping/" + previousRegion + "-" + tenantDomain;
+                    if (registry.resourceExists(previousUrlMappingPath)) {
+                        registry.delete(previousUrlMappingPath);
+                    }
+                }
+            }
+            var payload = null;
+            if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
+                payload = getPayLoad(node, customUrl, status, tenantDomain, region);
+                var urlMappingContent = '{"tenantDomain" : "' + payload.tenantDomain + '", "store" : {"customUrl" : "' + payload.store.customUrl +
+                        '"}, "gateway" : {"customUrl" : "' + payload.gateway.customUrl + '" , "region" : "' + payload
+                                .gateway.region + '"}}';
+                var urlMappingResource = registry.newResource();
+                urlMappingResource.setContent(urlMappingContent);
+                //<TODO>Needs to be configurable for multiple regions</TODO>
+                //Add the urlMapping content to default location
+                registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/urlMapping/" + tenantDomain,
+                        urlMappingResource);
+                //Add urlMapping content to the selected region
+                registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/urlMapping/" + region + "-" + tenantDomain,
+                        urlMappingResource);
+            }
+            /**
+             * Setting resources
+             */
+            var sslFileResource = registry.newResource();
+            sslFileResource.setContent(encryptedSSLFileContent);
+
+            var keyFileResource = registry.newResource();
+            keyFileResource.setContent(encryptedKeyFileContent);
+
+            var chainFileResource = registry.newResource();
+            chainFileResource.setContent(encryptedChainFileContent);
+
+            var indexingVectorResource = registry.newResource();
+            indexingVectorResource.setContent(encodedIndexingVectorContent);
+
+            registry.put(certsRegistryPath + "/" + tenantDomain + "-" + node + ".pem", sslFileResource);
+            registry.put(certsRegistryPath + "/" + tenantDomain + "-" + node + ".key", keyFileResource);
+            registry.put(certsRegistryPath + "/" + tenantDomain + "-" + node + ".pub", chainFileResource);
+            registry.put(certsRegistryPath + "/" + tenantDomain + "-" + node + ".iv", indexingVectorResource);
+            registry.commitTransaction();
+
+            publishToCustomUrlBroker(node, cloudProfile, customUrl, payload);
+            return customUrlMappingStatus;
+        } catch (e) {
+            registry.rollbackTransaction();
+            var errorMessage = "Exception occurred during establishing connection " + e;
+            log.error(errorMessage);
+            throw e;
+        }
+    };
+
+    function publishToCustomUrlBroker(node, cloudProfile, customUrl, payload) {
+
+        if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
+            initializeBroker();
+            publishToMessageBroker(payload, cloudProfile);
+        } else {
+            var serverBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
+            var loginUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
+            var urlMapperUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
+            var server = carbon.server;
+            var service = server.osgiService('org.wso2.carbon.cloud.listener.CloudListener');
+            var username = session.get("LOGGED_IN_USER");
+            var parameterMap = new java.util.HashMap();
+            parameterMap.put("cloudType", cloudProfile);
+            parameterMap.put("username", username);
+            parameterMap.put("authorizationHeader", utilModule.getAuthHeader(username));
+            parameterMap.put("customUrl", customUrl);
+            parameterMap.put("applicationName", node);
+            parameterMap.put("loginUrl", loginUrl);
+            parameterMap.put("urlMapperUrl", urlMapperUrl);
+            service.triggerOnCustomUrlAddition(parameterMap);
+        }
+    };
+
+	function isRepeatedGatewayMapping(tenantDomain) {
+		var isRepeated = false;
+		var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
+		if(currentMapping.gateway.customUrl !=
+				(defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")){
+			isRepeated = true;
+		}
+		return isRepeated;
+	};
+
+    function getPayLoad(node, customUrl, status, tenantDomain, region) {
 		var payload = {};
 		if (status == "initial") {
 			if (node == "store") {
@@ -127,7 +238,8 @@
 				var storePayload = {};
 				storePayload.customUrl = customUrl;
 				var gatewayPayload = {};
-				gatewayPayload.customUrl = defaultGatewayURL + ":" +httpsGatewayPort+ "/t/" + tenantDomain + "/";
+				gatewayPayload.customUrl = defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/";
+				gatewayPayload.region = region;
 				payload.store = storePayload;
 				payload.gateway = gatewayPayload;
 			} else {
@@ -136,42 +248,44 @@
 				storePayload.customUrl = defaultStoreURL + "/store";
 				var gatewayPayload = {};
 				gatewayPayload.customUrl = customUrl;
+				gatewayPayload.region = region;
 				payload.store = storePayload;
 				payload.gateway = gatewayPayload;
 			}
 		} else {
-			var currentMapping = this.getCurrentUserMapping(tenantDomain,'api-cloud');
+			var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
 			if (node == 'store') {
-				if (currentMapping.store.customUrl == (defaultStoreURL + "/store")) {
+                if (currentMapping.store.customUrl == (defaultStoreURL + "/store")) {
 					payload.type = 'initial';
 				} else {
 					payload.type = 'update';
 				}
-			
+
 				var storePayload = {};
 				storePayload.customUrl = customUrl;
 				var gatewayPayload = {};
 				gatewayPayload.customUrl = currentMapping.gateway.customUrl;
+				gatewayPayload.region = currentMapping.gateway.region;
 				payload.store = storePayload;
 				payload.gateway = gatewayPayload;
 			} else {
-				if (currentMapping.gateway.customUrl == (defaultGatewayURL + ":" +httpsGatewayPort+ "/t/" + tenantDomain + "/")) {
+				if (currentMapping.gateway.customUrl == (defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")) {
 					payload.type = 'initial';
 				} else {
 					payload.type = 'update';
 				}
-						
+
 				var storePayload = {};
 				storePayload.customUrl = currentMapping.store.customUrl;
 				var gatewayPayload = {};
 				gatewayPayload.customUrl = customUrl;
+				gatewayPayload.region = region;
 				payload.store = storePayload;
 				payload.gateway = gatewayPayload;
 			}
 		}
 		payload.node = node;
 		payload.tenantDomain = tenantDomain;
-	
 		return payload;
 	}
 
@@ -198,8 +312,14 @@
 
 			if (payload.node == "store") {
 				jsonPayload.customUrl = payload.store.customUrl;
+				topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
 			} else {
 				jsonPayload.customUrl = payload.gateway.customUrl;
+				if (payload.gateway.region) {
+					topicName = topicName + payload.gateway.region;
+				} else {
+					topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
+				}
 			}
 		}
 		try {
@@ -225,12 +345,12 @@
 		if (registry.resourceExists(registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain)) {
 			var registryLocation =registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain;
 			var resource = registry.get(registryLocation);
-	
+
 			var stringOBj = String((new java.lang.String(resource.getContent())));
 			return parse(stringOBj);
 		}
 		return null;
-	
+
 	};
 
 	var isUrlAvailable = function(newUrl, node, tenantDomain) {
@@ -282,7 +402,7 @@
 		var JNDI_KEY_NAMING_FACTORY_INITIAL = "java.naming.factory.initial";
 		var JNDI_KEY_DNS_TIMEOUT = "com.sun.jndi.dns.timeout.initial";
 		var JDNI_KEY_DNS_RETRIES = "com.sun.jndi.dns.timeout.retries";
-	    
+
 		var Hashtable = java.util.Hashtable;
 		var env = new Hashtable();
 		var success;
@@ -290,7 +410,7 @@
 		env.put(JNDI_KEY_NAMING_FACTORY_INITIAL, "com.sun.jndi.dns.DnsContextFactory");
 		env.put(JNDI_KEY_DNS_TIMEOUT, "10000");
 		env.put(JDNI_KEY_DNS_RETRIES, "1");
-	       
+
 		try {
 			var resolvedHosts = resolveDNS(customUrl, env);
 	   		var resolvedCnames = resolvedHosts.get(DNS_CNAME_RECORD);
@@ -313,20 +433,20 @@
 		var ArrayListMultimap = com.google.common.collect.ArrayListMultimap;
 		//import InitialDirContext
 		var InitialDirContext = javax.naming.directory.InitialDirContext;
-	
+
 		var dnsRecordsResult = ArrayListMultimap.create();
-	
+
 		try {
 			if (log.isDebugEnabled()) {
 	       		log.debug("DNS validation: resolving DNS for " + domain);
 	    	}
 
 	    	var isCNAMEFound = false;
-	
+
 	    	var context = new InitialDirContext(environmentConfigs);
 	    	var dnsRecordsToCheck = [DNS_CNAME_RECORD];
 	    	var dnsRecords = context.getAttributes(domain, dnsRecordsToCheck);
-	
+
 	    	// looking for CNAME records
 	    	var cnameRecords = dnsRecords.get(DNS_CNAME_RECORD);
 	    	if (cnameRecords != null && cnameRecords.size() > 0) {
@@ -347,7 +467,7 @@
 	             	dnsRecordsResult.putAll(resolveDNS(cnameHost, environmentConfigs)); // recursively resolve cnameHost
 	       		}
 	    	}
-	
+
 	    	if (!isCNAMEFound) {
 	        	log.info("DNS validation: No CNAME found for domain: '" + domain);
 	    	}
@@ -417,7 +537,7 @@
 			status.message = message + " Please contact WSO2 Cloud Team for help.";
 			return status;
 		}
-	
+
 	}
 
 	function getCustomDomainDetailsForTenant() {

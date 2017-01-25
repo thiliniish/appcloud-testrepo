@@ -20,10 +20,12 @@ include("/jagg/constants.jag");
     if (action == "publishVal") {
         var node = request.getParameter("node");
         var customDomain = request.getParameter("customDomain");
+        var region = request.getParameter("region");
         var sslFile = request.getFile("sslFile");
         var keyFile = request.getFile("keyFile");
         var chainFile = request.getFile("chainFile");
         var cloudProfile = request.getParameter("cloudProfile");
+        var previousRegion = request.getParameter("previousRegion");
 
         try {
             sslFile.open("r");
@@ -38,8 +40,8 @@ include("/jagg/constants.jag");
             var chainFileContent = chainFile.readAll();
             chainFile.close();
 
-            var status = mod.publish(tenantDomain, cloudProfile, node, customDomain, sslFileContent, keyFileContent,
-                    chainFileContent);
+            var status = mod.publish(tenantDomain, region, cloudProfile, node, customDomain, sslFileContent,
+                    keyFileContent, chainFileContent, previousRegion);
             print(status);
         } catch (e) {
             var errorMessage = "Error occurred while publishing custom domain value.";
@@ -51,7 +53,7 @@ include("/jagg/constants.jag");
     } else if (action == "validateUrl") {
         var nodeType = request.getParameter("nodeType");
         var customUrl = request.getParameter("customDomain");
-        var pointingUrl = cloudConfigFile.customUrl.apiCloudPointingUrl;
+        var pointingUrl = request.getParameter("pointingUrl");
         var urlValidation = {};
 
         try {
@@ -91,13 +93,29 @@ include("/jagg/constants.jag");
             jsonObj.gateway = gatewayMapping;
             value = jsonObj;
         }
-    	print(value);
+        print(value);
     } else if (action == "getCustomDomainDetailsForTenant") {
         try {
             var result = mod.getCustomDomainDetailsForTenant();
             print(result);
         } catch (e) {
             var errorMessage = "Error occurred while getting custom domain details for tenant.";
+            log.error(errorMessage);
+            log.error(e);
+            response.status = 500;
+            response.content = errorMessage;
+        }
+    } else if (action == "sendGatewayMigrationEmail") {
+        var username = request.getParameter("username");
+        var userEmail = request.getParameter("userEmail");
+        var tenantDomain = request.getParameter("tenantDomain");
+        var region = request.getParameter("region");
+        log.info("Received request for gateway migration to region " + region + " from " + username);
+        try {
+            var result = mod.sendGatewayMigrationEmails(username, userEmail, tenantDomain, region);
+            print(result);
+        } catch (e) {
+            var errorMessage = "Error occurred while sending emails to notify gateway migration.";
             log.error(errorMessage);
             log.error(e);
             response.status = 500;

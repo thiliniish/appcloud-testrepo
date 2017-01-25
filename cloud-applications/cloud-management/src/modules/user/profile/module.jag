@@ -5,7 +5,9 @@ jagg.module("user/profile", {
     },
     updateProfile: function () {
         return jagg.require(jagg.getModulesDir() + "user/profile/profile.jag").updateProfile.apply(this, arguments);
+    },
+    getDisplayName: function () {
+        return jagg.require(jagg.getModulesDir() + "user/profile/profile.jag").getDisplayName.apply(this, arguments);
     }
-
 });
 %>
