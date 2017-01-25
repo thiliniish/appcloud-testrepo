@@ -246,7 +246,7 @@ function publishCustomUrl(node) {
             isRegionAvailable = regionList[i].available;
             if (!isRegionAvailable) {
                 disableRegionSelection();
-                showMigrationNotification(regionList[i].name);
+                showMigrationNotification(regionList[i].regionName);
             }
         }
     }
