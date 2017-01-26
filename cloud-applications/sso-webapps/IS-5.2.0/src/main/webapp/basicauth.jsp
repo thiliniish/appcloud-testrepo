@@ -26,7 +26,7 @@
         loginFormActionUrl = loginFormActionUrl.concat('?' + queryParamString);
     }
 %>
-<form action="<%=loginFormActionUrl%>" method="post" id="loginForm" class="form-horizontal">
+<form action="<%=Encode.forHtmlAttribute(loginFormActionUrl)%>" method="post" id="loginForm" class="form-horizontal">
     <input id="tocommonauth" name="tocommonauth" type="hidden" value="true">
 
     <% if (Boolean.parseBoolean(loginFailed)) { %>
@@ -76,11 +76,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                <%
+                                    if (StringUtils.isEmpty(request.getParameter("storeTenantDomain"))) {
+                                %>
                                 <div class="login-box-bottom">
                                     <a class="pull-left" href="<%=cloudMgtUrl%>/site/pages/initiate.jag">Forgot Password?</a>
                                     <a class="pull-right" href="<%=cloudMgtUrl%>/site/pages/signup.jag">Create an account</a>
                                     <div style="clear: both"></div>
                                 </div>
+                                <%
+                                    }
+                                %>
                             </div>
                         </div>
                     </div>
