@@ -56,7 +56,7 @@
         //Check if region selection enabled for current plan
         if (regionSelection != null) {
             for (var j = 0; j < regionSelection.length; j++) {
-                if (regionSelection[j].premiumLevel == currentPlanLevel) {
+                if (currentPlanLevel >= regionSelection[j].premiumLevel) {
                     enabledRegionSelection = true;
                     break;
                 }
@@ -118,7 +118,7 @@
             //Determine the registry path for security certificates
             var certsRegistryPath;
             if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
-                if (region == "" || region == undefined) {
+                if (region == "" || region == undefined || region == null) {
                     region = defaultRegion;
                 }
                 certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
