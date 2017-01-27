@@ -49,25 +49,30 @@ public class MigrationManager {
      * @throws RegistryException
      * @throws IOException
      */
-    void migrateRegistryResources(String tenantList) throws RegistryException, IOException {
+    void migrateRegistryResources(String tenantList, String regionList) throws RegistryException, IOException {
         //Get tenant list
         String[] tenants = tenantList.split(",");
+        String[] regions = regionList.split(",");
         String registryPath = this.configReader.getProperty("remoteregistry.path");
+        String defaultRegion = this.configReader.getProperty("default.region");
+
         try {
             if (registryManager.resourceExists(registryPath)) {
-                for (String tenant : tenants) {
+                for (int i = 0; i < tenants.length; i++) {
+                    String tenantDomain = tenants[i];
+                    String region = regions[i];
+
                     //Copy url mappings
-                    String customPath = registryPath + tenant + "/urlMapping/" + configReader.getProperty("region") +
-                                                "-" + tenant;
-                    String defaultPath = registryPath + tenant + "/urlMapping/" + tenant;
+                    String customPath = registryPath + tenantDomain + "/urlMapping/" + region + "-" + tenantDomain;
+                    String defaultPath = registryPath + tenantDomain + "/urlMapping/" + tenantDomain;
                     if (registryManager.resourceExists(defaultPath)) {
                         registryManager.copyRegistryResource(defaultPath, customPath);
                     }
                     //Copy certificates
-                    defaultPath = registryPath + tenant + "/securityCertificates/";
+                    defaultPath = registryPath + tenantDomain + "/securityCertificates/";
                     if (registryManager.resourceExists(defaultPath)) {
                         //Create region collection
-                        registryManager.copyRegistryCollection(defaultPath, configReader.getProperty("region"));
+                        registryManager.copyRegistryCollection(defaultPath, region, defaultRegion);
                     }
                 }
             }

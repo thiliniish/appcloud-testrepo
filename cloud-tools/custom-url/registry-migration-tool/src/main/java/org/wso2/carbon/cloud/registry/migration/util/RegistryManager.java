@@ -48,7 +48,7 @@ public class RegistryManager {
      * Constructor for RegistryManager
      *
      * @param configReader ConfigurationReader
-     * @param axis2Conf Axis2 Configuration
+     * @param axis2Conf    Axis2 Configuration
      * @throws AxisFault
      * @throws RegistryException
      */
@@ -160,14 +160,16 @@ public class RegistryManager {
     /**
      * Copies a collection of resources
      *
-     * @param defaultPath The current path of the collection to be migrated
-     * @param region
+     * @param defaultPath
+     * @param customRegion
+     * @param defaultRegion
      * @throws RegistryException
      */
-    public void copyRegistryCollection(String defaultPath, String region) throws RegistryException {
+    public void copyRegistryCollection(String defaultPath, String customRegion, String defaultRegion) throws
+            RegistryException {
 
         Collection certificateCollection = (Collection) getResourceFromRegistry(defaultPath);
-
+        String region;
         for (int i = 0; i < certificateCollection.getChildCount(); i++) {
             String certificateCollectionElement = certificateCollection.getChildren()[i];
 
@@ -178,10 +180,15 @@ public class RegistryManager {
                     certificateCollectionElement.length());
 
             //Skip if already migrated
-            if (region.equals(nodeName)) {
+            if (customRegion.equals(nodeName)) {
                 log.info(
                         "Skipping certificate copy as resource '" + certificateCollectionElement + "' already exists.");
                 break;
+            }
+            if (RegistryMigrationConstants.STORE_TYPE.equals(nodeName)) {
+                region = defaultRegion;
+            } else {
+                region = customRegion;
             }
             String nodePath = defaultPath + region + "/" + nodeName;
 

@@ -43,7 +43,7 @@ public class Agent {
             ConfigReader configReader = new ConfigReader();
             MigrationManager vHostManager = new MigrationManager(configReader);
             if (args.length > 0 && MOVE_MODE.equals(args[0])) {
-                vHostManager.migrateRegistryResources(args[1]);
+                vHostManager.migrateRegistryResources(args[1], args[2]);
             }
         } catch (RegistryException | IOException e) {
             String errorMessage = "Error occurred when starting the Domain-Mapping agent";

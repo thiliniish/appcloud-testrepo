@@ -27,5 +27,6 @@ public class RegistryMigrationConstants {
     public static final String KEY_STORE_FILE_PATH = "resources/wso2carbon.jks";
     public static final String AXIS2_CONF_FILE_PATH = "resources/axis2_client.xml";
     public static final String TRUST_STORE_LOCATION = "resources/client-truststore.jks";
+    public static final String STORE_TYPE = "store";
 
 }
