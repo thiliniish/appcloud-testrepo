@@ -56,6 +56,7 @@
         //Check if region selection enabled for current plan
         if (regionSelection != null) {
             for (var j = 0; j < regionSelection.length; j++) {
+                //<TODO>Needs to be modified for multiple region selection in future</TODO>
                 if (currentPlanLevel >= regionSelection[j].premiumLevel) {
                     enabledRegionSelection = true;
                     break;
@@ -152,18 +153,19 @@
             var payload = null;
             if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
                 payload = getPayLoad(node, customUrl, status, tenantDomain, region);
-                var urlMappingContent = '{"tenantDomain" : "' + payload.tenantDomain + '", "store" : {"customUrl" : "' + payload.store.customUrl +
-                        '"}, "gateway" : {"customUrl" : "' + payload.gateway.customUrl + '" , "region" : "' + payload
-                                .gateway.region + '"}}';
+                var urlMappingContent = '{"tenantDomain" : "' + payload.tenantDomain + '", "store" : {"customUrl" : "'
+                        + payload.store.customUrl + '"}, "gateway" : {"customUrl" : "' + payload.gateway.customUrl +
+                        '" , "region" : "' + payload.gateway.region + '"}}';
                 var urlMappingResource = registry.newResource();
                 urlMappingResource.setContent(urlMappingContent);
+
                 //<TODO>Needs to be configurable for multiple regions</TODO>
                 //Add the urlMapping content to default location
                 registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/urlMapping/" + tenantDomain,
                         urlMappingResource);
                 //Add urlMapping content to the selected region
-                registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/urlMapping/" + region + "-" + tenantDomain,
-                        urlMappingResource);
+                registry.put(registryPath + cloudProfile + "/" + tenantDomain + "/urlMapping/" + region + "-"
+                        + tenantDomain, urlMappingResource);
             }
             /**
              * Setting resources
@@ -269,12 +271,12 @@
                 payload.store = storePayload;
                 payload.gateway = gatewayPayload;
             } else {
-                if (currentMapping.gateway.customUrl == (defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")) {
+                if (currentMapping.gateway.customUrl ==
+                        (defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")) {
                     payload.type = 'initial';
                 } else {
                     payload.type = 'update';
                 }
-
                 var storePayload = {};
                 storePayload.customUrl = currentMapping.store.customUrl;
                 var gatewayPayload = {};
@@ -486,7 +488,8 @@
         status.error = false;
 
         try {
-            var fileValidatingService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
+            var fileValidatingService =
+                    carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
             fileValidatingService.init(sslFileContent, chainFileContent);
 
             var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
@@ -520,7 +523,8 @@
             }
 
             if (!status.error) {
-                var fileEncryptService = carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
+                var fileEncryptService =
+                        carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
                 fileEncryptService.init();
 
                 encryptedSSLFileContent = fileEncryptService.encryptData(sslFileContent);

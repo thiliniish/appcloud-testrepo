@@ -2,10 +2,10 @@
 <%
     include("/jagg/constants.jag");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var tenantDomain =  request.getParameter("tenant");
-	if(tenantDomain == null || tenantDomain == ''){
-        var username =  session.get("LOGGED_IN_USER");
-        if(username != null){
+    var tenantDomain = request.getParameter("tenant");
+    if (tenantDomain == null || tenantDomain == '') {
+        var username = session.get("LOGGED_IN_USER");
+        if (username != null) {
             tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
         }
     }
@@ -20,7 +20,7 @@
     var defaultRegion = cloudConfig.customUrl.defaultRegion;
     var cloudmgtUrl = cloudConfig.ServerUrls.cloudmgt;
     var paymentPlanUrl = "/site/pages/payment-plans.jag?cloud-type=api_cloud";
-    if(!outputs.regionSelectionEnabled && outputs.isFromChangePlan) {
+    if (!outputs.regionSelectionEnabled && outputs.isFromChangePlan) {
         paymentPlanUrl += "&is-from-change-plan=true";
     }
 %>
