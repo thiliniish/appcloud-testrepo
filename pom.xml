@@ -35,7 +35,6 @@
         <module>cloud-backends/service-stub</module>
         <module>cloud-backends/components</module>
         <module>cloud-applications</module>
-        <module>cloud-monitoring</module>
         <module>cloud-integration</module>
         <module>cloud-tools</module>
         <module>cloud-backends/orbit</module>
