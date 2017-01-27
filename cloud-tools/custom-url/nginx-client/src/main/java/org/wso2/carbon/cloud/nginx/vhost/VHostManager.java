@@ -241,7 +241,6 @@ public class VHostManager {
 
                 //Move existing configs to a backup directory
                 backupExistingConfigs();
-
                 Collection cloudCollection = (Collection) registryManager.getResourceFromRegistry(registryPath);
 
                 for (int i = 0; i < cloudCollection.getChildCount(); i++) {
@@ -260,6 +259,9 @@ public class VHostManager {
 
                             String urlMappingPath = tenantCollectionElement + "/urlMapping/"
                                                             + configReader.getProperty("region") + "-" + tenantId;
+                            if (!registryManager.resourceExists(urlMappingPath)) {
+                                continue;
+                            }
                             Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                             byte[] r = (byte[]) resource.getContent();
                             try {
