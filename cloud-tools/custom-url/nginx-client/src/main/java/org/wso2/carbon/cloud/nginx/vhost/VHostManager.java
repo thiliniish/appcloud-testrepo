@@ -267,6 +267,9 @@ public class VHostManager {
 
                             String urlMappingPath = tenantCollectionElement + "/urlMapping/"
                                                             + configReader.getProperty("region") + "-" + tenantDomain;
+                            if (!registryManager.resourceExists(urlMappingPath)) {
+                                continue;
+                            }
                             Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                             byte[] r = (byte[]) resource.getContent();
                             try {
