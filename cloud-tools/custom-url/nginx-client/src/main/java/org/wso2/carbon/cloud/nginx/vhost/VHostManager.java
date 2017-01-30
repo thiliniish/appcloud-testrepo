@@ -245,7 +245,10 @@ public class VHostManager {
             if (registryManager.resourceExists(registryPath)) {
 
                 //Move existing configs to a backup directory
-                backupExistingConfigs();
+                String currentConfigPath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH);
+                String currentCertPath = configReader.getProperty("api_cloud_security_certificate_file_location");
+                backupExistingConfigs(currentConfigPath);
+                backupExistingConfigs(currentCertPath);
                 Collection cloudCollection = (Collection) registryManager.getResourceFromRegistry(registryPath);
 
                 for (int i = 0; i < cloudCollection.getChildCount(); i++) {
@@ -377,14 +380,13 @@ public class VHostManager {
             throw new IOException(errorMessage, e);
         } catch (KeyStoreException e) {
             String errorMessage =
-                    "Error occured when setting ssl files while restoring nginx " + "configuration locally.";
+                    "Error occured when setting ssl files while restoring nginx configuration locally.";
             log.error(errorMessage, e);
             throw new KeyStoreException(errorMessage, e);
         }
     }
 
-    private void backupExistingConfigs() {
-        String currentFilePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH);
+    private void backupExistingConfigs(String currentFilePath) {
         //Get current date
         SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
         Date localDate = Calendar.getInstance().getTime();
