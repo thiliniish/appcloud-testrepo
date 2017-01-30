@@ -21,6 +21,7 @@ package org.wso2.carbon.cloud.nginx.vhost;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.cloud.nginx.vhost.conf.ConfigReader;
@@ -44,6 +45,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -162,7 +167,7 @@ public class VHostManager {
         boolean isSuccessful;
         if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudType)) {
             if (STORE_NODE.equals(node)) {
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + "/" + domainName +
                                         NginxVhostConstants.STORE_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
@@ -172,7 +177,7 @@ public class VHostManager {
                 }
             } else {
                 //Remove http config file
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + "/" + domainName +
                                         NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
@@ -181,7 +186,7 @@ public class VHostManager {
                     }
                 }
                 //Remove https config file
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + "/" + domainName +
                                         NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
@@ -253,15 +258,12 @@ public class VHostManager {
                     if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudName)) {
                         for (int z = 0; z < tenantCollection.getChildCount(); z++) {
                             String tenantCollectionElement = tenantCollection.getChildren()[z];
-                            String tenantId = tenantCollectionElement
+                            String tenantDomain = tenantCollectionElement
                                                       .substring(tenantCollectionElement.lastIndexOf("/") + 1,
                                                                  tenantCollectionElement.length());
 
                             String urlMappingPath = tenantCollectionElement + "/urlMapping/"
-                                                            + configReader.getProperty("region") + "-" + tenantId;
-                            if (!registryManager.resourceExists(urlMappingPath)) {
-                                continue;
-                            }
+                                                            + configReader.getProperty("region") + "-" + tenantDomain;
                             Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                             byte[] r = (byte[]) resource.getContent();
                             try {
@@ -271,10 +273,10 @@ public class VHostManager {
 
                                 //Defining store virtual hosts
                                 VHostEntry storeEntry = new VHostEntry();
-                                String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
-                                storeEntry.setTenantDomain(tenantDomain);
+                                String tenantName = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
+                                storeEntry.setTenantDomain(tenantName);
                                 String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) +
-                                                          tenantDomain;
+                                                          "/" + tenantName;
                                 storeEntry.setCustomDomain(((JSONObject) jsonObject.get(STORE_NODE))
                                                                    .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
                                 storeEntry.setCloudName(cloudName);
@@ -292,7 +294,7 @@ public class VHostManager {
                                     addHostToNginxConfig(storeEntry,
                                                          filePath + NginxVhostConstants.STORE_CUSTOM_CONFIG);
                                 } catch (DomainMapperException ex) {
-                                    log.warn("Adding Vhost template avoided for STORE for TENANT ID " + tenantId +
+                                    log.warn("Adding Vhost template avoided for STORE for TENANT ID " + tenantDomain +
                                                      " due to no STORE registry resource for certificates");
                                 }
 
@@ -320,7 +322,7 @@ public class VHostManager {
 
                                 } catch (DomainMapperException ex) {
                                     addHttpVhost = false;
-                                    log.warn("Adding Vhost template avoided for GATEWAY for TENANT ID " + tenantId +
+                                    log.warn("Adding Vhost template avoided for GATEWAY for TENANT ID " + tenantDomain +
                                                      " due to no GATEWAY registry resource for certificates");
                                 }
                                 if (addHttpVhost) {
@@ -340,14 +342,14 @@ public class VHostManager {
                                 }
 
                             } catch (JSONException e) {
-                                String errorMessage = "Error occurred when parsing json url-mapping of " + tenantId;
+                                String errorMessage = "Error occurred when parsing json url-mapping of " + tenantDomain;
                                 log.error(errorMessage, e);
                                 throw new JSONException(errorMessage);
                             } catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException |
                                              NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
                                              InvalidKeyException | InvalidAlgorithmParameterException |
                                              InterruptedException e) {
-                                String errorMessage = "Error occurred when setting security files for " + tenantId;
+                                String errorMessage = "Error occurred when setting security files for " + tenantDomain;
                                 log.error(errorMessage, e);
                                 throw e;
                             }
@@ -383,7 +385,10 @@ public class VHostManager {
 
     private void backupExistingConfigs() {
         String currentFilePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH);
-        String backupPath = configReader.getProperty(NginxVhostConstants.NGINX_BACKUP_PATH);
+        //Get current date
+        SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
+        Date localDate = Calendar.getInstance().getTime();
+        String backupPath = currentFilePath + "-" + dtf.format(localDate);
         File file = new File(currentFilePath);
         if (file.exists()) {
             if (file.renameTo(new File(backupPath))) {

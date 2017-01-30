@@ -48,6 +48,5 @@ public class NginxVhostConstants {
     public static final String GATEWAY_CUSTOM_CONFIG = "_gateway-http-custom.conf";
     public static final String GATEWAY_HTTPS_CUSTOM_CONFIG = "_gateway-https-custom.conf";
     public static final String NGINX_CONFIG_PATH = "nginx.api.config.path";
-    public static final String NGINX_BACKUP_PATH = "nginx.config.backup.path";
 
 }
