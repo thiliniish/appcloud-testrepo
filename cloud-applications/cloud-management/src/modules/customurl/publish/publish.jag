@@ -108,7 +108,7 @@
             var fileEncryptionStatus = initializeSSLFileContent(sslCertificateContent, keyFileContent, chainFileContent,
                     customUrl);
 
-            if (fileEncryptionStatus.error == true) {
+            if (fileEncryptionStatus.error) {
                 return fileEncryptionStatus;
             }
 
@@ -119,7 +119,7 @@
             //Determine the registry path for security certificates
             var certsRegistryPath;
             if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
-                if (region == "" || region == undefined || region == null) {
+                if (region) {
                     region = defaultRegion;
                 }
                 certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
@@ -235,7 +235,7 @@
     function getPayLoad(node, customUrl, status, tenantDomain, region) {
         var payload = {};
         if (status == "initial") {
-            if (node == "store") {
+            if (node == STORE_NODE_TYPE) {
                 payload.type = 'initial';
                 var storePayload = {};
                 storePayload.customUrl = customUrl;
@@ -256,7 +256,7 @@
             }
         } else {
             var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
-            if (node == 'store') {
+            if (node == STORE_NODE_TYPE) {
                 if (currentMapping.store.customUrl == (defaultStoreURL + "/store")) {
                     payload.type = 'initial';
                 } else {
@@ -312,7 +312,7 @@
             jsonPayload.node = payload.node;
             jsonPayload.tenantDomain = payload.tenantDomain;
 
-            if (payload.node == "store") {
+            if (payload.node == STORE_NODE_TYPE) {
                 jsonPayload.customUrl = payload.store.customUrl;
                 topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
             } else {
@@ -362,7 +362,7 @@
             var currentUrlMapping = getCurrentUserMapping(tenantDomain, "api-cloud");
             if (currentUrlMapping != null) {
                 var currentUrl;
-                if (node == "store") {
+                if (node == STORE_NODE_TYPE) {
                     currentUrl = currentUrlMapping.store.customUrl
                 } else {
                     currentUrl = currentUrlMapping.gateway.customUrl;

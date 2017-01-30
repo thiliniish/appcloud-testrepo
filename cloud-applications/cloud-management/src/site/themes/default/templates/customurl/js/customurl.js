@@ -56,7 +56,8 @@ $(document).ready(function() {
             if(regionSelectionEnabled == "true"){
                 showMigrationConfirmation(regionId, regionName);
             } else{
-                var defaultRegion = JSON.parse($('#defaultRegion').val());
+                var customurlConfig = JSON.parse($('#customurlConfig').val());
+                var defaultRegion = customurlConfig.defaultRegion;
                 if(regionId == defaultRegion.id){
                     showMigrationConfirmation(regionId, regionName);
                 } else{
@@ -131,6 +132,7 @@ function showModifyUrlContentArea(node) {
     }
     $("#" + node + "UrlChangeArea").css("display", "block");
     $("#" + node + "ModifyBtn").prop("disabled", true);
+    $("#" + node + "ButtonBlock").css("display", "none");
 }
 
 function enableSSLFileUpload(node) {
@@ -141,6 +143,7 @@ function enableSSLFileUpload(node) {
     $("#" + node + "VerifyUrlNotificationArea").html(
         "<span class='label label-success'>CNAME verified successfully</span>");
     $("#" + node + "ProcessBtn").prop("disabled", false);
+    $("#" + node + "ButtonBlock").css("display", "block");
 }
 
 function setCustomDomainDetailsForTenant() {
@@ -197,7 +200,8 @@ function displayApplicationSection(element) {
 }
 
 function resetApplicationSection() {
-    var appCloudPointingUrl = $('#appCloudPointingUrl').val();
+    var customurlConfig = JSON.parse($('#customurlConfig').val());
+    var appCloudPointingUrl = customurlConfig.appCloud.pointingUrl;
     var customUrlDocumentationLink = $('#customUrlDocumentationLink').val();
     $("#sslFileForm")[0].reset();
     $("#keyFileForm")[0].reset();
@@ -239,7 +243,8 @@ function publishCustomUrl(node) {
     //If API cloud, check if region is available
     var isRegionAvailable = true;
     var regionId = $("#region").val();
-    var regionList = JSON.parse($('#regions').val());
+    var customurlConfig = JSON.parse($('#customurlConfig').val());
+    var regionList = customurlConfig.regionalDeployments;
     var length = regionList.length;
     for (var i = 0; i < length; i++) {
         if (regionList[i].id == regionId) {
@@ -336,7 +341,8 @@ function publishCustomUrl(node) {
 
 function verifyCustomDomain(node) {
     var customUrl = $('#' + node + 'Domain').val();
-    var defaultPointingUrl = $('#defaultPointingUrl').val();
+    var customurlConfig = JSON.parse($('#customurlConfig').val());
+    var defaultPointingUrl = customurlConfig.apiCloudPointingUrl;
     var region = $("#region").attr("value");
     var pointingUrl;
     if(region == undefined){
@@ -385,14 +391,16 @@ function getCurrentUserMapping() {
 }
 
 function selectRegion(region) {
+    var customurlConfig = JSON.parse($('#customurlConfig').val());
+    var defaultPointingUrl = customurlConfig.apiCloudPointingUrl;
     $("#region").val(region);
     //Set pointing url
-    var defaultRegion = JSON.parse($('#defaultRegion').val());
+    var defaultRegion = customurlConfig.defaultRegion;
     if (region == defaultRegion.id) {
-        $('#pointingUrl').val($('#defaultPointingUrl').val());
-        $("#pointingUrl").html($('#defaultPointingUrl').val());
+        $('#pointingUrl').val(defaultPointingUrl);
+        $("#pointingUrl").html(defaultPointingUrl);
     } else {
-        var regionList = JSON.parse($('#regions').val());
+        var regionList = customurlConfig.regionalDeployments;
         var length = regionList.length;
         for (var j = 0; j < length; j++) {
             if (regionList[j].id == region) {
@@ -407,7 +415,8 @@ function selectRegion(region) {
 function setRegions() {
     var isPaidCustomer = $('#isPaidCustomer').val();
     if (isPaidCustomer == "true") {
-        var regionList = JSON.parse($('#regions').val());
+        var customurlConfig = JSON.parse($('#customurlConfig').val());
+        var regionList = customurlConfig.regionalDeployments;
         var length = regionList.length;
         for (var j = 0; j < length; j++) {
             $("#region").append(new Option(regionList[j].regionName, regionList[j].id));
@@ -495,7 +504,7 @@ function showMigrationNotification(region) {
 }
 
 function sendGatewayMigrationEmails(region) {
-    var apiCloudUrl = $('#apiCloudUrl').val();
+    var cloudmgtUrl = $('#cloudmgtUrl').val();
     jagg.syncPost('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'sendGatewayMigrationEmail',
         region: region,
@@ -507,14 +516,14 @@ function sendGatewayMigrationEmails(region) {
     }, function (jqXHR, textStatus, errorThrown) {
 
     });
-    window.location.replace(apiCloudUrl);
+    window.location.replace(cloudmgtUrl);
 }
 
 function showUpgradeConfirmation(defaultRegion) {
     var message = "In order to enable a regional gateway other than " + defaultRegion.name +
         ", you should upgrade your account at least to Getting Traction Plan";
     var paymentPlanUrl = $("#paymentPlanUrl").attr('value');
-    var cloudmgtUrl = $("#cloudmgtUrl").attr('value');
+    var cloudmgtUrl = $('#cloudmgtUrl').val();
     noty({
         theme: 'wso2',
         layout: 'topCenter',
