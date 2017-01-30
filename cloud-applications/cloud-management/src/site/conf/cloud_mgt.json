@@ -24,7 +24,7 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://local.cloudmgt.wso2.com:9444/appmgt/",
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/",
           "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
         }
       },
@@ -60,27 +60,8 @@
         "gatewayMigrationProperties": {
           "userEmailSubject": "Migrate API Cloud Gateway to a different region",
           "cloudEmailSubject": "Request to migrate API gateway to a different region",
-          "cloudEmail": "cloudtestdil@gmail.com"
+          "cloudEmail": "cloud@wso2.com"
         }
-      },
-      {
-        "id": "identity_cloud",
-        "name": "Identity Cloud",
-        "isBeta":true,
-        "logoClass":"fw",
-        "logo": "security",
-        "description": "Enable Single Sign-On for your SaaS applications.",
-        "serviceType": "free",
-        "urls": {
-          "cloudTypeUrl": "https://identity.cloudstaging.wso2.com/admin",
-          "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-identity"
-        },
-        "roleTypes": [
-          {
-            "roleName": "admin",
-            "displayRoles": "Admin"
-          }
-        ]
       },
       {
         "id": "default",
@@ -93,25 +74,25 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://local.cloudmgt.wso2.com:9444/cloudmgt/"
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/cloudmgt/"
         }
       }
     ]
   },
   "ServerUrls": {
-    "appfactory": "https://local.cloudmgt.wso2.com:9444/services/",
-    "cloudmgtServices": "https://local.cloudmgt.wso2.com:9444/services/",
-    "cloudmgt": "https://local.cloudmgt.wso2.com:9444/cloudmgt",
-    "bps": "https://local.cloudmgt.wso2.com:9543/services/",
-    "greg": "https://local.cloudmgt.wso2.com:9444/services/",
-    "identity": "https://local.cloudmgt.wso2.com:9443/services/",
-    "apiCloud": "https://local.cloudmgt.wso2.com:9643/services/",
-    "apiManager": "https://local.cloudmgt.wso2.com:9643/"
+    "appfactory": "https://milestones.appfactory.wso2.com:9443/services/",
+    "cloudmgtServices": "https://milestones.appfactory.wso2.com:9443/services/",
+    "cloudmgt": "https://milestones.appfactory.wso2.com:9443/cloudmgt",
+    "bps": "https://milestones.appfactory.wso2.com:9543/services/",
+    "greg": "https://milestones.appfactory.wso2.com:9443/services/",
+    "identity": "https://milestones.appfactory.wso2.com:9444/services/",
+    "apiCloud": "https://milestones.appfactory.wso2.com:9643/services/",
+    "apiManager": "https://milestones.appfactory.wso2.com:9643/"
   },
   "SSORelyingParty": {
     "name": "cloudmgt",
     "dashboardName": "WSO2 Cloud Dashboard",
-    "identityProviderURL": "https://local.cloudmgt.wso2.com:9443/samlsso",
+    "identityProviderURL": "https://milestones.appfactory.wso2.com:9444/samlsso",
     "keyStorePassword": "wso2carbon",
     "identityKeyAlias": "wso2carbon",
     "keyStoreName": "../../../../../../resources/security/wso2carbon.jks",
@@ -127,12 +108,14 @@
   "registrationEmail": {
     "from": "WSO2 Cloud Team <cloud@wso2.com>",
     "subject": "WSO2 Cloud Services - Registration completed",
-    "username": "wso2heartbeat@gmail.com",
-    "password": "w$o2admin",
+    "username": "email",
+    "password": "pass",
     "host": "smtp.gmail.com",
     "port": "25",
     "tls": "true",
-    "targetEpr": "https://local.cloudmgt.wso2.com:9444/cloudmgt/site/pages/confirm-verification.jag"
+    "targetEpr": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/confirm-verification.jag",
+    "targetStoreEpr" : "https://local.cloudmgt.wso2.com:9643/store/site/pages/confirm-verification.jag",
+    "confirmPagePath" : "/site/pages/confirm-verification.jag"
   },
   "bamConfiguration": {
     "hostUrls": "tcp://localhost:7613,tcp://localhost:7617",
@@ -149,9 +132,9 @@
       "registryPassword" : "admin"
     },
     "messageBroker" : {
-      "topicName": "custom-url-topic-",
+      "topicName": "custom-url-topic",
       "defaultTopicName": "custom-url-topic-us-e",
-      "messageBrokerUrl" : "tcp://local.cloudmgt.wso2.com:61616"
+      "messageBrokerUrl" : "tcp://localhost:61616"
     },
     "defaultStoreUrl" : "api.cloud.wso2.com",
     "defaultGatewayUrl" : "gateway.api.cloud.wso2.com",
@@ -197,7 +180,7 @@
     "ServerUrls": {
       "gatewayCallback": "https://localhost:8443/services/WorkflowCallbackService",
       "bpsServiceURL": "http://localhost:9863/services/",
-      "bpsServerURL": "https://local.cloudmgt.wso2.com:9543/services/"
+      "bpsServerURL": "https://milestones.appfactory.wso2.com:9543/services/"
     },
     "configFileMediaTypes": {
       "signupConfig": "signup-config",
