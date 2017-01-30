@@ -911,16 +911,16 @@ function isCarbonSuperAdmin(username) {
  Returns the GatewayMigrationProperties from cloudmgt configs
  */
 function getGatewayMigrationProperties() {
-    var cloudConfigFile = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE)
-	var gatewayMigrationProperties = null;
-	var type = cloudConfigFile.subscriptions.type;
-	for (var i = 0; i < type.length; i++) {
-		if (type[i].id == SUBSCRIPTION_API_CLOUD) {
-			gatewayMigrationProperties = type[i].gatewayMigrationProperties;
-			break;
-		}
-	}
-	return gatewayMigrationProperties;
+    var cloudConfigFile = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var gatewayMigrationProperties = null;
+    var type = cloudConfigFile.subscriptions.type;
+    for (var i = 0; i < type.length; i++) {
+        if (type[i].id == SUBSCRIPTION_API_CLOUD) {
+            gatewayMigrationProperties = type[i].gatewayMigrationProperties;
+            break;
+        }
+    }
+    return gatewayMigrationProperties;
 }
 
 %>

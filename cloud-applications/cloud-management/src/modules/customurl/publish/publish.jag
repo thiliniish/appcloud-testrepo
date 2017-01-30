@@ -75,7 +75,6 @@
         if (userEmail == null) {
             throw "Unable to send gateway migration notification email as user email is not specified.";
         }
-
         //Construct email bodies
         var userEmailBody = utilModule.getObjFromFile(
                 "/site/conf/emails/migrate_regional_gateway_user_email_body.txt");
@@ -85,7 +84,6 @@
                 "/site/conf/emails/migrate_regional_gateway_notification_email_body.txt");
         cloudEmailBody = cloudEmailBody.replace("$username", username).replace("$tenant", tenantDomain).replace
         ("$region", region);
-
         //Send emails
         var gatewayMigrationProperties = utilModule.getGatewayMigrationProperties();
         if (gatewayMigrationProperties != null) {
@@ -107,13 +105,10 @@
             var status = "initial";
             var fileEncryptionStatus = initializeSSLFileContent(sslCertificateContent, keyFileContent, chainFileContent,
                     customUrl);
-
             if (fileEncryptionStatus.error) {
                 return fileEncryptionStatus;
             }
-
             var customUrlMappingStatus = fileEncryptionStatus;
-
             //Get default region
             var defaultRegion = cloudConfigFile.customUrl.defaultRegion.id;
             //Determine the registry path for security certificates
@@ -128,9 +123,7 @@
                 certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
                         node;
             }
-
             registry.beginTransaction();
-
             if (registry.resourceExists(registryPath + cloudProfile + "/" + tenantDomain)) {
                 status = "update";
                 if (registry.resourceExists(certsRegistryPath)) {
@@ -172,13 +165,10 @@
              */
             var sslFileResource = registry.newResource();
             sslFileResource.setContent(encryptedSSLFileContent);
-
             var keyFileResource = registry.newResource();
             keyFileResource.setContent(encryptedKeyFileContent);
-
             var chainFileResource = registry.newResource();
             chainFileResource.setContent(encryptedChainFileContent);
-
             var indexingVectorResource = registry.newResource();
             indexingVectorResource.setContent(encodedIndexingVectorContent);
 
@@ -187,7 +177,6 @@
             registry.put(certsRegistryPath + "/" + tenantDomain + "-" + node + ".pub", chainFileResource);
             registry.put(certsRegistryPath + "/" + tenantDomain + "-" + node + ".iv", indexingVectorResource);
             registry.commitTransaction();
-
             publishToCustomUrlBroker(node, cloudProfile, customUrl, payload);
             return customUrlMappingStatus;
         } catch (e) {
@@ -199,7 +188,6 @@
     };
 
     function publishToCustomUrlBroker(node, cloudProfile, customUrl, payload) {
-
         if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
             initializeBroker();
             publishToMessageBroker(payload, cloudProfile);
@@ -233,43 +221,31 @@
     };
 
     function getPayLoad(node, customUrl, status, tenantDomain, region) {
+        var storePayload = {};
+        var gatewayPayload = {};
         var payload = {};
         if (status == "initial") {
+            payload.type = 'initial';
             if (node == STORE_NODE_TYPE) {
-                payload.type = 'initial';
-                var storePayload = {};
                 storePayload.customUrl = customUrl;
-                var gatewayPayload = {};
                 gatewayPayload.customUrl = defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/";
                 gatewayPayload.region = region;
-                payload.store = storePayload;
-                payload.gateway = gatewayPayload;
             } else {
-                payload.type = 'initial';
-                var storePayload = {};
                 storePayload.customUrl = defaultStoreURL + "/store";
-                var gatewayPayload = {};
                 gatewayPayload.customUrl = customUrl;
                 gatewayPayload.region = region;
-                payload.store = storePayload;
-                payload.gateway = gatewayPayload;
             }
         } else {
-            var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
+            var currentMapping = this.getCurrentUserMapping(tenantDomain, API_CLOUD_TYPE);
             if (node == STORE_NODE_TYPE) {
                 if (currentMapping.store.customUrl == (defaultStoreURL + "/store")) {
                     payload.type = 'initial';
                 } else {
                     payload.type = 'update';
                 }
-
-                var storePayload = {};
                 storePayload.customUrl = customUrl;
-                var gatewayPayload = {};
                 gatewayPayload.customUrl = currentMapping.gateway.customUrl;
                 gatewayPayload.region = currentMapping.gateway.region;
-                payload.store = storePayload;
-                payload.gateway = gatewayPayload;
             } else {
                 if (currentMapping.gateway.customUrl ==
                         (defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")) {
@@ -277,15 +253,13 @@
                 } else {
                     payload.type = 'update';
                 }
-                var storePayload = {};
                 storePayload.customUrl = currentMapping.store.customUrl;
-                var gatewayPayload = {};
                 gatewayPayload.customUrl = customUrl;
                 gatewayPayload.region = region;
-                payload.store = storePayload;
-                payload.gateway = gatewayPayload;
             }
         }
+        payload.store = storePayload;
+        payload.gateway = gatewayPayload;
         payload.node = node;
         payload.tenantDomain = tenantDomain;
         return payload;
@@ -303,15 +277,12 @@
     }
 
     function publishToMessageBroker(payload, cloudType) {
-
         var jsonPayload = {};
-
         if (cloudType == "api-cloud") {
             jsonPayload.cloudType = cloudType;
             jsonPayload.status = payload.type;
             jsonPayload.node = payload.node;
             jsonPayload.tenantDomain = payload.tenantDomain;
-
             if (payload.node == STORE_NODE_TYPE) {
                 jsonPayload.customUrl = payload.store.customUrl;
                 topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
@@ -347,12 +318,10 @@
         if (registry.resourceExists(registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain)) {
             var registryLocation =registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain;
             var resource = registry.get(registryLocation);
-
             var stringOBj = String((new java.lang.String(resource.getContent())));
             return parse(stringOBj);
         }
         return null;
-
     };
 
     var isUrlAvailable = function(newUrl, node, tenantDomain) {
@@ -367,7 +336,6 @@
                 } else {
                     currentUrl = currentUrlMapping.gateway.customUrl;
                 }
-
                 //checking whether the current-mapping is identical
                 if (currentUrl == newUrl) {
                     return true;
@@ -383,7 +351,6 @@
     var checkMappingAvailable = function(newUrl) {
         var registryLocation =registryPath + "/api-cloud";
         var tenantCollection = registry.get(registryLocation);
-
         for (i = 0; i < tenantCollection.getChildCount(); i++) {
             var tenantId = tenantCollection.getChildren()[i].substring(tenantCollection.getChildren()[i]
                         .lastIndexOf("/") + 1, tenantCollection.getChildren()[i].length());
@@ -404,7 +371,6 @@
         var JNDI_KEY_NAMING_FACTORY_INITIAL = "java.naming.factory.initial";
         var JNDI_KEY_DNS_TIMEOUT = "com.sun.jndi.dns.timeout.initial";
         var JDNI_KEY_DNS_RETRIES = "com.sun.jndi.dns.timeout.retries";
-
         var Hashtable = java.util.Hashtable;
         var env = new Hashtable();
         var success;
@@ -412,7 +378,6 @@
         env.put(JNDI_KEY_NAMING_FACTORY_INITIAL, "com.sun.jndi.dns.DnsContextFactory");
         env.put(JNDI_KEY_DNS_TIMEOUT, "10000");
         env.put(JDNI_KEY_DNS_RETRIES, "1");
-
         try {
             var resolvedHosts = resolveDNS(customUrl, env);
                var resolvedCnames = resolvedHosts.get(DNS_CNAME_RECORD);
@@ -435,20 +400,15 @@
         var ArrayListMultimap = com.google.common.collect.ArrayListMultimap;
         //import InitialDirContext
         var InitialDirContext = javax.naming.directory.InitialDirContext;
-
         var dnsRecordsResult = ArrayListMultimap.create();
-
         try {
             if (log.isDebugEnabled()) {
                    log.debug("DNS validation: resolving DNS for " + domain);
             }
-
             var isCNAMEFound = false;
-
             var context = new InitialDirContext(environmentConfigs);
             var dnsRecordsToCheck = [DNS_CNAME_RECORD];
             var dnsRecords = context.getAttributes(domain, dnsRecordsToCheck);
-
             // looking for CNAME records
             var cnameRecords = dnsRecords.get(DNS_CNAME_RECORD);
             if (cnameRecords != null && cnameRecords.size() > 0) {
@@ -469,7 +429,6 @@
                      dnsRecordsResult.putAll(resolveDNS(cnameHost, environmentConfigs)); // recursively resolve cnameHost
                    }
             }
-
             if (!isCNAMEFound) {
                 log.info("DNS validation: No CNAME found for domain: '" + domain);
             }
@@ -486,20 +445,15 @@
     function initializeSSLFileContent(sslFileContent, keyFileContent, chainFileContent, customUrl) {
         var status = {};
         status.error = false;
-
         try {
             var fileValidatingService =
                     carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
             fileValidatingService.init(sslFileContent, chainFileContent);
-
             var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
-
             if (isSSLFileDateVerified.error == 'false') {
                 var isSelfSigned = parse(String(fileValidatingService.isCertificateSelfSigned()));
-
                 if (isSelfSigned.error == 'false') {
                     var isPublicKeyValid = parse(String(fileValidatingService.isPublicKeyValid()));
-
                     if (isPublicKeyValid.error == 'false') {
                         var isUrlValidated = parse(String(fileValidatingService.validateIssuedUrl(customUrl)));
 
@@ -521,7 +475,6 @@
                 status.error = true;
                 status.message = isSSLFileDateVerified.message;
             }
-
             if (!status.error) {
                 var fileEncryptService =
                         carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
@@ -532,7 +485,6 @@
                 encryptedChainFileContent = fileEncryptService.encryptData(chainFileContent);
                 encodedIndexingVectorContent = fileEncryptService.getIndexingVector();
             }
-
             return status;
         } catch(e) {
             var message = "Error occurred during file encryption.";
@@ -541,7 +493,6 @@
             status.message = message + " Please contact WSO2 Cloud Team for help.";
             return status;
         }
-
     }
 
     function getCustomDomainDetailsForTenant() {
@@ -570,7 +521,6 @@
         try {
             var fullUsername = session.get("LOGGED_IN_USER");
             var authorizationHeader = utilModule.getAuthHeader(fullUsername);
-
             //Login to App Cloud using jwt authentication
             var loginUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
             var loginAction = cloudConfigFile.customUrl.appCloud.loginAction;
@@ -597,7 +547,6 @@
 
     function isCustomDomainAvailable(customDomain) {
         var cookie = getCookieFromLoginToAppCloudUsingJWT();
-
         //Invoke App Cloud REST API to check if custom domain is available
         var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
         var isCustomDomainAvailableAction = cloudConfigFile.customUrl.appCloud.isCustomDomainAvailableAction;
