@@ -327,7 +327,7 @@
 <input type="hidden" id="appCloudPointingUrl" value='<%= cloudConfig.customUrl.appCloud.pointingUrl %>' />
 <input type="hidden" id="customUrlDocumentationLink" value='<%= cloudConfig.documentation.customUrlDocumentationLink %>' />
 <input type="hidden" id="tenantDomain" value='<%= tenantDomain %>' />
-<input type="hidden" id="regions" value='<%= cloudConfig.regionalDeployments %>' />
+<input type="hidden" id="regions" value='<%= cloudConfig.customUrl.regionalDeployments %>' />
 <input type="hidden" id="defaultPointingUrl" value='<%= cloudConfig.customUrl.apiCloudPointingUrl %>' />
 <input type="hidden" id="username" value='<%= username %>' />
 <input type="hidden" id="userEmail" value='<%= userEmail %>' />

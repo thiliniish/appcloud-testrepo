@@ -7,20 +7,6 @@
   "adminRole" : "admin",
   "adminRoleDisplayName" : "Admin",
   "internalRole" : "Internal/",
-  "regionalDeployments" : [
-    {"id":"us-e", "regionName" : "US East", "available" : true, "pointingUrl": "customdns.api.cloud.wso2.com"},
-    {"id":"us-w", "regionName" : "US West", "available" : false, "pointingUrl": "customdns-usw.api.cloud.wso2.com"},
-    {"id":"sg", "regionName" : "Singapore", "available" : false, "pointingUrl": "customdns-sg.api.cloud.wso2.com"},
-    {"id":"syd", "regionName" : "Sydney", "available" : true, "pointingUrl": "customdns-syd.api.cloud.wso2.com"},
-    {"id":"can", "regionName" : "Canada", "available" : false, "pointingUrl": "customdns-can.api.cloud.wso2.com"},
-    {"id":"br", "regionName" : "Brazil", "available" : false, "pointingUrl": "customdns-brz.api.cloud.wso2.com"},
-    {"id":"ire", "regionName" : "EU (Ireland)", "available" : true, "pointingUrl": "customdns-ire.api.cloud.wso2.com"},
-    {"id":"frk", "regionName" : "EU (Frankfurt)", "available" : true, "pointingUrl": "customdns-frk.api.cloud.wso2.com"},
-    {"id":"tky", "regionName" : "Tokyo", "available" : false, "pointingUrl": "customdns-tky.api.cloud.wso2.com"},
-    {"id":"seo", "regionName" : "Seoul", "available" : false, "pointingUrl": "customdns-seo.api.cloud.wso2.com"},
-    {"id":"mum", "regionName" : "Mumbai", "available" : false, "pointingUrl": "customdns-mum.api.cloud.wso2.com"},
-    {"id":"bjg", "regionName" : "Beijing", "available" : false, "pointingUrl": "customdns-bjg.api.cloud.wso2.com"}
-  ],
   "subscriptions": {
     "type": [
       {
@@ -158,6 +144,20 @@
       "id": "us-e",
       "name": "US East"
     },
+    "regionalDeployments" : [
+      {"id":"us-e", "regionName" : "US East", "available" : true, "pointingUrl": "customdns.api.cloud.wso2.com"},
+      {"id":"us-w", "regionName" : "US West", "available" : false, "pointingUrl": "customdns-usw.api.cloud.wso2.com"},
+      {"id":"sg", "regionName" : "Singapore", "available" : false, "pointingUrl": "customdns-sg.api.cloud.wso2.com"},
+      {"id":"syd", "regionName" : "Sydney", "available" : true, "pointingUrl": "customdns-syd.api.cloud.wso2.com"},
+      {"id":"can", "regionName" : "Canada", "available" : false, "pointingUrl": "customdns-can.api.cloud.wso2.com"},
+      {"id":"br", "regionName" : "Brazil", "available" : false, "pointingUrl": "customdns-brz.api.cloud.wso2.com"},
+      {"id":"ire", "regionName" : "EU (Ireland)", "available" : true, "pointingUrl": "customdns-ire.api.cloud.wso2.com"},
+      {"id":"frk", "regionName" : "EU (Frankfurt)", "available" : true, "pointingUrl": "customdns-frk.api.cloud.wso2.com"},
+      {"id":"tky", "regionName" : "Tokyo", "available" : false, "pointingUrl": "customdns-tky.api.cloud.wso2.com"},
+      {"id":"seo", "regionName" : "Seoul", "available" : false, "pointingUrl": "customdns-seo.api.cloud.wso2.com"},
+      {"id":"mum", "regionName" : "Mumbai", "available" : false, "pointingUrl": "customdns-mum.api.cloud.wso2.com"},
+      {"id":"bjg", "regionName" : "Beijing", "available" : false, "pointingUrl": "customdns-bjg.api.cloud.wso2.com"}
+    ],
     "appCloud" : {
       "pointingUrl" : "customdns.wso2apps.com",
       "serverBlockBaseUrl" : "https://localhost:9543/appmgt/site/blocks/",
