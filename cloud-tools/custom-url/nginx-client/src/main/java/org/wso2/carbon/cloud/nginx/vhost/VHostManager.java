@@ -167,8 +167,8 @@ public class VHostManager {
         boolean isSuccessful;
         if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudType)) {
             if (STORE_NODE.equals(node)) {
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + "/" + domainName +
-                                        NginxVhostConstants.STORE_CUSTOM_CONFIG);
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                        + domainName + NginxVhostConstants.STORE_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
                     if (!isSuccessful) {
@@ -177,8 +177,8 @@ public class VHostManager {
                 }
             } else {
                 //Remove http config file
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + "/" + domainName +
-                                        NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                        + domainName + NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
                     if (!isSuccessful) {
@@ -186,8 +186,8 @@ public class VHostManager {
                     }
                 }
                 //Remove https config file
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + "/" + domainName +
-                                        NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
+                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                        + domainName + NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
                 if (file.exists()) {
                     isSuccessful = file.delete();
                     if (!isSuccessful) {
@@ -254,7 +254,7 @@ public class VHostManager {
                 for (int i = 0; i < cloudCollection.getChildCount(); i++) {
                     String cloudCollectionElement = cloudCollection.getChildren()[i];
                     String cloudName = cloudCollectionElement.substring(
-                            cloudCollectionElement.lastIndexOf("/") + 1,
+                            cloudCollectionElement.lastIndexOf(File.separator) + 1,
                             cloudCollectionElement.length());
                     Collection tenantCollection =
                             (Collection) registryManager.getResourceFromRegistry(cloudCollectionElement);
@@ -262,8 +262,8 @@ public class VHostManager {
                         for (int z = 0; z < tenantCollection.getChildCount(); z++) {
                             String tenantCollectionElement = tenantCollection.getChildren()[z];
                             String tenantDomain = tenantCollectionElement
-                                                      .substring(tenantCollectionElement.lastIndexOf("/") + 1,
-                                                                 tenantCollectionElement.length());
+                                                      .substring(tenantCollectionElement.lastIndexOf(File.separator)
+                                                                         + 1, tenantCollectionElement.length());
 
                             String urlMappingPath = tenantCollectionElement + "/urlMapping/"
                                                             + configReader.getProperty("region") + "-" + tenantDomain;
@@ -282,7 +282,7 @@ public class VHostManager {
                                 String tenantName = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
                                 storeEntry.setTenantDomain(tenantName);
                                 String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) +
-                                                          "/" + tenantName;
+                                                          File.separator + tenantName;
                                 storeEntry.setCustomDomain(((JSONObject) jsonObject.get(STORE_NODE))
                                                                    .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
                                 storeEntry.setCloudName(cloudName);
@@ -390,12 +390,12 @@ public class VHostManager {
     }
 
     private void backupExistingConfigs(String currentFilePath) {
-        //Get current date
-        SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
-        Date localDate = Calendar.getInstance().getTime();
-        String backupPath = currentFilePath + "-" + dtf.format(localDate);
         File file = new File(currentFilePath);
         if (file.exists()) {
+            //Get current date
+            SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
+            Date localDate = Calendar.getInstance().getTime();
+            String backupPath = currentFilePath + "-" + dtf.format(localDate);
             if (file.renameTo(new File(backupPath))) {
                 log.info("Custom url configs are backed up at " + backupPath);
             } else {
