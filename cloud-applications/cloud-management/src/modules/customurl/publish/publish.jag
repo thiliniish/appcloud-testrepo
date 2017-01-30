@@ -304,7 +304,7 @@
             message.setText(text);
             messageProducer.send(message);
         } catch(e) {
-            var errorMessage = "Exception occurred when publishing to message brocker "+ e;
+            var errorMessage = "Error occurred when publishing to message broker "+ e;
             log.error(errorMessage);
             throw new Error(errorMessage);
         } finally {
