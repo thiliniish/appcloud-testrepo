@@ -249,10 +249,7 @@ function publishCustomUrl(node) {
     for (var i = 0; i < length; i++) {
         if (regionList[i].id == regionId) {
             isRegionAvailable = regionList[i].available;
-            if (!isRegionAvailable) {
-                disableRegionSelection();
-                showMigrationNotification(regionList[i].regionName);
-            }
+            break;
         }
     }
 
@@ -317,6 +314,10 @@ function publishCustomUrl(node) {
                     }, 10000);
                 } else {
                     getCurrentUserMapping();
+                    if (!isRegionAvailable) {
+                        disableRegionSelection();
+                        showMigrationNotification(regionList[i].regionName);
+                    }
                     setTimeout(function() {
                         apiCloudDefaultUIView();
                     }, 10000);
