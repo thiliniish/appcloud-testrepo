@@ -132,7 +132,7 @@
       "registryPassword" : "admin"
     },
     "messageBroker" : {
-      "topicName": "custom-url-topic-",
+      "topicName": "custom-url-topic",
       "defaultTopicName": "custom-url-topic-us-e",
       "messageBrokerUrl" : "tcp://localhost:61616"
     },

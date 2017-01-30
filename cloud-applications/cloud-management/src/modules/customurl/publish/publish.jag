@@ -318,7 +318,7 @@
             } else {
                 jsonPayload.customUrl = payload.gateway.customUrl;
                 if (payload.gateway.region) {
-                    topicName = topicName + payload.gateway.region;
+                    topicName = topicName + "-" + payload.gateway.region;
                 } else {
                     topicName = cloudConfigFile.customUrl.messageBroker.defaultTopicName;
                 }
