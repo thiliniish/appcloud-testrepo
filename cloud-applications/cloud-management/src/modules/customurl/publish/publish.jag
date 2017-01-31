@@ -2,9 +2,11 @@
     include("/jagg/constants.jag");
     var log = new Log("modules/customurl/publish/publish.jag");
 
-    var ActiveMQConnectionFactory = org.apache.activemq.ActiveMQConnectionFactory;
-    var Session = javax.jms.Session;
+    var activeMQConnectionFactory = org.apache.activemq.ActiveMQConnectionFactory;
+    var jmsSession = javax.jms.Session;
     var utilModule = jagg.module("util");
+    var billingModule = jagg.module("billing");
+    var managerModule = jagg.module("manager");
     var cloudConfigFile = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var appCloudServerBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
     var registryPath = cloudConfigFile.customUrl.registry.registryPath;
@@ -13,22 +15,21 @@
 
     var topicName = cloudConfigFile.customUrl.messageBroker.topicName;
     var messageBrokerUrl = cloudConfigFile.customUrl.messageBroker.messageBrokerUrl;
-
     var defaultStoreURL = cloudConfigFile.customUrl.defaultStoreUrl;
     var defaultGatewayURL = cloudConfigFile.customUrl.defaultGatewayUrl;
     var httpsGatewayPort = cloudConfigFile.customUrl.httpsGatewayPort;
 
     var carbon = require('carbon');
-    var registry = carbon.server.osgiService('org.wso2.carbon.registry.core.service.RegistryService')
+    var server = carbon.server;
+    var registry = server.osgiService('org.wso2.carbon.registry.core.service.RegistryService')
                                                 .getGovernanceUserRegistry(registryUsername, registryPassword);
-
-    var DNS_CNAME_RECORD = "CNAME";
     var messageBrokerConnection;
-
     var encryptedSSLFileContent;
     var encryptedKeyFileContent;
     var encryptedChainFileContent;
     var encodedIndexingVectorContent;
+
+    var tenantDomain = managerModule.getTenantDomain();
 
     var isRegionSelectionEnabled = function () {
         var enabledRegionSelection = false;
@@ -42,8 +43,8 @@
             }
         }
         //Get current rate plan level
-        var currentRatePlan = jagg.module("billing").getCurrentRatePlan();
-        var ratePlansObj = jagg.module("billing").getRatePlans(SUBSCRIPTION_API_CLOUD);
+        var currentRatePlan = billingModule.getCurrentRatePlan();
+        var ratePlansObj = billingModule.getRatePlans(SUBSCRIPTION_API_CLOUD);
         var ratePlans = ratePlansObj.entry;
         var currentPlanLevel = 0;
         if (ratePlans != null) {
@@ -66,24 +67,27 @@
         return enabledRegionSelection;
     };
 
-    var sendGatewayMigrationEmails = function (username, userEmail, tenantDomain, region) {
+    var sendGatewayMigrationEmails = function (region) {
         var isSuccessful = false;
+        var username = session.get("LOGGED_IN_USER");
+        var userEmail = String(managerModule.getEmailOfUser(username));
         var userDisplayName = jagg.module("user/profile").getDisplayName(username);
         if (userDisplayName == null) {
             userDisplayName = username;
         }
+        log.info("Received request for gateway migration to region " + region + " from " + username);
         if (userEmail == null) {
             throw "Unable to send gateway migration notification email as user email is not specified.";
         }
         //Construct email bodies
         var userEmailBody = utilModule.getObjFromFile(
                 "/site/conf/emails/migrate_regional_gateway_user_email_body.txt");
-        userEmailBody = userEmailBody.replace("$username", userDisplayName).replace("$tenant", tenantDomain).replace
-        ("$region", region);
+        userEmailBody = userEmailBody.replace("$username", userDisplayName)
+                .replace("$tenant", tenantDomain).replace("$region", region);
         var cloudEmailBody = utilModule.getObjFromFile(
                 "/site/conf/emails/migrate_regional_gateway_notification_email_body.txt");
-        cloudEmailBody = cloudEmailBody.replace("$username", username).replace("$tenant", tenantDomain).replace
-        ("$region", region);
+        cloudEmailBody = cloudEmailBody.replace("$username", username)
+                .replace("$tenant", tenantDomain).replace("$region", region);
         //Send emails
         var gatewayMigrationProperties = utilModule.getGatewayMigrationProperties();
         if (gatewayMigrationProperties != null) {
@@ -99,7 +103,7 @@
         return isSuccessful;
     };
 
-    var publish = function (tenantDomain, region, cloudProfile, node, customUrl, sslCertificateContent, keyFileContent,
+    var publish = function (region, cloudProfile, node, customUrl, sslCertificateContent, keyFileContent,
                             chainFileContent, previousRegion) {
         try {
             var status = "initial";
@@ -145,7 +149,7 @@
             }
             var payload = null;
             if (node == STORE_NODE_TYPE || node == GATEWAY_NODE_TYPE) {
-                payload = getPayLoad(node, customUrl, status, tenantDomain, region);
+                payload = getPayLoad(node, customUrl, status, region);
                 var urlMappingContent = '{"tenantDomain" : "' + payload.tenantDomain + '", "store" : {"customUrl" : "'
                         + payload.store.customUrl + '"}, "gateway" : {"customUrl" : "' + payload.gateway.customUrl +
                         '" , "region" : "' + payload.gateway.region + '"}}';
@@ -195,7 +199,6 @@
             var serverBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
             var loginUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
             var urlMapperUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
-            var server = carbon.server;
             var service = server.osgiService('org.wso2.carbon.cloud.listener.CloudListener');
             var username = session.get("LOGGED_IN_USER");
             var parameterMap = new java.util.HashMap();
@@ -210,9 +213,9 @@
         }
     };
 
-    function isRepeatedGatewayMapping(tenantDomain) {
+    function isRepeatedGatewayMapping() {
         var isRepeated = false;
-        var currentMapping = this.getCurrentUserMapping(tenantDomain, 'api-cloud');
+        var currentMapping = this.getCurrentUserMapping(API_CLOUD_TYPE);
         if(currentMapping.gateway.customUrl !=
                 (defaultGatewayURL + ":" + httpsGatewayPort + "/t/" + tenantDomain + "/")){
             isRepeated = true;
@@ -220,7 +223,7 @@
         return isRepeated;
     };
 
-    function getPayLoad(node, customUrl, status, tenantDomain, region) {
+    function getPayLoad(node, customUrl, status, region) {
         var storePayload = {};
         var gatewayPayload = {};
         var payload = {};
@@ -236,7 +239,7 @@
                 gatewayPayload.region = region;
             }
         } else {
-            var currentMapping = this.getCurrentUserMapping(tenantDomain, API_CLOUD_TYPE);
+            var currentMapping = this.getCurrentUserMapping(API_CLOUD_TYPE);
             if (node == STORE_NODE_TYPE) {
                 if (currentMapping.store.customUrl == (defaultStoreURL + "/store")) {
                     payload.type = 'initial';
@@ -267,7 +270,7 @@
 
     function initializeBroker() {
         try {
-            connectionFactory = new ActiveMQConnectionFactory(messageBrokerUrl);
+            connectionFactory = new activeMQConnectionFactory(messageBrokerUrl);
             this.messageBrokerConnection = connectionFactory.createConnection();
         } catch(e) {
             var errorMessage = "Error occurred during establishing connection with " + messageBrokerUrl;
@@ -278,7 +281,7 @@
 
     function publishToMessageBroker(payload, cloudType) {
         var jsonPayload = {};
-        if (cloudType == "api-cloud") {
+        if (cloudType == API_CLOUD_TYPE) {
             jsonPayload.cloudType = cloudType;
             jsonPayload.status = payload.type;
             jsonPayload.node = payload.node;
@@ -296,10 +299,10 @@
             }
         }
         try {
-            var session = messageBrokerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            var topic = session.createTopic(topicName);
-            var message = session.createTextMessage();
-            var messageProducer = session.createProducer(topic);
+            var mbSession = messageBrokerConnection.createSession(false, jmsSession.AUTO_ACKNOWLEDGE);
+            var topic = mbSession.createTopic(topicName);
+            var message = mbSession.createTextMessage();
+            var messageProducer = mbSession.createProducer(topic);
             var text = stringify(jsonPayload);
             message.setText(text);
             messageProducer.send(message);
@@ -314,7 +317,7 @@
         }
     }
 
-    var getCurrentUserMapping = function(tenantDomain, cloudType) {
+    var getCurrentUserMapping = function(cloudType) {
         if (registry.resourceExists(registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain)) {
             var registryLocation =registryPath + cloudType + "/" + tenantDomain + "/urlMapping/"+tenantDomain;
             var resource = registry.get(registryLocation);
@@ -324,11 +327,11 @@
         return null;
     };
 
-    var isUrlAvailable = function(newUrl, node, tenantDomain) {
+    var isUrlAvailable = function(newUrl, node) {
         if (node == APPLICATION_NODE_TYPE) {
             return (isCustomDomainAvailable(newUrl).trim() === "true");
         } else {
-            var currentUrlMapping = getCurrentUserMapping(tenantDomain, "api-cloud");
+            var currentUrlMapping = getCurrentUserMapping(API_CLOUD_TYPE);
             if (currentUrlMapping != null) {
                 var currentUrl;
                 if (node == STORE_NODE_TYPE) {
@@ -349,7 +352,7 @@
     };
 
     var checkMappingAvailable = function(newUrl) {
-        var registryLocation =registryPath + "/api-cloud";
+        var registryLocation = registryPath + "/" + API_CLOUD_TYPE;
         var tenantCollection = registry.get(registryLocation);
         for (i = 0; i < tenantCollection.getChildCount(); i++) {
             var tenantId = tenantCollection.getChildren()[i].substring(tenantCollection.getChildren()[i]
@@ -447,7 +450,7 @@
         status.error = false;
         try {
             var fileValidatingService =
-                    carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
+                    server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
             fileValidatingService.init(sslFileContent, chainFileContent);
             var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
             if (isSSLFileDateVerified.error == 'false') {
@@ -477,7 +480,7 @@
             }
             if (!status.error) {
                 var fileEncryptService =
-                        carbon.server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
+                        server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
                 fileEncryptService.init();
 
                 encryptedSSLFileContent = fileEncryptService.encryptData(sslFileContent);

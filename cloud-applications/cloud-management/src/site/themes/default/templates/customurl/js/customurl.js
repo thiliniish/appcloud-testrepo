@@ -254,7 +254,6 @@ function publishCustomUrl(node) {
     }
 
     var appName = $('#applicationName').val();
-    var tenantDomain = $('#tenantDomain').val();
     if ($("#" + node + "SslFile")[0].files.length == 0 || $("#" + node + "KeyFile")[0].files.length == 0 ||
         $("#" + node + "ChainFile")[0].files.length == 0) {
         $("#" + node + "VerifyUrlNotificationArea").html(
@@ -276,7 +275,6 @@ function publishCustomUrl(node) {
 
     formData.append("action", 'publishVal');
     formData.append("node", node);
-    formData.append("tenantDomain", tenantDomain);
     formData.append("cloudProfile", cloudProfile);
     if(node == 'gateway'){
         formData.append("region", $("#region").attr("value"));
@@ -299,13 +297,13 @@ function publishCustomUrl(node) {
                 }
                 $("#" + node + "SSLFileUploadLocation").css("display", "none");
                 $("#" + node + "ButtonBlock").css("display", "none");
-                $("#" + node + "VerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping " +
-                    "is successfully added.</span>" + "<br><br>" + "<span class='label label-warning'>Please note " +
-                    "that it will take upto 10 minutes to update changes.</span>");
                 if (node == "gateway") {
                     $('#regionSelectionArea').css("display", "none");
                 }
                 if (node == "application") {
+                    $("#" + node + "VerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping " +
+                        "is successfully added.</span>" + "<br><br>" + "<span class='label label-warning'>Please note " +
+                        "that it will take upto 10 minutes to update changes.</span>");
                     $("#currentApplicationMapping").val(customUrl);
                     setTimeout(function() {
                         appCloudDefaultUIView();
@@ -315,12 +313,17 @@ function publishCustomUrl(node) {
                 } else {
                     getCurrentUserMapping();
                     if (!isRegionAvailable) {
+                        $("#" + node + "VerifyUrlNotificationArea").html("");
                         disableRegionSelection();
                         showMigrationNotification(regionList[i].regionName);
+                    } else {
+                        $("#" + node + "VerifyUrlNotificationArea").html("<span class='label label-success'>Custom URL mapping " +
+                            "is successfully added.</span>" + "<br><br>" + "<span class='label label-warning'>Please note " +
+                            "that it will take upto 10 minutes to update changes.</span>");
+                        setTimeout(function () {
+                            apiCloudDefaultUIView();
+                        }, 10000);
                     }
-                    setTimeout(function() {
-                        apiCloudDefaultUIView();
-                    }, 10000);
                 }
             } else {
                 if (node == appName) {
@@ -372,10 +375,8 @@ function verifyCustomDomain(node) {
 }
 
 function getCurrentUserMapping() {
-    var tenantDomain = $('#tenantDomain').val();
     jagg.syncPost('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'getCurrentMapping',
-        tenantDomain: tenantDomain,
         cloudType: $('#apiCloudType').val()
     }, function(result) {
         $("#currentStoreMapping").val(result.store.customUrl);
@@ -508,10 +509,7 @@ function sendGatewayMigrationEmails(region) {
     var cloudmgtUrl = $('#cloudmgtUrl').val();
     jagg.syncPost('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'sendGatewayMigrationEmail',
-        region: region,
-        username: $('#username').val(),
-        userEmail: $('#userEmail').val(),
-        tenantDomain: $('#tenantDomain').val()
+        region: region
     }, function (result) {
 
     }, function (jqXHR, textStatus, errorThrown) {

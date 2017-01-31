@@ -93,6 +93,12 @@ var convertClaims = function (result) {
     return claims;
 }
 
+/**
+ * Returns display name which can be first name or last name of user
+ *
+ * @param username
+ * @returns {*}
+ */
 var getDisplayName = function (username) {
     var userDisplayName = null;
     var profileDetails = getProfile(username);

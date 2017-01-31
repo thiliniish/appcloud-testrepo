@@ -2,20 +2,11 @@
 <%
     include("/jagg/constants.jag");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var tenantDomain = request.getParameter("tenant");
-    if (tenantDomain == null || tenantDomain == '') {
-        var username = session.get("LOGGED_IN_USER");
-        if (username != null) {
-            tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
-        }
-    }
-    var userEmail = session.get("LOGGED_IN_USER_EMAIL");
     var cloudType = request.getParameter("cloud-type");
     var appName = request.getParameter("appName");
     var defaultDomain = request.getParameter("defaultDomain");
     var customUrl = request.getParameter("customUrl");
     var backUrl = request.getParameter("backUrl");
-
     var paymentPlanUrl = "/site/pages/payment-plans.jag?cloud-type=api_cloud";
     if (!outputs.regionSelectionEnabled && outputs.isFromChangePlan) {
         paymentPlanUrl += "&is-from-change-plan=true";
@@ -322,9 +313,6 @@
 <input type="hidden" id="apiCloudType" value='<%= API_CLOUD_TYPE %>' />
 <input type="hidden" id="appCloudType" value='<%= APP_CLOUD_TYPE %>' />
 <input type="hidden" id="customUrlDocumentationLink" value='<%= cloudConfig.documentation.customUrlDocumentationLink %>' />
-<input type="hidden" id="tenantDomain" value='<%= tenantDomain %>' />
-<input type="hidden" id="username" value='<%= username %>' />
-<input type="hidden" id="userEmail" value='<%= userEmail %>' />
 <input type="hidden" name="paymentPlanUrl" id="paymentPlanUrl" value="<%=paymentPlanUrl%>" />
 <input type="hidden" id="customurlConfig" value='<%= cloudConfig.customUrl %>' />
 <input type="hidden" id="cloudmgtUrl" value='<%= cloudConfig.ServerUrls.cloudmgt %>' />

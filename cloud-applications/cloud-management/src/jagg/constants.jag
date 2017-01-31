@@ -15,6 +15,7 @@ var SUBSCRIPTION_APP_CLOUD = "app_cloud";
 var API_CLOUD_TYPE = "api-cloud";
 var APP_CLOUD_TYPE = "app-cloud";
 var HTTPS = "https://";
+var DNS_CNAME_RECORD = "CNAME";
 
 var STORE_NODE_TYPE = "store";
 var GATEWAY_NODE_TYPE = "gateway";
