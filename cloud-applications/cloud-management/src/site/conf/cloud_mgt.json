@@ -53,6 +53,26 @@
         }
       },
       {
+        "id": "device_cloud",
+        "name": "Device Cloud",
+        "isBeta":true,
+        "logoClass":"fw",
+        "logo": "api",
+        "description": "Manage you devices with precision and efficiently.",
+        "serviceType": "commercial",
+        "roleTypes": [
+          {
+            "roleName": "devicemgt_cloud_user",
+            "displayRoles": "DeviceCloudUser"
+          },
+
+        ],
+        "urls": {
+          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9643/devicemgt/",
+          "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-device"
+        }
+      },
+      {
         "id": "default",
         "name": "Common",
         "serviceType": "free",
