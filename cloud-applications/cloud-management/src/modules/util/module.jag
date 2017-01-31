@@ -110,6 +110,9 @@ jagg.module("util", {
     },
     sendInvoiceEmail: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").sendInvoiceEmail.apply(this, arguments);
+    },
+    getGatewayMigrationProperties: function () {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").getGatewayMigrationProperties.apply(this, arguments);
     }
 });
 %>
