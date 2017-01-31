@@ -163,37 +163,41 @@ public class VHostManager {
     }
 
     protected void removeHostMapping(String domainName, String cloudType, String node) throws IOException {
-        File file;
-        boolean isSuccessful;
+        String filePath;
         if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudType)) {
             if (STORE_NODE.equals(node)) {
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
-                                        + domainName + NginxVhostConstants.STORE_CUSTOM_CONFIG);
-                if (file.exists()) {
-                    isSuccessful = file.delete();
-                    if (!isSuccessful) {
-                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
-                    }
-                }
+                filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                   + domainName + NginxVhostConstants.STORE_CUSTOM_CONFIG;
+                deleteFile(filePath);
             } else {
                 //Remove http config file
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
-                                        + domainName + NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
-                if (file.exists()) {
-                    isSuccessful = file.delete();
-                    if (!isSuccessful) {
-                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
-                    }
-                }
+                filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                   + domainName + NginxVhostConstants.GATEWAY_CUSTOM_CONFIG;
+                deleteFile(filePath);
                 //Remove https config file
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
-                                        + domainName + NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
-                if (file.exists()) {
-                    isSuccessful = file.delete();
-                    if (!isSuccessful) {
-                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
-                    }
+                filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                   + domainName + NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG;
+                deleteFile(filePath);
+            }
+        }
+    }
+
+    /**
+     * delete a mapping in the given path
+     *
+     * @param filePath
+     */
+    private void deleteFile(String filePath) {
+        boolean isSuccessful;
+        File file = new File(filePath);
+        if (file.exists()) {
+            isSuccessful = file.delete();
+            if (isSuccessful) {
+                if (log.isDebugEnabled()) {
+                    log.debug("The custom url mapping at " + filePath + " is deleted.");
                 }
+            } else {
+                log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
             }
         }
     }
@@ -300,8 +304,8 @@ public class VHostManager {
                                     addHostToNginxConfig(storeEntry,
                                                          filePath + NginxVhostConstants.STORE_CUSTOM_CONFIG);
                                 } catch (DomainMapperException ex) {
-                                    log.warn("Adding Vhost template avoided for STORE for TENANT ID " + tenantDomain +
-                                                     " due to no STORE registry resource for certificates");
+                                    log.warn("Adding Vhost template avoided for STORE for TENANT DOMAIN " + tenantDomain
+                                                     + " due to no STORE registry resource for certificates");
                                 }
 
                                 //Indicates whether to add gateway http virtual hosts
@@ -328,8 +332,9 @@ public class VHostManager {
 
                                 } catch (DomainMapperException ex) {
                                     addHttpVhost = false;
-                                    log.warn("Adding Vhost template avoided for GATEWAY for TENANT ID " + tenantDomain +
-                                                     " due to no GATEWAY registry resource for certificates");
+                                    log.warn("Adding Vhost template avoided for GATEWAY for TENANT DOMAIN "
+                                                     + tenantDomain
+                                                     + " due to no GATEWAY registry resource for certificates");
                                 }
                                 if (addHttpVhost) {
                                     //Defining gateway virtual hosts
@@ -393,7 +398,7 @@ public class VHostManager {
         File file = new File(currentFilePath);
         if (file.exists()) {
             //Get current date
-            SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat dtf = new SimpleDateFormat(NginxVhostConstants.DATE_FORMAT);
             Date localDate = Calendar.getInstance().getTime();
             String backupPath = currentFilePath + "-" + dtf.format(localDate);
             if (file.renameTo(new File(backupPath))) {
