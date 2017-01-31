@@ -46,6 +46,7 @@ public class MigrationManager {
      * Migrates the registry structure for the given list of tenants
      *
      * @param tenantList Comma separated list of tenants
+     * @param regionList Comma separated list of regions
      * @throws RegistryException
      * @throws IOException
      */
@@ -71,7 +72,6 @@ public class MigrationManager {
                     //Copy certificates
                     defaultPath = registryPath + tenantDomain + "/securityCertificates/";
                     if (registryManager.resourceExists(defaultPath)) {
-                        //Create region collection
                         registryManager.copyRegistryCollection(defaultPath, region, defaultRegion);
                     }
                 }

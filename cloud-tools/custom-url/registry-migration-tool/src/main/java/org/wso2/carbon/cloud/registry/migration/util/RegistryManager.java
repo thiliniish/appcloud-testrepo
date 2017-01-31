@@ -191,7 +191,6 @@ public class RegistryManager {
                 region = customRegion;
             }
             String nodePath = defaultPath + region + "/" + nodeName;
-
             //Create path for region if doesn't already exist
             if (!registry.resourceExists(defaultPath + region)) {
                 registry.put(defaultPath + region, registry.newCollection());
