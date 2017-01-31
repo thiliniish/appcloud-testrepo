@@ -32,9 +32,9 @@ import java.io.IOException;
  */
 public class MigrationManager {
 
-    private static final Log log = LogFactory.getLog(MigrationManager.class);
-    ConfigReader configReader;
-    RegistryManager registryManager;
+    private static final Log LOGGER = LogFactory.getLog(MigrationManager.class);
+    private ConfigReader configReader;
+    private RegistryManager registryManager;
 
     public MigrationManager(ConfigReader config) throws IOException, RegistryException {
         this.configReader = config;
@@ -75,11 +75,13 @@ public class MigrationManager {
                         registryManager.copyRegistryCollection(defaultPath, region, defaultRegion);
                     }
                 }
+            } else {
+                LOGGER.error("Aborting migration as registry path " + registryPath + " does not exist");
             }
         } catch (RegistryException ex) {
             String errorMessage =
                     "Error occurred when moving url mappings & certificates from default registry location.";
-            log.error(errorMessage, ex);
+            LOGGER.error(errorMessage, ex);
             throw new RegistryException(errorMessage, ex);
         }
     }

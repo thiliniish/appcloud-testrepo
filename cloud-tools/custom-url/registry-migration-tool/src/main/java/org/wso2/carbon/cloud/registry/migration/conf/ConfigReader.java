@@ -34,7 +34,7 @@ import java.util.Properties;
  */
 public class ConfigReader {
 
-    private static final Log LOG = LogFactory.getLog(ConfigReader.class);
+    private static final Log LOGGER = LogFactory.getLog(ConfigReader.class);
     private Map<String, String> configProperties = new HashMap<String, String>();
 
     /**
@@ -47,7 +47,7 @@ public class ConfigReader {
             init();
         } catch (IOException e) {
             String errorMessage = "Error occurred while initializing config reader.";
-            LOG.error(errorMessage, e);
+            LOGGER.error(errorMessage, e);
             throw new IOException(errorMessage, e);
         }
     }
@@ -58,7 +58,7 @@ public class ConfigReader {
      * @throws IOException
      */
     private void init() throws IOException {
-        LOG.info("Reading configuration file...");
+        LOGGER.info("Reading configuration file...");
         Properties properties = new Properties();
         InputStream input = null;
         try {
@@ -70,10 +70,9 @@ public class ConfigReader {
                 String value = properties.getProperty(key);
                 configProperties.put(key, value);
             }
-
         } catch (IOException e) {
             String msg = "Error while reading configuration file on " + RegistryMigrationConstants.CONFIG_FILE_PATH;
-            LOG.error(msg, e);
+            LOGGER.error(msg, e);
             throw e;
         } finally {
             if (input != null) {
@@ -81,11 +80,11 @@ public class ConfigReader {
                     input.close();
                 } catch (IOException e) {
                     String msg = "Error closing the input stream while reading the config file";
-                    LOG.error(msg, e);
+                    LOGGER.error(msg, e);
                 }
             }
         }
-        LOG.info("Reading configuration completed.");
+        LOGGER.info("Reading configuration completed.");
     }
 
     /**

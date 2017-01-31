@@ -31,7 +31,7 @@ import java.io.IOException;
  */
 public class Agent {
     private static final String MOVE_MODE = "-Move";
-    private static Log log = LogFactory.getLog(Agent.class);
+    private static final Log LOGGER = LogFactory.getLog(Agent.class);
 
     private Agent() {
     }
@@ -41,13 +41,13 @@ public class Agent {
         try {
             PropertyConfigurator.configure(RegistryMigrationConstants.LOG4J_PROPERTY_PATH);
             ConfigReader configReader = new ConfigReader();
-            MigrationManager vHostManager = new MigrationManager(configReader);
+            MigrationManager migrationManager = new MigrationManager(configReader);
             if (args.length == 3 && MOVE_MODE.equals(args[0])) {
-                vHostManager.migrateRegistryResources(args[1], args[2]);
+                migrationManager.migrateRegistryResources(args[1], args[2]);
             }
         } catch (RegistryException | IOException e) {
             String errorMessage = "Error occurred when starting the Registry Migration Tool";
-            log.error(errorMessage, e);
+            LOGGER.error(errorMessage, e);
             System.exit(1);
         }
     }

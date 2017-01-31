@@ -37,7 +37,7 @@ public class RegistryManager {
 
     private static final String TRUST_STORE_PASSWORD = "wso2carbon";
     private static final String TRUST_STORE_TYPE = "JKS";
-    private static Log log = LogFactory.getLog(RegistryManager.class);
+    private static final Log LOGGER = LogFactory.getLog(RegistryManager.class);
     private String username;
     private String password;
     private String serverUrl;
@@ -53,7 +53,7 @@ public class RegistryManager {
      * @throws RegistryException
      */
     public RegistryManager(ConfigReader configReader, String axis2Conf) throws AxisFault, RegistryException {
-        log.info("Initializing Registry Manager.");
+        LOGGER.info("Initializing Registry Manager.");
         username = configReader.getProperty("remoteregistry.usermane");
         password = configReader.getProperty("remoteregistry.password");
         serverUrl = configReader.getProperty("remoteregistry.url");
@@ -62,11 +62,11 @@ public class RegistryManager {
             init();
         } catch (AxisFault e) {
             String errorMessage = "Error occurred while initializing Registry Manager.";
-            log.error(errorMessage, e);
+            LOGGER.error(errorMessage, e);
             throw new AxisFault(errorMessage, e);
         } catch (RegistryException e) {
             String errorMessage = "Error occurred while initializing Registry Manager.";
-            log.error(errorMessage, e);
+            LOGGER.error(errorMessage, e);
             throw new RegistryException(errorMessage, e);
         }
     }
@@ -87,11 +87,11 @@ public class RegistryManager {
             registry = new WSRegistryServiceClient(serverUrl, username, password, configContext);
         } catch (AxisFault ex) {
             String errorMessage = "Error thrown when creating configuration context for registry";
-            log.error(errorMessage, ex);
+            LOGGER.error(errorMessage, ex);
             throw new AxisFault(errorMessage, ex);
         } catch (RegistryException ex) {
             String errorMessage = "Error thrown when creating registry ";
-            log.error(errorMessage, ex);
+            LOGGER.error(errorMessage, ex);
             throw new RegistryException(errorMessage, ex);
         }
     }
@@ -110,7 +110,7 @@ public class RegistryManager {
             }
         } catch (RegistryException ex) {
             String errorMessage = "Registry Exception thrown when checking existance of resource : " + ex.getMessage();
-            log.error(errorMessage);
+            LOGGER.error(errorMessage);
             throw new RegistryException(errorMessage, ex);
         }
 
@@ -129,7 +129,7 @@ public class RegistryManager {
             return registry.get(path);
         } catch (RegistryException ex) {
             String errorMessage = "Registry Exception thrown when checking existance of resource : " + ex.getMessage();
-            log.error(errorMessage);
+            LOGGER.error(errorMessage);
             throw new RegistryException(errorMessage, ex);
         }
     }
@@ -146,15 +146,15 @@ public class RegistryManager {
             if (!resourceExists(customPath)) {
                 registry.copy(defaultPath, customPath);
             } else {
-                log.info("Skipping copy from " + defaultPath + " to " + customPath + " - resource already exists");
+                LOGGER.info("Skipping copy from " + defaultPath + " to " + customPath + " - resource already exists");
                 return;
             }
         } catch (RegistryException ex) {
             String errorMessage = "Registry Exception thrown when checking existence of resource : " + ex.getMessage();
-            log.error(errorMessage);
+            LOGGER.error(errorMessage);
             throw new RegistryException(errorMessage, ex);
         }
-        log.info("Successfully copied " + defaultPath + " to " + customPath);
+        LOGGER.info("Successfully copied " + defaultPath + " to " + customPath);
     }
 
     /**
@@ -181,7 +181,7 @@ public class RegistryManager {
 
             //Skip if already migrated
             if (customRegion.equals(nodeName)) {
-                log.info(
+                LOGGER.info(
                         "Skipping certificate copy as resource '" + certificateCollectionElement + "' already exists.");
                 break;
             }
