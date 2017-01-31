@@ -649,7 +649,19 @@ var getCurrentSubscription = function (serviceId) {
 };
 var getCustomerDetails = function () {
     var accountId = getAccountId();
-    return JSON.parse(billingCoreService.getCustomerDetails(accountId));
+    if (accountId == null) {
+        var tenantDomain = session.get("TENANT_INFO").tenantDomain;
+        var msg = "No account available for the tenant: " + tenantDomain;
+        log.info(msg);
+        var responseObj = {};
+        responseObj.success = false;
+        responseObj.message = msg;
+        responseObj.data = null;
+        return responseObj;
+    }
+    else {
+        return JSON.parse(billingCoreService.getCustomerDetails(accountId));
+    }
 };
 
 var getAccountInfo = function () {
