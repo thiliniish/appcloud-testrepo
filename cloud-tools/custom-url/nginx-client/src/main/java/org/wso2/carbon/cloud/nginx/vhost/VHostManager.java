@@ -21,7 +21,6 @@ package org.wso2.carbon.cloud.nginx.vhost;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.cloud.nginx.vhost.conf.ConfigReader;

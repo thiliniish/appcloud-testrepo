@@ -72,9 +72,8 @@ public class MessageBrokerConsumer implements MessageListener {
         this.vHostManager = vHostManager;
         this.templateManager = templateManager;
         this.configReader = configReader;
-        this.messageBrokerTopicName = configReader.getProperty("messageBrokerTopicName") + "-" + configReader
-                                                                                                        .getProperty(
-                "region");
+        this.messageBrokerTopicName = configReader.getProperty("messageBrokerTopicName") + "-"
+                                              + configReader.getProperty("region");
         try {
             setConnection(configReader.getProperty("messageBrokerUrl"));
             init();
@@ -158,7 +157,7 @@ public class MessageBrokerConsumer implements MessageListener {
                     String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
                     String customUrl = jsonObject.getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL);
                     String template;
-                    String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + "/" +
+                    String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator +
                                               tenantDomain;
                     //Creating store
                     if (STORE.equals(node)) {
