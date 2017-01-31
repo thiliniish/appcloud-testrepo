@@ -1074,17 +1074,30 @@ var verifyEventAndSendInvoice = function (id) {
         throw Error(e);
     }
 };
+
 var verifyEventForFailedPayment = function (id) {
     try {
         var eventDataJson = JSON.parse(billingCoreService.callVendorMethod("getEventDetails", id));
         if (eventDataJson.success) {
             var subject = "[IMPORTANT] Error occurred while processing the payment";
+            // Send a mail to cloud team
             var message = CHARGE_FAILED_MESSAGE +
                     "<br><br> Customer - " + eventDataJson.data.data.object.customer +
                     "<br> Customer email- " + eventDataJson.data.data.object.receipt_email +
                     "<br> failure code - " + eventDataJson.data.data.object.failure_code +
                     "<br> failure message - " + eventDataJson.data.data.object.failure_message;
             jagg.module("util").sendEmail(message.toString(), subject, cloudConfig.registrationEmail.from);
+
+            //Send mail to the customer and cloud
+            var subjectForCustomer = "Payment For WSO2 Cloud Got Declined";
+            var body = jagg.module("util").getObjFromFile("/site/conf/emails/billing_charge_failed.txt");
+            var dateFormat = dateTimeFormatter(DATE_FORMAT);
+            var date = dateFormat.format(eventDataJson.data.data.object.created * THOUSAND);
+            body = body.replace("{customer}", eventDataJson.data.data.object.source.name)
+                    .replace("{status}", eventDataJson.data.data.object.failure_message)
+                    .replace("{date}", date);
+            jagg.module("util").sendEmail(body, subjectForCustomer, [cloudConfig.registrationEmail.from, eventDataJson
+                    .data.data.object.receipt_email]);
         } else {
             log.error(eventDataJson.message);
         }
