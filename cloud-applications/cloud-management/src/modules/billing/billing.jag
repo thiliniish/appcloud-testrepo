@@ -11,6 +11,7 @@ var modDb = jagg.module("database");
 var mdAlgorithm = "SHA-512";
 
 var modManager = jagg.module("manager");
+var modUtils = jagg.module("util");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
@@ -1090,13 +1091,13 @@ var verifyEventForFailedPayment = function (id) {
 
             //Send mail to the customer and cloud
             var subjectForCustomer = "Payment For WSO2 Cloud Got Declined";
-            var body = jagg.module("util").getObjFromFile("/site/conf/emails/billing_charge_failed.txt");
+            var body = modUtils.getObjFromFile("/site/conf/emails/billing_charge_failed.txt");
             var dateFormat = dateTimeFormatter(DATE_FORMAT);
             var date = dateFormat.format(eventDataJson.data.data.object.created * THOUSAND);
             body = body.replace("{customer}", eventDataJson.data.data.object.source.name)
                     .replace("{status}", eventDataJson.data.data.object.failure_message)
                     .replace("{date}", date);
-            jagg.module("util").sendEmail(body, subjectForCustomer, [cloudConfig.registrationEmail.from, eventDataJson
+            modUtils.sendEmail(body, subjectForCustomer, [cloudConfig.registrationEmail.from, eventDataJson
                     .data.data.object.receipt_email]);
         } else {
             log.error(eventDataJson.message);
