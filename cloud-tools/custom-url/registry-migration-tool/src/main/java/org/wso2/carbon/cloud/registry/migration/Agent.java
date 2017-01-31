@@ -55,7 +55,7 @@ public class Agent {
     /**
      * Initialize security properties
      */
-    public static void initialize() {
+    private static void initialize() {
         System.setProperty("javax.net.ssl.trustStore", RegistryMigrationConstants.KEY_STORE_FILE_PATH);
         System.setProperty("javax.net.ssl.keyStorePassword", "wso2carbon");
         System.setProperty("javax.net.ssl.keyStoreType", "JKS");
