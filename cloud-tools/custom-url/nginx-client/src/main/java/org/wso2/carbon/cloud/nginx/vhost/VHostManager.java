@@ -249,7 +249,7 @@ public class VHostManager {
 
                 //Move existing configs to a backup directory
                 String currentConfigPath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH);
-                String currentCertPath = configReader.getProperty("api_cloud_security_certificate_file_location");
+                String currentCertPath = configReader.getProperty(NginxVhostConstants.API_SECURITY_CERTIFICATE_PATH);
                 backupExistingConfigs(currentConfigPath);
                 backupExistingConfigs(currentCertPath);
                 Collection cloudCollection = (Collection) registryManager.getResourceFromRegistry(registryPath);

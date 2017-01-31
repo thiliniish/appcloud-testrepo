@@ -39,6 +39,7 @@ public class NginxVhostConstants {
     public static final String CLOUD_TYPE = "cloudType";
     public static final String API_CLOUD_TYPE = "api-cloud";
     public static final String API_STORE_TEMPLATE_NAME = "api-cloud-template";
+    public static final String API_SECURITY_CERTIFICATE_PATH = "api_cloud_security_certificate_file_location";
     public static final String HTTP_API_GATEWAY_TEMPLATE_NAME = "http-api-gateway-template";
     public static final String HTTPS_API_GATEWAY_TEMPLATE_NAME = "https-api-gateway-template";
     public static final String CERTIFICATE_FILE = "cert";
