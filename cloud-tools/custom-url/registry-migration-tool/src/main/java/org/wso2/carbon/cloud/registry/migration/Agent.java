@@ -42,11 +42,11 @@ public class Agent {
             PropertyConfigurator.configure(RegistryMigrationConstants.LOG4J_PROPERTY_PATH);
             ConfigReader configReader = new ConfigReader();
             MigrationManager vHostManager = new MigrationManager(configReader);
-            if (args.length > 0 && MOVE_MODE.equals(args[0])) {
+            if (args.length == 3 && MOVE_MODE.equals(args[0])) {
                 vHostManager.migrateRegistryResources(args[1], args[2]);
             }
         } catch (RegistryException | IOException e) {
-            String errorMessage = "Error occurred when starting the Domain-Mapping agent";
+            String errorMessage = "Error occurred when starting the Registry Migration Tool";
             log.error(errorMessage, e);
             System.exit(1);
         }
