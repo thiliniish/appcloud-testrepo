@@ -55,7 +55,9 @@ var ratePlans = session.get("RATE_PLANS");
 				var accountId = mod.getAccountId();
 				result = mod.changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
 			} else {
-				result = mod.createAccount(accountData, metaData, organizationName);
+				var isComplimentaryAccount = mod.isComplimentaryAccount();
+				result = mod.createAccount(accountData, metaData, organizationName, isComplimentaryAccount,
+						isComplimentaryAccount);
 			}
 
 			if (result != null) {

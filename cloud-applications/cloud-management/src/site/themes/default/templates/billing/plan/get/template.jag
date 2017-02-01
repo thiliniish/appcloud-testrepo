@@ -53,6 +53,7 @@
         }
         var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
         var bttnLabel = "Cancel";
+        var isComplimentaryAccount = inputs.isComplimentaryAccount;
     }
 %>
 
@@ -65,7 +66,7 @@
 <div class="container content-starter">
 	<div class="row">
 		<div class="col-lg-12">
-		    <%if (isFromChangePlan == false) { %>
+		    <%if (isFromChangePlan == false || (isFromChangePlan == true && isComplimentaryAccount)) { %>
 			    <h1>Upgrade Account</h1>
 			    <div class="helper_text" id="helper_text">
 			        <p>Please select a plan to upgrade your account</p>
@@ -85,7 +86,7 @@
 <div class="container c-both wr-billing-white info-message-parent">
 <% jagg.includeBlock("page/billing-messages", null); %>
 	<div class="row wr-wizard ">
-	    <%if (isFromChangePlan == false) { %>
+	    <%if (isFromChangePlan == false || (isFromChangePlan == true && isComplimentaryAccount)) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz itm-wiz-current"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
 			<br class="c-both" />
@@ -96,7 +97,7 @@
 			<br class="c-both" />
 		</div>
 		<%}
-		if (isFromChangePlan == false) { %>
+    if (isFromChangePlan == false || (isFromChangePlan == true && isComplimentaryAccount)) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs">
 			<span>Billing Information</span></div></div>
@@ -109,14 +110,14 @@
 			<br class="c-both" />
 		</div>
 		<%}
-        if (isFromChangePlan == false) { %>
+    if (isFromChangePlan == false || (isFromChangePlan == true && isComplimentaryAccount)) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs">
 			<span>Contact Information</span></div></div>
 			<br class="c-both" />
 		</div>
 		<%} %>
-		<%if (isFromChangePlan == false) { %>
+		<%if (isFromChangePlan == false || (isFromChangePlan == true && isComplimentaryAccount)) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz"><div class="wiz-no">4</div><div class="wiz-lbl hidden-xs">
 			<span>Summary</span></div></div>

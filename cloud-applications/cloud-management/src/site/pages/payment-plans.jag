@@ -4,7 +4,9 @@ var site = require("/site/conf/site.json");
 var log = new Log();
 (function () {
     var sessionId = session.getId();
-    var isFromChangePlan = jagg.module("billing").isPaidAccount();
+    var billingModule = jagg.module("billing");
+    var isFromChangePlan = billingModule.isPaidAccount();
+    var isComplimentaryAccount = billingModule.isComplimentaryAccount();
 
     jagg.render({
                     "name":"page/base",
@@ -20,7 +22,8 @@ var log = new Log();
                                         {
                                             "name":"billing/plan/get",
                                             "inputs": {
-                                                "isFromChangePlan": isFromChangePlan
+                                                "isFromChangePlan": isFromChangePlan,
+                                                "isComplimentaryAccount": isComplimentaryAccount
                                             }
                                         }
                                     ]

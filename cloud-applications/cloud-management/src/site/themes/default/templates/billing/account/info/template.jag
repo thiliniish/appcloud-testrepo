@@ -10,6 +10,7 @@
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
     var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
+    var isComplimentaryAccount = inputs.isComplimentaryAccount;
     %>
 
     <style type="text/css">
@@ -83,10 +84,17 @@
         var invoicePageNumber = 1;
         var paymentPageNumber = 1;
         var maxNumberOfItems =  <%=itemsPerPage%>;
+        var isComplimentaryAccount = "<%=isComplimentaryAccount%>";
         $(document).ready(function(){
         // Check for billing enable/disable mode
         var isBillingEnabled = $("#isBillingEnabled").attr('value');
         if (isBillingEnabled) {
+            if (isComplimentaryAccount == "true") {
+                $("#paymentMethodSection").hide();
+                $("#contactInformationSection").hide();
+                $("#invoicesSection").hide();
+                $("#paymentsSection").hide();
+            }
             updateAccountInfo();
         } else {
             var cloudMgtURL = $("#cloudmgtURL").attr('value');
@@ -374,7 +382,7 @@
                     </div>
                 </div>
 
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="paymentMethodSection">
                     <div class="panel-heading panel-header">Payment Method (Primary)
                     <button type="button" id="btnAddNewPayment" class="btn btn-default pull-right panel-btn-style" onclick="addNewPaymentMethod();">New Payment Method</button>
                     <button type="button" id="btnViewPayment" class="btn btn-default pull-right panel-btn-style marg-r-10" onclick="viewPaymentMethods();">View Payment Methods</button>
@@ -399,7 +407,7 @@
                     </div>
                 </div>
 
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="contactInformationSection">
                     <!--TODO Update contact information-->
                     <div class="panel-heading panel-header">Contact Information
 						<button type="button" id="btnUpdateContactInfo" class="btn btn-default pull-right panel-btn-style" onclick="updateContactInfo()">Update Contact Info</button>
@@ -440,7 +448,7 @@
                     </div>
                 </div>
 
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="invoicesSection">
                     <div class="panel-heading panel-header">Invoices</div>
                     <div class="panel-body">
                         <table class="table table-hover">
@@ -463,7 +471,7 @@
                     </div>
                 </div>
 
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="paymentsSection">
                     <div class="panel-heading panel-header">Payments</div>
                     <div class="panel-body">
                         <table class="table table-hover">

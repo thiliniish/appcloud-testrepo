@@ -871,51 +871,58 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
 
                 // Customer Details
                 JsonNode contactDetailsNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("shipping");
-                contactInformationObj.addProperty("name", contactDetailsNode.get("name").asText());
-                contactInformationObj.addProperty("firstName",
-                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
-                                                             .get("firstName").asText());
-                contactInformationObj.addProperty("lastName",
-                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
-                                                             .get("lastName").asText());
-                contactInformationObj.addProperty("state", contactDetailsNode.get("address").get("state").asText());
-                contactInformationObj.addProperty("city", contactDetailsNode.get("address").get("city").asText());
-                contactInformationObj.addProperty("country", contactDetailsNode.get("address").get("country").asText
-                        ());
-                contactInformationObj
-                        .addProperty("postalcode", contactDetailsNode.get("address").get("postal_code").asText());
-                contactInformationObj.addProperty("address1", contactDetailsNode.get("address").get("line1").asText());
-                contactInformationObj.addProperty("address2", contactDetailsNode.get("address").get("line2").asText());
-                contactInformationObj.addProperty("email",
-                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("email")
-                                                             .asText());
+                if (!contactDetailsNode.isNull()) {
+                    contactInformationObj.addProperty("name", contactDetailsNode.get("name").asText());
+                    contactInformationObj.addProperty("firstName",
+                            customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
+                                    .get("firstName").asText());
+                    contactInformationObj.addProperty("lastName",
+                            customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
+                                    .get("lastName").asText());
+                    contactInformationObj.addProperty("state", contactDetailsNode.get("address").get("state").asText());
+                    contactInformationObj.addProperty("city", contactDetailsNode.get("address").get("city").asText());
+                    contactInformationObj.addProperty("country", contactDetailsNode.get("address").get("country").asText
+                            ());
+                    contactInformationObj
+                            .addProperty("postalcode", contactDetailsNode.get("address").get("postal_code").asText());
+                    contactInformationObj.addProperty("address1",
+                            contactDetailsNode.get("address").get("line1").asText());
+                    contactInformationObj.addProperty("address2",
+                            contactDetailsNode.get("address").get("line2").asText());
+                    contactInformationObj.addProperty("email",
+                            customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("email")
+                                    .asText());
+                }
 
-                for (int x = 0; x < invoiceObj.get("data").size(); x++) {
-                    JsonNode invoiceItem = invoiceObj.get("data").get(x);
-                    JsonObject invoiceItemObj = new JsonObject();
-                    JsonObject chargeItemObj = new JsonObject();
-                    invoiceItemObj.addProperty("date",
-                                               convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
-                                                                    invoiceItem.get("date").asLong()));
-                    invoiceItemObj.addProperty("InvoiceId", invoiceItem.get("id").asText());
-                    invoiceItemObj.addProperty("TargetDate",
-                                               convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
-                                                                    invoiceItem.get("period_end").asLong()));
-                    invoiceItemObj.addProperty("Amount", invoiceItem.get("total").asText());
-                    invoiceItemObj.addProperty("paid", invoiceItem.get("paid").asText());
-                    invoiceArrayList.add(invoiceItemObj.toString());
-                    if (!invoiceItem.get("charge").isNull()) {
-                        //get ChargeObject
-                        String chargeDetails = getChargedDetails(invoiceItem.get("charge").asText());
-                        JsonNode chargeObj = APICloudMonetizationUtils.getJsonList(chargeDetails);
-                        chargeItemObj.addProperty("type", chargeObj.get("data").get("source").get("object").asText());
-                        chargeItemObj.addProperty("effectiveDate", convertUnixTimestamp(
-                                BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
-                                chargeObj.get("data").get("created").asLong()));
-                        chargeItemObj.addProperty("paymentNumber", chargeObj.get("data").get("id").asText());
-                        chargeItemObj.addProperty("invoiceNumber", invoiceItem.get("id").asText());
-                        chargeItemObj.addProperty("Status", chargeObj.get("data").get("status").asText());
-                        paymentArrayList.add(chargeItemObj.toString());
+                if (invoiceObj != null) {
+                    for (int x = 0; x < invoiceObj.get("data").size(); x++) {
+                        JsonNode invoiceItem = invoiceObj.get("data").get(x);
+                        JsonObject invoiceItemObj = new JsonObject();
+                        JsonObject chargeItemObj = new JsonObject();
+                        invoiceItemObj.addProperty("date",
+                                convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                        invoiceItem.get("date").asLong()));
+                        invoiceItemObj.addProperty("InvoiceId", invoiceItem.get("id").asText());
+                        invoiceItemObj.addProperty("TargetDate",
+                                convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                        invoiceItem.get("period_end").asLong()));
+                        invoiceItemObj.addProperty("Amount", invoiceItem.get("total").asText());
+                        invoiceItemObj.addProperty("paid", invoiceItem.get("paid").asText());
+                        invoiceArrayList.add(invoiceItemObj.toString());
+                        if (!invoiceItem.get("charge").isNull()) {
+                            //get ChargeObject
+                            String chargeDetails = getChargedDetails(invoiceItem.get("charge").asText());
+                            JsonNode chargeObj = APICloudMonetizationUtils.getJsonList(chargeDetails);
+                            chargeItemObj.addProperty("type",
+                                    chargeObj.get("data").get("source").get("object").asText());
+                            chargeItemObj.addProperty("effectiveDate", convertUnixTimestamp(
+                                    BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                    chargeObj.get("data").get("created").asLong()));
+                            chargeItemObj.addProperty("paymentNumber", chargeObj.get("data").get("id").asText());
+                            chargeItemObj.addProperty("invoiceNumber", invoiceItem.get("id").asText());
+                            chargeItemObj.addProperty("Status", chargeObj.get("data").get("status").asText());
+                            paymentArrayList.add(chargeItemObj.toString());
+                        }
                     }
 
                 }

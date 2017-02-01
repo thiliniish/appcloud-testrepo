@@ -246,14 +246,19 @@ var calculateDiscountForCoupon = function (couponData) {
 };
 
 
-var createAccount = function (accountData, metaData, organizationName) {
+var createAccount = function (accountData, metaData, organizationName, isComplimentaryAccount,
+                              isComplimentaryAccountUpdate) {
 
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    if (!isComplimentaryAccountUpdate) {
+        tenantDomain = session.get("TENANT_DOMAIN");
+    }
 
     if (validateRatePlanId(metaData.serviceId, metaData.productRatePlanId)) {
 
         var effectiveDate = new Packages.java.util.Date();
-        var data = populateAccountInfo(organizationName, accountData, metaData, false);
+        var data = populateAccountInfo(organizationName, accountData, metaData, false, isComplimentaryAccount,
+                isComplimentaryAccountUpdate);
         if (log.isDebugEnabled()) {
             log.debug("Creating account with data: " + data);
         }
@@ -261,7 +266,8 @@ var createAccount = function (accountData, metaData, organizationName) {
         var responseSubscriptionCreation;
         if (response.id != null) {
             var planName = getPaymentPlanFromId(metaData.serviceId, metaData.productRatePlanId);
-            data = populateSubscriptionInfo(response.id, metaData.productRatePlanId);
+            data = populateSubscriptionInfo(response.id, metaData.productRatePlanId, accountData.trialEndDate,
+                    isComplimentaryAccount, isComplimentaryAccountUpdate);
             responseSubscriptionCreation = JSON.parse(billingCoreService.createSubscription(JSON.stringify(data)));
 
             if (responseSubscriptionCreation.data.subscriptionNumber != null) {
@@ -269,15 +275,24 @@ var createAccount = function (accountData, metaData, organizationName) {
 
                 var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
                 var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
-
-                cloudBillingDAO.insertBillingStatus(tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE,
-                        formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING);
-
-                cloudBillingDAO.updateSubscriptionStatus(status.DISABLED, formattedEffectiveDate, tenantDomain,
-                        metaData.serviceId, type.TRIAL);
-
-                cloudBillingDAO.insertBillingAccountAmendments(response.id, metaData.productRatePlanId, formattedEffectiveDate,
-                        MYSQL_MAX_DATETIME_STRING, metaData.serviceId);
+                var endDate = MYSQL_MAX_DATETIME_STRING;
+                if (isComplimentaryAccount && !isComplimentaryAccountUpdate) {
+                    endDate = accountData.trialEndDate;
+                }
+                if (!isComplimentaryAccount || (isComplimentaryAccount && !isComplimentaryAccountUpdate)) {
+                    cloudBillingDAO.insertBillingStatus(tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE,
+                            formattedEffectiveDate, endDate);
+                }
+                var accountType = type.TRIAL, paidEndDate = formattedEffectiveDate, accountStatus = status.DISABLED;
+                if ((isComplimentaryAccount && isComplimentaryAccountUpdate) || !isComplimentaryAccount) {
+                    accountType = type.PAID;
+                    paidEndDate = MYSQL_MAX_DATETIME_STRING;
+                    accountStatus = status.ACTIVE;
+                }
+                cloudBillingDAO.updateSubscriptionStatus(accountStatus, paidEndDate, tenantDomain,
+                        metaData.serviceId, accountType);
+                cloudBillingDAO.insertBillingAccountAmendments(response.id, metaData.productRatePlanId,
+                        formattedEffectiveDate, endDate, metaData.serviceId);
 
                 //send an email to the user
                 var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
@@ -457,30 +472,34 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 };
 
 //populate account information object
-var populateAccountInfo = function (organizationName, accountData, metaData, isEdit) {
+var populateAccountInfo = function (organizationName, accountData, metaData, isEdit, isComplimentaryAccount,
+                                    isComplimentaryAccountUpdate) {
     var data = {};
-    data.description = organizationName;
-    if (!isEdit) {
-        data.source = metaData.field_passthrough4;
-    }
-    data.email = metaData.workEmail;
-    data.shipping = {};
     data.metadata = {};
-
-    var shippingDetails = {};
-    shippingDetails.address = accountData;
-    shippingDetails.name = metaData.firstName + " " + metaData.lastName;
-    data.shipping = shippingDetails;
-
+    data.shipping = {};
+    data.description = organizationName;
+    data.email = metaData.workEmail;
     var metaDetails = {};
     metaDetails.firstName = metaData.firstName;
     metaDetails.lastName = metaData.lastName;
+    if (isComplimentaryAccount && !isComplimentaryAccountUpdate) {
+        metaDetails.type = metaData.type
+    }
     data.metadata = metaDetails;
-
+    if (!isComplimentaryAccount || isComplimentaryAccountUpdate) {
+        if (!isEdit) {
+            data.source = metaData.field_passthrough4;
+        }
+        var shippingDetails = {};
+        shippingDetails.address = accountData;
+        shippingDetails.name = metaData.firstName + " " + metaData.lastName;
+        data.shipping = shippingDetails;
+    }
     return data;
 };
 
-var populateSubscriptionInfo = function (customer, ratePlanId) {
+var populateSubscriptionInfo = function (customer, ratePlanId, trialEndDate, isComplimentaryAccount,
+                                         isComplimentaryAccountUpdate) {
     var couponData = session.get("PRODUCT_COUPON_DATA");
     var serviceId = session.get("SERVICE_ID");
     session.remove("PRODUCT_COUPON_DATA");
@@ -491,6 +510,14 @@ var populateSubscriptionInfo = function (customer, ratePlanId) {
     }
     data.customer = customer;
     data.plan = ratePlanId;
+    if (isComplimentaryAccount && !isComplimentaryAccountUpdate) {
+        var SimpleDateFormat = Packages.java.text.SimpleDateFormat;
+        var Date = Packages.java.util.Date;
+        var dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        var date = dateFormat.parse(trialEndDate);
+        var timeStamp = date.getTime();
+        data.trial_end = Number(timeStamp / 1000).toFixed();
+    }
     return data;
 };
 
@@ -1080,5 +1107,20 @@ var verifyEventForFailedPayment = function (id) {
         log.error("Error occurred while verifying and sending emails for failed payments " + e);
         throw Error(e);
     }
+};
+
+/**
+ * Method to check if the account of logged in user is complimentary
+ *
+ * returns {if the account is complimentary or not}
+ */
+var isComplimentaryAccount = function() {
+    if (isPaidAccount()) {
+        var customerObj = getCustomerDetails();
+        if (customerObj.success) {
+            return (customerObj.data.metadata.type == "Complimentary");
+        }
+    }
+    return false;
 };
 %>
