@@ -1,0 +1,23 @@
+Dear {customer},<br/><br/>
+
+Your subscription payment for WSO2 API Cloud did not go through on {date}.<br/>
+We have received the notice as "{status}" <br/>
+Your WSO2 account might be suspended unless the issue is resolved promptly.<br/><br/>
+
+If you believe that your bank declined the transaction by mistake, please contact it as soon as possible.
+If not, please follow the instructions below to give a different payment method:
+<br/>
+1. Go to: https://cloudmgt.cloud.wso2.com/cloudmgt/site/pages/account-summary.jag<br/>
+2. Log in with your WSO2 credentials (email and password),<br/>
+3. Click the <b>'New Payment Method'</b> button:<br/><br/>
+<img src="https://s3.amazonaws.com/wso2cloud-resources/email-resources/AccountSummary.png"
+style="width: 700px; height: 400px;"/><br/><br/>
+4. Supply the new credit card information, click the <b>Payment Info</b> button and then the Proceed button.<br/><br/>
+<img src="https://s3.amazonaws.com/wso2cloud-resources/email-resources/NewPaymentMethod.png" style="width: 700px; height: 400px;"/><br/>
+
+<br/>
+Please reach out to us if you need any help.<br/>
+<br/><br/>
+Regards,<br/>
+WSO2 Cloud Team
+

@@ -2,8 +2,16 @@
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
 (function () {
-    var userName = session.get("LOGGED_IN_USER");
-    var sessionId = session.getId();
+    var isPaidCustomer = jagg.module("billing").isPaidAccount();
+    var regionSelectionEnabled = false;
+    if (isPaidCustomer) {
+        regionSelectionEnabled = jagg.module("customurl").isRegionSelectionEnabled();
+    }
+    var paymentPlanName = jagg.module("monetizing").getCurrentPaymentPlan();
+    var isFromChangePlan = false;
+    if (paymentPlanName != null) {
+        isFromChangePlan = true;
+    }
     jagg.render({
         "name":"page/base",
         "inputs":{
@@ -16,7 +24,12 @@ var site = require("/site/conf/site.json");
                         "title":"Custom Url",
                         "middle":[
                             {
-                            	"name":"customurl"
+                            	"name":"customurl",
+                                "inputs": {
+                                    "isPaidCustomer": isPaidCustomer,
+                                    "regionSelectionEnabled": regionSelectionEnabled,
+                                    "isFromChangePlan": isFromChangePlan
+                                }
                             }
                         ]
                     }

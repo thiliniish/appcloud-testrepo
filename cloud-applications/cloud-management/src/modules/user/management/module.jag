@@ -5,6 +5,9 @@ jagg.module("user/management", {
     },
     hasOnlySubscriberRole: function() {
         return jagg.require(jagg.getModulesDir() + "user/management/management.jag").hasOnlySubscriberRole.apply(this, arguments);
+    },
+    isUserInRole: function() {
+        return jagg.require(jagg.getModulesDir() + "user/management/management.jag").isUserInRole.apply(this, arguments);
     }
 });
 %>

@@ -50,6 +50,17 @@
           "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9643/publisher/",
           "storeUrl": "https://milestones.appfactory.wso2.com:9643/store",
           "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
+        },
+        "regionSelection": [
+          {
+            "premiumLevel": 2,
+            "regionCount": 1
+          }
+        ],
+        "gatewayMigrationProperties": {
+          "userEmailSubject": "Migrate API Cloud Gateway to a different region",
+          "cloudEmailSubject": "Request to migrate API gateway to a different region",
+          "cloudEmail": "cloud@wso2.com"
         }
       },
       {
@@ -121,13 +132,32 @@
       "registryPassword" : "admin"
     },
     "messageBroker" : {
-      "topicName" : "custom-url-topic",
+      "topicName": "custom-url-topic",
+      "defaultTopicName": "custom-url-topic-us-e",
       "messageBrokerUrl" : "tcp://localhost:61616"
     },
     "defaultStoreUrl" : "api.cloud.wso2.com",
     "defaultGatewayUrl" : "gateway.api.cloud.wso2.com",
     "httpsGatewayPort" : "8243",
     "apiCloudPointingUrl" : "customdns.api.cloud.wso2.com",
+    "defaultRegion": {
+      "id": "us-e",
+      "name": "US East"
+    },
+    "regionalDeployments" : [
+      {"id":"us-e", "regionName" : "US East", "available" : true, "pointingUrl": "customdns.api.cloud.wso2.com"},
+      {"id":"us-w", "regionName" : "US West", "available" : false, "pointingUrl": "customdns-usw.api.cloud.wso2.com"},
+      {"id":"sg", "regionName" : "Singapore", "available" : false, "pointingUrl": "customdns-sg.api.cloud.wso2.com"},
+      {"id":"syd", "regionName" : "Sydney", "available" : true, "pointingUrl": "customdns-syd.api.cloud.wso2.com"},
+      {"id":"can", "regionName" : "Canada", "available" : false, "pointingUrl": "customdns-can.api.cloud.wso2.com"},
+      {"id":"br", "regionName" : "Brazil", "available" : false, "pointingUrl": "customdns-brz.api.cloud.wso2.com"},
+      {"id":"ire", "regionName" : "EU (Ireland)", "available" : true, "pointingUrl": "customdns-ire.api.cloud.wso2.com"},
+      {"id":"frk", "regionName" : "EU (Frankfurt)", "available" : true, "pointingUrl": "customdns-frk.api.cloud.wso2.com"},
+      {"id":"tky", "regionName" : "Tokyo", "available" : false, "pointingUrl": "customdns-tky.api.cloud.wso2.com"},
+      {"id":"seo", "regionName" : "Seoul", "available" : false, "pointingUrl": "customdns-seo.api.cloud.wso2.com"},
+      {"id":"mum", "regionName" : "Mumbai", "available" : false, "pointingUrl": "customdns-mum.api.cloud.wso2.com"},
+      {"id":"bjg", "regionName" : "Beijing", "available" : false, "pointingUrl": "customdns-bjg.api.cloud.wso2.com"}
+    ],
     "appCloud" : {
       "pointingUrl" : "customdns.wso2apps.com",
       "serverBlockBaseUrl" : "https://localhost:9543/appmgt/site/blocks/",
@@ -187,7 +217,9 @@
     "apiCloudUpgradeComplete": "https://local.pardot.com/l/142131/2016-08-31/28v7n9",
     "appCloudUpgradeStart": "https://local.pardot.com/l/142131/2016-09-01/292kf3",
     "appCloudUpgradeComplete": "https://local.pardot.com/l/142131/2016-09-01/292kf5",
-    "selfSignupSubmission": "https://local.pardot.com/l/142131/2016-09-06/29vpc5"
+    "selfSignupSubmission": "https://local.pardot.com/l/142131/2016-09-06/29vpc5",
+    "removeFromApiCloudDripCampaign": "https://local.pardot.com/l/142131/2016-11-11/2q8qfm",
+    "removeFromAppCloudDripCampaign": "http://local.pardot.com/l/142131/2017-01-30/381szr"
   },
   "supportContact": {
     "to": "cloudpreview-noreply@wso2.com"
