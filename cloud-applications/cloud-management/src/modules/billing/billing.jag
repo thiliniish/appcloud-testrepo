@@ -11,6 +11,8 @@ var modDb = jagg.module("database");
 var mdAlgorithm = "SHA-512";
 
 var modManager = jagg.module("manager");
+var modUserManager = jagg.module("user/management");
+var modTenant = jagg.module("tenant");
 var modUtils = jagg.module("util");
 var carbon = require('carbon');
 var server = carbon.server;
@@ -306,14 +308,17 @@ var createAccount = function (accountData, metaData, organizationName) {
                                 var type = metaData.serviceId.toUpperCase();
                                 type = type.substring(0, type.indexOf("_"));
                                 var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-                                var URL;
+                                var upgradeURL;
+                                var dripURL;
                                 if ("API".equals(type)) {
-                                    URL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeComplete;
+                                    upgradeURL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeComplete;
+                                    dripURL = cloudConfig.MailCampaignAddUserApi.removeFromApiCloudDripCampaign;
                                 } else if ("APP".equals(type)) {
-                                    URL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeComplete;
+                                    upgradeURL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeComplete;
+                                    dripURL = cloudConfig.MailCampaignAddUserApi.removeFromAppCloudDripCampaign;
                                 }
                                 var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
-                                var result = post(URL, data, {}, 'text');
+                                var result = post(upgradeURL, data, {}, 'text');
                                 var msg = result['data'];
                                 var actionString = MAIL_CAMPAIGN + "-" + type + "-Upgrade:";
                                 var page = MAIL_CAMPAIGN;
@@ -321,12 +326,33 @@ var createAccount = function (accountData, metaData, organizationName) {
                                 var events = [];
                                 if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                                     actionString = actionString + "Success";
-                                    log.info(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' is successful for " +
+                                    log.info(MAIL_CAMPAIGN + " api call '" + type + " Cloud Upgrade Complete' is successful for " +
                                     email);
                                 } else {
                                     actionString = actionString + "Failed";
-                                    log.error(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' failed for the user "
+                                    log.error(MAIL_CAMPAIGN + " api call '" + type + " Cloud Upgrade Complete' failed for the user "
                                     + jagg.getUser() + " " + msg);
+                                }
+                                //Removing all the users from the drip(trial) campaign. Otherwise tenant users (publishers and admins)
+                                //will receive trial mails even after they upgrade.
+
+                                //getting users of tenant
+                                var users = modTenant.getUsersofTenant(tenantDomain);
+                                for (var i = 0; i < users.length; i++) {
+                                    var username = users[i]['userName'];
+                                    var email = users[i]['email'];
+                                    if (modUserManager.isUserInRole(username, ROLE_ADMIN) || modUserManager.isUserInRole(username, ROLE_PUBLISHER)) {
+                                        var data = "email=" + email;
+                                        var result = post(dripURL, data, {}, 'text');
+                                        var msg = result['data'];
+                                        if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
+                                            log.info(MAIL_CAMPAIGN + " api call '" + type + " Cloud remove from drip campaign' is successful for " +
+                                                email);
+                                        } else {
+                                            log.error(MAIL_CAMPAIGN + " api call '" + type + " Cloud remove from drip campaign' failed for "
+                                                + email + " " + msg);
+                                        }
+                                    }
                                 }
                                 var event = {};
                                 event.item = item;

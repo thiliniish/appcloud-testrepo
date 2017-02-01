@@ -217,7 +217,9 @@
     "apiCloudUpgradeComplete": "https://local.pardot.com/l/142131/2016-08-31/28v7n9",
     "appCloudUpgradeStart": "https://local.pardot.com/l/142131/2016-09-01/292kf3",
     "appCloudUpgradeComplete": "https://local.pardot.com/l/142131/2016-09-01/292kf5",
-    "selfSignupSubmission": "https://local.pardot.com/l/142131/2016-09-06/29vpc5"
+    "selfSignupSubmission": "https://local.pardot.com/l/142131/2016-09-06/29vpc5",
+    "removeFromApiCloudDripCampaign": "https://local.pardot.com/l/142131/2016-11-11/2q8qfm",
+    "removeFromAppCloudDripCampaign": "http://local.pardot.com/l/142131/2017-01-30/381szr"
   },
   "supportContact": {
     "to": "cloudpreview-noreply@wso2.com"
