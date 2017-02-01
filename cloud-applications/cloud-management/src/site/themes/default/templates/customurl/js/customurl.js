@@ -375,6 +375,7 @@ function verifyCustomDomain(node) {
 }
 
 function getCurrentUserMapping() {
+    var customurlConfig = JSON.parse($('#customurlConfig').val());
     jagg.syncPost('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'getCurrentMapping',
         cloudType: $('#apiCloudType').val()
@@ -386,7 +387,7 @@ function getCurrentUserMapping() {
             previousRegion = currentRegion;
             selectRegion(currentRegion)
         } else {
-            var defaultRegion = JSON.parse($('#defaultRegion').val());
+            var defaultRegion = customurlConfig.defaultRegion;
             selectRegion(defaultRegion.id);
         }
     }, function(jqXHR, textStatus, errorThrown) {});
