@@ -71,7 +71,9 @@ public class MigrationManager {
                     if (registryManager.resourceExists(defaultPath)) {
                         registryManager.copyRegistryResource(defaultPath, customPath);
                         //This will add a mapping to default region (For store)
-                        registryManager.copyRegistryResource(defaultPath, customPathDefaultRegion);
+                        if (!defaultRegion.equals(region)) {
+                            registryManager.copyRegistryResource(defaultPath, customPathDefaultRegion);
+                        }
                     }
                     //Copy certificates
                     defaultPath = registryPath + tenantDomain + "/securityCertificates/";
