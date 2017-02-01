@@ -65,7 +65,7 @@
         <Role name="appclouduser">
             <DisplayName>AppCloudUser</DisplayName>
             <Permission>
-                /permission/admin/manage/appCloudLogin,
+                /permission/admin/manage/appcloudlogin,
                 /permission/admin/manage/rssmanager,
                 /permission/admin/manage/analytics/dashboard,
                 /permission/admin/manage/analytics/records/get,
