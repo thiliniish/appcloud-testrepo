@@ -54,7 +54,7 @@ public class RegistryManager {
      */
     public RegistryManager(ConfigReader configReader, String axis2Conf) throws AxisFault, RegistryException {
         LOGGER.info("Initializing Registry Manager.");
-        username = configReader.getProperty("remoteregistry.usermane");
+        username = configReader.getProperty("remoteregistry.username");
         password = configReader.getProperty("remoteregistry.password");
         serverUrl = configReader.getProperty("remoteregistry.url");
         this.axis2Conf = axis2Conf;
