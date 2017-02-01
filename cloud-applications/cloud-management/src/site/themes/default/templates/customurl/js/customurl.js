@@ -349,9 +349,9 @@ function verifyCustomDomain(node) {
     var defaultPointingUrl = customUrlConfig.apiCloudPointingUrl;
     var region = $("#region").attr("value");
     var pointingUrl;
-    if(region == undefined){
-        pointingUrl = defaultPointingUrl
-    } else{
+    if (region == undefined || 'store' == node) {
+        pointingUrl = defaultPointingUrl;
+    } else {
         pointingUrl = $('#pointingUrl').val();
     }
     jagg.post('../../site/blocks/customurl/ajax/customurl.jag', {
