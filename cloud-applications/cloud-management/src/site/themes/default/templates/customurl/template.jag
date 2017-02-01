@@ -314,7 +314,7 @@
 <input type="hidden" id="appCloudType" value='<%= APP_CLOUD_TYPE %>' />
 <input type="hidden" id="customUrlDocumentationLink" value='<%= cloudConfig.documentation.customUrlDocumentationLink %>' />
 <input type="hidden" name="paymentPlanUrl" id="paymentPlanUrl" value="<%=paymentPlanUrl%>" />
-<input type="hidden" id="customurlConfig" value='<%= cloudConfig.customUrl %>' />
+<input type="hidden" id="customUrlConfig" value='<%= cloudConfig.customUrl %>' />
 <input type="hidden" id="cloudmgtUrl" value='<%= cloudConfig.ServerUrls.cloudmgt %>' />
 
 <% }); %>

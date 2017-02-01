@@ -56,8 +56,8 @@ $(document).ready(function() {
             if(regionSelectionEnabled == "true"){
                 showMigrationConfirmation(regionId, regionName);
             } else{
-                var customurlConfig = JSON.parse($('#customurlConfig').val());
-                var defaultRegion = customurlConfig.defaultRegion;
+                var customUrlConfig = JSON.parse($('#customUrlConfig').val());
+                var defaultRegion = customUrlConfig.defaultRegion;
                 if(regionId == defaultRegion.id){
                     showMigrationConfirmation(regionId, regionName);
                 } else{
@@ -200,8 +200,8 @@ function displayApplicationSection(element) {
 }
 
 function resetApplicationSection() {
-    var customurlConfig = JSON.parse($('#customurlConfig').val());
-    var appCloudPointingUrl = customurlConfig.appCloud.pointingUrl;
+    var customUrlConfig = JSON.parse($('#customUrlConfig').val());
+    var appCloudPointingUrl = customUrlConfig.appCloud.pointingUrl;
     var customUrlDocumentationLink = $('#customUrlDocumentationLink').val();
     $("#sslFileForm")[0].reset();
     $("#keyFileForm")[0].reset();
@@ -243,8 +243,8 @@ function publishCustomUrl(node) {
     //If API cloud, check if region is available
     var isRegionAvailable = true;
     var regionId = $("#region").val();
-    var customurlConfig = JSON.parse($('#customurlConfig').val());
-    var regionList = customurlConfig.regionalDeployments;
+    var customUrlConfig = JSON.parse($('#customUrlConfig').val());
+    var regionList = customUrlConfig.regionalDeployments;
     var length = regionList.length;
     for (var i = 0; i < length; i++) {
         if (regionList[i].id == regionId) {
@@ -345,8 +345,8 @@ function publishCustomUrl(node) {
 
 function verifyCustomDomain(node) {
     var customUrl = $('#' + node + 'Domain').val();
-    var customurlConfig = JSON.parse($('#customurlConfig').val());
-    var defaultPointingUrl = customurlConfig.apiCloudPointingUrl;
+    var customUrlConfig = JSON.parse($('#customUrlConfig').val());
+    var defaultPointingUrl = customUrlConfig.apiCloudPointingUrl;
     var region = $("#region").attr("value");
     var pointingUrl;
     if(region == undefined){
@@ -375,7 +375,7 @@ function verifyCustomDomain(node) {
 }
 
 function getCurrentUserMapping() {
-    var customurlConfig = JSON.parse($('#customurlConfig').val());
+    var customUrlConfig = JSON.parse($('#customUrlConfig').val());
     jagg.syncPost('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'getCurrentMapping',
         cloudType: $('#apiCloudType').val()
@@ -387,23 +387,23 @@ function getCurrentUserMapping() {
             previousRegion = currentRegion;
             selectRegion(currentRegion)
         } else {
-            var defaultRegion = customurlConfig.defaultRegion;
+            var defaultRegion = customUrlConfig.defaultRegion;
             selectRegion(defaultRegion.id);
         }
     }, function(jqXHR, textStatus, errorThrown) {});
 }
 
 function selectRegion(region) {
-    var customurlConfig = JSON.parse($('#customurlConfig').val());
-    var defaultPointingUrl = customurlConfig.apiCloudPointingUrl;
+    var customUrlConfig = JSON.parse($('#customUrlConfig').val());
+    var defaultPointingUrl = customUrlConfig.apiCloudPointingUrl;
     $("#region").val(region);
     //Set pointing url
-    var defaultRegion = customurlConfig.defaultRegion;
+    var defaultRegion = customUrlConfig.defaultRegion;
     if (region == defaultRegion.id) {
         $('#pointingUrl').val(defaultPointingUrl);
         $("#pointingUrl").html(defaultPointingUrl);
     } else {
-        var regionList = customurlConfig.regionalDeployments;
+        var regionList = customUrlConfig.regionalDeployments;
         var length = regionList.length;
         for (var j = 0; j < length; j++) {
             if (regionList[j].id == region) {
@@ -418,8 +418,8 @@ function selectRegion(region) {
 function setRegions() {
     var isPaidCustomer = $('#isPaidCustomer').val();
     if (isPaidCustomer == "true") {
-        var customurlConfig = JSON.parse($('#customurlConfig').val());
-        var regionList = customurlConfig.regionalDeployments;
+        var customUrlConfig = JSON.parse($('#customUrlConfig').val());
+        var regionList = customUrlConfig.regionalDeployments;
         var length = regionList.length;
         for (var j = 0; j < length; j++) {
             $("#region").append(new Option(regionList[j].regionName, regionList[j].id));
