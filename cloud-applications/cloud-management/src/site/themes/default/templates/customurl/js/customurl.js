@@ -349,7 +349,7 @@ function verifyCustomDomain(node) {
     var defaultPointingUrl = customUrlConfig.apiCloudPointingUrl;
     var region = $("#region").attr("value");
     var pointingUrl;
-    if (region == undefined || node == 'store') {
+    if (region == undefined || 'store' == node) {
         pointingUrl = defaultPointingUrl;
     } else {
         pointingUrl = $('#pointingUrl').val();
