@@ -65,14 +65,14 @@ public class MigrationManager {
 
                     //Copy url mappings
                     String customPath = registryPath + tenantDomain + "/urlMapping/" + region + "-" + tenantDomain;
-                    String customPathDefaultRegion = registryPath + tenantDomain + "/urlMapping/" + defaultRegion + "-"
+                    String defaultRegionMappingPath = registryPath + tenantDomain + "/urlMapping/" + defaultRegion + "-"
                                                              + tenantDomain;
                     String defaultPath = registryPath + tenantDomain + "/urlMapping/" + tenantDomain;
                     if (registryManager.resourceExists(defaultPath)) {
                         registryManager.copyRegistryResource(defaultPath, customPath);
                         //This will add a mapping to default region (For store)
                         if (!defaultRegion.equals(region)) {
-                            registryManager.copyRegistryResource(defaultPath, customPathDefaultRegion);
+                            registryManager.copyRegistryResource(defaultPath, defaultRegionMappingPath);
                         }
                     }
                     //Copy certificates
