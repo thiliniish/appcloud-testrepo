@@ -40,6 +40,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -245,5 +246,14 @@ public class X509CertificateManager {
             log.error(errorMessage, ex);
             throw new CertificateParsingException();
         }
+    }
+
+    /**
+     * Returns the RSA Public key.
+     *
+     * @return PublicKey
+     */
+    public RSAPublicKey getPublicKey() {
+        return (RSAPublicKey) x509Certificate.getPublicKey();
     }
 }

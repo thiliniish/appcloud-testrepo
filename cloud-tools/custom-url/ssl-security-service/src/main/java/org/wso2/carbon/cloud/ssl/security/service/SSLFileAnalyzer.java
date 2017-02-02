@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.ssl.security.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.ssl.security.service.module.RSAPrivateKeyManager;
 import org.wso2.carbon.cloud.ssl.security.service.module.X509CertificateManager;
 import org.wso2.carbon.core.AbstractAdmin;
 
@@ -33,6 +34,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CertificateParsingException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 
 /**
  * Admin Service to analyze SSLFiles to validate them against the chain files
@@ -41,14 +44,15 @@ public class SSLFileAnalyzer extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(SSLFileAnalyzer.class);
     private X509CertificateManager x509CertificateManager;
-
+    private RSAPrivateKeyManager rsaPrivateKeyManager;
     /**
      * Initializing certificate and chain file content
      */
-    public void init(String sslFileContent, String chainFile)
+    public void init(String sslFileContent, String chainFile, String keyContent)
             throws CertificateException, IOException, InvalidAlgorithmParameterException {
         try {
             this.x509CertificateManager = new X509CertificateManager(sslFileContent, chainFile);
+            this.rsaPrivateKeyManager = new RSAPrivateKeyManager(keyContent);
         } catch (CertificateException | InvalidAlgorithmParameterException ex) {
             String errorMessage = "Error occurred when initializing ssl certificate.";
             log.error(errorMessage, ex);
@@ -149,5 +153,19 @@ public class SSLFileAnalyzer extends AbstractAdmin {
             log.debug(errorMessage, ex);
             return "{'error':'true', 'message':''" + errorMessage + "}";
         }
+    }
+
+    /**
+     * Verify whether private key matches the public key
+     *
+     * @return String json payload of the status
+     */
+    public String matchRSAKeys() {
+        RSAPublicKey publicKey = x509CertificateManager.getPublicKey();
+        RSAPrivateKey privateKey = rsaPrivateKeyManager.getPrivateKey();
+        if (publicKey.getModulus().compareTo(privateKey.getModulus()) == 0) {
+            return "{'error' : false }";
+        }
+        return "{'error':'true', 'message':'Given private key does not match with the public key' }";
     }
 }
