@@ -45,6 +45,7 @@ public class SSLFileAnalyzer extends AbstractAdmin {
     private static Log log = LogFactory.getLog(SSLFileAnalyzer.class);
     private X509CertificateManager x509CertificateManager;
     private RSAPrivateKeyManager rsaPrivateKeyManager;
+
     /**
      * Initializing certificate and chain file content
      */
@@ -156,7 +157,7 @@ public class SSLFileAnalyzer extends AbstractAdmin {
     }
 
     /**
-     * Verify whether private key matches the public key
+     * Verify whether private key matches the public key.
      *
      * @return String json payload of the status
      */
@@ -166,6 +167,6 @@ public class SSLFileAnalyzer extends AbstractAdmin {
         if (publicKey.getModulus().compareTo(privateKey.getModulus()) == 0) {
             return "{'error' : false }";
         }
-        return "{'error':'true', 'message':'Given private key does not match with the public key' }";
+        return "{'error': true , 'message':'Given private key does not match with the public key' }";
     }
 }

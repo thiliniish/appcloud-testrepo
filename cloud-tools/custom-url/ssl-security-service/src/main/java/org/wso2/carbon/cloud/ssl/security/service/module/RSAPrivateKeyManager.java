@@ -64,6 +64,7 @@ public class RSAPrivateKeyManager {
 
     /**
      * Returns the private key.
+     *
      * @return RSA Private Key
      */
     public RSAPrivateKey getPrivateKey() {
