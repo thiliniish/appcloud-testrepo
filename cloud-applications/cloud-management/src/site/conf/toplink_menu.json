@@ -109,7 +109,7 @@
         "target": "_self"
       },
       "Custom URL": {
-        "url": "https://local.cloudmgt.wso2.com:9444/cloudmgt/site/pages/custom_url.jag?cloud-type=api-cloud",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/custom_url.jag?cloud-type=api-cloud",
         "icon": "fa fa-3x fa-link",
         "isDropDown": "false",
         "target": "_self"

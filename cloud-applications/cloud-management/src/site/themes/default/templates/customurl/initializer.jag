@@ -2,7 +2,12 @@
 jagg.initializer("customurl", {
 
     preInitialize:function () {
-
+        var cloudType = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
+        //custom js functions
+        jagg.addFooterJS("customurl","customurl.js","templates/customurl/js/customurl.js");
+        jagg.addFooterJS("customurl","file-event.js","js/file-event.js");
+        jagg.addFooterJS("customurl", "noty", "js/noty-2.3.5/jquery.noty.packaged.min.js");
+        jagg.addFooterJS("customurl", "noty.theme", "js/noty-2.3.5/themes/noty.theme.wso2.js");
     }
 });
 %>

@@ -44,6 +44,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -158,37 +162,41 @@ public class VHostManager {
     }
 
     protected void removeHostMapping(String domainName, String cloudType, String node) throws IOException {
-        File file;
-        boolean isSuccessful;
+        String filePath;
         if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudType)) {
             if (STORE_NODE.equals(node)) {
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
-                                        NginxVhostConstants.STORE_CUSTOM_CONFIG);
-                if (file.exists()) {
-                    isSuccessful = file.delete();
-                    if (!isSuccessful) {
-                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
-                    }
-                }
+                filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                   + domainName + NginxVhostConstants.STORE_CUSTOM_CONFIG;
+                deleteFile(filePath);
             } else {
                 //Remove http config file
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
-                                        NginxVhostConstants.GATEWAY_CUSTOM_CONFIG);
-                if (file.exists()) {
-                    isSuccessful = file.delete();
-                    if (!isSuccessful) {
-                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
-                    }
-                }
+                filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                   + domainName + NginxVhostConstants.GATEWAY_CUSTOM_CONFIG;
+                deleteFile(filePath);
                 //Remove https config file
-                file = new File(configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + domainName +
-                                        NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG);
-                if (file.exists()) {
-                    isSuccessful = file.delete();
-                    if (!isSuccessful) {
-                        log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
-                    }
+                filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) + File.separator
+                                   + domainName + NginxVhostConstants.GATEWAY_HTTPS_CUSTOM_CONFIG;
+                deleteFile(filePath);
+            }
+        }
+    }
+
+    /**
+     * delete a mapping in the given path
+     *
+     * @param filePath
+     */
+    private void deleteFile(String filePath) {
+        boolean isSuccessful;
+        File file = new File(filePath);
+        if (file.exists()) {
+            isSuccessful = file.delete();
+            if (isSuccessful) {
+                if (log.isDebugEnabled()) {
+                    log.debug("The custom url mapping at " + filePath + " is deleted.");
                 }
+            } else {
+                log.error("Error occurred while deleting config file at " + file.getAbsolutePath());
             }
         }
     }
@@ -239,23 +247,38 @@ public class VHostManager {
 
             if (registryManager.resourceExists(registryPath)) {
 
+                //Move existing configs to a backup directory
+                String currentConfigPath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH);
+                String currentCertPath = configReader.getProperty(NginxVhostConstants.API_SECURITY_CERTIFICATE_PATH);
+                backupExistingConfigs(currentConfigPath);
+                backupExistingConfigs(currentCertPath);
                 Collection cloudCollection = (Collection) registryManager.getResourceFromRegistry(registryPath);
 
                 for (int i = 0; i < cloudCollection.getChildCount(); i++) {
                     String cloudCollectionElement = cloudCollection.getChildren()[i];
                     String cloudName = cloudCollectionElement.substring(
-                            cloudCollectionElement.lastIndexOf("/") + 1,
+                            cloudCollectionElement.lastIndexOf(File.separator) + 1,
                             cloudCollectionElement.length());
                     Collection tenantCollection =
                             (Collection) registryManager.getResourceFromRegistry(cloudCollectionElement);
                     if (NginxVhostConstants.API_CLOUD_TYPE.equals(cloudName)) {
                         for (int z = 0; z < tenantCollection.getChildCount(); z++) {
                             String tenantCollectionElement = tenantCollection.getChildren()[z];
-                            String tenantId = tenantCollectionElement
-                                                      .substring(tenantCollectionElement.lastIndexOf("/") + 1,
-                                                                 tenantCollectionElement.length());
+                            String tenantDomain = tenantCollectionElement
+                                                      .substring(tenantCollectionElement.lastIndexOf(File.separator)
+                                                                         + 1, tenantCollectionElement.length());
 
-                            String urlMappingPath = tenantCollectionElement + "/urlMapping/" + tenantId;
+                            String urlMappingPath = tenantCollectionElement + "/urlMapping/"
+                                                            + configReader.getProperty("region") + "-" + tenantDomain;
+                            if (!registryManager.resourceExists(urlMappingPath)) {
+                                if (i == cloudCollection.getChildCount()) {
+                                    log.info("There are no url mappings for this region yet.");
+                                    break;
+                                } else {
+                                    //If the tenant mapping is not for this region
+                                    continue;
+                                }
+                            }
                             Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                             byte[] r = (byte[]) resource.getContent();
                             try {
@@ -265,10 +288,10 @@ public class VHostManager {
 
                                 //Defining store virtual hosts
                                 VHostEntry storeEntry = new VHostEntry();
-                                String tenantDomain = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
-                                storeEntry.setTenantDomain(tenantDomain);
+                                String tenantName = jsonObject.getString(NginxVhostConstants.PAYLOAD_TENANT_DOMAIN);
+                                storeEntry.setTenantDomain(tenantName);
                                 String filePath = configReader.getProperty(NginxVhostConstants.NGINX_CONFIG_PATH) +
-                                                          tenantDomain;
+                                                          File.separator + tenantName;
                                 storeEntry.setCustomDomain(((JSONObject) jsonObject.get(STORE_NODE))
                                                                    .getString(NginxVhostConstants.PAYLOAD_CUSTOM_URL));
                                 storeEntry.setCloudName(cloudName);
@@ -286,8 +309,8 @@ public class VHostManager {
                                     addHostToNginxConfig(storeEntry,
                                                          filePath + NginxVhostConstants.STORE_CUSTOM_CONFIG);
                                 } catch (DomainMapperException ex) {
-                                    log.warn("Adding Vhost template avoided for STORE for TENANT ID " + tenantId +
-                                                     " due to no STORE registry resource for certificates");
+                                    log.warn("Adding Vhost template avoided for STORE for TENANT DOMAIN " + tenantDomain
+                                                     + " due to no STORE registry resource for certificates");
                                 }
 
                                 //Indicates whether to add gateway http virtual hosts
@@ -314,8 +337,9 @@ public class VHostManager {
 
                                 } catch (DomainMapperException ex) {
                                     addHttpVhost = false;
-                                    log.warn("Adding Vhost template avoided for GATEWAY for TENANT ID " + tenantId +
-                                                     " due to no GATEWAY registry resource for certificates");
+                                    log.warn("Adding Vhost template avoided for GATEWAY for TENANT DOMAIN "
+                                                     + tenantDomain
+                                                     + " due to no GATEWAY registry resource for certificates");
                                 }
                                 if (addHttpVhost) {
                                     //Defining gateway virtual hosts
@@ -334,14 +358,14 @@ public class VHostManager {
                                 }
 
                             } catch (JSONException e) {
-                                String errorMessage = "Error occurred when parsing json url-mapping of " + tenantId;
+                                String errorMessage = "Error occurred when parsing json url-mapping of " + tenantDomain;
                                 log.error(errorMessage, e);
                                 throw new JSONException(errorMessage);
                             } catch (NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException |
                                              NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
                                              InvalidKeyException | InvalidAlgorithmParameterException |
                                              InterruptedException e) {
-                                String errorMessage = "Error occurred when setting security files for " + tenantId;
+                                String errorMessage = "Error occurred when setting security files for " + tenantDomain;
                                 log.error(errorMessage, e);
                                 throw e;
                             }
@@ -369,9 +393,26 @@ public class VHostManager {
             throw new IOException(errorMessage, e);
         } catch (KeyStoreException e) {
             String errorMessage =
-                    "Error occured when setting ssl files while restoring nginx " + "configuration locally.";
+                    "Error occured when setting ssl files while restoring nginx configuration locally.";
             log.error(errorMessage, e);
             throw new KeyStoreException(errorMessage, e);
+        }
+    }
+
+    private void backupExistingConfigs(String currentFilePath) {
+        File file = new File(currentFilePath);
+        if (file.exists()) {
+            //Get current date
+            SimpleDateFormat dtf = new SimpleDateFormat(NginxVhostConstants.DATE_FORMAT);
+            Date localDate = Calendar.getInstance().getTime();
+            String backupPath = currentFilePath + "-" + dtf.format(localDate);
+            if (file.renameTo(new File(backupPath))) {
+                log.info("Custom url configs are backed up at " + backupPath);
+            } else {
+                log.info("Custom url configs backup to " + backupPath + " failed");
+            }
+        } else {
+            log.info("There are no custom url configs to backup");
         }
     }
 

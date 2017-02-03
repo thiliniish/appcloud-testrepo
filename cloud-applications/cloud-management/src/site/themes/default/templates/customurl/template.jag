@@ -2,37 +2,17 @@
 <%
     include("/jagg/constants.jag");
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var tenantDomain =  request.getParameter("tenant");
-	if(tenantDomain == null || tenantDomain == ''){
-        var userName =  session.get("LOGGED_IN_USER");
-        if(userName != null){
-            tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
-        }
-    }
-
     var cloudType = request.getParameter("cloud-type");
     var appName = request.getParameter("appName");
     var defaultDomain = request.getParameter("defaultDomain");
     var customUrl = request.getParameter("customUrl");
     var backUrl = request.getParameter("backUrl");
+    var paymentPlanUrl = "/site/pages/payment-plans.jag?cloud-type=api_cloud";
+    if (!outputs.regionSelectionEnabled && outputs.isFromChangePlan) {
+        paymentPlanUrl += "&is-from-change-plan=true";
+    }
 %>
 
-<script>
-
-    var urlVerification = false;
-    var cloudType = "<%=cloudType%>";
-    var appName = "<%=appName%>";
-    var defaultDomain = "<%=defaultDomain%>";
-    var customUrl = "<%=customUrl%>";
-    var backUrl = "<%=backUrl%>";
-    var API_CLOUD_TYPE = "<%=API_CLOUD_TYPE%>";
-    var APP_CLOUD_TYPE = "<%=APP_CLOUD_TYPE%>";
-    var appCloudPointingUrl = "<%=cloudConfig.customUrl.appCloud.pointingUrl%>";
-    var customUrlDocumentationLink = "<%=cloudConfig.documentation.customUrlDocumentationLink%>";
-    var tenantDomain = "<%=tenantDomain%>";
-
-    initializeUserActivity("Custom URL Page");
-</script>
 <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/styles.css'))%>" rel="stylesheet">
 <div class="container2 padding-double">
     <section class="padding-top-double padding-bottom ">
@@ -145,15 +125,29 @@
                     <h4 class="italic light-grey transform-none">This is the URL of the Gateway through which your subscribers will consume the APIs</h4>
                     <!--== modify section starts here ==-->
                     <div class="box" id="gatewayUrlChangeArea" style="display:none;">
-                        <div class="col-small inline-block top padding-top">
+                        <div id="regionSelectionArea" name="regionSelectionArea">
+                            <div class="col-small inline-block top padding-top">
+                                <h3 class="margin-top">Region:</h3>
+                            </div>
+                            <div class="col-medium inline-block">
+                                <select class="select-region" id="region" name="region"></select>
+                                <button class="blue-button-sm" id="regionModifyBtn">Modify</button>
+                                <h4 class="italic light-grey transform-none">This is the region to which the custom url for Gateway will be mapped</h4>
+                                <div class="col-medium inline-block" id="regionChangeNotificationArea" style="display:none;">
+                                    <div id="regionChangeNotification"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-small inline-block top padding-top" id="gatewayModificationLabel">
                             <h3 class="margin-top">Domain Name:</h3>
                         </div>
-                        <div class="col-medium inline-block">
+                        <div class="col-medium inline-block" id="gatewayModificationArea">
                             <input type="text" placeholder="Enter URL" name="url" id="gatewayDomain" autocomplete="off" />
                             <button class="blue-button-sm" id="gatewayDomainVerifyBtn" onclick="verifyCustomDomain('gateway')">Verify</button>
                             <div id="gatewayVerifyUrlNotificationArea">
                                 <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the domain name here,
-                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.apiCloudPointingUrl%></strong>.
+                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong
+                        id="pointingUrl"><%= cloudConfig.customUrl.apiCloudPointingUrl%></strong>.
                         <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>" target="_blank">Show me how >></a></span></h4>
                             </div>
                         </div>
@@ -309,6 +303,19 @@
 </div>
 <!-- end of Container -->
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/customurl/js/customurl.js'))%>"></script>
-<script type="text/javascript" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/file-event.js'))%>"></script>
+<input type="hidden" id="regionSelectionEnabled" value='<%= outputs.regionSelectionEnabled %>' />
+<input type="hidden" id="isPaidCustomer" value='<%= outputs.isPaidCustomer %>' />
+<input type="hidden" id="cloudType" value='<%= cloudType %>' />
+<input type="hidden" id="applicationName" value='<%= appName %>' />
+<input type="hidden" id="defaultDomain" value='<%= defaultDomain %>' />
+<input type="hidden" id="customUrl" value='<%= customUrl %>' />
+<input type="hidden" id="backUrl" value='<%= backUrl %>' />
+<input type="hidden" id="apiCloudType" value='<%= API_CLOUD_TYPE %>' />
+<input type="hidden" id="appCloudType" value='<%= APP_CLOUD_TYPE %>' />
+<input type="hidden" id="customUrlDocumentationLink" value='<%= cloudConfig.documentation.customUrlDocumentationLink %>' />
+<input type="hidden" name="paymentPlanUrl" id="paymentPlanUrl" value="<%=paymentPlanUrl%>" />
+<input type="hidden" id="customUrlConfig" value='<%= cloudConfig.customUrl %>' />
+<input type="hidden" id="cloudmgtUrl" value='<%= cloudConfig.ServerUrls.cloudmgt %>' />
+
 <% }); %>
+

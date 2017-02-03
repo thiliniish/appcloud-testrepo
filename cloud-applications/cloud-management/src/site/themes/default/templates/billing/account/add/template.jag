@@ -6,12 +6,13 @@
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
     var responseFrom = inputs.responseFrom;
-    var accounts =  inputs.ratePlanInfo.getProperty("MaxAccounts");
-    var callsPerDay =  inputs.ratePlanInfo.getProperty("MaxDailyUsage");
-    var callsAbovePlan =  inputs.ratePlanInfo.getProperty("OverUsage");
-    var monthlyRental =  inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
-    var couponDiscount =  session.get("COUPON_DISCOUNT");
-
+    if (responseFrom != EDIT_USER_INFO) {
+        var accounts = inputs.ratePlanInfo.getProperty("MaxAccounts");
+        var callsPerDay = inputs.ratePlanInfo.getProperty("MaxDailyUsage");
+        var callsAbovePlan = inputs.ratePlanInfo.getProperty("OverUsage");
+        var monthlyRental = inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
+        var couponDiscount = session.get("COUPON_DISCOUNT");
+    }
     var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3, field_passthrough4;
     var creditCardCity, creditCardCountry, creditCardAddress1, creditCardAddress2, creditCardState, creditCardPostalCode;
     var paymentPlanName = "";
