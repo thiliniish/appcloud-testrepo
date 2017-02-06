@@ -46,7 +46,7 @@ function getWelcomeMsg() {
         username: username
     }, function (result) {
         var welcomeMsg = result;
-        $('#welcomeMsg').html('<h1>'+ welcomeMsg + '</h1> <div class="description">Select a Cloud below to get' +
-            ' started</div>');
+        $('#welcomeMsg').html('<h1>'+ welcomeMsg + '</h1> <div class="description">Select a Cloud to get ' +
+        'started.</div>');
     });
 }
