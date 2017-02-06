@@ -17,11 +17,20 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.uri.template.URITemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeMap;
 
+/**
+ * Custom Interceptor written for APIM Admin API
+ */
 public class CustomPreAuthenticationInInterceptor extends AbstractPhaseInterceptor {
 
     private static final Log logger = LogFactory.getLog(CustomPreAuthenticationInInterceptor.class);
+
     public CustomPreAuthenticationInInterceptor() {
         //We will use PRE_INVOKE phase as we need to process message before hit actual service
         super(Phase.PRE_INVOKE);
@@ -31,23 +40,22 @@ public class CustomPreAuthenticationInInterceptor extends AbstractPhaseIntercept
     public void handleMessage(Message message) throws Fault {
         String path = (String) message.get(Message.PATH_INFO);
         String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
-        Dictionary<URITemplate,List<String>> whiteListedResourcePathsMap;
+        Dictionary<URITemplate, List<String>> whiteListedResourcePathsMap;
 
         //If Authorization headers are present anonymous URI check will be skipped
         ArrayList authHeaders = (ArrayList) ((TreeMap) (message.get(Message.PROTOCOL_HEADERS)))
                 .get(RestApiConstants.AUTH_HEADER_NAME);
-        if (authHeaders != null)
+        if (authHeaders != null) {
             return;
-
-        
+        }
         ArrayList xWso2TenantHeaders = (ArrayList) ((TreeMap) (message.get(Message.PROTOCOL_HEADERS)))
                 .get("X-WSO2-Tenant");
         String requestedTenant = null;
-        
+
         if (xWso2TenantHeaders != null && xWso2TenantHeaders.size() > 0) {
             requestedTenant = xWso2TenantHeaders.get(0).toString();
         }
-        
+
         //Check if the accessing URI is white-listed and then authorization is skipped
         try {
             whiteListedResourcePathsMap = RestApiUtil.getWhiteListedURIsToMethodsMap();
@@ -61,12 +69,13 @@ public class CustomPreAuthenticationInInterceptor extends AbstractPhaseIntercept
                         message.put(RestApiConstants.AUTHENTICATION_REQUIRED, false);
                         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
                         if (requestedTenant != null && RestApiUtil.isTenantAvailable(requestedTenant)) {
-                            if(MultitenantUtils.isEmailUserName()) {
-                                carbonContext.setUsername(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME + "@wso2.com"
-                                        + "@" + requestedTenant);
+                            if (MultitenantUtils.isEmailUserName()) {
+                                carbonContext.setUsername(
+                                        CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME + "@wso2.com" + "@"
+                                                + requestedTenant);
                             } else {
-                                carbonContext.setUsername(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME
-                                        + "@" + requestedTenant);
+                                carbonContext.setUsername(
+                                        CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME + "@" + requestedTenant);
                             }
                             carbonContext.setTenantDomain(requestedTenant);
                             carbonContext.setTenantId(APIUtil.getTenantIdFromTenantDomain(requestedTenant));
@@ -83,8 +92,8 @@ public class CustomPreAuthenticationInInterceptor extends AbstractPhaseIntercept
             RestApiUtil
                     .handleInternalServerError("Unable to retrieve/process white-listed URIs for REST API", e, logger);
         } catch (UserStoreException e) {
-            RestApiUtil
-                    .handleInternalServerError("Error while checking availability of tenant " + requestedTenant, e, logger);
+            RestApiUtil.handleInternalServerError("Error while checking availability of tenant " + requestedTenant, e,
+                    logger);
         }
     }
 }
