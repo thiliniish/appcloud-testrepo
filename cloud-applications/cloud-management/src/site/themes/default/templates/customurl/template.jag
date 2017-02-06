@@ -31,7 +31,7 @@
             <ul class="nav nav-tabs" id="cloudTabs">
                 <li class="active" id="apiCloudPresentation"><a href="#apiSection" aria-controls="apiSection" data-toggle="tab">API Cloud</a>
                 </li>
-                <li id="appCloudPresentation"><a id="appCloudTab" data-toggle="tab">App Cloud</a>
+                <li id="appCloudPresentation"><a id="appCloudTab" data-toggle="tab">Integration Cloud</a>
                 </li>
             </ul>
         </div>
@@ -311,7 +311,7 @@
 <input type="hidden" id="customUrl" value='<%= customUrl %>' />
 <input type="hidden" id="backUrl" value='<%= backUrl %>' />
 <input type="hidden" id="apiCloudType" value='<%= API_CLOUD_TYPE %>' />
-<input type="hidden" id="appCloudType" value='<%= APP_CLOUD_TYPE %>' />
+<input type="hidden" id="appCloudType" value='<%= INTEGRATION_CLOUD_TYPE %>' />
 <input type="hidden" id="customUrlDocumentationLink" value='<%= cloudConfig.documentation.customUrlDocumentationLink %>' />
 <input type="hidden" name="paymentPlanUrl" id="paymentPlanUrl" value="<%=paymentPlanUrl%>" />
 <input type="hidden" id="customUrlConfig" value='<%= cloudConfig.customUrl %>' />

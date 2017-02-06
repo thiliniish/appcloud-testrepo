@@ -23,7 +23,7 @@ $(document).ready(function() {
     var cloudType = $('#cloudType').val();
     var backUrl = $('#backUrl').val();
     var API_CLOUD_TYPE = $('#apiCloudType').val();
-    var APP_CLOUD_TYPE = $('#appCloudType').val();
+    var INTEGRATION_CLOUD_TYPE = $('#appCloudType').val();
     $('#backToListingBtn').click(function() {
         $('#appCloudTab').attr("href", "#tableSection");
         $('#appCloudTab').attr("aria-controls", "tableSection");
@@ -32,7 +32,7 @@ $(document).ready(function() {
     });
     $('#cloudTabs a').click(function(e) {
         e.preventDefault();
-        if (cloudType == APP_CLOUD_TYPE || $(this).attr('href') == "#apiSection") {
+        if (cloudType == INTEGRATION_CLOUD_TYPE || $(this).attr('href') == "#apiSection") {
             getCurrentUserMapping();
         } else if (cloudType == API_CLOUD_TYPE && $(this).attr('href') == "#tableSection") {
             setCustomDomainDetailsForTenant();
@@ -72,7 +72,7 @@ $(document).ready(function() {
 
 function defaultUIView() {
     var cloudType = $('#cloudType').val();
-    var APP_CLOUD_TYPE = $('#appCloudType').val();
+    var INTEGRATION_CLOUD_TYPE = $('#appCloudType').val();
     var API_CLOUD_TYPE = $('#apiCloudType').val();
     if (cloudType == API_CLOUD_TYPE) {
         $("#subHeading").html("This serves as the base URL for all your public APIs");
@@ -85,7 +85,7 @@ function defaultUIView() {
         $('#apiCloudPresentation').removeClass('active');
         $('#apiSection').removeClass('active');
         $('#appCloudPresentation').addClass('active');
-        if (cloudType == APP_CLOUD_TYPE) {
+        if (cloudType == INTEGRATION_CLOUD_TYPE) {
             $('#applicationSection').addClass('active');
             $('#appCloudTab').attr("href", "#applicationSection");
             $('#appCloudTab').attr("aria-controls", "applicationSection");
@@ -147,17 +147,17 @@ function enableSSLFileUpload(node) {
 }
 
 function setCustomDomainDetailsForTenant() {
-    var APP_CLOUD_TYPE = $('#appCloudType').val();
+    var INTEGRATION_CLOUD_TYPE = $('#appCloudType').val();
     jagg.post('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'getCustomDomainDetailsForTenant',
-        cloudType: APP_CLOUD_TYPE
+        cloudType: INTEGRATION_CLOUD_TYPE
     }, function(result) {
         esult = $.trim(result);
         result = JSON.parse(result);
         if (result.length == 0) {
             $('#customDetailsTable').hide();
             $('#tableSection').html('<div class="alert alert-info">' +
-                '<strong>You have not created any applications. Please visit App Cloud and create an application.' +
+                '<strong>You have not created any applications. Please visit Integration Cloud and create an application.' +
                 '</strong></div>');
         } else {
             fillTable(result);
@@ -165,7 +165,7 @@ function setCustomDomainDetailsForTenant() {
     }, function(jqXHR, textStatus, errorThrown) {
         $('#customDetailsTable').hide();
         $('#tableSection').html('<div class="alert alert-danger">' +
-            '<strong>Error occurred while connecting to App Cloud.</strong>' +
+            '<strong>Error occurred while connecting to Integration Cloud.</strong>' +
         '</div>');
     });
 }

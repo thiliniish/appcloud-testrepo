@@ -10,8 +10,8 @@
   "subscriptions": {
     "type": [
       {
-        "id": "app_cloud",
-        "name": "App Cloud",
+        "id": "integration_cloud",
+        "name": "Integration Cloud",
         "isBeta": true,
         "logoClass": "fa",
         "logo": "cubes",
@@ -19,8 +19,8 @@
         "serviceType": "free",
         "roleTypes": [
           {
-            "roleName": "appclouduser",
-            "displayRoles": "AppCloudUser"
+            "roleName": "integrationclouduser",
+            "displayRoles": "IntegrationCloudUser"
           }
         ],
         "urls": {
@@ -219,7 +219,7 @@
     "appCloudUpgradeComplete": "https://local.pardot.com/l/142131/2016-09-01/292kf5",
     "selfSignupSubmission": "https://local.pardot.com/l/142131/2016-09-06/29vpc5",
     "removeFromApiCloudDripCampaign": "https://local.pardot.com/l/142131/2016-11-11/2q8qfm",
-    "removeFromAppCloudDripCampaign": "http://local.pardot.com/l/142131/2017-01-30/381szr"
+    "removeFromIntegrationCloudDripCampaign": "http://local.pardot.com/l/142131/2017-01-30/381szr"
   },
   "supportContact": {
     "to": "cloudpreview-noreply@wso2.com"
