@@ -31,7 +31,7 @@
             <ul class="nav nav-tabs" id="cloudTabs">
                 <li class="active" id="apiCloudPresentation"><a href="#apiSection" aria-controls="apiSection" data-toggle="tab">API Cloud</a>
                 </li>
-                <li id="appCloudPresentation"><a id="appCloudTab" data-toggle="tab">Integration Cloud</a>
+                <li id="integrationCloudPresentation"><a id="integrationCloudTab" data-toggle="tab">Integration Cloud</a>
                 </li>
             </ul>
         </div>
@@ -221,7 +221,7 @@
                         <button class="blue-button-sm" id="applicationDomainVerifyBtn" onclick="verifyCustomDomain('application')">Verify</button>
                         <div id="applicationVerifyUrlNotificationArea">
                             <h4 class="italic light-grey transform-none"> <b>IMPORTANT:</b> Before giving the domain name here,
-                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.appCloud.pointingUrl%></strong>.
+                        go to your domain registrar's DNS panel and add a CNAME record pointing to <strong><%= cloudConfig.customUrl.integrationCloud.pointingUrl%></strong>.
                         <span class="blue"><a href="<%= cloudConfig.documentation.customUrlDocumentationLink%>" target="_blank">Show me how >></a></span></h4>
                         </div>
                     </div>
@@ -270,7 +270,7 @@
                         </div>
                     </div>
                     <div class="right" id="applicationButtonBlock">
-                        <button class="grey-button margin-right" onclick="appCloudDefaultUIView()">Cancel</button>
+                        <button class="grey-button margin-right" onclick="integrationCloudDefaultUIView()">Cancel</button>
                         <button class="blue-button margin-right " id="applicationProcessBtn" onclick="publishCustomUrl('application')">Proceed</button>
                     </div>
                 </div>
@@ -311,7 +311,7 @@
 <input type="hidden" id="customUrl" value='<%= customUrl %>' />
 <input type="hidden" id="backUrl" value='<%= backUrl %>' />
 <input type="hidden" id="apiCloudType" value='<%= API_CLOUD_TYPE %>' />
-<input type="hidden" id="appCloudType" value='<%= INTEGRATION_CLOUD_TYPE %>' />
+<input type="hidden" id="integrationCloudType" value='<%= INTEGRATION_CLOUD_TYPE %>' />
 <input type="hidden" id="customUrlDocumentationLink" value='<%= cloudConfig.documentation.customUrlDocumentationLink %>' />
 <input type="hidden" name="paymentPlanUrl" id="paymentPlanUrl" value="<%=paymentPlanUrl%>" />
 <input type="hidden" id="customUrlConfig" value='<%= cloudConfig.customUrl %>' />
