@@ -499,9 +499,9 @@
     }
 
     function getCustomDomainDetailsForTenant() {
-        var cookie = getCookieFromLoginToAppCloudUsingJWT();
+        var cookie = getCookieFromLoginToIntegrationCloudUsingJWT();
 
-        //Invoke App Cloud REST API to get custom domain details for logged in tenant
+        //Invoke Integration Cloud REST API to get custom domain details for logged in tenant
         var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.applicationBlockSuffix;
         var getCustomDomainDetailsForTenantAction =
                 cloudConfigFile.customUrl.appCloud.getCustomDomainDetailsForTenantAction;
@@ -516,15 +516,15 @@
         return customDomainDetailsQueryResult.xhr.responseText;
     }
 
-    function getCookieFromLoginToAppCloudUsingJWT() {
-        return loginToAppCloudUsingJWT().getResponseHeader(SET_COOKIE_HEADER);
+    function getCookieFromLoginToIntegrationCloudUsingJWT() {
+        return loginToIntegrationCloudUsingJWT().getResponseHeader(SET_COOKIE_HEADER);
     }
 
-    function loginToAppCloudUsingJWT() {
+    function loginToIntegrationCloudUsingJWT() {
         try {
             var fullUsername = session.get("LOGGED_IN_USER");
             var authorizationHeader = utilModule.getAuthHeader(fullUsername);
-            //Login to App Cloud using jwt authentication
+            //Login to Integration Cloud using jwt authentication
             var loginUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
             var loginAction = cloudConfigFile.customUrl.appCloud.loginAction;
             var loginData = {
@@ -541,7 +541,7 @@
                 return loginResult.xhr;
             }
         } catch (e) {
-            var errorMessage = "Exception occurred during establishing connection to AppCloud.";
+            var errorMessage = "Exception occurred during establishing connection to IntegrationCloud.";
             log.error(errorMessage);
             log.error(e);
             throw e;
@@ -549,8 +549,8 @@
     }
 
     function isCustomDomainAvailable(customDomain) {
-        var cookie = getCookieFromLoginToAppCloudUsingJWT();
-        //Invoke App Cloud REST API to check if custom domain is available
+        var cookie = getCookieFromLoginToIntegrationCloudUsingJWT();
+        //Invoke Integration Cloud REST API to check if custom domain is available
         var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
         var isCustomDomainAvailableAction = cloudConfigFile.customUrl.appCloud.isCustomDomainAvailableAction;
         var isCustomDomainAvailableQueryData = {

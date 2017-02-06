@@ -315,7 +315,7 @@ var createAccount = function (accountData, metaData, organizationName) {
                                     dripURL = cloudConfig.MailCampaignAddUserApi.removeFromApiCloudDripCampaign;
                                 } else if ("APP".equals(type)) {
                                     upgradeURL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeComplete;
-                                    dripURL = cloudConfig.MailCampaignAddUserApi.removeFromAppCloudDripCampaign;
+                                    dripURL = cloudConfig.MailCampaignAddUserApi.removeFromIntegrationCloudDripCampaign;
                                 }
                                 var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
                                 var result = post(upgradeURL, data, {}, 'text');
