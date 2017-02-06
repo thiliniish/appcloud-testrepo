@@ -211,7 +211,9 @@ public class RoleManager implements Runnable {
                 }
                 //Setting Role action
                 String roleActionString = configBuilder.getFirstProperty(roleConfigPath + "." + role + ".Action");
+                String newRoleName = configBuilder.getFirstProperty(roleConfigPath + "." + role + ".NewRoleName");
                 roleBean.setAction(roleActionString);
+                roleBean.setNewRoleName(newRoleName);
                 roleBeanList.add(roleBean);
             }
         }
@@ -252,12 +254,14 @@ public class RoleManager implements Runnable {
         boolean isRoleAdd;
         boolean isRoleUpdate;
         boolean isRoleDelete;
+        boolean isRoleRename;
         List<String> users = new ArrayList<>();
         for (RoleBean roleBean : roleBeanList) {
             //Initialize the variables for role
             isRoleAdd = false;
             isRoleUpdate = false;
             isRoleDelete = false;
+            isRoleRename = false;
             if (RoleManagerConstants.ROLE_ADD.equals(roleBean.getAction())) {
                 isRoleAdd = true;
                 //Set tenant admin as default user
@@ -266,6 +270,8 @@ public class RoleManager implements Runnable {
                 isRoleUpdate = true;
             } else if (RoleManagerConstants.ROLE_DELETE.equals(roleBean.getAction())) {
                 isRoleDelete = true;
+            } else if (RoleManagerConstants.ROLE_RENAME.equals(roleBean.getAction())) {
+                isRoleRename = true;
             }
             try {
                 if (isRoleDelete) {
@@ -276,6 +282,16 @@ public class RoleManager implements Runnable {
                         if (log.isDebugEnabled()) {
                             log.debug("The role '" + roleBean.getRoleName() + "' does not exist or has already been "
                                     + "deleted for tenant: " + tenantDomain);
+                        }
+                    }
+                    continue;
+                } else if (isRoleRename) {
+                    if (userStoreManager.isExistingRole(roleBean.getRoleName())) {
+                        userStoreManager.updateRoleName(roleBean.getRoleName(), roleBean.getNewRoleName());
+                        isSuccessful = true;
+                    } else {
+                        if (log.isDebugEnabled()) {
+                            log.debug("The role '" + roleBean.getRoleName() + "' does not exist in tenant: " + tenantDomain);
                         }
                     }
                     continue;
