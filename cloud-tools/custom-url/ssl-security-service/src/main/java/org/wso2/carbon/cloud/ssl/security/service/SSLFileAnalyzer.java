@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.ssl.security.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.ssl.security.service.exceptions.SSLSecurityServiceException;
 import org.wso2.carbon.cloud.ssl.security.service.module.RSAPrivateKeyManager;
 import org.wso2.carbon.cloud.ssl.security.service.module.X509CertificateManager;
 import org.wso2.carbon.core.AbstractAdmin;
@@ -50,11 +51,11 @@ public class SSLFileAnalyzer extends AbstractAdmin {
      * Initializing certificate and chain file content
      */
     public void init(String sslFileContent, String chainFile, String keyContent)
-            throws CertificateException, IOException, InvalidAlgorithmParameterException {
+            throws CertificateException, IOException, InvalidAlgorithmParameterException, SSLSecurityServiceException {
         try {
             this.x509CertificateManager = new X509CertificateManager(sslFileContent, chainFile);
             this.rsaPrivateKeyManager = new RSAPrivateKeyManager(keyContent);
-        } catch (CertificateException | InvalidAlgorithmParameterException ex) {
+        } catch (CertificateException | InvalidAlgorithmParameterException | SSLSecurityServiceException ex) {
             String errorMessage = "Error occurred when initializing ssl certificate.";
             log.error(errorMessage, ex);
             throw ex;
@@ -167,6 +168,23 @@ public class SSLFileAnalyzer extends AbstractAdmin {
         if (publicKey.getModulus().compareTo(privateKey.getModulus()) == 0) {
             return "{'error' : false }";
         }
-        return "{'error': true , 'message':'Given private key does not match with the public key' }";
+        String errorMsg = "Given private key does not match with the public key.";
+        log.error(errorMsg);
+        return "{'error': true , 'message':'" + errorMsg + "'}";
+    }
+
+    /**
+     * Validate the certificate against the certificate chain.
+     *
+     * @return String json payload of the status
+     */
+    public String validateCertChain() {
+        try {
+            x509CertificateManager.validateCertChain();
+            return "{'error' : false }";
+        } catch (SSLSecurityServiceException e) {
+            log.error(e.getMessage(), e);
+            return "{'error': true , 'message':'Error occurred while validating the certificate chain.' }";
+        }
     }
 }
