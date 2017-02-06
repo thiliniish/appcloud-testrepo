@@ -48,6 +48,30 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>is</id>
+            <properties>
+                <wso2carbon.version>4.4.3</wso2carbon.version>
+                <imp.pkg.version.axiom>[1.2.11, 1.3.0)</imp.pkg.version.axiom>
+            </properties>
+        </profile>
+        <profile>
+            <id>as</id>
+            <properties>
+                <wso2carbon.version>4.2.0</wso2carbon.version>
+                <imp.pkg.version.axiom>[1.2.11, 1.3.0)</imp.pkg.version.axiom>
+            </properties>
+        </profile>
+        <profile>
+            <id>apim</id>
+            <properties>
+                <wso2carbon.version>4.4.7</wso2carbon.version>
+                <imp.pkg.version.axiom>[1.2.11, 1.3.0)</imp.pkg.version.axiom>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
