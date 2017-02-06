@@ -15,7 +15,7 @@
         "isBeta": true,
         "logoClass": "fa",
         "logo": "cubes",
-        "description": "Host your integration solutions using WSO2ESB, cloud connectors, data services, micro services in the Cloud.",
+        "description": "Host your integration solutions using WSO2 ESB, Cloud connectors, data services, and micro services.",
         "serviceType": "free",
         "roleTypes": [
           {
