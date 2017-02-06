@@ -66,6 +66,13 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     }
 
     @Override
+    protected void doAddUserValidityChecks(String userName, Object credential){
+        //User is already validated at AbstractUserStoreManager and if we do the validation again username validation
+        //will fails since now the username is in converted format (i.e. user.wso2.com)
+        //Hence doing nothing
+    }
+
+    @Override
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
         super.doAddUser(doConvert(userName), credential, roleList, claims, profileName, requirePasswordChange);
