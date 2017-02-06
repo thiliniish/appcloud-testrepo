@@ -8,7 +8,7 @@
     var billingModule = jagg.module("billing");
     var managerModule = jagg.module("manager");
     var cloudConfigFile = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var appCloudServerBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
+    var integrationCloudServerBlockBaseUrl = cloudConfigFile.customUrl.integrationCloud.serverBlockBaseUrl;
     var registryPath = cloudConfigFile.customUrl.registry.registryPath;
     var registryUsername = cloudConfigFile.customUrl.registry.registryUsername;
     var registryPassword = cloudConfigFile.customUrl.registry.registryPassword;
@@ -196,9 +196,9 @@
             initializeBroker();
             publishToMessageBroker(payload, cloudProfile);
         } else {
-            var serverBlockBaseUrl = cloudConfigFile.customUrl.appCloud.serverBlockBaseUrl;
-            var loginUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
-            var urlMapperUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
+            var serverBlockBaseUrl = cloudConfigFile.customUrl.integrationCloud.serverBlockBaseUrl;
+            var loginUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.loginBlockSuffix;
+            var urlMapperUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.urlMapperBlockSuffix;
             var service = server.osgiService('org.wso2.carbon.cloud.listener.CloudListener');
             var username = session.get("LOGGED_IN_USER");
             var parameterMap = new java.util.HashMap();
@@ -502,9 +502,9 @@
         var cookie = getCookieFromLoginToIntegrationCloudUsingJWT();
 
         //Invoke Integration Cloud REST API to get custom domain details for logged in tenant
-        var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.applicationBlockSuffix;
+        var applicationAPIUrl = integrationCloudServerBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.applicationBlockSuffix;
         var getCustomDomainDetailsForTenantAction =
-                cloudConfigFile.customUrl.appCloud.getCustomDomainDetailsForTenantAction;
+                cloudConfigFile.customUrl.integrationCloud.getCustomDomainDetailsForTenantAction;
         var customDomainDetailsQueryData = {
             "action" : getCustomDomainDetailsForTenantAction
         };
@@ -525,8 +525,8 @@
             var fullUsername = session.get("LOGGED_IN_USER");
             var authorizationHeader = utilModule.getAuthHeader(fullUsername);
             //Login to Integration Cloud using jwt authentication
-            var loginUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.loginBlockSuffix;
-            var loginAction = cloudConfigFile.customUrl.appCloud.loginAction;
+            var loginUrl = integrationCloudServerBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.loginBlockSuffix;
+            var loginAction = cloudConfigFile.customUrl.integrationCloud.loginAction;
             var loginData = {
                 "action": loginAction
             };
@@ -551,8 +551,8 @@
     function isCustomDomainAvailable(customDomain) {
         var cookie = getCookieFromLoginToIntegrationCloudUsingJWT();
         //Invoke Integration Cloud REST API to check if custom domain is available
-        var applicationAPIUrl = appCloudServerBlockBaseUrl + cloudConfigFile.customUrl.appCloud.urlMapperBlockSuffix;
-        var isCustomDomainAvailableAction = cloudConfigFile.customUrl.appCloud.isCustomDomainAvailableAction;
+        var applicationAPIUrl = integrationCloudServerBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.urlMapperBlockSuffix;
+        var isCustomDomainAvailableAction = cloudConfigFile.customUrl.integrationCloud.isCustomDomainAvailableAction;
         var isCustomDomainAvailableQueryData = {
             "action" : isCustomDomainAvailableAction,
             "customDomain" : customDomain
