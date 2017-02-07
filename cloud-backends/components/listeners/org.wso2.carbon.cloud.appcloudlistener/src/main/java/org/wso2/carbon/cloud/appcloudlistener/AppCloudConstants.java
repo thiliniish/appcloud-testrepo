@@ -32,7 +32,7 @@ public class AppCloudConstants {
     public static final String JWT_LOGIN_ACTION = "loginWithJWT";
     public static final String UPDATE_CUSTOM_URL_ACTION = "updateCustomUrl";
     public static final String CLOUD_TYPE_PARAMETER = "cloudType";
-    public static final String APP_CLOUD_CLOUD_TYPE = "app-cloud";
+    public static final String APP_CLOUD_CLOUD_TYPE = "integration-cloud";
     public static final String SEMI_COLON_SEPARATOR = ";";
     public static final String TRUST_STORE_PROPERTY = "javax.net.ssl.trustStore";
     public static final String TRUST_STORE_PASSWORD_PROPERTY = "javax.net.ssl.trustStorePassword";

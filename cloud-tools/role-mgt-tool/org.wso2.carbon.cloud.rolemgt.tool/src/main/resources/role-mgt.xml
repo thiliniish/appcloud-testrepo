@@ -45,5 +45,14 @@
             </Permission>
             <Action>delete</Action>
         </Role>
+        <Role name="customRole4">
+            <DisplayName>customRole4</DisplayName>
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/manage/repository/axis2/test
+            </Permission>
+            <Action>rename</Action>
+            <NewRoleName>newRoleName</NewRoleName>
+        </Role>
     </TenantRoles>
 </RoleMgt>

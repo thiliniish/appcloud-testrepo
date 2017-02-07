@@ -97,9 +97,9 @@
           "icon": "fw fw-api",
           "target": "_blank"
         },
-        "App Cloud": {
-          "id": "app_cloud",
-          "url": "https://docs.wso2.com/display/AppCloud/WSO2+App+Cloud+Documentation",
+        "Integration Cloud": {
+          "id": "integration_cloud",
+          "url": "https://docs.wso2.com/display/IntegrationCloud/WSO2+Integration+Cloud+Documentation",
           "icon": "fw fw-application",
           "target": "_blank"
         },
@@ -145,15 +145,15 @@
         "dropDown": "false",
         "target": "_self"
       },
-      "App Cloud": {
-        "id": "app_cloud",
+      "Integration Cloud": {
+        "id": "integration_cloud",
         "url": "https://milestones.appfactory.wso2.com:9443/appmgt",
         "icon": "fa fa-cubes  fa-3x",
         "dropDown": "false",
         "target": "_self"
       },
       "Identity Cloud": {
-        "id": "app_cloud",
+        "id": "integration_cloud",
         "url": "https://identity.cloudlocal.wso2.com:9443/admin",
         "icon": "fw fw-security  fa-3x",
         "dropDown": "false",
