@@ -11,10 +11,9 @@ var DEFAULT_SUBSCRIPTION = "default";
 var DEFAULT_SUBSCRIPTION_NAME = "Common";
 
 var SUBSCRIPTION_API_CLOUD = "api_cloud";
-var SUBSCRIPTION_APP_CLOUD = "app_cloud";
 var SUBSCRIPTION_INTEGRATION_CLOUD = "integration_cloud";
 var API_CLOUD_TYPE = "api-cloud";
-var APP_CLOUD_TYPE = "app-cloud";
+var INTEGRATION_CLOUD_TYPE = "integration-cloud";
 var HTTPS = "https://";
 var DNS_CNAME_RECORD = "CNAME";
 
@@ -277,7 +276,7 @@ var TIME_STAMP_SKEW_IN_SECONDS = "300";
 var SUPER_TENANT_ID = -1234;
 var SIGNED_JWT_AUTH_USERNAME = "Username";
 
-//App Cloud REST API related
+//Integration Cloud REST API related
 var SET_COOKIE_HEADER = "Set-Cookie";
 
 //content types

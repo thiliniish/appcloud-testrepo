@@ -55,7 +55,7 @@ function checkConfirmation() {
 }
 
 function loginWithoutScreen() {
-    var username = $("#email").val().replace('@', '.') + "@" + tenant;
+    var username = $("#email").val() + "@" + tenant;
     var password = $("#userPassword").val();
     var redirectUrl = requestURL + '?' + urlPrefix;
     jagg.syncPost("/site/blocks/user/login/ajax/login.jag",

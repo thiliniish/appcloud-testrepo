@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class RoleBean {
     private String roleName;
+    private String newRoleName;
     private List<Permission> authorizedPermissions;
     private List<Permission> deniedPermissions;
     private String action;
@@ -100,4 +101,11 @@ public class RoleBean {
         this.action = action;
     }
 
+    public String getNewRoleName() {
+        return newRoleName;
+    }
+
+    public void setNewRoleName(String newRoleName) {
+        this.newRoleName = newRoleName;
+    }
 }

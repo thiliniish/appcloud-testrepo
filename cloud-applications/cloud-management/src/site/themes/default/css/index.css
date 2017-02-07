@@ -9,8 +9,8 @@ body#home{
     display: inline-block;
     margin-left:20px;
 }
-.app_cloud{
-    background: transparent url(../img-dev/app-cloud.png) no-repeat left top;
+.integration_cloud{
+    background: transparent url(../img-dev/integration-cloud.png) no-repeat left top;
     width: 243px;
     min-width: 243px;
     height: 174px;
@@ -36,15 +36,15 @@ body#home{
 	content:"Your API Cloud ";
 	color:black;
 }
-.app_cloud_disabled{
-    background: transparent url(../img-dev/app-cloud-disabled.png) no-repeat left top;
+.integration_cloud_disabled{
+    background: transparent url(../img-dev/integration-cloud-disabled.png) no-repeat left top;
     width: 243px;
     height: 174px;
     display: inline-block;
      color:black;
 }
-.app_cloud_disabled_helper.helper_text:before{
-	content:"Your App Cloud ";
+.integration_cloud_disabled_helper.helper_text:before{
+	content:"Your Integration Cloud ";
 	color:black;
 }
 .integration_cloud_disabled{
