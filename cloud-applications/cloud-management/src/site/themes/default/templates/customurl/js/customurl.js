@@ -23,16 +23,16 @@ $(document).ready(function() {
     var cloudType = $('#cloudType').val();
     var backUrl = $('#backUrl').val();
     var API_CLOUD_TYPE = $('#apiCloudType').val();
-    var APP_CLOUD_TYPE = $('#appCloudType').val();
+    var INTEGRATION_CLOUD_TYPE = $('#integrationCloudType').val();
     $('#backToListingBtn').click(function() {
-        $('#appCloudTab').attr("href", "#tableSection");
-        $('#appCloudTab').attr("aria-controls", "tableSection");
+        $('#integrationCloudTab').attr("href", "#tableSection");
+        $('#integrationCloudTab').attr("aria-controls", "tableSection");
         setCustomDomainDetailsForTenant();
         $('#cloudTabs a').tab('show');
     });
     $('#cloudTabs a').click(function(e) {
         e.preventDefault();
-        if (cloudType == APP_CLOUD_TYPE || $(this).attr('href') == "#apiSection") {
+        if (cloudType == INTEGRATION_CLOUD_TYPE || $(this).attr('href') == "#apiSection") {
             getCurrentUserMapping();
         } else if (cloudType == API_CLOUD_TYPE && $(this).attr('href') == "#tableSection") {
             setCustomDomainDetailsForTenant();
@@ -72,29 +72,29 @@ $(document).ready(function() {
 
 function defaultUIView() {
     var cloudType = $('#cloudType').val();
-    var APP_CLOUD_TYPE = $('#appCloudType').val();
+    var INTEGRATION_CLOUD_TYPE = $('#integrationCloudType').val();
     var API_CLOUD_TYPE = $('#apiCloudType').val();
     if (cloudType == API_CLOUD_TYPE) {
         $("#subHeading").html("This serves as the base URL for all your public APIs");
-        $('#appCloudTab').attr("href", "#tableSection");
-        $('#appCloudTab').attr("aria-controls", "tableSection");
+        $('#integrationCloudTab').attr("href", "#tableSection");
+        $('#integrationCloudTab').attr("aria-controls", "tableSection");
         $('#backToListingBtn').css("display", "block");
         getCurrentUserMapping();
     } else {
         $("#subHeading").html("This serves as the base URL for all your public applications");
         $('#apiCloudPresentation').removeClass('active');
         $('#apiSection').removeClass('active');
-        $('#appCloudPresentation').addClass('active');
-        if (cloudType == APP_CLOUD_TYPE) {
+        $('#integrationCloudPresentation').addClass('active');
+        if (cloudType == INTEGRATION_CLOUD_TYPE) {
             $('#applicationSection').addClass('active');
-            $('#appCloudTab').attr("href", "#applicationSection");
-            $('#appCloudTab').attr("aria-controls", "applicationSection");
+            $('#integrationCloudTab').attr("href", "#applicationSection");
+            $('#integrationCloudTab').attr("aria-controls", "applicationSection");
             $('#backToListingBtn').css("display", "none");
             setApplicationDetailsForTenant();
         } else {
             $('#tableSection').addClass('active');
-            $('#appCloudTab').attr("href", "#tableSection");
-            $('#appCloudTab').attr("aria-controls", "tableSection");
+            $('#integrationCloudTab').attr("href", "#tableSection");
+            $('#integrationCloudTab').attr("aria-controls", "tableSection");
             $('#backToListingBtn').css("display", "block");
             setCustomDomainDetailsForTenant();
         }
@@ -117,7 +117,7 @@ function apiCloudDefaultUIView() {
     $("#regionModifyBtn").prop("disabled", false);
 }
 
-function appCloudDefaultUIView() {
+function integrationCloudDefaultUIView() {
     $("#applicationModifyBtn").prop("disabled", false);
     $("#applicationDomainVerifyBtn").prop("disabled", false);
     $("#applicationDomain").prop("disabled", false);
@@ -147,17 +147,17 @@ function enableSSLFileUpload(node) {
 }
 
 function setCustomDomainDetailsForTenant() {
-    var APP_CLOUD_TYPE = $('#appCloudType').val();
+    var INTEGRATION_CLOUD_TYPE = $('#integrationCloudType').val();
     jagg.post('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'getCustomDomainDetailsForTenant',
-        cloudType: APP_CLOUD_TYPE
+        cloudType: INTEGRATION_CLOUD_TYPE
     }, function(result) {
         esult = $.trim(result);
         result = JSON.parse(result);
         if (result.length == 0) {
             $('#customDetailsTable').hide();
             $('#tableSection').html('<div class="alert alert-info">' +
-                '<strong>You have not created any applications. Please visit App Cloud and create an application.' +
+                '<strong>You have not created any applications. Please visit Integration Cloud and create an application.' +
                 '</strong></div>');
         } else {
             fillTable(result);
@@ -165,7 +165,7 @@ function setCustomDomainDetailsForTenant() {
     }, function(jqXHR, textStatus, errorThrown) {
         $('#customDetailsTable').hide();
         $('#tableSection').html('<div class="alert alert-danger">' +
-            '<strong>Error occurred while connecting to App Cloud.</strong>' +
+            '<strong>Error occurred while connecting to Integration Cloud.</strong>' +
         '</div>');
     });
 }
@@ -192,8 +192,8 @@ function displayApplicationSection(element) {
     }
     $("#currentApplicationMapping").val(customUrl);
     $("#appName").html(appName);
-    $('#appCloudTab').attr("href", "#applicationSection");
-    $('#appCloudTab').attr("aria-controls", "applicationSection");
+    $('#integrationCloudTab').attr("href", "#applicationSection");
+    $('#integrationCloudTab').attr("aria-controls", "applicationSection");
     $('#cloudTabs a').tab('show');
     $("#applicationModifyBtn").prop("disabled", false);
     resetApplicationSection();
@@ -201,14 +201,14 @@ function displayApplicationSection(element) {
 
 function resetApplicationSection() {
     var customUrlConfig = JSON.parse($('#customUrlConfig').val());
-    var appCloudPointingUrl = customUrlConfig.appCloud.pointingUrl;
+    var integrationCloudPointingUrl = customUrlConfig.integrationCloud.pointingUrl;
     var customUrlDocumentationLink = $('#customUrlDocumentationLink').val();
     $("#sslFileForm")[0].reset();
     $("#keyFileForm")[0].reset();
     $("#chainFileForm")[0].reset();
     var notificationAreaMessage = "<h4 class=\"italic light-grey transform-none\"> <b>IMPORTANT:</b> Before giving" +
         " the domain name here, go to your domain registrar's DNS panel and add a CNAME record pointing to <strong>" +
-        appCloudPointingUrl + "</strong><span class=\"blue\"><a href=" + customUrlDocumentationLink +
+        integrationCloudPointingUrl + "</strong><span class=\"blue\"><a href=" + customUrlDocumentationLink +
         " target=\"_blank\"> Show me how >></a></span></h4>";
     $("#applicationVerifyUrlNotificationArea").html(notificationAreaMessage);
     $("#applicationDomain").val("");
@@ -270,7 +270,7 @@ function publishCustomUrl(node) {
         /*Set applications name as the node since certificates are saved as /customUrl/<tenantDomain>/<appName>/
          <tenantDomain>"-"<appName>".pem"*/
         node = appName;
-        cloudProfile = $('#appCloudType').val();;
+        cloudProfile = $('#integrationCloudType').val();;
     }
 
     formData.append("action", 'publishVal');
@@ -306,7 +306,7 @@ function publishCustomUrl(node) {
                         "that it will take upto 10 minutes to update changes.</span>");
                     $("#currentApplicationMapping").val(customUrl);
                     setTimeout(function() {
-                        appCloudDefaultUIView();
+                        integrationCloudDefaultUIView();
                         $("#applicationModifyBtn").prop("disabled", true);
                         resetApplicationSection();
                     }, 10000);

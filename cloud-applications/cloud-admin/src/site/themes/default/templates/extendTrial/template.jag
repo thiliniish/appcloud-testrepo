@@ -45,7 +45,7 @@
                         <select id="subscrptionSelect1">
                             <option selected disabled hidden value=''>Please Select</option>
                             <option value="api_cloud">Api Cloud</option>
-                            <option value="app_cloud">App Cloud</option>
+                            <option value="integration_cloud">Integration Cloud</option>
                         </select>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
                         <select id="subscrptionSelect2">
                             <option selected disabled hidden value=''>Please Select</option>
                             <option value="api_cloud">Api Cloud</option>
-                            <option value="app_cloud">App Cloud</option>
+                            <option value="integration_cloud">Integration Cloud</option>
                         </select>
                     </div>
                 </div>

@@ -27,7 +27,7 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <%
         jagg.includeBlock("header", {});
         userName = jagg.getUser();
-        var subscription = "app_cloud";
+        var subscription = "integration_cloud";
         var applicationKey = request.getParameter('applicationKey');
         var applicationName = request.getParameter('applicationName');
         var userEmail = session.get("LOGGED_IN_USER_EMAIL");
