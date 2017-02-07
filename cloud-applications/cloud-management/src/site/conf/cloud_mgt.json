@@ -7,28 +7,34 @@
   "adminRole" : "admin",
   "adminRoleDisplayName" : "Admin",
   "internalRole" : "Internal/",
+  "adminUsername" : "admin",
+  "adminPassword" : "admin",
   "subscriptions": {
     "type": [
       {
-        "id": "app_cloud",
-        "name": "App Cloud",
+        "isEnabled" : true,
+        "id": "integration_cloud",
+        "name": "Integration Cloud",
         "isBeta": true,
         "logoClass": "fa",
         "logo": "cubes",
-        "description": "Host your microservices and web applications in the Cloud.",
-        "serviceType": "free",
+        "description": "Host your integrations in the Cloud.",
+        "serviceType": "commercial",
         "roleTypes": [
-          {
-            "roleName": "appclouduser",
-            "displayRoles": "AppCloudUser"
-          }
+            {
+                "roleName": "integrationclouduser",
+                "displayRoles": "IntegrationCloudUser"
+            }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/",
-          "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
-        }
+            "cloudTypeUrl": "https://integration.cloudlocal.wso2.com:9446/appmgt/",
+            "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
+        },
+        "adminUsername" : "admin",
+        "adminPassword" : "admin"
       },
       {
+        "isEnabled" : true,
         "id": "api_cloud",
         "name": "API Cloud",
         "isBeta":false,
@@ -51,17 +57,8 @@
           "storeUrl": "https://milestones.appfactory.wso2.com:9643/store",
           "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
         },
-        "regionSelection": [
-          {
-            "premiumLevel": 2,
-            "regionCount": 1
-          }
-        ],
-        "gatewayMigrationProperties": {
-          "userEmailSubject": "Migrate API Cloud Gateway to a different region",
-          "cloudEmailSubject": "Request to migrate API gateway to a different region",
-          "cloudEmail": "cloud@wso2.com"
-        }
+        "adminUsername" : "admin",
+        "adminPassword" : "admin"
       },
       {
         "id": "default",

@@ -1,0 +1,7 @@
+<%
+jagg.block("admin", {
+    initialize:function (data) {
+
+    }
+});
+%>

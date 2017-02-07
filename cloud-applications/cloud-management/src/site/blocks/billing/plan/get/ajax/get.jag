@@ -22,35 +22,28 @@ var createAccount = function (serviceId){
         return;
     }
     var accountId =  mod.getAccountId();
-    var validateCoupon = mod.isValidCoupon(couponData,serviceId);
+    var validateCoupon = mod.isValidCoupon(couponData, serviceId);
 
     var actualPaymentAmount = null;
-    if((couponData != "" && couponData != "null" && couponData != null) && (!validateCoupon)){
+    if ((couponData != "" && couponData != "null" && couponData != null) && (!validateCoupon)) {
     	log.error("Given Coupon " + couponData +" is invalid for : " + accountId);
     	print ("Given Coupon " + couponData +" is invalid." );
-    }
-    else {
-	    if (accountId == null || accountId =='null' || isFromChangePlan != null || isFromChangePlan != 'null') {
-	        session.put("PRODUCT_COUPON_DATA", couponData);
-	        session.put("CURRENT_RATE_PLAN", currRatePlan);
+    } else {
+        if (isFromChangePlan != null || isFromChangePlan != 'null') {
+            session.put("PRODUCT_COUPON_DATA", couponData);
+            session.put("CURRENT_RATE_PLAN", currRatePlan);
             if (actualPaymentAmount != null) {
                 session.put("ACTUAL_PAYMENT_AMOUNT", actualPaymentAmount["amount"]);
             } else {
                 session.put("ACTUAL_PAYMENT_AMOUNT", ratePlanInfo.getProperty("MonthlyRental").substring(1));
             }
-	        if(isFromChangePlan == 'true') {
-	        	print("add-billing-account.jag?isFromChangePlan=" + isFromChangePlan);
-	        } else {
-	            print("add-payment-method.jag");
-	        }
-	    } else {
-	        if (log.isDebugEnabled()){
-	            log.debug("in gotToCreateAccount for account id  "+ accountId);
-	        }
-	       	 var ratePlans = session.get("RATE_PLANS");
-	     	 var result = mod.changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
-	      	 print(result);
-	    }
+
+            if (isFromChangePlan == 'true') {
+                print("add-billing-account.jag?isFromChangePlan=" + isFromChangePlan);
+            } else {
+                print("add-payment-method.jag");
+            }
+        }
     }
 };
 

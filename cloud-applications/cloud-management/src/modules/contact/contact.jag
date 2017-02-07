@@ -133,6 +133,8 @@ var sendSupportRequestAndCreateJira = function (customerEmail, subject, body, cl
                 subject = "[API Cloud Support]";
             } else if (cloudType == SUBSCRIPTION_APP_CLOUD){
                 subject = "[APP Cloud Support]";
+            }  else if (cloudType == SUBSCRIPTION_INTEGRATION_CLOUD) {
+                subject = "[INTEGRATION Cloud Support]";
             } else {
                 subject = "[Support Request]";
             }
