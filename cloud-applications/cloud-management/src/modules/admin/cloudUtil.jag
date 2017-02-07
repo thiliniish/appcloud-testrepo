@@ -67,8 +67,10 @@ IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomai
             "password" : adminPassword
         };
 
-        log.info("loginUrl " + loginUrl);
-        log.info("loginData " + stringify(loginData));
+        if (log.isDebugEnabled()) {
+            log.info("loginUrl " + loginUrl);
+            log.info("loginData " + stringify(loginData));
+        }
 
         var loginResult = post(loginUrl, loginData, {} , 'json');
         var loginResponse = loginResult.xhr.responseText;
@@ -98,11 +100,15 @@ IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomai
         "Cookie" : cookie
     };
 
-    log.info("data " + stringify(data));
-    log.info("header " + stringify(header));
+    if (log.isDebugEnabled()) {
+        log.info("data " + stringify(data));
+        log.info("header " + stringify(header));
+    }
 
     var publishTenantSubscriptionApi = cloudTypeUrl + "site/blocks/admin/admin.jag";
-    log.info("publishTenantSubscriptionApi " + stringify(publishTenantSubscriptionApi));
+    if (log.isDebugEnabled()) {
+        log.info("publishTenantSubscriptionApi " + stringify(publishTenantSubscriptionApi));
+    }
     try {
         post(publishTenantSubscriptionApi, data, header, 'json');
     } catch (e) {
