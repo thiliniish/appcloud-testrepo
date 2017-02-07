@@ -68,7 +68,7 @@
         "name": "Device Cloud",
         "isBeta":true,
         "logoClass":"fw",
-        "logo": "api",
+        "logo": "mobile",
         "description": "Manage your devices using comprehensive platform with effectively and efficiently.",
         "serviceType": "commercial",
         "roleTypes": [
