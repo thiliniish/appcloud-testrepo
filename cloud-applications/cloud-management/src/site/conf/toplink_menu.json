@@ -82,10 +82,10 @@
         },
         "Device Cloud": {
           "id": "device_cloud",
-          "url": "https://milestones.appfactory.wso2.com:9443/devicemgt/",
-          "icon": "fa fa-3x fa-mobile",
+          "url": "https://devicemgt.clouddev.wso2.com/devicemgt/",
+          "icon": "fa fa-3x fa-cubes",
           "dropDown": "false",
-          "target": "_self"
+          "target": "_blank"
         }
       }
     },
