@@ -255,7 +255,7 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
     //Tenant domain of logged in user
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     //Tenant domain of complimentary account user because the complimentary account is created by cloud admin
-    if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
+    if (!isComplimentaryAccountUpgrade) {
         tenantDomain = session.get("TENANT_DOMAIN");
     }
 
@@ -287,7 +287,7 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
                 }
                 //Insert billing status record for paid account (created by logged in user) or complimentary account
                 //(created by cloud admin)
-                if (!isComplimentaryAccount || (isComplimentaryAccount && !isComplimentaryAccountUpgrade)) {
+                if (!isComplimentaryAccountUpgrade) {
                     cloudBillingDAO.insertBillingStatus(tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE,
                             formattedEffectiveDate, endDate);
                 }
@@ -296,7 +296,7 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
                 var accountStatus = status.DISABLED;
                 //Set values for billing status record update for paid account or complimentary account
                 //(upgraded by logged in user)
-                if ((isComplimentaryAccount && isComplimentaryAccountUpgrade) || !isComplimentaryAccount) {
+                if (isComplimentaryAccountUpgrade || !isComplimentaryAccount) {
                     accountType = type.PAID;
                     paidEndDate = MYSQL_MAX_DATETIME_STRING;
                     accountStatus = status.ACTIVE;
@@ -519,7 +519,7 @@ var populateAccountInfo = function (organizationName, accountData, metaData, isE
     metaDetails.firstName = metaData.firstName;
     metaDetails.lastName = metaData.lastName;
     if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
-        metaDetails.type = metaData.type
+        metaDetails.type = metaData.type;
     }
     data.metadata = metaDetails;
     if (!isComplimentaryAccount || isComplimentaryAccountUpgrade) {
@@ -548,7 +548,6 @@ var populateSubscriptionInfo = function (customer, ratePlanId, trialEndDate, isC
     data.plan = ratePlanId;
     if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
         var SimpleDateFormat = Packages.java.text.SimpleDateFormat;
-        var Date = Packages.java.util.Date;
         var dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         var date = dateFormat.parse(trialEndDate);
         var timeStamp = date.getTime();
