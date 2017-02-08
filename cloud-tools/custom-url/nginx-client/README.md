@@ -1,4 +1,12 @@
-# cloud
+# cloud nginx client
+
+# This client can be used to
+
+(1.) Add vhost files and certificates needed for custom url to the nginx 
+     server when user submits custom url configurations
+     
+(2.) Restore the custom url configurations in nginx server with registry
+     data 
 
 # To install nginx client
 
