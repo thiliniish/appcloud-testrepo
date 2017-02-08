@@ -271,7 +271,13 @@ public class VHostManager {
                             String urlMappingPath = tenantCollectionElement + "/urlMapping/"
                                                             + configReader.getProperty("region") + "-" + tenantDomain;
                             if (!registryManager.resourceExists(urlMappingPath)) {
-                                continue;
+                                if (i == cloudCollection.getChildCount()) {
+                                    log.info("There are no url mappings for this region yet.");
+                                    break;
+                                } else {
+                                    //If the tenant mapping is not for this region
+                                    continue;
+                                }
                             }
                             Resource resource = registryManager.getResourceFromRegistry(urlMappingPath);
                             byte[] r = (byte[]) resource.getContent();

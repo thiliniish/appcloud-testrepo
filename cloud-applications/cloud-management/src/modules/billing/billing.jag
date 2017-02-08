@@ -66,8 +66,8 @@ var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
         var URL;
         if ("API".equals(type)) {
             URL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeStart;
-        } else if ("APP".equals(type)) {
-            URL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeStart;
+        } else if ("INTEGRATION".equals(type)) {
+            URL = cloudConfig.MailCampaignAddUserApi.integrationCloudUpgradeStart;
         }
         var data = "email=" + email + "&domain_name=" + domainName + "&upgrade_status=0";
         var result = post(URL, data, {}, 'text');
@@ -328,9 +328,9 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
                                 if ("API".equals(type)) {
                                     upgradeURL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeComplete;
                                     dripURL = cloudConfig.MailCampaignAddUserApi.removeFromApiCloudDripCampaign;
-                                } else if ("APP".equals(type)) {
-                                    upgradeURL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeComplete;
-                                    dripURL = cloudConfig.MailCampaignAddUserApi.removeFromAppCloudDripCampaign;
+                                } else if ("INTEGRATION".equals(type)) {
+                                    upgradeURL = cloudConfig.MailCampaignAddUserApi.integrationCloudUpgradeComplete;
+                                    dripURL = cloudConfig.MailCampaignAddUserApi.removeFromIntegrationCloudDripCampaign;
                                 }
                                 var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
                                 var result = post(upgradeURL, data, {}, 'text');
@@ -986,8 +986,8 @@ var extendTrial = function (serviceId, customerRequest) {
                             var URL;
                             if ("API".equals(type)) {
                                 URL = cloudConfig.MailCampaignAddUserApi.apiCloudTrialExtension;
-                            } else if ("APP".equals(type)) {
-                                URL = cloudConfig.MailCampaignAddUserApi.appCloudTrialExtension;
+                            } else if ("INTEGRATION".equals(type)) {
+                                URL = cloudConfig.MailCampaignAddUserApi.integrationCloudTrialExtension;
                             }
                             var result = post(URL, data, {}, 'text');
                             var msg = result['data'];
@@ -1094,8 +1094,8 @@ function addCloudSubmissionToMailCampaign(email, domain, type) {
     }
     if ("API".equals(type)) {
         URL = cloudConfig.MailCampaignAddUserApi.apiCloudSubmission;
-    } else if ("APP".equals(type)) {
-        URL = cloudConfig.MailCampaignAddUserApi.appCloudSubmission;
+    } else if ("INTEGRATION".equals(type)) {
+        URL = cloudConfig.MailCampaignAddUserApi.integrationCloudSubmission;
     }
     var result = post(URL, data, {}, 'text');
     return result;

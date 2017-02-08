@@ -59,10 +59,10 @@ include("/jagg/constants.jag");
 
         try {
             if(nodeType == APPLICATION_NODE_TYPE) {
-                pointingUrl = cloudConfigFile.customUrl.appCloud.pointingUrl;
+                pointingUrl = cloudConfigFile.customUrl.integrationCloud.pointingUrl;
             }
             if (mod.validateUrl(customUrl, pointingUrl)) {
-                if (mod.isUrlAvailable(customUrl, nodeType, tenantDomain)) {
+                if (mod.isUrlAvailable(customUrl, nodeType)) {
                     urlValidation.error = "false";
                 } else {
                     urlValidation.error = "true";

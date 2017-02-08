@@ -10,17 +10,17 @@
   "subscriptions": {
     "type": [
       {
-        "id": "app_cloud",
-        "name": "App Cloud",
+        "id": "integration_cloud",
+        "name": "Integration Cloud",
         "isBeta": true,
         "logoClass": "fa",
         "logo": "cubes",
-        "description": "Host your microservices and web applications in the Cloud.",
+        "description": "Host your integration solutions using WSO2 ESB, Cloud connectors, data services, and micro services.",
         "serviceType": "free",
         "roleTypes": [
           {
-            "roleName": "appclouduser",
-            "displayRoles": "AppCloudUser"
+            "roleName": "integrationclouduser",
+            "displayRoles": "IntegrationCloudUser"
           }
         ],
         "urls": {
@@ -158,7 +158,7 @@
       {"id":"mum", "regionName" : "Mumbai", "available" : false, "pointingUrl": "customdns-mum.api.cloud.wso2.com"},
       {"id":"bjg", "regionName" : "Beijing", "available" : false, "pointingUrl": "customdns-bjg.api.cloud.wso2.com"}
     ],
-    "appCloud" : {
+    "integrationCloud" : {
       "pointingUrl" : "customdns.wso2apps.com",
       "serverBlockBaseUrl" : "https://localhost:9543/appmgt/site/blocks/",
       "loginBlockSuffix" : "user/login/ajax/login.jag",
@@ -210,16 +210,16 @@
     "enable_MailCampaignAddUserApi": false,
     "cloudSignup": "https://local.pardot.com/l/142131/2016-07-27/24cz89",
     "apiCloudSubmission": "https://local.pardot.com/l/142131/2016-07-27/24cz9r",
-    "appCloudSubmission": "https://local.pardot.com/l/142131/2016-08-31/28rjf7",
+    "integrationCloudSubmission": "https://local.pardot.com/l/142131/2016-08-31/28rjf7",
     "apiCloudTrialExtension": "https://local.pardot.com/l/142131/2016-09-01/292fhm",
-    "appCloudTrialExtension": "https://local.pardot.com/l/142131/2016-09-01/292fhw",
+    "integrationCloudTrialExtension": "https://local.pardot.com/l/142131/2016-09-01/292fhw",
     "apiCloudUpgradeStart": "https://local.pardot.com/l/142131/2016-08-31/28v7n7",
     "apiCloudUpgradeComplete": "https://local.pardot.com/l/142131/2016-08-31/28v7n9",
-    "appCloudUpgradeStart": "https://local.pardot.com/l/142131/2016-09-01/292kf3",
-    "appCloudUpgradeComplete": "https://local.pardot.com/l/142131/2016-09-01/292kf5",
+    "integrationCloudUpgradeStart": "https://local.pardot.com/l/142131/2016-09-01/292kf3",
+    "integrationCloudUpgradeComplete": "https://local.pardot.com/l/142131/2016-09-01/292kf5",
     "selfSignupSubmission": "https://local.pardot.com/l/142131/2016-09-06/29vpc5",
     "removeFromApiCloudDripCampaign": "https://local.pardot.com/l/142131/2016-11-11/2q8qfm",
-    "removeFromAppCloudDripCampaign": "http://local.pardot.com/l/142131/2017-01-30/381szr"
+    "removeFromIntegrationCloudDripCampaign": "http://local.pardot.com/l/142131/2017-01-30/381szr"
   },
   "supportContact": {
     "to": "cloudpreview-noreply@wso2.com"

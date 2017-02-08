@@ -32,6 +32,7 @@ public class RoleManagerConstants {
     public static final String ROLE_DELETE = "delete";
     public static final String ROLE_ADD = "add";
     public static final String ROLE_UPDATE = "update";
+    public static final String ROLE_RENAME = "rename";
     public static final String CONFIG_FOLDER = "cloud";
     public static final String CONFIG_NAMESPACE = "http://www.wso2.org/cloud/";
     public static final String CONFIG_FILE_NAME = "role-mgt.xml";

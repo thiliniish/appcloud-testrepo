@@ -62,10 +62,10 @@
             </Permission>
             <DisplayRole>false</DisplayRole>
         </Role>
-        <Role name="appclouduser">
-            <DisplayName>AppCloudUser</DisplayName>
+        <Role name="integrationclouduser">
+            <DisplayName>IntegrationCloudUser</DisplayName>
             <Permission>
-                /permission/admin/manage/appcloudlogin,
+                /permission/admin/manage/integrationcloudlogin,
                 /permission/admin/manage/rssmanager,
                 /permission/admin/manage/analytics/dashboard,
                 /permission/admin/manage/analytics/records/get,
