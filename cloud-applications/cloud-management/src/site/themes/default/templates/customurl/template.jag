@@ -304,7 +304,6 @@
 <!-- end of Container -->
 
 <input type="hidden" id="regionSelectionEnabled" value='<%= outputs.regionSelectionEnabled %>' />
-<input type="hidden" id="isPaidCustomer" value='<%= outputs.isPaidCustomer %>' />
 <input type="hidden" id="cloudType" value='<%= cloudType %>' />
 <input type="hidden" id="applicationName" value='<%= appName %>' />
 <input type="hidden" id="defaultDomain" value='<%= defaultDomain %>' />
