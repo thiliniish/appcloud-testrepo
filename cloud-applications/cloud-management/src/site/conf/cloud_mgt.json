@@ -64,6 +64,30 @@
         }
       },
       {
+        "id": "device_cloud",
+        "name": "Device Cloud",
+        "isBeta":true,
+        "logoClass":"fw",
+        "logo": "mobile",
+        "description": "Manage your devices using comprehensive platform with effectively and efficiently.",
+        "serviceType": "commercial",
+        "roleTypes": [
+          {
+            "roleName": "devicemgt_user",
+            "displayRoles": "DeviceMgtUser"
+          },
+          {
+            "roleName": "devicemgt_admin",
+            "displayRoles": "DeviceMgtAdmin"
+          }
+        ],
+
+        "urls": {
+          "cloudTypeUrl": "https://devicemgt.clouddev.wso2.com/devicemgt/",
+          "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
+        }
+      },
+      {
         "id": "default",
         "name": "Common",
         "serviceType": "free",
