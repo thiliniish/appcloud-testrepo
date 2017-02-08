@@ -40,7 +40,12 @@ jagg.template("header", function (inputs, outputs, jagg) {
         var encodedRequest = ssoRelyingParty.encode(samlAuthRequest);
         var relayState = ssoRelyingParty.getUUID();
 
-        ssoRelyingParty.setRelayStateProperty(relayState, request.getRequestURI());
+        var queryString = request.getQueryString();
+        var relayStateValue = requestURI;
+        if(queryString !== null && queryString !== undefined){
+            relayStateValue = requestURI + "?" + queryString;
+        }
+        ssoRelyingParty.setRelayStateProperty(relayState, relayStateValue);
         var idpURL = ssoRelyingParty.getProperty("identityProviderURL");
 %>
         <body bgcolor="#272C38">
