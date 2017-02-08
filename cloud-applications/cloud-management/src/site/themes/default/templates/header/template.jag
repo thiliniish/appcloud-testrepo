@@ -42,7 +42,7 @@ jagg.template("header", function (inputs, outputs, jagg) {
 
         var queryString = request.getQueryString();
         var relayStateValue = requestURI;
-        if(!queryString){
+        if(queryString){
             relayStateValue = requestURI + "?" + queryString;
         }
         ssoRelyingParty.setRelayStateProperty(relayState, relayStateValue);
