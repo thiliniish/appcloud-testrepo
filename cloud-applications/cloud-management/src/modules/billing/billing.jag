@@ -252,8 +252,10 @@ var calculateDiscountForCoupon = function (couponData) {
 var createAccount = function (accountData, metaData, organizationName, isComplimentaryAccount,
                               isComplimentaryAccountUpgrade) {
 
+    //Tenant domain of logged in user
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-    if (!isComplimentaryAccountUpgrade) {
+    //Tenant domain of complimentary account user because the complimentary account is created by cloud admin
+    if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
         tenantDomain = session.get("TENANT_DOMAIN");
     }
 
@@ -279,14 +281,21 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
                 var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
                 var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
                 var endDate = MYSQL_MAX_DATETIME_STRING;
+                //Set end date for complimentary account (enterprise customer's production support end date)
                 if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
                     endDate = accountData.trialEndDate;
                 }
+                //Insert billing status record for paid account (created by logged in user) or complimentary account
+                //(created by cloud admin)
                 if (!isComplimentaryAccount || (isComplimentaryAccount && !isComplimentaryAccountUpgrade)) {
                     cloudBillingDAO.insertBillingStatus(tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE,
                             formattedEffectiveDate, endDate);
                 }
-                var accountType = type.TRIAL, paidEndDate = formattedEffectiveDate, accountStatus = status.DISABLED;
+                var accountType = type.TRIAL;
+                var paidEndDate = formattedEffectiveDate;
+                var accountStatus = status.DISABLED;
+                //Set values for billing status record update for paid account or complimentary account
+                //(upgraded by logged in user)
                 if ((isComplimentaryAccount && isComplimentaryAccountUpgrade) || !isComplimentaryAccount) {
                     accountType = type.PAID;
                     paidEndDate = MYSQL_MAX_DATETIME_STRING;
