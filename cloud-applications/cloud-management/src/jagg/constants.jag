@@ -166,7 +166,7 @@ var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
 var UNAUTHORIZED = "Unauthorized";
 var PROFILE_PAGE = "site/pages/user-profile.jag";
 
-var productIdFromServiceId = {api_cloud: "API Cloud", integration_cloud: "INTEGRATION Cloud"};
+var productIdFromServiceId = {api_cloud: "API Cloud", integration_cloud: "Integration Cloud"};
 
 var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 var MYSQL_MAX_DATETIME_STRING = "9999-12-31 12:59:59";
@@ -185,12 +185,17 @@ var BILLING_STATUS = "billingStatus";
 
 // Billing api cloud plan properties
 
-var BILLING_API_CLOUD_PLAN_MAX_DAILY_USAGE = "MaxDailyUsage";
-var BILLING_API_CLOUD_PLAN_MAX_ACCOUNT = "MaxAccounts";
-var BILLING_API_CLOUD_PLAN_OVER_USAGE = "OverUsage";
-var BILLING_API_CLOUD_PLAN_MONTHLY_RENTAL = "MonthlyRental";
-var BILLING_API_CLOUD_PLAN_PREMIUM_LEVEL = "PremiumLevel";
-var BILLING_API_CLOUD_PLAN_VISIBILITY = "Visibility";
+var BILLING_PLAN_MAX_DAILY_USAGE = "MaxDailyUsage";
+var BILLING_PLAN_MAX_ACCOUNT = "MaxAccounts";
+var BILLING_PLAN_OVER_USAGE = "OverUsage";
+var BILLING_PLAN_MONTHLY_RENTAL = "MonthlyRental";
+var BILLING_PLAN_PREMIUM_LEVEL = "PremiumLevel";
+var BILLING_PLAN_VISIBILITY = "Visibility";
+var BILLING_PLAN_MAX_APPLICATIONS = "MaxApplications";
+var BILLING_PLAN_MAX_DATABASES = "MaxDatabases";
+var BILLING_PLAN_SCALING = "Scaling";
+var BILLING_PLAN_MONETIZATION = "Monetization";
+var BILLING_PLAN_RESOURCES = "Resources";
 
 //billing coupon
 var BILLING_COUPON_HEADER = "coupon_";
@@ -255,6 +260,7 @@ var USER_ACTIVITY_STREAM_VERSION = "1.0.0";
 //Vendor related
 var EDIT_USER_INFO = "Edit_User_Info";
 var IS_FROM_CHANGE_PLAN = "isFromChangePlan";
+var EDIT_BILLING_INFO = "Edit_Billing_info";
 
 var CLOUD_DEFAULT_ROLE = "default";
 

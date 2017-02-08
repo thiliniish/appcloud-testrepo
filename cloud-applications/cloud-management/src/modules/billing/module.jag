@@ -106,8 +106,13 @@ jagg.module("billing", {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").getTenantUsage.apply(this, arguments);
     },
     verifyEventForFailedPayment: function () {
-        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").verifyEventForFailedPayment.apply(this,
-                arguments);
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").verifyEventForFailedPayment.apply(this, arguments);
+    },
+    activateAccount: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").activateAccount.apply(this, arguments);
+    },
+    isFirstSubscription: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isFirstSubscription.apply(this, arguments);
     }
 });
 %>

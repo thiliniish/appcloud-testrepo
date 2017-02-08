@@ -52,7 +52,8 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                 if (cloudSubscription == 1) {
                     //already added to MailCampaign ignore
                 } else {
-                    var MailCampaignResponse = billing.addCloudSubmissionToMailCampaign(userEmail, domainName, type);
+                    var MailCampaignResponse = billing.addCloudSubmissionToMailCampaign(userEmail, domainName, type
+                            .toLowerCase());
                     var msg = MailCampaignResponse['data'];
                         if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                             try {
@@ -77,7 +78,8 @@ var log = new Log("site/blocks/subscriptions/ajax/subscriptions.jag");
                     modEvents.publishUserActivity(events, jagg.getUser(), domainName);
                 }
             } else {
-                var MailCampaignResponse = billing.addCloudSubmissionToMailCampaign(userEmail, domainName, type);
+                var MailCampaignResponse = billing.addCloudSubmissionToMailCampaign(userEmail, domainName, type
+                        .toLowerCase());
                 var msg = MailCampaignResponse['data'];
                     if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                         try {

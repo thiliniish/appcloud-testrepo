@@ -74,7 +74,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         setApiKey();
     }
 
-    private final void setApiKey () {
+    private final void setApiKey() {
         Stripe.apiKey =
                 BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey();
     }
@@ -104,9 +104,11 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         }
     }
 
-    /**ls
-     *
+    /**
+     * ls
+     * <p/>
      * Retrieve customer detai
+     *
      * @param customerId customer id
      * @return json string of customer information
      */
@@ -820,12 +822,14 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             // Validate if customer details are successfully retrieved
             if (Boolean.parseBoolean(customerObj.get(BillingVendorConstants.RESPONSE_SUCCESS).toString())) {
                 JsonObject accountSummaryObj = new JsonObject();
-                JsonObject subscriptionDetailsObj = new JsonObject();
                 JsonObject defaultPaymentMethodObj = new JsonObject();
                 JsonObject contactInformationObj = new JsonObject();
                 ArrayList<String> invoiceArrayList = new ArrayList<String>();
                 ArrayList<String> paymentArrayList = new ArrayList<String>();
+                ArrayList<String> subscriptionArrayList = new ArrayList<String>();
 
+                accountSummaryObj
+                        .addProperty("id", customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("id").asText());
                 accountSummaryObj.addProperty("accountName",
                                               customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("description")
                                                          .asText());
@@ -835,16 +839,28 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                                               customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("currency")
                                                          .asText());
 
-                JsonNode subscriptionNode =
-                        customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("subscriptions").get("data").get(0);
-                subscriptionDetailsObj.addProperty("serviceName", subscriptionNode.get("plan").get("name").asText());
-                subscriptionDetailsObj.addProperty("startDate", convertUnixTimestamp(
-                        BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("start").asLong()));
-                subscriptionDetailsObj.addProperty("endDate", convertUnixTimestamp(
-                        BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("ended_at").asLong()));
-                subscriptionDetailsObj.addProperty("status", subscriptionNode.get("status").asText());
-                subscriptionDetailsObj
-                        .addProperty("isCancelled", subscriptionNode.get("cancel_at_period_end").asText());
+                JsonNode subscriptionNodes =
+                        customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("subscriptions").get("data");
+
+                for (int i = 0; i < subscriptionNodes.size(); i++) {
+                    JsonNode subscriptionNode = subscriptionNodes.get(i);
+                    JsonObject subscriptionItemObj = new JsonObject();
+                    subscriptionItemObj.addProperty("serviceId", subscriptionNode.get("plan").get("id").asText());
+                    subscriptionItemObj.addProperty("serviceName", subscriptionNode.get("plan").get("name").asText());
+                    subscriptionItemObj.addProperty("startDate", convertUnixTimestamp(
+                            BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("start").asLong()));
+                    subscriptionItemObj.addProperty("endDate", convertUnixTimestamp(
+                            BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                            subscriptionNode.get("ended_at").asLong()));
+                    subscriptionItemObj.addProperty("status", subscriptionNode.get("status").asText());
+                    subscriptionItemObj
+                            .addProperty("isCancelled", subscriptionNode.get("cancel_at_period_end").asText());
+                    if (subscriptionNode.get("plan").get("metadata").get("cloud_type") != null) {
+                        subscriptionItemObj.addProperty("cloudType",
+                                subscriptionNode.get("plan").get("metadata").get("cloud_type").asText());
+                    }
+                    subscriptionArrayList.add(subscriptionItemObj.toString());
+                }
 
                 // payment Details
                 JsonNode paymentNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("sources").get
@@ -926,8 +942,11 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 st = new Gson().toJson(paymentArrayList);
                 JsonArray paymentJsonObject = (new JsonParser()).parse(st).getAsJsonArray();
 
+                st = new Gson().toJson(subscriptionArrayList);
+                JsonArray subscriptionJsonObject = (new JsonParser()).parse(st).getAsJsonArray();
+
                 accountInfo.add("accountSummary", accountSummaryObj);
-                accountInfo.add("subscriptionDetails", subscriptionDetailsObj);
+                accountInfo.add("subscriptionDetails", subscriptionJsonObject);
                 accountInfo.add("defaultPaymentDetails", defaultPaymentMethodObj);
                 accountInfo.add("contactDetails", contactInformationObj);
                 accountInfo.add("invoicesInformation", invoiceJsonObject);
@@ -1089,12 +1108,12 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      * Create invoice Item
      *
      * @param invoiceInfoJson customer details
-     *                         {
-     *                         "customer": "cus_xxx",
-     *                         "amount": 0,
-     *                         "currency": "usd",
-     *                         "description": "WSO2 Customer"
-     *                         }
+     *                        {
+     *                        "customer": "cus_xxx",
+     *                        "amount": 0,
+     *                        "currency": "usd",
+     *                        "description": "WSO2 Customer"
+     *                        }
      * @return success Json string
      * @throws CloudBillingVendorException
      */
