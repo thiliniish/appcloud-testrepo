@@ -41,3 +41,6 @@ echo " - client-truststore.jks"
 echo " - wso2carbon.jks"
 
 echo "Please remember to update the config.properties according to the environment"
+
+echo "Removing the temporary nginx client directory with source code"
+rm -r ../../../../nginxClient
