@@ -95,29 +95,11 @@
             <!--This is for statistical purposes. Usage display period in days-->
             <UsageDisplayPeriod>30</UsageDisplayPeriod>
             <Subscription productId="prod_api_cloud">
-                <Plan id="api_cloud_starter" name="Starter">
+                <Plan id="api_cloud_extra_large" name="Extra-Large">
                     <Property name="MaxDailyUsage">500</Property>
                     <Property name="MaxAccounts">10</Property>
                     <Property name="OverUsage">$5/1000</Property>
-                    <Property name="MonthlyRental">$100</Property>
-                    <Property name="Monetization">No</Property>
-                    <Property name="PremiumLevel">1</Property>
-                    <Property name="Visibility">true</Property>
-                </Plan>
-                <Plan id="api_cloud_getting_traction" name="Getting Traction">
-                    <Property name="MaxDailyUsage">100000</Property>
-                    <Property name="MaxAccounts">100</Property>
-                    <Property name="OverUsage">$5/1000</Property>
-                    <Property name="MonthlyRental">$250</Property>
-                    <Property name="Monetization">Yes</Property>
-                    <Property name="PremiumLevel">2</Property>
-                    <Property name="Visibility">true</Property>
-                </Plan>
-                <Plan id="api_cloud_medium" name="Medium">
-                    <Property name="MaxDailyUsage">500</Property>
-                    <Property name="MaxAccounts">10</Property>
-                    <Property name="OverUsage">$5/1000</Property>
-                    <Property name="MonthlyRental">$100</Property>
+                    <Property name="MonthlyRental">$9980</Property>
                     <Property name="Monetization">Yes</Property>
                     <Property name="PremiumLevel">1</Property>
                     <Property name="Visibility">true</Property>
@@ -126,17 +108,35 @@
                     <Property name="MaxDailyUsage">100000</Property>
                     <Property name="MaxAccounts">100</Property>
                     <Property name="OverUsage">$5/1000</Property>
-                    <Property name="MonthlyRental">$250</Property>
+                    <Property name="MonthlyRental">$2980</Property>
                     <Property name="Monetization">Yes</Property>
                     <Property name="PremiumLevel">2</Property>
                     <Property name="Visibility">true</Property>
                 </Plan>
-                <Plan id="api_cloud_extra_large" name="Extra-Large">
+                <Plan id="api_cloud_medium" name="Medium">
                     <Property name="MaxDailyUsage">500</Property>
                     <Property name="MaxAccounts">10</Property>
                     <Property name="OverUsage">$5/1000</Property>
-                    <Property name="MonthlyRental">$100</Property>
+                    <Property name="MonthlyRental">$698</Property>
                     <Property name="Monetization">Yes</Property>
+                    <Property name="PremiumLevel">1</Property>
+                    <Property name="Visibility">true</Property>
+                </Plan>
+                <Plan id="api_cloud_getting_traction" name="Getting Traction">
+                    <Property name="MaxDailyUsage">100000</Property>
+                    <Property name="MaxAccounts">100</Property>
+                    <Property name="OverUsage">$5/1000</Property>
+                    <Property name="MonthlyRental">$298</Property>
+                    <Property name="Monetization">Yes</Property>
+                    <Property name="PremiumLevel">2</Property>
+                    <Property name="Visibility">true</Property>
+                </Plan>
+                <Plan id="api_cloud_starter" name="Starter">
+                    <Property name="MaxDailyUsage">500</Property>
+                    <Property name="MaxAccounts">10</Property>
+                    <Property name="OverUsage">$5/1000</Property>
+                    <Property name="MonthlyRental">$129</Property>
+                    <Property name="Monetization">No</Property>
                     <Property name="PremiumLevel">1</Property>
                     <Property name="Visibility">true</Property>
                 </Plan>
@@ -152,31 +152,13 @@
             <UsageDisplayPeriod>30</UsageDisplayPeriod>
 
             <Subscription productId="prod_integration_cloud">
-                <Plan id="integration_cloud_starter" name="Starter">
-                    <Property name="MaxApplications">3</Property>
-                    <Property name="MaxDatabases">3 * 500 MB</Property>
-                    <Property name="Resources">2 GB RAM</Property>
-                    <Property name="Scaling">No</Property>
-                    <Property name="MonthlyRental">$129</Property>
-                    <Property name="PremiumLevel">1</Property>
-                    <Property name="Visibility">true</Property>
-                </Plan>
-                <Plan id="integration_cloud_getting_traction" name="Getting Traction">
-                    <Property name="MaxApplications">4</Property>
-                    <Property name="MaxDatabases">3 * 1 GB</Property>
-                    <Property name="Resources">6 GB RAM </Property>
-                    <Property name="Scaling">No</Property>
-                    <Property name="MonthlyRental">$298</Property>
-                    <Property name="PremiumLevel">2</Property>
-                    <Property name="Visibility">true</Property>
-                </Plan>
-                <Plan id="integration_cloud_medium" name="Medium">
-                    <Property name="MaxApplications">12 GB RAM </Property>
-                    <Property name="MaxDatabases">5 * 1 GB</Property>
-                    <Property name="Resources">12 GB RAM </Property>
+                <Plan id="integration_cloud_extra_large" name="Extra-Large">
+                    <Property name="MaxApplications">32</Property>
+                    <Property name="MaxDatabases">10 * 10 GB</Property>
+                    <Property name="Resources">192 GB RAM</Property>
                     <Property name="Scaling">Yes</Property>
-                    <Property name="MonthlyRental">$698</Property>
-                    <Property name="PremiumLevel">3</Property>
+                    <Property name="MonthlyRental">$9980</Property>
+                    <Property name="PremiumLevel">5</Property>
                     <Property name="Visibility">true</Property>
                 </Plan>
                 <Plan id="integration_cloud_large" name="Large">
@@ -188,13 +170,31 @@
                     <Property name="PremiumLevel">4</Property>
                     <Property name="Visibility">true</Property>
                 </Plan>
-                <Plan id="integration_cloud_extra_large" name="Extra-Large">
-                    <Property name="MaxApplications">32</Property>
-                    <Property name="MaxDatabases">10 * 10 GB</Property>
-                    <Property name="Resources">192 GB RAM</Property>
+                <Plan id="integration_cloud_medium" name="Medium">
+                    <Property name="MaxApplications">12 GB RAM </Property>
+                    <Property name="MaxDatabases">5 * 1 GB</Property>
+                    <Property name="Resources">12 GB RAM </Property>
                     <Property name="Scaling">Yes</Property>
-                    <Property name="MonthlyRental">$9980</Property>
-                    <Property name="PremiumLevel">5</Property>
+                    <Property name="MonthlyRental">$698</Property>
+                    <Property name="PremiumLevel">3</Property>
+                    <Property name="Visibility">true</Property>
+                </Plan>
+                <Plan id="integration_cloud_getting_traction" name="Getting Traction">
+                    <Property name="MaxApplications">4</Property>
+                    <Property name="MaxDatabases">3 * 1 GB</Property>
+                    <Property name="Resources">6 GB RAM </Property>
+                    <Property name="Scaling">No</Property>
+                    <Property name="MonthlyRental">$298</Property>
+                    <Property name="PremiumLevel">2</Property>
+                    <Property name="Visibility">true</Property>
+                </Plan>
+                <Plan id="integration_cloud_starter" name="Starter">
+                    <Property name="MaxApplications">3</Property>
+                    <Property name="MaxDatabases">3 * 500 MB</Property>
+                    <Property name="Resources">2 GB RAM</Property>
+                    <Property name="Scaling">No</Property>
+                    <Property name="MonthlyRental">$129</Property>
+                    <Property name="PremiumLevel">1</Property>
                     <Property name="Visibility">true</Property>
                 </Plan>
             </Subscription>

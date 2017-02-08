@@ -205,7 +205,7 @@ var MONTHLY_SUBSCRIPTION_CHARGE_NAME ="Monthly subscription fee";
 var CURRENCY = "USD";
 
 //Billing Commons
-var BILLING_SUGGESTED_PLAN = "Getting Traction";
+var BILLING_SUGGESTED_PLAN = "Medium";
 var ACCOUNT_ID = "accountId";
 var BILLING_STARTER_PLAN = "Starter";
 var MONETIZATION_STARTER_PLAN = "Getting Traction";
