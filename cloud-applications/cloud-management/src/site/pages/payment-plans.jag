@@ -5,9 +5,7 @@ var log = new Log();
 (function () {
     var sessionId = session.getId();
     var billingModule = jagg.module("billing");
-    var isFromChangePlan = billingModule.isPaidAccount();
     var isComplimentaryAccount = billingModule.isComplimentaryAccount();
-
     jagg.render({
                     "name":"page/base",
                     "inputs":{
@@ -22,7 +20,6 @@ var log = new Log();
                                         {
                                             "name":"billing/plan/get",
                                             "inputs": {
-                                                "isFromChangePlan": isFromChangePlan,
                                                 "isComplimentaryAccount": isComplimentaryAccount
                                             }
                                         }

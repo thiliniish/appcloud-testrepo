@@ -2,6 +2,7 @@ var field_passthrough1;
 var publicParam = {};
 var cardDetails = {};
 var monthlyRental = $("#monthlyRental").attr('value');
+var serviceId = $("#serviceId").attr('value');
 var productRatePlanId = $("#productRatePlanId").attr('value');
 var accountId = $("#accountId").attr('value');
 var userEmail = $("#userEmail").attr('value');
@@ -9,10 +10,10 @@ var iframeDescription = $("#iframeDescription").attr('value');
 
 $(document).ready(function ($) {
     // Check for billing enable/disable mode
-    var isBillingEnabled = $("#isBillingEnabled").attr('value');
+    var isPaidAccount = $("#isPaidAccount").attr('value');
     document.getElementById("submitbtn").disabled = true;
 
-    if (isBillingEnabled) {
+    if (isPaidAccount) {
         document.getElementById("cardDetails").style.display = "none";
         document.getElementById("cardSuccessHeader").style.display = "none";
         showErrorMessage();
@@ -120,7 +121,7 @@ function addPaymentMethod() {
 function getKeys() {
     jagg.syncPost("../blocks/billing/method/add/ajax/add.jag", {
         action: "getParams",
-        serviceId: "api_cloud",
+        serviceId: serviceId,
         productRatePlanId: productRatePlanId
     }, function (results) {
         publicParam = results;

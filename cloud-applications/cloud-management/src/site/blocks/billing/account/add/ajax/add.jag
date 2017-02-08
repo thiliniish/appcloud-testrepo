@@ -43,12 +43,13 @@ var ratePlans = session.get("RATE_PLANS");
 		metaData.serviceId = request.getParameter("serviceId");
 		metaData.productRatePlanId = request.getParameter("productRatePlanId");
 		responseFrom = request.getParameter("responseFrom");
+		isFirstSubscription = request.getParameter("isFirstSubscription");
 		try {
 			if(responseFrom == EDIT_USER_INFO){
 
 				result = mod.updateContactInfo(organizationName, accountData, metaData);
 
-			} else if(responseFrom == IS_FROM_CHANGE_PLAN) {
+			} else if(responseFrom == IS_FROM_CHANGE_PLAN && isFirstSubscription == 'false') {
 	       	    var serviceId = session.get("SERVICE_ID");
 	       	    var couponData = session.get("PRODUCT_COUPON_DATA");
 	       	    var productRatePlanId = session.get("PRODUCT_PLAN_ID");

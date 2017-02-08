@@ -38,7 +38,7 @@ $(document).ready(function () {
             var ratePlanDetails = JSON.parse(ratePlansObj);
             for (var index in ratePlanDetails.entry) {
                 if (ratePlanDetails.entry[index].id == selectedPlanId) {
-                    createAccount(selectedPlanId, ratePlanDetails.entry[index].name, false);
+                    createAccount(selectedPlanId, ratePlanDetails.entry[index].name, false, true);
                     break;
                 }
             }
@@ -60,7 +60,7 @@ function enableButton(id) {
     document.getElementById("selectbtn_" + id).removeAttribute("disabled", "disabled");
 }
 
-function createAccount(id, currRatePlan, isFromChangePlan) {
+function createAccount(id, currRatePlan, isFromChangePlan, isFirstSubscription) {
     disableButton(id);
     var cloudmgtURL = $("#cloudmgtURL").attr('value');
     jagg.post("../blocks/billing/plan/get/ajax/get.jag", {
@@ -74,7 +74,7 @@ function createAccount(id, currRatePlan, isFromChangePlan) {
             if (result.indexOf("add-payment-method") >= 0) {
                 window.location.href = result;
             } else if (result.indexOf("add-billing-account") >= 0) {
-                goToPaymentConfirmationPageFromChangePlan();
+                goToPaymentConfirmationPageFromChangePlan(isFromChangePlan, isFirstSubscription);
             } else if (result.indexOf("null") < 0) {
                 jagg.message({type: 'error', content: result});
             } else {
@@ -99,10 +99,12 @@ function createAccount(id, currRatePlan, isFromChangePlan) {
     );
 }
 
-function goToPaymentConfirmationPageFromChangePlan() {
-    var formContactInfo = $('<form action="add-billing-account.jag" method="post">' +
-        '<input type="hidden" name="responseFrom" value = "isFromChangePlan"/>' +
-        '</form>');
+function goToPaymentConfirmationPageFromChangePlan(isFromChangePlan, isFirstSubscription) {
+      var  formContactInfo = $('<form action="add-billing-account.jag" method="post">' +
+            '<input type="hidden" name="responseFrom" value ="isFromChangePlan"/>' +
+            '<input type="hidden" name="isFromChangePlan" value ="' + isFromChangePlan +'"/>' +
+            '<input type="hidden" name="isFirstSubscription" value ="' +isFirstSubscription +'"/>' +
+            '</form>');
     $('body').append(formContactInfo);
     $(formContactInfo).submit();
 }

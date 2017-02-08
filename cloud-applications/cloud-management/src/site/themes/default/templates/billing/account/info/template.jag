@@ -9,8 +9,8 @@
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
     var isComplimentaryAccount = inputs.isComplimentaryAccount;
+    var isPaidAccount = jagg.module("billing").isPaidAccount();
     %>
 
     <style type="text/css">
@@ -85,10 +85,11 @@
         var paymentPageNumber = 1;
         var maxNumberOfItems =  <%=itemsPerPage%>;
         var isComplimentaryAccount = "<%=isComplimentaryAccount%>";
+        var Edit_Billing_info = '<%=EDIT_BILLING_INFO%>';
         $(document).ready(function(){
         // Check for billing enable/disable mode
-        var isBillingEnabled = $("#isBillingEnabled").attr('value');
-        if (isBillingEnabled) {
+        var isPaidAccount = $("#isPaidAccount").attr('value');
+        if (isPaidAccount) {
             if (isComplimentaryAccount == "true") {
                 $("#paymentMethodSection").hide();
                 $("#contactInformationSection").hide();
@@ -112,7 +113,7 @@
                 data: {
                     "action": "get-billing-account"
                     },
-                success: function(data) {
+                success: function(data) {          
                     var accountObj = jQuery.parseJSON(data);
                     var accountSummary = accountObj.data.accountSummary;
                     var contactDetails = accountObj.data.contactDetails;
@@ -121,7 +122,7 @@
                     var subscriptionDetails = accountObj.data.subscriptionDetails;
                     var chargeInformation = accountObj.data.chargeInformation;
                     var ZERO_PAYMENT_VALUE = 0;
-                    accountId = accountObj.id;
+                    accountId = accountSummary.id;
                     contactInfo = accountObj.data.contactDetails;
                     accountName = accountSummary.accountName;
                     lastPayment = accountSummary.lastPaymentAmount;
@@ -152,14 +153,14 @@
                     } else {
                         $('#ccExpiry').text(creditCardExpirationMonth + " / " + creditCardExpirationYear);
                     }
-                    // set subscription info
-                    $('#subsStartDate').text(subscriptionDetails.startDate);
-                    $('#subsStatus').text(subscriptionDetails.status);
-                    //TODO handle multi subscriptions
-                        var tempSubs = subscriptionDetails;
-                          var actionData = '<td><a onclick="loadChangePlanPage()" ><i class="fa fa-edit" ></i> Change Plan</a> &nbsp; '
-                       + '<a onclick="verifyCancel(\'' + tempSubs.serviceName + '\')"><i class="fa fa-times" ></i> Cancel</a></td></tr>';
 
+                    // set subscription info
+                    for(var i =0; i< subscriptionDetails.length; i++) {
+                       var tempSubs = jQuery.parseJSON(subscriptionDetails[i]);
+                       console.log("temp subs");
+                       console.log(tempSubs);
+                       var actionData = '<td><a onclick="loadChangePlanPage(\'' + tempSubs.cloudType + '\')" ><i class="fa fa-edit" ></i> Change Plan</a> &nbsp; ' +
+                          '<a onclick="verifyCancel(\'' + tempSubs.cloudType + '\',\'' + tempSubs.serviceId + '\')"><i class="fa fa-times" ></i> Cancel</a> </td></tr>';
                        if (tempSubs.isCancelled == "true") {
                         actionData = '<td><a class="fa fa-edit" href="<%=jagg.getAbsoluteUrl("/site/pages/contact-us.jag")%>"> Contact Us</a></td></tr>' ;
                        }
@@ -168,12 +169,14 @@
                        if(termEndDate == null  || termEndDate == 'null'){
                        termEndDate = ' - ';
                        }
-                        $("#subscription-tbody").append($('<tr>'
+
+                    $("#subscription-tbody").append($('<tr>'
                            + '<td>' + tempSubs.serviceName + '</td>'
                            + '<td>' + termStartDate + '</td>'
                            + '<td>' + termEndDate + '</td>'
                            + '<td>' + tempSubs.status + '</td>' + actionData
                            ));
+                    }
 
                     totalInvoicePages = ((invoiceDetails.length % maxNumberOfItems) == 0 ) ? (invoiceDetails.length/maxNumberOfItems) : (invoiceDetails.length/maxNumberOfItems) + 1;
                     totalInvoicePages = Math.floor(totalInvoicePages);
@@ -269,12 +272,14 @@
         function addNewPaymentMethod() {
             var form = $('<form action="add-payment-method.jag" method="post">' +
             '<input type="hidden" name="accountId" value="' + accountId + '"/>' +
+            '<input type="hidden" name="responseFrom" value="' + Edit_Billing_info + '"/>' +
             '</form>');
             $('body').append(form);
             $(form).submit();
         }
+
         function viewPaymentMethods() {
-            location.href="<%=jagg.getAbsoluteUrl("/site/pages/payment-methods.jag")%>";
+            location.href="<%=jagg.getAbsoluteUrl('/site/pages/payment-methods.jag')%>";
         }
 
         function updateContactInfo(){
@@ -297,25 +302,34 @@
             $(formContactInfo).submit();
         }
 
-        function loadChangePlanPage() {
-            window.location.href = "payment-plans.jag?cloud-type=api_cloud&is-from-change-plan=true";
+        function loadChangePlanPage(cloud_type) {
+            window.location.href = "payment-plans.jag?cloud-type=" + cloud_type +"&is-from-change-plan=true";
         }
 
-        function verifyCancel(serviceId){
-            var cancelSubDate = '<%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%>';
-        	jagg.popMessage({type:'verify',title:'Cancel Subscription',content:'Are you sure you want to <b>cancel </b> API Cloud subscription? <br />'+
-            	'The cancellation will become effective on '+ cancelSubDate,
-                yesCallback:function(){cancelSubscription(serviceId);},
-                noCallback:function(){}
-			});
+        function verifyCancel(cloud_type, planId) {
+            jagg.post("../blocks/billing/account/info/ajax/get.jag",
+                {
+                action: "getCancelSubscriptionEffectiveDate",
+                serviceId: cloud_type
+                },
+                function (result) {
+                        var cancelSubDate = result;
+                        jagg.popMessage({type:'verify',title:'Cancel Subscription',content:'Are you sure you want to <b>cancel </b> API Cloud subscription? <br />'+
+                            'The cancellation will become effective on '+ cancelSubDate,
+                            yesCallback:function(){cancelSubscription(cloud_type, planId);},
+                            noCallback:function(){}
+                        });
+                }, function (jqXHR, textStatus, errorThrown) {
+                    //jagg.message({type:'error',content:"Unable to cancel the subscription at the moment. Please contact WSO2 Cloud Team for help. "});
+                });
         }
 
-        function cancelSubscription(serviceName) {
+        function cancelSubscription(serviceId, planId) {
             jagg.syncPost("../blocks/billing/account/remove/ajax/remove.jag",
                 {
                 action: "cancelSubscription",
-                serviceId: "api_cloud",
-                serviceName: serviceName
+                serviceId: serviceId,
+                serviceName: planId
                 },
                 function (result) {
                     if(result == true || result == 'true') {
@@ -492,7 +506,7 @@
 					<div class="clearfix"></div>
 					<div class="paymentFooter" style="width:30%;  margin: -20px auto;"></div>
 					<input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudMgtURL%>" />
-					<input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%= isBillingEnabled %>" />
+					<input type="hidden" name="isPaidAccount" id="isPaidAccount"  value="<%= isPaidAccount%>" />
 					<input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
                     </div>
                 </div>
