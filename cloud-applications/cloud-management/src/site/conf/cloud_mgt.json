@@ -206,6 +206,11 @@
     "edit_pwd_url": "edit_pwd_url",
     "update_url": "update_url"
   },
+  "OTAdminServiceApi": {
+    "enable": false,
+    "encodedCredentials": "YWRtaW5Ad3NvMi5jb206YWRtaW4=",
+    "serviceURL": "https://localhost/services/"
+  },
   "MailCampaignAddUserApi":{
     "enable_MailCampaignAddUserApi": false,
     "cloudSignup": "https://local.pardot.com/l/142131/2016-07-27/24cz89",

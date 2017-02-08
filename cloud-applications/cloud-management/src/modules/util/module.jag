@@ -113,6 +113,9 @@ jagg.module("util", {
     },
     getGatewayMigrationProperties: function () {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").getGatewayMigrationProperties.apply(this, arguments);
+    },
+    addUserToOTCloudUserRole: function() {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").addUserToOTCloudUserRole.apply(this, arguments);
     }
 });
 %>
