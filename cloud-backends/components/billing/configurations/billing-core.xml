@@ -156,7 +156,7 @@
                     <Property name="MaxApplications">32</Property>
                     <Property name="AdditionalAppTypes">Custom images, ESB, DSS</Property>
                     <Property name="MaxDatabases">10 * 10 GB</Property>
-                    <Property name="Resources">192 GB RAM</Property>
+                    <Property name="Resources">48 vCPU, 192 GB RAM</Property>
                     <Property name="Scaling">Yes</Property>
                     <Property name="RegionalSelection">Up to 5 regions of choice</Property>
                     <Property name="MonthlyRental">$9980</Property>
@@ -167,7 +167,7 @@
                     <Property name="MaxApplications">16</Property>
                     <Property name="AdditionalAppTypes">Custom images, ESB, DSS</Property>
                     <Property name="MaxDatabases">5 * 5 GB</Property>
-                    <Property name="Resources">48 GB RAM</Property>
+                    <Property name="Resources">12 vCPU, 48 GB RAM</Property>
                     <Property name="Scaling">Yes</Property>
                     <Property name="RegionalSelection">Up to 2 regions of choice</Property>
                     <Property name="MonthlyRental">$2980</Property>
@@ -178,7 +178,7 @@
                     <Property name="MaxApplications">6</Property>
                     <Property name="AdditionalAppTypes">Custom images, ESB, DSS</Property>
                     <Property name="MaxDatabases">5 * 1 GB</Property>
-                    <Property name="Resources">12 GB RAM </Property>
+                    <Property name="Resources">3 vCPU, 12 GB RAM </Property>
                     <Property name="Scaling">Yes</Property>
                     <Property name="RegionalSelection">Any 1 region of choice</Property>
                     <Property name="MonthlyRental">$698</Property>
@@ -189,7 +189,7 @@
                     <Property name="MaxApplications">4</Property>
                     <Property name="AdditionalAppTypes">Custom images, ESB, DSS</Property>
                     <Property name="MaxDatabases">3 * 1 GB</Property>
-                    <Property name="Resources">6 GB RAM </Property>
+                    <Property name="Resources">1.5 vCPU, 6 GB RAM </Property>
                     <Property name="Scaling">No</Property>
                     <Property name="RegionalSelection">US East only</Property>
                     <Property name="MonthlyRental">$298</Property>
@@ -200,7 +200,7 @@
                     <Property name="MaxApplications">3</Property>
                     <Property name="AdditionalAppTypes">No</Property>
                     <Property name="MaxDatabases">3 * 500 MB</Property>
-                    <Property name="Resources">2 GB RAM</Property>
+                    <Property name="Resources">0.5  vCPU, 2 GB RAM</Property>
                     <Property name="Scaling">No</Property>
                     <Property name="RegionalSelection">US East only</Property>
                     <Property name="MonthlyRental">$129</Property>
