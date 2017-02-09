@@ -128,7 +128,6 @@
                 if (cloudProfile == 'integration-cloud') {
                     certsRegistryPath = registryPath + "app-cloud/" + tenantDomain + "/securityCertificates/" +
                             node;
-
                 } else {
                     certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
                             node;
