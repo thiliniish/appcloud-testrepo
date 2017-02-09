@@ -187,6 +187,7 @@ var BILLING_STATUS = "billingStatus";
 
 var BILLING_PLAN_MAX_DAILY_USAGE = "MaxDailyUsage";
 var BILLING_PLAN_MAX_ACCOUNT = "MaxAccounts";
+var BILLING_PLAN_ADDITIONAL_APP_TYPES = "AdditionalAppTypes";
 var BILLING_PLAN_OVER_USAGE = "OverUsage";
 var BILLING_PLAN_MONTHLY_RENTAL = "MonthlyRental";
 var BILLING_PLAN_PREMIUM_LEVEL = "PremiumLevel";
@@ -194,6 +195,7 @@ var BILLING_PLAN_VISIBILITY = "Visibility";
 var BILLING_PLAN_MAX_APPLICATIONS = "MaxApplications";
 var BILLING_PLAN_MAX_DATABASES = "MaxDatabases";
 var BILLING_PLAN_SCALING = "Scaling";
+var BILLING_PLAN_REGIONAL_SELECTION = "RegionalSelection";
 var BILLING_PLAN_MONETIZATION = "Monetization";
 var BILLING_PLAN_RESOURCES = "Resources";
 
