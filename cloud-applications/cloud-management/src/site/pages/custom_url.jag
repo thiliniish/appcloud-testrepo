@@ -26,7 +26,6 @@ var site = require("/site/conf/site.json");
                             {
                             	"name":"customurl",
                                 "inputs": {
-                                    "isPaidCustomer": isPaidCustomer,
                                     "regionSelectionEnabled": regionSelectionEnabled,
                                     "isFromChangePlan": isFromChangePlan
                                 }
