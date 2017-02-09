@@ -558,22 +558,26 @@ var addUserToOTCloudUserRole = function (email) {
         return;
     }
     log.info("Adding user [ " + email + " ] to OT cloudUser role");
-    var ENCODED_CREDENTIALS = cloudConfig.OTAdminServiceApi.encodedCredentials;
+    var base64Util = new Packages.org.apache.commons.codec.binary.Base64();
+    var username = cloudConfig.OTAdminServiceApi.auth_user;
+    var password = cloudConfig.OTAdminServiceApi.auth_pass;
+    var cloudUserRole = cloudConfig.OTCloudUserRole;
     var URL = cloudConfig.OTAdminServiceApi.serviceURL;
     var ws = require("ws");
     var updateRolesOfUser = new ws.WSRequest();
-    var authHeaderValue = "Basic " + ENCODED_CREDENTIALS;
+    var encodedCredentials = base64Util.encodeBase64String((new java.lang.String(username + ":" + password)).getBytes()).trim();
+    var authHeaderValue = String("Basic " + encodedCredentials);
     var options = new Array();
     options.useSOAP = 1.1;
     options.action = "urn:updateUsersOfRole";
-    options.timeout = 1000000;
+    options.timeout = 120000;
     options["HTTPHeaders"] = [
         {
-            name: "Authorization", value: String(authHeaderValue)
+            name: "Authorization", value: authHeaderValue
         }
     ];
     var payload = '<p:updateUsersOfRole xmlns:p="http://org.apache.axis2/xsd">' +
-        '<roleName>support.client.CLOUDUSER.user</roleName>' +
+        '<roleName>' + cloudUserRole + '</roleName>' +
         '<userList>' +
         '<itemName xmlns="http://common.mgt.user.carbon.wso2.org/xsd">' + email + '</itemName>' +
         '<selected xmlns="http://common.mgt.user.carbon.wso2.org/xsd">true</selected>' +
