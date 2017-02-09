@@ -52,8 +52,8 @@ IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomai
     for (var i = 0; i < subscriptionsType.length; i++) {
         if ((subscriptionsType[i].id).equals(serviceId)) {
             cloudTypeUrl = subscriptionsType[i].urls.cloudTypeUrl;
-            adminUsername = subscriptionsType[i].adminUsername;
-            adminPassword = subscriptionsType[i].adminPassword;
+            adminUsername = cloudConfig.SSORelyingParty.adminUser;
+            adminPassword = cloudConfig.SSORelyingParty.adminPassword;
         }
     }
 
