@@ -7,8 +7,6 @@
   "adminRole" : "admin",
   "adminRoleDisplayName" : "Admin",
   "internalRole" : "Internal/",
-  "adminUsername" : "admin",
-  "adminPassword" : "admin",
   "subscriptions": {
     "type": [
       {
@@ -28,9 +26,7 @@
         "urls": {
             "cloudTypeUrl": "https://integration.cloudlocal.wso2.com:9446/appmgt/",
             "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
-        },
-        "adminUsername" : "admin",
-        "adminPassword" : "admin"
+        }
       },
       {
         "id": "api_cloud",
