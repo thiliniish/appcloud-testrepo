@@ -21,6 +21,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -959,6 +961,22 @@ public class CloudBillingService extends AbstractAdmin {
             LOGGER.error("Error occurred while retrieving usage data of tenant: " + tenantDomain + "for product: " +
                          productName, ex);
             throw ex;
+        }
+    }
+
+    public String getInvoicePDFDetails(String eventId) throws JSONException, CloudBillingException {
+        try {
+            String eventValidity = callVendorMethod("getEventDetails", eventId);
+            JSONObject eventObj = new JSONObject(eventValidity);
+            if (eventObj.getBoolean("success")) {
+                return CloudBillingServiceUtils.generateInvoice(eventId);
+            } else {
+                throw new CloudBillingException("Error occurs while verifying the event" + eventId);
+            }
+        } catch (JSONException | CloudBillingException e) {
+            LOGGER.error("Error occurred while retrieving invoice information for PDF generation, eventId  " + eventId,
+                         e);
+            throw e;
         }
     }
 }

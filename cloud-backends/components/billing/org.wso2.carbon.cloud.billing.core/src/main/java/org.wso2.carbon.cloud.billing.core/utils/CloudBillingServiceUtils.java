@@ -19,18 +19,30 @@
 package org.wso2.carbon.cloud.billing.core.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.fop.apps.FOUserAgent;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.MimeConstants;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 import org.wso2.carbon.cloud.billing.core.beans.usage.AccountUsage;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.MonetizationConstants;
 import org.wso2.carbon.cloud.billing.core.commons.config.BillingConfigManager;
+import org.wso2.carbon.cloud.billing.core.commons.config.model.BillingConfig;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.CloudType;
 import org.wso2.carbon.cloud.billing.core.commons.config.model.Plan;
 import org.wso2.carbon.cloud.billing.core.commons.notifications.EmailNotifications;
@@ -38,16 +50,29 @@ import org.wso2.carbon.cloud.billing.core.commons.utils.CloudBillingUtils;
 import org.wso2.carbon.cloud.billing.core.exceptions.CloudBillingException;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessor;
 import org.wso2.carbon.cloud.billing.core.processor.BillingRequestProcessorFactory;
+import org.wso2.carbon.cloud.billing.core.service.CloudBillingService;
 import org.wso2.carbon.cloud.billing.core.usage.apiusage.APICloudUsageManager;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
+import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
 
 /**
  * Model to represent Utilities for Cloud Billing core module
@@ -415,6 +440,115 @@ public final class CloudBillingServiceUtils {
             throws CloudBillingException {
         APICloudUsageManager usageManager = new APICloudUsageManager();
         return usageManager.getTenantUsageDataForGivenDateRange(tenantDomain, productName, startDate, endDate);
+    }
+
+    /**
+     * generate invoice details and create the invoice pdf
+     *
+     * @param eventId event id
+     * @return invoice details string to send invoice mail
+     * @throws CloudBillingException, JSONException
+     */
+    public static String generateInvoice(String eventId) throws CloudBillingException, JSONException {
+        CloudBillingService cloudBillingService = new CloudBillingService();
+        String rawInvoiceDetailsStr = cloudBillingService.callVendorMethod("getInvoicingDetails", eventId);
+        JSONObject invoiceDetailsObj = new JSONObject(rawInvoiceDetailsStr);
+        String xmlInvoiceDetails = XML.toString(invoiceDetailsObj).replace("null", "");
+        OutputStream out = null;
+        try {
+            JsonNode invoiceNode = getJsonList(rawInvoiceDetailsStr);
+            BillingConfig configuration = BillingConfigManager.getBillingConfiguration();
+
+            String pdfName = invoiceNode.get(BillingConstants.INVOICE).get(BillingConstants.ORGANIZATION).asText() +
+                             "_" +
+                             invoiceNode.get(BillingConstants.INVOICE).get(BillingConstants.INVOICE_DATE).asText() +
+                             "_" +
+                             invoiceNode.get(BillingConstants.INVOICE).get(BillingConstants.INVOICE_NUMBER).asText() +
+                             ".pdf";
+            String pdfLocationPath = configuration.getInvoiceFileLocation() + pdfName;
+
+            // XSL File to create the invoice pdf
+            InputStream xslFile = CloudBillingServiceUtils.class.getResourceAsStream("/invoice.xsl");
+
+            // Needed a config file to initialize the FOpFactory instance
+            URL xconfURL = CloudBillingServiceUtils.class.getResource("/fop.xconf");
+            File tempConfFile = File.createTempFile(FilenameUtils.getBaseName(xconfURL.getFile()),
+                                                    FilenameUtils.getExtension(xconfURL.getFile()));
+            IOUtils.copy(xconfURL.openStream(), FileUtils.openOutputStream(tempConfFile));
+
+            StringReader reader = new StringReader(xmlInvoiceDetails);
+            FopFactory fopFactory = FopFactory.newInstance(tempConfFile);
+            FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
+
+            // Setup output
+            out = new java.io.FileOutputStream(pdfLocationPath);
+            // Construct fop with desired output format
+            Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);
+
+            // Setup XSLT
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Transformer transformer = factory.newTransformer(new StreamSource(xslFile));
+
+            // Resulting SAX events (the generated FO) must be piped through to FOP
+            Result res = new SAXResult(fop.getDefaultHandler());
+
+            // Start XSLT transformation and FOP processing
+            transformer.transform(new StreamSource(reader), res);
+            return sendInvoiceEmail(pdfName, pdfLocationPath, invoiceNode);
+        } catch (TransformerException | IOException | SAXException e) {
+            String errorMessage = "Error occurred while generating invoice pdf for event " + eventId;
+            LOGGER.error(errorMessage, e);
+            throw new CloudBillingException(errorMessage, e);
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (Exception ex) {
+                LOGGER.error("Error occurred while closing the outputStream while generating invoice pdf ", ex);
+            }
+        }
+    }
+
+    /**
+     *
+     * generate invoice details to send the invoice mail
+     *
+     * @param pdfName pdf name
+     * @param pdfLocation pdf location
+     * @param invoiceObj invoice details
+     * @return invoice details string to send invoice mail
+     */
+    private static String sendInvoiceEmail(String pdfName, String pdfLocation, JsonNode invoiceObj) {
+
+        JsonObject response = new JsonObject();
+        JsonObject data = new JsonObject();
+        JsonObject attachmentObj = new JsonObject();
+
+        attachmentObj.addProperty("path", pdfLocation);
+        attachmentObj.addProperty(BillingConstants.CONTENT_TYPE, BillingConstants.CONTENT_TYPE_APPLICATION_PDF);
+        attachmentObj.addProperty("cid", "<header>");
+        attachmentObj.addProperty("fileLocation", pdfLocation);
+        attachmentObj.addProperty("fileName", pdfName);
+
+        String messageBody = BillingConstants.EMAIL_BODY_INVOICE.replace(BillingConstants.REPLACE_CUSTOMER,
+                                                                         invoiceObj.get(BillingConstants.INVOICE)
+                                                                                   .get(BillingConstants.NAME)
+                                                                                   .asText());
+        messageBody = messageBody.replace(BillingConstants.REPLACE_AMOUNT,
+                                          invoiceObj.get(BillingConstants.INVOICE).get(BillingConstants.AMOUNT)
+                                                    .asText());
+        messageBody = messageBody.replace(BillingConstants.REPLACE_DATE,
+                                          invoiceObj.get(BillingConstants.INVOICE).get(BillingConstants.INVOICE_DATE)
+                                                    .asText());
+
+        data.addProperty(BillingConstants.SUBJECT, "Your payment was successfully processed.");
+        data.addProperty(BillingConstants.TO,
+                         invoiceObj.get(BillingConstants.INVOICE).get(BillingConstants.EMAIL).asText());
+        data.addProperty(BillingConstants.BODY, messageBody);
+        data.add(BillingConstants.ATTACHMENT, attachmentObj);
+        response.add(BillingConstants.DATA, data);
+        return response.toString();
     }
 
 }
