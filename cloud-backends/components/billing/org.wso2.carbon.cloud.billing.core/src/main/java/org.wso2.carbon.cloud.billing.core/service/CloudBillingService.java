@@ -976,7 +976,8 @@ public class CloudBillingService extends AbstractAdmin {
         } catch (JSONException | CloudBillingException e) {
             LOGGER.error("Error occurred while retrieving invoice information for PDF generation, eventId  " + eventId,
                          e);
-            throw e;
+            throw new CloudBillingException("Error occurred while retrieving invoice information for PDF generation",
+                                            e);
         }
     }
 }

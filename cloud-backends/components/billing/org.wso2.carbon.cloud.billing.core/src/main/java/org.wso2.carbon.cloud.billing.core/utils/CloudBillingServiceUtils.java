@@ -447,7 +447,8 @@ public final class CloudBillingServiceUtils {
      *
      * @param eventId event id
      * @return invoice details string to send invoice mail
-     * @throws CloudBillingException, JSONException
+     * @throws CloudBillingException
+     * @throws JSONException
      */
     public static String generateInvoice(String eventId) throws CloudBillingException, JSONException {
         CloudBillingService cloudBillingService = new CloudBillingService();
@@ -456,14 +457,14 @@ public final class CloudBillingServiceUtils {
         String xmlInvoiceDetails = XML.toString(invoiceDetailsObj).replace("null", "");
         OutputStream out = null;
         try {
-            JsonNode invoiceNode = getJsonList(rawInvoiceDetailsStr);
+            JsonNode invoiceNode = getJsonList(rawInvoiceDetailsStr).get(BillingConstants.INVOICE);
             BillingConfig configuration = BillingConfigManager.getBillingConfiguration();
 
-            String pdfName = invoiceNode.get(BillingConstants.INVOICE).get(BillingConstants.ORGANIZATION).asText() +
+            String pdfName = invoiceNode.get(BillingConstants.ORGANIZATION).asText() +
                              "_" +
-                             invoiceNode.get(BillingConstants.INVOICE).get(BillingConstants.INVOICE_DATE).asText() +
+                             invoiceNode.get(BillingConstants.INVOICE_DATE).asText() +
                              "_" +
-                             invoiceNode.get(BillingConstants.INVOICE).get(BillingConstants.INVOICE_NUMBER).asText() +
+                             invoiceNode.get(BillingConstants.INVOICE_NUMBER).asText() +
                              ".pdf";
             String pdfLocationPath = configuration.getInvoiceFileLocation() + pdfName;
 
@@ -532,19 +533,17 @@ public final class CloudBillingServiceUtils {
         attachmentObj.addProperty("fileName", pdfName);
 
         String messageBody = BillingConstants.EMAIL_BODY_INVOICE.replace(BillingConstants.REPLACE_CUSTOMER,
-                                                                         invoiceObj.get(BillingConstants.INVOICE)
-                                                                                   .get(BillingConstants.NAME)
+                                                                         invoiceObj.get(BillingConstants.NAME)
                                                                                    .asText());
         messageBody = messageBody.replace(BillingConstants.REPLACE_AMOUNT,
-                                          invoiceObj.get(BillingConstants.INVOICE).get(BillingConstants.AMOUNT)
-                                                    .asText());
+                                          invoiceObj.get(BillingConstants.AMOUNT).asText());
         messageBody = messageBody.replace(BillingConstants.REPLACE_DATE,
-                                          invoiceObj.get(BillingConstants.INVOICE).get(BillingConstants.INVOICE_DATE)
+                                          invoiceObj.get(BillingConstants.INVOICE_DATE)
                                                     .asText());
 
         data.addProperty(BillingConstants.SUBJECT, "Your payment was successfully processed.");
         data.addProperty(BillingConstants.TO,
-                         invoiceObj.get(BillingConstants.INVOICE).get(BillingConstants.EMAIL).asText());
+                         invoiceObj.get(BillingConstants.EMAIL).asText());
         data.addProperty(BillingConstants.BODY, messageBody);
         data.add(BillingConstants.ATTACHMENT, attachmentObj);
         response.add(BillingConstants.DATA, data);
