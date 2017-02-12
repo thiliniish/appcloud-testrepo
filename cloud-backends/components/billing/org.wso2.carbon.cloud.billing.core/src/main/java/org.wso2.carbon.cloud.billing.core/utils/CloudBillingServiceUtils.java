@@ -495,6 +495,7 @@ public final class CloudBillingServiceUtils {
 
             // Start XSLT transformation and FOP processing
             transformer.transform(new StreamSource(reader), res);
+            LOGGER.info("Successfully created the invoice pdf " + pdfName);
             return sendInvoiceEmail(pdfName, pdfLocationPath, invoiceNode);
         } catch (TransformerException | IOException | SAXException e) {
             String errorMessage = "Error occurred while generating invoice pdf for event " + eventId;
@@ -546,6 +547,7 @@ public final class CloudBillingServiceUtils {
                          invoiceObj.get(BillingConstants.EMAIL).asText());
         data.addProperty(BillingConstants.BODY, messageBody);
         data.add(BillingConstants.ATTACHMENT, attachmentObj);
+        LOGGER.info("Successfully created the invoice email detail for " + data.get(BillingConstants.TO));
         response.add(BillingConstants.DATA, data);
         return response.toString();
     }

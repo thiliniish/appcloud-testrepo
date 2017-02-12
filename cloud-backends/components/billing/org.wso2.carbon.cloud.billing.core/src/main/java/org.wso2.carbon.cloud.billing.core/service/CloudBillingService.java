@@ -964,6 +964,14 @@ public class CloudBillingService extends AbstractAdmin {
         }
     }
 
+    /**
+     * Retrieve invoice pdf details for the email
+     *
+     * @param eventId Event ID
+     * @return Json String of invoice details
+     * @throws JSONException
+     * @throws CloudBillingException
+     */
     public String getInvoicePDFDetails(String eventId) throws JSONException, CloudBillingException {
         try {
             String eventValidity = callVendorMethod("getEventDetails", eventId);
