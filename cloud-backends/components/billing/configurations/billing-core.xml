@@ -175,5 +175,5 @@
             </Subscription>
         </CloudType>
     </CloudTypes>
-
+    <InvoiceFileLocation>FileLocation</InvoiceFileLocation>
 </CloudBilling>

@@ -60,6 +60,11 @@
             <artifactId>httpmime</artifactId>
             <version>${apache.httpcomponents.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.json.wso2</groupId>
+            <artifactId>json</artifactId>
+            <version>${orbit.version.json}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -96,6 +101,7 @@
                             org.osgi.service.component.*,
                             com.stripe.*,
                             com.google.gson.*,
+                            org.json,
                             org.wso2.carbon.utils; version="[4.2.0, 4.5.0)",
                             org.wso2.carbon.securevault; version="[4.2.0, 4.5.0)",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
