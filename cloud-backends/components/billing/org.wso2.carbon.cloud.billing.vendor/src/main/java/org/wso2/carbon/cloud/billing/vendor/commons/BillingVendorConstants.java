@@ -30,6 +30,7 @@ public final class BillingVendorConstants {
     public static final String RESPONSE_MESSAGE = "message";
     public static final String AT_PERIOD_END = "at_period_end";
     public static final String DATE_FORMAT_YEAR_MONTH_DAY = "yyyy-MM-dd";
+    public static final String DATA = "data";
 
     /**
      * OAuth enpoint related params
@@ -58,4 +59,29 @@ public final class BillingVendorConstants {
 
     public static final String DS_API_URI_VENDOR_ACCOUNT_INFO = "/v1/accounts/getVendorInfo/{accountNumber}";
     public static final String RESOURCE_IDENTIFIER_CUSTOMER_ID = "{accountNumber}";
+
+    /**
+     * Invoice related params
+     */
+    public static final int CENTS = 100;
+    public static final String SUBSCRIPTION_NAME = "subscriptionName";
+    public static final String SERVICE_PERIOD = "servicePeriod";
+    public static final String CHARGE_DATE = "chargeDate";
+    public static final String CHARGE_NAME = "chargeName";
+    public static final String DISCOUNT = "discount";
+    public static final String AMOUNT = "amount";
+    public static final String STARTING_BALANCE = "starting_balance";
+    public static final String ORGANIZATION = "organization";
+    public static final String EMAIL = "email";
+    public static final String NAME = "name";
+    public static final String CUSTOMER_ID = "customerId";
+    public static final String INVOICE_NUMBER = "invoiceNumber";
+    public static final String INVOICE_DATE = "invoiceDate";
+    public static final String INVOICE_ITEM = "invoiceItem";
+    public static final String ADDRESS_CITY = "addressCity";
+    public static final String ADDRESS_LINE1 = "addressLine1";
+    public static final String ADDRESS_LINE2 = "addressLine2";
+    public static final String ADDRESS_ZIP = "addressZip";
+    public static final String ADDRESS_COUNTRY = "addressCountry";
+
 }
