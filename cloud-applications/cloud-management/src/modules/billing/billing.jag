@@ -1052,7 +1052,7 @@ var getTenantUsage = function (fromDate, toDate) {
 // Add to mail campaign
 function addCloudSubmissionToMailCampaign(email, domain, type) {
     var extensionStartDate = new Packages.java.util.Date();
-    var extendedEndDate = addDays(extensionStartDate, parseInt(billingCoreService.getTrialPeriod(type)));
+    var extendedEndDate = addDays(extensionStartDate, parseInt(billingCoreService.getTrialPeriod(type.toLowerCase())));
     var sqlDateFormat = dateTimeFormatter(PARDOT_DATE_FORMAT);
     var expDate = sqlDateFormat.format(extendedEndDate);
     var type = type.substring(0, type.indexOf("_"));
