@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,9 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
             params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "isExistingUser");
             params.put("username", userEmail.trim());
             resultMap = HttpHandler.doPostHttps(signUpUrl, params, null, false);
-            Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "false", "User already exists.");
+            String response = resultMap.get(CloudIntegrationConstants.RESPONSE).toString();
+            ArrayList<String> responseData = new ArrayList<>(Arrays.asList(response.split(",")));
+            Assert.assertEquals(responseData.get(0), "{\"error\" : false", "User already exists.");
         }
     }
 
@@ -132,11 +135,12 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                     confirmUserParams.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "confirmUser");
                     confirmUserParams.put("confirm", uuid);
                     confirmUserParams.put("isInvitee", "true");
-                    Map confirmUserResultMap =
-                            HttpHandler.doPostHttps(confirmUserUrl, confirmUserParams, authenticatorClient.getSessionCookie(), false);
-                    Assert.assertEquals(
-                            confirmUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
-                            "add-tenant.jag", "Value mismatch, Should be add-tenant.jag");
+                    Map confirmUserResultMap = HttpHandler.doPostHttps(confirmUserUrl, confirmUserParams,
+                                                                       authenticatorClient.getSessionCookie(), false);
+                    String response = confirmUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString();
+                    ArrayList<String> responseData = new ArrayList<>(Arrays.asList(response.split(",")));
+                    Assert.assertEquals(responseData.get(2), " \"data\" : \"add-tenant.jag\"",
+                                        "Value mismatch, Should be add-tenant.jag");
                     Map<String, String> addUserParams = new HashMap<>();
                     addUserParams.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "importInvitedUser");
                     addUserParams.put("adminPassword", CloudIntegrationTestUtils
@@ -146,10 +150,13 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                             .getPropertyValue(CloudIntegrationConstants.TENANT_USER_FIRST_NAME));
                     addUserParams.put("lastName", CloudIntegrationTestUtils
                             .getPropertyValue(CloudIntegrationConstants.TENANT_USER_LAST_NAME));
-                    Map addUserResultMap = HttpHandler.doPostHttps(addUserUrl, addUserParams, authenticatorClient.getSessionCookie(), false);
+                    Map addUserResultMap = HttpHandler.doPostHttps(addUserUrl, addUserParams,
+                                                                   authenticatorClient.getSessionCookie(), false);
+                    String expectedResponse = "{\"error\" : false, \"status\" : 200, \"data\" : \"../pages/index" +
+                                              ".jag\"}";
                     Assert.assertEquals(
                             addUserResultMap.get(CloudIntegrationConstants.RESPONSE).toString(),
-                            "../pages/index.jag", "Value mismatch, Should be ../pages/index.jag.");
+                            expectedResponse, "Value mismatch, Should be ../pages/index.jag.");
                 } else {
                     Assert.fail("Sending user invitation has been failed");
                 }
@@ -215,8 +222,9 @@ public class MemberManagementTestCase extends CloudIntegrationTest {
                 checkExistenceParams.put("username", userEmail.trim());
                 checkExistenceResultMap = HttpHandler
                         .doPostHttps(signUpUrl, checkExistenceParams, authenticatorClient.getSessionCookie(), false);
-                Assert.assertEquals(checkExistenceResultMap.get(CloudIntegrationConstants.RESPONSE), "true",
-                                    "User does not exist.");
+                String response = checkExistenceResultMap.get(CloudIntegrationConstants.RESPONSE).toString();
+                ArrayList<String> responseData = new ArrayList<>(Arrays.asList(response.split(",")));
+                Assert.assertEquals(responseData.get(0), "{\"error\" : false", "User does not exist.");
                 //remove user from the tenant
                 String userName = userEmail.replace('@', '.').trim();
                 Map<String, String> deleteUserParams = new HashMap<>();

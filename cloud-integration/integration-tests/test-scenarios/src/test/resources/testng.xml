@@ -29,17 +29,18 @@
 
     <test name="CloudMgt-Tests" preserve-order="true" verbose="2">
         <classes>
-            <class name="org.wso2.carbon.cloud.test.scenarios.members.MemberManagementTestCase"/>
-            <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.TenantCreationAndLoginTestCase"/>
+             <class name="org.wso2.carbon.cloud.test.scenarios.members.MemberManagementTestCase"/>
+             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.TenantCreationAndLoginTestCase"/>
+
         </classes>
     </test>
     <test name="Billing-Tests" preserve-order="true" verbose="2">
         <classes>
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase">
                 <methods>
-                    <include name="addPaymentMethod"/>
-                    <include name="viewPaymentMethods"/>
-                    <include name="changePaymentMethod"/>
+                    <exclude name="addPaymentMethod"/>
+                    <exclude name="viewPaymentMethods"/>
+                    <exclude name="changePaymentMethod"/>
                     <exclude name="deletePaymentMethod"/>
                 </methods>
             </class>
@@ -48,7 +49,7 @@
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.SubscriptionPlanChangeTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.SubscriptionPlanTestCase">
                 <methods>
-                    <include name="getBillingSubscriptionPlan"/>
+                    <exclude name="getBillingSubscriptionPlan"/>
                     <exclude name="cancelBillingSubscriptionPlan"/>
                 </methods>
             </class>

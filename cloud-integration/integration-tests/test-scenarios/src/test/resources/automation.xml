@@ -69,15 +69,15 @@
             <driverClassName>org.h2.Driver</driverClassName>
         </datasource>
         <datasource name="mysql-apiStats">
-            <url>jdbc:mysql://127.0.0.1:3305/dbApimStats</url>
-            <username>BamStatUser</username>
-            <password>phufa4US4zah0aef8sai4Eeno5Ooch</password>
+            <url>jdbc:mysql://localhost:3306/apim_stats</url>
+            <username>root</username>
+            <password>root</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
         </datasource>
         <datasource name="mysql-cloudMgt">
-            <url>jdbc:mysql://127.0.0.1:3305/dbCloudMgt</url>
-            <username>CloudMgtUser</username>
-            <password>fmWDeaG02BjtiLnPA8P2Uy3fV</password>
+            <url>jdbc:mysql://localhost:3306/dbCloudMgt</url>
+            <username>root</username>
+            <password>root</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
         </datasource>
     </datasources>
@@ -134,9 +134,13 @@
         <superTenant>
             <tenant domain="carbon.super" key="superTenant">
                 <admin>
-                    <user key="superAdmin">
+                    <!--<user key="superAdmin">
                         <userName>cloudadmin</userName>
                         <password>cloudadmin</password>
+                    </user>-->
+                    <user key="superAdmin">
+                        <userName>admin</userName>
+                        <password>admin</password>
                     </user>
                 </admin>
                 <users>
@@ -293,16 +297,15 @@
         </urls>
         <tenantDetails>
             <Tenant key="defaultTenant">
-
                 <tenantId>1</tenantId>
-                <tenantDomain>cloudstagingtes</tenantDomain>
-                <adminUser>wso2.cloud.test.staging.gmail.com@cloudstagingtes</adminUser>
-                <adminPassword>Admin!23</adminPassword>
+                <tenantDomain>tenantDomain</tenantDomain>
+                <adminUser>adminUser</adminUser>
+                <adminPassword>adminPassword</adminPassword>
                 <users>
                     <user firstName="User" lastName="One" key="user1">
-                        <userName>wso2.cloud.test.staging.gmail.com@cloudstagingtes</userName>
-                        <password>Admin!23</password>
-                        <email>wso2.cloud.test.staging@gmail.com</email>
+                        <userName>userName</userName>
+                        <password>password</password>
+                        <email>email</email>
                     </user>
 
                     <user firstName="firstname" lastName="lastname" key="commonUser">
@@ -333,7 +336,7 @@
                 <couponId>coupon_Ace</couponId>
             </payments>
         </billing>
-        <tenantNewUserEmails>aaar@discard.email,bbbr@discard.email</tenantNewUserEmails>
+        <tenantNewUserEmails>aaaw@discard.email,bbbw@discard.email</tenantNewUserEmails>
         <allTenantRoles>publisher,subscriber,admin</allTenantRoles>
         <support>
             <userEmail>test@wso2.com</userEmail>
