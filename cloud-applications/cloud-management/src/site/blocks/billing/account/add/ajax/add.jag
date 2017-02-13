@@ -42,6 +42,7 @@ var ratePlans = session.get("RATE_PLANS");
 		metaData.field_passthrough1 = request.getParameter("field_passthrough1");
 		metaData.serviceId = request.getParameter("serviceId");
 		metaData.productRatePlanId = request.getParameter("productRatePlanId");
+		metaData.type = "Paid";
 		responseFrom = request.getParameter("responseFrom");
 		isFirstSubscription = request.getParameter("isFirstSubscription");
 		try {
@@ -56,7 +57,9 @@ var ratePlans = session.get("RATE_PLANS");
 				var accountId = mod.getAccountId();
 				result = mod.changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
 			} else {
-				result = mod.createAccount(accountData, metaData, organizationName);
+				var isComplimentaryAccount = mod.isComplimentaryAccount();
+				result = mod.createAccount(accountData, metaData, organizationName, isComplimentaryAccount,
+						isComplimentaryAccount);
 			}
 
 			if (result != null) {

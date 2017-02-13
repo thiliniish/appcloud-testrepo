@@ -4,6 +4,8 @@ var site = require("/site/conf/site.json");
 var log = new Log();
 (function () {
     var sessionId = session.getId();
+    var billingModule = jagg.module("billing");
+    var isComplimentaryAccount = billingModule.isComplimentaryAccount();
     jagg.render({
                     "name":"page/base",
                     "inputs":{
@@ -16,7 +18,10 @@ var log = new Log();
                                     "title":"Payment Plans",
                                     "middle":[
                                         {
-                                            "name":"billing/plan/get"
+                                            "name":"billing/plan/get",
+                                            "inputs": {
+                                                "isComplimentaryAccount": isComplimentaryAccount
+                                            }
                                         }
                                     ]
                                 }
