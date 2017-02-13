@@ -42,6 +42,10 @@ import com.stripe.model.Subscription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.wso2.carbon.cloud.billing.core.commons.BillingConstants;
 import org.wso2.carbon.cloud.billing.core.commons.CloudBillingServiceProvider;
 import org.wso2.carbon.cloud.billing.vendor.commons.BillingVendorConstants;
@@ -51,6 +55,7 @@ import org.wso2.carbon.cloud.billing.vendor.stripe.utils.APICloudMonetizationUti
 import org.wso2.carbon.cloud.billing.vendor.stripe.utils.CloudBillingVendorUtils;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1113,5 +1118,139 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             LOGGER.error("Error while creating the invoice items : ", ex);
         }
         return response.toString();
+    }
+
+    /**
+     * Retrieve invoice details for PDF invoice
+     *
+     * @param eventId event id
+     * @return JSON string of invoice information
+     */
+    public String getInvoicingDetails(String eventId) throws CloudBillingVendorException {
+
+        JSONArray invoiceArrayList = new JSONArray();
+        JSONObject invoiceDetailObj = new JSONObject();
+        JSONObject invoiceItemObj;
+        DecimalFormat df = new DecimalFormat("#.00");
+        String invoiceLocation = null;
+        try {
+            JSONObject invoiceItemsObj = new JSONObject();
+            double totalDiscount = 0.0;
+            String eventObjString = getEventDetails(eventId);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode eventNode = mapper.readTree(eventObjString);
+            String invoiceId = eventNode.get(BillingVendorConstants.DATA).get(BillingVendorConstants.DATA).get("object")
+                                        .get("invoice").asText();
+            String invoiceString = getInvoiceDetails(invoiceId);
+            JsonNode rawInvoiceObj = APICloudMonetizationUtils.getJsonList(invoiceString);
+            JsonNode rawInvoiceItemsObj = rawInvoiceObj.get("lines").get("data");
+
+            // Getting customer card details
+            JsonNode customerCardObj =
+                    eventNode.get(BillingVendorConstants.DATA).get(BillingVendorConstants.DATA).get("object")
+                             .get("source");
+            invoiceDetailObj
+                    .put(BillingVendorConstants.NAME, customerCardObj.get(BillingVendorConstants.NAME).asText());
+            invoiceDetailObj.put(BillingVendorConstants.ADDRESS_CITY, customerCardObj.get("address_city").asText());
+            invoiceDetailObj.put(BillingVendorConstants.ADDRESS_LINE1, customerCardObj.get("address_line1").asText());
+            invoiceDetailObj.put(BillingVendorConstants.ADDRESS_LINE2, customerCardObj.get("address_line2").asText());
+            invoiceDetailObj.put(BillingVendorConstants.ADDRESS_ZIP, customerCardObj.get("address_zip").asText());
+            invoiceDetailObj
+                    .put(BillingVendorConstants.ADDRESS_COUNTRY, customerCardObj.get("address_country").asText());
+            invoiceDetailObj.put(BillingVendorConstants.EMAIL,
+                                 eventNode.get(BillingVendorConstants.DATA).get(BillingVendorConstants.DATA)
+                                          .get("object").get("receipt_email").asText());
+
+            // Getting the customer organization
+            String billedOrgObjString = getBilledOrganizationName(rawInvoiceObj.get("customer").asText());
+            mapper = new ObjectMapper();
+            JsonNode billedOrgNode = mapper.readTree(billedOrgObjString);
+            invoiceDetailObj
+                    .put(BillingVendorConstants.ORGANIZATION, billedOrgNode.get(BillingVendorConstants.DATA).asText());
+
+            invoiceDetailObj.put(BillingVendorConstants.CUSTOMER_ID, rawInvoiceObj.get("customer").asText());
+            invoiceDetailObj.put(BillingVendorConstants.INVOICE_NUMBER, invoiceId);
+            invoiceDetailObj.put(BillingVendorConstants.INVOICE_DATE,
+                                 convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                                      rawInvoiceObj.get("date").asLong()));
+            invoiceDetailObj.put("amount",
+                                 df.format(rawInvoiceObj.get("amount_due").asDouble() / BillingVendorConstants.CENTS));
+
+            if (rawInvoiceObj.get(BillingVendorConstants.STARTING_BALANCE).getDoubleValue() != 0) {
+                invoiceItemObj = new JSONObject();
+                invoiceItemsObj.put(BillingVendorConstants.SUBSCRIPTION_NAME, "");
+                invoiceItemsObj.put(BillingVendorConstants.SERVICE_PERIOD, "");
+                invoiceItemsObj.put(BillingVendorConstants.CHARGE_DATE, "");
+                invoiceItemsObj.put(BillingVendorConstants.CHARGE_NAME, "Balance brought-forward");
+                invoiceItemsObj.put(BillingVendorConstants.AMOUNT, df.format(
+                        rawInvoiceObj.get("starting_balance").asDouble() / BillingVendorConstants.CENTS));
+                invoiceItemObj.put(BillingVendorConstants.INVOICE_ITEM, invoiceItemsObj);
+                invoiceArrayList.put(invoiceItemObj);
+            }
+
+            for (int x = 0; x < rawInvoiceItemsObj.size(); x++) {
+                invoiceItemObj = new JSONObject();
+                JsonNode selectedRawInvoiceItemsObj = rawInvoiceItemsObj.get(x);
+                invoiceItemsObj = new JSONObject();
+                invoiceItemsObj.put(BillingVendorConstants.CHARGE_NAME,
+                                    selectedRawInvoiceItemsObj.get("description").asText());
+                if (selectedRawInvoiceItemsObj.get("description").isNull()) {
+                    if (!selectedRawInvoiceItemsObj.get("plan").get("statement_descriptor").isNull()) {
+                        invoiceItemsObj.put(BillingVendorConstants.CHARGE_NAME,
+                                            selectedRawInvoiceItemsObj.get("plan").get("statement_descriptor")
+                                                                      .asText());
+                    } else {
+                        invoiceItemsObj.put(BillingVendorConstants.CHARGE_NAME,
+                                            selectedRawInvoiceItemsObj.get("plan").get("name").asText() +
+                                            " Subscription");
+                    }
+                }
+                invoiceItemsObj.put(BillingVendorConstants.SUBSCRIPTION_NAME,
+                                    selectedRawInvoiceItemsObj.get("plan").get("name").asText());
+                invoiceItemsObj.put(BillingVendorConstants.AMOUNT, df.format(
+                        selectedRawInvoiceItemsObj.get("amount").asDouble() / BillingVendorConstants.CENTS));
+                invoiceItemsObj.put(BillingVendorConstants.SERVICE_PERIOD,
+                                    (convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                                          selectedRawInvoiceItemsObj.get("period").get("start")
+                                                                                    .asLong()) + " to " +
+                                     convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                                          selectedRawInvoiceItemsObj.get("period").get("end")
+                                                                                    .asLong())));
+                if (selectedRawInvoiceItemsObj.get("discountable").asBoolean() &&
+                    !rawInvoiceObj.get("discount").isNull()) {
+                    if (rawInvoiceObj.get("discount").get("coupon").get("amount_off").asText() == null) {
+                        totalDiscount = totalDiscount +
+                                        (rawInvoiceObj.get("discount").get("coupon").get("amount_off").asDouble() /
+                                         BillingVendorConstants.CENTS);
+                    } else {
+
+                        totalDiscount = totalDiscount + ((selectedRawInvoiceItemsObj.get("amount").asDouble() *
+                                                          (rawInvoiceObj.get("discount").get("coupon")
+                                                                        .get("percent_off").asDouble() / 100)) /
+                                                         BillingVendorConstants.CENTS);
+                    }
+                }
+                invoiceItemObj.put(BillingVendorConstants.INVOICE_ITEM, invoiceItemsObj);
+                invoiceArrayList.put(invoiceItemObj);
+            }
+            if (totalDiscount != 0) {
+                invoiceItemObj = new JSONObject();
+                invoiceItemsObj = new JSONObject();
+                invoiceItemsObj.put(BillingVendorConstants.SUBSCRIPTION_NAME, "");
+                invoiceItemsObj.put(BillingVendorConstants.SERVICE_PERIOD, "");
+                invoiceItemsObj.put(BillingVendorConstants.CHARGE_DATE, "");
+                invoiceItemsObj.put(BillingVendorConstants.CHARGE_NAME, "Discounted Amount");
+                invoiceItemsObj.put(BillingVendorConstants.AMOUNT, (df.format(-totalDiscount)));
+                invoiceItemObj.put(BillingVendorConstants.INVOICE_ITEM, invoiceItemsObj);
+                invoiceArrayList.put(invoiceItemObj);
+            }
+
+            invoiceDetailObj.put("invoiceItems", invoiceArrayList);
+
+            invoiceLocation = String.valueOf(new JSONObject().put("invoice", invoiceDetailObj));
+        } catch (JSONException | IOException e) {
+            LOGGER.error("Error while creating the invoice items : ", e);
+        }
+        return invoiceLocation;
     }
 }

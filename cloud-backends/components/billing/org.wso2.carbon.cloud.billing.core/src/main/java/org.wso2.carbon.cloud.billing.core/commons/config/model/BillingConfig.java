@@ -45,6 +45,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
     @XmlElement(name = "Crons", nillable = false, required = true) private Crons crons;
 
+    @XmlElement(name = "InvoiceFileLocation", nillable = false, required = true) private String invoiceFileLocation;
+
     public String getBillingVendorClass() {
         return billingVendorClass;
     }
@@ -80,7 +82,12 @@ import javax.xml.bind.annotation.XmlRootElement;
     public CloudType getCloudTypeById(String cloudId) {
         return cloudTypes.getCloudTypeById(cloudId);
     }
+
     public Crons getCrons() {
         return crons;
+    }
+
+    public String getInvoiceFileLocation() {
+        return invoiceFileLocation;
     }
 }

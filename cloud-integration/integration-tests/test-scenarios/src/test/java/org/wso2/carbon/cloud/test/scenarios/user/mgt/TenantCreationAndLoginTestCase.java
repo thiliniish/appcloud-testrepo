@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.cloud.test.scenarios;
+package org.wso2.carbon.cloud.test.scenarios.user.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,7 +45,7 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
 
     private JaggeryAppAuthenticatorClient authenticatorClient;
     private String uuid;
-    private String tenantEmail;
+    public static String tenantEmail;
     private String currentTimeStamp;
 
     private String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
@@ -55,6 +55,8 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
             CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_DOMAIN);
     private static final String tenantEmailSuffix = CloudIntegrationTestUtils
             .getPropertyValue(CloudIntegrationConstants.NEW_TENANT_ADMINUSER);
+    public static String newAdminPassword;
+    public static String newAdminUsername;
 
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
@@ -63,6 +65,11 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
         Long longTimeStamp = calendar.getTimeInMillis();
         currentTimeStamp = longTimeStamp.toString();
         tenantEmail = tenantDomainPrefix + currentTimeStamp + "@" + tenantEmailSuffix;
+        newAdminPassword =
+                CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_ADMINPASSWORD) +
+                currentTimeStamp;
+        newAdminUsername = tenantDomainPrefix + currentTimeStamp + "." + tenantEmailSuffix + "@" + tenantDomainPrefix +
+                           currentTimeStamp;
     }
 
     /**
@@ -70,14 +77,14 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "Check for existence of username") public void checkUsernameExistenceTest()
-            throws Exception {
-        log.info("started username exsitence test case ");
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "isExistingUser");
+    @Test(description = "Check for existence of username") public void checkUsernameExistenceTest() throws Exception {
+        log.info("started username existence test case ");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "isExistingUser");
         params.put("username", tenantEmail);
-        Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
-        Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "false",
+        Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null, false);
+        Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), "{\"error\" : false, \"status\" : 200," +
+                                                                               " \"data\" : false}",
                             "failed to check the user existence");
     }
 
@@ -88,57 +95,55 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "send the invitaion for user", dependsOnMethods = {
+    @Test(description = "send the invitation for user", dependsOnMethods = {
             "checkUsernameExistenceTest" }) public void checkSendInviteTest() throws Exception {
         log.info("started sending invite for user");
-        Map<String, String> params = new HashMap<String, String>();
-        List<String> queryParameters = new ArrayList<String>();
+        Map<String, String> params = new HashMap<>();
+        List<String> queryParameters = new ArrayList<>();
 
-        params.put("action", "sendInvite");
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "sendInvite");
         params.put("email", tenantEmail);
-        Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null);
-        Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), tenantEmail,
+        Map resultMap = HttpHandler.doPostHttps(signUpUrl, params, null, false);
+	    String response = "{\"error\" : false, \"status\" : 200, \"data\" : \"" + tenantEmail + "\"}";
+        Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), response,
                             "user invitation sending failed");
         DbConnectionManager con = new DbConnectionManager(CloudIntegrationConstants.CLOUD_MGT_DATASOURCE);
         queryParameters.add(tenantEmail);
-        ResultSet queryResult =
-                con.runQuery(CloudIntegrationConstants.GET_TEMP_UUID_FOR_REGISTRATION,
-                             queryParameters);
+        ResultSet queryResult = con.runQuery(CloudIntegrationConstants.GET_TEMP_UUID_FOR_REGISTRATION, queryParameters);
         if (queryResult.next()) {
-            uuid = queryResult.getString(1);
+	        uuid = queryResult.getString(1);
         }
         con.closeConnection();
         params.clear();
 
-        params.put("action", "confirmUser");
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "confirmUser");
         params.put("confirm", uuid);
-        Map confirmMap = HttpHandler.doPostHttps(confirmVerificationUrl, params, null);
-        Assert.assertEquals(confirmMap.get("Response"), "add-tenant.jag",
-                            "Adding the user to ldap failed");
+        Map confirmMap = HttpHandler.doPostHttps(confirmVerificationUrl, params, null, false);
+	    response = confirmMap.get("Response").toString();
+	    ArrayList<String> responseData = new ArrayList<>(Arrays.asList(response.split(",")));
+        Assert.assertEquals(responseData.get(2), " \"data\" : \"add-tenant.jag\"", "Adding the user to ldap failed");
     }
 
     /**
-     * After invitation send is successfull tenant creation is tested
+     * After invitation send is successful tenant creation is tested
      *
      * @throws Exception
      */
-    @Test(description = "", dependsOnMethods = {
-            "checkSendInviteTest" }) public void addTenant() throws Exception {
+    @Test(description = "", dependsOnMethods = { "checkSendInviteTest" }) public void addTenant() throws Exception {
         log.info("Adding new Tenant Started");
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "registerOrg");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "registerOrg");
         params.put("companyName", tenantDomainPrefix + currentTimeStamp);
-        params.put("adminPassword", CloudIntegrationTestUtils.getPropertyValue(
-                CloudIntegrationConstants.NEW_TENANT_ADMINPASSWORD) + currentTimeStamp);
-        params.put("usagePlan", CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.NEW_TENANT_USAGE_PLAN));
+        params.put("adminPassword", newAdminPassword);
+        params.put("usagePlan", CloudIntegrationTestUtils.getPropertyValue(
+                CloudIntegrationConstants.NEW_TENANT_USAGE_PLAN));
         params.put("confirmationKey", uuid);
-        params.put("firstName", CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.NEW_TENANT_FIRSTNAME));
-        params.put("lastName", CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.NEW_TENANT_LASTNAME));
-        Map resultMap = HttpHandler.doPostHttps(addTenantUrl, params, null);
-        Assert.assertEquals(resultMap.get("Response"), "true", "Adding new tenant successfull");
+        params.put("firstName", CloudIntegrationTestUtils.getPropertyValue(
+                CloudIntegrationConstants.NEW_TENANT_FIRSTNAME));
+        params.put("lastName",
+                   CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_LASTNAME));
+		    Map resultMap = HttpHandler.doPostHttps(addTenantUrl, params, null, false);
+	    Assert.assertEquals(resultMap.get("Response"), CloudIntegrationConstants.TRUE, "Adding new tenant successful");
 
     }
 
@@ -149,14 +154,9 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      */
     @Test(description = "Login test for the tenant", dependsOnMethods = {
             "addTenant" }) public void loginTest() throws Exception {
-        log.info("started running test case login");
-        boolean loginStatus = authenticatorClient
-                .login(tenantDomainPrefix + currentTimeStamp + "." + tenantEmailSuffix + "@" +
-                       tenantDomainPrefix + currentTimeStamp, CloudIntegrationTestUtils
-                                                                      .getPropertyValue(
-                                                                              CloudIntegrationConstants.NEW_TENANT_ADMINPASSWORD) +
-                                                              currentTimeStamp);
-        Assert.assertTrue(loginStatus, "tenant login failed");
+        log.info("Started running test case login.");
+        boolean loginStatus = authenticatorClient.login(newAdminUsername, newAdminPassword);
+        Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
     }
 
     /**
@@ -164,9 +164,8 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "logout test", dependsOnMethods = {
-            "loginTest" }) public void logoutTest() throws Exception {
-        log.info("started running test case log out");
+    @Test(description = "logout test", dependsOnMethods = { "loginTest" }) public void logoutTest() throws Exception {
+        log.info("Started running test case log out.");
         boolean logOutStatus = authenticatorClient.logout();
         Assert.assertTrue(logOutStatus, "tenant log out failed");
     }

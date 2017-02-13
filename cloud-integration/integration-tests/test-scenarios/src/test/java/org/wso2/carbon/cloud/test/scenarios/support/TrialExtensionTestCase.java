@@ -108,7 +108,7 @@ public class TrialExtensionTestCase extends CloudIntegrationTest {
         params.put("body", emailBody);
         params.put("serviceId", apiCloudSubscriptionName);
         Map resultMap = HttpHandler
-                .doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
+                .doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie(), false);
         String extensionRequestResult =
                 resultMap.get(CloudIntegrationConstants.RESPONSE).toString();
         Assert.assertEquals(extensionRequestResult, CloudIntegrationConstants.STRING_TRUE_RESPONSE,

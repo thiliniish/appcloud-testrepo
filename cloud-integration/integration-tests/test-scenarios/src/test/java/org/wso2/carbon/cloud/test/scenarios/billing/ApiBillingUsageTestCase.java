@@ -35,7 +35,11 @@ import org.wso2.carbon.cloud.integration.test.utils.restclients.JaggeryAppAuthen
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Calendar;
+import java.util.ArrayList;
 
 public class ApiBillingUsageTestCase extends CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(AccountInfoTestCase.class);
@@ -59,21 +63,20 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
                                                                 CloudIntegrationConstants.API_PUBLISHER_LOGIN_URL_SFX);
         loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
         if (loginStatus) {
-            //Checking if the API is already exist in the tenant
-            Map<String, String> paramsApiExist = new HashMap<String, String>();
-            paramsApiExist.put("action", "isAPINameExist");
+            // Checking if the API is already exist in the tenant
+            Map<String, String> paramsApiExist = new HashMap<>();
+            paramsApiExist.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "isAPINameExist");
             paramsApiExist.put("apiName", CloudIntegrationConstants.API_NAME);
-            String apiExistUrl =
-                    apiMgtServerUrl + CloudIntegrationConstants.PUBLISHER_ADD_API_URL_SFX;
-            Map resultIsApiExist = HttpHandler.doPostHttps(apiExistUrl, paramsApiExist,
-                                                           authenticatorClient.getSessionCookie());
-            isApiExist = (String) (new JSONObject(
-                    resultIsApiExist.get(CloudIntegrationConstants.RESPONSE).toString()))
-                    .get("exist");
-            //create the API if API dose not exists
-            if (isApiExist.equalsIgnoreCase("false")) {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("action", "addAPI");
+            String apiExistUrl = apiMgtServerUrl + CloudIntegrationConstants.PUBLISHER_ADD_API_URL_SFX;
+            Map resultIsApiExist =
+                    HttpHandler.doPostHttps(apiExistUrl, paramsApiExist, authenticatorClient.getSessionCookie(), false);
+            isApiExist =
+                    (String) (new JSONObject(resultIsApiExist.get(CloudIntegrationConstants.RESPONSE).toString())).get(
+                            "exist");
+            // Create the API if API dose not exists
+            if (isApiExist.equalsIgnoreCase(CloudIntegrationConstants.FALSE)) {
+                Map<String, String> params = new HashMap<>();
+                params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "addAPI");
                 params.put("name", CloudIntegrationConstants.API_NAME);
                 params.put("context", CloudIntegrationConstants.API_CONTEXT);
                 params.put("visibility", "public");
@@ -93,16 +96,15 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
                 params.put("tiersCollection", "Gold,Bronze");
                 params.put("endpoint_config", CloudIntegrationConstants.API_ENDPOINT);
 
-                String apiCreationUrl =
-                        apiMgtServerUrl + CloudIntegrationConstants.PUBLISHER_ADD_API_URL_SFX;
-                Map result = HttpHandler.doPostHttps(apiCreationUrl, params,
-                                                     authenticatorClient.getSessionCookie());
+                String apiCreationUrl = apiMgtServerUrl + CloudIntegrationConstants.PUBLISHER_ADD_API_URL_SFX;
+                Map result =
+                        HttpHandler.doPostHttps(apiCreationUrl, params, authenticatorClient.getSessionCookie(), false);
                 if (!isOperationSuccess(result)) {
                     log.error("Error occurred while creating the API. " +
                               result.get(CloudIntegrationConstants.RESPONSE).toString());
                 } else {
                     params.clear();
-                    params.put("action", "updateStatus");
+                    params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "updateStatus");
                     params.put("status", "PUBLISHED");
                     params.put("publishToGateway", "true");
                     params.put("requireResubscription", "true");
@@ -110,15 +112,13 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
                     params.put("version", CloudIntegrationConstants.API_VERSION);
                     params.put("provider", tenantAdminUserName);
 
-                    String changeStatusApiUrl = apiMgtServerUrl +
-                                                CloudIntegrationConstants.PUBLISHER_LIFE_CYCLE_URL_SFX;
-                    Map resultOfStatusChange = HttpHandler.doPostHttps(changeStatusApiUrl, params,
-                                                                       authenticatorClient
-                                                                               .getSessionCookie());
+                    String changeStatusApiUrl =
+                            apiMgtServerUrl + CloudIntegrationConstants.PUBLISHER_LIFE_CYCLE_URL_SFX;
+                    Map resultOfStatusChange = HttpHandler
+                            .doPostHttps(changeStatusApiUrl, params, authenticatorClient.getSessionCookie(), false);
                     if (!isOperationSuccess(resultOfStatusChange)) {
                         log.error("Error occurred while changing the API Status. " +
-                                  resultOfStatusChange.get(CloudIntegrationConstants.RESPONSE)
-                                                      .toString());
+                                  resultOfStatusChange.get(CloudIntegrationConstants.RESPONSE).toString());
                     }
 
                     params.clear();
@@ -126,63 +126,62 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
                     //login to the API Store
                     authenticatorClient = new JaggeryAppAuthenticatorClient(apiMgtServerUrl,
                                                                             CloudIntegrationConstants.API_STORE_LOGIN_URL_SFX);
-                    loginStatus =
-                            authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
+                    loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
                     if (loginStatus) {
                         //adding the Application
-                        params.put("action", "addApplication");
+                        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "addApplication");
                         params.put("application", CloudIntegrationConstants.APP_NAME);
                         params.put("tier", "Gold");
                         params.put("description", "Application for the Api");
                         params.put("callbackUrl", "");
 
-                        String ApplicationCreation = apiMgtServerUrl +
+                        String applicationCreationUrl = apiMgtServerUrl +
                                                      CloudIntegrationConstants.STORE_ADD_APPLICATION_URL_SFX;
 
                         Map resultOfAppCreation = HttpHandler
-                                .doPostHttps(ApplicationCreation, params,
-                                             authenticatorClient.getSessionCookie());
+                                .doPostHttps(applicationCreationUrl, params,
+                                             authenticatorClient.getSessionCookie(), false);
                         if (!isOperationSuccess(resultOfAppCreation)) {
                             log.error("Error occurred while creating the application " +
                                       resultOfAppCreation.get(CloudIntegrationConstants.RESPONSE)
                                                          .toString());
                         }
-                        //Subscribe to the API
+                        // Subscribe to the API
                         params.clear();
-                        params.put("action", "addAPISubscription");
+                        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "addAPISubscription");
                         params.put("name", CloudIntegrationConstants.API_NAME);
                         params.put("version", CloudIntegrationConstants.API_VERSION);
                         params.put("provider", tenantAdminUserName);
                         params.put("tier", "Gold");
                         params.put("applicationName", CloudIntegrationConstants.APP_NAME);
 
-                        String subscribeToApi = apiMgtServerUrl +
-                                                CloudIntegrationConstants.STORE_ADD_SUBSCRIPTION_URL_SFX;
+                        String subscribeToApiUrl =
+                                apiMgtServerUrl + CloudIntegrationConstants.STORE_ADD_SUBSCRIPTION_URL_SFX;
 
-                        Map resultSubscribeToAPI = HttpHandler.doPostHttps(subscribeToApi, params,
-                                                                           authenticatorClient
-                                                                                   .getSessionCookie());
+                        Map resultSubscribeToAPI = HttpHandler
+                                .doPostHttps(subscribeToApiUrl, params, authenticatorClient.getSessionCookie(), false);
                         if (resultSubscribeToAPI == null || !isOperationSuccess(resultSubscribeToAPI)) {
                             log.error("Error occurred while subscribing to the Api");
                         }
-                        //Generate Application Keys
+                        // Generate Application Keys
                         params.clear();
-                        params.put("action", "generateApplicationKey");
+                        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "generateApplicationKey");
                         params.put("application", CloudIntegrationConstants.APP_NAME);
                         params.put("keytype", CloudIntegrationConstants.APP_SCOPE);
                         params.put("callbackUrl", "");
                         params.put("authorizedDomains", "ALL");
                         params.put("validityTime", "600");
+                        params.put("tokenScope", "default");
 
-                        String generateApiKeys = apiMgtServerUrl +
+                        String generateApiKeysUrl = apiMgtServerUrl +
                                                  CloudIntegrationConstants.STORE_ADD_SUBSCRIPTION_URL_SFX;
 
-                        Map resultOfKeyGeneration = HttpHandler.doPostHttps(generateApiKeys, params,
+                        Map resultOfKeyGeneration = HttpHandler.doPostHttps(generateApiKeysUrl, params,
                                                                             authenticatorClient
-                                                                                    .getSessionCookie());
+                                                                                    .getSessionCookie(), false);
                         if (resultOfKeyGeneration == null ||
                             !isOperationSuccess(resultOfKeyGeneration)) {
-                            log.error("Error occurred while generating Application Keys ");
+                            log.error("Error occurred while generating Application Keys.");
                         }
 
                     }
@@ -197,9 +196,8 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
     }
 
     private boolean isOperationSuccess(Map result) throws JSONException {
-        return "false"
-                .equals(new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString())
-                                .getString("error"));
+        return "false".equals(
+                new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString()).getString("error"));
     }
 
     /**
@@ -207,8 +205,8 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "Test to validate the api usage") public void test() throws Exception {
-        log.info("started running test case API billing usage");
+    @Test(description = "Test to validate the api usage.") public void billingUsage() throws Exception {
+        log.info("Started running test case API billing usage.");
 
         //date rage for the stats data
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -216,18 +214,16 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
         String today = dateFormat.format(cal.getTime());
         cal.add(Calendar.DATE, -2);
         String twoDaysBack = dateFormat.format(cal.getTime());
-        DbConnectionManager con =
-                new DbConnectionManager(CloudIntegrationConstants.APIM_STATS_DATASOURCE);
+        DbConnectionManager con = new DbConnectionManager(CloudIntegrationConstants.APIM_STATS_DATASOURCE);
         String queryResultLength = null;
         try {
-            List<String> queryParameters = new ArrayList<String>();
-            queryParameters.add(CloudIntegrationTestUtils.getPropertyValue(
-                    CloudIntegrationConstants.TENANT_ADMIN_USER_NAME));
+            List<String> queryParameters = new ArrayList<>();
+            queryParameters
+                    .add(CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_USER_NAME));
             queryParameters.add(twoDaysBack);
             queryParameters.add(today);
 
-            ResultSet queryResult =
-                    con.runQuery(CloudIntegrationConstants.GET_API_STATS_USAGE, queryParameters);
+            ResultSet queryResult = con.runQuery(CloudIntegrationConstants.GET_API_STATS_USAGE, queryParameters);
 
             if (queryResult.next()) {
                 queryResultLength = queryResult.getString(1);
@@ -236,103 +232,95 @@ public class ApiBillingUsageTestCase extends CloudIntegrationTest {
             con.closeConnection();
         }
 
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "getTenantUsage");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "getTenantUsage");
         params.put("fromDate", twoDaysBack);
         params.put("toDate", today);
 
-        String getAPIUsageUrl =
-                cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_API_USAGE;
-        Map result = HttpHandler
-                .doPostHttps(getAPIUsageUrl, params, authenticatorClient.getSessionCookie());
-        JSONObject resultJson =
-                new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
+        String getAPIUsageUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_API_USAGE;
+        Map result = HttpHandler.doPostHttps(getAPIUsageUrl, params, authenticatorClient.getSessionCookie(), false);
+        JSONObject resultJson = new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
         JSONArray usageDataArray = resultJson.getJSONArray("entry");
-        if (isApiExist.equalsIgnoreCase("true") &&
-            (queryResultLength == null || usageDataArray.length() == 0)) {
+        if (isApiExist.equalsIgnoreCase("true") && (queryResultLength == null || usageDataArray.length() == 0)) {
             log.warn("API exist but no stat data available.");
         }
         Assert.assertEquals(queryResultLength, String.valueOf(usageDataArray.length()),
                             " Error in validating the usage data");
-
     }
 
-    @AfterClass(alwaysRun = true) public void invokeAndUnDeployService() throws Exception {
-
+    @AfterClass(alwaysRun = true) public void destroy() throws Exception {
         authenticatorClient.logout();
         super.cleanup();
         //login to the API Store
         authenticatorClient = new JaggeryAppAuthenticatorClient(apiMgtServerUrl,
                                                                 CloudIntegrationConstants.API_STORE_LOGIN_URL_SFX);
         loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
+        Assert.assertEquals(loginStatus, true, "Error occurred while logging to API Store.");
 
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "getAllSubscriptions");
-        String getAppSubscriptionUrl =
-                apiMgtServerUrl + CloudIntegrationConstants.STORE_LIST_SUBSCRIPTION_URL_SFX;
+        if (loginStatus) {
+            Map<String, String> params = new HashMap<>();
+            params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "getAllSubscriptions");
+            String getAppSubscriptionUrl = apiMgtServerUrl + CloudIntegrationConstants.STORE_LIST_SUBSCRIPTION_URL_SFX;
 
-        Map resultAppSubscription = HttpHandler
-                .doPostHttps(getAppSubscriptionUrl, params, authenticatorClient.getSessionCookie());
-        params.clear();
-        JSONObject getAllSubscriptionsObj = new JSONObject(
-                resultAppSubscription.get(CloudIntegrationConstants.RESPONSE).toString());
-        JSONArray array =
-                getAllSubscriptionsObj.getJSONObject("subscriptions").getJSONArray("applications");
-        String prodConsumerKey = "";
-        String prodConsumerSecret = "";
-        //get the relevant application details
-        for (int x = 0; x < array.length(); x++) {
-            JSONObject jsonObject = array.getJSONObject(x);
-            if (CloudIntegrationConstants.APP_NAME.equals(jsonObject.getString("name"))) {
-                prodConsumerKey = jsonObject.getString("prodConsumerKey");
-                prodConsumerSecret = jsonObject.getString("prodConsumerSecret");
-                break;
+            Map resultAppSubscription = HttpHandler.doPostHttps(getAppSubscriptionUrl, params,
+                                                                authenticatorClient.getSessionCookie(), false);
+            params.clear();
+            JSONObject getAllSubscriptionsObj =
+                    new JSONObject(resultAppSubscription.get(CloudIntegrationConstants.RESPONSE).toString());
+            JSONArray applicationArray = getAllSubscriptionsObj.getJSONObject("subscriptions").getJSONArray("applications");
+            String prodConsumerKey = "";
+            String prodConsumerSecret = "";
+            //get the relevant application details
+            for (int x = 0; x < applicationArray.length(); x++) {
+                JSONObject jsonObject = applicationArray.getJSONObject(x);
+                if (CloudIntegrationConstants.APP_NAME.equals(jsonObject.getString("name"))) {
+                    prodConsumerKey = jsonObject.getString("prodConsumerKey");
+                    prodConsumerSecret = jsonObject.getString("prodConsumerSecret");
+                    break;
+                }
             }
+            //encode to the base64, consumerKey:consumerSecret
+            prodConsumerKey = prodConsumerKey.concat(":");
+            String authToken = prodConsumerKey.concat(prodConsumerSecret);
+            byte[] bytesEncodedAuthToken = Base64.encodeBase64(authToken.getBytes());
+            params.put("grant_type", "password");
+            params.put("username", tenantAdminUserName);
+            params.put("password", tenantAdminPassword);
+
+            Map<String, String> paramHeaderMap = new HashMap<>();
+            paramHeaderMap.put("Authorization: Basic", new String(bytesEncodedAuthToken));
+            paramHeaderMap.put("Content-Type", "application/x-www-form-urlencoded");
+
+            String passwordGrantTypeUrl = apiMgrGatewayUrl + CloudIntegrationConstants.API_TOKEN_GENERATION_URL_SFX;
+            Map resultOfPasswordGrantTypeUrl = HttpHandler.doPostHttps(passwordGrantTypeUrl, params,
+                                                                       authenticatorClient.getSessionCookie(),
+                                                                       paramHeaderMap, false);
+            JSONObject responseFromPasswordGrantType =
+                    new JSONObject(resultOfPasswordGrantTypeUrl.get(CloudIntegrationConstants.RESPONSE).toString());
+            String newAccessToken = (String) responseFromPasswordGrantType.get("access_token");
+            params.clear();
+            paramHeaderMap.clear();
+
+            //invoke the Api with the generated access token
+            params.put("PhoneNumber", "180067832");
+            params.put("LicenseKey", "0");
+            String tenantDomain =
+                    CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_DOMAIN);
+
+            String invokeApiUrl = apiMgrGatewayUrl + "/t/" + tenantDomain + "/" +
+                                  CloudIntegrationConstants.API_CONTEXT + "/" +
+                                  CloudIntegrationConstants.API_VERSION + "/CheckPhoneNumber";
+            String authHeaderString = "Bearer ".concat(newAccessToken);
+
+            Map<String, String> headerMap = new HashMap<>();
+            headerMap.put("Authorization:", authHeaderString);
+
+            Map resultOfInvokeApi = HttpHandler
+                    .doPostHttps(invokeApiUrl, params, authenticatorClient.getSessionCookie(), headerMap, false);
+            if (resultOfInvokeApi == null) {
+                log.error("Error occurred while invoking the API.");
+            }
+            authenticatorClient.logout();
         }
-        //encode to the base64, consumerKey:consumerSecret
-        prodConsumerKey = prodConsumerKey.concat(":");
-        String authToken = prodConsumerKey.concat(prodConsumerSecret);
-        byte[] bytesEncodedAuthToken = Base64.encodeBase64(authToken.getBytes());
-
-        params.put("grant_type", "password");
-        params.put("username", tenantAdminUserName);
-        params.put("password", tenantAdminPassword);
-
-        Map<String, String> paramHeaderMap = new HashMap<String, String>();
-        paramHeaderMap.put("Authorization: Basic", new String(bytesEncodedAuthToken));
-        paramHeaderMap.put("Content-Type", "application/x-www-form-urlencoded");
-
-        String passwordGrantTypeUrl =
-                apiMgrGatewayUrl + CloudIntegrationConstants.API_TOKEN_GENERATION_URL_SFX;
-        Map resultOfPasswordGrantTypeUrl = HttpHandler
-                .doPostHttps(passwordGrantTypeUrl, params, authenticatorClient.getSessionCookie(), paramHeaderMap);
-        JSONObject responseFromPasswordGrantType = new JSONObject(
-                resultOfPasswordGrantTypeUrl.get(CloudIntegrationConstants.RESPONSE).toString());
-        String newAccessToken = (String) responseFromPasswordGrantType.get("access_token");
-        params.clear();
-        paramHeaderMap.clear();
-
-        //invoke the Api with the generated access token
-        params.put("PhoneNumber", "180067832");
-        params.put("LicenseKey", "0");
-        String tenantDomain = CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.TENANT_ADMIN_DOMAIN);
-
-        String invokeApi = apiMgrGatewayUrl + "/t/" + tenantDomain + "/" +
-                           CloudIntegrationConstants.API_CONTEXT + "/" +
-                           CloudIntegrationConstants.API_VERSION + "/CheckPhoneNumber";
-        String authHeaderString = "Bearer ".concat(newAccessToken);
-
-        Map<String, String> headerMap = new HashMap<String, String>();
-        headerMap.put("Authorization:", authHeaderString);
-
-        Map resultOfInvokeApi = HttpHandler
-                .doPostHttps(invokeApi, params, authenticatorClient.getSessionCookie(), headerMap);
-        if (resultOfInvokeApi == null) {
-            log.error("Error occurred while generating Application Keys ");
-        }
-
-        authenticatorClient.logout();
     }
-
 }

@@ -29,16 +29,30 @@
 
     <test name="CloudMgt-Tests" preserve-order="true" verbose="2">
         <classes>
-            <class name="org.wso2.carbon.cloud.test.scenarios.members.MemberManagementTestCase"/>
-            <class name="org.wso2.carbon.cloud.test.scenarios.TenantCreationAndLoginTestCase"/>
-            <class name="org.wso2.carbon.cloud.test.scenarios.support.SupportRequestTestCase"/>
+             <class name="org.wso2.carbon.cloud.test.scenarios.members.MemberManagementTestCase"/>
+             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.TenantCreationAndLoginTestCase"/>
+
         </classes>
     </test>
     <test name="Billing-Tests" preserve-order="true" verbose="2">
         <classes>
-            <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase">
+                <methods>
+                    <exclude name="addPaymentMethod"/>
+                    <exclude name="viewPaymentMethods"/>
+                    <exclude name="changePaymentMethod"/>
+                    <exclude name="deletePaymentMethod"/>
+                </methods>
+            </class>
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.AccountInfoTestCase"/>
             <class name="org.wso2.carbon.cloud.test.scenarios.billing.ApiBillingUsageTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.SubscriptionPlanChangeTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.SubscriptionPlanTestCase">
+                <methods>
+                    <exclude name="getBillingSubscriptionPlan"/>
+                    <exclude name="cancelBillingSubscriptionPlan"/>
+                </methods>
+            </class>
         </classes>
     </test>
    <test name="UserManagement-Tests" preserve-order="true" verbose="2">
@@ -47,7 +61,17 @@
             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>
         </classes>
     </test>
-
+    <test name="SelfSign-up-Tests" preserve-order="true" verbose="2">
+        <classes>
+            <class name="org.wso2.carbon.cloud.test.scenarios.selfSignup.SelfSignupTestCase">
+                <methods>
+                        <exclude name="enableSelfSignupWithApprovalRequest"/>
+                        <exclude name="checkSignUpConfiguredForUser"/>
+                        <exclude name="enableSelfSignupWithoutApprovalRequest"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
     <test name="Support" preserve-order="true" verbose="2">
         <classes>
             <class name="org.wso2.carbon.cloud.test.scenarios.support.SupportRequestTestCase"/>

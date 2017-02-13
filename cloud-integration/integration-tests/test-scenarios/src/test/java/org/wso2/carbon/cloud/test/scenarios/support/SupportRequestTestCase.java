@@ -53,8 +53,7 @@ public class SupportRequestTestCase extends CloudIntegrationTest {
     private String jiraCreationStatus;
     private JaggeryAppAuthenticatorClient authenticatorClient;
     private boolean loginStatus;
-    private final String supportUrl =
-            cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_CONTACT_SUPPORT_URL_SFX;
+    private final String supportUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_CONTACT_SUPPORT_URL_SFX;
 
     /**
      * This method will authenticate the tenant and initialize the input parameters.
@@ -65,20 +64,16 @@ public class SupportRequestTestCase extends CloudIntegrationTest {
     public void deployService() throws Exception {
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
         supportRequestActionName = CloudIntegrationConstants.SUPPORT_REQUEST_ACTION_NAME;
-        userEmail = CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_USER_EMAIL);
-        emailSubject = CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_SUBJECT);
-        emailBody = CloudIntegrationTestUtils
-                .getPropertyValue(CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_BODY);
+        userEmail = CloudIntegrationTestUtils.getPropertyValue(
+                CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_USER_EMAIL);
+        emailSubject = CloudIntegrationTestUtils.getPropertyValue(
+                CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_SUBJECT);
+        emailBody = CloudIntegrationTestUtils.getPropertyValue(
+                CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_EMAIL_BODY);
         JiraCreationActionName = CloudIntegrationConstants.JIRA_CREATION_ENABLED_ACTION_NAME;
-        jiraCreationStatus = CloudIntegrationTestUtils
-                .getPropertyValue(
-                        CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_JIRA_CREATION_STATUS);
-
-
+        jiraCreationStatus = CloudIntegrationTestUtils.getPropertyValue(
+                CloudIntegrationConstants.CLOUD_SUPPORT_REQUEST_JIRA_CREATION_STATUS);
         loginStatus = authenticatorClient.login(tenantAdminUserName, tenantAdminPassword);
-
     }
 
     /**
@@ -89,30 +84,23 @@ public class SupportRequestTestCase extends CloudIntegrationTest {
     @Test(description = "Send the support request to the cloud team", dependsOnMethods = {
             "checkJiraCreationEnabled" }) public void sendSupportRequestToCloud() throws Exception {
         log.info("Started the test case to check the function of sending the support request to the cloud team");
-        Assert.assertTrue(loginStatus, "Tenant login failed.");
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", supportRequestActionName);
+        Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, supportRequestActionName);
         params.put("from", userEmail);
         params.put("subject", emailSubject);
         params.put("body", emailBody);
-        Map resultMap = HttpHandler
-                .doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
-        JSONObject supportRequestResult =
-                new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+        Map resultMap = HttpHandler.doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie(), false);
+        JSONObject supportRequestResult = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
         if (supportRequestResult.length() != 0) {
-            String createJiraTicketResult =
-                    supportRequestResult.getString("createJiraTicketResult");
-            String sendSupportEmailResult =
-                    supportRequestResult.getString("sendSupportEmailResult");
-            Assert.assertTrue("success".equals(createJiraTicketResult) ||
-                              "disabled".equals(createJiraTicketResult),
+            String createJiraTicketResult = supportRequestResult.getString("createJiraTicketResult");
+            String sendSupportEmailResult = supportRequestResult.getString("sendSupportEmailResult");
+            Assert.assertTrue("success".equals(createJiraTicketResult) || "disabled".equals(createJiraTicketResult),
                               "Error while creating jira");
-            Assert.assertEquals(sendSupportEmailResult, "true",
-                                "Error while sending support email");
+            Assert.assertEquals(sendSupportEmailResult, "true", "Error while sending support email");
         } else {
             Assert.fail(
-                    "The result returned from the execution of the " + supportRequestActionName +
-                    "method was empty");
+                    "The result returned from the execution of the " + supportRequestActionName + "method was empty");
         }
     }
     /**
@@ -126,16 +114,14 @@ public class SupportRequestTestCase extends CloudIntegrationTest {
         if (log.isDebugEnabled()) {
             log.debug("Making sure Jira creation is enabled/disabled as required.");
         }
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", JiraCreationActionName);
-        Map resultMap = HttpHandler
-                .doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie());
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, JiraCreationActionName);
+        Map resultMap = HttpHandler.doPostHttps(supportUrl, params, authenticatorClient.getSessionCookie(), false);
         Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), jiraCreationStatus,
                             "Please check if the Jira creation is enabled/disabled as required");
     }
 
-    @AfterClass(alwaysRun = true) public void destroy()
-            throws IOException, LogoutAuthenticationExceptionException {
+    @AfterClass(alwaysRun = true) public void destroy() throws IOException, LogoutAuthenticationExceptionException {
         authenticatorClient.logout();
         super.cleanup();
     }

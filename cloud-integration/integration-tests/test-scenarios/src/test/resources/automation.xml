@@ -68,14 +68,14 @@
             <password>wso2carbon</password>
             <driverClassName>org.h2.Driver</driverClassName>
         </datasource>
-        <datasource name="mysql-cloudMgt">
-            <url>jdbc:mysql://localhost:3306/dbCloudMgt</url>
+        <datasource name="mysql-apiStats">
+            <url>jdbc:mysql://localhost:3306/apim_stats</url>
             <username>root</username>
             <password>root</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
         </datasource>
-        <datasource name="mysql-apiStats">
-            <url>jdbc:mysql://localhost:3306/apim_stats</url>
+        <datasource name="mysql-cloudMgt">
+            <url>jdbc:mysql://localhost:3306/dbCloudMgt</url>
             <username>root</username>
             <password>root</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
@@ -134,9 +134,13 @@
         <superTenant>
             <tenant domain="carbon.super" key="superTenant">
                 <admin>
-                    <user key="superAdmin">
+                    <!--<user key="superAdmin">
                         <userName>cloudadmin</userName>
                         <password>cloudadmin</password>
+                    </user>-->
+                    <user key="superAdmin">
+                        <userName>admin</userName>
+                        <password>admin</password>
                     </user>
                 </admin>
                 <users>
@@ -286,23 +290,22 @@
     <!--Cloud Related properties-->
     <cloudProperties>
         <urls>
-            <cloudMgtServerUrl>https://milestones.appfactory.wso2.com:9443</cloudMgtServerUrl>
-            <apiMgtServerUrl>https://localhost:9643</apiMgtServerUrl>
-            <apiGatewayEndpointUrl>https://localhost:8443</apiGatewayEndpointUrl>
-            <identityServerUrl>https://milestones.identity.wso2.com:9444</identityServerUrl>
+            <cloudMgtServerUrl>https://cloudmgt.cloudstaging.wso2.com</cloudMgtServerUrl>
+            <apiMgtServerUrl>https://api.cloudstaging.wso2.com</apiMgtServerUrl>
+            <apiGatewayEndpointUrl>https://gateway.api.cloudstaging.wso2.com</apiGatewayEndpointUrl>
+            <identityServerUrl>https://identity.cloudstaging.wso2.com</identityServerUrl>
         </urls>
         <tenantDetails>
             <Tenant key="defaultTenant">
-
                 <tenantId>1</tenantId>
-                <tenantDomain>company1</tenantDomain>
-                <adminUser>test.wso2.com@company1</adminUser>
-                <adminPassword>testPassword</adminPassword>
+                <tenantDomain>tenantDomain</tenantDomain>
+                <adminUser>adminUser</adminUser>
+                <adminPassword>adminPassword</adminPassword>
                 <users>
                     <user firstName="User" lastName="One" key="user1">
-                        <userName>user1.wso2.com@localcompany1</userName>
-                        <password>Admin@123</password>
-                        <email>user1@wso2.com</email>
+                        <userName>userName</userName>
+                        <password>password</password>
+                        <email>email</email>
                     </user>
 
                     <user firstName="firstname" lastName="lastname" key="commonUser">
@@ -325,11 +328,16 @@
         <billing>
             <payments>
                 <serviceId>api_cloud</serviceId>
-                <productRatePlanId>2c92c0f949aasdc00850149b856d515537b</productRatePlanId>
+                <productRatePlanId>2c92c0f949ac00830149b83db24f1b77</productRatePlanId>
+                <upgradeRatePlanId>2c92c0f949ac00850149b856d515537b</upgradeRatePlanId>
+                <secondaryPaymentMethodId>2c92c0f856300a600156316058da72b6</secondaryPaymentMethodId>
+                <primaryPaymentMethodId>2c92c0f9563013420156315df0705e4f</primaryPaymentMethodId>
+                <accountId>A00001104</accountId>
+                <couponId>coupon_Ace</couponId>
             </payments>
         </billing>
-        <tenantNewUserEmails>aaar@discard.email,bbbr@discard.email</tenantNewUserEmails>
-        <allTenantRoles>devops,cxo,appowner,qa,developer,subscriber,publisher,admin</allTenantRoles>
+        <tenantNewUserEmails>aaaw@discard.email,bbbw@discard.email</tenantNewUserEmails>
+        <allTenantRoles>publisher,subscriber,admin</allTenantRoles>
         <support>
             <userEmail>test@wso2.com</userEmail>
             <jiraCreationEnabled>false</jiraCreationEnabled>

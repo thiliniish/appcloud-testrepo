@@ -53,6 +53,7 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
     private static final String TEMP_PASSWORD = "Admin@321";
 
     private VerificationBean sendNotificationBean;
+    private boolean loginStatus;
 
     /**
      * Before test, Getting user information and generating the confirmation key and user ID required for Step 2 in
@@ -106,10 +107,10 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
 
         //Initiating password reset
         String initiateUrl = cloudMgtServerUrl + CloudIntegrationConstants.INITIATE_PASSWORD_RESET_SFX;
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "initiatePasswordReset");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "initiatePasswordReset");
         params.put("email", email);
-        Map resultMap = HttpHandler.doPostHttps(initiateUrl, params, null);
+        Map resultMap = HttpHandler.doPostHttps(initiateUrl, params, null, false);
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
         Assert.assertFalse(resultObj.getBoolean("error"), "Error occurred while initiating password reset. "
@@ -117,11 +118,11 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
 
         //Verifying the confirmation code send via the email
         String verifyResetUrl = cloudMgtServerUrl + CloudIntegrationConstants.PASSWORD_RESET_VERIFY_SFX;
-        params = new HashMap<String, String>();
-        params.put("action", "verifyPasswordResetConfirmationCode");
+        params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "verifyPasswordResetConfirmationCode");
         params.put("confirm", sendNotificationBean.getNotificationData().getNotificationCode());
         params.put("id", sendNotificationBean.getNotificationData().getUserId());
-        resultMap = HttpHandler.doPostHttps(verifyResetUrl, params, null);
+        resultMap = HttpHandler.doPostHttps(verifyResetUrl, params, null, false);
         resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
 
         Assert.assertFalse(resultObj.getBoolean("error"), "Error occurred while verifying confirmation code for"
@@ -134,13 +135,13 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
 
         //Update password
         String updatePasswordUrl = cloudMgtServerUrl + CloudIntegrationConstants.PASSWORD_UPDATE_SFX;
-        params = new HashMap<String, String>();
-        params.put("action", "updatePasswordWithUserInput");
+        params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "updatePasswordWithUserInput");
         params.put("username", data.getString("userName"));
         params.put("email", data.getString("email"));
         params.put("password", TEMP_PASSWORD);
         params.put("confirmationKey", data.getString("confirmationKey"));
-        resultMap = HttpHandler.doPostHttps(updatePasswordUrl, params, null);
+        resultMap = HttpHandler.doPostHttps(updatePasswordUrl, params, null, false);
         resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
         Assert.assertFalse(resultObj.getBoolean("error"), "Error occurred while updating password. " +
                 resultObj.getString("message"));
@@ -156,25 +157,21 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
      */
     @AfterClass(alwaysRun = true) public void unDeployService() throws Exception {
         JaggeryAppAuthenticatorClient jaggeryAuthClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
-        jaggeryAuthClient.login(userName, password);
-        if (!jaggeryAuthClient.login(userName, TEMP_PASSWORD)) {
-            String msg = "Authentication failure for CloudMgt app while reverting the password after"
-                    + " Reset Password Test for user : " + userName;
-            log.error(msg);
-            throw new Exception(msg);
-        }
+        loginStatus = jaggeryAuthClient.login(userName, TEMP_PASSWORD);
+        String errorMsg = "Authentication failure for CloudMgt app while reverting the password after"
+                     + " Reset Password Test for user : " + userName;
+        Assert.assertTrue(loginStatus, errorMsg);
 
         String url = cloudMgtServerUrl + CloudIntegrationConstants.CHANGE_PASSWORD_URL_SFX;
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "changePassword");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "changePassword");
         params.put("oldPassword", TEMP_PASSWORD);
         params.put("password", password);
-        Map responseMap = HttpHandler.doPostHttps(url, params, jaggeryAuthClient.getSessionCookie());
+        Map responseMap = HttpHandler.doPostHttps(url, params, jaggeryAuthClient.getSessionCookie(), false);
         String result = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
-
         super.cleanup();
-
         Assert.assertEquals(result, "true",
                 "Error occurred while resetting to the old password after change password.");
+        authenticatorClient.logOut();
     }
 }
