@@ -356,7 +356,7 @@ var sendEmail = function(to,link,domain,roles,message) {
     var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
     if (isCustom) {
         var imagePath = getCustomLogoPath();
-        var attachment = {"path": imagePath, "contentType": "image/png", "cid": "<header>"};
+        var attachment = {"path": imagePath, "contentType": "image/png", "cid": "<header>", "fileName": ""};
         jagg.module("util").sendEmailWithAttachment(body, subject + loggedInUserEmail, to, attachment);
     } else {
         jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
