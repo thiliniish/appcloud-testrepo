@@ -230,7 +230,14 @@
     "edit_pwd_url": "edit_pwd_url",
     "update_url": "update_url"
   },
-  "MailCampaignAddUserApi":{
+  "OTAdminServiceApi": {
+    "enable": false,
+    "auth_user": "user",
+    "auth_pass": "password",
+    "serviceURL": "https://localhost/services/"
+  },
+  "OTCloudUserRole": "support.client.CLOUDUSER.user",
+  "MailCampaignAddUserApi": {
     "enable_MailCampaignAddUserApi": false,
     "cloudSignup": "https://local.pardot.com/l/142131/2016-07-27/24cz89",
     "apiCloudSubmission": "https://local.pardot.com/l/142131/2016-07-27/24cz9r",

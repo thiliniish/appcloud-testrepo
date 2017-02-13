@@ -520,6 +520,55 @@ function addUserToOT (email, pass, firstName, lastName) {
 	}
 };
 
+/**
+ * Returns add user to OT clouduser role
+ * @param  email
+ */
+var addUserToOTCloudUserRole = function (email) {
+
+    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var enabled = cloudConfig.OTAdminServiceApi.enable;
+    if (!enabled) {
+        log.info("Adding users to clouduser role disabled");
+        return;
+    }
+    log.info("Adding user [ " + email + " ] to OT cloudUser role");
+    var base64Util = new Packages.org.apache.commons.codec.binary.Base64();
+    var username = cloudConfig.OTAdminServiceApi.auth_user;
+    var password = cloudConfig.OTAdminServiceApi.auth_pass;
+    var cloudUserRole = cloudConfig.OTCloudUserRole;
+    var URL = cloudConfig.OTAdminServiceApi.serviceURL;
+    var ws = require("ws");
+    var updateRolesOfUser = new ws.WSRequest();
+    var encodedCredentials = base64Util.encodeBase64String((new java.lang.String(username + ":" + password)).getBytes()).trim();
+    var authHeaderValue = String("Basic " + encodedCredentials);
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:updateUsersOfRole";
+    options.timeout = 120000;
+    options["HTTPHeaders"] = [
+        {
+            name: "Authorization", value: authHeaderValue
+        }
+    ];
+    var payload = '<p:updateUsersOfRole xmlns:p="http://org.apache.axis2/xsd">' +
+        '<roleName>' + cloudUserRole + '</roleName>' +
+        '<userList>' +
+        '<itemName xmlns="http://common.mgt.user.carbon.wso2.org/xsd">' + email + '</itemName>' +
+        '<selected xmlns="http://common.mgt.user.carbon.wso2.org/xsd">true</selected>' +
+        '</userList>' +
+        '</p:updateUsersOfRole>';
+    try {
+        var endPoint = URL + "UserAdmin";
+        updateRolesOfUser.open(options, endPoint, false);
+        updateRolesOfUser.send(payload);
+        log.info("User [ " + email + " ] is added to OT cloudUser role");
+    } catch (e) {
+        log.error("Error while adding user [ " + email + " ] to OT cloudUser role");
+        log.error(e);
+    }
+};
+
 function updateUserProfileInOT(email, firstName, lastName) {
     try {
         log.info("Updating profile of user [ " + email + " ] in OT");
