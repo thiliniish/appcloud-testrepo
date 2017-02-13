@@ -7,8 +7,6 @@
   "adminRole" : "admin",
   "adminRoleDisplayName" : "Admin",
   "internalRole" : "Internal/",
-  "adminUsername" : "admin",
-  "adminPassword" : "admin",
   "subscriptions": {
     "type": [
       {
@@ -28,9 +26,7 @@
         "urls": {
             "cloudTypeUrl": "https://integration.cloudlocal.wso2.com:9446/appmgt/",
             "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
-        },
-        "adminUsername" : "admin",
-        "adminPassword" : "admin"
+        }
       },
       {
         "id": "api_cloud",
@@ -67,6 +63,30 @@
           "userEmailSubject": "Migrate API Cloud Gateway to a different region",
           "cloudEmailSubject": "Request to migrate API gateway to a different region",
           "cloudEmail": "cloud@wso2.com"
+        }
+      },
+      {
+        "id": "device_cloud",
+        "name": "Device Cloud",
+        "isBeta":true,
+        "logoClass":"fw",
+        "logo": "mobile",
+        "description": "Manage your devices using comprehensive platform with effectively and efficiently.",
+        "serviceType": "commercial",
+        "roleTypes": [
+          {
+            "roleName": "devicemgt_user",
+            "displayRoles": "DeviceMgtUser"
+          },
+          {
+            "roleName": "devicemgt_admin",
+            "displayRoles": "DeviceMgtAdmin"
+          }
+        ],
+
+        "urls": {
+          "cloudTypeUrl": "https://devicemgt.clouddev.wso2.com/devicemgt/",
+          "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
         }
       },
       {

@@ -1090,7 +1090,7 @@ var getTenantUsage = function (fromDate, toDate) {
 // Add to mail campaign
 function addCloudSubmissionToMailCampaign(email, domain, type) {
     var extensionStartDate = new Packages.java.util.Date();
-    var extendedEndDate = addDays(extensionStartDate, parseInt(billingCoreService.getTrialPeriod(type)));
+    var extendedEndDate = addDays(extensionStartDate, parseInt(billingCoreService.getTrialPeriod(type.toLowerCase())));
     var sqlDateFormat = dateTimeFormatter(PARDOT_DATE_FORMAT);
     var expDate = sqlDateFormat.format(extendedEndDate);
     var type = type.substring(0, type.indexOf("_"));
@@ -1121,23 +1121,21 @@ var verifyEventAndSendInvoice = function (id) {
         var eventDataJson = JSON.parse(billingCoreService.callVendorMethod("getEventDetails", id));
         var description = "";
         if (eventDataJson.success) {
-            var invoiceData = getBillingInvoiceData(SUPER_TENANT_ID, eventDataJson.data.data.object.invoice);
-            var orgNameObj = JSON.parse(billingCoreService.getBilledOrganizationName(eventDataJson.data.data.object
-                    .customer));
-            if (orgNameObj.success) {
-                description = orgNameObj.data;
+            var invoiceDetails = JSON.parse(billingCoreService.getInvoicePDFDetails(id));
+            if (invoiceDetails != null) {
+                var attachment = {"path": invoiceDetails.data.attachment.path, "contentType": "application/pdf", "cid": "",
+                    "fileName":invoiceDetails.data.attachment.fileName};
+                var body = invoiceDetails.data.body;
+                var subject = invoiceDetails.data.subject;
+                var to = invoiceDetails.data.to;
+                var bcc = cloudConfig.registrationEmail.from;
+                jagg.module("util").sendEmailWithBCC(body, subject, to, attachment, bcc);
+            } else {
+                log.error("Error occurred while generating invoice for event" + id);
             }
-            var invoiceAddressObj = {};
-            invoiceAddressObj.source = eventDataJson.data.data.object.source;
-            invoiceAddressObj.description = description;
-            invoiceAddressObj.email = eventDataJson.data.data.object.receipt_email;
-            jagg.module("util").sendInvoiceEmail(invoiceData, eventDataJson.data.data.object
-                    .receipt_email, invoiceAddressObj);
-
         } else {
             log.error(eventDataJson.message);
         }
-
     } catch (e) {
         log.error("Error retrieving the event " + e);
         throw Error(e);

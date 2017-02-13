@@ -157,8 +157,6 @@
                     // set subscription info
                     for(var i =0; i< subscriptionDetails.length; i++) {
                        var tempSubs = jQuery.parseJSON(subscriptionDetails[i]);
-                       console.log("temp subs");
-                       console.log(tempSubs);
                        var actionData = '<td><a onclick="loadChangePlanPage(\'' + tempSubs.cloudType + '\')" ><i class="fa fa-edit" ></i> Change Plan</a> &nbsp; ' +
                           '<a onclick="verifyCancel(\'' + tempSubs.cloudType + '\',\'' + tempSubs.serviceId + '\')"><i class="fa fa-times" ></i> Cancel</a> </td></tr>';
                        if (tempSubs.isCancelled == "true") {

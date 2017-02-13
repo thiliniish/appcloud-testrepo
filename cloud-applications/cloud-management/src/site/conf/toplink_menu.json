@@ -79,6 +79,13 @@
           "icon": "fa fa-3x fa-cubes",
           "dropDown": "false",
           "target": "_self"
+        },
+        "Device Cloud": {
+          "id": "device_cloud",
+          "url": "https://devicemgt.clouddev.wso2.com/devicemgt/",
+          "icon": "fa fa-3x fa-mobile",
+          "dropDown": "false",
+          "target": "_blank"
         }
       }
     },

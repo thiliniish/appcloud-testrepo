@@ -416,19 +416,14 @@ function selectRegion(region) {
 }
 
 function setRegions() {
-    var isPaidCustomer = $('#isPaidCustomer').val();
-    if (isPaidCustomer == "true") {
-        var customUrlConfig = JSON.parse($('#customUrlConfig').val());
-        var regionList = customUrlConfig.regionalDeployments;
-        var length = regionList.length;
-        for (var j = 0; j < length; j++) {
-            $("#region").append(new Option(regionList[j].regionName, regionList[j].id));
-        }
-        if(currentRegion != null){
-            $("#region").val(currentRegion);
-        }
-    } else {
-        $('#regionSelectionArea').css("display","none");
+    var customUrlConfig = JSON.parse($('#customUrlConfig').val());
+    var regionList = customUrlConfig.regionalDeployments;
+    var length = regionList.length;
+    for (var j = 0; j < length; j++) {
+        $("#region").append(new Option(regionList[j].regionName, regionList[j].id));
+    }
+    if (currentRegion != null) {
+        $("#region").val(currentRegion);
     }
 }
 

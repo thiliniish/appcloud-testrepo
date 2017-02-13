@@ -27,7 +27,6 @@ function generateResponse() {
                     var email = result.registration.email;
                     var redirectURL = message + '?' + urlPrefix + "&confirmation=" + confirmation + "&email=" + email;
                     var isInvitee = $.parseJSON($('#isInvitee').val());
-                    console.log(isInvitee)
                     if(isInvitee) {
                         redirectURL = redirectURL + "&isInvitee=true"
                     } else {

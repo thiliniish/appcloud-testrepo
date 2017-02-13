@@ -52,8 +52,8 @@ IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomai
     for (var i = 0; i < subscriptionsType.length; i++) {
         if ((subscriptionsType[i].id).equals(serviceId)) {
             cloudTypeUrl = subscriptionsType[i].urls.cloudTypeUrl;
-            adminUsername = subscriptionsType[i].adminUsername;
-            adminPassword = subscriptionsType[i].adminPassword;
+            adminUsername = cloudConfig.SSORelyingParty.adminUser;
+            adminPassword = cloudConfig.SSORelyingParty.adminPassword;
         }
     }
 
@@ -162,7 +162,7 @@ ApiCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
 
 IntegrationCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
     var subscriptionJson = {
-        "headers": ["Applications", "Resources", "Databases", "Scaling"],
+        "headers": ["Applications", "Additional App Types", "Resources", "Databases", "Scaling", "Regional Selection"],
         "entry": [],
         "shortDescription" : []
     };
@@ -179,9 +179,11 @@ IntegrationCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) 
                                         "rental": item.getProperty(BILLING_PLAN_MONTHLY_RENTAL).substring(1),
                                         "values" : [
                                             item.getProperty(BILLING_PLAN_MAX_APPLICATIONS),
+                                            item.getProperty(BILLING_PLAN_ADDITIONAL_APP_TYPES),
                                             item.getProperty(BILLING_PLAN_RESOURCES),
                                             item.getProperty(BILLING_PLAN_MAX_DATABASES),
-                                            item.getProperty(BILLING_PLAN_SCALING)
+                                            item.getProperty(BILLING_PLAN_SCALING),
+                                            item.getProperty(BILLING_PLAN_REGIONAL_SELECTION)
                                         ],
                                         "premiumLevel": item.getProperty(BILLING_PLAN_PREMIUM_LEVEL),
                                         "visibility": item.getProperty(BILLING_PLAN_VISIBILITY),
