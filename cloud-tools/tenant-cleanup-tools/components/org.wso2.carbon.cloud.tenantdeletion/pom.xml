@@ -40,7 +40,6 @@
                 <wso2carbon.version>4.4.7</wso2carbon.version>
                 <um.ws.api.groupId>org.wso2.carbon.identity</um.ws.api.groupId>
                 <um.ws.api.version>5.1.1</um.ws.api.version>
-                <carbon.apimgt.version>6.0.4</carbon.apimgt.version>
             </properties>
         </profile>
         <profile>
@@ -49,7 +48,6 @@
                 <wso2carbon.version>4.4.9</wso2carbon.version>
                 <um.ws.api.groupId>org.wso2.carbon.identity</um.ws.api.groupId>
                 <um.ws.api.version>5.1.1</um.ws.api.version>
-                <carbon.apimgt.version>6.0.4</carbon.apimgt.version>
             </properties>
         </profile>
         <profile>
@@ -57,7 +55,6 @@
             <properties>
                 <um.ws.api.groupId>org.wso2.carbon</um.ws.api.groupId>
                 <um.ws.api.version>4.2.0</um.ws.api.version>
-                <carbon.apimgt.version>[1.2.0, 5.0.4)</carbon.apimgt.version>
             </properties>
         </profile>
     </profiles>
@@ -206,9 +203,9 @@
                             org.apache.commons.lang; version="${imp.pkg.version.commons-lang}",
                             org.apache.axis2.clustering; version="1.6.1.wso2v10",
                             org.apache.axis2.engine; version="1.6.1.wso2v10",
-                            org.wso2.carbon.apimgt.impl; version="${carbon.apimgt.version}";
+                            org.wso2.carbon.apimgt.impl; version="${imp.pkg.version.carbon.apimgt.version}";
                             resolution:=optional,
-                            org.wso2.carbon.apimgt.*; version="${carbon.apimgt.version}";resolution:=optional,
+                            org.wso2.carbon.apimgt.*; version="${imp.pkg.version.carbon.apimgt.version}";resolution:=optional,
                             org.wso2.carbon.governance.api.*; resolution:=optional,
                             javax.xml.xpath,
                             javax.xml.namespace,

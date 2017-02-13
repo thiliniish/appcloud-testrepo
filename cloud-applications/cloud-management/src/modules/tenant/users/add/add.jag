@@ -356,7 +356,7 @@ var sendEmail = function(to,link,domain,roles,message) {
     var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
     if (isCustom) {
         var imagePath = getCustomLogoPath();
-        var attachment = {"path": imagePath, "contentType": "image/png", "cid": "<header>"};
+        var attachment = {"path": imagePath, "contentType": "image/png", "cid": "<header>", "fileName": ""};
         jagg.module("util").sendEmailWithAttachment(body, subject + loggedInUserEmail, to, attachment);
     } else {
         jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
@@ -838,7 +838,7 @@ var getStoreConfirmationLink = function (tenantDomain, prefix) {
     var link = cloudConfig.registrationEmail.targetStoreEpr + prefix + "&tenant=" + tenantDomain;
     var defaultStoreURL = cloudConfig.customUrl.defaultStoreUrl;
     //Get registry mapping
-    var currentMapping = jagg.module("customurl").getCurrentUserMapping(tenantDomain, API_CLOUD_TYPE);
+    var currentMapping = jagg.module("customurl").getCurrentUserMapping(API_CLOUD_TYPE);
     if (currentMapping != null && currentMapping.store.customUrl != defaultStoreURL) {
         var confirmPagePath = cloudConfig.registrationEmail.confirmPagePath;
         link = "https://" + currentMapping.store.customUrl + confirmPagePath + prefix + "&tenant=" + tenantDomain;

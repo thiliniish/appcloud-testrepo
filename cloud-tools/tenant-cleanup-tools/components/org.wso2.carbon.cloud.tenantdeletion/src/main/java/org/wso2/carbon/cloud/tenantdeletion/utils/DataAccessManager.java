@@ -225,6 +225,35 @@ public class DataAccessManager {
     }
 
     /**
+     * Gets all inactive tenant id s along with tenant domain in to a map from database tenant_delete table
+     *
+     * @return tenant id and domain map of all inactive tenants
+     */
+    public Map<String,String> getAllInactiveTenantDomainMap() {
+        Map<String,String> map = new HashMap<String, String>();
+        ResultSet resultSet = null;
+        Statement statement = null;
+        Connection connection = null;
+        try {
+            connection = DataConnectionManager.getCloudMgtDbConnection();
+            statement = connection.createStatement();
+            String query = DeletionQueries.QUERY_GET_ALL_TENANT_IDS_AND_TENANT_DOMAINS_FROM_DELETE_TENANTS_TABLE;
+            resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                map.put(resultSet.getString(DeletionConstants.TENANT_ID),resultSet.getString(DeletionConstants
+                        .TENANT_DOMAIN));
+            }
+        } catch (TenantDeletionException | SQLException e) {
+            LOG.error("Error while executing the query", e);
+        } finally {
+            closeResultSet(resultSet);
+            closeStatement(statement);
+            closeConnection(connection);
+        }
+        return map;
+    }
+
+    /**
      * Removes all data in the delete table
      */
     public void clearTenantDeletionTable() {

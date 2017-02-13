@@ -11,10 +11,11 @@ var DEFAULT_SUBSCRIPTION = "default";
 var DEFAULT_SUBSCRIPTION_NAME = "Common";
 
 var SUBSCRIPTION_API_CLOUD = "api_cloud";
-var SUBSCRIPTION_APP_CLOUD = "app_cloud";
+var SUBSCRIPTION_INTEGRATION_CLOUD = "integration_cloud";
 var API_CLOUD_TYPE = "api-cloud";
-var APP_CLOUD_TYPE = "app-cloud";
+var INTEGRATION_CLOUD_TYPE = "integration-cloud";
 var HTTPS = "https://";
+var DNS_CNAME_RECORD = "CNAME";
 
 var STORE_NODE_TYPE = "store";
 var GATEWAY_NODE_TYPE = "gateway";
@@ -165,7 +166,7 @@ var UNAVAILABLE_ERROR_PAGE = "/site/pages/error-pages/unavailable-error.html";
 var UNAUTHORIZED = "Unauthorized";
 var PROFILE_PAGE = "site/pages/user-profile.jag";
 
-var productIdFromServiceId = {api_cloud: "API Cloud", app_cloud: "APP Cloud"};
+var productIdFromServiceId = {api_cloud: "API Cloud", integration_cloud: "INTEGRATION Cloud"};
 
 var MYSQL_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 var MYSQL_MAX_DATETIME_STRING = "9999-12-31 12:59:59";
@@ -215,6 +216,7 @@ var IFRAME_DESCRIPTION = "Pay securely using Stripe";
 var IFRAME_BUTTON = "Pay Using Stripe";
 
 var THOUSAND = 1000;
+var CHARGE_FAILED_MESSAGE = "Hi Cloud Team, <br> Error has occurred while processing the payment. Please verify.";
 
 //Cloudmgt Related
 var CLOUD_CONTACT_US_URI = "/site/pages/contact-us.jag";
@@ -268,7 +270,7 @@ var TIME_STAMP_SKEW_IN_SECONDS = "300";
 var SUPER_TENANT_ID = -1234;
 var SIGNED_JWT_AUTH_USERNAME = "Username";
 
-//App Cloud REST API related
+//Integration Cloud REST API related
 var SET_COOKIE_HEADER = "Set-Cookie";
 
 //content types

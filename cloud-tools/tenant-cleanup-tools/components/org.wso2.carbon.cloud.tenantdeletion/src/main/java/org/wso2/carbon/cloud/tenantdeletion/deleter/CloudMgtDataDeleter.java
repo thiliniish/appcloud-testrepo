@@ -62,6 +62,7 @@ public class CloudMgtDataDeleter {
         Map<String, Integer> tenantMap;
         boolean deletionCompleted = TenantDeletionMap.getInstance().checkDeletionCompleted(DeletionConstants.CLOUD_MGT);
         if (!deletionCompleted) {
+            LOG.info("Cloud Management deletion started for Tenant Deletion");
             if (deletionLimit != 0) {
                 tenantMap = TenantDeletionMap.getInstance()
                                              .getInactiveTenantMap(DeletionConstants.CLOUD_MGT, deletionLimit);

@@ -39,9 +39,16 @@ public class NginxVhostConstants {
     public static final String CLOUD_TYPE = "cloudType";
     public static final String API_CLOUD_TYPE = "api-cloud";
     public static final String API_STORE_TEMPLATE_NAME = "api-cloud-template";
+    public static final String API_SECURITY_CERTIFICATE_PATH = "api_cloud_security_certificate_file_location";
     public static final String HTTP_API_GATEWAY_TEMPLATE_NAME = "http-api-gateway-template";
     public static final String HTTPS_API_GATEWAY_TEMPLATE_NAME = "https-api-gateway-template";
     public static final String CERTIFICATE_FILE = "cert";
     public static final String KEY_FILE = "key";
     public static final String DEFAULT_ENCODING = "UTF-8";
+    public static final String STORE_CUSTOM_CONFIG = "_store-custom.conf";
+    public static final String GATEWAY_CUSTOM_CONFIG = "_gateway-http-custom.conf";
+    public static final String GATEWAY_HTTPS_CUSTOM_CONFIG = "_gateway-https-custom.conf";
+    public static final String NGINX_CONFIG_PATH = "nginx.api.config.path";
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+
 }

@@ -48,6 +48,8 @@ public class DeletionQueries {
             "SELECT TENANT_ID FROM " + DELETION_TENANTS;
     public static final String QUERY_GET_ALL_TENANT_DOMAINS_FROM_DELETE_TENANTS_TABLE =
             "SELECT TENANT_DOMAIN FROM " + DELETION_TENANTS;
+    public static final String QUERY_GET_ALL_TENANT_IDS_AND_TENANT_DOMAINS_FROM_DELETE_TENANTS_TABLE =
+            "SELECT TENANT_ID,TENANT_DOMAIN FROM " + DELETION_TENANTS;
     public static final String QUERY_EMPTY_DELETE_TABLE = "DELETE FROM " + DELETION_TENANTS;
     public static final String QUERY_REMOVE_TENANTS_FROM_DELETE_LIST =
             "DELETE FROM " + DELETION_TENANTS + " WHERE TENANT_ID = ?";
@@ -66,7 +68,8 @@ public class DeletionQueries {
     //DELETION_STATUS Table
     public static final String QUERY_RESET_DELETION_FLAGS =
             "UPDATE " + DELETION_STATUS + " SET STATUS = 0 WHERE TYPE= ?";
-    public static final String QUERY_GET_DELETION_FLAG_LIST = "SELECT TYPE FROM " + DELETION_STATUS;
+    public static final String QUERY_GET_DELETION_FLAG_LIST =
+            "SELECT TYPE FROM " + DELETION_STATUS + " WHERE TYPE != 'DELETION_LIMIT'";
     public static final String QUERY_GET_DELETION_STATUS_FLAG =
             "SELECT STATUS FROM " + DELETION_STATUS + " WHERE TYPE = ?";
     public static final String QUERY_SET_DELETION_STATUS =

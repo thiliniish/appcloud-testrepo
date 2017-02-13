@@ -1,8 +1,20 @@
 <%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
 jagg.initializer("selfSignup", {
-
     preInitialize:function () {
-
+        //This will check if the session is available before preceeding with the self signup feature
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var cloudMgtUrl = cloudConfig.ServerUrls.cloudmgt;
+        var security = require("sso");
+        var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+        if (session != null && session.getId() != null) {
+            var token = ssoRelyingParty.getSAMLToken(session.getId());
+            if (token == null) {
+                //Redirecting to the cloudmgt url to re-login
+                response.sendRedirect(cloudMgtUrl);
+            }
+        }
     }
 });
 %>

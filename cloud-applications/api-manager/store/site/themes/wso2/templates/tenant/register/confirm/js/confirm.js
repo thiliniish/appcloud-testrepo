@@ -35,12 +35,15 @@ function generateResponse() {
                     }
                     window.location.href = redirectURL;
                 } else {
+                    var organization = $("#tenant").attr('value');
                     jagg.message({
-                        content: 'You have successfully joined the Organization. Please login <a href=' + message +
-                        '>here</a>.', type: 'success', cbk: function () {
-                            window.location.href = message;
-                        }, cbkBtnText: 'Login'
-                    });
+                                     content: organization + ' is hosted in WSO2 Cloud. Looks like the email is already registered at wso2.com. Please use the same password to <a href=' + message + '>log in</a>.',
+                                     type: 'success',
+                                     cbk: function () {
+                                         window.location.href = message;
+                                     },
+                                     cbkBtnText: 'Login'
+                                 });
                 }
             } else {
                 var redirectUrl = requestURL + '?' + urlPrefix;

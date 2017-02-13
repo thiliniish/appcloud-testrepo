@@ -21,7 +21,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
-    String cloudMgtUrl = application.getInitParameter("cloudMgtUrl");
+    //This system property is set in startup script(wso2server.sh)
+    String cloudMgtUrl = System.getProperty("cloudMgt.URL");
     String stat = request.getParameter(Constants.STATUS);
     String statusMessage = request.getParameter(Constants.STATUS_MSG);
     if (stat == null || statusMessage == null) {

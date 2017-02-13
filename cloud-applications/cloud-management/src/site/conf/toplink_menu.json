@@ -25,9 +25,9 @@
           "icon": "fw fw-api",
           "target": "_blank"
         },
-        "App Cloud": {
-          "id": "app_cloud",
-          "url": "https://docs.wso2.com/display/AppCloud/WSO2+App+Cloud+Documentation",
+        "Integration Cloud": {
+          "id": "integration_cloud",
+          "url": "https://docs.wso2.com/display/IntegrationCloud/WSO2+Integration+Cloud+Documentation",
           "icon": "fa fa-cubes",
           "target": "_blank"
         }
@@ -73,12 +73,19 @@
           "dropDown": "false",
           "target": "_self"
         },
-        "App Cloud": {
-          "id": "app_cloud",
+        "Integration Cloud": {
+          "id": "integration_cloud",
           "url": "https://milestones.appfactory.wso2.com:9443/appmgt/",
           "icon": "fa fa-3x fa-cubes",
           "dropDown": "false",
           "target": "_self"
+        },
+        "Device Cloud": {
+          "id": "device_cloud",
+          "url": "https://devicemgt.clouddev.wso2.com/devicemgt/",
+          "icon": "fa fa-3x fa-mobile",
+          "dropDown": "false",
+          "target": "_blank"
         }
       }
     },
@@ -102,7 +109,7 @@
         "target": "_self"
       },
       "Custom URL": {
-        "url": "https://local.cloudmgt.wso2.com:9444/cloudmgt/site/pages/custom_url.jag?cloud-type=api-cloud",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/custom_url.jag?cloud-type=api-cloud",
         "icon": "fa fa-3x fa-link",
         "isDropDown": "false",
         "target": "_self"

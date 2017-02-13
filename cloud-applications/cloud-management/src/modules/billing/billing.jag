@@ -11,6 +11,9 @@ var modDb = jagg.module("database");
 var mdAlgorithm = "SHA-512";
 
 var modManager = jagg.module("manager");
+var modUserManager = jagg.module("user/management");
+var modTenant = jagg.module("tenant");
+var modUtils = jagg.module("util");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
@@ -63,8 +66,8 @@ var notifyMailCampaignForUnfinishedUpgrades = function (cType, domainName) {
         var URL;
         if ("API".equals(type)) {
             URL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeStart;
-        } else if ("APP".equals(type)) {
-            URL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeStart;
+        } else if ("INTEGRATION".equals(type)) {
+            URL = cloudConfig.MailCampaignAddUserApi.integrationCloudUpgradeStart;
         }
         var data = "email=" + email + "&domain_name=" + domainName + "&upgrade_status=0";
         var result = post(URL, data, {}, 'text');
@@ -305,14 +308,17 @@ var createAccount = function (accountData, metaData, organizationName) {
                                 var type = metaData.serviceId.toUpperCase();
                                 type = type.substring(0, type.indexOf("_"));
                                 var email = String(session.get("LOGGED_IN_USER_EMAIL"));
-                                var URL;
+                                var upgradeURL;
+                                var dripURL;
                                 if ("API".equals(type)) {
-                                    URL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeComplete;
-                                } else if ("APP".equals(type)) {
-                                    URL = cloudConfig.MailCampaignAddUserApi.appCloudUpgradeComplete;
+                                    upgradeURL = cloudConfig.MailCampaignAddUserApi.apiCloudUpgradeComplete;
+                                    dripURL = cloudConfig.MailCampaignAddUserApi.removeFromApiCloudDripCampaign;
+                                } else if ("INTEGRATION".equals(type)) {
+                                    upgradeURL = cloudConfig.MailCampaignAddUserApi.integrationCloudUpgradeComplete;
+                                    dripURL = cloudConfig.MailCampaignAddUserApi.removeFromIntegrationCloudDripCampaign;
                                 }
                                 var data = "email=" + email + "&domain_name=" + organizationName + "&upgrade_status=1";
-                                var result = post(URL, data, {}, 'text');
+                                var result = post(upgradeURL, data, {}, 'text');
                                 var msg = result['data'];
                                 var actionString = MAIL_CAMPAIGN + "-" + type + "-Upgrade:";
                                 var page = MAIL_CAMPAIGN;
@@ -320,12 +326,33 @@ var createAccount = function (accountData, metaData, organizationName) {
                                 var events = [];
                                 if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
                                     actionString = actionString + "Success";
-                                    log.info(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' is successful for " +
+                                    log.info(MAIL_CAMPAIGN + " api call '" + type + " Cloud Upgrade Complete' is successful for " +
                                     email);
                                 } else {
                                     actionString = actionString + "Failed";
-                                    log.error(MAIL_CAMPAIGN + " api call 'Cloud Upgrade Complete' failed for the user "
+                                    log.error(MAIL_CAMPAIGN + " api call '" + type + " Cloud Upgrade Complete' failed for the user "
                                     + jagg.getUser() + " " + msg);
+                                }
+                                //Removing all the users from the drip(trial) campaign. Otherwise tenant users (publishers and admins)
+                                //will receive trial mails even after they upgrade.
+
+                                //getting users of tenant
+                                var users = modTenant.getUsersofTenant(tenantDomain);
+                                for (var i = 0; i < users.length; i++) {
+                                    var username = users[i]['userName'];
+                                    var email = users[i]['email'];
+                                    if (modUserManager.isUserInRole(username, ROLE_ADMIN) || modUserManager.isUserInRole(username, ROLE_PUBLISHER)) {
+                                        var data = "email=" + email;
+                                        var result = post(dripURL, data, {}, 'text');
+                                        var msg = result['data'];
+                                        if (MAIL_CAMPAIGN_SUBMISSION_SUCCESS.equals(msg)) {
+                                            log.info(MAIL_CAMPAIGN + " api call '" + type + " Cloud remove from drip campaign' is successful for " +
+                                                email);
+                                        } else {
+                                            log.error(MAIL_CAMPAIGN + " api call '" + type + " Cloud remove from drip campaign' failed for "
+                                                + email + " " + msg);
+                                        }
+                                    }
                                 }
                                 var event = {};
                                 event.item = item;
@@ -649,7 +676,19 @@ var getCurrentSubscription = function (serviceId) {
 };
 var getCustomerDetails = function () {
     var accountId = getAccountId();
-    return JSON.parse(billingCoreService.getCustomerDetails(accountId));
+    if (accountId == null) {
+        var tenantDomain = session.get("TENANT_INFO").tenantDomain;
+        var msg = "No account available for the tenant: " + tenantDomain;
+        log.info(msg);
+        var responseObj = {};
+        responseObj.success = false;
+        responseObj.message = msg;
+        responseObj.data = null;
+        return responseObj;
+    }
+    else {
+        return JSON.parse(billingCoreService.getCustomerDetails(accountId));
+    }
 };
 
 var getAccountInfo = function () {
@@ -657,7 +696,11 @@ var getAccountInfo = function () {
         var accountId = getAccountId();
         return billingCoreService.retrieveAccountInfo(accountId);
     } catch (e) {
-        log.error("Error while getting the billing configurations as JSON");
+        var tenantDomain = null;
+        if ((session.get("TENANT_INFO")) != null) {
+            tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+        }
+        log.error("Error while getting account info for the user : " + jagg.getUser() + ", tenantDomain : " + tenantDomain);
         throw e;
     }
 };
@@ -916,8 +959,8 @@ var extendTrial = function (serviceId, customerRequest) {
                             var URL;
                             if ("API".equals(type)) {
                                 URL = cloudConfig.MailCampaignAddUserApi.apiCloudTrialExtension;
-                            } else if ("APP".equals(type)) {
-                                URL = cloudConfig.MailCampaignAddUserApi.appCloudTrialExtension;
+                            } else if ("INTEGRATION".equals(type)) {
+                                URL = cloudConfig.MailCampaignAddUserApi.integrationCloudTrialExtension;
                             }
                             var result = post(URL, data, {}, 'text');
                             var msg = result['data'];
@@ -1024,39 +1067,68 @@ function addCloudSubmissionToMailCampaign(email, domain, type) {
     }
     if ("API".equals(type)) {
         URL = cloudConfig.MailCampaignAddUserApi.apiCloudSubmission;
-    } else if ("APP".equals(type)) {
-        URL = cloudConfig.MailCampaignAddUserApi.appCloudSubmission;
+    } else if ("INTEGRATION".equals(type)) {
+        URL = cloudConfig.MailCampaignAddUserApi.integrationCloudSubmission;
     }
     var result = post(URL, data, {}, 'text');
     return result;
 }
 
-var verifyEvent = function (id) {
+var verifyEventAndSendInvoice = function (id) {
     try {
         var eventDataJson = JSON.parse(billingCoreService.callVendorMethod("getEventDetails", id));
         var description = "";
         if (eventDataJson.success) {
-            var invoiceData = getBillingInvoiceData(SUPER_TENANT_ID, eventDataJson.data.data.object.invoice);
-            var orgNameObj = JSON.parse(billingCoreService.getBilledOrganizationName(eventDataJson.data.data.object
-                    .customer));
-            if (orgNameObj.success) {
-                description = orgNameObj.data;
+            var invoiceDetails = JSON.parse(billingCoreService.getInvoicePDFDetails(id));
+            if (invoiceDetails != null) {
+                var attachment = {"path": invoiceDetails.data.attachment.path, "contentType": "application/pdf", "cid": "",
+                    "fileName":invoiceDetails.data.attachment.fileName};
+                var body = invoiceDetails.data.body;
+                var subject = invoiceDetails.data.subject;
+                var to = invoiceDetails.data.to;
+                var bcc = cloudConfig.registrationEmail.from;
+                jagg.module("util").sendEmailWithBCC(body, subject, to, attachment, bcc);
+            } else {
+                log.error("Error occurred while generating invoice for event" + id);
             }
-            var invoiceAddressObj = {};
-            invoiceAddressObj.source = eventDataJson.data.data.object.source;
-            invoiceAddressObj.description = description;
-            invoiceAddressObj.email = eventDataJson.data.data.object.receipt_email;
-            jagg.module("util").sendInvoiceEmail(invoiceData, eventDataJson.data.data.object
-                    .receipt_email, invoiceAddressObj);
-
         } else {
             log.error(eventDataJson.message);
         }
-
     } catch (e) {
         log.error("Error retrieving the event " + e);
         throw Error(e);
     }
 };
 
+var verifyEventForFailedPayment = function (id) {
+    try {
+        var eventDataJson = JSON.parse(billingCoreService.callVendorMethod("getEventDetails", id));
+        if (eventDataJson.success) {
+            var subject = "[IMPORTANT] Error occurred while processing the payment";
+            // Send a mail to cloud team
+            var message = CHARGE_FAILED_MESSAGE +
+                    "<br><br> Customer - " + eventDataJson.data.data.object.customer +
+                    "<br> Customer email- " + eventDataJson.data.data.object.receipt_email +
+                    "<br> failure code - " + eventDataJson.data.data.object.failure_code +
+                    "<br> failure message - " + eventDataJson.data.data.object.failure_message;
+            jagg.module("util").sendEmail(message.toString(), subject, cloudConfig.registrationEmail.from);
+
+            //Send mail to the customer and cloud
+            var subjectForCustomer = "Payment For WSO2 Cloud Got Declined";
+            var body = modUtils.getObjFromFile("/site/conf/emails/billing_charge_failed.txt");
+            var dateFormat = dateTimeFormatter(DATE_FORMAT);
+            var date = dateFormat.format(eventDataJson.data.data.object.created * THOUSAND);
+            body = body.replace("{customer}", eventDataJson.data.data.object.source.name)
+                    .replace("{status}", eventDataJson.data.data.object.failure_message)
+                    .replace("{date}", date);
+            modUtils.sendEmail(body, subjectForCustomer, [cloudConfig.registrationEmail.from, eventDataJson
+                    .data.data.object.receipt_email]);
+        } else {
+            log.error(eventDataJson.message);
+        }
+    } catch (e) {
+        log.error("Error occurred while verifying and sending emails for failed payments " + e);
+        throw Error(e);
+    }
+};
 %>

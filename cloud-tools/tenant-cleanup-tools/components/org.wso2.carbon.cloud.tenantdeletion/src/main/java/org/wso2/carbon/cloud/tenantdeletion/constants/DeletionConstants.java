@@ -46,6 +46,8 @@ public class DeletionConstants {
 
     //System Properties
     public static final String API_DELETION_NAP_TIME = "API_DELETION_NAP_TIME";
+    public static final String DELETION_NODE = "deletionNode";
+    public static final String DELETION_NODE_STATUS_TRUE = "true";
 
     //File path
     public static final String TENANT_DELETION_XML_FILE_PATH = "repository/conf/tenant_deletion.xml";

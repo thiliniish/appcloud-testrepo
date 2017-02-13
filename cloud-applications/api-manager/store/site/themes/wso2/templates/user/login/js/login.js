@@ -3,9 +3,7 @@ var login = login || {};
     var loginbox = login.loginbox || (login.loginbox = {});
 
     loginbox.login = function (username, password, url, tenant) {
-        if (username.indexOf("@") != -1) {
-            username = username.replace("@", ".") + "@" + tenant;
-        }
+        username = username + "@" + tenant;
 
         jagg.post("/site/blocks/user/login/ajax/login.jag", { action:"login", username:username, password:password},
                  function (result) {

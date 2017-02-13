@@ -316,12 +316,7 @@ article.main section.separator{
 #server_logs .list_col_content {
     height: 42px;
 }
-.noData-message{
-    color:#666;
-    background: #dfe9eb;
-    padding:10px;
-    font-size:13px;
-}
+
 .container,#home .container{
     border-bottom: none;
     background: transparent;

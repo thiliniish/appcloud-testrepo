@@ -72,7 +72,7 @@ public class EmailSender {
                                        tlsEnabled);
             log.debug(msg);
         }
-        multipart = new MimeMultipart();
+        multipart = new MimeMultipart("related");
         Properties properties = new Properties();
         properties.put(MAIL_SMTP_HOST, host);
         properties.put(MAIL_SMTP_PORT, port);
@@ -321,9 +321,10 @@ public class EmailSender {
      * @param path        File Path of Attachment
      * @param cid         Content-ID
      * @param contentType Content-Type
+     * @param fileName    File-Name
      * @throws CloudMgtException
      */
-    public void addAttachment(String path, String cid, String contentType) throws CloudMgtException {
+    public void addAttachment(String path, String cid, String contentType, String fileName) throws CloudMgtException {
         if (log.isDebugEnabled()) {
             String msg = String.format("Add attachment to email. Attachment : [path : %s, cid: %s, Content-Type: %s]",
                                        path, cid, contentType);
@@ -335,6 +336,7 @@ public class EmailSender {
             messageBodyPart.setDataHandler(new DataHandler(fds));
             messageBodyPart.setHeader(CloudMgtConstants.CONTENT_ID, cid);
             messageBodyPart.setHeader(CloudMgtConstants.CONTENT_TYPE, contentType);
+            messageBodyPart.setFileName(fileName);
             multipart.addBodyPart(messageBodyPart);
         } catch (MessagingException e) {
             String errorMsg = String.format("Error while add attachment to email.Attachment : [path : %s, cid: %s, " +

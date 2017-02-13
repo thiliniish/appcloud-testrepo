@@ -16,14 +16,17 @@ include("/jagg/constants.jag");
     var utilModule = jagg.module("util");
     var cloudConfigFile = utilModule.getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
+    var username = session.get("LOGGED_IN_USER");
 
     if (action == "publishVal") {
         var node = request.getParameter("node");
         var customDomain = request.getParameter("customDomain");
+        var region = request.getParameter("region");
         var sslFile = request.getFile("sslFile");
         var keyFile = request.getFile("keyFile");
         var chainFile = request.getFile("chainFile");
         var cloudProfile = request.getParameter("cloudProfile");
+        var previousRegion = request.getParameter("previousRegion");
 
         try {
             sslFile.open("r");
@@ -38,8 +41,8 @@ include("/jagg/constants.jag");
             var chainFileContent = chainFile.readAll();
             chainFile.close();
 
-            var status = mod.publish(tenantDomain, cloudProfile, node, customDomain, sslFileContent, keyFileContent,
-                    chainFileContent);
+            var status = mod.publish(region, cloudProfile, node, customDomain, sslFileContent,
+                    keyFileContent, chainFileContent, previousRegion);
             print(status);
         } catch (e) {
             var errorMessage = "Error occurred while publishing custom domain value.";
@@ -51,15 +54,15 @@ include("/jagg/constants.jag");
     } else if (action == "validateUrl") {
         var nodeType = request.getParameter("nodeType");
         var customUrl = request.getParameter("customDomain");
-        var pointingUrl = cloudConfigFile.customUrl.apiCloudPointingUrl;
+        var pointingUrl = request.getParameter("pointingUrl");
         var urlValidation = {};
 
         try {
             if(nodeType == APPLICATION_NODE_TYPE) {
-                pointingUrl = cloudConfigFile.customUrl.appCloud.pointingUrl;
+                pointingUrl = cloudConfigFile.customUrl.integrationCloud.pointingUrl;
             }
             if (mod.validateUrl(customUrl, pointingUrl)) {
-                if (mod.isUrlAvailable(customUrl, nodeType, tenantDomain)) {
+                if (mod.isUrlAvailable(customUrl, nodeType)) {
                     urlValidation.error = "false";
                 } else {
                     urlValidation.error = "true";
@@ -79,8 +82,7 @@ include("/jagg/constants.jag");
             response.content = errorMessage;
         }
     } else if (action == "getCurrentMapping") {
-        var tenantDomain = request.getParameter("tenantDomain");
-        var value = mod.getCurrentUserMapping(tenantDomain, cloudType);
+        var value = mod.getCurrentUserMapping(cloudType);
         if (value == null) {
             var jsonObj = {};
             var storeMapping = {};
@@ -91,13 +93,26 @@ include("/jagg/constants.jag");
             jsonObj.gateway = gatewayMapping;
             value = jsonObj;
         }
-    	print(value);
+        print(value);
     } else if (action == "getCustomDomainDetailsForTenant") {
         try {
             var result = mod.getCustomDomainDetailsForTenant();
             print(result);
         } catch (e) {
             var errorMessage = "Error occurred while getting custom domain details for tenant.";
+            log.error(errorMessage);
+            log.error(e);
+            response.status = 500;
+            response.content = errorMessage;
+        }
+    } else if (action == "sendGatewayMigrationEmail") {
+        var region = request.getParameter("region");
+        try {
+            var result = mod.sendGatewayMigrationEmails(region);
+            print(result);
+        } catch (e) {
+            var errorMessage = "Error occurred while sending emails to notify gateway migration for tenant domain - "
+                    + tenantDomain + " user - " + username;
             log.error(errorMessage);
             log.error(e);
             response.status = 500;

@@ -98,12 +98,13 @@
                                         </div>
                                         <% } %>
                                         <div class="username-wrapper">
-                                            <input id="username" name="username" type="text" class="input-username" tabindex="0"
+                                            <input id="username" name="username" type="email" class="input-username"
+                                                   tabindex="0"
                                                    placeholder="Email">
                                         </div>
                                         <div class="password-wrapper">
                                             <input id="password" name="password" type="password" class="input-password"
-                                                   placeholder="Password">
+                                                   placeholder="Password" autocomplete="off">
                                         </div>
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
                                             <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute

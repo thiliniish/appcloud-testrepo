@@ -334,3 +334,9 @@ input[type="text"], input[type="password"] {
     height: 46px;
     margin-top: 7px;
 }
+
+.select-region {
+    border-radius: 0;
+    height: 46px;
+    margin-bottom: 1px;
+}

@@ -279,6 +279,11 @@ var sendEmail = function (body, subject, receiverAddress) {
 };
 
 var sendEmailWithAttachment = function(body, subject, receiverAddress, attachment) {
+    sendEmailWithBCC(body, subject, receiverAddress, attachment, null);
+};
+
+var sendEmailWithBCC = function (body, subject, receiverAddress, attachment, bccAddress) {
+
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var from = cloudConfig.registrationEmail.from;
     var senderEmail = cloudConfig.registrationEmail.username;
@@ -300,46 +305,16 @@ var sendEmailWithAttachment = function(body, subject, receiverAddress, attachmen
     if (receiverAddress == null) {
         receiverAddress = cloudConfig.supportContact.to;
     }
+    if (bccAddress != null) {
+        emailSender.setBCC(bccAddress);
+    }
     emailSender.setTo(receiverAddress);
     emailSender.setSubject(subject);
     emailSender.setHTML(body);
     if (attachment) {
-        emailSender.addAttachment(attachment.path, attachment.cid, attachment.contentType);
+        emailSender.addAttachment(attachment.path, attachment.cid, attachment.contentType, attachment.fileName);
     }
     emailSender.send();
-    return true;
-};
-
-var sendEmailWithBCC = function (body, subject, receiverAddress, bccAddress) {
-
-    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-    var from = cloudConfig.registrationEmail.from;
-    var senderEmail = cloudConfig.registrationEmail.username;
-    var senderPort = parseInt(cloudConfig.registrationEmail.port);
-    var senderPassword = cloudConfig.registrationEmail.password;
-    var senderHost = cloudConfig.registrationEmail.host;
-    var tls = cloudConfig.registrationEmail.tls.toString();
-
-    var email = require('email');
-    var sender;
-    if (tls == "true") {
-        sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword, "tls");
-    } else {
-        sender = new email.Sender(senderHost, senderPort.toString(), senderEmail, senderPassword);
-
-    }
-    sender.from = from;
-    //By default it will send to notifications
-    if (receiverAddress == null) {
-        receiverAddress = cloudConfig.supportContact.to;
-    }
-    if (bccAddress != null) {
-        sender.bcc = bccAddress;
-    }
-    sender.to = receiverAddress;
-    sender.subject = subject;
-    sender.html = body;
-    sender.send();
     return true;
 };
 
@@ -906,5 +881,22 @@ function isCarbonSuperAdmin(username) {
     var isAdmin = realmService.getTenantUserRealm(tenantId).getUserStoreManager().isUserInRole(username, ROLE_ADMIN);
     return isAdmin;
 };
+
+/**
+ Returns the GatewayMigrationProperties from cloudmgt configs
+ */
+function getGatewayMigrationProperties() {
+    var cloudConfigFile = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var gatewayMigrationProperties = null;
+    var type = cloudConfigFile.subscriptions.type;
+    for (var i = 0; i < type.length; i++) {
+        if (type[i].id == SUBSCRIPTION_API_CLOUD) {
+            gatewayMigrationProperties = type[i].gatewayMigrationProperties;
+            break;
+        }
+    }
+    return gatewayMigrationProperties;
+}
+
 %>
 

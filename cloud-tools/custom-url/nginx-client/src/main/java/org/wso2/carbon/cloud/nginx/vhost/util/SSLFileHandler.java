@@ -81,13 +81,13 @@ public class SSLFileHandler {
                    DomainMapperException {
 
         String defaultRegistryLocation =
-                configReader.getProperty("remoteregistry.path") + "api-cloud/" + tenantDomain + "/" +
-                "securityCertificates/" + type + "/" + tenantDomain + "-" + type;
+                configReader.getProperty("remoteregistry.path") + "api-cloud/" + tenantDomain + File.separator +
+                        "securityCertificates/" + configReader.getProperty("region") + File.separator + type +
+                        File.separator + tenantDomain + "-" + type;
 
         String defaultFilePath =
-                configReader.getProperty("api_cloud_security_certificate_file_location") + "/" + tenantDomain +
-                "/" + type + "/SSL-File/" + tenantDomain + "-" + type;
-
+                configReader.getProperty("api_cloud_security_certificate_file_location") + File.separator + tenantDomain
+                        + File.separator + type + "/SSL-File/" + tenantDomain + "-" + type;
         String filePath;
         String registryLocation;
         String fileContent;
@@ -132,7 +132,6 @@ public class SSLFileHandler {
             return file;
         } catch (DomainMapperException ex) {
             String errorMessage = "Error occurred while retrieving file from registry ";
-            log.error(errorMessage, ex);
             throw new DomainMapperException(errorMessage);
         } catch (RegistryException ex) {
             String errorMessage = "Error occurred when retrieving ssl files from registry";
@@ -154,8 +153,8 @@ public class SSLFileHandler {
     }
 
     public void removeSecurityFilesFromLocal(String tenantDomain, String node) throws IOException {
-        String filePath = configReader.getProperty("api_cloud_security_certificate_file_location") + "/" +
-                          tenantDomain + "/" + node;
+        String filePath = configReader.getProperty("api_cloud_security_certificate_file_location") + File.separator +
+                          tenantDomain + File.separator + node;
         File file = new File(filePath);
         if (file.exists()) {
             FileUtils.deleteDirectory(file);
@@ -230,7 +229,6 @@ public class SSLFileHandler {
                 return this.getFileFromRegistry(registryPath);
             } else {
                 String errorMessage = "Requested resource is not available in " + registryPath;
-                log.error(errorMessage);
                 throw new DomainMapperException(errorMessage);
             }
         } catch (RegistryException ex) {

@@ -7,6 +7,36 @@ var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
+var tenantManager = multitenancy.getTenantManager();
+
+/**
+ * Returns whether the user is in the given role or not
+ * @param  username
+ * @param  role
+ * @return boolean if user is in given role or not
+ */
+var isUserInRole = function (username, role) {
+    var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
+    var context = multitenancy.getPrivilegedCarbonContext();
+    try {
+        var tenantAwareUserName = modManager.getTenantAwareUsername(username);
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantId);
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        var realm = realmService.getTenantUserRealm(tenantId);
+        var userStoreManager = realm.getUserStoreManager();
+        var result = userStoreManager.isUserInRole(tenantAwareUserName, role);
+        return result;
+    } catch (e) {
+        log.error(e);
+        log.error("Is user in role check failed for user: " + username + " of tenant: " + tenantDomain);
+        throw "Is user in role check failed for user: " + username + " of tenant: " + tenantDomain;
+    } finally {
+        context.endTenantFlow();
+    }
+};
 
 //method to retrieve user roles
 var getUserRoles = function (username) {
@@ -16,7 +46,6 @@ var getUserRoles = function (username) {
     //the default roles assigned for all users
     var types = cloudConfig.commonRoles;
     var tenantDomain = session.get("LOGGED_IN_USER_TENANT_DOMAIN");
-
     var context = multitenancy.getPrivilegedCarbonContext();
     try {
         context.startTenantFlow();

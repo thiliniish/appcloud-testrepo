@@ -1,7 +1,9 @@
 <%
 jagg.block("customurl", {
-    initialize:function (data) {
+    initialize: function (data) {
+    },
+    getOutputs: function (inputs) {
+        return inputs;
     }
-
 });
 %>

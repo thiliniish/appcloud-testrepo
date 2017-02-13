@@ -20,7 +20,6 @@ package org.wso2.carbon.cloud.userstore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -64,6 +63,13 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName) throws UserStoreException {
         super.doAddUser(doConvert(userName), credential, roleList, claims, profileName);
+    }
+
+    @Override
+    protected void doAddUserValidityChecks(String userName, Object credential){
+        //User is already validated at AbstractUserStoreManager and if we do the validation again username validation
+        //will fails since now the username is in converted format (i.e. user.wso2.com)
+        //Hence doing nothing
     }
 
     @Override
@@ -156,13 +162,7 @@ public class WSO2CloudUserStoreManager extends CloudUserStoreManager {
 
     @Override
     public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
-        String convertedUserName = doConvert(userName);
-        if (!(isUserInRole(convertedUserName, "default")) && (getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
-            String[] roles = { "default" };
-            updateRoleListOfUser(convertedUserName, null, roles);
-            LOGGER.info("Default Role assigned for user : " + convertedUserName);
-        }
-        return super.doAuthenticate(convertedUserName, credential);
+        return super.doAuthenticate(doConvert(userName), credential);
     }
 
     @Override
