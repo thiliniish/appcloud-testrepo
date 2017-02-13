@@ -82,35 +82,32 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
         return new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
     }
 
-    /**
-     * Check if invoices are generated to a specific tenant
-     *
-     * @throws Exception
-     */
-    @Test(description = "Get invoices of the Billing enabled tenant", dependsOnMethods = { "viewAccountInfo" })
-    public void viewInvoices() throws Exception {
-        log.info("Started running test case invoice information.");
-	    JSONObject accountInfoArray = (JSONObject) billingAccountInfo.get("data");
-	    JSONObject invoiceArray = accountInfoArray.getJSONObject("invoicesInformation");
-        Assert.assertNotNull(invoiceArray, "Account dose not contain any invoices");
-        //for (int i = 0; i < invoiceArray.length(); i++) {
-	        Iterator keys = invoiceArray.keys();
-	        while (keys.hasNext()) {
-            Assert.assertNotNull(accountInfoArray.getJSONObject("invoicesInformation")., "Invoice Number cannot" +
-                                                                                               " be empty");
-            String invoiceId = invoiceArray.getJSONObject(i).get("InvoiceId").toString();
-            String invoiceNumber = invoiceArray.getJSONObject(i).get("invoiceNumber").toString();
+	/**
+	 * Check if invoices are generated to a specific tenant
+	 *
+	 * @throws Exception
+	 */
+	@Test(description = "Get invoices of the Billing enabled tenant", dependsOnMethods = { "viewAccountInfo" })
+	public void viewInvoices() throws Exception {
+		log.info("Started running test case invoice information.");
+		JSONObject accountInfoArray = (JSONObject) billingAccountInfo.get("data");
+		JSONObject invoiceArray = accountInfoArray.getJSONObject("data");
+		Assert.assertNotNull(invoiceArray, "Account dose not contain any invoices");
+		for (int i = 0; i < invoiceArray.length(); i++) {
+			Assert.assertNotNull(invoiceArray.getJSONObject(String.valueOf(i)).get("id"), "Invoice Number cannot be empty");
+			String invoiceId = invoiceArray.getJSONObject(String.valueOf(i)).get("id").toString();
+			String invoiceNumber = invoiceArray.getJSONObject(String.valueOf(i)).get("invoiceNumber").toString();
 
-            Map<String, String> params = new HashMap<>();
-            params.put("id", invoiceId);
-            String getInvoiceUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_INVOICE_URL_SFX;
-            Map result = HttpHandler.doPostHttps(getInvoiceUrl, params, authenticatorClient.getSessionCookie(), false);
-            Assert.assertNotNull(result, "User Should have a billing account");
-            JSONObject invoiceObject = new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
-            Assert.assertEquals(invoiceObject.getString("invoiceNumber"), invoiceNumber,
-                                "invoice number should be equal");
-        }
-    }
+			Map<String, String> params = new HashMap<>();
+			params.put("id", invoiceId);
+			String getInvoiceUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_INVOICE_URL_SFX;
+			Map result = HttpHandler.doPostHttps(getInvoiceUrl, params, authenticatorClient.getSessionCookie(), false);
+			Assert.assertNotNull(result, "User Should have a billing account");
+			JSONObject invoiceObject = new JSONObject(result.get(CloudIntegrationConstants.RESPONSE).toString());
+			Assert.assertEquals(invoiceObject.getString("invoiceNumber"), invoiceNumber,
+			                    "invoice number should be equal");
+		}
+	}
 
     /**
      * Update the user contact details
@@ -126,10 +123,7 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
         newContactInfo.put("firstName", "firstName33");
         newContactInfo.put("lastName", "lastName33");
         newContactInfo.put("address1", "address133");
-        //newContactInfo.put("address2", "address233");
         newContactInfo.put("city", "city33");
-        //newContactInfo.put("state", "state33");
-        //newContactInfo.put("postalcode", "zipCode33");
         newContactInfo.put("country", "Sri Lanka33");
         newContactInfo.put("email", "test2@wso2.com33");
 
@@ -137,28 +131,17 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
                             errorMessage);
 
         JSONObject updatedAccountInfo = getAccountInfo();
-	    //log.info("-------------------------------11111 updatedAccountInfo :: "+updatedAccountInfo.toString());
-	    /*JSONObject updatedData = updatedAccountInfo.getJSONObject("data");
-	    JSONObject updatedContactInfo = updatedData.getJSONObject("contactDetails");*/
 	    JSONObject updatedContactInfo = updatedAccountInfo.getJSONObject("data");
-	    //log.info("-------------------------------22222 data :: "+updatedContactInfo.toString());
-	    log.info("-------------------------------33333 contactDetails :: "+updatedContactInfo.getJSONObject("contactDetails"));
         Iterator keys = newContactInfo.keys();
         //verifying if the update is success
-        log.info("----------------------------------------------------------");
         while (keys.hasNext()) {
             String key = (String) keys.next();
             String value = newContactInfo.getString(key);
-            /*if (key.equalsIgnoreCase("email")) {
-                key = "workEmail";
-            }*/
             if (!key.equalsIgnoreCase("responseFrom")) {
-	            log.info("----- "+(updatedContactInfo.getJSONObject("contactDetails")).getString(key)+"  :: "+value);
                 Assert.assertEquals((updatedContactInfo.getJSONObject("contactDetails")).getString(key), value,
                                     (errorMessage + key));
             }
         }
-	    log.info("----------------------------------------------------------");
     }
 
     private String invokeUpdateContactInfo(JSONObject contactInfo) throws Exception {
@@ -182,7 +165,6 @@ public class AccountInfoTestCase extends CloudIntegrationTest {
                 cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_ACCOUNT_DETAILS_ADD_URL_SFX;
         Map result =
                 HttpHandler.doPostHttps(addAccountDetailsUrl, params, authenticatorClient.getSessionCookie(), false);
-	    log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< response : "+result.get(CloudIntegrationConstants.RESPONSE).toString());
         return result.get(CloudIntegrationConstants.RESPONSE).toString();
     }
 

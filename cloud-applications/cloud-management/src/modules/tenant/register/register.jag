@@ -114,7 +114,6 @@ var getConfirmationEmail = function (confirm) {
 };
 
 var registerOrg = function (organizationName, password, usagePlan, confirmationKey, firstName, lastName) {
-    log.info("-------------------------------------------------------------------------------------------------------");
     log.info("Registering the new organization [ " + organizationName + " ]");
     var email;
     var newUser = true;
