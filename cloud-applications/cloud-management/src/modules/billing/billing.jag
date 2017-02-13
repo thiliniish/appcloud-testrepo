@@ -236,16 +236,15 @@ var calculateDiscountForCoupon = function (couponData) {
  *  return {account number}
  */
 var getAccountIdForTenant = function (tenantDomain) {
-    var result = JSON.parse(cloudBillingDAO.getBillingAccountNumber(tenantDomain));
     try {
+        var result = JSON.parse(cloudBillingDAO.getBillingAccountNumber(tenantDomain));
         var accountNumber = result[0]["ACCOUNT_NUMBER"];
-        if (accountNumber == null || accountNumber == "NULL") {
-            return null;
-        } else {
-            return accountNumber;
+        if (accountNumber == "NULL") {
+            accountNumber = null;
         }
+        return accountNumber;
     } catch (e) {
-        log.error("Error reading account number from db for tenantDomain " + tenantDomain);
+        log.error("Error reading account number from db for tenant domain " + tenantDomain);
         log.error(e);
         return null;
     }
@@ -256,7 +255,6 @@ var getAccountIdForTenant = function (tenantDomain) {
  *
  *  returns {subscription details}
  */
-
 var upgradeComplimentaryAccountSubscription = function (accountId) {
     try {
         //End trialing period in complimentary subscription
@@ -264,8 +262,7 @@ var upgradeComplimentaryAccountSubscription = function (accountId) {
         var data = {
             "trial_end": "now"
         };
-        billingCoreService.updateSubscription(subscriptionId, JSON.stringify(data),
-                true);
+        billingCoreService.updateSubscription(subscriptionId, JSON.stringify(data), true);
         //Update subscription plan to new one
         var couponData = session.get("PRODUCT_COUPON_DATA");
         var productRatePlanId = session.get("PRODUCT_PLAN_ID");
@@ -299,9 +296,9 @@ var createSubscription = function (accountId, metaData, accountData, isComplimen
     try {
         var data = populateSubscriptionInfo(accountId, metaData.productRatePlanId, accountData.trialEndDate,
                 isComplimentaryAccount, isComplimentaryAccountUpgrade);
-        var responseSubscriptionCreation = JSON.parse(
+        var subscriptionCreationResponse = JSON.parse(
                 billingCoreService.createSubscription(JSON.stringify(data)));
-        return responseSubscriptionCreation;
+        return subscriptionCreationResponse;
     } catch (e) {
         log.error("Error while creating subscription for account number " + accountId);
         log.error(e);
@@ -331,25 +328,25 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
             var response = JSON.parse(billingCoreService.createCustomer(JSON.stringify(data)));
             accountNumber = response.id;
         }
-        var responseSubscriptionCreation = null;
+        var subscriptionCreationResponse = null;
         if (accountNumber != null) {
             var planName = getPaymentPlanFromId(metaData.serviceId, metaData.productRatePlanId);
             if (isComplimentaryAccount && isComplimentaryAccountUpgrade) {
                 //Add payment method to customer and update contact information
                 updateContactInfo(organizationName, accountData, metaData, isComplimentaryAccount,
                         isComplimentaryAccountUpgrade);
-                if (serviceId == "api_cloud") {
-                    responseSubscriptionCreation = upgradeComplimentaryAccountSubscription(accountNumber);
+                if (serviceId == SUBSCRIPTION_API_CLOUD) {
+                    subscriptionCreationResponse = upgradeComplimentaryAccountSubscription(accountNumber);
                 } else {
-                    responseSubscriptionCreation = createSubscription(accountNumber, metaData, accountData,
+                    subscriptionCreationResponse = createSubscription(accountNumber, metaData, accountData,
                             isComplimentaryAccount, isComplimentaryAccountUpgrade);
                 }
             } else {
-                responseSubscriptionCreation = createSubscription(accountNumber, metaData, accountData,
+                subscriptionCreationResponse = createSubscription(accountNumber, metaData, accountData,
                         isComplimentaryAccount, isComplimentaryAccountUpgrade);
             }
 
-            if (responseSubscriptionCreation.data.subscriptionNumber != null) {
+            if (subscriptionCreationResponse.data.subscriptionNumber != null) {
                 cloudBillingDAO.updateAccountNumberForTenant(accountNumber, tenantDomain);
 
                 var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);

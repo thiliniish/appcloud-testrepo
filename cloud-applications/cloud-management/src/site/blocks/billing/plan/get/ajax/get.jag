@@ -37,16 +37,16 @@ var createAccount = function (serviceId){
             } else {
                 session.put("ACTUAL_PAYMENT_AMOUNT", ratePlanInfo.getProperty("MonthlyRental").substring(1));
             }
-	        if (isFromChangePlan == 'true') {
+            if (isFromChangePlan == 'true') {
                 if (mod.isComplimentaryAccount()) {
                     print("add-payment-method.jag");
                 } else {
                     print("add-billing-account.jag?isFromChangePlan=" + isFromChangePlan);
                 }
-	        } else {
-	            print("add-payment-method.jag");
-	        }
-	    }
+            } else {
+                print("add-payment-method.jag");
+            }
+        }
     }
 };
 
