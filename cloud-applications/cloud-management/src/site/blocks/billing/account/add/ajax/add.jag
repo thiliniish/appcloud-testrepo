@@ -42,6 +42,7 @@ var ratePlans = session.get("RATE_PLANS");
 		metaData.field_passthrough1 = request.getParameter("field_passthrough1");
 		metaData.serviceId = request.getParameter("serviceId");
 		metaData.productRatePlanId = request.getParameter("productRatePlanId");
+		metaData.type = "Paid";
 		responseFrom = request.getParameter("responseFrom");
 		isFirstSubscription = request.getParameter("isFirstSubscription");
 		try {
