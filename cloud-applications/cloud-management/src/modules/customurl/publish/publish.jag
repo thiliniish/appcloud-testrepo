@@ -43,7 +43,7 @@
             }
         }
         //Get current rate plan level
-        var currentRatePlan = billingModule.getCurrentRatePlan();
+        var currentRatePlan = billingModule.getCurrentRatePlan(API_CLOUD_SUBSCRIPTION_ID);
         var ratePlansObj = billingModule.getRatePlans(SUBSCRIPTION_API_CLOUD);
         var ratePlans = ratePlansObj.entry;
         var currentPlanLevel = 0;

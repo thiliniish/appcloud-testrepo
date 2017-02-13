@@ -13,6 +13,7 @@ var DEFAULT_SUBSCRIPTION_NAME = "Common";
 var SUBSCRIPTION_API_CLOUD = "api_cloud";
 var SUBSCRIPTION_INTEGRATION_CLOUD = "integration_cloud";
 var API_CLOUD_TYPE = "api-cloud";
+var API_CLOUD_SUBSCRIPTION_ID = "api_cloud";
 var INTEGRATION_CLOUD_TYPE = "integration-cloud";
 var HTTPS = "https://";
 var DNS_CNAME_RECORD = "CNAME";
