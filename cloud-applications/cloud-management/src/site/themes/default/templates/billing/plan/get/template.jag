@@ -237,7 +237,7 @@
 		    <% if (serviceId == "api_cloud") {%>
 			    <p>"Portal users" are defined as all accounts (email address plus password) that have direct access to Publisher or Developer Portal (API Store) web user interfaces. The actual number of end users of the APIs (for example, users of mobile applications invoking them) is not limited.</p>
 			<% } else if (serviceId == "integration_cloud") { %>
-			<p>All users subscribed to the Integration Cloud can create MSF4J, PHP and Java web applications. Some subscriptions allow you to create additional app types as well (see above).
+			<p>*All users subscribed to the Integration Cloud can create MSF4J, PHP and Java web applications. Some subscriptions allow you to create additional app types as well (see above).
 			Users can create applications up to the maximum permitted number without exceeding the total resource consumption limit.</p>
 			<% } %>
  		</div>
