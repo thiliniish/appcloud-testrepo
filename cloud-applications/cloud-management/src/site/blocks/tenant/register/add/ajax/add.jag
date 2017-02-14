@@ -3,107 +3,107 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 var log = new Log("blocks.tenant.register.add.ajax.add.jag");
 (function () {
-	var action = request.getParameter("action");
-	var site = require("/site/conf/site.json");
-	var mod = jagg.module("tenant");
-	var modContact = jagg.module("contact");
+    var action = request.getParameter("action");
+    var site = require("/site/conf/site.json");
+    var mod = jagg.module("tenant");
+    var modContact = jagg.module("contact");
 
-	if (action == "generateCaptchaFromCloud") {
-		try {
-			var result = mod.generateCaptchaFromCloud();
-			if(result != null ) {
-				print(result);
-			} else {
-				throw "Error while generating captcha";
-			}
-		} catch (e) {
-			throw "Error while generating captcha";
-		}
+    if (action == "generateCaptchaFromCloud") {
+        try {
+            var result = mod.generateCaptchaFromCloud();
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while generating captcha";
+            }
+        } catch (e) {
+            throw "Error while generating captcha";
+        }
 
-	}else if(action=="sendInvite"){
-		log.info("Inside block register");
-		var userName=request.getParameter("username");
-		var token = request.getParameter("token");
-		try {
-			var result = mod.sendInvite(userName, token);
-			if (result != null) {
-				print(result);
-			}
-		} catch(e) {
-			throw "Error sending email to the user  "+userName;
-		}
+    } else if (action == "sendInvite") {
+        log.info("Inside block register");
+        var userName = request.getParameter("username");
+        var token = request.getParameter("token");
+        try {
+            var result = mod.sendInvite(userName, token);
+            if (result != null) {
+                print(result);
+            }
+        } catch (e) {
+            throw "Error sending email to the user  " + userName;
+        }
 
-	} else if (action == "checkDomainAvailability") {
-		var companyId = request.getParameter("companyName");
-		try {
-			var result = mod.checkDomainAvailability(companyId);
-			if(result != null ) {
-				print(result);
-			} else {
-				throw "Error while checking domain validation.";
-			}
-		} catch (e) {
-			throw "Error while checking domain validation.";
-		}
+    } else if (action == "checkDomainAvailability") {
+        var companyId = request.getParameter("companyName");
+        try {
+            var result = mod.checkDomainAvailability(companyId);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while checking domain validation.";
+            }
+        } catch (e) {
+            throw "Error while checking domain validation.";
+        }
 
-	} else if (action == "isExistingUser") {
-		var userName = request.getParameter("userName");
-		try {
-			var result = mod.isExistingUser(userName);
-			if(result != null ) {
-				print(result);
-			} else {
-				throw "Error while checking domain validation.";
-			}
-		} catch (e) {
-			throw "Error while checking domain validation.";
-		}
+    } else if (action == "isExistingUser") {
+        var userName = request.getParameter("userName");
+        try {
+            var result = mod.isExistingUser(userName);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while checking domain validation.";
+            }
+        } catch (e) {
+            throw "Error while checking domain validation.";
+        }
 
-	}  else if (action == "registerOrg") {
-		var companyName = request.getParameter("companyName");
-		var adminPassword = request.getParameter("adminPassword");
-		var usagePlan = request.getParameter("usagePlan");
-		var confirmationKey = request.getParameter("confirmationKey");
-		var firstName = request.getParameter("firstName");
-		var lastName = request.getParameter("lastName");
-		try {
-			var result = mod.registerOrg(companyName, adminPassword, usagePlan, confirmationKey, firstName, lastName);
+    } else if (action == "registerOrg") {
+        var companyName = request.getParameter("companyName");
+        var adminPassword = request.getParameter("adminPassword");
+        var usagePlan = request.getParameter("usagePlan");
+        var confirmationKey = request.getParameter("confirmationKey");
+        var firstName = request.getParameter("firstName");
+        var lastName = request.getParameter("lastName");
+        try {
+            var result = mod.registerOrg(companyName, adminPassword, usagePlan, confirmationKey, firstName, lastName);
 
-			if (result != null) {
-				print(result);
-			} else {
-				throw "Error while registering an organization " + companyName;
-			}
-		} catch (e) {
-			var message = e.toString();
-			var email;
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while registering an organization " + companyName;
+            }
+        } catch (e) {
+            var message = e.toString();
+            var email;
             try {
                 email = session.get('registration-email');
                 var subject = "Tenant creation failed for tenant : " + companyName;
                 var body = "Initial tenant creation failed for newly signed-up user : " + email +
-                  "\n\n Exception occurred while creating tenant: " + companyName + " Email: " + email + " " + e.stack;
+                        "\n\n Exception occurred while creating tenant: " + companyName + " Email: " + email + " " + e.stack;
                 var result = modContact.sendSupportRequest(email, subject, body);
 
             } catch (ex) {
                 log.error("Error while sending email alert for tenant creation failure for organization : " +
-                companyName + " Email: " + email);
+                        companyName + " Email: " + email);
                 log.error(e);
             }
-			if(message.indexOf("Captcha validation failed") !== -1){
-				response.status = 500
-				print("Captcha validation failed");
-			} else if(message.indexOf("Domain is not available to register") !== -1){
-				response.status = 500
-				print("Domain is not available to register");
-			}
-			else {
-				throw "Error while registering an organization " +companyName + e;
-			}
-		}
+            if (message.indexOf("Captcha validation failed") !== -1) {
+                response.status = 500
+                print("Captcha validation failed");
+            } else if (message.indexOf("Domain is not available to register") !== -1) {
+                response.status = 500
+                print("Domain is not available to register");
+            }
+            else {
+                throw "Error while registering an organization " + companyName + e;
+            }
+        }
 
-	} else{
-		throw new Error("No action specified");
-	}
+    } else {
+        throw new Error("No action specified");
+    }
 
 }());
 %>
