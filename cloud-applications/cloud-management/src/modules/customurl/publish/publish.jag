@@ -124,8 +124,14 @@
                 certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
                         region + "/" + node;
             } else {
-                certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
-                        node;
+                // this fix is added to avoid changes in haproxy. This will be properly fixed after changing haproxy.
+                if (cloudProfile == 'integration-cloud') {
+                    certsRegistryPath = registryPath + "app-cloud/" + tenantDomain + "/securityCertificates/" +
+                            node;
+                } else {
+                    certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
+                            node;
+                }
             }
             registry.beginTransaction();
             if (registry.resourceExists(registryPath + cloudProfile + "/" + tenantDomain)) {
