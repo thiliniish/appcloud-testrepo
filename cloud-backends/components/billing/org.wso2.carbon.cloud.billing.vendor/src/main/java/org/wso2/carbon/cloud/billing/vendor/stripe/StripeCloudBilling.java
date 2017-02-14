@@ -79,7 +79,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         setApiKey();
     }
 
-    private final void setApiKey () {
+    private final void setApiKey() {
         Stripe.apiKey =
                 BillingVendorConfigUtils.getBillingVendorConfiguration().getAuthenticationApiKeys().getSecretKey();
     }
@@ -109,9 +109,11 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         }
     }
 
-    /**ls
-     *
+    /**
+     * ls
+     * <p/>
      * Retrieve customer detai
+     *
      * @param customerId customer id
      * @return json string of customer information
      */
@@ -825,12 +827,14 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             // Validate if customer details are successfully retrieved
             if (Boolean.parseBoolean(customerObj.get(BillingVendorConstants.RESPONSE_SUCCESS).toString())) {
                 JsonObject accountSummaryObj = new JsonObject();
-                JsonObject subscriptionDetailsObj = new JsonObject();
                 JsonObject defaultPaymentMethodObj = new JsonObject();
                 JsonObject contactInformationObj = new JsonObject();
                 ArrayList<String> invoiceArrayList = new ArrayList<String>();
                 ArrayList<String> paymentArrayList = new ArrayList<String>();
+                ArrayList<String> subscriptionArrayList = new ArrayList<String>();
 
+                accountSummaryObj
+                        .addProperty("id", customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("id").asText());
                 accountSummaryObj.addProperty("accountName",
                                               customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("description")
                                                          .asText());
@@ -840,16 +844,28 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                                               customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("currency")
                                                          .asText());
 
-                JsonNode subscriptionNode =
-                        customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("subscriptions").get("data").get(0);
-                subscriptionDetailsObj.addProperty("serviceName", subscriptionNode.get("plan").get("name").asText());
-                subscriptionDetailsObj.addProperty("startDate", convertUnixTimestamp(
-                        BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("start").asLong()));
-                subscriptionDetailsObj.addProperty("endDate", convertUnixTimestamp(
-                        BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("ended_at").asLong()));
-                subscriptionDetailsObj.addProperty("status", subscriptionNode.get("status").asText());
-                subscriptionDetailsObj
-                        .addProperty("isCancelled", subscriptionNode.get("cancel_at_period_end").asText());
+                JsonNode subscriptionNodes =
+                        customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("subscriptions").get("data");
+
+                for (int i = 0; i < subscriptionNodes.size(); i++) {
+                    JsonNode subscriptionNode = subscriptionNodes.get(i);
+                    JsonObject subscriptionItemObj = new JsonObject();
+                    subscriptionItemObj.addProperty("serviceId", subscriptionNode.get("plan").get("id").asText());
+                    subscriptionItemObj.addProperty("serviceName", subscriptionNode.get("plan").get("name").asText());
+                    subscriptionItemObj.addProperty("startDate", convertUnixTimestamp(
+                            BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY, subscriptionNode.get("start").asLong()));
+                    subscriptionItemObj.addProperty("endDate", convertUnixTimestamp(
+                            BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                            subscriptionNode.get("ended_at").asLong()));
+                    subscriptionItemObj.addProperty("status", subscriptionNode.get("status").asText());
+                    subscriptionItemObj
+                            .addProperty("isCancelled", subscriptionNode.get("cancel_at_period_end").asText());
+                    if (subscriptionNode.get("plan").get("metadata").get("cloud_type") != null) {
+                        subscriptionItemObj.addProperty("cloudType",
+                                subscriptionNode.get("plan").get("metadata").get("cloud_type").asText());
+                    }
+                    subscriptionArrayList.add(subscriptionItemObj.toString());
+                }
 
                 // payment Details
                 JsonNode paymentNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("sources").get
@@ -876,51 +892,58 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
 
                 // Customer Details
                 JsonNode contactDetailsNode = customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("shipping");
-                contactInformationObj.addProperty("name", contactDetailsNode.get("name").asText());
-                contactInformationObj.addProperty("firstName",
-                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
-                                                             .get("firstName").asText());
-                contactInformationObj.addProperty("lastName",
-                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
-                                                             .get("lastName").asText());
-                contactInformationObj.addProperty("state", contactDetailsNode.get("address").get("state").asText());
-                contactInformationObj.addProperty("city", contactDetailsNode.get("address").get("city").asText());
-                contactInformationObj.addProperty("country", contactDetailsNode.get("address").get("country").asText
-                        ());
-                contactInformationObj
-                        .addProperty("postalcode", contactDetailsNode.get("address").get("postal_code").asText());
-                contactInformationObj.addProperty("address1", contactDetailsNode.get("address").get("line1").asText());
-                contactInformationObj.addProperty("address2", contactDetailsNode.get("address").get("line2").asText());
-                contactInformationObj.addProperty("email",
-                                                  customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("email")
-                                                             .asText());
+                if (!contactDetailsNode.isNull()) {
+                    contactInformationObj.addProperty("name", contactDetailsNode.get("name").asText());
+                    contactInformationObj.addProperty("firstName",
+                            customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
+                                    .get("firstName").asText());
+                    contactInformationObj.addProperty("lastName",
+                            customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("metadata")
+                                    .get("lastName").asText());
+                    contactInformationObj.addProperty("state", contactDetailsNode.get("address").get("state").asText());
+                    contactInformationObj.addProperty("city", contactDetailsNode.get("address").get("city").asText());
+                    contactInformationObj.addProperty("country", contactDetailsNode.get("address").get("country").asText
+                            ());
+                    contactInformationObj
+                            .addProperty("postalcode", contactDetailsNode.get("address").get("postal_code").asText());
+                    contactInformationObj.addProperty("address1",
+                            contactDetailsNode.get("address").get("line1").asText());
+                    contactInformationObj.addProperty("address2",
+                            contactDetailsNode.get("address").get("line2").asText());
+                    contactInformationObj.addProperty("email",
+                            customerObj.get(BillingVendorConstants.RESPONSE_DATA).get("email")
+                                    .asText());
+                }
 
-                for (int x = 0; x < invoiceObj.get("data").size(); x++) {
-                    JsonNode invoiceItem = invoiceObj.get("data").get(x);
-                    JsonObject invoiceItemObj = new JsonObject();
-                    JsonObject chargeItemObj = new JsonObject();
-                    invoiceItemObj.addProperty("date",
-                                               convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
-                                                                    invoiceItem.get("date").asLong()));
-                    invoiceItemObj.addProperty("InvoiceId", invoiceItem.get("id").asText());
-                    invoiceItemObj.addProperty("TargetDate",
-                                               convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
-                                                                    invoiceItem.get("period_end").asLong()));
-                    invoiceItemObj.addProperty("Amount", invoiceItem.get("total").asText());
-                    invoiceItemObj.addProperty("paid", invoiceItem.get("paid").asText());
-                    invoiceArrayList.add(invoiceItemObj.toString());
-                    if (!invoiceItem.get("charge").isNull()) {
-                        //get ChargeObject
-                        String chargeDetails = getChargedDetails(invoiceItem.get("charge").asText());
-                        JsonNode chargeObj = APICloudMonetizationUtils.getJsonList(chargeDetails);
-                        chargeItemObj.addProperty("type", chargeObj.get("data").get("source").get("object").asText());
-                        chargeItemObj.addProperty("effectiveDate", convertUnixTimestamp(
-                                BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
-                                chargeObj.get("data").get("created").asLong()));
-                        chargeItemObj.addProperty("paymentNumber", chargeObj.get("data").get("id").asText());
-                        chargeItemObj.addProperty("invoiceNumber", invoiceItem.get("id").asText());
-                        chargeItemObj.addProperty("Status", chargeObj.get("data").get("status").asText());
-                        paymentArrayList.add(chargeItemObj.toString());
+                if (invoiceObj != null) {
+                    for (int x = 0; x < invoiceObj.get("data").size(); x++) {
+                        JsonNode invoiceItem = invoiceObj.get("data").get(x);
+                        JsonObject invoiceItemObj = new JsonObject();
+                        JsonObject chargeItemObj = new JsonObject();
+                        invoiceItemObj.addProperty("date",
+                                convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                        invoiceItem.get("date").asLong()));
+                        invoiceItemObj.addProperty("InvoiceId", invoiceItem.get("id").asText());
+                        invoiceItemObj.addProperty("TargetDate",
+                                convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                        invoiceItem.get("period_end").asLong()));
+                        invoiceItemObj.addProperty("Amount", invoiceItem.get("total").asText());
+                        invoiceItemObj.addProperty("paid", invoiceItem.get("paid").asText());
+                        invoiceArrayList.add(invoiceItemObj.toString());
+                        if (!invoiceItem.get("charge").isNull()) {
+                            //get ChargeObject
+                            String chargeDetails = getChargedDetails(invoiceItem.get("charge").asText());
+                            JsonNode chargeObj = APICloudMonetizationUtils.getJsonList(chargeDetails);
+                            chargeItemObj.addProperty("type",
+                                    chargeObj.get("data").get("source").get("object").asText());
+                            chargeItemObj.addProperty("effectiveDate", convertUnixTimestamp(
+                                    BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
+                                    chargeObj.get("data").get("created").asLong()));
+                            chargeItemObj.addProperty("paymentNumber", chargeObj.get("data").get("id").asText());
+                            chargeItemObj.addProperty("invoiceNumber", invoiceItem.get("id").asText());
+                            chargeItemObj.addProperty("Status", chargeObj.get("data").get("status").asText());
+                            paymentArrayList.add(chargeItemObj.toString());
+                        }
                     }
 
                 }
@@ -931,8 +954,11 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 st = new Gson().toJson(paymentArrayList);
                 JsonArray paymentJsonObject = (new JsonParser()).parse(st).getAsJsonArray();
 
+                st = new Gson().toJson(subscriptionArrayList);
+                JsonArray subscriptionJsonObject = (new JsonParser()).parse(st).getAsJsonArray();
+
                 accountInfo.add("accountSummary", accountSummaryObj);
-                accountInfo.add("subscriptionDetails", subscriptionDetailsObj);
+                accountInfo.add("subscriptionDetails", subscriptionJsonObject);
                 accountInfo.add("defaultPaymentDetails", defaultPaymentMethodObj);
                 accountInfo.add("contactDetails", contactInformationObj);
                 accountInfo.add("invoicesInformation", invoiceJsonObject);
@@ -1094,12 +1120,12 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      * Create invoice Item
      *
      * @param invoiceInfoJson customer details
-     *                         {
-     *                         "customer": "cus_xxx",
-     *                         "amount": 0,
-     *                         "currency": "usd",
-     *                         "description": "WSO2 Customer"
-     *                         }
+     *                        {
+     *                        "customer": "cus_xxx",
+     *                        "amount": 0,
+     *                        "currency": "usd",
+     *                        "description": "WSO2 Customer"
+     *                        }
      * @return success Json string
      * @throws CloudBillingVendorException
      */

@@ -24,8 +24,8 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/",
-          "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
+            "cloudTypeUrl": "https://integration.cloudlocal.wso2.com:9446/appmgt/",
+            "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
         }
       },
       {
@@ -51,6 +51,8 @@
           "storeUrl": "https://milestones.appfactory.wso2.com:9643/store",
           "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
         },
+        "adminUsername" : "admin",
+        "adminPassword" : "admin",
         "regionSelection": [
           {
             "premiumLevel": 2,

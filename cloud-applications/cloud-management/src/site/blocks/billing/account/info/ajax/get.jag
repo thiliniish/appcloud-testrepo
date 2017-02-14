@@ -16,9 +16,13 @@ var mod = jagg.module("billing");
     }
 
 	var action = request.getParameter("action");
-    var response = mod.getAccountInfo();
-    print(response);
-
-
+    if (action == "get-billing-account") {
+        var response = mod.getAccountInfo();
+        print(response);
+    } else if (action == "getCancelSubscriptionEffectiveDate") {
+        var serviceId = request.getParameter("serviceId");
+        var result = mod.getCancelSubscriptionEffectiveDate(serviceId);
+        print(result);
+    }
 }());
 %>

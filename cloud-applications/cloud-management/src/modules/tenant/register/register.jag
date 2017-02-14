@@ -134,9 +134,19 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
         email = tmpUser.email;
         newUser = false;
     }
+    return createTenant(organizationName, password, usagePlan, firstName, lastName, email, adminUserName, false);
+};
+
+/**
+ * Method to create tenant for user
+ *
+ * returns {}
+ */
+var createTenant = function (organizationName, password, usagePlan, firstName, lastName, email, adminUserName,
+                             isComplimentaryAccount) {
     log.info("User information to register [ Username: " + adminUserName + ", First Name: " + firstName + ", Last" +
             " Name: " + lastName + ", Email: " + email + " ]");
-    newUser = !modManager.isExistingUser(adminUserName);
+    newUser = (!isComplimentaryAccount && !modManager.isExistingUser(adminUserName));
     var organizationDomain = getCompanyId(organizationName);
     session.put("TENANT_DOMAIN", organizationDomain);
     log.info("Organization information to register [ Display Name: " + organizationName + ", Tenant Domain: " +

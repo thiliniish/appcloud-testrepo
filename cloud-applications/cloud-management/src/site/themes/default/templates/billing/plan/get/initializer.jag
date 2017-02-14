@@ -4,25 +4,24 @@ jagg.initializer("billing/plan/get", {
         // UI related CSS files
         jagg.addHeaderCSS("plan/get", "billing.css", "new-assets/css/billing.css");
 
-        var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
-        if (isBillingEnabled) {
-        var serviceId = session.get("SERVICE_ID");
-        var tenantInfo = session.get("TENANT_INFO");
-        if (serviceId == null && request.getParameter("cloud-type") != null) {
+        var serviceId = null;
+        if (request.getParameter("cloud-type") != null) {
             serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
-        } else if (serviceId == null && request.getParameter("cloud-type") == null ){
+        } else if (request.getParameter("cloud-type") == null) {
             response.sendRedirect("../pages/index.jag");
         }
-        if(serviceId !=null ) {
+        if (serviceId != null) {
+            var isBillingEnabled = jagg.module("billing").isBillingEnabled(serviceId);
+            if (!isBillingEnabled) {
+                response.sendRedirect("../pages/error-pages/unavailable-error.html");
+            }
             session.put("SERVICE_ID", serviceId);
         } else {
             response.sendRedirect("../pages/index.jag");
         }
+        var tenantInfo = session.get("TENANT_INFO");
         if (tenantInfo != null && !jagg.module("util").isUserInAdminRole()) {
             response.sendRedirect("../pages/index.jag");
-        }
-        } else {
-            response.sendRedirect("../pages/error-pages/unavailable-error.html");
         }
         // Custom JS file
         jagg.addFooterJS("plan/get", "get-plan", "templates/billing/plan/get/js/get-plan.js");
