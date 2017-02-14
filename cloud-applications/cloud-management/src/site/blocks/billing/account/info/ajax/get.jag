@@ -23,8 +23,6 @@ var mod = jagg.module("billing");
         var serviceId = request.getParameter("serviceId");
         var result = mod.getCancelSubscriptionEffectiveDate(serviceId);
         print(result);
-    } else {
-
     }
 }());
 %>

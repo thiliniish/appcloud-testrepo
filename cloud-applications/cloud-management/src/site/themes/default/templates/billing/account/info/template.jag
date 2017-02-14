@@ -318,7 +318,7 @@
                             noCallback:function(){}
                         });
                 }, function (jqXHR, textStatus, errorThrown) {
-                    //jagg.message({type:'error',content:"Unable to cancel the subscription at the moment. Please contact WSO2 Cloud Team for help. "});
+                    jagg.message({type:'error',content:"Unable to cancel the subscription at the moment. Please contact WSO2 Cloud Team for help. "});
                 });
         }
 
