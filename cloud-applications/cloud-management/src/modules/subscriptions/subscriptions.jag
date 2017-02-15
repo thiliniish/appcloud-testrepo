@@ -56,14 +56,18 @@ var getBillingTypeInfo = function (types, domainName) {
             } else {
                 //As a fail proof assign the billing type to free for each subscription
                 billingTypeInfo[columnName] = type.FREE;
-                //Add FREE, ACTIVE billing status table. This is an on the fly migration.
-                var startDate = new Packages.java.util.Date();
-                var billingType = type.FREE;
-                var endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
-                cloudBillingDAO.insertBillingStatus(domainName, columnName, billingType,
-                    status.ACTIVE, sqlDateFormat.format(startDate), sqlDateFormat.format(endDate));
-                log.info("Billing Type details were not found for " + columnName + " of tenant " + domainName +
-                    ". Added Type: FREE and STATUS: ACTIVE record to billing status table");
+                //Add FREE, ACTIVE to billing status table. This is an on the fly migration.
+                try {
+                    var startDate = new Packages.java.util.Date();
+                    var billingType = type.FREE;
+                    var endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
+                    cloudBillingDAO.insertBillingStatus(domainName, columnName, billingType,
+                        status.ACTIVE, sqlDateFormat.format(startDate), sqlDateFormat.format(endDate));
+                    log.info("Billing Type details were not found for " + columnName + " of tenant: " + domainName +
+                        ". Added Type: FREE and STATUS: ACTIVE record to billing status table");
+                } catch (e) {
+                    log.error("Error occurred while inserting billing type information for " + columnName + " of tenant: " + domainName);
+                }
             }
             if (log.isDebugEnabled()) {
                 log.debug("Billing type" + columnName + ":" + billingTypeInfo[columnName]);
