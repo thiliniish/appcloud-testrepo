@@ -156,7 +156,7 @@ ApiCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
 
 IntegrationCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
     var subscriptionJson = {
-        "headers": ["Applications", "Additional App Types", "Resources", "Databases", "Scaling", "Regional Selection"],
+        "headers": ["Applications", "Additional App Types", "Resources", "Databases", "Scaling", "Location"],
         "entry": [],
         "shortDescription" : []
     };
