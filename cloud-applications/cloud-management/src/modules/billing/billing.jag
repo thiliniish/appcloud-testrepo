@@ -1202,6 +1202,10 @@ function addCloudSubmissionToMailCampaign(email, domain, type) {
         URL = cloudConfig.MailCampaignAddUserApi.apiCloudSubmission;
     } else if ("INTEGRATION".equals(type)) {
         URL = cloudConfig.MailCampaignAddUserApi.integrationCloudSubmission;
+    } else if ("DEVICE".equals(type)) {
+        URL = cloudConfig.MailCampaignAddUserApi.deviceCloudSubmission;
+    } else if ("IDENTITY".equals(type)) {
+        URL = cloudConfig.MailCampaignAddUserApi.identityCloudSubmission;
     }
     var result = post(URL, data, {}, 'text');
     return result;
