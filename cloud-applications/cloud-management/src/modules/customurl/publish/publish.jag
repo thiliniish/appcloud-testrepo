@@ -47,7 +47,7 @@
         var ratePlansObj = billingModule.getRatePlans(SUBSCRIPTION_API_CLOUD);
         var ratePlans = ratePlansObj.entry;
         var currentPlanLevel = 0;
-        if (ratePlans != null) {
+        if (ratePlans != null && currentRatePlan != null) {
             for (var j = 0; j < ratePlans.length; j++) {
                 if (ratePlans[j].id == currentRatePlan.id) {
                     currentPlanLevel = ratePlans[j].premiumLevel;
