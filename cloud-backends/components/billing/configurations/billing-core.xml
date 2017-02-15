@@ -209,6 +209,24 @@
                 </Plan>
             </Subscription>
         </CloudType>
+        <CloudType id="device_cloud" name="Device Cloud">
+            <!--Billing functionality enable/disable status-->
+            <BillingEnabled>false</BillingEnabled>
+            <!--Trial period in days-->
+            <TrialPeriod>14</TrialPeriod>
+            <!--This is for statistical purposes. Usage display period in days-->
+            <UsageDisplayPeriod>30</UsageDisplayPeriod>
+            <Subscription productId="prod_device_cloud" />
+        </CloudType>
+        <CloudType id="identity_cloud" name="Identity Cloud">
+            <!--Billing functionality enable/disable status-->
+            <BillingEnabled>false</BillingEnabled>
+            <!--Trial period in days-->
+            <TrialPeriod>14</TrialPeriod>
+            <!--This is for statistical purposes. Usage display period in days-->
+            <UsageDisplayPeriod>30</UsageDisplayPeriod>
+            <Subscription productId="prod_identity_cloud" />
+        </CloudType>
     </CloudTypes>
     <InvoiceFileLocation>FileLocation</InvoiceFileLocation>
 </CloudBilling>

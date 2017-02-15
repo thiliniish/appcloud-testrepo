@@ -44,6 +44,7 @@ var getSubscriptionInfo = function (types, username) {
 
 var getBillingTypeInfo = function (types, domainName) {
     var billingTypeInfo = {};
+    var sqlDateFormat = jagg.module("util").dateTimeFormatter(MYSQL_DATETIME_FORMAT);
     for (var i = 0; i < types.length; i++) {
         if (types[i].id != DEFAULT_SUBSCRIPTION) {
             var columnName = types[i].id;
@@ -53,9 +54,16 @@ var getBillingTypeInfo = function (types, domainName) {
             if (billingType.length > 0) {
                 billingTypeInfo[columnName] = billingType[0][TYPE_COLUMN];
             } else {
-                //As a fail proof assign the billing type to trial for each subscription
-                billingTypeInfo[columnName] = TRIAL_TYPE;
-                log.error("Billing Type details were not found for " + columnName + " of tenant " + domainName);
+                //As a fail proof assign the billing type to free for each subscription
+                billingTypeInfo[columnName] = type.FREE;
+                //Add FREE, ACTIVE billing status table. This is an on the fly migration.
+                var startDate = new Packages.java.util.Date();
+                var billingType = type.FREE;
+                var endDate = sqlDateFormat.parse(MYSQL_MAX_DATETIME_STRING);
+                cloudBillingDAO.insertBillingStatus(domainName, columnName, billingType,
+                    status.ACTIVE, sqlDateFormat.format(startDate), sqlDateFormat.format(endDate));
+                log.info("Billing Type details were not found for " + columnName + " of tenant " + domainName +
+                    ". Added Type: FREE and STATUS: ACTIVE record to billing status table");
             }
             if (log.isDebugEnabled()) {
                 log.debug("Billing type" + columnName + ":" + billingTypeInfo[columnName]);
