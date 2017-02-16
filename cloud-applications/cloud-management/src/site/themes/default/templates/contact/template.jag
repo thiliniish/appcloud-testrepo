@@ -16,19 +16,25 @@
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var publisherUrl = null;
-    var serviceId = session.get("SERVICE_ID");
-    if (serviceId == null) {
-        serviceId = cloudType;
+
+    if (cloudType == null) {
+        var serviceId = null;
+    } else {
+        var serviceId = cloudType;
     }
 
-    var subscriptionsType = cloudConfig.subscriptions.type;
-    for (var i = 0; i < subscriptionsType.length; i++) {
-        if ((subscriptionsType[i].id).equals(serviceId)) {
-            publisherUrl = subscriptionsType[i].urls.cloudTypeUrl;
+    if (serviceId != null) {
+        var subscriptionsType = cloudConfig.subscriptions.type;
+        for (var i = 0; i < subscriptionsType.length; i++) {
+            if ((subscriptionsType[i].id).equals(serviceId)) {
+                publisherUrl = subscriptionsType[i].urls.cloudTypeUrl;
+            }
         }
     }
 
-    var trialPeriod = jagg.module("billing").getTrialPeriod(serviceId);
+    if (serviceId != null) {
+        var trialPeriod = jagg.module("billing").getTrialPeriod(serviceId);
+    }
     var to = cloudConfig.supportContact.to;
     var customSubject = "";
     var subject = request.getParameter("subject");
