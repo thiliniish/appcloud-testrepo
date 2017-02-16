@@ -108,6 +108,9 @@ jagg.module("tenant", {
 	},
 	validateInputFields: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").validateInputFields.apply(this, arguments);
+	},
+	createTenant: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").createTenant.apply(this, arguments);
 	}
 });
 %>

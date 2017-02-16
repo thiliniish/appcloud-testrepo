@@ -15,7 +15,7 @@
         "isBeta": true,
         "logoClass": "fa",
         "logo": "cubes",
-        "description": "Host your integration solutions using WSO2 ESB, Cloud connectors, data services, and micro services.",
+        "description": "Host your integration solutions and API backends.",
         "serviceType": "free",
         "roleTypes": [
           {
@@ -24,8 +24,8 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/appmgt/",
-          "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
+            "cloudTypeUrl": "https://integration.cloudlocal.wso2.com:9446/appmgt/",
+            "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
         }
       },
       {
@@ -51,6 +51,8 @@
           "storeUrl": "https://milestones.appfactory.wso2.com:9643/store",
           "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
         },
+        "adminUsername" : "admin",
+        "adminPassword" : "admin",
         "regionSelection": [
           {
             "premiumLevel": 2,
@@ -230,11 +232,20 @@
     "edit_pwd_url": "edit_pwd_url",
     "update_url": "update_url"
   },
-  "MailCampaignAddUserApi":{
+  "OTAdminServiceApi": {
+    "enable": false,
+    "auth_user": "user",
+    "auth_pass": "password",
+    "serviceURL": "https://localhost/services/"
+  },
+  "OTCloudUserRole": "support.client.CLOUDUSER.user",
+  "MailCampaignAddUserApi": {
     "enable_MailCampaignAddUserApi": false,
     "cloudSignup": "https://local.pardot.com/l/142131/2016-07-27/24cz89",
     "apiCloudSubmission": "https://local.pardot.com/l/142131/2016-07-27/24cz9r",
     "integrationCloudSubmission": "https://local.pardot.com/l/142131/2016-08-31/28rjf7",
+    "deviceCloudSubmission": "https://local.pardot.com/l/142131/2017-02-13/39x1v9",
+    "identityCloudSubmission": "https://local.pardot.com/l/142131/2017-02-13/39x567",
     "apiCloudTrialExtension": "https://local.pardot.com/l/142131/2016-09-01/292fhm",
     "integrationCloudTrialExtension": "https://local.pardot.com/l/142131/2016-09-01/292fhw",
     "apiCloudUpgradeStart": "https://local.pardot.com/l/142131/2016-08-31/28v7n7",

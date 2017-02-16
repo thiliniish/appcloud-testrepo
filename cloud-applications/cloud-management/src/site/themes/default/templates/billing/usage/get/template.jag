@@ -105,7 +105,8 @@ if (request.getParameter("cloud-type") != null) {
 	var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 	var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 	var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-	var isBillingEnabled = jagg.module("billing").isBillingEnabled(SUBSCRIPTION_API_CLOUD);
+        var serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
+	var isBillingEnabled = jagg.module("billing").isBillingEnabled(serviceId);
 	if (isBillingEnabled) {
 		var isBillingAccount = jagg.module("billing").isPaidAccount();
 		var usageDisplayPeriod = (jagg.module("billing").getAPICloudUsageDisplayPeriod(SUBSCRIPTION_API_CLOUD)).toString();
@@ -122,7 +123,6 @@ if (request.getParameter("cloud-type") != null) {
 		var l = Packages.java.util.Locale.getDefault();
 		var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
 
-		var serviceId = jagg.module("util").escapeSpecialChars(request.getParameter("cloud-type"));
 		var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
 		var cloudName = serviceId.replace("_", " ").toUpperCase().replace("CLOUD", "Cloud");
 		var bttnLabel = "Back to " + cloudName;
