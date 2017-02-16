@@ -367,7 +367,7 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
                 var accountStatus = status.DISABLED;
                 //Set values for billing status record update for paid account or complimentary account
                 //(upgraded by logged in user)
-                if (isComplimentaryAccountUpgrade || isComplimentaryAccount) {
+                if (isComplimentaryAccountUpgrade) {
                     accountType = type.PAID;
                     paidEndDate = MYSQL_MAX_DATETIME_STRING;
                     accountStatus = status.ACTIVE;
