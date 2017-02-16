@@ -545,7 +545,7 @@ var addUserToOTCloudUserRole = function (email) {
     var options = new Array();
     options.useSOAP = 1.1;
     options.action = "urn:updateUsersOfRole";
-    options.timeout = 120000;
+    options.timeout = 90000;
     options["HTTPHeaders"] = [
         {
             name: "Authorization", value: authHeaderValue
