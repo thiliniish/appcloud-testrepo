@@ -299,4 +299,5 @@ var RESPONSE_TYPE = "json";
 //Complimentary Subscription related
 var TRIAL_END_DATE = "2017-12-31 00:00:00";
 var CUSTOMER_TYPE_COMPLIMENTARY = "Complimentary";
+var TENANT_DOMAIN_NAME_MAXIMUM_LENGTH = "15";
 %>

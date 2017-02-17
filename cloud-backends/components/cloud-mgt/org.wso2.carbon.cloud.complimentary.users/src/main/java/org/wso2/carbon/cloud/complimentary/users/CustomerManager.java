@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. All Rights Reserved.
  */
 package org.wso2.carbon.cloud.complimentary.users;
 
@@ -24,7 +24,7 @@ public class CustomerManager {
     private static Log log = LogFactory.getLog(CustomerManager.class);
     private static SalesforceConfiguration config;
 
-    public CustomerManager(){
+    public CustomerManager() {
     }
 
     public static void loadConfig(String username, String password, String token) throws IOException {

@@ -740,7 +740,7 @@ var getOrganizationNameFromEmail = function (email) {
     var isDomainAvailable = checkDomainAvailability(domainName);
     var tempDomainName = domainName;
     while (!isDomainAvailable) {
-        if (tempDomainName.length == 15) {
+        if (tempDomainName.length == TENANT_DOMAIN_NAME_MAXIMUM_LENGTH) {
             tempDomainName = tempDomainName.substring(0, 11) + Math.floor(Math.random() * 10000);
         } else {
             tempDomainName = tempDomainName + Math.floor(Math.random() * 10000);
@@ -750,7 +750,7 @@ var getOrganizationNameFromEmail = function (email) {
     //Check tenant domain availability
     var isTempDomainAvailable = checkTenantDomainAvailability(tempDomainName);
     while (!isTempDomainAvailable) {
-        if (tempDomainName.length == 15) {
+        if (tempDomainName.length == TENANT_DOMAIN_NAME_MAXIMUM_LENGTH) {
             tempDomainName = tempDomainName.substring(0, 11) + Math.floor(Math.random() * 10000);
         } else {
             tempDomainName = tempDomainName + Math.floor(Math.random() * 10000);

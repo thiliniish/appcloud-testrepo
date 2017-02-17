@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. All Rights Reserved.
  */
 package org.wso2.carbon.cloud.complimentary.users.model.config;
 
