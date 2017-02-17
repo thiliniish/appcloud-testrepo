@@ -269,5 +269,19 @@
     "oAuthEndpoint": "https://local.stripe.com/oauth/",
     "clientId" : "ca_97VFwjhWbMGj8SXqwS3ODTeZBivcD4KT"
   },
-  "invoiceEmails": "cloud+staging@wso2com,cloud+invoice@wso2"
+  "invoiceEmails": "cloud+staging@wso2com,cloud+invoice@wso2",
+  "complimentaryAPICloudAccount" : {
+    "supportJira" : {
+      "authorizationHeaderValue" : "c2FicmFAd3NvMi5jb206SW5zaWdodDFA"
+    },
+    "salesforce": {
+      "username": "integration-sfshared@wso2.com",
+      "password": "What3ver",
+      "token": "qRtGa9ptSq684gjkiLjTSK32L"
+    },
+    "usagePlan": "Demo",
+    "serviceId": "api_cloud",
+    "productRatePlanId": "api_cloud_medium",
+    "productName" : "API"
+  }
 }

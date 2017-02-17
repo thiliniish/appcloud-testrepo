@@ -105,44 +105,17 @@ var log = new Log("blocks.tenant.register.add.ajax.add.jag");
         var password = request.getParameter("tenantAdminPassword");
         var firstName = request.getParameter("firstName");
         var lastName = request.getParameter("lastName");
-        var result = {
-            error: false,
-            status: 200,
-            message: ""
-        };
         try {
-            if (email == "John@gmail.com") { //When customer has no API-M production support
-                result = {
-                    error: true,
-                    status: 200,
-                    message: "You do not have production support for API-M. You are not eligible to claim the " +
-                    "complimentary cloud subscription."
-                };
-            } else if (email == "Jane@gmail.com") { //When subscription has been claimed before
-                result = {
-                    error: true,
-                    status: 200,
-                    message: "The subscription has been claimed already. Please contact Joseph@gmail.com."
-                };
-            } else if (email == "Jack@gmail.com") {
-                //When subscription has not been claimed before and customer has
-                //production support for API-M
-                result = {
-                    error: false,
-                    status: 200,
-                    message: "Complimentary account successfully created."
-                };
-            }
+            var response = mod.createComplimentarySubscription(email, firstName, lastName, password);
+            print(response);
         } catch (e) {
             log.error("Error while creating complimentary subscription for email " + email);
             log.error(e);
-            result = {
+            return {
                 error: true,
                 status: 500,
                 message: "Error while processing request to create complimentary subscription."
             };
-        } finally {
-            print(result);
         }
     } else {
         throw new Error("No action specified");

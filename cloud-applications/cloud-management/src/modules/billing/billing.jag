@@ -310,10 +310,12 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
                               isComplimentaryAccountUpgrade) {
 
     //Tenant domain of logged in user
-    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    var tenantDomain = null;
     //Tenant domain of complimentary account user because the complimentary account is created by cloud admin
     if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
         tenantDomain = session.get("TENANT_DOMAIN");
+    } else {
+        tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     }
 
     if (validateRatePlanId(metaData.serviceId, metaData.productRatePlanId)) {
@@ -367,7 +369,7 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
                 var accountStatus = status.DISABLED;
                 //Set values for billing status record update for paid account or complimentary account
                 //(upgraded by logged in user)
-                if (isComplimentaryAccountUpgrade || !isComplimentaryAccount) {
+                if (isComplimentaryAccountUpgrade) {
                     accountType = type.PAID;
                     paidEndDate = MYSQL_MAX_DATETIME_STRING;
                     accountStatus = status.ACTIVE;
@@ -383,7 +385,7 @@ var createAccount = function (accountData, metaData, organizationName, isComplim
                         formattedEffectiveDate, endDate, metaData.serviceId);
 
                 //send an email to the user
-                var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
+                var tenantDisplayName = getDisplayNameFromTenantDomain(tenantDomain);
 
                 var subscriptionName = productIdFromServiceId[metaData.serviceId];
 
