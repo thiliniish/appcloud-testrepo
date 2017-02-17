@@ -21,10 +21,8 @@
 	var serviceId = session.get("SERVICE_ID");
 	var bttnLabel = "Go to "  + productIdFromServiceId[serviceId];
 	var cancelSubscriptionEffectiveDate = jagg.module("billing").getCancelSubscriptionEffectiveDate(serviceId);
-
 	var shortDescription = inputs.shortDescription;
     %>
-
     <style type="text/css">
         #goToAPICloudbtn {
             background-color: #5e5e5e;

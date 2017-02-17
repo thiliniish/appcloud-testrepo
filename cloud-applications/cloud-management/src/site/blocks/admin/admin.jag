@@ -38,7 +38,7 @@ var log = new Log('site/blocks/admin/cloudUtil.jag');
             response.status = 200;
             response.content = "First login captured successfully for tenant : " + tenantDomain + ", cloud : " + cloudType;
         } catch (e) {
-            response.status = 400;
+            response.status = 500;
             response.content = "First login capturing failed for tenant : " + tenantDomain + ", cloud : " + cloudType;
         }
     } else {

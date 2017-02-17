@@ -45,7 +45,6 @@ ApiCloudUtil.prototype.publishTenantSubscription = function (tenantDomain, servi
 };
 
 IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomain, serviceId, type, trialStartDate, trialEndDate, status) {
-
     var cloudTypeUrl = null;
     var adminUsername = null;
     var adminPassword = null;
@@ -66,11 +65,6 @@ IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomai
             "userName" : adminUsername,
             "password" : adminPassword
         };
-
-        if (log.isDebugEnabled()) {
-            log.info("loginUrl " + loginUrl);
-            log.info("loginData " + stringify(loginData));
-        }
 
         var loginResult = post(loginUrl, loginData, {} , 'json');
         var loginResponse = loginResult.xhr.responseText;
@@ -101,15 +95,16 @@ IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomai
     };
 
     if (log.isDebugEnabled()) {
-        log.info("data " + stringify(data));
-        log.info("header " + stringify(header));
+        log.debug("data " + stringify(data));
+        log.debug("header " + stringify(header));
     }
 
     var publishTenantSubscriptionApi = cloudTypeUrl + "site/blocks/admin/admin.jag";
     if (log.isDebugEnabled()) {
-        log.info("publishTenantSubscriptionApi " + stringify(publishTenantSubscriptionApi));
+        log.debug("publishTenantSubscriptionApi " + stringify(publishTenantSubscriptionApi));
     }
     try {
+        //Need to handle post
         post(publishTenantSubscriptionApi, data, header, 'json');
     } catch (e) {
         log.error("Exception while publishing tenant subscription for tenant : " +  tenantDomain + ", cloud : " + serviceId);
@@ -119,7 +114,6 @@ IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomai
 };
 
 ApiCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
-
     var l = Packages.java.util.Locale.getDefault();
     var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
 
@@ -162,7 +156,7 @@ ApiCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
 
 IntegrationCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
     var subscriptionJson = {
-        "headers": ["Applications", "Additional App Types", "Resources", "Databases", "Scaling", "Regional Selection"],
+        "headers": ["Applications", "Additional App Types", "Resources", "Databases", "Scaling", "Location"],
         "entry": [],
         "shortDescription" : []
     };

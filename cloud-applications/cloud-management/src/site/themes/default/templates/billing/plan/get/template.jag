@@ -182,9 +182,17 @@
                             <br class="c-both" />
                         </div>
                     </div>
-                        <div class="pricing-table-features">
-                        <% for (var k = 0; k < paymentPlans[i].values.length; k++) { %>
-                            <p><%=paymentPlans[i].values[k]%></p>
+                       <div class="pricing-table-features">
+                        <%
+                for (var k = 0; k < paymentPlans[i].values.length; k++) {
+                    if (paymentPlans[i].values[k].indexOf(':') > -1) {
+                        var tooltip =  paymentPlans[i].values[k].split(":")[1];
+                        var value = paymentPlans[i].values[k].split(":")[0];
+                    } else {
+                        var tooltip = "";
+                        var value = paymentPlans[i].values[k];
+                    } %>
+                            <p title="<%=tooltip%>"><%=value%></p>
                         <% } %>
                     </div>
                     <div class="pricing-table-signup-tiny">
@@ -237,7 +245,7 @@
 		    <% if (serviceId == "api_cloud") {%>
 			    <p>"Portal users" are defined as all accounts (email address plus password) that have direct access to Publisher or Developer Portal (API Store) web user interfaces. The actual number of end users of the APIs (for example, users of mobile applications invoking them) is not limited.</p>
 			<% } else if (serviceId == "integration_cloud") { %>
-			<p>All users subscribed to the Integration Cloud can create MSF4J, PHP and Java web applications. Some subscriptions allow you to create additional app types as well (see above).
+			<p>*All users subscribed to the Integration Cloud can create MSF4J, PHP and Java web applications. Some subscriptions allow you to create additional app types as well (see above).
 			Users can create applications up to the maximum permitted number without exceeding the total resource consumption limit.</p>
 			<% } %>
  		</div>
