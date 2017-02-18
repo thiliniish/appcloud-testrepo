@@ -660,7 +660,7 @@ var createComplimentarySubscription = function (email, firstName, lastName, pass
             var tenantCreationResult = createTenant(companyName, password, usagePlan, firstName, lastName, email,
                     userName, true);
             if (tenantCreationResult != null) {
-                var billingAccountCreationResult = createTrialBillingAccount(email1, firstName, lastName,
+                var billingAccountCreationResult = createTrialBillingAccount(email, firstName, lastName,
                         serviceId, productRatePlanId, companyName);
                 if (billingAccountCreationResult != null) {
                     //Update account and contact objects for who claimed subscription
