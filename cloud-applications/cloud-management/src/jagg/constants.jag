@@ -284,4 +284,20 @@ var SET_COOKIE_HEADER = "Set-Cookie";
 
 //content types
 var APPLICATION_JSON = "application/json";
+
+//Support Jira REST API related
+var SUPPORT_JIRA_URL = "https://support.wso2.com/jira";
+var JIRA_REST_API_USER_ENDPOINT = "/rest/api/2/user";
+var JIRA_REST_API_PROJECT_ENDPOINT = "/rest/api/2/project/";
+var SUPPORT_JIRA_PROD = "Production Support";
+var SUPPORT_JIRA_MANAGE_CLOUD_PROD = "Managed Cloud Production Support";
+var SUPPORT_JIRA_URL_EXPAND_PARAM_VALUE = "groups";
+var SUPPORT_JIRA_PROD_CUSTOMER = "PROD";
+var AUTHORIZATION_TYPE = "Basic ";
+var RESPONSE_TYPE = "json";
+
+//Complimentary Subscription related
+var TRIAL_END_DATE = "2017-12-31 00:00:00";
+var CUSTOMER_TYPE_COMPLIMENTARY = "Complimentary";
+var TENANT_DOMAIN_NAME_MAXIMUM_LENGTH = "15";
 %>

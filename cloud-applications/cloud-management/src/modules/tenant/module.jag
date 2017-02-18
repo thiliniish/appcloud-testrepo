@@ -111,6 +111,9 @@ jagg.module("tenant", {
 	},
 	createTenant: function () {
 		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").createTenant.apply(this, arguments);
+	},
+	createComplimentarySubscription: function () {
+		return jagg.require(jagg.getModulesDir() + "tenant/register/register.jag").createComplimentarySubscription.apply(this, arguments);
 	}
 });
 %>
