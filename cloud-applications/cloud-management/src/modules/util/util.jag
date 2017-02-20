@@ -948,8 +948,8 @@ function getGatewayMigrationProperties() {
 }
 
 var sendComplimentaryAccountClaimedNotification = function(email, supportAccount, username) {
-    var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_claim_success.txt");
     try {
+        var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_claim_success.txt");
         var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claimed] - " + supportAccount;
         emailBody = emailBody.replace("$email", email);
         emailBody = emailBody.replace("$supportAccount", supportAccount);
@@ -957,24 +957,20 @@ var sendComplimentaryAccountClaimedNotification = function(email, supportAccount
         var accountCreationSuccessResponse = sendEmail(emailBody, subject);
         return accountCreationSuccessResponse;
     } catch (e) {
-        log.error("Error while sending email for claiming complimentary account for username: "  + username + ", " + e);
+        log.error("Error while sending email for claiming complimentary account for username: "  + username);
+        throw Error(e);
     }
 };
 
-var sendComplimentaryAccountCreationFailureNotification = function(email, firstName, lastName, e) {
+var sendComplimentaryAccountCreationFailureNotification = function(email, firstName, lastName, exception) {
     var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_creation_failure.txt");
-    try {
-        var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claim failure] - " + email;
-        emailBody = emailBody.replace("$email", email);
-        emailBody = emailBody.replace("$firstName", firstName);
-        emailBody = emailBody.replace("$lastName", lastName);
-        emailBody = emailBody.replace("$error", e);
-        var accountCreationFailureResponse = sendEmail(emailBody, subject);
-        return accountCreationFailureResponse;
-    } catch (e) {
-        log.error("Error while sending email for complimentary account creation failure for email: "  + email + ", "
-                + e);
-    }
+    var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claim failure] - " + email;
+    emailBody = emailBody.replace("$email", email);
+    emailBody = emailBody.replace("$firstName", firstName);
+    emailBody = emailBody.replace("$lastName", lastName);
+    emailBody = emailBody.replace("$error", exception);
+    var accountCreationFailureResponse = sendEmail(emailBody, subject);
+    return accountCreationFailureResponse;
 };
 
 %>
