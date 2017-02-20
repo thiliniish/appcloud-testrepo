@@ -643,7 +643,7 @@ var createComplimentarySubscription = function (email, firstName, lastName, pass
     if (contactId) {
         if (CustomerManager.hasClaimedComplimentarySubscription(customerOpportunitiesList)) {
             var contactEmail = CustomerManager.getContactWhoClaimedSubscription(customerOpportunitiesList);
-            result = {
+            return {
                 error: true,
                 status: 200,
                 message: "The subscription has been claimed already. Please contact " + contactEmail + "."
