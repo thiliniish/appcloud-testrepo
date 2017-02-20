@@ -22,6 +22,12 @@ var log = new Log();
 		var adminPassword = request.getParameter("adminPassword");
 		var usagePlan = request.getParameter("usagePlan");
 		try {
+            if (mod.isOrgLimitExceeded()) {
+                var result = {"error": "true", "msg": "You have reached the maximum number of organizations allowed to create"};
+                log.info("limit exceeded");
+                print(result);
+                return;
+            }
 			var result = mod.registerOrg(companyName, adminPassword, usagePlan,null);
 
 			if (result != null) {

@@ -292,5 +292,6 @@
     "serviceId": "api_cloud",
     "productRatePlanId": "api_cloud_medium",
     "productName" : "API"
-  }
+  },
+  "maxAllowedOrganizations": 3
 }
