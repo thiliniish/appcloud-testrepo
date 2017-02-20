@@ -621,6 +621,7 @@ var createComplimentarySubscription = function (email, firstName, lastName, pass
             "cloud subscription."
         };
     }
+    var supportAccount = customerProdJiraKeysArray[0];
     //Load Salesforce configuration
     var CustomerManager = Packages.org.wso2.carbon.cloud.complimentary.users.CustomerManager;
     var salesforceUsername = cloudConfig.complimentaryAPICloudAccount.salesforce.username;
@@ -656,9 +657,9 @@ var createComplimentarySubscription = function (email, firstName, lastName, pass
 
             //TODO: Get from Support Jira (companyName and trialEndDate)
             var companyName = getOrganizationNameFromEmail(email);
-            var userName = managerModule.getUserNameFromEmail(email.toString());
+            var username = managerModule.getUserNameFromEmail(email.toString());
             var tenantCreationResult = createTenant(companyName, password, usagePlan, firstName, lastName, email,
-                    userName, true);
+                    username, true);
             if (tenantCreationResult != null) {
                 var billingAccountCreationResult = createTrialBillingAccount(email, firstName, lastName,
                         serviceId, productRatePlanId, companyName);
@@ -666,7 +667,9 @@ var createComplimentarySubscription = function (email, firstName, lastName, pass
                     //Update account and contact objects for who claimed subscription
                     CustomerManager.updateSalesforceAccountObject(customerOpportunitiesList, true);
                     CustomerManager.updateSalesforceContactObject(contactId, true);
-                    //TODO : Post registration actions (pardot, send email, create account in cloud section in salesforce)
+                    //TODO : Post registration actions (add user to list in pardot)
+                    jagg.module("util").sendComplimentaryAccountClaimedNotification(email, supportAccount,
+                            username + '@' + companyName);
                     return {
                         error: false,
                         status: 200,

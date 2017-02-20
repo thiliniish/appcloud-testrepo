@@ -111,6 +111,7 @@ var log = new Log("blocks.tenant.register.add.ajax.add.jag");
         } catch (e) {
             log.error("Error while creating complimentary subscription for email " + email);
             log.error(e);
+            jagg.module("util").sendComplimentaryAccountCreationFailureNotification(email, firstName, lastName, e);
             return {
                 error: true,
                 status: 500,
