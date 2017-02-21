@@ -3,7 +3,8 @@
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
+var serviceId = session.get("SERVICE_ID");
+var isBillingEnabled = jagg.module("billing").isBillingEnabled(serviceId);
 var currency = (jagg.module("billing").getCurrencyUsed());
 var invoiceId = request.getParameter("invoiceId");
 %>

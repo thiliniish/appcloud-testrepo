@@ -219,6 +219,27 @@ public final class BillingConstants {
             " overage data on {today}. Please verify.";
     public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error uploading overage data ";
     public static final String REPLACE_TODAY = "{today}";
+    public static final String TO = "to";
+    public static final String BODY = "body";
+    public static final String ATTACHMENT = "attachment";
+    public static final String REPLACE_CUSTOMER = "{customer}";
+    public static final String REPLACE_AMOUNT = "{amount}";
+    public static final String REPLACE_DATE = "{date}";
+    public static final String EMAIL_BODY_INVOICE =
+            "Dear {customer}, <br/> Thank you for your payment of ${amount} USD that was processed on {date}. <br/>" +
+            "Thank you for your business!";
+
+    // Billing invoice related
+    public static final String INVOICE = "invoice";
+    public static final String ORGANIZATION = "organization";
+    public static final String INVOICE_DATE = "invoiceDate";
+    public static final String INVOICE_NUMBER = "invoiceNumber";
+    public static final String CONTENT_TYPE = "contentType";
+    public static final String CONTENT_TYPE_APPLICATION_PDF = "application/pdf";
+    public static final String AMOUNT = "amount";
+    public static final String DATA = "data";
+    public static final String EMAIL = "email";
+    public static final String SUBJECT = "subject";
 
     private BillingConstants() {
     }

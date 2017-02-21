@@ -356,7 +356,7 @@ var sendEmail = function(to,link,domain,roles,message) {
     var loggedInUserEmail = String(session.get("LOGGED_IN_USER_EMAIL"));
     if (isCustom) {
         var imagePath = getCustomLogoPath();
-        var attachment = {"path": imagePath, "contentType": "image/png", "cid": "<header>"};
+        var attachment = {"path": imagePath, "contentType": "image/png", "cid": "<header>", "fileName": ""};
         jagg.module("util").sendEmailWithAttachment(body, subject + loggedInUserEmail, to, attachment);
     } else {
         jagg.module("util").sendEmail(body, subject + loggedInUserEmail, to);
@@ -577,6 +577,8 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         if (!isUserExist) {
             server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(username, defaultPassword, email, firstName, lastName);
             jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
+            //Adding user to OT CloudUser role
+            jagg.module("util").addUserToOTCloudUserRole(email);
             log.info("The invited new user [ " + username + " ] joined the tenant [ " + tenantDomain + " ]");
         }
 
@@ -683,6 +685,8 @@ var importUserToTenant = function (email, defaultPassword, firstName, lastName, 
             if (!isUserExist) {
                 server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(username, defaultPassword, email, firstName, lastName);
                 jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
+                //Adding user to OT CloudUser role
+                jagg.module("util").addUserToOTCloudUserRole(email);
                 log.info("The invited new user [ " + username + " ] joined the tenant [ " + tenantDomain + " ]");
             }
             //update the newly assigned roles of the user
