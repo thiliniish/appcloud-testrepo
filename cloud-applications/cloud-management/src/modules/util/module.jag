@@ -123,8 +123,8 @@ jagg.module("util", {
     sendComplimentaryAccountClaimedNotification: function() {
         return jagg.require(jagg.getModulesDir() + "util/util.jag").sendComplimentaryAccountClaimedNotification.apply(this, arguments);
     },
-    sendComplimentaryAccountCreationFailureNotification: function() {
-        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendComplimentaryAccountCreationFailureNotification.apply(this, arguments);
+    sendFailureNotification: function() {
+        return jagg.require(jagg.getModulesDir() + "util/util.jag").sendFailureNotification.apply(this, arguments);
     }
 });
 %>
