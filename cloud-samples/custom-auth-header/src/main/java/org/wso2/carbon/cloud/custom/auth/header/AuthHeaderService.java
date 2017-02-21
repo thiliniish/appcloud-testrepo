@@ -30,12 +30,17 @@ public class AuthHeaderService {
         logger.info("[validate-header] : Authorization Header Value : " + authHeader);
 
         JsonObject responseObj = new JsonObject();
-        if ("Bearer 1234".equals(authHeader)) {
-            responseObj.addProperty(CODE, HttpStatus.SC_OK);
-            responseObj.addProperty(MESSAGE, "Authorization header validation successful");
+        if (authHeader != null) {
+            if ("Bearer 1234".equals(authHeader)) {
+                responseObj.addProperty(CODE, HttpStatus.SC_OK);
+                responseObj.addProperty(MESSAGE, "Authorization header validation successful");
+            } else {
+                responseObj.addProperty(CODE, HttpStatus.SC_UNAUTHORIZED);
+                responseObj.addProperty(MESSAGE, "Authorization header validation failed");
+            }
         } else {
-            responseObj.addProperty(CODE, HttpStatus.SC_UNAUTHORIZED);
-            responseObj.addProperty(MESSAGE, "Authorization header validation failed");
+            responseObj.addProperty(CODE, HttpStatus.SC_BAD_REQUEST);
+            responseObj.addProperty(MESSAGE, "Authorization header is missing");
         }
         return Response.status(responseObj.get(CODE).getAsInt()).entity(responseObj).build();
     }
