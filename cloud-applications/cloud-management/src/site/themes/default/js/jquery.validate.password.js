@@ -48,7 +48,7 @@
         var hasLowercaseLetter = 0;
         var hasUppercaseLetter = 0;
         var hasSpecialCharacter = 0;
-        var hasWhiteSpaceCharacter = 0;
+        var hasWhitespaceCharacter = 0;
 
         if ((password.length > 0) && (password.length <= 7)) {
             passwordStrength = 1;
@@ -63,10 +63,10 @@
 
         //To match if any space characters are being used
         if (password.match(/^\S+$/)) {
-            hasWhiteSpaceCharacter = 1;
+            hasWhitespaceCharacter = 1;
         }
         var item = $('.list1 li:nth-child(2)');
-        changeImage(item, hasWhiteSpaceCharacter);
+        changeImage(item, hasWhitespaceCharacter);
 
         if (password.match(/^[a-zA-Z0-9<>@!#$%^&*()_+[\]{}?:;'\"|\\,./~`=-]*$/)) {
             onlyEnglishCharacters = 1;
