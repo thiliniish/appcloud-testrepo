@@ -46,23 +46,31 @@ var getCurrencyUsed = function () {
 };
 
 var getAccountId = function () {
-    var user = jagg.getUser().username;
-    try {
-        var tenantDomain = getTenantDomain();
-        var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfoForTenant(tenantDomain, user));
-        if (subscriberData.data.Subscriber != null) {
-            var accountNumber = subscriberData.data.Subscriber.AccountNumber;
-            if (typeof accountNumber == 'object') {
-                return null;
+    var user = null;
+    if (jagg.getUser() != null) {
+        user = jagg.getUser().username;
+    }
+    if (user != null) {
+        try {
+            var tenantDomain = getTenantDomain();
+            var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfoForTenant(tenantDomain, user));
+            if (subscriberData.data.Subscriber != null) {
+                var accountNumber = subscriberData.data.Subscriber.AccountNumber;
+                if (typeof accountNumber == 'object') {
+                    return null;
+                } else {
+                    return accountNumber;
+                }
             } else {
-                return accountNumber;
+                return null;
             }
-        } else {
-            return null;
+
+        } catch (e) {
+            log.error("ERROR while getting the account number for : " + user + " - " + e.message);
+            throw e;
         }
-    } catch (e) {
-        log.error("ERROR while getting the account number for : " + user + " - " + e.message);
-        throw e;
+    } else {
+        log.warn("Unable to retrieve the user information, hence account id retrieval failed");
     }
 };
 
