@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.cloudmgt.bam.integration.BamDataPublisher;
 import org.wso2.carbon.cloudmgt.common.CloudConstants;
 import org.wso2.carbon.cloudmgt.users.beans.UserInfoBean;
 import org.wso2.carbon.cloudmgt.users.util.DatabaseManager;
@@ -207,7 +206,6 @@ public class UserManagementService extends AbstractAdmin {
             }
             userStoreManager.updateRoleListOfUser(userName, rolesToDelete.toArray(new String[rolesToDelete.size()]),
                                                   new String[0]);
-            updateBAMStats(userName, "DELETE");
             return true;
         } catch (UserStoreException e) {
             String msg = "User deletion from tenant " + currentContext.getTenantDomain() + " failed due to " +
@@ -329,65 +327,11 @@ public class UserManagementService extends AbstractAdmin {
             } else {
                 userStoreManager.addUser(user, defaultPassword, defaultUserRole, claims, null, true);
             }
-            updateBAMStats(user, "ADD");
         } catch (UserStoreException e) {
 
             String msg = "Importing users to tenant " + threadLocalCarbonContext.getTenantDomain() + " failed due to " +
                          e.getMessage();
             log.error(msg);
-        }
-
-        return true;
-    }
-
-    public boolean importUsersTotheTenant(String[] users, String defaultPassword) throws UserManagementException {
-
-        String[] defaultUserRoles =
-                UserMgtUtil.getConfiguration().getProperties(CloudConstants.TENANT_ROLES_DEFAULT_USER_ROLE);
-        CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
-
-        UserStoreManager userStoreManager = null;
-        try {
-            userStoreManager = threadLocalCarbonContext.getUserRealm().getUserStoreManager();
-        } catch (UserStoreException e) {
-            String msg = "Importing users to tenant " + threadLocalCarbonContext.getTenantDomain() + " failed due to " +
-                         e.getMessage();
-            log.error(msg);
-            throw new UserManagementException(e.getMessage(), e);
-        }
-
-        HashMap<String, String> claims = new HashMap<String, String>();
-        //claims.put(CLAIMS_FIRSTLOGIN, "true");
-
-        StringBuilder failedUsers = null;
-        for (String user : users) {
-            try {
-                if (userStoreManager.isExistingUser(user)) {
-                    userStoreManager.updateRoleListOfUser(user, new String[0], defaultUserRoles);
-                    continue;
-                }
-                claims.put(CLAIMS_EMAILADDRESS, user);
-                userStoreManager.addUser(user, defaultPassword, defaultUserRoles, claims, null, true);
-
-                updateBAMStats(user, "ADD");
-
-            } catch (UserStoreException e) {
-                if (failedUsers == null) {
-                    failedUsers = new StringBuilder(user);
-                } else {
-                    failedUsers.append("," + user);
-                }
-                String msg =
-                        "Importing users to tenant " + threadLocalCarbonContext.getTenantDomain() + " failed due to " +
-                        e.getMessage();
-                log.error(msg);
-            }
-        }
-
-        if (failedUsers != null) {
-            String errorMsg = "Error importing users: " + failedUsers.toString() + " to tenant " +
-                              threadLocalCarbonContext.getTenantDomain();
-            throw new UserManagementException(errorMsg);
         }
 
         return true;
@@ -410,35 +354,6 @@ public class UserManagementService extends AbstractAdmin {
         }
         return false;
 
-    }
-
-    /**
-     * Update stats on BAM
-     *
-     * @param userName user name
-     * @param action   action
-     * @throws UserManagementException //
-     */
-    public void updateBAMStats(String userName, String action) throws UserManagementException {
-        BamDataPublisher bamDataPublisher = new BamDataPublisher();
-        try {
-            bamDataPublisher
-                    .publishTenantUserUpdateEvent("" + CarbonContext.getThreadLocalCarbonContext().getTenantId(),
-                                                  userName, action, System.currentTimeMillis());
-        } catch (Exception e) {
-            String msg = e.getMessage();
-            if (("DELETE").equals(action)) {
-                msg = "Failed to publish data to BAM on user delete event for tenant " +
-                      CarbonContext.getThreadLocalCarbonContext().getTenantDomain() + " due to " + e.getMessage();
-            } else if (("ADD").equals(action)) {
-                msg = "Failed to publish data to BAM on user add event for tenant " +
-                      CarbonContext.getThreadLocalCarbonContext().getTenantDomain() + " due to " + e.getMessage();
-
-            }
-
-            log.error(msg);
-            throw new UserManagementException(e.getMessage(), e);
-        }
     }
 
     /**
