@@ -260,7 +260,7 @@ var checkUserExistence = function (username) {
 
 var addDefaultLoginRole = function(userName) {
     try{
-        return server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').addDefaultLoginRole(userName);
+        return server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').addDefaultLoginRole(userName);
     }catch (e){
         log.error("Error while adding defualt role for user [ " + userName + " ]");
         log.error(e);

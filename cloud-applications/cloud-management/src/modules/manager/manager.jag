@@ -48,7 +48,7 @@ var isExistingUser = function (email) {
             log.info("The email address [ " + email + " ] is valid");
             user = getUserNameFromEmail(email);
         }
-        isExist = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').isExistingUser(user);
+        isExist = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').isExistingUser(user);
     } catch (e) {
         log.error("Error while checking the existence of user [ " + user + " ]");
         log.error(e);
@@ -129,7 +129,7 @@ var getEmailOfUser = function (userName) {
             context.startTenantFlow();
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
             context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            var userManagementService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+            var userManagementService = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService');
             return userManagementService.getUserEmail(tenantAwareUserName);
         } catch (e) {
             log.error("Error while getting email of user :  " + userName + "\n" + e.message);
