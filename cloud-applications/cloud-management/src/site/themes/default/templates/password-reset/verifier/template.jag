@@ -43,6 +43,7 @@
                            Password must contain:
                            <ul class="list1">
                               <li class="fa fa-times gray">A minimum of 8 characters</li>
+                              <li class="fa fa-times gray">No Whitespaces</li>
                            </ul>
                            At least three of the following types of characters:
                            <ul class="list2">
