@@ -71,6 +71,7 @@ var getAccountId = function () {
         }
     } else {
         log.warn("Unable to retrieve the user information, hence account id retrieval failed");
+        return null;
     }
 };
 
