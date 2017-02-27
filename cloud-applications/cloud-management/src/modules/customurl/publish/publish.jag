@@ -452,12 +452,30 @@
      * File Encryption and validation
      */
     function initializeSSLFileContent(sslFileContent, keyFileContent, chainFileContent, customUrl) {
+        log.info("Validate and encrypt certificate files for custom url : " + customUrl);
         var status = {};
         status.error = false;
         try {
-            var fileValidatingService =
-                    server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
-            fileValidatingService.init(sslFileContent, chainFileContent);
+            var fileValidatingService = new Packages.org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer();
+            fileValidatingService.init(sslFileContent, chainFileContent, keyFileContent);
+
+            //check whether private key matches the public key
+            var result = parse(String(fileValidatingService.matchRSAKeys()));
+            if (result.error) {
+                status.error = true;
+                status.message = result.message + " Please contact WSO2 Cloud Team for help";
+                return status;
+            }
+
+            //validate public cert against the cert chain
+            var result = parse(String(fileValidatingService.validateCertChain()));
+            if (result.error) {
+                status.error = true;
+                status.message = result.message + " Please contact WSO2 Cloud Team for help";
+                return status;
+            }
+
+            //validate public certificate's attributes
             var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
             if (isSSLFileDateVerified.error == 'false') {
                 var isSelfSigned = parse(String(fileValidatingService.isCertificateSelfSigned()));
@@ -484,6 +502,7 @@
                 status.error = true;
                 status.message = isSSLFileDateVerified.message;
             }
+
             if (!status.error) {
                 var fileEncryptService =
                         server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
