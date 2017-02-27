@@ -135,15 +135,14 @@ var getEmailOfUser = function (userName) {
 
 /**
  * Returns the Tenant Domain of the given user
- * @param userName
  * @return String tenantDomain
  */
 var getTenantDomain = function () {
-    var userName = jagg.getUser();
-    if(userName == null) {
+    var username = jagg.getUser();
+    if(username == null) {
         return "carbon.super";
     }
-    return MultitenantUtils.getTenantDomain(userName);
+    return MultitenantUtils.getTenantDomain(username);
 };
 
 /**
