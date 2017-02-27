@@ -154,7 +154,7 @@ var  itemsPerPage = server.osgiService('org.wso2.carbon.base.api.ServerConfigura
 								<%}else {%>
                                    					 <a id="btnAddOrg" class='btn btn-primary link-disabled'>Add Organization</a>
                                    					 You have reached the maximum number of organizations allowed to create. If you need any help please 
-				                                         <a class="contact-us" href="<%=jagg.getAbsoluteUrl("/site/pages/contact-us.jag?subject=Request to create new organization")%>">contact us</a>
+				                                         <a class="contact-us" href="<%=jagg.getAbsoluteUrl("/site/pages/contact-us.jag?subject=Request to create organizations beyond the limit")%>">contact us</a>
 							    	<%}%>
 								</div>
 								<br /> <br /> <br />
