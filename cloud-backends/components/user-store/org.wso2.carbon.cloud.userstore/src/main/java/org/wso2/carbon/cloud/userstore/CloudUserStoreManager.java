@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Custom LDAP based user store implementation for cloud.
@@ -192,7 +193,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
      */
     private String[] searchUsersInSP(String searchFilter, int maxItemLimit) throws UserStoreException {
 
-        Set<String> users = new HashSet<String>();
+        Set<String> users = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         Set<String> resultedUsers = new HashSet<String>();
         try {
             UserStoreManager userStoreManager = userRealm.getUserStoreManager();
