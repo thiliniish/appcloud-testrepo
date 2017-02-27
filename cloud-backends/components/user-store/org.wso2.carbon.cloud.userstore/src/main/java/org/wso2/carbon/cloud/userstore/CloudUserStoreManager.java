@@ -83,11 +83,17 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         if (newCredential != null && !"".equals(newCredential)) {
-            if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
-                LOGGER.error("Error when updating the credentials of user: " + userName
-                        + " by Admin. The user doesn't exist");
-                throw new UserStoreException("Error when updating the credentials of user: " + userName
-                        + " by Admin. The user doesn't exist");
+            if (!(isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE))) {
+                if ((getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
+                    String[] roles = { UserStoreConstants.TENANT_DEFAULT_ROLE };
+                    updateRoleListOfUser(userName, null, roles);
+                    LOGGER.info("Default Role assigned for user : " + userName);
+                } else {
+                    LOGGER.error("Error when updating the credentials of user: " + userName
+                            + " by Admin. The user doesn't exist");
+                    throw new UserStoreException("Error when updating the credentials of user: " + userName
+                            + " by Admin. The user doesn't exist");
+                }
             }
             super.doUpdateCredentialByAdmin(userName, newCredential);
         }
