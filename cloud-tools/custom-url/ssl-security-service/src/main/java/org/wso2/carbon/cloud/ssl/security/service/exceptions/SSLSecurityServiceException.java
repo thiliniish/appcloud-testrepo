@@ -19,7 +19,7 @@
 package org.wso2.carbon.cloud.ssl.security.service.exceptions;
 
 /**
- *
+ * SSLSecurityServiceException is used to wrap the exceptions in SSLSecurityService.
  */
 public class SSLSecurityServiceException extends Exception {
 

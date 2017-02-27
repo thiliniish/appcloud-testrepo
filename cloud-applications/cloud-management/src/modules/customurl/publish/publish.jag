@@ -463,7 +463,7 @@
             var result = parse(String(fileValidatingService.matchRSAKeys()));
             if (result.error) {
                 status.error = true;
-                status.message = result.message + "Please contact WSO2 Cloud Team for help";
+                status.message = result.message + " Please contact WSO2 Cloud Team for help";
                 return status;
             }
 
@@ -471,7 +471,7 @@
             var result = parse(String(fileValidatingService.validateCertChain()));
             if (result.error) {
                 status.error = true;
-                status.message = result.message + "Please contact WSO2 Cloud Team for help";
+                status.message = result.message + " Please contact WSO2 Cloud Team for help";
                 return status;
             }
 
