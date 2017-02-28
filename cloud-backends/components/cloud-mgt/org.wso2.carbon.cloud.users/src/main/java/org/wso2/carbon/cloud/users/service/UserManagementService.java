@@ -235,19 +235,10 @@ public class UserManagementService extends AbstractAdmin {
         try {
             UserStoreManager userStoreManager =
                     UserMgtUtil.getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
-            String[] roles = userStoreManager.getRoleNames();
 
-            for (String role : roles) {
-
-                if (!UserMgtUtil.everyOneRoleName.equals(role)) {
-                    String[] users = userStoreManager.getUserListOfRole(role);
-                    for (String user : users) {
-
-                        if (!userMap.containsKey(user) && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(user)) {
-                            userMap.put(user, UserMgtUtil.getUserInfoBean(user, tenantId));
-                        }
-                    }
-                }
+            String[] users = userStoreManager.listUsers("*", -1);
+            for (String user : users) {
+                userMap.put(user, UserMgtUtil.getUserInfoBean(user, tenantId));
             }
             Collection<UserInfoBean> userInfoBeans = userMap.values();
             return userInfoBeans.toArray(new UserInfoBean[userInfoBeans.size()]);
