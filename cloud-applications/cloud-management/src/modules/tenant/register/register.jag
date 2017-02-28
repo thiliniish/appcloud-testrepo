@@ -155,8 +155,6 @@ var createTenant = function (organizationName, password, usagePlan, firstName, l
     var id = registerTenantForTrustedUser(organizationDomain, adminUserName, adminPassword, firstName, lastName, email, usagePlan);
     var isUserInCloud = hasATenant(adminUserName);
     if (!isUserInCloud) {
-        log.info("Sending tenant creation events of [ " + organizationDomain + " ] to BAM");
-        server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName, "ADD");
         try {
             //Adding user to OT
             jagg.module("util").addUserToOT(email, password, firstName, lastName);
@@ -262,7 +260,7 @@ var checkUserExistence = function (username) {
 
 var addDefaultLoginRole = function(userName) {
     try{
-        return server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').addDefaultLoginRole(userName);
+        return server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').addDefaultLoginRole(userName);
     }catch (e){
         log.error("Error while adding defualt role for user [ " + userName + " ]");
         log.error(e);
