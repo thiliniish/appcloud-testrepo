@@ -23,7 +23,7 @@ var getUserRolesOfTenant = function (userName, tenantDomain) {
         context.startTenantFlow();
         context.getThreadLocalCarbonContext().setTenantId(tenantId);
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+        var tenantMgtService = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService');
         var user = tenantMgtService.getUserInfo(userName);
         var roles=user.getRoles();
     }

@@ -26,7 +26,7 @@ var addUserRoles = function addUserRoles(username,userRoles) {
 		context.startTenantFlow();
 		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
 		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-		result = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').addUserRoles(username,userRoles);
+		result = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').addUserRoles(username,userRoles);
 	} finally {
 		context.endTenantFlow();
 	}
@@ -51,7 +51,7 @@ var updateUserRoles = function (userName,addRoles,removeRols) {
             context.startTenantFlow();
             context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            result = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(userName,paraAddRoles,paraRemoveRoles);
+            result = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').updateUserRoles(userName,paraAddRoles,paraRemoveRoles);
         } finally {
             context.endTenantFlow();
         }
@@ -234,7 +234,7 @@ var deleteUserFromTenant = function (userName){
             var isTenantUser = jagg.module("tenant").isUserOfTenant(tenantDomain, email);
             if (isTenantUser.isExists) {
                 log.info("Removing user " + userName + " from tenant " + tenantDomain);
-                isSuccess = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService')
+                isSuccess = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService')
                         .removeUserFromTenant(userName);
             } else {
                 var msg = "Error while removing non-existing user " + email + " in the tenant " + tenantDomain;
@@ -575,7 +575,7 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
         //if its a new user add to OT, and assign to the tenant.
         var isUserExist = modManager.isExistingUser(username);
         if (!isUserExist) {
-            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(username, defaultPassword, email, firstName, lastName);
+            server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').importUserTotheTenant(username, defaultPassword, email, firstName, lastName);
             jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
             //Adding user to OT CloudUser role
             jagg.module("util").addUserToOTCloudUserRole(email);
@@ -598,7 +598,7 @@ var importInvitedUser = function (confirmationKey, defaultPassword, firstName, l
             //Need to add default role for users who exists already but not a member of tenant; hence adding default role here
             assignedRoles.push(CLOUD_DEFAULT_ROLE);
         }
-        server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
+        server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
         log.info("Updating the roles [ " + assignedRoles + " ] for the user [ " + username + " ] of the tenant [ " +
                 "" + tenantDomain + " ]");
     } catch (e) {
@@ -683,7 +683,7 @@ var importUserToTenant = function (email, defaultPassword, firstName, lastName, 
 
             //if its a new user add to OT, and assign to the tenant.
             if (!isUserExist) {
-                server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUserTotheTenant(username, defaultPassword, email, firstName, lastName);
+                server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').importUserTotheTenant(username, defaultPassword, email, firstName, lastName);
                 jagg.module("util").addUserToOT(email, defaultPassword, firstName, lastName);
                 //Adding user to OT CloudUser role
                 jagg.module("util").addUserToOTCloudUserRole(email);
@@ -706,7 +706,7 @@ var importUserToTenant = function (email, defaultPassword, firstName, lastName, 
             if (!hasDefaultRole) {
                 assignedRoles.push(CLOUD_DEFAULT_ROLE);
             }
-            server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
+            server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').updateUserRoles(username, assignedRoles, null);
             log.info("Updating the roles [ " + assignedRoles + " ] for the user [ " + username + " ] of the tenant [ " +
                      "" + tenantDomain + " ]");
         } catch (e) {
