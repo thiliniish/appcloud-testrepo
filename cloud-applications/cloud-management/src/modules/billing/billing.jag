@@ -1226,7 +1226,11 @@ var verifyEventAndSendInvoice = function (id) {
                 var subject = invoiceDetails.data.subject;
                 var to = invoiceDetails.data.to;
                 var bcc = cloudConfig.registrationEmail.from;
-                jagg.module("util").sendEmailWithBCC(body, subject, to, attachment, bcc);
+                var cc = null;
+                if (invoiceDetails.data.cc != null) {
+                    cc = invoiceDetails.data.cc;
+                }
+                jagg.module("util").sendEmailWithBCC(body, subject, to, attachment, bcc, cc);
             } else {
                 log.error("Error occurred while generating invoice for event" + id);
             }
@@ -1246,10 +1250,10 @@ var verifyEventForFailedPayment = function (id) {
             var subject = "[IMPORTANT] Error occurred while processing the payment";
             // Send a mail to cloud team
             var message = CHARGE_FAILED_MESSAGE +
-                    "<br><br> Customer - " + eventDataJson.data.data.object.customer +
-                    "<br> Customer email- " + eventDataJson.data.data.object.receipt_email +
-                    "<br> failure code - " + eventDataJson.data.data.object.failure_code +
-                    "<br> failure message - " + eventDataJson.data.data.object.failure_message;
+                          "<br><br> Customer - " + eventDataJson.data.data.object.customer +
+                          "<br> Customer email- " + eventDataJson.data.data.object.receipt_email +
+                          "<br> failure code - " + eventDataJson.data.data.object.failure_code +
+                          "<br> failure message - " + eventDataJson.data.data.object.failure_message;
             jagg.module("util").sendEmail(message.toString(), subject, cloudConfig.registrationEmail.from);
 
             //Send mail to the customer and cloud
@@ -1260,14 +1264,28 @@ var verifyEventForFailedPayment = function (id) {
             body = body.replace("{customer}", eventDataJson.data.data.object.source.name)
                     .replace("{status}", eventDataJson.data.data.object.failure_message)
                     .replace("{date}", date);
-            modUtils.sendEmail(body, subjectForCustomer, [cloudConfig.registrationEmail.from, eventDataJson
-                    .data.data.object.receipt_email]);
+            if (eventDataJson.data.data.object.customer != null) {
+                var customerMetaData = JSON.parse(billingCoreService.getCustomerMetaData(eventDataJson.data.data.object.customer));
+                if (customerMetaData.success) {
+                    var cc = null;
+                    if (customerMetaData.data != null && customerMetaData.data.additionalEmails != null && "" !=
+                                                                                                           customerMetaData.data.additionalEmails) {
+                        cc = customerMetaData.data.additionalEmails;
+                    }
+                    modUtils.sendEmailWithBCC(body, subjectForCustomer, eventDataJson.data.data.object.receipt_email, null,
+                                              null, cc);
+                } else {
+                    log.error(customerMetaData.message);
+                }
+            } else {
+                log.error("Unable to get the customer information for the event id " + id);
+            }
+            log.info("Successfully sent the failed invoice payment for the event id " + id);
         } else {
             log.error(eventDataJson.message);
         }
     } catch (e) {
         log.error("Error occurred while verifying and sending emails for failed payments " + e);
-        throw Error(e);
     }
 };
 
