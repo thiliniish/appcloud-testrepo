@@ -236,7 +236,8 @@ public class UserManagementService extends AbstractAdmin {
             UserStoreManager userStoreManager =
                     UserMgtUtil.getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
 
-            String[] users = userStoreManager.listUsers("*", -1);
+            String[] users = userStoreManager
+                    .listUsers(CloudConstants.ANY_USERS_FILTER, CloudConstants.UNLIMITED_USERS_LIMIT);
             for (String user : users) {
                 userMap.put(user, UserMgtUtil.getUserInfoBean(user, tenantId));
             }
