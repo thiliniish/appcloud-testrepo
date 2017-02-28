@@ -41,6 +41,9 @@ public class CloudConstants {
     public static final String SELECT_TENANT_DISPLAY_NAME_FOR_TENANT_DOMAIN_QUERY =
             "SELECT displayName FROM ORGANIZATIONS WHERE tenantDomain = ?;";
 
+    public static final String ANY_USERS_FILTER = "*";
+    public static final int UNLIMITED_USERS_LIMIT = -1;
+
     /**
      * Constants for permissions
      */
