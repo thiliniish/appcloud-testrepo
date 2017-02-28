@@ -363,7 +363,7 @@ var getInviteeDirectUrl = function(userRoles) {
 	//if the invited role is only subscriber, user will direct to the API store
 	if(numOfCommonSubRoles == 1 && userRoles[0] == "subscriber" ){
 	    var tenantDomain = session.get("TENANT_DOMAIN");
-	    url = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
+	    url = cloudConfig.ServerUrls.apiManager + "store?tenant=" + tenantDomain;
 	}
 
 	return url;
