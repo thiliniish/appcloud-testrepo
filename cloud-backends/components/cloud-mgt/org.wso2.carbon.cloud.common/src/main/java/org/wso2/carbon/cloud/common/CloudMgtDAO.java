@@ -1053,11 +1053,11 @@ public class CloudMgtDAO {
     }
 
     /**
-     * Get the max tenant count a user can created for given user. If user is not whitelisted then max tenant count will
-     * be zero.
+     * Get the max tenant/organization count a whitelisted user can create. If user is not whitelisted then max tenant
+     * count will be zero.
      *
-     * @param username
-     * @return
+     * @param username Username
+     * @return Maximum tenant/org count.
      * @throws CloudMgtException
      */
     public int getMaxTenantCount(String username) throws CloudMgtException {
