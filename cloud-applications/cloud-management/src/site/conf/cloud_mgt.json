@@ -293,5 +293,5 @@
     "productRatePlanId": "api_cloud_medium",
     "productName" : "API"
   },
-  "maxAllowedOrganizations": 3
+  "defaultMaxAllowedOrganizations": 5
 }

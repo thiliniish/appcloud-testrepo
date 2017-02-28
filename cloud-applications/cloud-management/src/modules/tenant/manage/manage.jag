@@ -86,7 +86,7 @@ var isOrgLimitExceeded = function () {
     try {
         //default value of max number of tenants a user can create
         var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
-        var maxNumberOfOrg = cloudConfig.maxAllowedOrganizations;
+        var maxNumberOfOrg = cloudConfig.defaultMaxAllowedOrganizations;
         //max number of tenants a user can create, if user is whistlisted
         var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
         var cloudmgtDAO = new CloudMgtDAO();
