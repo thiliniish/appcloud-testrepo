@@ -93,11 +93,11 @@
         "serviceType": "commercial",
         "roleTypes": [
           {
-            "roleName": "devicemgt_user",
+            "roleName": "devicemgtuser",
             "displayRoles": "DeviceMgtUser"
           },
           {
-            "roleName": "devicemgt_admin",
+            "roleName": "devicemgtadmin",
             "displayRoles": "DeviceMgtAdmin"
           }
         ],
