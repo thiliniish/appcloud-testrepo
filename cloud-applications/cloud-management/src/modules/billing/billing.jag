@@ -1273,7 +1273,7 @@ var verifyEventForFailedPayment = function (id) {
                         cc = customerMetaData.data.additionalEmails;
                     }
                     modUtils.sendEmailWithBCC(body, subjectForCustomer, eventDataJson.data.data.object.receipt_email, null,
-                                              null, cc);
+                                              cloudConfig.registrationEmail.from, cc);
                 } else {
                     log.error(customerMetaData.message);
                 }

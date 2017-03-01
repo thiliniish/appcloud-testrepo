@@ -1310,7 +1310,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                     }
                     response.add(BillingVendorConstants.RESPONSE_DATA, metaDataObject);
                 } else {
-                    response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+                    response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
                     response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, "No meta data available for the " +
                                                                                   "customer " + customerId);
                     response.add(BillingVendorConstants.RESPONSE_DATA, null);
