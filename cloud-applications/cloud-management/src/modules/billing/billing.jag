@@ -1227,7 +1227,7 @@ var verifyEventAndSendInvoice = function (id) {
                 var to = invoiceDetails.data.to;
                 var bcc = cloudConfig.registrationEmail.from;
                 var cc = null;
-                if (invoiceDetails.data.cc != null) {
+                if (invoiceDetails.data.cc != null && invoiceDetails.data.cc.trim() != "") {
                     cc = invoiceDetails.data.cc;
                 }
                 jagg.module("util").sendEmailWithBCC(body, subject, to, attachment, bcc, cc);
