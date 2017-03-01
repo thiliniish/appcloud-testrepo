@@ -46,8 +46,8 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9643/publisher/",
-          "storeUrl": "https://milestones.appfactory.wso2.com:9643/store",
+          "cloudTypeUrl": "https://api.cloudlocal.wso2.com:9445/publisher/",
+          "storeUrl": "https://api.cloudlocal.wso2.com:9445/store",
           "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
         },
         "adminUsername" : "admin",
@@ -99,25 +99,25 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/cloudmgt/"
+          "cloudTypeUrl": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/"
         }
       }
     ]
   },
   "ServerUrls": {
     "appfactory": "https://milestones.appfactory.wso2.com:9443/services/",
-    "cloudmgtServices": "https://milestones.appfactory.wso2.com:9443/services/",
-    "cloudmgt": "https://milestones.appfactory.wso2.com:9443/cloudmgt",
+    "cloudmgtServices": "https://cloudmgt.cloudlocal.wso2.com:9444/services/",
+    "cloudmgt": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt",
     "bps": "https://milestones.appfactory.wso2.com:9543/services/",
     "greg": "https://milestones.appfactory.wso2.com:9443/services/",
-    "identity": "https://milestones.appfactory.wso2.com:9444/services/",
-    "apiCloud": "https://milestones.appfactory.wso2.com:9643/services/",
-    "apiManager": "https://milestones.appfactory.wso2.com:9643/"
+    "identity": "https://identity.cloudlocal.wso2.com:9443/services/",
+    "apiCloud": "https://api.cloudlocal.wso2.com:9445/services/",
+    "apiManager": "https://api.cloudlocal.wso2.com:9445/"
   },
   "SSORelyingParty": {
-    "name": "cloudmgt",
+    "name": "CLOUDMGT",
     "dashboardName": "WSO2 Cloud Dashboard",
-    "identityProviderURL": "https://milestones.appfactory.wso2.com:9444/samlsso",
+    "identityProviderURL": "https://identity.cloudlocal.wso2.com:9443/samlsso",
     "keyStorePassword": "wso2carbon",
     "identityKeyAlias": "wso2carbon",
     "keyStoreName": "../../../../../../resources/security/wso2carbon.jks",
@@ -138,8 +138,8 @@
     "host": "smtp.gmail.com",
     "port": "25",
     "tls": "true",
-    "targetEpr": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/confirm-verification.jag",
-    "targetStoreEpr" : "https://local.cloudmgt.wso2.com:9643/store/site/pages/confirm-verification.jag",
+    "targetEpr": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/confirm-verification.jag",
+    "targetStoreEpr" : "https://api.cloudlocal.wso2.com:9445/store/site/pages/confirm-verification.jag",
     "confirmPagePath" : "/site/pages/confirm-verification.jag"
   },
   "bamConfiguration": {
