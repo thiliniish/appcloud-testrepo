@@ -516,7 +516,7 @@
             return status;
         } catch(e) {
             var message;
-            if(e.javaException instanceof org.wso2.carbon.cloud.ssl.security.service.exceptions.SSLSecurityServiceException){
+            if (e.javaException instanceof org.wso2.carbon.cloud.ssl.security.service.exceptions.SSLSecurityServiceException) {
                 message = e.javaException.getMessage();
             } else {
                 message = "Error occurred during file encryption. Please contact WSO2 Cloud Team for help.";
