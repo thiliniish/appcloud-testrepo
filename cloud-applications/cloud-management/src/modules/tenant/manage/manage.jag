@@ -97,8 +97,7 @@ var isOrgLimitExceeded = function () {
         //a user who already has a tenant/organization can only add another organization
         //so if max limit is 1 user can not create another organization.
         if (maxNumberOfOrg <= 1) {
-            result = true;
-            return result;
+            return true;
         }
         //List of tenant where user exists
         var tenants = getOrganizations();
