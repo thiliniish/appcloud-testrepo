@@ -545,10 +545,8 @@ public final class CloudBillingServiceUtils {
         data.addProperty(BillingConstants.SUBJECT, "Your payment was successfully processed.");
         data.addProperty(BillingConstants.TO,
                          invoiceObj.get(BillingConstants.EMAIL).asText());
-        if (invoiceObj.get(BillingConstants.ADDITIONAL_EMAILS).asText() != null && !"".equals(invoiceObj.get
-                (BillingConstants
-                         .ADDITIONAL_EMAILS).asText())) {
-
+        if (invoiceObj.get(BillingConstants.ADDITIONAL_EMAILS).asText() != null &&
+            StringUtils.isBlank(invoiceObj.get(BillingConstants.ADDITIONAL_EMAILS).asText())) {
             data.addProperty(BillingConstants.CC, invoiceObj.get(BillingConstants.ADDITIONAL_EMAILS).asText());
         }
         data.addProperty(BillingConstants.BODY, messageBody);

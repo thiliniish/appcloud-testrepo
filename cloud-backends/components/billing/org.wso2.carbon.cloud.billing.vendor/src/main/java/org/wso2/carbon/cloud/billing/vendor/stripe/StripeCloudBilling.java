@@ -39,6 +39,7 @@ import com.stripe.model.Invoice;
 import com.stripe.model.InvoiceItem;
 import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
@@ -1200,9 +1201,9 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                     (JsonObject) jsonParser.parse(getCustomerMetaData(rawInvoiceObj.get("customer").asText()));
             JsonObject dataObject = (JsonObject) customerMetaDataObject.get("data");
 
-            if (dataObject.get("additionalEmails") != null &&
-                !"".equals(dataObject.get("additionalEmails").getAsString())) {
-                String additionalEmails = dataObject.get("additionalEmails").getAsString();
+            if (dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS) != null &&
+                StringUtils.isBlank(dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString())) {
+                String additionalEmails = dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString();
                 invoiceDetailObj.put(BillingVendorConstants.ADDITIONAL_EMAILS, additionalEmails);
             }
             invoiceDetailObj.put(BillingVendorConstants.INVOICE_NUMBER, invoiceId);
@@ -1299,7 +1300,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         JsonObject response = new JsonObject();
         JsonObject metaDataObject = new JsonObject();
         try {
-            if (customerId != null && !"".equals(customerId)) {
+            if (customerId != null && StringUtils.isBlank(customerId)) {
                 Customer customer = Customer.retrieve(customerId);
                 Map<String, String> customerData = customer.getMetadata();
                 if (customerData.size() > 0) {

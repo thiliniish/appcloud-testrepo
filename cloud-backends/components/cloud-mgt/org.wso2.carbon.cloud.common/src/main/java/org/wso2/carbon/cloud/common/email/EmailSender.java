@@ -384,8 +384,9 @@ public class EmailSender {
                 }
                 message.addRecipients(recipientType, recipientAddresses);
             } else if (recipientObject instanceof String) {
-                if (((String) recipientObject).indexOf(CloudMgtConstants.COMMA_SEPERATOR) > -1) {
-                    String[] to = (String[]) ((String) recipientObject).split(CloudMgtConstants.COMMA_SEPERATOR);
+                String recipientObj = (String) recipientObject;
+                if ((recipientObj.indexOf(CloudMgtConstants.COMMA_SEPERATOR) > -1) {
+                    String[] to = (String[]) (recipientObj.split(CloudMgtConstants.COMMA_SEPERATOR);
                     InternetAddress[] recipientAddresses = new InternetAddress[to.length];
                     for (int i = 0; i < to.length; i++) {
                         recipientAddresses[i] = new InternetAddress(to[i]);
