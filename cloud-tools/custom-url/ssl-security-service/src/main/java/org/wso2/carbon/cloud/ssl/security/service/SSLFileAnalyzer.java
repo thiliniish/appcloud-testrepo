@@ -183,8 +183,9 @@ public class SSLFileAnalyzer extends AbstractAdmin {
             x509CertificateManager.validateCertChain();
             return "{'error' : false }";
         } catch (SSLSecurityServiceException e) {
-            log.error(e.getMessage(), e);
-            return "{'error': true , 'message':'Error occurred while validating the certificate chain.' }";
+            String errorMsg = e.getMessage();
+            log.error(errorMsg, e);
+            return "{'error': true , 'message':'" + errorMsg + "' }";
         }
     }
 }

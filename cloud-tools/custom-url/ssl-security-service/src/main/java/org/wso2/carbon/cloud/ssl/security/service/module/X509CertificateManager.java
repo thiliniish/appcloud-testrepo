@@ -90,7 +90,7 @@ public class X509CertificateManager {
      * @throws IOException
      * @throws RuntimeException
      */
-    private void initX509Certificate(String fileContent) throws IOException, RuntimeException {
+    private void initX509Certificate(String fileContent) throws IOException, SSLSecurityServiceException {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         PEMReader pemReader = new PEMReader(new StringReader(fileContent));
         try {
@@ -98,8 +98,9 @@ public class X509CertificateManager {
             if (readerObject instanceof X509Certificate) {
                 this.x509Certificate = (X509Certificate) readerObject;
             } else {
-                String errorMessage = "Provided certificate does not support in current environment.";
-                throw new RuntimeException(errorMessage);
+                String errorMessage = "Provided certificate is not supported in current environment." +
+                        " Supported format X509.";
+                throw new SSLSecurityServiceException(errorMessage);
             }
         } catch (IOException ex) {
             String errorMessage = "IOException is thrown when reading the file content by the pemReader";
@@ -286,13 +287,14 @@ public class X509CertificateManager {
             cf = CertificateFactory.getInstance("X.509", "BC");
             Collection certs = cf.generateCertificates(inStream);
             if (certs == null || certs.size() == 0) {
-                throw new SSLSecurityServiceException("Invalid certificate chain file.");
+                throw new SSLSecurityServiceException(
+                        "Invalid certificate chain file. No certificates found in certificate chain file");
             }
 
             for (Object obj : certs) {
                 X509Certificate cert = (X509Certificate) obj;
                 if (cert.getSubjectX500Principal().equals(x509Certificate.getSubjectX500Principal())) {
-                    throw new SSLSecurityServiceException("Invalid certificate chain file.Certificate chain file" +
+                    throw new SSLSecurityServiceException("Invalid certificate chain file. Certificate chain file" +
                                                                   " contains the domain/end certificate.");
                 }
                 //subject and issue value are equals for CA root certificate
@@ -304,11 +306,13 @@ public class X509CertificateManager {
             }
 
             if (rootCertificate == null) {
-                String errorMsg = "Root certificate is not provided in the chain file";
+                String errorMsg = "Invalid certificate chain file. Root certificate is not provided in the " +
+                        "certificate chain file.";
                 throw new SSLSecurityServiceException(errorMsg);
             }
         } catch (CertificateException | NoSuchProviderException e) {
-            String errorMsg = "Error occurred while validating the certificate chain";
+            String errorMsg = "Invalid certificate chain file. Make sure certificate chain file contains " +
+                    "all intermediate and root certificate.";
             throw new SSLSecurityServiceException(errorMsg, e);
         } finally {
             if (inStream != null) {
@@ -350,7 +354,8 @@ public class X509CertificateManager {
             result = (PKIXCertPathValidatorResult) validator.validate(certPath, param);
         } catch (CertificateException | InvalidAlgorithmParameterException | NoSuchAlgorithmException |
                 CertPathValidatorException | NoSuchProviderException e) {
-            String errorMsg = "Error occurred while validate the certificate chain";
+            String errorMsg = "Invalid certificate chain file. Make sure certificate chain file contains " +
+                    "all intermediate and root certificate.";
             throw new SSLSecurityServiceException(errorMsg, e);
         }
         return result;
