@@ -4,6 +4,9 @@ var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
 var serviceId = session.get("SERVICE_ID");
+if (serviceId == null || serviceId == "" ) {
+    serviceId = API_CLOUD_SUBSCRIPTION_ID;
+}
 var isBillingEnabled = jagg.module("billing").isBillingEnabled(serviceId);
 var currency = (jagg.module("billing").getCurrencyUsed());
 var invoiceId = request.getParameter("invoiceId");

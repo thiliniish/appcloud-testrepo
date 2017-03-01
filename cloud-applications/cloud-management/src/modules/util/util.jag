@@ -363,7 +363,7 @@ var getInviteeDirectUrl = function(userRoles) {
 	//if the invited role is only subscriber, user will direct to the API store
 	if(numOfCommonSubRoles == 1 && userRoles[0] == "subscriber" ){
 	    var tenantDomain = session.get("TENANT_DOMAIN");
-	    url = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
+	    url = cloudConfig.ServerUrls.apiManager + "store?tenant=" + tenantDomain;
 	}
 
 	return url;
@@ -946,6 +946,32 @@ function getGatewayMigrationProperties() {
     }
     return gatewayMigrationProperties;
 }
+
+var sendComplimentaryAccountClaimedNotification = function(email, supportAccount, username) {
+    try {
+        var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_claim_success.txt");
+        var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claimed] - " + supportAccount;
+        emailBody = emailBody.replace("$email", email);
+        emailBody = emailBody.replace("$supportAccount", supportAccount);
+        emailBody = emailBody.replace("$username", username);
+        var accountCreationSuccessResponse = sendEmail(emailBody, subject);
+        return accountCreationSuccessResponse;
+    } catch (e) {
+        log.error("Error while sending email for claiming complimentary account for username: "  + username);
+        throw Error(e);
+    }
+};
+
+var sendComplimentaryAccountCreationFailureNotification = function(email, firstName, lastName, exception) {
+    var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_creation_failure.txt");
+    var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claim failure] - " + email;
+    emailBody = emailBody.replace("$email", email);
+    emailBody = emailBody.replace("$firstName", firstName);
+    emailBody = emailBody.replace("$lastName", lastName);
+    emailBody = emailBody.replace("$error", exception);
+    var accountCreationFailureResponse = sendEmail(emailBody, subject);
+    return accountCreationFailureResponse;
+};
 
 %>
 

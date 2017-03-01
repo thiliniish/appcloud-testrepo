@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Custom LDAP based user store implementation for cloud.
@@ -83,11 +84,17 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         if (newCredential != null && !"".equals(newCredential)) {
-            if (!isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE)) {
-                LOGGER.error("Error when updating the credentials of user: " + userName
-                        + " by Admin. The user doesn't exist");
-                throw new UserStoreException("Error when updating the credentials of user: " + userName
-                        + " by Admin. The user doesn't exist");
+            if (!(isUserInRole(userName, UserStoreConstants.TENANT_DEFAULT_ROLE))) {
+                if ((getTenantId() == MultitenantConstants.SUPER_TENANT_ID)) {
+                    String[] roles = { UserStoreConstants.TENANT_DEFAULT_ROLE };
+                    updateRoleListOfUser(userName, null, roles);
+                    LOGGER.info("Default Role assigned for user : " + userName);
+                } else {
+                    LOGGER.error("Error when updating the credentials of user: " + userName
+                            + " by Admin. The user doesn't exist");
+                    throw new UserStoreException("Error when updating the credentials of user: " + userName
+                            + " by Admin. The user doesn't exist");
+                }
             }
             super.doUpdateCredentialByAdmin(userName, newCredential);
         }
@@ -186,7 +193,7 @@ public class CloudUserStoreManager extends ReadWriteLDAPUserStoreManager {
      */
     private String[] searchUsersInSP(String searchFilter, int maxItemLimit) throws UserStoreException {
 
-        Set<String> users = new HashSet<String>();
+        Set<String> users = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         Set<String> resultedUsers = new HashSet<String>();
         try {
             UserStoreManager userStoreManager = userRealm.getUserStoreManager();
