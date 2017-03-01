@@ -1,0 +1,214 @@
+<%
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log("module/admin/cloudUtil.jag");
+var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+var subscriptionsType = cloudConfig.subscriptions.type;
+
+// CloudUtil interface
+var CloudUtil = {
+    publishTenantSubscription: function (tenantDomain, serviceId, type, trialStartDate, trialEndDate, status) {},
+    loadSubscriptionPlans: function (subscriptions) {},
+    isDowngradePossible: function () {}
+};
+
+// define classes
+var ApiCloudUtil = function () {};
+var IntegrationCloudUtil = function () {};
+
+// extend the CloudUtil interface
+ApiCloudUtil.prototype = Object.create(CloudUtil);
+IntegrationCloudUtil.prototype = Object.create(CloudUtil);
+
+// actual implementation goes here
+ApiCloudUtil.prototype.publishTenantSubscription = function (tenantDomain, serviceId, type, trialStartDate, trialEndDate, status) {
+
+};
+
+IntegrationCloudUtil.prototype.publishTenantSubscription = function (tenantDomain, serviceId, type, trialStartDate, trialEndDate, status) {
+    var cloudTypeUrl = null;
+    var adminUsername = null;
+    var adminPassword = null;
+    for (var i = 0; i < subscriptionsType.length; i++) {
+        if ((subscriptionsType[i].id).equals(serviceId)) {
+            cloudTypeUrl = subscriptionsType[i].urls.cloudTypeUrl;
+            adminUsername = cloudConfig.SSORelyingParty.adminUser;
+            adminPassword = cloudConfig.SSORelyingParty.adminPassword;
+        }
+    }
+
+    // login to integration cloud and get cookie
+    var cookie = null;
+    try {
+        var loginUrl = cloudTypeUrl + "site/blocks/user/login/ajax/login.jag";
+        var loginData = {
+            "action": "login",
+            "userName" : adminUsername,
+            "password" : adminPassword
+        };
+
+        var loginResult = post(loginUrl, loginData, {} , 'json');
+        var loginResponse = loginResult.xhr.responseText;
+        if (loginResponse.error == "true") {
+            throw new Error(loginResponse.message);
+        } else {
+            cookie = loginResult.xhr.getResponseHeader(SET_COOKIE_HEADER);
+        }
+    } catch (e) {
+        log.error("Exception occurred during establishing connection to " + serviceId);
+        log.error(e);
+        throw e;
+    }
+
+
+    //call integration cloud publishTenantSubscription api
+    var data = {
+        action: "publishTenantSubscription",
+        tenantDomain: tenantDomain,
+        cloudType: serviceId,
+        plan: type,
+        startDate: trialStartDate,
+        endDate: trialEndDate,
+        status: status
+    };
+    var header = {
+        "Cookie" : cookie
+    };
+
+    if (log.isDebugEnabled()) {
+        log.debug("data " + stringify(data));
+        log.debug("header " + stringify(header));
+    }
+
+    var publishTenantSubscriptionApi = cloudTypeUrl + "site/blocks/admin/admin.jag";
+    if (log.isDebugEnabled()) {
+        log.debug("publishTenantSubscriptionApi " + stringify(publishTenantSubscriptionApi));
+    }
+    try {
+        //Need to handle post
+        post(publishTenantSubscriptionApi, data, header, 'json');
+    } catch (e) {
+        log.error("Exception while publishing tenant subscription for tenant : " +  tenantDomain + ", cloud : " + serviceId);
+        log.error(e);
+        throw e;
+    }
+};
+
+ApiCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
+    var l = Packages.java.util.Locale.getDefault();
+    var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+
+    var subscriptionJson = {
+        "headers": ["Portal users", "Calls/day", "Calls above plan", "Gateway Locations", "API monetization"],
+        "entry": [],
+        "shortDescription" : []
+    };
+
+    for (var i = 0; i < subscriptions.length; i++) {
+        var item = subscriptions[i];
+        var rental = item.getProperty(BILLING_PLAN_MONTHLY_RENTAL).substring(1);
+        var callsPersDay = numFormat.format(new Packages.java.math.BigDecimal(item.getProperty(BILLING_PLAN_MAX_DAILY_USAGE)));
+        var monetizationString = "";
+        if (item.getProperty(BILLING_PLAN_MONETIZATION) == "Yes") {
+            monetizationString = "API monetization";
+        }
+        subscriptionJson.entry.push({
+            "id": subscriptions[i].getId(),
+            "name": item.getName(),
+            "rental": rental,
+            "values" : [
+                item.getProperty(BILLING_PLAN_MAX_ACCOUNT),
+                callsPersDay,
+                item.getProperty(BILLING_PLAN_OVER_USAGE),
+                item.getProperty(BILLING_PLAN_REGIONAL_SELECTION),
+                item.getProperty(BILLING_PLAN_MONETIZATION)
+            ],
+            "premiumLevel": item.getProperty(BILLING_PLAN_PREMIUM_LEVEL),
+            "visibility": item.getProperty(BILLING_PLAN_VISIBILITY),
+            "shortDescription": [
+                item.getProperty(BILLING_PLAN_MAX_ACCOUNT) + " Portal users",
+                callsPersDay + " Calls/day",
+                item.getProperty(BILLING_PLAN_OVER_USAGE) + " Calls above plan",
+                monetizationString
+            ]
+        });
+    }
+    return subscriptionJson;
+};
+
+IntegrationCloudUtil.prototype.loadSubscriptionPlans = function (subscriptions) {
+    var subscriptionJson = {
+        "headers": ["Applications", "Additional App Types", "Resources", "Databases", "Scaling", "Location"],
+        "entry": [],
+        "shortDescription" : []
+    };
+
+    for (var i = 0; i < subscriptions.length; i++) {
+        var item = subscriptions[i];
+        var scallingString = "";
+        if (item.getProperty(BILLING_PLAN_SCALING) == "Yes") {
+            scallingString = "Scaling";
+        }
+        subscriptionJson.entry.push({
+                                        "id": subscriptions[i].getId(),
+                                        "name": item.getName(),
+                                        "rental": item.getProperty(BILLING_PLAN_MONTHLY_RENTAL).substring(1),
+                                        "values" : [
+                                            item.getProperty(BILLING_PLAN_MAX_APPLICATIONS),
+                                            item.getProperty(BILLING_PLAN_ADDITIONAL_APP_TYPES),
+                                            item.getProperty(BILLING_PLAN_RESOURCES),
+                                            item.getProperty(BILLING_PLAN_MAX_DATABASES),
+                                            item.getProperty(BILLING_PLAN_SCALING),
+                                            item.getProperty(BILLING_PLAN_REGIONAL_SELECTION)
+                                        ],
+                                        "premiumLevel": item.getProperty(BILLING_PLAN_PREMIUM_LEVEL),
+                                        "visibility": item.getProperty(BILLING_PLAN_VISIBILITY),
+                                        "shortDescription": [
+                                            item.getProperty(BILLING_PLAN_MAX_APPLICATIONS) + " Applications",
+                                            item.getProperty(BILLING_PLAN_RESOURCES) + " Resources",
+                                            item.getProperty(BILLING_PLAN_MAX_DATABASES) + " Databases",
+                                            scallingString
+                                        ]
+                                    });
+    }
+    return subscriptionJson;
+};
+
+ApiCloudUtil.prototype.isDowngradePossible = function () {
+    return true;
+};
+
+IntegrationCloudUtil.prototype.isDowngradePossible = function () {
+    // to-do:
+    return true;
+};
+
+
+var getCloudUtil = function (type) {
+    if (type == 'integration_cloud') {
+        return new IntegrationCloudUtil();
+    }
+    return new ApiCloudUtil();
+};
+
+
+%>

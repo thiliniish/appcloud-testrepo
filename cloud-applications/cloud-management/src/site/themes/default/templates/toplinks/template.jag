@@ -20,6 +20,7 @@ jagg.template("toplinks", function(inputs, outputs, jagg) { %>
     var jsonObjCloudmgt = jagg.module("util").getJsonFromFile("/site/conf/cloud_mgt.json");
     var typeList = jsonObjCloudmgt.subscriptions.type;
     var subscriptionInfo = jagg.module("subscriptions").getSubscriptionInfo(typeList, username);
+    var serviceId = session.get("SERVICE_ID");
     var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
 
     if((session.get("TENANT_INFO")) != null ){

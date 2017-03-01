@@ -3,7 +3,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var billingService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.CloudBillingService');
 var apiMonService = server.osgiService('org.wso2.carbon.cloud.billing.core.service.APICloudMonetizationService');
-var cloudUserService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+var cloudUserService = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService');
 var multiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 var EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
 var log = new Log("modules.pricing.utils.jag");
@@ -46,24 +46,32 @@ var getCurrencyUsed = function () {
 };
 
 var getAccountId = function () {
-
-    try {
-        var user = jagg.getUser().username;
-        var tenantDomain = getTenantDomain();
-        var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfoForTenant(tenantDomain, user));
-        if (subscriberData.data.Subscriber != null) {
-            var accountNumber = subscriberData.data.Subscriber.AccountNumber;
-            if (typeof accountNumber == 'object') {
-                return null;
+    var user = null;
+    if (jagg.getUser() != null) {
+        user = jagg.getUser().username;
+    }
+    if (user != null) {
+        try {
+            var tenantDomain = getTenantDomain();
+            var subscriberData = JSON.parse(apiMonService.getAPISubscriberInfoForTenant(tenantDomain, user));
+            if (subscriberData.data.Subscriber != null) {
+                var accountNumber = subscriberData.data.Subscriber.AccountNumber;
+                if (typeof accountNumber == 'object') {
+                    return null;
+                } else {
+                    return accountNumber;
+                }
             } else {
-                return accountNumber;
+                return null;
             }
-        } else {
-            return null;
+
+        } catch (e) {
+            log.error("ERROR while getting the account number for : " + user + " - " + e.message);
+            throw e;
         }
-    } catch (e) {
-        log.error("ERROR while getting the account number for : " + user + " - " + e.message);
-        throw e;
+    } else {
+        log.warn("Unable to retrieve the user information, hence account id retrieval failed");
+        return null;
     }
 };
 
