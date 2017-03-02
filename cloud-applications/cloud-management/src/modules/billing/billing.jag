@@ -1225,7 +1225,7 @@ var verifyEventAndSendInvoice = function (id) {
                 var body = invoiceDetails.data.body;
                 var subject = invoiceDetails.data.subject;
                 var to = invoiceDetails.data.to;
-                var bcc = cloudConfig.registrationEmail.from;
+                var bcc = cloudConfig.supportContact.to;
                 var cc = null;
                 if (invoiceDetails.data.cc != null && invoiceDetails.data.cc.trim() != "") {
                     cc = invoiceDetails.data.cc;
@@ -1254,7 +1254,7 @@ var verifyEventForFailedPayment = function (id) {
                           "<br> Customer email- " + eventDataJson.data.data.object.receipt_email +
                           "<br> failure code - " + eventDataJson.data.data.object.failure_code +
                           "<br> failure message - " + eventDataJson.data.data.object.failure_message;
-            jagg.module("util").sendEmail(message.toString(), subject, cloudConfig.registrationEmail.from);
+            jagg.module("util").sendEmail(message.toString(), subject, cloudConfig.supportContact.to);
 
             //Send mail to the customer and cloud
             var subjectForCustomer = "Payment For WSO2 Cloud Got Declined";
@@ -1273,7 +1273,7 @@ var verifyEventForFailedPayment = function (id) {
                         cc = customerMetaData.data.additionalEmails;
                     }
                     modUtils.sendEmailWithBCC(body, subjectForCustomer, eventDataJson.data.data.object.receipt_email, null,
-                                              cloudConfig.registrationEmail.from, cc);
+                                              cloudConfig.supportContact.to, cc);
                 } else {
                     log.error(customerMetaData.message);
                 }
