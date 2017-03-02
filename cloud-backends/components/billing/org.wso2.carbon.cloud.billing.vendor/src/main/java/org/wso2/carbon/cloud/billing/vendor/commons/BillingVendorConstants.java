@@ -73,6 +73,7 @@ public final class BillingVendorConstants {
     public static final String STARTING_BALANCE = "starting_balance";
     public static final String ORGANIZATION = "organization";
     public static final String EMAIL = "email";
+    public static final String ADDITIONAL_EMAILS = "additionalEmails";
     public static final String NAME = "name";
     public static final String CUSTOMER_ID = "customerId";
     public static final String INVOICE_NUMBER = "invoiceNumber";

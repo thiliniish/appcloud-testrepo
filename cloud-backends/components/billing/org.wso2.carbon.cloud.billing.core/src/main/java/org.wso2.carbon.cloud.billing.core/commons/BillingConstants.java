@@ -220,6 +220,7 @@ public final class BillingConstants {
     public static final String EMAIL_SUBJECT_OVERAGE_FAILURE = "Error uploading overage data ";
     public static final String REPLACE_TODAY = "{today}";
     public static final String TO = "to";
+    public static final String CC = "cc";
     public static final String BODY = "body";
     public static final String ATTACHMENT = "attachment";
     public static final String REPLACE_CUSTOMER = "{customer}";
@@ -239,6 +240,7 @@ public final class BillingConstants {
     public static final String AMOUNT = "amount";
     public static final String DATA = "data";
     public static final String EMAIL = "email";
+    public static final String ADDITIONAL_EMAILS = "additionalEmails";
     public static final String SUBJECT = "subject";
 
     private BillingConstants() {

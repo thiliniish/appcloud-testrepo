@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.ssl.security.service.module;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.openssl.PEMReader;
+import org.wso2.carbon.cloud.ssl.security.service.exceptions.SSLSecurityServiceException;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -33,11 +34,11 @@ public class RSAPrivateKeyManager {
     private static final Log log = LogFactory.getLog(RSAPrivateKeyManager.class);
     private RSAPrivateKey privateKey;
 
-    public RSAPrivateKeyManager(String keyContent) throws IOException {
+    public RSAPrivateKeyManager(String keyContent) throws IOException, SSLSecurityServiceException {
         this.initRSAPrivateKey(keyContent);
     }
 
-    private void initRSAPrivateKey(String keyContent) throws IOException {
+    private void initRSAPrivateKey(String keyContent) throws IOException, SSLSecurityServiceException {
         PEMReader pemReader = new PEMReader(new StringReader(keyContent));
         try {
             Object readerObject = pemReader.readObject();
@@ -48,12 +49,14 @@ public class RSAPrivateKeyManager {
                 if (keyObject instanceof RSAPrivateKey) {
                     privateKey = (RSAPrivateKey) keyObject;
                 } else {
-                    String message = "Provided private key does not support in current environment";
-                    throw new RuntimeException(message);
+                    String message = "​​Provided private key is not supported in current environment. " +
+                            "Supported formats : RSA PKCS1 and PKCS8.​";
+                    throw new SSLSecurityServiceException(message);
                 }
             } else {
-                String message = "Provided private key does not support in current environment";
-                throw new RuntimeException(message);
+                String message = "​​Provided private key is not supported in current environment. " +
+                        "Supported formats : RSA PKCS1 and PKCS8.​";
+                throw new SSLSecurityServiceException(message);
             }
         } catch (IOException ex) {
             String errorMessage = "IOException is thrown when reading the file content by the pemReader";
