@@ -135,7 +135,7 @@ include("/modules/database/sql.jag");
                     ", DisplayName : " + session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME") + " ]");
 
             var type = cloudConfig.subscriptions.type;
-            var storeUrl = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
+            var storeUrl = cloudConfig.ServerUrls.apiManager + "store?tenant=" + tenantDomain;
             var modUserManagement = jagg.module("user/management");
             var isOnlySubscribedUser = modUserManagement.hasOnlySubscriberRole(session.get("LOGGED_IN_USER"));
             if (isOnlySubscribedUser) {
