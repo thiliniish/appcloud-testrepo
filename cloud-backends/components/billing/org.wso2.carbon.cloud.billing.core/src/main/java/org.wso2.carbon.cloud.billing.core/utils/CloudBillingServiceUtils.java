@@ -546,7 +546,7 @@ public final class CloudBillingServiceUtils {
         data.addProperty(BillingConstants.TO,
                          invoiceObj.get(BillingConstants.EMAIL).asText());
         if (invoiceObj.get(BillingConstants.ADDITIONAL_EMAILS) != null &&
-            StringUtils.isBlank(invoiceObj.get(BillingConstants.ADDITIONAL_EMAILS).asText())) {
+            !StringUtils.isBlank(invoiceObj.get(BillingConstants.ADDITIONAL_EMAILS).asText())) {
             data.addProperty(BillingConstants.CC, invoiceObj.get(BillingConstants.ADDITIONAL_EMAILS).asText());
         }
         data.addProperty(BillingConstants.BODY, messageBody);

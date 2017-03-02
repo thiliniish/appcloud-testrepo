@@ -1202,7 +1202,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             JsonObject dataObject = (JsonObject) customerMetaDataObject.get("data");
 
             if (dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS) != null &&
-                StringUtils.isBlank(dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString())) {
+                !StringUtils.isBlank(dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString())) {
                 String additionalEmails = dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString();
                 invoiceDetailObj.put(BillingVendorConstants.ADDITIONAL_EMAILS, additionalEmails);
             }
@@ -1300,7 +1300,7 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         JsonObject response = new JsonObject();
         JsonObject metaDataObject = new JsonObject();
         try {
-            if (customerId != null && StringUtils.isBlank(customerId)) {
+            if (customerId != null && !StringUtils.isBlank(customerId)) {
                 Customer customer = Customer.retrieve(customerId);
                 Map<String, String> customerData = customer.getMetadata();
                 if (customerData.size() > 0) {
