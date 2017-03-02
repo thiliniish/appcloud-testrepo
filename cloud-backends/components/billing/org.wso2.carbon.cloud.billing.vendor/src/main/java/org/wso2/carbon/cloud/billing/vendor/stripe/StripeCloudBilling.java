@@ -39,6 +39,7 @@ import com.stripe.model.Invoice;
 import com.stripe.model.InvoiceItem;
 import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
@@ -1195,6 +1196,16 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                     .put(BillingVendorConstants.ORGANIZATION, billedOrgNode.get(BillingVendorConstants.DATA).asText());
 
             invoiceDetailObj.put(BillingVendorConstants.CUSTOMER_ID, rawInvoiceObj.get("customer").asText());
+            JsonParser jsonParser = new JsonParser();
+            JsonObject customerMetaDataObject =
+                    (JsonObject) jsonParser.parse(getCustomerMetaData(rawInvoiceObj.get("customer").asText()));
+            JsonObject dataObject = (JsonObject) customerMetaDataObject.get("data");
+
+            if (dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS) != null &&
+                StringUtils.isBlank(dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString())) {
+                String additionalEmails = dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString();
+                invoiceDetailObj.put(BillingVendorConstants.ADDITIONAL_EMAILS, additionalEmails);
+            }
             invoiceDetailObj.put(BillingVendorConstants.INVOICE_NUMBER, invoiceId);
             invoiceDetailObj.put(BillingVendorConstants.INVOICE_DATE,
                                  convertUnixTimestamp(BillingVendorConstants.DATE_FORMAT_YEAR_MONTH_DAY,
@@ -1278,5 +1289,46 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             LOGGER.error("Error while creating the invoice items : ", e);
         }
         return invoiceLocation;
+    }
+
+    /**
+     * Retrieves the meta data for a given customer account id
+     * @param customerId
+     * @return the corresponding meta data
+     */
+    public String getCustomerMetaData(String customerId) {
+        JsonObject response = new JsonObject();
+        JsonObject metaDataObject = new JsonObject();
+        try {
+            if (customerId != null && StringUtils.isBlank(customerId)) {
+                Customer customer = Customer.retrieve(customerId);
+                Map<String, String> customerData = customer.getMetadata();
+                if (customerData.size() > 0) {
+                    response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+                    for (Map.Entry<String, String> customerMetaData : customerData.entrySet()) {
+                        metaDataObject.addProperty(customerMetaData.getKey(), customerMetaData.getValue());
+                    }
+                    response.add(BillingVendorConstants.RESPONSE_DATA, metaDataObject);
+                } else {
+                    response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, true);
+                    response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, "No meta data available for the " +
+                                                                                  "customer " + customerId);
+                    response.add(BillingVendorConstants.RESPONSE_DATA, null);
+                    LOGGER.error("Meta data was not found for the customer " + customerId);
+                }
+            } else {
+                response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+                response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, "Customer Id was null or empty");
+                response.add(BillingVendorConstants.RESPONSE_DATA, null);
+                LOGGER.error("Customer Id was null or empty");
+            }
+        } catch (AuthenticationException | InvalidRequestException | APIConnectionException | CardException |
+                APIException ex) {
+            response.addProperty(BillingVendorConstants.RESPONSE_SUCCESS, false);
+            response.addProperty(BillingVendorConstants.RESPONSE_MESSAGE, ex.getMessage());
+            response.add(BillingVendorConstants.RESPONSE_DATA, null);
+            LOGGER.error("Error while retrieving the customer meta data for the customer " + customerId + " : ", ex);
+        }
+        return response.toString();
     }
 }
