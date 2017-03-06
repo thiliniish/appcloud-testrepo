@@ -39,6 +39,7 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map;
 
@@ -67,7 +68,8 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
     }
 
     public CloudWSUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
-                                   ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
+                                   ClaimManager claimManager, ProfileConfigurationManager profileManager,
+                                   UserRealm realm,
                                    Integer tenantId) throws UserStoreException {
         if (log.isDebugEnabled()) {
             log.debug("Initializing CloudWSUserStoreManager for tenantId - [" + tenantId + "]");
@@ -82,7 +84,8 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
      * Authenticate the credentials passed when invoking /token API with "password" grant type.
      * Since we aren't able to authorize users in the external userstore, this method only makes sense
      * when used in token generation flow.
-     * @param username username passed to the /token endpoint for "password" grant type
+     *
+     * @param username   username passed to the /token endpoint for "password" grant type
      * @param credential password passed to the /token endpoint for "password" grant type
      * @return authentication status for username/password provided
      * @throws UserStoreException
@@ -98,8 +101,9 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
 
         if (realmConfig.getUserStoreProperty(USERNAME) != null && realmConfig.getUserStoreProperty(PASSWORD) != null) {
             byte[] encodedArr = Base64.encodeBase64((realmConfig.getUserStoreProperty(USERNAME) +
-                                                     ":" + realmConfig.getUserStoreProperty(PASSWORD)).getBytes());
-            postRequest.addParameter("Authorization", "Basic " + new String(encodedArr));
+                                                             ":" + realmConfig.getUserStoreProperty(PASSWORD))
+                                                            .getBytes(Charset.defaultCharset()));
+            postRequest.addParameter("Authorization", "Basic " + new String(encodedArr, Charset.defaultCharset()));
         }
 
         String requestStr = realmConfig.getUserStoreProperty(REQUEST_FORMAT);
@@ -114,7 +118,7 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
             }
             int response = httpClient.executeMethod(postRequest);
             if (response == HttpStatus.SC_OK) {
-                String respStr = new String(postRequest.getResponseBody());
+                String respStr = new String(postRequest.getResponseBody(), Charset.defaultCharset());
                 JSONObject resultObj = new JSONObject(respStr);
                 String[] resultPathElements = realmConfig.getUserStoreProperty(RESULT_ELEMENT).split("\\.");
                 JSONObject tmpObj = resultObj;
@@ -127,7 +131,8 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
                     log.debug("Authentication response - " + loginResult);
                 }
 
-                if (loginResult != null && loginResult.equalsIgnoreCase(realmConfig.getUserStoreProperty(EXPECTED_RESULT))) {
+                if (loginResult != null && loginResult.equalsIgnoreCase(
+                        realmConfig.getUserStoreProperty(EXPECTED_RESULT))) {
                     authStatus = true;
                     if (log.isDebugEnabled()) {
                         log.debug("Successfully authenticated user: " + username + " via remote userstore");
@@ -135,7 +140,8 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         } catch (IOException | JSONException e) {
-            log.error("Error occurred while calling backed to authenticate request for tenantId - [" + this.tenantId + "]", e);
+            log.error("Error occurred while calling backed to authenticate request for tenantId - [" + this.tenantId +
+                              "]", e);
         }
         return authStatus;
     }
@@ -145,33 +151,44 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         Property[] mandatoryProperties = null;
         Property[] optionalProperties = null;
 
-        Property endpoint = new Property(ENDPOINT, "", "Authentication endpoint#Authentication endpoint used to validate user credentials", null);
+        Property endpoint = new Property(ENDPOINT, "",
+                                         "Authentication endpoint#Authentication endpoint used to validate user " +
+                                                 "credentials", null);
         Property contentType = new Property(CONTENT_TYPE, "", "Content type#Content type of the request payload", null);
-        Property requestFormat = new Property(REQUEST_FORMAT, "", "Request format#Format of the request sent to the authentication endpoint", null);
-        Property responseType = new Property(RESPONSE_TYPE, "", "Response format#Format of the response sent from the authentication endpoint", null);
-        Property resultElement = new Property(RESULT_ELEMENT, "", "Result element#Element where the authentication result is stored", null);
-        Property expectedResult = new Property(EXPECTED_RESULT, "", "Expected result#Authentication success result element", null);
+        Property requestFormat = new Property(REQUEST_FORMAT, "",
+                                              "Request format#Format of the request sent to the authentication " +
+                                                      "endpoint", null);
+        Property responseType = new Property(RESPONSE_TYPE, "",
+                                             "Response format#Format of the response sent from the authentication " +
+                                                     "endpoint", null);
+        Property resultElement = new Property(RESULT_ELEMENT, "",
+                                              "Result element#Element where the authentication result is stored", null);
+        Property expectedResult = new Property(EXPECTED_RESULT, "",
+                                               "Expected result#Authentication success result element", null);
 
-        Property username = new Property(USERNAME, "", "Remote Sever Username#Username to authenticate to the endpoint", null);
-        Property password = new Property(PASSWORD, "", "Remote Server Password#Password to authenticate to the endpoint", null);
+        Property username = new Property(USERNAME, "", "Remote Sever Username#Username to authenticate to the endpoint",
+                                         null);
+        Property password = new Property(PASSWORD, "",
+                                         "Remote Server Password#Password to authenticate to the endpoint", null);
         Property disabled = new Property("Disabled", "false", "Disabled#Check to disable the user store", null);
 
-        mandatoryProperties = new Property[]{endpoint, contentType, requestFormat, responseType, resultElement, expectedResult};
-        optionalProperties = new Property[]{username, password, disabled};
+        mandatoryProperties = new Property[] { endpoint, contentType, requestFormat, responseType, resultElement,
+                expectedResult };
+        optionalProperties = new Property[] { username, password, disabled };
 
         properties.setOptionalProperties(optionalProperties);
         properties.setMandatoryProperties(mandatoryProperties);
         return properties;
     }
 
-    protected Map<String, String> getUserPropertyValues(String userName, String[] propertyNames, String profileName) throws UserStoreException {
+    protected Map<String, String> getUserPropertyValues(String userName, String[] propertyNames, String profileName)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
     protected boolean doCheckExistingRole(String roleName) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
-
 
     protected RoleContext createRoleContext(String roleName) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
@@ -181,15 +198,18 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected String[] getUserListFromProperties(String property, String value, String profileName) throws UserStoreException {
+    protected String[] getUserListFromProperties(String property, String value, String profileName)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims, String profileName, boolean requirePasswordChange) throws UserStoreException {
+    protected void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+                             String profileName, boolean requirePasswordChange) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doUpdateCredential(String userName, Object newCredential, Object oldCredential) throws UserStoreException {
+    protected void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
@@ -201,27 +221,33 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName) throws UserStoreException {
+    protected void doSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName) throws UserStoreException {
+    protected void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
+    protected void doDeleteUserClaimValue(String userName, String claimURI, String profileName)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doDeleteUserClaimValues(String userName, String[] claims, String profileName) throws UserStoreException {
+    protected void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers) throws UserStoreException {
+    protected void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles) throws UserStoreException {
+    protected void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
@@ -229,7 +255,8 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter) throws UserStoreException {
+    protected String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
@@ -261,7 +288,8 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected String[] doGetSharedRoleNames(String tenantDomain, String filter, int maxItemLimit) throws UserStoreException {
+    protected String[] doGetSharedRoleNames(String tenantDomain, String filter, int maxItemLimit)
+            throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
@@ -297,7 +325,8 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         return this.tenantId;
     }
 
-    public Map<String, String> getProperties(org.wso2.carbon.user.api.Tenant tenant) throws org.wso2.carbon.user.api.UserStoreException {
+    public Map<String, String> getProperties(org.wso2.carbon.user.api.Tenant tenant)
+            throws org.wso2.carbon.user.api.UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
