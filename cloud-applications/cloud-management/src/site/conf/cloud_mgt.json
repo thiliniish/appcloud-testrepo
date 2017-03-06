@@ -52,7 +52,7 @@
         "logoClass": "fa",
         "logo": "cubes",
         "description": "Host your integration solutions and API backends.",
-        "serviceType": "free",
+        "serviceType": "commercial",
         "roleTypes": [
           {
             "roleName": "integrationclouduser",
@@ -90,7 +90,7 @@
         "logoClass":"fw",
         "logo": "mobile",
         "description": "Manage your devices using comprehensive platform with effectively and efficiently.",
-        "serviceType": "commercial",
+        "serviceType": "free",
         "roleTypes": [
           {
             "roleName": "devicemgtuser",
