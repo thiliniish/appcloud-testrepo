@@ -226,7 +226,7 @@ var sendInvoiceEmail = function(jsonContent, sender, invoiceObj) {
     if (cloudMailAddress != null) {
         emailList = cloudMailAddress.split(",");
     }
-    sendEmailWithBCC(body, subject, userMail, emailList);
+    sendEmailWithBCC(body, subject, userMail, emailList, null, null);
     return true;
 };
 
@@ -279,10 +279,10 @@ var sendEmail = function (body, subject, receiverAddress) {
 };
 
 var sendEmailWithAttachment = function(body, subject, receiverAddress, attachment) {
-    sendEmailWithBCC(body, subject, receiverAddress, attachment, null);
+    sendEmailWithBCC(body, subject, receiverAddress, attachment, null, null);
 };
 
-var sendEmailWithBCC = function (body, subject, receiverAddress, attachment, bccAddress) {
+var sendEmailWithBCC = function (body, subject, receiverAddress, attachment, bccAddress, ccAddress) {
 
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var from = cloudConfig.registrationEmail.from;
@@ -307,6 +307,9 @@ var sendEmailWithBCC = function (body, subject, receiverAddress, attachment, bcc
     }
     if (bccAddress != null) {
         emailSender.setBCC(bccAddress);
+    }
+    if (ccAddress != null) {
+        emailSender.setCC(ccAddress);
     }
     emailSender.setTo(receiverAddress);
     emailSender.setSubject(subject);
@@ -363,7 +366,7 @@ var getInviteeDirectUrl = function(userRoles) {
 	//if the invited role is only subscriber, user will direct to the API store
 	if(numOfCommonSubRoles == 1 && userRoles[0] == "subscriber" ){
 	    var tenantDomain = session.get("TENANT_DOMAIN");
-	    url = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
+	    url = cloudConfig.ServerUrls.apiManager + "store?tenant=" + tenantDomain;
 	}
 
 	return url;

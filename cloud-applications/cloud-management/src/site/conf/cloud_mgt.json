@@ -1,5 +1,4 @@
 {
-  "isEmailUserNameEnabled" : false,
   "emailValidationPattern" : "/^([a-zA-Z0-9]+[a-zA-Z0-9._\\-\\+]*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,4})$/",
   "commonSubscription" : "Common",
   "welcomeMsg" : "Welcome",
@@ -292,5 +291,6 @@
     "serviceId": "api_cloud",
     "productRatePlanId": "api_cloud_medium",
     "productName" : "API"
-  }
+  },
+  "defaultMaxAllowedOrganizations": 5
 }
