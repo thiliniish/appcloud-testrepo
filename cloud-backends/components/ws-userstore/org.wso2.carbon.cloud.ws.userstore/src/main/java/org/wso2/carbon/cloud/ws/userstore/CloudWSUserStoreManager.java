@@ -153,17 +153,14 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
 
         Property endpoint = new Property(ENDPOINT, "",
                                          "Authentication endpoint#Authentication endpoint used to validate user " +
-                                                 "credentials",
-                                         null);
+                                                 "credentials", null);
         Property contentType = new Property(CONTENT_TYPE, "", "Content type#Content type of the request payload", null);
         Property requestFormat = new Property(REQUEST_FORMAT, "",
                                               "Request format#Format of the request sent to the authentication " +
-                                                      "endpoint",
-                                              null);
+                                                      "endpoint", null);
         Property responseType = new Property(RESPONSE_TYPE, "",
                                              "Response format#Format of the response sent from the authentication " +
-                                                     "endpoint",
-                                             null);
+                                                     "endpoint", null);
         Property resultElement = new Property(RESULT_ELEMENT, "",
                                               "Result element#Element where the authentication result is stored", null);
         Property expectedResult = new Property(EXPECTED_RESULT, "",
