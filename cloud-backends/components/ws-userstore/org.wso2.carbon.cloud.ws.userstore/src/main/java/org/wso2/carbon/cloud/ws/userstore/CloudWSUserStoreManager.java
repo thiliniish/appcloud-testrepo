@@ -181,7 +181,7 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         return properties;
     }
 
-    protected Map<String, String> getUserPropertyValues(String userName, String[] propertyNames, String profileName)
+    protected Map<String, String> getUserPropertyValues(String username, String[] propertyNames, String profileName)
             throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
@@ -194,7 +194,7 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected boolean doCheckExistingUser(String userName) throws UserStoreException {
+    protected boolean doCheckExistingUser(String username) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
@@ -203,40 +203,40 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+    protected void doAddUser(String username, Object credential, String[] roleList, Map<String, String> claims,
                              String profileName, boolean requirePasswordChange) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+    protected void doUpdateCredential(String username, Object newCredential, Object oldCredential)
             throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
+    protected void doUpdateCredentialByAdmin(String username, Object newCredential) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doDeleteUser(String userName) throws UserStoreException {
+    protected void doDeleteUser(String username) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName)
+    protected void doSetUserClaimValue(String username, String claimURI, String claimValue, String profileName)
             throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+    protected void doSetUserClaimValues(String username, Map<String, String> claims, String profileName)
             throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doDeleteUserClaimValue(String userName, String claimURI, String profileName)
+    protected void doDeleteUserClaimValue(String username, String claimURI, String profileName)
             throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
+    protected void doDeleteUserClaimValues(String username, String[] claims, String profileName)
             throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
@@ -246,16 +246,16 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+    protected void doUpdateRoleListOfUser(String username, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
+    protected String[] doGetExternalRoleListOfUser(String username, String filter) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
+    protected String[] doGetSharedRoleListOfUser(String username, String tenantDomain, String filter)
             throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
@@ -280,11 +280,11 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    protected String[] doGetDisplayNamesForInternalRole(String[] userNames) throws UserStoreException {
+    protected String[] doGetDisplayNamesForInternalRole(String[] usernames) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
+    public boolean doCheckIsUserInRole(String username, String roleName) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
@@ -297,7 +297,7 @@ public class CloudWSUserStoreManager extends AbstractUserStoreManager {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
-    public String[] getProfileNames(String userName) throws UserStoreException {
+    public String[] getProfileNames(String username) throws UserStoreException {
         throw new UnsupportedOperationException("This method is not supported by CloudWSUserStoreManager");
     }
 
