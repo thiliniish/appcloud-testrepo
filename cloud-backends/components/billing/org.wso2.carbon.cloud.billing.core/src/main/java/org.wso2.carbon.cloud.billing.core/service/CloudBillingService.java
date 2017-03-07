@@ -988,4 +988,21 @@ public class CloudBillingService extends AbstractAdmin {
                                             e);
         }
     }
+
+    /**
+     * Retrieves the customer's meta data from the accout id
+     * @param customerId
+     * @return the corresponding meta data for the given customer id
+     * @throws CloudBillingException
+     */
+    public String getCustomerMetaData(String customerId) throws CloudBillingException {
+        try {
+            return callVendorMethod("getCustomerMetaData", customerId);
+        } catch (CloudBillingException e) {
+            LOGGER.error("Error occurred while retrieving meta data for the customer " + customerId,
+                         e);
+            throw new CloudBillingException("Error occurred while retrieving meta data for the customer " + customerId,
+                                            e);
+        }
+    }
 }
