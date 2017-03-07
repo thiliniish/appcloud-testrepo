@@ -113,8 +113,7 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
         Map resultMap = HttpHandler.doPostHttps(initiateUrl, params, null, false);
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-        Assert.assertFalse(resultObj.getBoolean("error"), "Error occurred while initiating password reset. "
-                + resultObj.getString("message"));
+        Assert.assertFalse(resultObj.getBoolean(CloudIntegrationConstants.ERROR), "Error occurred while initiating password reset. ");
 
         //Verifying the confirmation code send via the email
         String verifyResetUrl = cloudMgtServerUrl + CloudIntegrationConstants.PASSWORD_RESET_VERIFY_SFX;
@@ -146,7 +145,7 @@ public class PasswordResetTestCase extends CloudIntegrationTest {
         Assert.assertFalse(resultObj.getBoolean("error"), "Error occurred while updating password. " +
                 resultObj.getString("message"));
 
-        boolean loginStatus = authenticatorClient.checkLogin(userName, TEMP_PASSWORD, "localhost");
+        loginStatus = authenticatorClient.checkLogin(userName, TEMP_PASSWORD, "localhost");
         Assert.assertTrue(loginStatus, "Cannot login with new password");
     }
 

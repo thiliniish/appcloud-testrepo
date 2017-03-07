@@ -6,10 +6,21 @@ var log = new Log();
 
 (function () {
     var sessionId = session.getId();
-
+    var serviceId = session.get("SERVICE_ID");
     var selectedRatePlanId =  session.get("PRODUCT_PLAN_ID");
-    var ratePlanInfo = jagg.module("billing").getRatePlanInfo("api_cloud", selectedRatePlanId);
+    var ratePlanInfo = jagg.module("billing").getRatePlanInfo(serviceId, selectedRatePlanId);
     var responseFrom = request.getParameter("responseFrom");
+    var isFirstSubscription = request.getParameter("isFirstSubscription");
+
+    var ratePlans = session.get("RATE_PLANS");
+    var shortDescription = "";
+    var monthlyRental = 0;
+    for(var i = 0; i < ratePlans.length; i++) {
+        if (ratePlans[i].id == selectedRatePlanId) {
+            monthlyRental = ratePlans[i].rental;
+            shortDescription = ratePlans[i].shortDescription;
+        }
+    }
     var serviceId = session.get("SERVICE_ID");
     var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
 
@@ -30,7 +41,10 @@ var log = new Log();
                                                 "responseFrom": responseFrom,
                                                 "subscribedCloudURL": subscribedCloudURL,
                                                 "serviceId": serviceId,
-                                                "ratePlanInfo": ratePlanInfo
+                                                "ratePlanInfo": ratePlanInfo,
+                                                "isFirstSubscription" :isFirstSubscription,
+                                                "shortDescription" : shortDescription,
+                                                "monthlyRental" :monthlyRental
                                             }
                                         }
                                     ]

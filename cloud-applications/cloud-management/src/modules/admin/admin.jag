@@ -1,0 +1,60 @@
+<%
+/*
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log("module/admin/admin.jag");
+var billingModule = jagg.module("billing");
+
+var informFirstLogin = function (tenantDomain, cloudType) {
+    try {
+        if (cloudType == "integration_cloud") {
+            billingModule.activateAccount(tenantDomain, cloudType);
+        }
+    } catch (e) {
+        log.error('Error occurred when activating account for tenantDomain : ' + tenantDomain + ', cloud type : ' + cloudType);
+        throw e;
+    }
+};
+
+var createComplementaryAccount = function (tenantId, serviceId, productRatePlanId) {
+    var carbon = require('carbon');
+    var multitenancy = carbon.multitenancy;
+    var tenantManager = multitenancy.getTenantManager();
+    var organizationName = tenantManager.getDomain(tenantId);
+
+    var accountData = {};
+    accountData.line1 = ""; //request.getParameter("address1");
+    accountData.city = ""; //request.getParameter("city");
+    accountData.postal_code = ""; //request.getParameter("zipCode");
+    accountData.country = ""; // request.getParameter("country");
+
+    var metaData = {};
+    metaData.workEmail = request.getParameter("email");
+    metaData.field_passthrough4 = request.getParameter("field_passthrough4");
+    metaData.firstName = request.getParameter("firstName");
+    metaData.lastName = request.getParameter("lastName");
+    metaData.serviceId = serviceId;
+    metaData.productRatePlanId = productRatePlanId;
+
+    billingModule.createAccount(accountData, metaData, organizationName, true);
+};
+
+%>

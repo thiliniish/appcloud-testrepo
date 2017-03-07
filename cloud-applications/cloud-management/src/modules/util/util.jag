@@ -226,7 +226,7 @@ var sendInvoiceEmail = function(jsonContent, sender, invoiceObj) {
     if (cloudMailAddress != null) {
         emailList = cloudMailAddress.split(",");
     }
-    sendEmailWithBCC(body, subject, userMail, emailList);
+    sendEmailWithBCC(body, subject, userMail, emailList, null, null);
     return true;
 };
 
@@ -279,10 +279,10 @@ var sendEmail = function (body, subject, receiverAddress) {
 };
 
 var sendEmailWithAttachment = function(body, subject, receiverAddress, attachment) {
-    sendEmailWithBCC(body, subject, receiverAddress, attachment, null);
+    sendEmailWithBCC(body, subject, receiverAddress, attachment, null, null);
 };
 
-var sendEmailWithBCC = function (body, subject, receiverAddress, attachment, bccAddress) {
+var sendEmailWithBCC = function (body, subject, receiverAddress, attachment, bccAddress, ccAddress) {
 
     var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var from = cloudConfig.registrationEmail.from;
@@ -307,6 +307,9 @@ var sendEmailWithBCC = function (body, subject, receiverAddress, attachment, bcc
     }
     if (bccAddress != null) {
         emailSender.setBCC(bccAddress);
+    }
+    if (ccAddress != null) {
+        emailSender.setCC(ccAddress);
     }
     emailSender.setTo(receiverAddress);
     emailSender.setSubject(subject);
@@ -363,7 +366,7 @@ var getInviteeDirectUrl = function(userRoles) {
 	//if the invited role is only subscriber, user will direct to the API store
 	if(numOfCommonSubRoles == 1 && userRoles[0] == "subscriber" ){
 	    var tenantDomain = session.get("TENANT_DOMAIN");
-	    url = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
+	    url = cloudConfig.ServerUrls.apiManager + "store?tenant=" + tenantDomain;
 	}
 
 	return url;
@@ -518,6 +521,55 @@ function addUserToOT (email, pass, firstName, lastName) {
 	} catch (e){
 		log.error(e)
 	}
+};
+
+/**
+ * Returns add user to OT clouduser role
+ * @param  email
+ */
+var addUserToOTCloudUserRole = function (email) {
+
+    var cloudConfig = getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var enabled = cloudConfig.OTAdminServiceApi.enable;
+    if (!enabled) {
+        log.info("Adding users to clouduser role disabled");
+        return;
+    }
+    log.info("Adding user [ " + email + " ] to OT cloudUser role");
+    var base64Util = new Packages.org.apache.commons.codec.binary.Base64();
+    var username = cloudConfig.OTAdminServiceApi.auth_user;
+    var password = cloudConfig.OTAdminServiceApi.auth_pass;
+    var cloudUserRole = cloudConfig.OTCloudUserRole;
+    var URL = cloudConfig.OTAdminServiceApi.serviceURL;
+    var ws = require("ws");
+    var updateRolesOfUser = new ws.WSRequest();
+    var encodedCredentials = base64Util.encodeBase64String((new java.lang.String(username + ":" + password)).getBytes()).trim();
+    var authHeaderValue = String("Basic " + encodedCredentials);
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:updateUsersOfRole";
+    options.timeout = 90000;
+    options["HTTPHeaders"] = [
+        {
+            name: "Authorization", value: authHeaderValue
+        }
+    ];
+    var payload = '<p:updateUsersOfRole xmlns:p="http://org.apache.axis2/xsd">' +
+        '<roleName>' + cloudUserRole + '</roleName>' +
+        '<userList>' +
+        '<itemName xmlns="http://common.mgt.user.carbon.wso2.org/xsd">' + email + '</itemName>' +
+        '<selected xmlns="http://common.mgt.user.carbon.wso2.org/xsd">true</selected>' +
+        '</userList>' +
+        '</p:updateUsersOfRole>';
+    try {
+        var endPoint = URL + "UserAdmin";
+        updateRolesOfUser.open(options, endPoint, false);
+        updateRolesOfUser.send(payload);
+        log.info("User [ " + email + " ] is added to OT cloudUser role");
+    } catch (e) {
+        log.error("Error while adding user [ " + email + " ] to OT cloudUser role");
+        log.error(e);
+    }
 };
 
 function updateUserProfileInOT(email, firstName, lastName) {
@@ -897,6 +949,32 @@ function getGatewayMigrationProperties() {
     }
     return gatewayMigrationProperties;
 }
+
+var sendComplimentaryAccountClaimedNotification = function(email, supportAccount, username) {
+    try {
+        var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_claim_success.txt");
+        var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claimed] - " + supportAccount;
+        emailBody = emailBody.replace("$email", email);
+        emailBody = emailBody.replace("$supportAccount", supportAccount);
+        emailBody = emailBody.replace("$username", username);
+        var accountCreationSuccessResponse = sendEmail(emailBody, subject);
+        return accountCreationSuccessResponse;
+    } catch (e) {
+        log.error("Error while sending email for claiming complimentary account for username: "  + username);
+        throw Error(e);
+    }
+};
+
+var sendComplimentaryAccountCreationFailureNotification = function(email, firstName, lastName, exception) {
+    var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_creation_failure.txt");
+    var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claim failure] - " + email;
+    emailBody = emailBody.replace("$email", email);
+    emailBody = emailBody.replace("$firstName", firstName);
+    emailBody = emailBody.replace("$lastName", lastName);
+    emailBody = emailBody.replace("$error", exception);
+    var accountCreationFailureResponse = sendEmail(emailBody, subject);
+    return accountCreationFailureResponse;
+};
 
 %>
 

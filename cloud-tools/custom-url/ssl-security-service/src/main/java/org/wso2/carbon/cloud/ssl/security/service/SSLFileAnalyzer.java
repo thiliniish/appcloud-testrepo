@@ -20,6 +20,8 @@ package org.wso2.carbon.cloud.ssl.security.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.cloud.ssl.security.service.exceptions.SSLSecurityServiceException;
+import org.wso2.carbon.cloud.ssl.security.service.module.RSAPrivateKeyManager;
 import org.wso2.carbon.cloud.ssl.security.service.module.X509CertificateManager;
 import org.wso2.carbon.core.AbstractAdmin;
 
@@ -33,6 +35,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.CertificateParsingException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 
 /**
  * Admin Service to analyze SSLFiles to validate them against the chain files
@@ -41,15 +45,17 @@ public class SSLFileAnalyzer extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(SSLFileAnalyzer.class);
     private X509CertificateManager x509CertificateManager;
+    private RSAPrivateKeyManager rsaPrivateKeyManager;
 
     /**
      * Initializing certificate and chain file content
      */
-    public void init(String sslFileContent, String chainFile)
-            throws CertificateException, IOException, InvalidAlgorithmParameterException {
+    public void init(String sslFileContent, String chainFile, String keyContent)
+            throws CertificateException, IOException, InvalidAlgorithmParameterException, SSLSecurityServiceException {
         try {
             this.x509CertificateManager = new X509CertificateManager(sslFileContent, chainFile);
-        } catch (CertificateException | InvalidAlgorithmParameterException ex) {
+            this.rsaPrivateKeyManager = new RSAPrivateKeyManager(keyContent);
+        } catch (CertificateException | InvalidAlgorithmParameterException | SSLSecurityServiceException ex) {
             String errorMessage = "Error occurred when initializing ssl certificate.";
             log.error(errorMessage, ex);
             throw ex;
@@ -148,6 +154,38 @@ public class SSLFileAnalyzer extends AbstractAdmin {
             String errorMessage = "Error occurred while validating issued url against certificate issued dns list.";
             log.debug(errorMessage, ex);
             return "{'error':'true', 'message':''" + errorMessage + "}";
+        }
+    }
+
+    /**
+     * Verify whether private key matches the public key.
+     *
+     * @return String json payload of the status
+     */
+    public String matchRSAKeys() {
+        RSAPublicKey publicKey = x509CertificateManager.getPublicKey();
+        RSAPrivateKey privateKey = rsaPrivateKeyManager.getPrivateKey();
+        if (publicKey.getModulus().compareTo(privateKey.getModulus()) == 0) {
+            return "{'error' : false }";
+        }
+        String errorMsg = "Given private key does not match with the public key.";
+        log.error(errorMsg);
+        return "{'error': true , 'message':'" + errorMsg + "'}";
+    }
+
+    /**
+     * Validate the certificate against the certificate chain.
+     *
+     * @return String json payload of the status
+     */
+    public String validateCertChain() {
+        try {
+            x509CertificateManager.validateCertChain();
+            return "{'error' : false }";
+        } catch (SSLSecurityServiceException e) {
+            String errorMsg = e.getMessage();
+            log.error(errorMsg, e);
+            return "{'error': true , 'message':'" + errorMsg + "' }";
         }
     }
 }

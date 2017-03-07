@@ -23,7 +23,7 @@ var getUserRolesOfTenant = function (userName, tenantDomain) {
         context.startTenantFlow();
         context.getThreadLocalCarbonContext().setTenantId(tenantId);
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+        var tenantMgtService = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService');
         var user = tenantMgtService.getUserInfo(userName);
         var roles=user.getRoles();
     }
@@ -75,5 +75,73 @@ var getOrganizations = function() {
     }
 }
 
+/**
+ This method checks whether use has exceeded the max number of organizations allowed to create per
+ user.
+ **/
+var isOrgLimitExceeded = function () {
+    var result = false;
+    var user = String(session.get("LOGGED_IN_USER"));
+    var username = modManager.getTenantAwareUsername(user);
+    try {
+        //default value of max number of tenants a user can create
+        var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+        var maxNumberOfOrg = cloudConfig.defaultMaxAllowedOrganizations;
+        //max number of tenants a user can create, if user is whistlisted
+        var CloudMgtDAO = Packages.org.wso2.carbon.cloud.common.CloudMgtDAO;
+        var cloudmgtDAO = new CloudMgtDAO();
+        var orgCountWhiteListed = cloudmgtDAO.getMaxTenantCount(username);
+        if (orgCountWhiteListed > maxNumberOfOrg) {
+            maxNumberOfOrg = orgCountWhiteListed;
+        }
+        //a user who already has a tenant/organization can only add another organization
+        //so if max limit is 1 user can not create another organization.
+        if (maxNumberOfOrg <= 1) {
+            return true;
+        }
+        //List of tenant where user exists
+        var tenants = getOrganizations();
+        //if number of tenants user exists is less than the max size ,
+        //then obviously user can create new organization
+        if (!tenants || (tenants.length < maxNumberOfOrg)) {
+            return result;
+        }
+
+        //number of tenants user exists is greater than max size defined, but user can
+        //exist in some invited organization as admin/any other role. So need to check ,in how may organization
+        //user is an super admin.i.e User will be super admin in every organization he/she created.
+
+        var PrivilegedCarbonContext = Packages.org.wso2.carbon.context.PrivilegedCarbonContext;
+        var context = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        var realmService = context.getOSGiService((java.lang.Class).forName('org.wso2.carbon.user.core.service.RealmService'));
+        var tenantManager = realmService.getTenantManager();
+
+        var tenantCount = 0;
+        for (var i = 0; i < tenants.length; i++) {
+            var tenant = tenants[i];
+            if (tenant.adminUser == 'true') {
+                var tenantDomain = tenant.tenantDomain;
+                var tenantId = tenantManager.getTenantId(tenantDomain);
+                var tenantInfo = tenantManager.getTenant(tenantId);
+                var adminEmail = tenantInfo.getEmail();
+                var isActive = tenantInfo.isActive();
+                if (isActive && (username == adminEmail)) {
+                    tenantCount++;
+                }
+
+                if (tenantCount == maxNumberOfOrg) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+    } catch (e) {
+        log.error(e);
+        var errMsg = "Error while checking whether user(" + username
+                + ") has reached the max number of organizations allowed to create.";
+        throw new Error(errMsg);
+    }
+    return result;
+};
 %>
 

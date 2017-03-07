@@ -432,3 +432,13 @@ h4 {
 .previous .pricing-table-signup-tiny a:active,.previous .pricing-table-signup-tiny button:active{
 	background: #ccc;
 }
+
+.link-disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.contact-us {
+    margin-left: 0px !important;
+    font-size: 14px !important;
+}

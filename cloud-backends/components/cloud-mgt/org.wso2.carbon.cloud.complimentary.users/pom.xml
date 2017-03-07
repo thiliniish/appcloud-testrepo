@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.wso2.carbon.cloud</groupId>
+    <artifactId>org.wso2.carbon.cloud.complimentary.users</artifactId>
+    <version>1.0.0</version>
+    <packaging>bundle</packaging>
+    <name>Complimentary User Validation Service Implementation</name>
+    <description>The validation service implemented using salesforce and support Jira</description>
+
+    <parent>
+        <groupId>org.wso2.carbon.cloud</groupId>
+        <artifactId>cloud-components</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.annotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+            <version>${jersey.json.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+            <version>${carbon.utils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>force-wsc</artifactId>
+            <version>${force.wsc.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/force-wsc-36.0.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>salesforce-partner</artifactId>
+            <version>${salesforce.partner.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/salesforce-partner.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.cloud</groupId>
+            <artifactId>org.wso2.carbon.cloud.common</artifactId>
+            <version>${wso2cloud.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>
+                            ${project.artifactId}
+                        </Bundle-SymbolicName>
+                        <Export-Package>
+                            !org.wso2.carbon.cloud.complimentary.users.internal,
+                            org.wso2.carbon.cloud.complimentary.users.*
+                        </Export-Package>
+                        <Import-Package>
+                            org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
+                            com.google.gson.*; version="${google.gson.version}",
+                            com.sforce.soap.partner.*; resolution:=optional,
+                            com.sforce.ws.*; resolution:=optional,
+                            com.sforce.soap.partner.sobject.*; resolution:=optional,
+                            com.sforce.soap.partner.fault.*; resolution:=optional,
+                            org.wso2.carbon.utils.*; resolution:=optional
+                        </Import-Package>
+                        <Embed-Dependency>
+                            force;scope=compile|runtime;inline=false,
+                            salesforce-partner;scope=compile|runtime;inline=false,
+                        </Embed-Dependency>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <jackson.annotations.version>2.4.5</jackson.annotations.version>
+        <gson.version>2.4</gson.version>
+        <snakeyaml.version>1.16.0.wso2v1</snakeyaml.version>
+        <jersey.json.version>1.17.1</jersey.json.version>
+        <carbon.utils.version>4.2.0</carbon.utils.version>
+        <force.wsc.version>1.0.0</force.wsc.version>
+        <salesforce.partner.version>1.0.0</salesforce.partner.version>
+        <google.gson.version>2.1.0</google.gson.version>
+    </properties>
+
+</project>

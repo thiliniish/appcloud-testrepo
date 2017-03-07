@@ -25,7 +25,7 @@ import org.wso2.carbon.automation.engine.context.TestUserMode;
 import javax.xml.xpath.XPathExpressionException;
 
 /**
- * Utility class for test related ustils used within automation framework
+ * Utility class for test related utils used within automation framework
  */
 public class CloudIntegrationTestUtils {
     private static AutomationContext context;
