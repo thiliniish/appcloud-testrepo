@@ -73,7 +73,6 @@ public class CustomerManager {
             }
             return false;
         } catch (SalesforceException e) {
-            log.error(e);
             throw new CustomerException(e);
         }
     }
@@ -95,7 +94,6 @@ public class CustomerManager {
             salesforceConnector.logout();
             return hasClaimedComplimentarySubscripton;
         } catch (SalesforceException e) {
-            log.error(e);
             throw new CustomerException(e);
         }
     }
@@ -116,7 +114,6 @@ public class CustomerManager {
             salesforceConnector.logout();
             return contact;
         } catch (SalesforceException e) {
-            log.error(e);
             throw new CustomerException(e);
         }
     }
@@ -137,7 +134,6 @@ public class CustomerManager {
             salesforceConnector.logout();
             return opportunities;
         } catch (SalesforceException e) {
-            log.error(e);
             throw new CustomerException(e);
         }
     }
@@ -158,7 +154,6 @@ public class CustomerManager {
             salesforceConnector.updateSObject("Account", accountId, update);
             salesforceConnector.logout();
         } catch (SalesforceException e) {
-            log.error(e);
             throw new CustomerException(e);
         }
     }
@@ -177,7 +172,6 @@ public class CustomerManager {
             salesforceConnector.updateSObject("Contact", contactId, update);
             salesforceConnector.logout();
         } catch (SalesforceException e) {
-            log.error(e);
             throw new CustomerException(e);
         }
     }
@@ -198,7 +192,6 @@ public class CustomerManager {
             salesforceConnector.logout();
             return contactId;
         } catch (SalesforceException e) {
-            log.error(e);
             throw new CustomerException(e);
         }
     }

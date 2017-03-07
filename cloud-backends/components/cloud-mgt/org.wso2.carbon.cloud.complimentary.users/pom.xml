@@ -87,11 +87,11 @@
                         <Import-Package>
                             org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
                             com.google.gson.*; version="${google.gson.version}",
-                            com.sforce.soap.partner.*; resolution:=optional,
-                            com.sforce.ws.*; resolution:=optional,
-                            com.sforce.soap.partner.sobject.*; resolution:=optional,
-                            com.sforce.soap.partner.fault.*; resolution:=optional,
-                            org.wso2.carbon.utils.*; resolution:=optional
+                            com.sforce.soap.partner.*; version="${com.sforce.soap.partner.version}",
+                            com.sforce.ws.*; version="${com.sforce.ws.version}",
+                            com.sforce.soap.partner.sobject.*; version="${com.sforce.soap.partner.version}",
+                            com.sforce.soap.partner.fault.*; version="${com.sforce.soap.partner.version}",
+                            org.wso2.carbon.utils.*; version="${imp.pkg.version.carbon.platform}"
                         </Import-Package>
                         <Embed-Dependency>
                             force;scope=compile|runtime;inline=false,
@@ -112,6 +112,8 @@
         <force.wsc.version>1.0.0</force.wsc.version>
         <salesforce.partner.version>1.0.0</salesforce.partner.version>
         <google.gson.version>2.1.0</google.gson.version>
+        <com.sforce.soap.partner.version>0.0.0</com.sforce.soap.partner.version>
+        <com.sforce.ws.version>0.0.0</com.sforce.ws.version>
     </properties>
 
 </project>
