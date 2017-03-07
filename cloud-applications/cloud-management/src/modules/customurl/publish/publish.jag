@@ -553,14 +553,13 @@
             var authorizationHeader = utilModule.getAuthHeader(fullUsername);
             var loginUrl = integrationCloudServerBlockBaseUrl + INTEGRATION_CLOUD_LOGIN_BLOCK_SUFFIX;
             var loginData = {};
-            var loginHeaders = {};
+            var loginHeaders = {
+                "Authorization": stringify(authorizationHeader)
+            };
             if (cloudType == INTEGRATION_CLOUD_TYPE) {
                 //Login to Integration Cloud using jwt authentication
                 loginData = {
                     "action": INTEGRATION_CLOUD_LOGIN_ACTION
-                };
-                loginHeaders = {
-                    "Authorization": stringify(authorizationHeader)
                 };
             }
             var loginResult = post(loginUrl, loginData, loginHeaders);
