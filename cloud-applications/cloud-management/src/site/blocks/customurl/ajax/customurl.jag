@@ -62,7 +62,7 @@ include("/jagg/constants.jag");
                 pointingUrl = cloudConfigFile.customUrl.integrationCloud.pointingUrl;
             }
             if (mod.validateUrl(customUrl, pointingUrl)) {
-                if (mod.isUrlAvailable(customUrl, nodeType)) {
+                if (mod.isUrlAvailable(customUrl, nodeType, cloudType)) {
                     urlValidation.error = "false";
                 } else {
                     urlValidation.error = "true";
@@ -96,7 +96,7 @@ include("/jagg/constants.jag");
         print(value);
     } else if (action == "getCustomDomainDetailsForTenant") {
         try {
-            var result = mod.getCustomDomainDetailsForTenant();
+            var result = mod.getCustomDomainDetailsForTenant(cloudType);
             print(result);
         } catch (e) {
             var errorMessage = "Error occurred while getting custom domain details for tenant.";

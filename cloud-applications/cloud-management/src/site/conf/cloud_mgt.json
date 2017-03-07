@@ -185,13 +185,7 @@
     ],
     "integrationCloud" : {
       "pointingUrl" : "customdns.wso2apps.com",
-      "serverBlockBaseUrl" : "https://localhost:9543/appmgt/site/blocks/",
-      "loginBlockSuffix" : "user/login/ajax/login.jag",
-      "loginAction" : "loginWithJWT",
-      "applicationBlockSuffix" : "application/application.jag",
-      "urlMapperBlockSuffix" : "urlmapper/urlmapper.jag",
-      "getCustomDomainDetailsForTenantAction" : "getCustomDomainDetailsForTenant",
-      "isCustomDomainAvailableAction" : "isCustomDomainAvailable"
+      "serverBlockBaseUrl" : "https://localhost:9543/appmgt/site/blocks/"
     }
   },
   "invitationEmail": {

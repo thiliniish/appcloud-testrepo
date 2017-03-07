@@ -23,7 +23,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.cloud.appcloudlistener.AppCloudListener;
-import org.wso2.carbon.cloud.listener.CloudListener;
+import org.wso2.carbon.cloud.common.CloudListener;
 
 /**
  * @scr.component name="appcloud.listener.serviceComponent"" immediate="true"
@@ -42,10 +42,10 @@ public class AppCloudListenerComponent {
      * @param context OSGi component context.
      */
     protected void activate(ComponentContext context) {
-        log.info("Activating App Cloud listener component");
         AppCloudListener appCloudListener = new AppCloudListener();
         serviceRegistration = context.getBundleContext().registerService(CloudListener.class.getName(),
                 appCloudListener, null);
+        log.info("App Cloud listener component activated successfully.");
     }
 
     /**
@@ -54,8 +54,8 @@ public class AppCloudListenerComponent {
      * @param context OSGi component context.
      */
     protected void deactivate(ComponentContext context) {
-        log.info("Deactivating App Cloud listener component");
         serviceRegistration.unregister();
+        log.info("App Cloud listener component deactivated successfully.");
     }
 
     protected void setServerConfigurationService(ServerConfigurationService ghostMetaArtifactsLoader){
