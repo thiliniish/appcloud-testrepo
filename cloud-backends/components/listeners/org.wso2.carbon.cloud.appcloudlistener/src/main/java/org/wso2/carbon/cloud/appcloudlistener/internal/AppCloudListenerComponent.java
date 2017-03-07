@@ -21,16 +21,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.cloud.appcloudlistener.AppCloudListener;
 import org.wso2.carbon.cloud.common.CloudListener;
 
 /**
  * @scr.component name="appcloud.listener.serviceComponent"" immediate="true"
- * @scr.reference name="user.realmservice.default"
- * interface="org.wso2.carbon.base.api.ServerConfigurationService"
- * cardinality="1..1" policy="dynamic" bind="setServerConfigurationService"
- * unbind="unsetServerConfigurationService"
  */
 public class AppCloudListenerComponent {
     private static final Log log = LogFactory.getLog(AppCloudListenerComponent.class);
@@ -58,11 +53,4 @@ public class AppCloudListenerComponent {
         log.info("App Cloud listener component deactivated successfully.");
     }
 
-    protected void setServerConfigurationService(ServerConfigurationService ghostMetaArtifactsLoader){
-
-    }
-
-    protected void unsetServerConfigurationService(ServerConfigurationService ghostMetaArtifactsLoader){
-
-    }
 }

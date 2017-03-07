@@ -41,11 +41,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>${carbon.utils.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
             <artifactId>force-wsc</artifactId>
             <version>${force.wsc.version}</version>
             <scope>system</scope>
@@ -91,7 +86,6 @@
                             com.sforce.ws.*; version="${com.sforce.ws.version}",
                             com.sforce.soap.partner.sobject.*; version="${com.sforce.soap.partner.version}",
                             com.sforce.soap.partner.fault.*; version="${com.sforce.soap.partner.version}",
-                            org.wso2.carbon.utils.*; version="${imp.pkg.version.carbon.platform}"
                         </Import-Package>
                         <Embed-Dependency>
                             force;scope=compile|runtime;inline=false,
@@ -108,7 +102,6 @@
         <gson.version>2.4</gson.version>
         <snakeyaml.version>1.16.0.wso2v1</snakeyaml.version>
         <jersey.json.version>1.17.1</jersey.json.version>
-        <carbon.utils.version>4.2.0</carbon.utils.version>
         <force.wsc.version>1.0.0</force.wsc.version>
         <salesforce.partner.version>1.0.0</salesforce.partner.version>
         <google.gson.version>2.1.0</google.gson.version>
