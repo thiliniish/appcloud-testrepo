@@ -3,8 +3,7 @@ include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
 var log = new Log();
 (function () {
-    var billingModule = jagg.module("billing");
-    var isComplimentaryAccount = billingModule.isComplimentaryAccount();
+    var sessionId = session.getId();
 
     jagg.render({
                     "name":"page/base",
@@ -18,10 +17,7 @@ var log = new Log();
                                     "title":"Account Summary",
                                     "middle":[
                                         {
-                                            "name": "billing/account/info",
-                                            "inputs": {
-                                                "isComplimentaryAccount": isComplimentaryAccount
-                                            }
+                                            "name":"billing/account/info"
                                         }
                                     ]
                                 }

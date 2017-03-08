@@ -3,8 +3,7 @@
     var secondaryCCStatus = request.getParameter("secondary-card");
     var cloudMgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
-    var serviceId = session.get("SERVICE_ID");
-    var isPaidAccount = jagg.module("billing").isPaidAccount();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled(SUBSCRIPTION_API_CLOUD);
 %>
     <style type="text/css">
         .label-style {
@@ -23,10 +22,10 @@
     </style>
 
     <script type="text/javascript">
-        var isPaidAccount = '<%=isPaidAccount%>';
         $(document).ready(function(){
         // Check for billing enable/disable mode
-        if (isPaidAccount) {
+        var isBillingEnabled = $("#isBillingEnabled").attr('value');
+        if (isBillingEnabled) {
             //call backend and load data
             $.ajax({
                 url: "../blocks/billing/method/info/ajax/get.jag",
@@ -192,7 +191,7 @@
             </div>
             <div>
             <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudMgtURL%>" />
-            <input type="hidden" name="isPaidAccount" id="isBillingEnabled"  value="<%=isPaidAccount%>" />
+            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
             <input type="hidden" name="unavailableErrorPage" id="unavailableErrorPage"  value="<%= unavailableErrorPage %>" />
             </div>
             </form>

@@ -18,7 +18,7 @@
 <automation xmlns="automation_mapping.xsd">
 
     <!--  =================================================  -->
-    <!--     Parameters of Developer/Local Environment       -->
+    <!--                   Parameters                        -->
     <!--  =================================================  -->
 
     <configurations>
@@ -134,6 +134,10 @@
         <superTenant>
             <tenant domain="carbon.super" key="superTenant">
                 <admin>
+                    <!--<user key="superAdmin">
+                        <userName>cloudadmin</userName>
+                        <password>cloudadmin</password>
+                    </user>-->
                     <user key="superAdmin">
                         <userName>admin</userName>
                         <password>admin</password>
@@ -156,7 +160,7 @@
                 <admin>
                     <user key="admin">
                         <userName>admin</userName>
-                        <password>admin</password>
+                        <password>password</password>
                     </user>
                 </admin>
                 <users>
@@ -286,28 +290,28 @@
     <!--Cloud Related properties-->
     <cloudProperties>
         <urls>
-            <cloudMgtServerUrl>https://cloudmgt.cloudlocal.wso2.com:9444</cloudMgtServerUrl>
-            <apiMgtServerUrl>https://api.cloudlocal.wso2.com</apiMgtServerUrl>
+            <cloudMgtServerUrl>https://cloudmgt.cloudstaging.wso2.com</cloudMgtServerUrl>
+            <apiMgtServerUrl>https://api.cloudstaging.wso2.com</apiMgtServerUrl>
             <apiGatewayEndpointUrl>https://gateway.api.cloudstaging.wso2.com</apiGatewayEndpointUrl>
-            <identityServerUrl>https://identity.cloudlocal.wso2.com:9443</identityServerUrl>
+            <identityServerUrl>https://identity.cloudstaging.wso2.com</identityServerUrl>
         </urls>
         <tenantDetails>
             <Tenant key="defaultTenant">
                 <tenantId>1</tenantId>
                 <tenantDomain>tenantDomain</tenantDomain>
-                <adminUser>useremail@tenant.com</adminUser>
-                <adminPassword>password</adminPassword>
+                <adminUser>adminUser</adminUser>
+                <adminPassword>adminPassword</adminPassword>
                 <users>
                     <user firstName="User" lastName="One" key="user1">
-                        <userName>userMail@tenantdomain</userName>
+                        <userName>userName</userName>
                         <password>password</password>
                         <email>email</email>
                     </user>
 
                     <user firstName="firstname" lastName="lastname" key="commonUser">
-                        <userName>userMail@tenantDomain</userName>
-                        <password>password</password>
-                        <email>email</email>
+                        <userName>commonuser</userName>
+                        <password>Admin@123#</password>
+                        <email>user1@wso2.com</email>
                     </user>
                 </users>
             </Tenant>
@@ -332,34 +336,8 @@
                 <couponId>coupon_Ace</couponId>
             </payments>
         </billing>
-        <tenantNewUserEmails>newSubscriberUser12r3321456@discard.email,userNotInTenant123@discard.email,newAdminUser123465@discard.email,newRevokeUser123456@discard.email
-        </tenantNewUserEmails>
-        <tenantRoles>
-            <role name="subscriber">
-                <roleKey>subscriber</roleKey>
-                <displayName>APICloudSubscriber</displayName>
-            </role>
-            <role name="publisher">
-                <roleKey>publisher</roleKey>
-                <displayName>APICloudPublisher</displayName>
-            </role>
-            <role name="deviceMgtUser">
-                <roleKey>devicemgtuser</roleKey>
-                <displayName>DeviceMgtCloudUser</displayName>
-            </role>
-            <role name="deviceMgtAdmin">
-                <roleKey>devicemgtadmin</roleKey>
-                <displayName>DeviceMgtCloudAdmin</displayName>
-            </role>
-            <role name="integrationCloudUser">
-                <roleKey>integrationclouduser</roleKey>
-                <displayName>IntegrationCloudUser</displayName>
-            </role>
-            <role name="admin">
-                <roleKey>admin</roleKey>
-                <displayName>Admin</displayName>
-            </role>
-        </tenantRoles>
+        <tenantNewUserEmails>aaaw@discard.email,bbbw@discard.email</tenantNewUserEmails>
+        <allTenantRoles>publisher,subscriber,admin</allTenantRoles>
         <support>
             <userEmail>test@wso2.com</userEmail>
             <jiraCreationEnabled>false</jiraCreationEnabled>

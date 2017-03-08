@@ -2,14 +2,8 @@
 jagg.block("tenant/manage/list", {
     initialize:function (data) {
 
-    },
-
-    getOutputs: function (inputs) {
-        var mod = jagg.module("tenant");
-        var output = {};
-        output.isOrgLimitExceeded = mod.isOrgLimitExceeded();
-        return output;
     }
+
 
 });
 %>

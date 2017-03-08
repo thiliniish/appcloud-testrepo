@@ -655,31 +655,9 @@
                             <xs:element name ="tenantNewUserEmails" type="xs:string" maxOccurs="1"
                                         minOccurs="0">
                             </xs:element>
-                            <xs:element name="tenantRoles">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="role"
-                                                    maxOccurs="unbounded"
-                                                    minOccurs="0">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element
-                                                            type="xs:string"
-                                                            name="roleKey"/>
-                                                    <xs:element
-                                                            type="xs:string"
-                                                            name="displayName"/>
-                                                </xs:sequence>
-                                                <xs:attribute
-                                                        type="xs:string"
-                                                        name="name"
-                                                        use="required"/>
-                                            </xs:complexType>
-                                        </xs:element>
-                                    </xs:sequence>
-                                </xs:complexType>
+                            <xs:element name ="allTenantRoles" type="xs:string" maxOccurs="1"
+                                        minOccurs="0">
                             </xs:element>
-
                             <xs:element name="support">
                                 <xs:complexType>
                                     <xs:sequence>

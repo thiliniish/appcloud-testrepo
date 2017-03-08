@@ -89,7 +89,8 @@ var checkTenant = function () {
 var checkEmailExist = function () {
 
     var email = request.getParameter("email");
-    var URL = jsonObj.ServerUrl.DataServices_Server + checkTenantsForEmail + "userName=" + email;
+    var parameterEmail = email.replace("@", ".");
+    var URL = jsonObj.ServerUrl.DataServices_Server + checkTenantsForEmail + "userName=" + parameterEmail;
 
     var response = getXMLHttpRequest(URL, requestType, typeRequestHeaderName, typeRequestHeaderValue);
 

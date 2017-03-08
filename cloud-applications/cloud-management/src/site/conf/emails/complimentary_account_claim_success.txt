@@ -1,3 +1,0 @@
-<h4>Claimed by : $email</h4>
-<h4>Support Account : $supportAccount</h4>
-<p><b>Username</b> : $username</p>

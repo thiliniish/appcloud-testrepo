@@ -22,32 +22,25 @@ public class CloudIntegrationConstants {
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String SUCCESS = "success";
-    public static final String ERROR = "error";
-    public static final String EMAIL = "email";
     public static final String LOGIN_ERROR_MESSAGE = "Tenant login failed.";
     public static final String PUBLISHER_LOGIN_ERROR_MESSAGE = "Tenant login failed for publisher.";
     public static final String PARAMETER_KEY_ACTION = "action";
     public static final String PARAMETER_KEY_RESPONSE_FROM = "responseFrom";
     public static final String BILLING_STARTER_PLAN = "Starter";
     public static final String MONETIZATION_STARTER_PLAN = "Getting Traction";
-    public static final String COMMA_SEPERATOR = ",";
 
     public static final String CLOUD_LOGIN_URL_SFX =
             "/cloudmgt/site/blocks/user/authenticate/ajax/login.jag";
     public static final String CLOUD_SIGNUP_URL_SFX =
             "/cloudmgt/site/blocks/tenant/register/invite/ajax/invite.jag";
-    public static final String CLOUD_ADD_NEW_TENANT_URL_SFX =
-            "/cloudmgt/site/blocks/tenant/register/add/ajax/add.jag";
     public static final String CLOUD_ADD_TENANT_URL_SFX =
-            "/cloudmgt/site/blocks/tenant/manage/add/ajax/add.jag";
+            "/cloudmgt/site/blocks/tenant/register/add/ajax/add.jag";
     public static final String CLOUD_SIGNUP_CONFIRM_URL_SFX =
             "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
     public static final String API_PUBLISHER_LOGIN_URL_SFX =
             "/publisher/site/blocks/user/login/ajax/login.jag";
     public static final String API_STORE_LOGIN_URL_SFX =
             "/store/site/blocks/user/login/ajax/login.jag";
-    public static final String UPDATE_TENANT_PROFILE_SFX =
-            "/cloudmgt/site/blocks/tenant/manage/profile/ajax/profile.jag";
 
     //Billing
     public static final String CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX =
@@ -90,26 +83,15 @@ public class CloudIntegrationConstants {
             "/cloudmgt/site/blocks/user/change/ajax/user.jag";
     public static final String USER_PROFILE_URL_SFX =
             "/cloudmgt/site/blocks/user/profile/ajax/profile.jag";
+
+    public static final String CLOUD_SEND_USER_INVITE_URL_SFX =
+            "/cloudmgt/site/blocks/tenant/users/add/ajax/add.jag";
     public static final String CLOUD_CONFIRM_USER_URL_SFX =
             "/cloudmgt/site/blocks/tenant/register/confirm/ajax/confirm.jag";
     public static final String CLOUD_TENANT_USERS_URL_SFX =
             "/cloudmgt/site/blocks/tenant/users/add/ajax/add.jag";
-    //cloud roles
-    public static final String CLOUD_API_SUBSCRIBER_ROLE = "//cloudProperties/tenantRoles/role[@name='subscriber']/roleKey";
-    public static final String CLOUD_API_PUBLISHER_ROLE = "//cloudProperties/tenantRoles/role[@name='publisher']/roleKey";
-    public static final String CLOUD_DEVICE_USER_ROLE = "//cloudProperties/tenantRoles/role[@name='deviceMgtUser']/roleKey";
-    public static final String CLOUD_DEVICE_ADMIN_ROLE = "//cloudProperties/tenantRoles/role[@name='deviceMgtAdmin']/roleKey";
-    public static final String CLOUD_INTEGRATION_USER_ROLE = "//cloudProperties/tenantRoles/role[@name='integrationCloudUser']/roleKey";
-    public static final String CLOUD_ADMIN_ROLE = "//cloudProperties/tenantRoles/role[@name='admin']/roleKey";
+    public static final String ALL_CLOUD_USER_ROLES = "//cloudProperties/allTenantRoles";
     public static final String NEW_CLOUD_USER_EMAILS = "//cloudProperties/tenantNewUserEmails";
-
-    //cloud role display names
-    public static final String CLOUD_API_SUBSCRIBER_ROLE_DISPLAY_NAME = "//cloudProperties/tenantRoles/role[@name='subscriber']/displayName";
-    public static final String CLOUD_API_PUBLISHER_ROLE_DISPLAY_NAME = "//cloudProperties/tenantRoles/role[@name='publisher']/displayName";
-    public static final String CLOUD_DEVICE_USER_ROLE_DISPLAY_NAME = "//cloudProperties/tenantRoles/role[@name='deviceMgtUser']/displayName";
-    public static final String CLOUD_DEVICE_ADMIN_ROLE_DISPLAY_NAME = "//cloudProperties/tenantRoles/role[@name='deviceMgtAdmin']/displayName";
-    public static final String CLOUD_INTEGRATION_USER_ROLE_DISPLAY_NAME = "//cloudProperties/tenantRoles/role[@name='integrationCloudUser']/displayName";
-    public static final String CLOUD_ADMIN_ROLE_DISPLAY_NAME = "//cloudProperties/tenantRoles/role[@name='admin']/displayName";
 
     //Cloud Support
     public static final String CLOUD_CONTACT_SUPPORT_URL_SFX =

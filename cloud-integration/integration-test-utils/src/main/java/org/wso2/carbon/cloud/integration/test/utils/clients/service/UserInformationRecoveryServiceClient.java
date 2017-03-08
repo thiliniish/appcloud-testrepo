@@ -111,18 +111,18 @@ public class UserInformationRecoveryServiceClient {
     /**
      * Returns user information, and confirmation code required for sending email
      *
-     * @param username         username
+     * @param userName         userName
      * @param key              verification key from verifyUser method
      * @param notificationType email
      * @return contains the NotificationDataDTO which has confirmation code and user information for sending the email
      * @throws Exception
      */
-    public VerificationBean sendRecoveryNotification(String username, String key, String notificationType)
+    public VerificationBean sendRecoveryNotification(String userName, String key, String notificationType)
             throws Exception {
         try {
-            return stub.sendRecoveryNotification(username, key, notificationType);
+            return stub.sendRecoveryNotification(userName, key, notificationType);
         } catch (Exception e) {
-            String msg = "Error Occurred while sendRecoveryNotification for user: " + username + ".";
+            String msg = "Error Occurred while sendRecoveryNotification for user.";
             log.error(msg, e);
             throw new Exception(msg, e);
         }

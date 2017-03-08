@@ -29,45 +29,45 @@
 
     <test name="CloudMgt-Tests" preserve-order="true" verbose="2">
         <classes>
-            <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.TenantCreationAndLoginTestCase"/>
-            <class name="org.wso2.carbon.cloud.test.scenarios.members.MemberManagementTestCase"/>
+             <class name="org.wso2.carbon.cloud.test.scenarios.members.MemberManagementTestCase"/>
+             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.TenantCreationAndLoginTestCase"/>
+
         </classes>
     </test>
-    <!--<test name="Billing-Tests" preserve-order="true" verbose="2">-->
-        <!--<classes>-->
-            <!--<class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase">-->
-                <!--<methods>-->
-                    <!--<exclude name="addPaymentMethod"/>-->
-                    <!--<exclude name="viewPaymentMethods"/>-->
-                    <!--<exclude name="changePaymentMethod"/>-->
-                    <!--<exclude name="deletePaymentMethod"/>-->
-                <!--</methods>-->
-            <!--</class>-->
-            <!--<class name="org.wso2.carbon.cloud.test.scenarios.billing.AccountInfoTestCase"/>-->
-            <!--<class name="org.wso2.carbon.cloud.test.scenarios.billing.ApiBillingUsageTestCase"/>-->
-            <!--<class name="org.wso2.carbon.cloud.test.scenarios.billing.SubscriptionPlanChangeTestCase"/>-->
-            <!--<class name="org.wso2.carbon.cloud.test.scenarios.billing.SubscriptionPlanTestCase">-->
-                <!--<methods>-->
-                    <!--<exclude name="getBillingSubscriptionPlan"/>-->
-                    <!--<exclude name="cancelBillingSubscriptionPlan"/>-->
-                <!--</methods>-->
-            <!--</class>-->
-        <!--</classes>-->
-    <!--</test>-->
-    <test name="UserManagement-Tests" preserve-order="true" verbose="2">
+    <test name="Billing-Tests" preserve-order="true" verbose="2">
         <classes>
-            <!--PasswordResetTestCase not working in 5.1.0-->
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.PaymentMethodsTestCase">
+                <methods>
+                    <exclude name="addPaymentMethod"/>
+                    <exclude name="viewPaymentMethods"/>
+                    <exclude name="changePaymentMethod"/>
+                    <exclude name="deletePaymentMethod"/>
+                </methods>
+            </class>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.AccountInfoTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.ApiBillingUsageTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.SubscriptionPlanChangeTestCase"/>
+            <class name="org.wso2.carbon.cloud.test.scenarios.billing.SubscriptionPlanTestCase">
+                <methods>
+                    <exclude name="getBillingSubscriptionPlan"/>
+                    <exclude name="cancelBillingSubscriptionPlan"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+   <test name="UserManagement-Tests" preserve-order="true" verbose="2">
+        <classes>
             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.UserProfileManagementTestCase"/>
-            <!--<class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>-->
+            <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>
         </classes>
     </test>
     <test name="SelfSign-up-Tests" preserve-order="true" verbose="2">
         <classes>
             <class name="org.wso2.carbon.cloud.test.scenarios.selfSignup.SelfSignupTestCase">
                 <methods>
-                    <exclude name="enableSelfSignupWithApprovalRequest"/>
-                    <exclude name="checkSignUpConfiguredForUser"/>
-                    <exclude name="enableSelfSignupWithoutApprovalRequest"/>
+                        <exclude name="enableSelfSignupWithApprovalRequest"/>
+                        <exclude name="checkSignUpConfiguredForUser"/>
+                        <exclude name="enableSelfSignupWithoutApprovalRequest"/>
                 </methods>
             </class>
         </classes>
