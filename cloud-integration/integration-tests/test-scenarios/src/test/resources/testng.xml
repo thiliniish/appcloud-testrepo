@@ -58,7 +58,7 @@
         <classes>
             <!--PasswordResetTestCase not working in 5.1.0-->
             <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.UserProfileManagementTestCase"/>
-            <!--<class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>-->
+            <class name="org.wso2.carbon.cloud.test.scenarios.user.mgt.PasswordResetTestCase"/>
         </classes>
     </test>
     <test name="SelfSign-up-Tests" preserve-order="true" verbose="2">
