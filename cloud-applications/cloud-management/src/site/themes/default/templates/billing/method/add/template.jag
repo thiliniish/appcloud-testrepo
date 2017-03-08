@@ -1,21 +1,19 @@
 <% jagg.template("billing/method/add", function(inputs, outputs, jagg) { %>
 <%
-        var couponDiscount = session.get("COUPON_DISCOUNT");
-        var serviceId =  session.get("SERVICE_ID");
-
-        if (EDIT_BILLING_INFO != request.getParameter("responseFrom")) {
-            var ratePlans = session.get("RATE_PLANS");
-            var selectedRatePlanId = inputs.productRatePlanId;
-            var shortDescription = "";
-            var monthlyRental = null;
-            for (var i = 0; i < ratePlans.length; i++) {
-                if (ratePlans[i].id == selectedRatePlanId) {
-                    monthlyRental = ratePlans[i].rental;
-                    shortDescription = ratePlans[i].shortDescription;
-                }
+    if(inputs.isBillingEnabled){
+        if(inputs.ratePlanInfo) {
+            var accounts = inputs.ratePlanInfo.getProperty("MaxAccounts");
+            var callsPerDay = inputs.ratePlanInfo.getProperty("MaxDailyUsage");
+            var callsAbovePlan = inputs.ratePlanInfo.getProperty("OverUsage");
+            var monthlyRental = inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
+            var couponDiscount = session.get("COUPON_DISCOUNT");
+            var defaultLocale = Packages.java.util.Locale.getDefault();
+            var numFormat = new Packages.java.text.NumberFormat.getInstance(defaultLocale);
+            if (callsPerDay != null) {
+                callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
             }
         }
-        var isPaidAccount = inputs.isPaidAccount;
+    }
     %>
 <script src="js/jquery-3.1.1.min.js"></script>
 <script src="https://checkout.stripe.com/checkout.js"></script>
@@ -23,7 +21,7 @@
     <div class="container content-starter">
         <div class="row">
             <div class="col-lg-12">
-                <% if (inputs.accountId != "" ) { %>
+                <% if (inputs.accountId !="" ) { %>
                     <h1>New Payment Method</h1>
                 <% } else { %>
                     <h1>Upgrade Account</h1>
@@ -142,9 +140,12 @@
                                         class="product-planname"><%=inputs.currRatePlan%></span>
                                     </p>
                                     <ul>
-                                    <% for (var i=0; i < shortDescription.length; i++) { %>
-                                        <li><%=shortDescription[i]%></li>
-                                    <% } %>
+                                        <li>
+                                            <%=accounts%> portal users</li>
+                                        <li>
+                                            <%=callsPerDay%> calls/day</li>
+                                        <li>
+                                            <%=callsAbovePlan%> calls above plan</li>
                                     </ul>
                                 </div>
                                 <hr class="wr-separate" />
@@ -181,15 +182,14 @@
                             </div>
                         </div>
                         <% }%>
-                            <input type="hidden" name="isPaidAccount" id="isPaidAccount"
-                            value="<%=inputs.isPaidAccount%>" />
+                            <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"
+                            value="<%=inputs.isBillingEnabled%>" />
                             <input type="hidden" name="monthlyRental" id="monthlyRental"
                             value="<%=monthlyRental%>" />
-                            <input type="hidden" name="serviceId" id="serviceId"
-                            value="<%=serviceId%>" />
                             <input type="hidden" name="cloudmgtURL" id="cloudmgtURL" value="<%=inputs.cloudmgtURL%>" />
                             <input type="hidden" name="errorMessage" id="errorMessage"
                             value="<%=inputs.errorMessage%>" />
+                            <input type="hidden" name="serviceId" id="serviceId" value="<%=inputs.serviceId%>" />
                             <input type="hidden" name="productRatePlanId" id="productRatePlanId"
                             value="<%=inputs.productRatePlanId%>" />
                             <input type="hidden" name="accountId" id="accountId" value="<%=inputs.accountId%>" />
@@ -210,4 +210,3 @@
 <div class="clearfix"></div>
 
 <% }); %>
-

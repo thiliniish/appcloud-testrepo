@@ -11,8 +11,6 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
-var MultitenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-
 var clock = new Date();
 var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
 var ADMIN_USERNAME = cloudConfig.SSORelyingParty.adminUser;
@@ -22,11 +20,15 @@ var COOKIE_REFRESH_INTERVAL = cloudConfig.SSORelyingParty.cookieRefreshInterval;
 var cookieRefreshInterval = COOKIE_REFRESH_INTERVAL;
 
 /**
- * Returns whether EnableEmailUserName is true/false in carbon.xml
- * @return boolean
+ * Returns boolean value of isEmailUserNameEnabled
+ * @return boolean isEmailUserNameEnabled
  */
 var isEmailUserNameEnabled = function () {
-    return MultitenantUtils.isEmailUserName();
+    if (application.get("isEmailUserNameEnabled") != null) {
+        return Boolean(application.get("isEmailUserNameEnabled"));
+    }
+    application.put("isEmailUserNameEnabled", cloudConfig.isEmailUserNameEnabled);
+    return Boolean(application.get("isEmailUserNameEnabled"));
 };
 
 /**
@@ -46,7 +48,7 @@ var isExistingUser = function (email) {
             log.info("The email address [ " + email + " ] is valid");
             user = getUserNameFromEmail(email);
         }
-        isExist = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').isExistingUser(user);
+        isExist = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').isExistingUser(user);
     } catch (e) {
         log.error("Error while checking the existence of user [ " + user + " ]");
         log.error(e);
@@ -101,7 +103,12 @@ var getUserNamesFromEmails = function (emails) {
  * @return String tenantAwareUsername
  */
 var getTenantAwareUsername = function (userName) {
-    return MultitenantUtils.getTenantAwareUsername(userName);
+    if (userName.indexOf("@") != -1 && !isEmailUserNameEnabled()) {
+        userName = userName.substring(0, userName.lastIndexOf("@"));
+    } else if (isEmailUserNameEnabled() && userName.indexOf("@") != userName.lastIndexOf("@")) {
+        userName = userName.substring(0, userName.lastIndexOf("@"));
+    }
+    return userName;
 };
 
 /**
@@ -122,7 +129,7 @@ var getEmailOfUser = function (userName) {
             context.startTenantFlow();
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
             context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            var userManagementService = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService');
+            var userManagementService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
             return userManagementService.getUserEmail(tenantAwareUserName);
         } catch (e) {
             log.error("Error while getting email of user :  " + userName + "\n" + e.message);
@@ -135,14 +142,24 @@ var getEmailOfUser = function (userName) {
 
 /**
  * Returns the Tenant Domain of the given user
+ * @param userName
  * @return String tenantDomain
  */
 var getTenantDomain = function () {
-    var username = jagg.getUser();
-    if(username == null) {
-        return "carbon.super";
+    var userName = jagg.getUser();
+    var tenantDomain = "carbon.super";
+    if (userName != null) {
+        if (userName.indexOf("@") != -1 && !isEmailUserNameEnabled()) {
+            tenantDomain = userName.substring(userName.lastIndexOf("@") + 1);
+        } else if (isEmailUserNameEnabled() && userName.indexOf("@") != userName.lastIndexOf("@")) {
+            tenantDomain = userName.substring(userName.lastIndexOf("@") + 1);
+        }
     }
-    return MultitenantUtils.getTenantDomain(username);
+
+    if (tenantDomain == null || tenantDomain == "") {
+        tenantDomain = "carbon.super";
+    }
+    return tenantDomain;
 };
 
 /**

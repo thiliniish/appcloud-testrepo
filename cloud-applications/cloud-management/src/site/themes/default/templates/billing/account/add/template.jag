@@ -5,10 +5,12 @@
     var log = new Log("site/themes/default/templates/billing/account/add/template.jag");
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
 
-    var shortDescription = inputs.shortDescription;
     var responseFrom = inputs.responseFrom;
     if (responseFrom != EDIT_USER_INFO) {
-        var monthlyRental = inputs.monthlyRental;
+        var accounts = inputs.ratePlanInfo.getProperty("MaxAccounts");
+        var callsPerDay = inputs.ratePlanInfo.getProperty("MaxDailyUsage");
+        var callsAbovePlan = inputs.ratePlanInfo.getProperty("OverUsage");
+        var monthlyRental = inputs.ratePlanInfo.getProperty("MonthlyRental").substring(1);
         var couponDiscount = session.get("COUPON_DISCOUNT");
     }
     var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3, field_passthrough4;
@@ -19,14 +21,13 @@
     var organizationName = "";
     var currRatePlan =  session.get("CURRENT_RATE_PLAN");
     var isFromChangePlan = request.getParameter("isFromChangePlan");
-    var isFirstSubscription = request.getParameter("isFirstSubscription");
     var accountId = request.getParameter("accountId");
     var isDowngrade = session.get("IS_DOWNGRADE");
 
-    var serviceId = session.get("SERVICE_ID");
-    var cancelSubscriotionEffectiveDate = null;
-    if (isFirstSubscription == 'false') {
-        cancelSubscriotionEffectiveDate = jagg.module("billing").getCancelSubscriptionEffectiveDate(serviceId);
+    var l = Packages.java.util.Locale.getDefault();
+    var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
+    if(callsPerDay != null){
+        callsPerDay = numFormat.format(new Packages.java.math.BigDecimal(callsPerDay));
     }
 
     if("Response_From_Submit_Page" == responseFrom) {
@@ -52,7 +53,7 @@
 
         }
         log.debug("Request received from payment method creation page. Callback from Billing Vendor");
-    }else if (EDIT_USER_INFO == responseFrom) {
+    }else if (EDIT_USER_INFO == responseFrom){
         organizationName = request.getParameter("organizationName");
         profileFirstName = request.getParameter("firstName");
         profileLastName = request.getParameter("lastName");
@@ -61,10 +62,7 @@
         creditCardAddress1 = request.getParameter("address1");
         creditCardAddress2 = request.getParameter("address2");
         creditCardState = request.getParameter("state");
-        creditCardPostalCode = request.getParameter("zipCode");
-    } else if(IS_FROM_CHANGE_PLAN == responseFrom && isFirstSubscription == 'true') {
-        field_passthrough2 = serviceId;
-        field_passthrough3 = inputs.selectedRatePlanId;
+        creditCardPostalCode  = request.getParameter("zipCode");
     } else {
         log.debug("Request received directly");
     }
@@ -252,7 +250,6 @@
                     responseFrom: "<%=responseFrom%>",
                     accountId: "<%=accountId%>",
                     field_passthrough4: $("#field_passthrough4").attr('value'),
-                    isFirstSubscription: "<%=isFirstSubscription%>"
                 },
                 function(result) {
                     document.getElementById("spinner").style.display = 'none';
@@ -260,7 +257,7 @@
                         window.location.href = cloudmgtURL + "/site/pages/account-summary.jag";
                     } else {
                         window.location.href = cloudmgtURL +
-                            "/site/pages/payment-confirmation.jag?discount=<%=couponDiscount%>&monthly-rental=<%=monthlyRental%>&responseFrom=<%=responseFrom%>&isFirstSubscription=<%=isFirstSubscription%> ";
+                            "/site/pages/payment-confirmation.jag?discount=<%=couponDiscount%>&monthly-rental=<%=monthlyRental%>&responseFrom=<%=responseFrom %> ";
                     }
                 },
                 function(jqXHR, textStatus, errorThrown) {
@@ -448,11 +445,7 @@
 			</div>
 
 		    <%} else if(responseFrom == IS_FROM_CHANGE_PLAN){%>
-		        <% if (isFirstSubscription == 'true') { %>
-		            <h1>Add New Subscription</h1>
-		        <% } else { %>
-		            <h1>Change Subscription Plan</h1>
-		        <% } %>
+		        <h1>Change Subscription Plan</h1>
 		        <div class="helper_text" id="helper_text">
                     <p>Please enter if you have a coupon and proceed.</p>
              	</div>
@@ -506,7 +499,7 @@
     	</div>
 
 	<% }
-    if(responseFrom != IS_FROM_CHANGE_PLAN) {%>
+	if(responseFrom != IS_FROM_CHANGE_PLAN) {%>
 	<div class="row">
 		<div class="container col-md-12">
 			<div class="wr-head"><h2>Contact Information</h2></div>
@@ -571,17 +564,12 @@
 		<%} else { %>
                    <div class="container col-md-8 wr-text">
                           <% if(isDowngrade ) {  %>
-                           <p class="tcenter">You will be downgrading your <b><%=productIdFromServiceId[serviceId]%></b> subscription to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
-                           <p class="tcenter">You will be charged USD <span id="payable-amount-txt"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span> <b> on your next renewal date</b> <span><%=cancelSubscriotionEffectiveDate%></span></p>
+                           <p class="tcenter">You will be downgrading  your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
+                           <p class="tcenter">You will be charged USD <span id="payable-amount-txt"><%=Number(monthlyRental - couponDiscount).toFixed(2)%></span> <b> on your next renewal date</b> <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span></p>
                               <% } else {  %>
-                               <% if (isFirstSubscription == 'true') {%>
-                                   <p class="tcenter">You will be subscribing to <b><%=productIdFromServiceId[serviceId]%></b> <span class="product-planname"><%=currRatePlan%> Plan</span></p>
-                                   <p class="tcenter">The subscription will effect immediately. You will be charged USD <span id="monthly-payable-amount-txt"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%> </span></p>
-                               <% } else { %>
-                                    <p class="tcenter">You will be upgrading your <b><%=productIdFromServiceId[serviceId]%></b> subscription to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
-                                    <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=cancelSubscriotionEffectiveDate%></span>,
-                                     you will be charged USD <span id="monthly-payable-amount-txt"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%></span></p>
-                               <% } %>
+                               <p class="tcenter">You will be upgrading  your payment plan to <span class="product-planname"><%=currRatePlan%> Plan</span></p>
+                             <p class="tcenter">The upgrade will happen immediately. Starting your next renewal date <span><%=jagg.module("billing").getCancelSubscriptionEffectiveDate()%></span>,
+                             you will be charged USD <span id="monthly-payable-amount-txt"> <%=Number(monthlyRental - couponDiscount).toFixed(2)%> </span>. </p>
                             <% }   %>
                    </div>
 		<% } if(responseFrom == EDIT_USER_INFO ) {  %>
@@ -607,9 +595,9 @@
 					<p class="product-summery">PRODUCT SUMMARY</p>
 					<p class="product-planname"><%=currRatePlan%></p>
 					<ul>
-					    <% for (var i =0; i < shortDescription.length; i++ ) {%>
-						<li><%=shortDescription[i]%></li>
-		                <% } %>
+						<li><%=accounts%> portal users</li>
+						<li><%=callsPerDay%> calls/day</li>
+						<li><%=callsAbovePlan%> calls above plan</li>
 					</ul>
 				</div>
 				<hr class="wr-separate"/>

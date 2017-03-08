@@ -9,33 +9,17 @@
         isExtensionRequest = request.getParameter("request-extension");
     }
 
-    var cloudType = request.getParameter("cloud-type");
+    var cloudType = null;
+    cloudType = request.getParameter("cloudType");
     var isRegistrationHelp = request.getParameter("registration-help");
     var userEmail = request.getParameter('email');
 
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-    var publisherUrl = null;
-
-    if (cloudType == null) {
-        var serviceId = null;
-    } else {
-        var serviceId = cloudType;
-    }
-
-    if (serviceId != null) {
-        var subscriptionsType = cloudConfig.subscriptions.type;
-        for (var i = 0; i < subscriptionsType.length; i++) {
-            if ((subscriptionsType[i].id).equals(serviceId)) {
-                publisherUrl = subscriptionsType[i].urls.cloudTypeUrl;
-            }
-        }
-    }
-
-    if (serviceId != null) {
-        var trialPeriod = jagg.module("billing").getTrialPeriod(serviceId);
-    }
+    var publisherUrl = (cloudConfig.subscriptions.type)[1].urls.cloudTypeUrl;
+    var trialPeriod = jagg.module("billing").getTrialPeriod(SUBSCRIPTION_API_CLOUD);
     var to = cloudConfig.supportContact.to;
+    var serviceId = session.get("SERVICE_ID");
     var customSubject = "";
     var subject = request.getParameter("subject");
     if (subject != null) {

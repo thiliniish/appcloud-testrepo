@@ -86,6 +86,7 @@ function addPaymentMethod() {
         action: "addPaymentMethod",
         tokenId: cardDetails.field_passthrough5
     }, function (results) {
+        console.log(results.result);
         actionString = "&action=viewPaymentMethod";
         window.top.location.href = "../../../site/pages/pricing/manage-account.jag?tenant=" + encodeURIComponent(tenant) + actionString +
         '&fieldPassthrough1=' + encodeURIComponent(results.result);

@@ -11,10 +11,7 @@
     var unavailableErrorPage = UNAVAILABLE_ERROR_PAGE;
     var serviceId = session.get("SERVICE_ID");
     var isBillingEnabled = jagg.module("billing").isBillingEnabled(serviceId);
-    var isFromChangePlan = jagg.module("billing").isPaidAccount();
-    var isFirstSubscription = jagg.module("billing").isFirstSubscription(serviceId);
     var tenantDomain;
-
     // TO DO Monetization Enabled need to be added
     var isMonetizationEnabled = false;
     if (session.get("TENANT_INFO") != null) {
@@ -24,11 +21,9 @@
             isMonetizationEnabled = result.monetizationEnabled;
         }
     }
-
     if (isBillingEnabled) {
         var ratePlansObj = jagg.module("billing").getRatePlans(serviceId);
-        var accountId = jagg.module("billing").getAccountId();
-
+        var accountId = jagg.module("billing").getAccountId(serviceId);
         if (accountId != null) {
             var ratePlan = jagg.module("billing").getCurrentRatePlan(serviceId);
         }
@@ -38,10 +33,8 @@
         if (ratePlan != null) {
             currentRatePlanId = ratePlan.id;
         }
-
-        var paymentPlanCategories = ratePlansObj.headers;
+        var isFromChangePlan = inputs.isFromChangePlan;
         var paymentPlans = ratePlansObj.entry;
-        var shortDesc = ratePlansObj.shortDescription;
         var l = Packages.java.util.Locale.getDefault();
         var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
         var marketing = request.getParameter("isFromOTPricingPage");
@@ -53,13 +46,13 @@
                 isFromChangePlan = true;
             }
         }
-
         session.put("RATE_PLANS", paymentPlans);
         session.put("OLD_PLAN_ID", currentRatePlanId);
-
+        if (isFromChangePlan == null || isFromChangePlan == 'null') {
+            isFromChangePlan = false;
+        }
         var subscribedCloudURL = jagg.module("billing").getCloudURL(serviceId);
         var bttnLabel = "Cancel";
-        var isComplimentaryAccount = inputs.isComplimentaryAccount;
     }
 %>
 
@@ -72,20 +65,15 @@
 <div class="container content-starter">
 	<div class="row">
 		<div class="col-lg-12">
-		    <%if ((!isFromChangePlan && isFirstSubscription) || (isFromChangePlan && isComplimentaryAccount)) { %>
+		    <%if (isFromChangePlan == false) { %>
 			    <h1>Upgrade Account</h1>
 			    <div class="helper_text" id="helper_text">
 			        <p>Please select a plan to upgrade your account</p>
                 </div>
-		    <%} else if(isFromChangePlan == true && isFirstSubscription == false) {%>
+		    <%} else {%>
 		        <h1>Change Subscription Plan</h1>
 		        <div class="helper_text" id="helper_text">
                     <p>Please select a plan to change your account</p>
-             	</div>
-		    <%} else {%>
-		        <h1>Add New Subscription</h1>
-		        <div class="helper_text" id="helper_text">
-                    <p>Please select a plan to add new subscription</p>
              	</div>
 			<%} %>
 		</div>
@@ -97,7 +85,7 @@
 <div class="container c-both wr-billing-white info-message-parent">
 <% jagg.includeBlock("page/billing-messages", null); %>
 	<div class="row wr-wizard ">
-	    <%if (!isFromChangePlan || (isFromChangePlan && isComplimentaryAccount)) { %>
+	    <%if (isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz itm-wiz-current"><div class="wiz-no">1</div><div class="wiz-lbl hidden-xs"><span>Select Plan</span></div></div>
 			<br class="c-both" />
@@ -108,7 +96,7 @@
 			<br class="c-both" />
 		</div>
 		<%}
-    if (!isFromChangePlan || (isFromChangePlan && isComplimentaryAccount)) { %>
+		if (isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz"><div class="wiz-no">2</div><div class="wiz-lbl hidden-xs">
 			<span>Billing Information</span></div></div>
@@ -121,14 +109,14 @@
 			<br class="c-both" />
 		</div>
 		<%}
-    if (!isFromChangePlan || (isFromChangePlan && isComplimentaryAccount)) { %>
+        if (isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz"><div class="wiz-no">3</div><div class="wiz-lbl hidden-xs">
 			<span>Contact Information</span></div></div>
 			<br class="c-both" />
 		</div>
 		<%} %>
-		<%if (!isFromChangePlan || (isFromChangePlan && isComplimentaryAccount)) { %>
+		<%if (isFromChangePlan == false) { %>
 		<div class="col-md-3 col-xs-3">
 			<div class="itm-wiz"><div class="wiz-no">4</div><div class="wiz-lbl hidden-xs">
 			<span>Summary</span></div></div>
@@ -145,9 +133,6 @@
 
 	<div class="row">
 		<div class="container col-md-12">
-		<%
-    // Check for billing enable/disable mode
-    if (isBillingEnabled) { %>
 			<div class="tiny-features">
                 <div class="pricing-table-header-tiny features">
                     <h3>&nbsp;</h3>
@@ -159,16 +144,25 @@
                     </div>
                 </div>
                 <div class="pricing-table-features">
-                <% for (var j = 0; j < paymentPlanCategories.length; j++) { %>
-                    <p><%=paymentPlanCategories[j]%></p>
-                <% } %>
+                    <p>Portal users</p>
+                    <p>Calls/day</p>
+                    <p>Calls above plan</p>
+                    <p>API monetization</p>
                 </div>
 			</div>
 
-<%
-        for (var i = 0; i < paymentPlans.length; i++) {
-            if (paymentPlans[i].visibility == "true") {
-                if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currentRatePlanId == null) {%>
+			<%
+			// Check for billing enable/disable mode
+
+            if (isBillingEnabled) {
+                for (var i = 0; i < paymentPlans.length; i++) {
+                    if (paymentPlans[i].visibility == "true") {
+                        var monthlyRental = paymentPlans[i].monthlyRental.substring(1);
+                        var maxUsageAmmount = new Packages.java.math.BigDecimal(paymentPlans[i].maxDailyUsage);
+                        var maxUsageStr = numFormat.format(maxUsageAmmount);
+                        var monthlyRentalAmount = new Packages.java.math.BigDecimal(monthlyRental);
+                        var rental = numFormat.format(monthlyRentalAmount);
+                        if (paymentPlans[i].name == BILLING_SUGGESTED_PLAN && currentRatePlanId == null) {%>
                             <div class="tiny selected">
                     <%  } else { %>
                             <div class="tiny">
@@ -177,42 +171,40 @@
                     <div class="pricing-table-header-tiny">
                         <h3><%=paymentPlans[i].name%></h3>
                         <div class="price">
-                            <h2 class="col-md-10"><span>$</span><%=paymentPlans[i].rental%></h2>
+                            <h2 class="col-md-10"><span>$</span><%=rental%></h2>
                             <p class="col-md-2">per<br>month</p>
                             <br class="c-both" />
                         </div>
                     </div>
-                       <div class="pricing-table-features">
-                        <%
-                for (var k = 0; k < paymentPlans[i].values.length; k++) {
-                    if (paymentPlans[i].values[k].indexOf(':') > -1) {
-                        var tooltip =  paymentPlans[i].values[k].split(":")[1];
-                        var value = paymentPlans[i].values[k].split(":")[0];
-                    } else {
-                        var tooltip = "";
-                        var value = paymentPlans[i].values[k];
-                    } %>
-                            <p title="<%=tooltip%>"><%=value%></p>
-                        <% } %>
+                        <div class="pricing-table-features">
+                        <p><%=paymentPlans[i].maxAccounts%></p>
+                        <p><%=maxUsageStr%></p>
+                        <p><%=paymentPlans[i].overUsage%></p>
+                        <p><%if (paymentPlans[i].name == BILLING_STARTER_PLAN) {
+                            %>No<%
+                        } else {
+                            %>Yes<%
+                        }%>
+                   </p>
                     </div>
                     <div class="pricing-table-signup-tiny">
                 <%
-                var spinner = "spinner_"+paymentPlans[i].id;
-                var selectbtn = "selectbtn_"+paymentPlans[i].id;
-                if (currentRatePlanId == paymentPlans[i].id) {
+                    var spinner = "spinner_"+paymentPlans[i].id;
+                    var selectbtn = "selectbtn_"+paymentPlans[i].id;
+                    if (currentRatePlanId == paymentPlans[i].id) {
                     %>
 
-                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', <%=isFromChangePlan%>, <%=isFirstSubscription%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
+                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlans[i].name%>', <%=isFromChangePlan%>)" class='<%=selectbtn%>' disabled>Subscribed</button>
                     <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i></p>
                     <%
                 } else {
                     var paymentPlanName = paymentPlans[i].name.toUpperCase();
                     if (isMonetizationEnabled && paymentPlans[i].name == BILLING_STARTER_PLAN) {%>
-                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', <%=isFromChangePlan%>, <%=isFirstSubscription%>)" disabled>Select</button>
+                    <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', <%=isFromChangePlan%>)" disabled>Select</button>
                     <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
                     </p>
                     <%} else {%>
-                            <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', <%=isFromChangePlan%>, <%=isFirstSubscription%>)" >Select</button>
+                            <p><button type="button" id="<%=selectbtn%>" onclick="createAccount('<%=paymentPlans[i].id%>', '<%=paymentPlanName%>', <%=isFromChangePlan%>)" >Select</button>
                             <i class="fa fa-spinner fa-spin fa-2x" id="<%=spinner%>" class="spinner" style="display:none; margin-left: 5px;"></i>
                             </p>
                     <%}
@@ -221,16 +213,13 @@
                     </div>
                 </div>
                  <% }
-        }
-
-        if (isFirstSubscription) { %>
-                <button id="goToCloudType" type="button" class="btn btn-default btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
-            <% } %>
+                } if (!isFromChangePlan) { %> <button id="goToCloudType" type="button" class="btn btn-default
+			 btn-back col-md-2 col-xs-5" style="float: left;"  onclick="location.href='<%=subscribedCloudURL%>'"><%=bttnLabel%></button> <% } %>
+            <% }%>
 
             <input type="hidden" name="secretKey" id="secretKey" value=""/>
             <input type="hidden" name="imagePath" id="imagePath" value=""/>
-            <input type="hidden" name="isFromChangePlan" id="isFromChangePlan" value="<%=isFromChangePlan%>"/>
-            <input type="hidden" name="isFirstSubscription" id="isFirstSubscription" value="<%=isFirstSubscription%>"/>
+            <input type="hidden" name="isFromChangePlan" id="isFromChangePlan" value="true"/>
             <input type="hidden" name="cloudmgtURL" id="cloudmgtURL"  value="<%=cloudmgtURL%>" />
             <input type="hidden" name="isBillingEnabled" id="isBillingEnabled"  value="<%=isBillingEnabled%>" />
             <input type="hidden" name="isMonetizationEnabled" id="isMonetizationEnabled"  value="<%=isMonetizationEnabled%>" />
@@ -242,12 +231,7 @@
 	</div>
 	<div class="row pad-bot-50">
 		<div style="width:100%; align-content:center; padding: 25px;">
-		    <% if (serviceId == "api_cloud") {%>
-			    <p>"Portal users" are defined as all accounts (email address plus password) that have direct access to Publisher or Developer Portal (API Store) web user interfaces. The actual number of end users of the APIs (for example, users of mobile applications invoking them) is not limited.</p>
-			<% } else if (serviceId == "integration_cloud") { %>
-			<p>*All users subscribed to the Integration Cloud can create Ballerina, MSF4J, PHP and Java web applications. Some subscriptions allow you to create additional app types as well (see above).
-			Users can create applications up to the maximum permitted number without exceeding the total resource consumption limit.</p>
-			<% } %>
+			<p>"Portal users" are defined as all accounts (email address plus password) that have direct access to Publisher or Developer Portal (API Store) web user interfaces. The actual number of end users of the APIs (for example, users of mobile applications invoking them) is not limited.</p>
  		</div>
 		<div class="container col-md-8">
 			&nbsp;

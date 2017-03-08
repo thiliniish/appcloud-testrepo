@@ -1,6 +1,6 @@
 {
   "Cloud":{
-    "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/index.jag"
+    "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/index.jag"
   },
   "Main": {
     "Domain": {
@@ -10,7 +10,7 @@
       "target": "_parent"
     },
     "Account": {
-      "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/account-summary.jag",
+      "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/account-summary.jag",
       "icon": "fa fa-briefcase",
       "target": "_blank",
       "dropDown": "false"
@@ -34,7 +34,7 @@
       }
     },
     "Support": {
-      "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/contact-us.jag",
+      "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/contact-us.jag",
       "icon": "fa fa-envelope",
       "target": "_self",
       "dropDown": "false"
@@ -45,17 +45,17 @@
     "icon": "fa fa-user",
     "dropDown": {
       "Profile": {
-        "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/user-profile.jag",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/user-profile.jag",
         "icon": "fa fa-user",
         "dropDown": "false"
       },
       "Change Password": {
-        "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/change-password.jag",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/change-password.jag",
         "icon": "fa fa-lock",
         "dropDown": "false"
       },
       "Logout": {
-        "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/logout.jag",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/logout.jag",
         "icon": "fa fa-sign-out",
         "dropDown": "false"
       }
@@ -68,14 +68,14 @@
       "clouds": {
         "API Cloud": {
           "id": "api_cloud",
-          "url": "https://api.cloudlocal.wso2.com:9445/publisher/",
+          "url": "https://milestones.appfactory.wso2.com:9643/publisher/",
           "icon": "fw fw-api fa-3x",
           "dropDown": "false",
           "target": "_self"
         },
         "Integration Cloud": {
           "id": "integration_cloud",
-          "url": "https://integration.cloudlocal.wso2.com:9443/appmgt/",
+          "url": "https://milestones.appfactory.wso2.com:9443/appmgt/",
           "icon": "fa fa-3x fa-cubes",
           "dropDown": "false",
           "target": "_self"
@@ -91,25 +91,25 @@
     },
     "Manage" : {
       "Organization": {
-        "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/organization.jag",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/organization.jag",
         "icon": "fa fa-3x  fa-institution",
         "isDropDown": "false",
         "target": "_self"
       },
       "Members": {
-        "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/user.jag",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/user.jag",
         "icon": "fa fa-3x  fa-users",
         "isDropDown": "false",
         "target": "_self"
       },
       "Monetization": {
-        "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/monetization-dashboard.jag",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/monetization-dashboard.jag",
         "icon": "fa fa-3x fa-money",
         "isDropDown": "false",
         "target": "_self"
       },
       "Custom URL": {
-        "url": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/custom_url.jag?cloud-type=api-cloud",
+        "url": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/custom_url.jag?cloud-type=api-cloud",
         "icon": "fa fa-3x fa-link",
         "isDropDown": "false",
         "target": "_self"

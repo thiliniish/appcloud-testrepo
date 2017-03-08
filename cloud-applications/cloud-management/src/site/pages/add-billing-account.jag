@@ -9,14 +9,9 @@ var log = new Log();
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
 
-    var responseFrom = request.getParameter("responseFrom");
-    var isBillingEnabled = false;
-    var serviceId = session.get("SERVICE_ID");
-    if (responseFrom == EDIT_USER_INFO) {
-        isBillingEnabled = true;
-    } else {
-        isBillingEnabled = jagg.module("billing").isBillingEnabled(serviceId);
-    }
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
+    var userName =  session.get("LOGGED_IN_USER");
+    var userEmail =  session.get("LOGGED_IN_USER_EMAIL");
 
     var refId, signature, field_passthrough1, field_passthrough2, field_passthrough3, field_passthrough4;
     var creditCardCity, creditCardCountry, creditCardAddress1, creditCardAddress2, creditCardState, creditCardPostalCode;
@@ -24,23 +19,23 @@ var log = new Log();
     var eulaData = jagg.module("util").getObjFromFile("/site/conf/eula.xml");
     var eulaDoc= new XML(eulaData);
     var eulaContent =  eulaDoc.EULA.text();
+    var responseFrom = request.getParameter("responseFrom");
     var paymentPlanName = "";
+    var profileFirstName = null;
+    var profileLastName = null;
+    var organizationName = "";
+    var currRatePlan =  session.get("CURRENT_RATE_PLAN");
     var selectedRatePlanId =  session.get("PRODUCT_PLAN_ID");
-    var ratePlanInfo = jagg.module("billing").getRatePlanInfo(serviceId, selectedRatePlanId);
+    var ratePlanInfo = jagg.module("billing").getRatePlanInfo("api_cloud",selectedRatePlanId);
+
+    var couponDiscount =  session.get("COUPON_DISCOUNT");
+    var isFromChangePlan = request.getParameter("isFromChangePlan");
     var accountId = request.getParameter("accountId");
+    var l = Packages.java.util.Locale.getDefault();
+    var numFormat = new Packages.java.text.NumberFormat.getInstance(l);
 
     var previousRatePlanId =  session.get("OLD_PLAN_ID");
-    var ratePlans = session.get("RATE_PLANS");
-    var shortDescription = "";
-    var monthlyRental = 0;
-    if (ratePlans != null) {
-        for (var i = 0; i < ratePlans.length; i++) {
-            if (ratePlans[i].id == selectedRatePlanId) {
-                monthlyRental = ratePlans[i].rental;
-                shortDescription = ratePlans[i].shortDescription;
-            }
-        }
-    }
+    var ratePlans =  session.get("RATE_PLANS");
     // verifying a downgrade/upgrade
     if (responseFrom == IS_FROM_CHANGE_PLAN) {
         // Check for upgrade
@@ -84,10 +79,7 @@ var log = new Log();
                                                 "claims": claims,
                                                 "paymentPlanName": paymentPlanName,
                                                 "isUpgrade": isUpgrade,
-                                                "ratePlanInfo": ratePlanInfo,
-                                                "selectedRatePlanId" :selectedRatePlanId,
-                                                "shortDescription":shortDescription,
-                                                "monthlyRental":monthlyRental
+                                                "ratePlanInfo": ratePlanInfo
                                             }
                                         }
                                     ]

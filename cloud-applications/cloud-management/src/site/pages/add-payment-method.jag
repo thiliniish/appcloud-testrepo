@@ -6,27 +6,27 @@ var log = new Log();
 (function () {
     var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
     var cloudmgtURL = cloudConfig.ServerUrls.cloudmgt.toString();
-    var isPaidAccount = jagg.module("billing").isPaidAccount();
+    var isBillingEnabled = jagg.module("billing").isBillingEnabled("api_cloud");
 
-    var productRatePlanId = session.get("PRODUCT_PLAN_ID");
-    var userEmail = session.get("LOGGED_IN_USER_EMAIL");
-    var currRatePlan = session.get("CURRENT_RATE_PLAN");
-    var couponDiscount = session.get("COUPON_DISCOUNT");
+    if (isBillingEnabled) {
+        var productRatePlanId = session.get("PRODUCT_PLAN_ID");
+        var ratePlanInfo = jagg.module("billing").getRatePlanInfo("api_cloud", productRatePlanId);
+        var userEmail = session.get("LOGGED_IN_USER_EMAIL");
+        var currRatePlan = session.get("CURRENT_RATE_PLAN");
+        var couponDiscount = session.get("COUPON_DISCOUNT");
 
-//TODO improve error handling
-    var errorMessage = "NA";
-    if ("Response_From_Submit_Page" == (request.getParameter("responseFrom"))) {
-        if ("false" == jagg.module("util").escapeSpecialChars(request.getParameter("success")[0])) {
-            errorMessage = "Invalid in your payment information The reason is: "  + request.getParameter
-            ("errorMessage");
+        //TODO improve error handling
+        var errorMessage = "NA";
+        if ("Response_From_Submit_Page" == (request.getParameter("responseFrom"))) {
+            if ("false" == jagg.module("util").escapeSpecialChars(request.getParameter("success")[0])) {
+                errorMessage = "Invalid in your payment information The reason is: " + request.getParameter("errorMessage");
+            }
+        }
+        var accountId = "";
+        if (request.getParameter("accountId") != null) {
+            accountId = jagg.module("util").escapeSpecialChars(request.getParameter("accountId"));
         }
     }
-    var accountId = "";
-    if (request.getParameter("accountId") != null) {
-        accountId = jagg.module("util").escapeSpecialChars(request.getParameter("accountId"));
-        log.info("accountId : " + accountId );
-    }
-
 
     jagg.render({
                     "name":"page/base",
@@ -42,6 +42,7 @@ var log = new Log();
                                         {
                                             "name":"billing/method/add",
                                             "inputs": {
+                                                "isBillingEnabled": isBillingEnabled,
                                                 "cloudmgtURL": cloudmgtURL,
                                                 "errorMessage": errorMessage,
                                                 "productRatePlanId": productRatePlanId,
@@ -49,7 +50,7 @@ var log = new Log();
                                                 "userEmail": userEmail,
                                                 "currRatePlan": currRatePlan,
                                                 "couponDiscount": couponDiscount,
-                                                "isPaidAccount": isPaidAccount
+                                                "ratePlanInfo": ratePlanInfo
                                             }
                                         }
                                     ]

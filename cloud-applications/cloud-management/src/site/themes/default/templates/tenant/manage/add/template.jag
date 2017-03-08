@@ -45,19 +45,10 @@ function enable() {
         },
         function (result) {
             $('.message_box').empty();
-            var resultJson = JSON.parse(result);            
-            if(resultJson.error) {
-                jagg.message({content: resultJson.msg,type:'error',cbk:function(){
+            jagg.message({content:'Organization was successfully added.',type:'success',cbk:function(){
                     window.location.href = cloudmgtURL + "/site/pages/organization.jag";
                 }
-
             });
-            } else {
-                jagg.message({content:'Organization was successfully added.',type:'success',cbk:function(){
-                        window.location.href = cloudmgtURL + "/site/pages/organization.jag";
-                    }
-                });
-            }
             enable();
         },
         function (jqXHR, textStatus, errorThrown) {

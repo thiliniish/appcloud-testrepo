@@ -1051,36 +1051,4 @@ public class CloudMgtDAO {
         }
         return resultObj;
     }
-
-    /**
-     * Get the max tenant/organization count a whitelisted user can create. If user is not whitelisted then max tenant
-     * count will be zero.
-     *
-     * @param username Username
-     * @return Maximum tenant/org count.
-     * @throws CloudMgtException
-     */
-    public int getMaxTenantCount(String username) throws CloudMgtException {
-        Connection conn = null;
-        ResultSet resultSet = null;
-        PreparedStatement ps = null;
-        String query = "SELECT MAX_TENANT_COUNT FROM WHITELISTED_USERS WHERE USERNAME = ?";
-        int maxTenantCount = 0;
-        try {
-            conn = CloudMgtDBConnectionManager.getDbConnection();
-            ps = conn.prepareStatement(query);
-            ps.setString(1, username);
-            resultSet = ps.executeQuery();
-            if (resultSet.next()) {
-                maxTenantCount = resultSet.getInt("MAX_TENANT_COUNT");
-            }
-        } catch (SQLException e) {
-            throw new CloudMgtException("Failed to retrieve maximum tenant count for user :" + username, e);
-        } catch (CloudMgtException e) {
-            throw new CloudMgtException("Failed to get database connection for the cloudmgt database ", e);
-        } finally {
-            CloudMgtDBConnectionManager.closeAllConnections(ps, conn, resultSet);
-        }
-        return maxTenantCount;
-    }
 }

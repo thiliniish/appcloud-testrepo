@@ -161,7 +161,7 @@ var getUserArrayFromService = function getUserArrayFromService(tenantDomain) {
         context.startTenantFlow();
         context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var userMgtService = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService');
+        var userMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         users = userMgtService.getUsersofTenant();
     } catch (e) {
         log.error("Error while getting users of tenant " + tenantDomain);
@@ -336,7 +336,7 @@ var getUserInfo = function getUserInfo(username) {
         context.startTenantFlow();
         context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var userMgtService = server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService');
+        var userMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         var user = userMgtService.getUserInfo(username);
     } catch (e) {
         log.error("Error while retrieving user info for" + username);

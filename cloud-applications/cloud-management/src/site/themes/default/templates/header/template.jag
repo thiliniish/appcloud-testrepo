@@ -45,7 +45,6 @@ jagg.template("header", function (inputs, outputs, jagg) {
         if(queryString){
             relayStateValue = requestURI + "?" + queryString;
         }
-        log.info("Set relaystate : " + relayState + ".Request URI : " + relayStateValue);
         ssoRelyingParty.setRelayStateProperty(relayState, relayStateValue);
         var idpURL = ssoRelyingParty.getProperty("identityProviderURL");
 %>

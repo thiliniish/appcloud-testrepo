@@ -384,22 +384,9 @@ public class EmailSender {
                 }
                 message.addRecipients(recipientType, recipientAddresses);
             } else if (recipientObject instanceof String) {
-                String recipientObj = (String) recipientObject;
-                if (recipientObj.indexOf(CloudMgtConstants.COMMA_SEPERATOR) > -1) {
-                    String[] to = (String[]) recipientObj.split(CloudMgtConstants.COMMA_SEPERATOR);
-                    InternetAddress[] recipientAddresses = new InternetAddress[to.length];
-                    for (int i = 0; i < to.length; i++) {
-                        recipientAddresses[i] = new InternetAddress(to[i]);
-                        if (log.isDebugEnabled()) {
-                            log.debug("To : " + to[i]);
-                        }
-                    }
-                    message.addRecipients(recipientType, recipientAddresses);
-                } else {
-                    message.addRecipient(recipientType, new InternetAddress((String) recipientObject));
-                    if (log.isDebugEnabled()) {
-                        log.debug("To: " + recipientObject);
-                    }
+                message.addRecipient(recipientType, new InternetAddress((String) recipientObject));
+                if (log.isDebugEnabled()) {
+                    log.debug("To: " + recipientObject);
                 }
             } else {
                 String errorMsg =

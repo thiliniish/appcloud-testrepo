@@ -70,8 +70,8 @@ include("/jagg/constants.jag");
                 }
             } else {
                 urlValidation.error = "true";
-                urlValidation.message = "CNAME verification failed. Please follow <a href='" + cloudConfigFile.documentation.customUrlDocumentationLink +
-                        "' target='_blank'>documentation</a> to add a new CNAME in the domain registrar";
+                urlValidation.message = "CNAME verifying failed. Please follow this <a href='" + cloudConfigFile.documentation.customUrlDocumentationLink +
+                        "' target='_blank'>documentation</a> to add new CANME in domain registrar";
             }
             print(urlValidation);
         } catch (e) {
