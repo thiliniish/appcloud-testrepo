@@ -47,5 +47,6 @@ public class CloudMgtConstants {
     public static final String SUBSCRIPTION_TYPE_PLACEHOLDER = "$SUBSCRIPTIONTYPE";
 
     public static final int REINVITE_TIME_LIMIT_IN_HOURS = 1;
+    public static final String COMMA_SEPERATOR = ",";
 }
 

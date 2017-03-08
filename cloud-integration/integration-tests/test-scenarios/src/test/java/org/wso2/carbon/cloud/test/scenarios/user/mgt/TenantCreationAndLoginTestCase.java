@@ -20,6 +20,7 @@ package org.wso2.carbon.cloud.test.scenarios.user.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +51,9 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
 
     private String signUpUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_URL_SFX;
     private String confirmVerificationUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_SIGNUP_CONFIRM_URL_SFX;
+    private String addNewTenantUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_ADD_NEW_TENANT_URL_SFX;
     private String addTenantUrl = cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_ADD_TENANT_URL_SFX;
+    private String updateTenantProfileUrl = cloudMgtServerUrl + CloudIntegrationConstants.UPDATE_TENANT_PROFILE_SFX;
     private static final String tenantDomainPrefix =
             CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_DOMAIN);
     private static final String tenantEmailSuffix = CloudIntegrationTestUtils
@@ -68,7 +71,7 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
         newAdminPassword =
                 CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_ADMINPASSWORD) +
                 currentTimeStamp;
-        newAdminUsername = tenantDomainPrefix + currentTimeStamp + "." + tenantEmailSuffix + "@" + tenantDomainPrefix +
+        newAdminUsername = tenantDomainPrefix + currentTimeStamp + "@" + tenantEmailSuffix + "@" + tenantDomainPrefix +
                            currentTimeStamp;
     }
 
@@ -77,7 +80,8 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "Check for existence of username") public void checkUsernameExistenceTest() throws Exception {
+    @Test(description = "Check for existence of username")
+    public void checkUsernameExistenceTest() throws Exception {
         log.info("started username existence test case ");
         Map<String, String> params = new HashMap<>();
         params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "isExistingUser");
@@ -96,7 +100,8 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      * @throws Exception
      */
     @Test(description = "send the invitation for user", dependsOnMethods = {
-            "checkUsernameExistenceTest" }) public void checkSendInviteTest() throws Exception {
+            "checkUsernameExistenceTest" })
+    public void checkSendInviteTest() throws Exception {
         log.info("started sending invite for user");
         Map<String, String> params = new HashMap<>();
         List<String> queryParameters = new ArrayList<>();
@@ -129,7 +134,8 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "", dependsOnMethods = { "checkSendInviteTest" }) public void addTenant() throws Exception {
+    @Test(description = "This will test add new tenant", dependsOnMethods = { "checkSendInviteTest" })
+    public void addNewTenant() throws Exception {
         log.info("Adding new Tenant Started");
         Map<String, String> params = new HashMap<>();
         params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "registerOrg");
@@ -142,7 +148,7 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
                 CloudIntegrationConstants.NEW_TENANT_FIRSTNAME));
         params.put("lastName",
                    CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_LASTNAME));
-		    Map resultMap = HttpHandler.doPostHttps(addTenantUrl, params, null, false);
+		    Map resultMap = HttpHandler.doPostHttps(addNewTenantUrl, params, null, false);
 	    Assert.assertEquals(resultMap.get("Response"), CloudIntegrationConstants.TRUE, "Adding new tenant successful");
 
     }
@@ -152,11 +158,50 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "Login test for the tenant", dependsOnMethods = {
-            "addTenant" }) public void loginTest() throws Exception {
+    @Test(description = "Login test for the tenant", dependsOnMethods = { "addNewTenant" })
+    public void loginTest() throws Exception {
         log.info("Started running test case login.");
         boolean loginStatus = authenticatorClient.login(newAdminUsername, newAdminPassword);
         Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
+    }
+
+    /**
+     * Update profile of the tenant
+     *
+     * @throws Exception
+     */
+    @Test(description = "Update profile test for the tenant", dependsOnMethods = { "loginTest" })
+    public void updateProfile() throws Exception {
+        log.info("Started running test case update tenant profile.");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "updateProfile");
+        params.put("tenantDomain", tenantDomainPrefix + currentTimeStamp);
+        //Updated the display name
+        params.put("displayName", tenantDomainPrefix + currentTimeStamp + "_Updated");
+        Map resultMap = HttpHandler
+                .doPostHttps(updateTenantProfileUrl, params, authenticatorClient.getSessionCookie(), false);
+        JSONObject resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+        Assert.assertEquals(resultObj.get(CloudIntegrationConstants.ERROR).toString(), CloudIntegrationConstants.FALSE,
+                "Value mismatch, Should be false.");
+    }
+
+    /**
+     * Add tenant for an existing user
+     *
+     * @throws Exception
+     */
+    @Test(description = "Add tenant test for an existing user", dependsOnMethods = { "loginTest" })
+    public void addTenant() throws Exception {
+        log.info("Started running test case add tenant for existing user.");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "registerOrg");
+        params.put("companyName", tenantDomainPrefix + currentTimeStamp + "_New");
+        params.put("adminPassword", newAdminPassword);
+        params.put("usagePlan",
+                CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.NEW_TENANT_USAGE_PLAN));
+        Map resultMap = HttpHandler.doPostHttps(addTenantUrl, params, authenticatorClient.getSessionCookie(), false);
+        Assert.assertEquals(resultMap.get(CloudIntegrationConstants.RESPONSE), CloudIntegrationConstants.TRUE,
+                "Adding tenant for existing user successful");
     }
 
     /**
@@ -164,7 +209,8 @@ public class TenantCreationAndLoginTestCase extends CloudIntegrationTest {
      *
      * @throws Exception
      */
-    @Test(description = "logout test", dependsOnMethods = { "loginTest" }) public void logoutTest() throws Exception {
+    @Test(description = "logout test", dependsOnMethods = { "loginTest", "updateProfile", "addTenant"})
+    public void logoutTest() throws Exception {
         log.info("Started running test case log out.");
         boolean logOutStatus = authenticatorClient.logout();
         Assert.assertTrue(logOutStatus, "tenant log out failed");

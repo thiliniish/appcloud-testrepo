@@ -71,7 +71,7 @@ include("/modules/database/sql.jag");
             var relayState = request.getParameter("RelayState");
             var requestedURI = ssoRelyingParty.getRelayStateProperty(relayState);
             if (requestedURI == null) {
-                log.error("Relaystate value is invalid.");
+                log.error("Relaystate value is invalid.Relaystate value : " + relayState);
                 session.remove('ERROR_MSG');
                 session.put('ERROR_MSG', 'An authorization error occurred in the backend');
                 response.sendRedirect("../site/pages/error-pages/401.html");
@@ -135,7 +135,7 @@ include("/modules/database/sql.jag");
                     ", DisplayName : " + session.get("LOGGED_IN_USER_TENANT_DISPLAY_NAME") + " ]");
 
             var type = cloudConfig.subscriptions.type;
-            var storeUrl = type[1].urls.storeUrl + "?tenant=" + tenantDomain;
+            var storeUrl = cloudConfig.ServerUrls.apiManager + "store?tenant=" + tenantDomain;
             var modUserManagement = jagg.module("user/management");
             var isOnlySubscribedUser = modUserManagement.hasOnlySubscriberRole(session.get("LOGGED_IN_USER"));
             if (isOnlySubscribedUser) {

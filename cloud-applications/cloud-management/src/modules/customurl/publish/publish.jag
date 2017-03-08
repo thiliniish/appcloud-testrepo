@@ -43,11 +43,11 @@
             }
         }
         //Get current rate plan level
-        var currentRatePlan = billingModule.getCurrentRatePlan();
+        var currentRatePlan = billingModule.getCurrentRatePlan(API_CLOUD_SUBSCRIPTION_ID);
         var ratePlansObj = billingModule.getRatePlans(SUBSCRIPTION_API_CLOUD);
         var ratePlans = ratePlansObj.entry;
         var currentPlanLevel = 0;
-        if (ratePlans != null) {
+        if (ratePlans != null && currentRatePlan != null) {
             for (var j = 0; j < ratePlans.length; j++) {
                 if (ratePlans[j].id == currentRatePlan.id) {
                     currentPlanLevel = ratePlans[j].premiumLevel;
@@ -124,8 +124,14 @@
                 certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
                         region + "/" + node;
             } else {
-                certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
-                        node;
+                // this fix is added to avoid changes in haproxy. This will be properly fixed after changing haproxy.
+                if (cloudProfile == 'integration-cloud') {
+                    certsRegistryPath = registryPath + "app-cloud/" + tenantDomain + "/securityCertificates/" +
+                            node;
+                } else {
+                    certsRegistryPath = registryPath + cloudProfile + "/" + tenantDomain + "/securityCertificates/" +
+                            node;
+                }
             }
             registry.beginTransaction();
             if (registry.resourceExists(registryPath + cloudProfile + "/" + tenantDomain)) {
@@ -446,12 +452,30 @@
      * File Encryption and validation
      */
     function initializeSSLFileContent(sslFileContent, keyFileContent, chainFileContent, customUrl) {
+        log.info("Validate and encrypt certificate files for custom url : " + customUrl);
         var status = {};
         status.error = false;
         try {
-            var fileValidatingService =
-                    server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer');
-            fileValidatingService.init(sslFileContent, chainFileContent);
+            var fileValidatingService = new Packages.org.wso2.carbon.cloud.ssl.security.service.SSLFileAnalyzer();
+            fileValidatingService.init(sslFileContent, chainFileContent, keyFileContent);
+
+            //check whether private key matches the public key
+            var result = parse(String(fileValidatingService.matchRSAKeys()));
+            if (result.error) {
+                status.error = true;
+                status.message = result.message;
+                return status;
+            }
+
+            //validate public cert against the cert chain
+            var result = parse(String(fileValidatingService.validateCertChain()));
+            if (result.error) {
+                status.error = true;
+                status.message = result.message;
+                return status;
+            }
+
+            //validate public certificate's attributes
             var isSSLFileDateVerified = parse(String(fileValidatingService.isSSLFileDateVerified()));
             if (isSSLFileDateVerified.error == 'false') {
                 var isSelfSigned = parse(String(fileValidatingService.isCertificateSelfSigned()));
@@ -478,6 +502,7 @@
                 status.error = true;
                 status.message = isSSLFileDateVerified.message;
             }
+
             if (!status.error) {
                 var fileEncryptService =
                         server.osgiService('org.wso2.carbon.cloud.ssl.security.service.SSLFileEncryptService');
@@ -490,10 +515,15 @@
             }
             return status;
         } catch(e) {
-            var message = "Error occurred during file encryption.";
+            var message;
+            if (e.javaException instanceof org.wso2.carbon.cloud.ssl.security.service.exceptions.SSLSecurityServiceException) {
+                message = e.javaException.getMessage();
+            } else {
+                message = "Error occurred during file encryption. Please contact WSO2 Cloud Team for help.";
+            }
             log.error(message + e);
             status.error = true;
-            status.message = message + " Please contact WSO2 Cloud Team for help.";
+            status.message = message;
             return status;
         }
     }

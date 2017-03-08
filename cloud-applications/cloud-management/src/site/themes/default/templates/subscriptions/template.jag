@@ -69,11 +69,18 @@
                                                 }
                                                 if (billingTypeInfo[types[i].id] != "TRIAL") { %>
                                                     <div class="btn-footer">
-                                                    <%  if (hasAdminRole || hasPublisherRole) { %>
-                                                            <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
-                                                            onclick="subscription('<%=types[i].id%>','<%=domainName%>');
-                                                            redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
-                                                            >Go</button>
+                                                    <%  if (hasAdminRole || hasPublisherRole) {
+                                                            if (billingTypeInfo[types[i].id] == "PAID") { %>
+                                                            <!--Users of paid tenants are not added to mail campaign-->
+                                                                <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
+                                                                onclick="redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
+                                                                >Go</button>
+                                                            <% } else { %>
+                                                                    <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
+                                                                    onclick="subscription('<%=types[i].id%>','<%=domainName%>');
+                                                                    redirectToCloud('<%=types[i].urls.cloudTypeUrl%>');" <%=buttonStatus%>
+                                                                    >Go</button>
+                                                            <% } %>
                                                     <%  } else {
                                                             log.info("Not adding store invitee user " + username + " to " + MAIL_CAMPAIGN); %>
                                                             <button type="button" class="cu-btn cu-btn-md cu-btn-blue"
