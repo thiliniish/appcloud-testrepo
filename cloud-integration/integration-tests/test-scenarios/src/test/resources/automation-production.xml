@@ -18,7 +18,7 @@
 <automation xmlns="automation_mapping.xsd">
 
     <!--  =================================================  -->
-    <!--          Parameters of Staging Environment          -->
+    <!--         Parameters of Production Environment        -->
     <!--  =================================================  -->
 
     <configurations>
