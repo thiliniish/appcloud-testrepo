@@ -315,7 +315,7 @@
                 <firstName>testFirstName</firstName>
                 <lastName>testLastName</lastName>
                 <tenantDomain>hb</tenantDomain>
-                <adminUser>testdomain.com</adminUser>
+                <adminUser>discard.email</adminUser>
                 <adminPassword>Hbtenant</adminPassword>
                 <usagePlan>Demo</usagePlan>
             </Tenant>
