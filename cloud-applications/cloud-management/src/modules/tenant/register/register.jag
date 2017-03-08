@@ -134,9 +134,19 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
         email = tmpUser.email;
         newUser = false;
     }
+    return createTenant(organizationName, password, usagePlan, firstName, lastName, email, adminUserName, false);
+};
+
+/**
+ * Method to create tenant for user
+ *
+ * returns {}
+ */
+var createTenant = function (organizationName, password, usagePlan, firstName, lastName, email, adminUserName,
+                             isComplimentaryAccount) {
     log.info("User information to register [ Username: " + adminUserName + ", First Name: " + firstName + ", Last" +
             " Name: " + lastName + ", Email: " + email + " ]");
-    newUser = !modManager.isExistingUser(adminUserName);
+    newUser = (!isComplimentaryAccount && !modManager.isExistingUser(adminUserName));
     var organizationDomain = getCompanyId(organizationName);
     session.put("TENANT_DOMAIN", organizationDomain);
     log.info("Organization information to register [ Display Name: " + organizationName + ", Tenant Domain: " +
@@ -145,10 +155,11 @@ var registerOrg = function (organizationName, password, usagePlan, confirmationK
     var id = registerTenantForTrustedUser(organizationDomain, adminUserName, adminPassword, firstName, lastName, email, usagePlan);
     var isUserInCloud = hasATenant(adminUserName);
     if (!isUserInCloud) {
-        log.info("Sending tenant creation events of [ " + organizationDomain + " ] to BAM");
-        server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateBAMStats(adminUserName, "ADD");
         try {
+            //Adding user to OT
             jagg.module("util").addUserToOT(email, password, firstName, lastName);
+            //Adding user to OT CloudUser role
+            jagg.module("util").addUserToOTCloudUserRole(email);
         } catch (e) {
             log.error("Error while registering organization [ " + organizationDomain + " ] Email [ " + email + "]");
             log.error(e);
@@ -249,7 +260,7 @@ var checkUserExistence = function (username) {
 
 var addDefaultLoginRole = function(userName) {
     try{
-        return server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').addDefaultLoginRole(userName);
+        return server.osgiService('org.wso2.carbon.cloud.users.service.UserManagementService').addDefaultLoginRole(userName);
     }catch (e){
         log.error("Error while adding defualt role for user [ " + userName + " ]");
         log.error(e);
@@ -473,6 +484,7 @@ var sendInvite = function (email, token) {
         }
     } catch(e) {
         log.error("An error occurred while retrieving the retry count for the email " + email);
+        log.error(e);
         return {
             error: true,
             status: 500,
@@ -572,4 +584,198 @@ var sendEmail = function (to, link) {
         throw (e);
     }
 };
+
+var createComplimentarySubscription = function (email, firstName, lastName, password) {
+    var managerModule = jagg.module("manager");
+    var cloudConfig = jagg.module("util").getJsonFromFile(CLOUD_MGT_CONFIG_FILE);
+    var productName = cloudConfig.complimentaryAPICloudAccount.productName;
+    var authorizationHeaderValue = AUTHORIZATION_TYPE +
+            cloudConfig.complimentaryAPICloudAccount.supportJira.authorizationHeaderValue;
+    var headers = {
+        "Authorization": authorizationHeaderValue
+    };
+    if (email == null) {
+        return {
+            error: true,
+            status: 500,
+            message: "Invalid email provided."
+        };
+    }
+    if (!managerModule.isExistingUser(email)) {
+        return {
+            error: true,
+            status: 200,
+            message: "Please log in or create a WSO2 account."
+        };
+    }
+    //Get customer production jira list from Support Jira
+    var jiraKeysArray = getJiraKeysListForCustomer(email, headers);
+    var customerProdJiraKeysArray = getProductionJiraKeysForCustomer(jiraKeysArray, headers);
+    if (customerProdJiraKeysArray.length == 0) {
+        return {
+            error: true,
+            status: 200,
+            message: "You do not have production support. You are not eligible to claim the complimentary " +
+            "cloud subscription."
+        };
+    }
+    var supportAccount = customerProdJiraKeysArray[0];
+    //Load Salesforce configuration
+    var CustomerManager = Packages.org.wso2.carbon.cloud.complimentary.users.CustomerManager;
+    var salesforceUsername = cloudConfig.complimentaryAPICloudAccount.salesforce.username;
+    var salesforcePassword = cloudConfig.complimentaryAPICloudAccount.salesforce.password;
+    var salesforceToken = cloudConfig.complimentaryAPICloudAccount.salesforce.token;
+    CustomerManager.loadConfig(salesforceUsername, salesforcePassword, salesforceToken);
+    //Get customer opportunity list from Salesforce
+    var customerOpportunitiesList = CustomerManager.getOpportunitiesByJira(customerProdJiraKeysArray);
+    if (!CustomerManager.hasProductionSupportForProduct(customerOpportunitiesList, productName)) {
+        return {
+            error: true,
+            status: 200,
+            message: "You do not have production support for WSO2 API Manager. You are not eligible to claim the " +
+            "complimentary cloud subscription."
+        };
+    }
+
+    //Check if user is in the contact list for production support
+    var contactId = CustomerManager.getContactId(customerOpportunitiesList, email);
+    if (contactId) {
+        if (CustomerManager.hasClaimedComplimentarySubscription(customerOpportunitiesList)) {
+            var contactEmail = CustomerManager.getContactWhoClaimedSubscription(customerOpportunitiesList);
+            return {
+                error: true,
+                status: 200,
+                message: "The subscription has been claimed already. Please contact " + contactEmail + "."
+            };
+        } else {
+            //Create Complimentary Account
+            var usagePlan = cloudConfig.complimentaryAPICloudAccount.usagePlan;
+            var productRatePlanId = cloudConfig.complimentaryAPICloudAccount.productRatePlanId;
+            var serviceId = cloudConfig.complimentaryAPICloudAccount.serviceId;
+
+            //TODO: Get from Support Jira (companyName and trialEndDate)
+            var companyName = getOrganizationNameFromEmail(email);
+            var username = managerModule.getUserNameFromEmail(email.toString());
+            var tenantCreationResult = createTenant(companyName, password, usagePlan, firstName, lastName, email,
+                    username, true);
+            if (tenantCreationResult != null) {
+                var billingAccountCreationResult = createTrialBillingAccount(email, firstName, lastName,
+                        serviceId, productRatePlanId, companyName);
+                if (billingAccountCreationResult != null) {
+                    //Update account and contact objects for who claimed subscription
+                    CustomerManager.updateSalesforceAccountObject(customerOpportunitiesList, true);
+                    CustomerManager.updateSalesforceContactObject(contactId, true);
+                    //TODO : Post registration actions (add user to list in pardot)
+                    jagg.module("util").sendComplimentaryAccountClaimedNotification(email, supportAccount,
+                            username + '@' + companyName);
+                    return {
+                        error: false,
+                        status: 200,
+                        message: "Complimentary account successfully created."
+                    };
+                }
+            }
+        }
+    } else {
+        return {
+            error: true,
+            status: 200,
+            message: "You cannot claim the subscription. Please contact WSO2 Cloud support for information " +
+            "on who can claim the subscription."
+        };
+    }
+};
+
+var getJiraKeysListForCustomer = function (userEmail, headers) {
+    var url = SUPPORT_JIRA_URL + JIRA_REST_API_USER_ENDPOINT;
+    var data = {
+        "username": userEmail,
+        "expand": SUPPORT_JIRA_URL_EXPAND_PARAM_VALUE
+    };
+    var jiraKeysArray = [];
+    var customerInfoJson = get(url, data, headers, RESPONSE_TYPE);
+    if (customerInfoJson != null && customerInfoJson.data != null && customerInfoJson.data.groups != null &&
+            customerInfoJson.data.groups.items != null) {
+        var customerGroupItemsJson = customerInfoJson.data.groups.items;
+        var itemsJsonKeys = Object.keys(customerGroupItemsJson);
+        for (var i = 0; i < itemsJsonKeys.length; i++) {
+            var itemName = customerGroupItemsJson[itemsJsonKeys[i]].name;
+            var splitItems = itemName.split(".");
+            if ((splitItems.length == 4)) {
+                var jiraKey = splitItems[2];
+                var lastFourCharacters = jiraKey.substr(jiraKey.length - 4);
+                if (lastFourCharacters == SUPPORT_JIRA_PROD_CUSTOMER) {
+                    jiraKeysArray.push({
+                        "key": jiraKey
+                    });
+                }
+            }
+        }
+    }
+    return jiraKeysArray;
+};
+
+var getProductionJiraKeysForCustomer = function (jiraKeys, headers) {
+    var customerProdJiraKeysArray = [];
+    for (var i = 0; i < jiraKeys.length; i++) {
+        var jiraKey = jiraKeys[i].key;
+        var url = SUPPORT_JIRA_URL + JIRA_REST_API_PROJECT_ENDPOINT + jiraKey;
+        var data = {};
+        var customerProjectInfoJson = get(url, data, headers, RESPONSE_TYPE);
+        if (customerProjectInfoJson != null && customerProjectInfoJson.data != null &&
+                customerProjectInfoJson.data.projectCategory != null &&
+                customerProjectInfoJson.data.projectCategory.name != null) {
+            var projectCategoryName = customerProjectInfoJson.data.projectCategory.name;
+            if (projectCategoryName == SUPPORT_JIRA_PROD && projectCategoryName != SUPPORT_JIRA_MANAGE_CLOUD_PROD) {
+                customerProdJiraKeysArray.push(jiraKey);
+            }
+        }
+    }
+    return customerProdJiraKeysArray;
+};
+
+var getOrganizationNameFromEmail = function (email) {
+    var splitValues = email.split("@");
+    var domainName = splitValues[1].split(".")[0];
+    //Check display name availability
+    var isDomainAvailable = checkDomainAvailability(domainName);
+    var tempDomainName = domainName;
+    while (!isDomainAvailable) {
+        if (tempDomainName.length == TENANT_DOMAIN_NAME_MAXIMUM_LENGTH) {
+            tempDomainName = tempDomainName.substring(0, 11) + Math.floor(Math.random() * 10000);
+        } else {
+            tempDomainName = tempDomainName + Math.floor(Math.random() * 10000);
+        }
+        isDomainAvailable = checkDomainAvailability(tempDomainName);
+    }
+    //Check tenant domain availability
+    var isTempDomainAvailable = checkTenantDomainAvailability(tempDomainName);
+    while (!isTempDomainAvailable) {
+        if (tempDomainName.length == TENANT_DOMAIN_NAME_MAXIMUM_LENGTH) {
+            tempDomainName = tempDomainName.substring(0, 11) + Math.floor(Math.random() * 10000);
+        } else {
+            tempDomainName = tempDomainName + Math.floor(Math.random() * 10000);
+        }
+        isTempDomainAvailable = checkDomainAvailability(tempDomainName);
+    }
+    return tempDomainName;
+};
+
+var createTrialBillingAccount = function (email, firstName, lastName, serviceId, productRatePlanId, companyName) {
+    var billingModule = jagg.module("billing");
+    var accountData = {
+        "trialEndDate": TRIAL_END_DATE
+    };
+    var metaData = {
+        "workEmail": email,
+        "firstName": firstName,
+        "lastName": lastName,
+        "serviceId": serviceId,
+        "productRatePlanId": productRatePlanId,
+        "type": CUSTOMER_TYPE_COMPLIMENTARY
+    };
+    var billingAccountCreationResult = billingModule.createAccount(accountData, metaData, companyName, true, false);
+    return billingAccountCreationResult;
+};
+
 %>

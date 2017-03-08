@@ -137,25 +137,7 @@ var getAccountId = function () {
 var getRatePlans = function (serviceId) {
     try {
         var subscriptions = billingCoreService.getPaymentPlansForServiceId(serviceId);
-        var subscriptionJson = {
-            entry: []
-        };
-
-        for (var i = 0; i < subscriptions.length; i++) {
-            var item = subscriptions[i];
-            subscriptionJson.entry.push({
-                "id": subscriptions[i].getId(),
-
-                "name": item.getName(),
-                "maxDailyUsage": item.getProperty(BILLING_API_CLOUD_PLAN_MAX_DAILY_USAGE),
-                "maxAccounts": item.getProperty(BILLING_API_CLOUD_PLAN_MAX_ACCOUNT),
-                "monthlyRental": item.getProperty(BILLING_API_CLOUD_PLAN_MONTHLY_RENTAL),
-                "overUsage": item.getProperty(BILLING_API_CLOUD_PLAN_OVER_USAGE),
-                "premiumLevel": item.getProperty(BILLING_API_CLOUD_PLAN_PREMIUM_LEVEL),
-                "visibility": item.getProperty(BILLING_API_CLOUD_PLAN_VISIBILITY)
-            });
-        }
-        return subscriptionJson;
+        return jagg.module("admin").getCloudUtil(serviceId).loadSubscriptionPlans(subscriptions);
     } catch (e) {
         log.error("Error retrieving rate plans " + e);
         throw Error(e);
@@ -248,42 +230,162 @@ var calculateDiscountForCoupon = function (couponData) {
     }
 };
 
+/**
+ *  Method to get account id given the tenant domain
+ *
+ *  return {account number}
+ */
+var getAccountIdForTenant = function (tenantDomain) {
+    try {
+        var result = JSON.parse(cloudBillingDAO.getBillingAccountNumber(tenantDomain));
+        var accountNumber = result[0]["ACCOUNT_NUMBER"];
+        if (accountNumber == "NULL") {
+            accountNumber = null;
+        }
+        return accountNumber;
+    } catch (e) {
+        log.error("Error reading account number from db for tenant domain " + tenantDomain);
+        log.error(e);
+        return null;
+    }
+};
 
-var createAccount = function (accountData, metaData, organizationName) {
+/**
+ *  Method to upgrade complimentary API Cloud subscription
+ *
+ *  returns {subscription details}
+ */
+var upgradeComplimentaryAccountSubscription = function (accountId) {
+    try {
+        //End trialing period in complimentary subscription
+        var subscriptionId = getCurrentSubscription(serviceId).id;
+        var data = {
+            "trial_end": "now"
+        };
+        billingCoreService.updateSubscription(subscriptionId, JSON.stringify(data), true);
+        //Update subscription plan to new one
+        var couponData = session.get("PRODUCT_COUPON_DATA");
+        var productRatePlanId = session.get("PRODUCT_PLAN_ID");
+        var ratePlans = session.get("RATE_PLANS");
+        var result = changeSubscriptionPlan(accountId, productRatePlanId, ratePlans, serviceId, couponData);
+        if (result) {
+            var subscription = billingCoreService.getSubscription(subscriptionId);
+            var response = {
+                "data": {
+                    "subscriptionNumber": subscription.id
+                }
+            };
+            return response;
+        } else {
+            return null;
+        }
+    } catch (e) {
+        log.error("Error while upgrading complimentary account subscription for account number " + accountId);
+        log.error(e);
+        return null;
+    }
+};
 
-    var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+/**
+ *  Method to create subscription in billing vendor
+ *
+ *  returns {subscription details}
+ */
+var createSubscription = function (accountId, metaData, accountData, isComplimentaryAccount,
+                                   isComplimentaryAccountUpgrade) {
+    try {
+        var data = populateSubscriptionInfo(accountId, metaData.productRatePlanId, accountData.trialEndDate,
+                isComplimentaryAccount, isComplimentaryAccountUpgrade);
+        var subscriptionCreationResponse = JSON.parse(
+                billingCoreService.createSubscription(JSON.stringify(data)));
+        return subscriptionCreationResponse;
+    } catch (e) {
+        log.error("Error while creating subscription for account number " + accountId);
+        log.error(e);
+        return null;
+    }
+};
+
+var createAccount = function (accountData, metaData, organizationName, isComplimentaryAccount,
+                              isComplimentaryAccountUpgrade) {
+
+    //Tenant domain of logged in user
+    var tenantDomain = null;
+    //Tenant domain of complimentary account user because the complimentary account is created by cloud admin
+    if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
+        tenantDomain = session.get("TENANT_DOMAIN");
+    } else {
+        tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+    }
 
     if (validateRatePlanId(metaData.serviceId, metaData.productRatePlanId)) {
-
         var effectiveDate = new Packages.java.util.Date();
-        var data = populateAccountInfo(organizationName, accountData, metaData, false);
-        if (log.isDebugEnabled()) {
-            log.debug("Creating account with data: " + data);
+        var accountNumber = getAccountIdForTenant(tenantDomain);
+        if (accountNumber == null) {
+            var data = populateAccountInfo(organizationName, accountData, metaData, false, isComplimentaryAccount,
+                isComplimentaryAccountUpgrade);
+            if (log.isDebugEnabled()) {
+                log.debug("Creating account with data: " + data);
+            }
+            var response = JSON.parse(billingCoreService.createCustomer(JSON.stringify(data)));
+            accountNumber = response.id;
         }
-        var response = JSON.parse(billingCoreService.createCustomer(JSON.stringify(data)));
-        var responseSubscriptionCreation;
-        if (response.id != null) {
+        var subscriptionCreationResponse = null;
+        if (accountNumber != null) {
             var planName = getPaymentPlanFromId(metaData.serviceId, metaData.productRatePlanId);
-            data = populateSubscriptionInfo(response.id, metaData.productRatePlanId);
-            responseSubscriptionCreation = JSON.parse(billingCoreService.createSubscription(JSON.stringify(data)));
+            if (isComplimentaryAccount && isComplimentaryAccountUpgrade) {
+                //Add payment method to customer and update contact information
+                updateContactInfo(organizationName, accountData, metaData, isComplimentaryAccount,
+                        isComplimentaryAccountUpgrade);
+                if (serviceId == SUBSCRIPTION_API_CLOUD) {
+                    subscriptionCreationResponse = upgradeComplimentaryAccountSubscription(accountNumber);
+                } else {
+                    subscriptionCreationResponse = createSubscription(accountNumber, metaData, accountData,
+                            isComplimentaryAccount, isComplimentaryAccountUpgrade);
+                }
+            } else {
+                subscriptionCreationResponse = createSubscription(accountNumber, metaData, accountData,
+                        isComplimentaryAccount, isComplimentaryAccountUpgrade);
+            }
 
-            if (responseSubscriptionCreation.data.subscriptionNumber != null) {
-                cloudBillingDAO.updateAccountNumberForTenant(response.id, tenantDomain);
+            if (subscriptionCreationResponse.data.subscriptionNumber != null) {
+                cloudBillingDAO.updateAccountNumberForTenant(accountNumber, tenantDomain);
 
                 var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
                 var formattedEffectiveDate = sqlDateFormat.format(effectiveDate);
-
-                cloudBillingDAO.insertBillingStatus(tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE,
-                        formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING);
-
-                cloudBillingDAO.updateSubscriptionStatus(status.DISABLED, formattedEffectiveDate, tenantDomain,
-                        metaData.serviceId, type.TRIAL);
-
-                cloudBillingDAO.insertBillingAccountAmendments(response.id, metaData.productRatePlanId, formattedEffectiveDate,
-                        MYSQL_MAX_DATETIME_STRING, metaData.serviceId);
+                var endDate = MYSQL_MAX_DATETIME_STRING;
+                //Set end date for complimentary account (enterprise customer's production support end date)
+                if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
+                    endDate = accountData.trialEndDate;
+                }
+                //Insert billing status record for paid account (created by logged in user) or complimentary account
+                //(created by cloud admin)
+                if (!isComplimentaryAccountUpgrade) {
+                    cloudBillingDAO.insertBillingStatus(tenantDomain, metaData.serviceId, type.PAID, status.ACTIVE,
+                            formattedEffectiveDate, endDate);
+                }
+                var accountType = type.TRIAL;
+                var paidEndDate = formattedEffectiveDate;
+                var accountStatus = status.DISABLED;
+                //Set values for billing status record update for paid account or complimentary account
+                //(upgraded by logged in user)
+                if (isComplimentaryAccountUpgrade) {
+                    accountType = type.PAID;
+                    paidEndDate = MYSQL_MAX_DATETIME_STRING;
+                    accountStatus = status.ACTIVE;
+                }
+                cloudBillingDAO.updateSubscriptionStatus(accountStatus, paidEndDate, tenantDomain,
+                        metaData.serviceId, accountType);
+                //Publish tenant subscription only for API and Integration Cloud customer upgrades
+                if (!isComplimentaryAccount || isComplimentaryAccountUpgrade) {
+                    jagg.module("admin").getCloudUtil(serviceId).publishTenantSubscription(tenantDomain, serviceId,
+                         metaData.productRatePlanId, formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING, status.ACTIVE);
+                }
+                cloudBillingDAO.insertBillingAccountAmendments(accountNumber, metaData.productRatePlanId,
+                        formattedEffectiveDate, endDate, metaData.serviceId);
 
                 //send an email to the user
-                var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
+                var tenantDisplayName = getDisplayNameFromTenantDomain(tenantDomain);
 
                 var subscriptionName = productIdFromServiceId[metaData.serviceId];
 
@@ -376,16 +478,17 @@ var createAccount = function (accountData, metaData, organizationName) {
                         }
                     }, 0);
                 }
-                return response.id;
+                return accountNumber;
             } else {
-                log.error("Error occurred while subscribing to the " + planName + "for customer account " + response.id);
+                log.error("Error occurred while subscribing to the " + planName + " for customer account " +
+                                                                                                           accountNumber);
             }
         } else {
             log.error("Error occurred while creating the customer account");
         }
         return false;
     } else {
-        log.error(" customer account creation failed. Error: token expired or rate plan validation failure");
+        log.error("Customer account creation failed. Error: token expired or rate plan validation failure");
     }
 };
 
@@ -422,7 +525,8 @@ var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlan
 
         cloudBillingDAO.updateSubscriptionEndDate(formattedEffectiveDate, accountId, MYSQL_MAX_DATETIME_STRING,
                 serviceId);
-
+        var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
+        jagg.module("admin").getCloudUtil(serviceId).publishTenantSubscription(tenantDomain, serviceId, newProductRatePlanId,formattedEffectiveDate, MYSQL_MAX_DATETIME_STRING, status.ACTIVE);
         //add to BILLING_ACCOUNT_AMENDMENTS
         cloudBillingDAO.insertBillingAccountAmendments(accountId, newProductRatePlanId, formattedEffectiveDate,
                 MYSQL_MAX_DATETIME_STRING, serviceId);
@@ -431,7 +535,7 @@ var changeSubscriptionPlan = function (accountId, newProductRatePlanId, ratePlan
             log.debug("Rate plan changed for Account Id: " + accountId + " into plan: " + newProductRatePlanId);
         }
 
-        var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
+        var tenantDisplayName = getDisplayNameFromTenantDomain(tenantDomain);
         var newPlanName = getPaymentPlanFromId(serviceId, newProductRatePlanId);
         var previousPlan = getPaymentPlanFromId(serviceId, currentRatePlanId);
         if (tenantDisplayName != null) {
@@ -470,7 +574,7 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
         changePlanData["coupon"] = couponPlanId;
     }
 
-    var effectiveDate = setChangePlanEffectiveDate(isUpgrade);
+    var effectiveDate = setChangePlanEffectiveDate(serviceId, isUpgrade);
     session.put("EFFECTIVE_DATE", effectiveDate);
     var subscriptionId = getCurrentSubscription(serviceId).id;
 
@@ -484,30 +588,35 @@ var getChangeSubscriptionPlanResult = function (accountId, newProductRatePlanId,
 };
 
 //populate account information object
-var populateAccountInfo = function (organizationName, accountData, metaData, isEdit) {
+var populateAccountInfo = function (organizationName, accountData, metaData, isEdit, isComplimentaryAccount,
+                                    isComplimentaryAccountUpgrade) {
     var data = {};
-    data.description = organizationName;
-    if (!isEdit) {
-        data.source = metaData.field_passthrough4;
-    }
-    data.email = metaData.workEmail;
-    data.shipping = {};
     data.metadata = {};
-
-    var shippingDetails = {};
-    shippingDetails.address = accountData;
-    shippingDetails.name = metaData.firstName + " " + metaData.lastName;
-    data.shipping = shippingDetails;
-
+    data.shipping = {};
+    data.description = organizationName;
+    data.email = metaData.workEmail;
     var metaDetails = {};
     metaDetails.firstName = metaData.firstName;
     metaDetails.lastName = metaData.lastName;
+    //Set the account type to be "Paid" or "Complimentary"
+    if (isComplimentaryAccount) {
+        metaDetails.type = metaData.type;
+    }
     data.metadata = metaDetails;
-
+    if (!isComplimentaryAccount || isComplimentaryAccountUpgrade) {
+        if (!isEdit || isComplimentaryAccountUpgrade) {
+            data.source = metaData.field_passthrough4;
+        }
+        var shippingDetails = {};
+        shippingDetails.address = accountData;
+        shippingDetails.name = metaData.firstName + " " + metaData.lastName;
+        data.shipping = shippingDetails;
+    }
     return data;
 };
 
-var populateSubscriptionInfo = function (customer, ratePlanId) {
+var populateSubscriptionInfo = function (customer, ratePlanId, trialEndDate, isComplimentaryAccount,
+                                         isComplimentaryAccountUpgrade) {
     var couponData = session.get("PRODUCT_COUPON_DATA");
     var serviceId = session.get("SERVICE_ID");
     session.remove("PRODUCT_COUPON_DATA");
@@ -518,6 +627,13 @@ var populateSubscriptionInfo = function (customer, ratePlanId) {
     }
     data.customer = customer;
     data.plan = ratePlanId;
+    if (isComplimentaryAccount && !isComplimentaryAccountUpgrade) {
+        var SimpleDateFormat = Packages.java.text.SimpleDateFormat;
+        var dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        var date = dateFormat.parse(trialEndDate);
+        var timeStamp = date.getTime();
+        data.trial_end = Number(timeStamp / 1000).toFixed();
+    }
     return data;
 };
 
@@ -554,12 +670,15 @@ var updateBillingStatus = function (status, effectiveDate, serviceType, serviceI
 
     //updating the billing status
     cloudBillingDAO.updateSubscriptionStatus(status, formattedEffectiveDate, tenantDomain, serviceId, serviceType);
+
+    jagg.module("admin").getCloudUtil(serviceId).publishTenantSubscription(tenantDomain, serviceId, serviceType,
+            null, formattedEffectiveDate, status);
 };
 
-var getCancelSubscriptionEffectiveDate = function () {
+var getCancelSubscriptionEffectiveDate = function (serviceId) {
     var dateFormatter = dateTimeFormatter(DATE_FORMAT);
     try {
-        var effectiveDate = setChangePlanEffectiveDate(false);
+        var effectiveDate = setChangePlanEffectiveDate(serviceId, false);
         return dateFormatter.format(effectiveDate);
     } catch (e) {
         if (!(typeof effectiveDate === "undefined") && !effectiveDate.success) {
@@ -570,11 +689,11 @@ var getCancelSubscriptionEffectiveDate = function () {
     }
 };
 
-var setChangePlanEffectiveDate = function (isUpgrade) {
+var setChangePlanEffectiveDate = function (serviceId, isUpgrade) {
     try {
         if (!isUpgrade) {
             //TODO  GEt the correct downgrade dates.
-            var currentSubscription = getCurrentSubscription();
+            var currentSubscription = getCurrentSubscription(serviceId);
             if (currentSubscription != null) {
                 var currentPeriodEnd = currentSubscription.current_period_end;
                 return new Date(currentPeriodEnd * 1000);
@@ -660,7 +779,14 @@ var getCurrentRatePlan = function (serviceId) {
     if ((session.get("TENANT_INFO")) != null) {
         var susbcriptionData = getCustomerDetails();
         if (susbcriptionData.success) {
-            return susbcriptionData.data.subscriptions.data[0].plan;
+            var subscriptions = susbcriptionData.data.subscriptions.data;
+            for(var i = 0; i < subscriptions.length; i++) {
+                var plan = subscriptions[i].plan;
+                if (validateRatePlanId(serviceId, plan.id)) {
+                    // valid rate plan
+                    return plan;
+                }
+            }
         }
     }
     return null;
@@ -669,10 +795,18 @@ var getCurrentRatePlan = function (serviceId) {
 var getCurrentSubscription = function (serviceId) {
     if ((session.get("TENANT_INFO")) != null) {
         var susbcriptionData = getCustomerDetails();
-        return susbcriptionData.data.subscriptions.data[0];
-    } else {
-        return null;
+        if (susbcriptionData.success) {
+            var subscriptions = susbcriptionData.data.subscriptions.data;
+            for(var i = 0; i < subscriptions.length; i++) {
+                var subscription = subscriptions[i];
+                if (validateRatePlanId(serviceId, subscription.plan.id)) {
+                    // valid subscription
+                    return subscription;
+                }
+            }
+        }
     }
+    return null;
 };
 var getCustomerDetails = function () {
     var accountId = getAccountId();
@@ -705,11 +839,12 @@ var getAccountInfo = function () {
     }
 };
 
-var updateContactInfo = function (organizationName, accountData, metaData) {
+var updateContactInfo = function (organizationName, accountData, metaData, isComplimentaryAccount,
+                                  isComplimentaryAccountUpgrade) {
     try {
         var accountId = getAccountId();
-        var data = populateAccountInfo(organizationName, accountData, metaData,
-                true);
+        var data = populateAccountInfo(organizationName, accountData, metaData, true, isComplimentaryAccount,
+                isComplimentaryAccountUpgrade);
         var response = JSON.parse(billingCoreService.updateCustomer(accountId,
                 JSON.stringify(data)));
         if (response.success) {
@@ -876,10 +1011,10 @@ var removePaymentMethod = function (methodId) {
 
 var cancelSubscription = function (serviceName, serviceId) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
-    var effectiveDate = setChangePlanEffectiveDate(false);
+    var effectiveDate = setChangePlanEffectiveDate(serviceId, false);
 
     try {
-        var subscriptionId = getCurrentSubscription().id;
+        var subscriptionId = getCurrentSubscription(serviceId).id;
         log.info("Cancelling subscription for tenant: " + tenantDomain + " subscription id: " + subscriptionId);
         var data = {};
         data.at_period_end = 'true'; // This will set the cancellation in the end of the bill cycle
@@ -922,7 +1057,7 @@ var extendTrial = function (serviceId, customerRequest) {
     var tenantDomain = (session.get("TENANT_INFO")).tenantDomain;
     var extensionStartDate = new Packages.java.util.Date();
     var extendedEndDate = addDays(extensionStartDate, parseInt(
-            billingCoreService.getTrialPeriod(SUBSCRIPTION_API_CLOUD)));
+    billingCoreService.getTrialPeriod(serviceId)));
     var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
 
     var result = JSON.parse(cloudBillingDAO.selectAllFromBillingStatus(tenantDomain, serviceId, type.TRIAL));
@@ -940,7 +1075,7 @@ var extendTrial = function (serviceId, customerRequest) {
 
             cloudBillingDAO.updateBillingStatus(status.EXTENDED, sqlDateFormat.format(extensionStartDate),
                     sqlDateFormat.format(extendedEndDate), tenantDomain, serviceId, type.TRIAL);
-
+            jagg.module("admin").getCloudUtil(serviceId).publishTenantSubscription(tenantDomain, serviceId, type.TRIAL, sqlDateFormat.format(extensionStartDate), sqlDateFormat.format(extendedEndDate), status.EXTENDED);
             var tenantDisplayName = getDisplayNameFromTenantDomain((session.get("TENANT_INFO")).tenantDomain);
             if (tenantDisplayName != null) {
                 setTimeout(function () {
@@ -1048,7 +1183,7 @@ var getTenantUsage = function (fromDate, toDate) {
 // Add to mail campaign
 function addCloudSubmissionToMailCampaign(email, domain, type) {
     var extensionStartDate = new Packages.java.util.Date();
-    var extendedEndDate = addDays(extensionStartDate, parseInt(billingCoreService.getTrialPeriod(SUBSCRIPTION_API_CLOUD)));
+    var extendedEndDate = addDays(extensionStartDate, parseInt(billingCoreService.getTrialPeriod(type.toLowerCase())));
     var sqlDateFormat = dateTimeFormatter(PARDOT_DATE_FORMAT);
     var expDate = sqlDateFormat.format(extendedEndDate);
     var type = type.substring(0, type.indexOf("_"));
@@ -1069,6 +1204,10 @@ function addCloudSubmissionToMailCampaign(email, domain, type) {
         URL = cloudConfig.MailCampaignAddUserApi.apiCloudSubmission;
     } else if ("INTEGRATION".equals(type)) {
         URL = cloudConfig.MailCampaignAddUserApi.integrationCloudSubmission;
+    } else if ("DEVICE".equals(type)) {
+        URL = cloudConfig.MailCampaignAddUserApi.deviceCloudSubmission;
+    } else if ("IDENTITY".equals(type)) {
+        URL = cloudConfig.MailCampaignAddUserApi.identityCloudSubmission;
     }
     var result = post(URL, data, {}, 'text');
     return result;
@@ -1086,8 +1225,12 @@ var verifyEventAndSendInvoice = function (id) {
                 var body = invoiceDetails.data.body;
                 var subject = invoiceDetails.data.subject;
                 var to = invoiceDetails.data.to;
-                var bcc = cloudConfig.registrationEmail.from;
-                jagg.module("util").sendEmailWithBCC(body, subject, to, attachment, bcc);
+                var bcc = cloudConfig.supportContact.to;
+                var cc = null;
+                if (invoiceDetails.data.cc != null && invoiceDetails.data.cc.trim() != "") {
+                    cc = invoiceDetails.data.cc;
+                }
+                jagg.module("util").sendEmailWithBCC(body, subject, to, attachment, bcc, cc);
             } else {
                 log.error("Error occurred while generating invoice for event" + id);
             }
@@ -1107,11 +1250,11 @@ var verifyEventForFailedPayment = function (id) {
             var subject = "[IMPORTANT] Error occurred while processing the payment";
             // Send a mail to cloud team
             var message = CHARGE_FAILED_MESSAGE +
-                    "<br><br> Customer - " + eventDataJson.data.data.object.customer +
-                    "<br> Customer email- " + eventDataJson.data.data.object.receipt_email +
-                    "<br> failure code - " + eventDataJson.data.data.object.failure_code +
-                    "<br> failure message - " + eventDataJson.data.data.object.failure_message;
-            jagg.module("util").sendEmail(message.toString(), subject, cloudConfig.registrationEmail.from);
+                          "<br><br> Customer - " + eventDataJson.data.data.object.customer +
+                          "<br> Customer email- " + eventDataJson.data.data.object.receipt_email +
+                          "<br> failure code - " + eventDataJson.data.data.object.failure_code +
+                          "<br> failure message - " + eventDataJson.data.data.object.failure_message;
+            jagg.module("util").sendEmail(message.toString(), subject, cloudConfig.supportContact.to);
 
             //Send mail to the customer and cloud
             var subjectForCustomer = "Payment For WSO2 Cloud Got Declined";
@@ -1121,14 +1264,108 @@ var verifyEventForFailedPayment = function (id) {
             body = body.replace("{customer}", eventDataJson.data.data.object.source.name)
                     .replace("{status}", eventDataJson.data.data.object.failure_message)
                     .replace("{date}", date);
-            modUtils.sendEmail(body, subjectForCustomer, [cloudConfig.registrationEmail.from, eventDataJson
-                    .data.data.object.receipt_email]);
+            if (eventDataJson.data.data.object.customer != null) {
+                var customerMetaData = JSON.parse(billingCoreService.getCustomerMetaData(eventDataJson.data.data.object.customer));
+                if (customerMetaData.success) {
+                    var cc = null;
+                    if (customerMetaData.data != null && customerMetaData.data.additionalEmails != null && "" !=
+                                                                                                           customerMetaData.data.additionalEmails) {
+                        cc = customerMetaData.data.additionalEmails;
+                    }
+                    modUtils.sendEmailWithBCC(body, subjectForCustomer, eventDataJson.data.data.object.receipt_email, null,
+                                              cloudConfig.supportContact.to, cc);
+                } else {
+                    log.error(customerMetaData.message);
+                }
+            } else {
+                log.error("Unable to get the customer information for the event id " + id);
+            }
+            log.info("Successfully sent the failed invoice payment for the event id " + id);
         } else {
             log.error(eventDataJson.message);
         }
     } catch (e) {
         log.error("Error occurred while verifying and sending emails for failed payments " + e);
-        throw Error(e);
     }
 };
+
+/**
+ * Method to check if the account of logged in user is complimentary
+ *
+ * returns {if the account is complimentary or not}
+ */
+var isComplimentaryAccount = function() {
+    if (isPaidAccount()) {
+        var customerObj = getCustomerDetails();
+        if (customerObj.success) {
+            return (customerObj.data.metadata.type == "Complimentary");
+        }
+    }
+    return false;
+};
+
+var isFirstSubscription = function (serviceId) {
+    var isPaid = isPaidAccount();
+    if (isPaid) {
+        var accountStatus = getAccountStatus(serviceId, "PAID");
+        if (accountStatus != null && accountStatus != "undefined") {
+            if (accountStatus == "PENDING_DISABLE" || accountStatus == "DISABLED") {
+                // contact cloud support
+            } else {
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
+// activate account on first login to given cloud
+var activateAccount = function (tenantDomain, serviceId) {
+    var billingType = JSON.parse(cloudBillingDAO.getTypeForTenantSubscription(serviceId, tenantDomain))[0]["TYPE"];
+    var result = JSON.parse(cloudBillingDAO.selectAllFromBillingStatus(tenantDomain, serviceId, billingType));
+
+    if (result.length > 0) {
+        var sqlDateFormat = dateTimeFormatter(MYSQL_DATETIME_FORMAT);
+        var adminModule = jagg.module("admin");
+
+        if (result[0]["TYPE"] === type.TRIAL) {
+            if (result[0]["STATUS"] === status.ACTIVE) {
+
+                var startDate = result[0]["START_DATE"];
+                var endDate = result[0]["END_DATE"];
+
+                adminModule.getCloudUtil(serviceId).publishTenantSubscription(tenantDomain, serviceId, billingType,
+                                                                              startDate, endDate, status.ACTIVE);
+
+            } else if (result[0]["STATUS"] === status.INACTIVE) {
+
+                var trialStartDate = new Packages.java.util.Date();
+                var trialEndDate = addDays(trialStartDate, parseInt(billingCoreService.getTrialPeriod(serviceId)));
+
+                cloudBillingDAO.updateBillingStatus(status.ACTIVE, sqlDateFormat.format(trialStartDate),
+                                                    sqlDateFormat.format(trialEndDate), tenantDomain, serviceId, type.TRIAL);
+
+                adminModule.getCloudUtil(serviceId).publishTenantSubscription(tenantDomain, serviceId, billingType,
+                                                                              sqlDateFormat.format(trialStartDate), sqlDateFormat.format(trialEndDate), status.ACTIVE);
+            }
+        } else if (result[0]["TYPE"] === type.FREE && result[0]["STATUS"] === status.ACTIVE) {
+
+            var startDate = result[0]["START_DATE"];
+            var endDate = result[0]["END_DATE"];
+
+            adminModule.getCloudUtil(serviceId).publishTenantSubscription(tenantDomain, serviceId, billingType,
+                                                                          startDate, endDate, status.ACTIVE);
+
+        } else if (result[0]["TYPE"] === type.PAID) {
+            var startDate = result[0]["START_DATE"];
+            var endDate = result[0]["END_DATE"];
+            var statusColumn = result[0]["STATUS"];
+
+            adminModule.getCloudUtil(serviceId).publishTenantSubscription(tenantDomain, serviceId, "integration_cloud_starter",
+                                                                          startDate, endDate, statusColumn);
+        } else {
+        }
+    }
+};
+
 %>

@@ -108,6 +108,15 @@ jagg.module("billing", {
     verifyEventForFailedPayment: function () {
         return jagg.require(jagg.getModulesDir() + "billing/billing.jag").verifyEventForFailedPayment.apply(this,
                 arguments);
+    },
+    isComplimentaryAccount: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isComplimentaryAccount.apply(this, arguments);
+    },
+    activateAccount: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").activateAccount.apply(this, arguments);
+    },
+    isFirstSubscription: function () {
+        return jagg.require(jagg.getModulesDir() + "billing/billing.jag").isFirstSubscription.apply(this, arguments);
     }
 });
 %>
