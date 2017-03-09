@@ -950,6 +950,9 @@ function getGatewayMigrationProperties() {
     return gatewayMigrationProperties;
 }
 
+/**
+ Method to send email to Cloud after successful claim of complimentary account.
+ */
 var sendComplimentaryAccountClaimedNotification = function(email, supportAccount, username) {
     try {
         var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_claim_success.txt");
@@ -957,23 +960,24 @@ var sendComplimentaryAccountClaimedNotification = function(email, supportAccount
         emailBody = emailBody.replace("$email", email);
         emailBody = emailBody.replace("$supportAccount", supportAccount);
         emailBody = emailBody.replace("$username", username);
-        var accountCreationSuccessResponse = sendEmail(emailBody, subject);
-        return accountCreationSuccessResponse;
+        sendEmail(emailBody, subject);
     } catch (e) {
         log.error("Error while sending email for claiming complimentary account for username: "  + username);
         throw Error(e);
     }
 };
 
-var sendComplimentaryAccountCreationFailureNotification = function(email, firstName, lastName, exception) {
-    var emailBody = getObjFromFile("/site/conf/emails/complimentary_account_creation_failure.txt");
-    var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claim failure] - " + email;
-    emailBody = emailBody.replace("$email", email);
-    emailBody = emailBody.replace("$firstName", firstName);
-    emailBody = emailBody.replace("$lastName", lastName);
-    emailBody = emailBody.replace("$error", exception);
-    var accountCreationFailureResponse = sendEmail(emailBody, subject);
-    return accountCreationFailureResponse;
+/**
+ Method to send email to Cloud incase of a failure while creating the complimentary account.
+ */
+var sendFailureNotification = function(emailTemplateFilePath, subject, emailBodyJson) {
+    var emailBody = getObjFromFile(emailTemplateFilePath);
+    var emailBodyKeys = Object.keys(emailBodyJson);
+    for (var i = 0; i < emailBodyKeys.length; i++) {
+        var emailBodyKey = emailBodyKeys[i];
+        emailBody = emailBody.replace(emailBodyKey, emailBodyJson[emailBodyKey]);
+    }
+    sendEmail(emailBody, subject);
 };
 
 %>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *   WSO2 Inc. licenses this file to you under the Apache License,
  *   Version 2.0 (the "License"); you may not use this file except
@@ -15,20 +15,18 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-package org.wso2.carbon.cloud.listener;
-
-import java.util.HashMap;
+package org.wso2.carbon.cloud.complimentary.users.utils;
 
 /**
- * Represents the interface containing methods to be implmented by each cloud.
+ * Constants.
+ *
+ * @since 1.0.0
  */
-public interface CloudListener {
-
-    /**
-     * Method to invoke actions to be executed after setting the custom url.
-     *
-     * @param parameterMap map with parameters required to invoke actions specific for each cloud
-     * @throws CloudMgtException
-     */
-    void triggerOnCustomUrlAddition(HashMap<String, String> parameterMap) throws CloudMgtException;
+public class Constants {
+    public static final String OPPORTUNITY_NAME_CUSTOM_FIELD = "Opportunity_Name__c";
+    public static final String PRODUCT_CODE_FIELD = "ProductCode";
+    public static final String COMPLIMENTARY_CLOUD_SUBSCRIBER_CUSTOM_FIELD = "Complementary_Cloud_Subscriber__c";
+    public static final String ACCOUNT_ID_FIELD = "AccountId";
+    public static final String EMAIL_FIELD = "Email";
+    public static final String ID_FIELD = "Id";
 }

@@ -109,9 +109,17 @@ var log = new Log("blocks.tenant.register.add.ajax.add.jag");
             var response = mod.createComplimentarySubscription(email, firstName, lastName, password);
             print(response);
         } catch (e) {
+            var emailTemplateFilePath = "/site/conf/emails/complimentary_account_creation_failure.txt";
+            var subject = "WSO2 Cloud Notification [Complimentary API Cloud account claim failure] - " + email;
+            var emailBody = {
+                "$email" : email,
+                "$firstName" : firstName,
+                "$lastName" : lastName,
+                "$error" : e
+            };
+            jagg.module("util").sendFailureNotification(emailTemplateFilePath, subject, emailBody);
             log.error("Error while creating complimentary subscription for email " + email);
             log.error(e);
-            jagg.module("util").sendComplimentaryAccountCreationFailureNotification(email, firstName, lastName, e);
             return {
                 error: true,
                 status: 500,

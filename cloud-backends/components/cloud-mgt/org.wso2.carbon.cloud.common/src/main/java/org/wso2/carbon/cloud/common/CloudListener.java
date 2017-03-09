@@ -15,24 +15,20 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-package org.wso2.carbon.cloud.complimentary.users.exception;
+package org.wso2.carbon.cloud.common;
+
+import java.util.HashMap;
 
 /**
- * Used to wrap the actual exception with a custom message.
- *
- * @since 1.0.0
+ * Represents the interface containing methods to be implemented by each cloud.
  */
-public class CustomerException extends Exception {
+public interface CloudListener {
 
-    public CustomerException(String msg) {
-        super(msg);
-    }
-
-    public CustomerException(String msg, Throwable e) {
-        super(msg, e);
-    }
-
-    public CustomerException(Throwable e) {
-        super(e);
-    }
+    /**
+     * Method to invoke actions to be executed after setting the custom url.
+     *
+     * @param parameterMap map with parameters required to invoke actions specific for each cloud
+     * @throws CloudMgtException
+     */
+    void triggerOnCustomUrlAddition(HashMap<String, String> parameterMap) throws CloudMgtException;
 }

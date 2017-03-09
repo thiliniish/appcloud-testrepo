@@ -191,8 +191,8 @@
             return customUrlMappingStatus;
         } catch (e) {
             registry.rollbackTransaction();
-            var errorMessage = "Exception occurred during establishing connection " + e;
-            log.error(errorMessage);
+            log.error("Exception occurred during establishing connection.");
+            log.error(e);
             throw e;
         }
     };
@@ -203,9 +203,9 @@
             publishToMessageBroker(payload, cloudProfile);
         } else {
             var serverBlockBaseUrl = cloudConfigFile.customUrl.integrationCloud.serverBlockBaseUrl;
-            var loginUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.loginBlockSuffix;
-            var urlMapperUrl = serverBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.urlMapperBlockSuffix;
-            var service = server.osgiService('org.wso2.carbon.cloud.listener.CloudListener');
+            var loginUrl = serverBlockBaseUrl + INTEGRATION_CLOUD_LOGIN_BLOCK_SUFFIX;
+            var urlMapperUrl = serverBlockBaseUrl + INTEGRATION_CLOUD_URL_MAPPER_BLOCK_SUFFIX;
+            var service = server.osgiService('org.wso2.carbon.cloud.common.CloudListener');
             var username = session.get("LOGGED_IN_USER");
             var parameterMap = new java.util.HashMap();
             parameterMap.put("cloudType", cloudProfile);
@@ -333,9 +333,9 @@
         return null;
     };
 
-    var isUrlAvailable = function(newUrl, node) {
+    var isUrlAvailable = function(newUrl, node, cloudType) {
         if (node == APPLICATION_NODE_TYPE) {
-            return (isCustomDomainAvailable(newUrl).trim() === "true");
+            return (isCustomDomainAvailable(newUrl, cloudType).trim() === "true");
         } else {
             var currentUrlMapping = getCurrentUserMapping(API_CLOUD_TYPE);
             if (currentUrlMapping != null) {
@@ -528,15 +528,12 @@
         }
     }
 
-    function getCustomDomainDetailsForTenant() {
-        var cookie = getCookieFromLoginToIntegrationCloudUsingJWT();
-
+    function getCustomDomainDetailsForTenant(cloudType) {
+        var cookie = getCookieFromLoginToCloudUsingJWT(cloudType);
         //Invoke Integration Cloud REST API to get custom domain details for logged in tenant
-        var applicationAPIUrl = integrationCloudServerBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.applicationBlockSuffix;
-        var getCustomDomainDetailsForTenantAction =
-                cloudConfigFile.customUrl.integrationCloud.getCustomDomainDetailsForTenantAction;
+        var applicationAPIUrl = integrationCloudServerBlockBaseUrl + INTEGRATION_CLOUD_APPLICATION_BLOCK_SUFFIX;
         var customDomainDetailsQueryData = {
-            "action" : getCustomDomainDetailsForTenantAction
+            "action" : INTEGRATION_CLOUD_GET_CUSTOM_DOMAIN_DETAILS_FOR_TENANT_ACTION
         };
         var customDomainDetailsQueryHeaders = {
             "Cookie" : cookie
@@ -546,23 +543,25 @@
         return customDomainDetailsQueryResult.xhr.responseText;
     }
 
-    function getCookieFromLoginToIntegrationCloudUsingJWT() {
-        return loginToIntegrationCloudUsingJWT().getResponseHeader(SET_COOKIE_HEADER);
+    function getCookieFromLoginToCloudUsingJWT(cloudType) {
+        return loginToCloudUsingJWT(cloudType).getResponseHeader(SET_COOKIE_HEADER);
     }
 
-    function loginToIntegrationCloudUsingJWT() {
+    function loginToCloudUsingJWT(cloudType) {
         try {
             var fullUsername = session.get("LOGGED_IN_USER");
             var authorizationHeader = utilModule.getAuthHeader(fullUsername);
-            //Login to Integration Cloud using jwt authentication
-            var loginUrl = integrationCloudServerBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.loginBlockSuffix;
-            var loginAction = cloudConfigFile.customUrl.integrationCloud.loginAction;
-            var loginData = {
-                "action": loginAction
-            };
+            var loginUrl = integrationCloudServerBlockBaseUrl + INTEGRATION_CLOUD_LOGIN_BLOCK_SUFFIX;
+            var loginData = {};
             var loginHeaders = {
                 "Authorization": stringify(authorizationHeader)
             };
+            if (cloudType == INTEGRATION_CLOUD_TYPE) {
+                //Login to Integration Cloud using jwt authentication
+                loginData = {
+                    "action": INTEGRATION_CLOUD_LOGIN_ACTION
+                };
+            }
             var loginResult = post(loginUrl, loginData, loginHeaders);
             var loginResponse = loginResult.xhr.responseText;
             if (loginResponse.error == "true") {
@@ -571,20 +570,22 @@
                 return loginResult.xhr;
             }
         } catch (e) {
-            var errorMessage = "Exception occurred during establishing connection to IntegrationCloud.";
+            var errorMessage = "Exception occurred during establishing connection to " + cloudType + ".";
             log.error(errorMessage);
             log.error(e);
             throw e;
         }
     }
 
-    function isCustomDomainAvailable(customDomain) {
-        var cookie = getCookieFromLoginToIntegrationCloudUsingJWT();
+    /**
+     * Method to check if custom domain is available by invoking the rest API of the respective cloud
+     */
+    function isCustomDomainAvailable(customDomain, cloudType) {
+        var cookie = getCookieFromLoginToCloudUsingJWT(cloudType);
         //Invoke Integration Cloud REST API to check if custom domain is available
-        var applicationAPIUrl = integrationCloudServerBlockBaseUrl + cloudConfigFile.customUrl.integrationCloud.urlMapperBlockSuffix;
-        var isCustomDomainAvailableAction = cloudConfigFile.customUrl.integrationCloud.isCustomDomainAvailableAction;
+        var applicationAPIUrl = integrationCloudServerBlockBaseUrl + INTEGRATION_CLOUD_URL_MAPPER_BLOCK_SUFFIX;
         var isCustomDomainAvailableQueryData = {
-            "action" : isCustomDomainAvailableAction,
+            "action" : INTEGRATION_CLOUD_IS_CUSTOM_DOMAIN_AVAILABLE_ACTION,
             "customDomain" : customDomain
         };
         var isCustomDomainAvailableQueryHeaders = {

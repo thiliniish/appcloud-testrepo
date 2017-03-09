@@ -344,6 +344,7 @@ function publishCustomUrl(node) {
 }
 
 function verifyCustomDomain(node) {
+    var cloudType = $('#cloudType').val();
     var customUrl = $('#' + node + 'Domain').val();
     var customUrlConfig = JSON.parse($('#customUrlConfig').val());
     var defaultPointingUrl = customUrlConfig.apiCloudPointingUrl;
@@ -358,7 +359,8 @@ function verifyCustomDomain(node) {
         action: 'validateUrl',
         customDomain: customUrl,
         nodeType: node,
-        pointingUrl: pointingUrl
+        pointingUrl: pointingUrl,
+        cloudType: cloudType
     }, function(result) {
         result = $.trim(result);
         result = JSON.parse(result);
