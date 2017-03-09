@@ -39,10 +39,11 @@ import java.util.Map;
 public class UserProfileManagementTestCase extends CloudIntegrationTest {
     private static final Log log = LogFactory.getLog(UserProfileManagementTestCase.class);
 
-    private String userName;
+    private String username;
     private String password;
     private String firstName;
     private String lastName;
+    private String domainLessUserName;
 
     private static final String TEMP_PASSWORD = "Admin@321";
 
@@ -55,16 +56,16 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
      */
     @BeforeClass(alwaysRun = true) public void deployService() throws Exception {
         //initializing user info
-        userName = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_USER_USERNAME);
+        username = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_USER_USERNAME);
         password = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_USER_PASSWORD);
         firstName = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_USER_FIRST_NAME);
         lastName = CloudIntegrationTestUtils.getPropertyValue(CloudIntegrationConstants.TENANT_USER_LAST_NAME);
-
+        domainLessUserName = username.substring(0, username.lastIndexOf("@"));
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
-        boolean loginStatus = authenticatorClient.login(userName, password);
+        boolean loginStatus = authenticatorClient.login(domainLessUserName, password);
         if (!loginStatus) {
             String msg = "Authentication failure for CloudMgt app before Edit Profile & Change Password tests"
-                    + " for user : " + userName;
+                    + " for user : " + username;
             log.error(msg);
             throw new Exception(msg);
         }
@@ -83,21 +84,21 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
     @Test(description = "Edit Profile Test for User") public void editProfileTest() throws Exception {
         log.info("Running Edit Profile test");
         String url = cloudMgtServerUrl + CloudIntegrationConstants.USER_PROFILE_URL_SFX;
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "updateProfile");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "updateProfile");
         params.put("firstName", "FirstName");
         params.put("lastName", "LastName");
-        Map resultMap = HttpHandler.doPostHttps(url, params, authenticatorClient.getSessionCookie());
+        Map resultMap = HttpHandler.doPostHttps(url, params, authenticatorClient.getSessionCookie(), false);
         String result = (String) resultMap.get(CloudIntegrationConstants.RESPONSE);
-        Assert.assertEquals(result, "true", "Value mismatch, Should be true.");
+        Assert.assertEquals(result, CloudIntegrationConstants.TRUE, "Value mismatch, Should be true.");
 
-        params = new HashMap<String, String>();
-        params.put("action", "getProfile");
-        params.put("user", userName);
-        resultMap = HttpHandler.doPostHttps(url, params, authenticatorClient.getSessionCookie());
+        params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "getProfile");
+        params.put("user", username);
+        resultMap = HttpHandler.doPostHttps(url, params, authenticatorClient.getSessionCookie(), false);
         JSONObject resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
         Assert.assertEquals(resultObj.getString("firstname"), "FirstName",
-                "FirstName does not match with the new value");
+                            "FirstName does not match with the new value");
         Assert.assertEquals(resultObj.getString("lastname"), "LastName", "LastName does not match with the new value");
     }
 
@@ -114,16 +115,16 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
     @Test(description = "Change Password Test for User") public void changePasswordTest() throws Exception {
         log.info("Running Change Password test");
         String url = cloudMgtServerUrl + CloudIntegrationConstants.CHANGE_PASSWORD_URL_SFX;
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "changePassword");
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "changePassword");
         params.put("oldPassword", password);
         params.put("password", TEMP_PASSWORD);
-        Map responseMap = HttpHandler.doPostHttps(url, params, authenticatorClient.getSessionCookie());
+        Map responseMap = HttpHandler.doPostHttps(url, params, authenticatorClient.getSessionCookie(), false);
         String result = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
-        Assert.assertEquals(result, "true", "Value mismatch, Should be true.");
+        Assert.assertEquals(result, CloudIntegrationConstants.TRUE, "Value mismatch, Should be true.");
 
         authenticatorClient = new JaggeryAppAuthenticatorClient(cloudMgtServerUrl);
-        boolean loginStatus = authenticatorClient.login(userName, TEMP_PASSWORD);
+        boolean loginStatus = authenticatorClient.login(username, TEMP_PASSWORD);
         Assert.assertTrue(loginStatus, "Cannot login with new password");
     }
 
@@ -138,27 +139,26 @@ public class UserProfileManagementTestCase extends CloudIntegrationTest {
         Map<String, String> params;
         Map responseMap;
 
-        params = new HashMap<String, String>();
-        params.put("action", "updateProfile");
+        params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "updateProfile");
         params.put("firstName", firstName);
         params.put("lastName", lastName);
-        responseMap = HttpHandler.doPostHttps(profileUrl, params, authenticatorClient.getSessionCookie());
+        responseMap = HttpHandler.doPostHttps(profileUrl, params, authenticatorClient.getSessionCookie(), false);
         String updateProfileResult = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
 
-        params = new HashMap<String, String>();
-        params.put("action", "changePassword");
+        params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "changePassword");
         params.put("oldPassword", TEMP_PASSWORD);
         params.put("password", password);
-        responseMap = HttpHandler.doPostHttps(passwordUrl, params, authenticatorClient.getSessionCookie());
+        responseMap = HttpHandler.doPostHttps(passwordUrl, params, authenticatorClient.getSessionCookie(), false);
         String changePassResult = (String) responseMap.get(CloudIntegrationConstants.RESPONSE);
 
         authenticatorClient.logout();
         super.cleanup();
 
-        Assert.assertEquals(updateProfileResult, "true",
+        Assert.assertEquals(updateProfileResult, CloudIntegrationConstants.TRUE,
                 "Error occurred while reverting the user profile changes after Profile Update Test.");
-        Assert.assertEquals(changePassResult, "true",
+        Assert.assertEquals(changePassResult, CloudIntegrationConstants.TRUE,
                 "Error occurred while resetting to the old password after Change Password Test.");
-
     }
 }

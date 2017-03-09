@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.cloud.test.scenarios.billing;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -27,18 +29,18 @@ import org.wso2.carbon.cloud.integration.test.utils.CloudIntegrationTestUtils;
 import org.wso2.carbon.cloud.integration.test.utils.external.HttpHandler;
 import org.wso2.carbon.cloud.integration.test.utils.restclients.JaggeryAppAuthenticatorClient;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * This is to test adding, viewing, changing and deleting
- * functionalities of the cloud billing feature.
+ * functionalities of the cloud billing payment method feature.
  * Since it checks only the added payments it's require to have a valid payment
- * subscription for that tenant.
+ * subscription for that tenant. Also two payments methods to test the change payment method functionality.
  */
 public class PaymentMethodsTestCase extends CloudIntegrationTest {
 
+    private static final Log log = LogFactory.getLog(PaymentMethodsTestCase.class);
     private JaggeryAppAuthenticatorClient authenticatorClient;
     private boolean loginStatus;
 
@@ -61,21 +63,21 @@ public class PaymentMethodsTestCase extends CloudIntegrationTest {
      */
     @Test(description = "This will check generated parameters to get the iframe.") public void addPaymentMethod()
             throws Exception {
+        log.info("Started running test case parameter generation of payment methods to get the iframe.");
         String serviceId = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.BILLING_PAYMENT_SERVICE_ID);
         String productPlanId = CloudIntegrationTestUtils
                 .getPropertyValue(CloudIntegrationConstants.BILLING_PAYMENT_PRODUCT_RATE_PLAN_ID);
 
-        Assert.assertTrue(loginStatus, "Tenant login failed.");
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "generateParams");
-        //put into the configuration
-        params.put("serviceId", serviceId);
-        params.put("productRatePlanId", productPlanId);
+        Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "generateParams");
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_SERVICE_ID, serviceId);
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_PRODUCT_RATE_PLAN_ID, productPlanId);
         String paymentMethodAddUrl = cloudMgtServerUrl +
                                      CloudIntegrationConstants.CLOUD_BILLING_PAYMENT_METHOD_ADD_URL_SFX;
         Map resultMap = HttpHandler
-                .doPostHttps(paymentMethodAddUrl, params, authenticatorClient.getSessionCookie());
+                .doPostHttps(paymentMethodAddUrl, params, authenticatorClient.getSessionCookie(), false);
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
 
@@ -103,45 +105,85 @@ public class PaymentMethodsTestCase extends CloudIntegrationTest {
      */
     @Test(description = "View payment methods of the tenant") public void viewPaymentMethods()
             throws Exception {
-        Assert.assertTrue(loginStatus, "Tenant login failed.");
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "get-payment-methods");
+        log.info("Started running test case view payment method.");
+        Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "get-payment-methods");
         String paymentMethodInfoUrl = cloudMgtServerUrl +
                                       CloudIntegrationConstants.CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX;
         Map resultMap = HttpHandler
-                .doPostHttps(paymentMethodInfoUrl, params, authenticatorClient.getSessionCookie());
+                .doPostHttps(paymentMethodInfoUrl, params, authenticatorClient.getSessionCookie(), false);
         JSONObject resultObj =
                 new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
-        Assert.assertEquals(resultObj.getString("success"), "true",
+        Assert.assertEquals(resultObj.getString(CloudIntegrationConstants.SUCCESS), CloudIntegrationConstants.TRUE,
                             "Value mismatch should be true.");
-        Assert.assertNotNull(resultObj.getJSONArray("creditCards"),
-                             "Json array of credit cards should not be null.");
+        Assert.assertNotNull(resultObj.getJSONArray("creditCards"), "Json array of credit cards should not be null.");
     }
 
-/*    @Test(priority = 2, description = "Change payment method.")
+    /**
+     * Change the payment method. Set the secondary payment method as default one.
+     *
+     * @throws Exception
+     */
+    @Test(priority = 2, description = "Change payment method.")
     public void changePaymentMethod() throws Exception {
-        //Assert.assertTrue(loginStatus, "Tenant login failed.");
+        log.info("Started running test case change payment method.");
+        Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
+        String errorMessage = "Error changing the payment method.";
+        String secondaryPaymentMethodId = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.BILLING_PAYMENT_SECONDARY_PAYMENT_METHOD_ID);
+        String result = setSecondaryPaymentMethodAsDefault(secondaryPaymentMethodId);
+        Assert.assertEquals(result, CloudIntegrationConstants.TRUE, errorMessage);
     }
 
-    @Test(priority = 3, description = "Delete payment method")
-    public void deletePaymentMethod() throws Exception {
-        //Should be the value taken from the added payment method from the test case
-        String paymentMethodId = "2c92c0f84fd7e46c014fea59b4f32605";
-
-        Assert.assertTrue(loginStatus, "Tenant login failed.");
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("action", "removePaymentMethod");
+    /**
+     * This method will set the secondary payment method as default payment method.
+     *
+     * @param paymentMethodId credit card id
+     * @return status of the setDefaultMethod action
+     * @throws Exception
+     */
+    private String setSecondaryPaymentMethodAsDefault(String paymentMethodId) throws Exception {
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "setDefaultMethod");
         params.put("paymentMethodId", paymentMethodId);
-        String paymentMethodRemovalUrl = cloudMgtServerUrl + CloudConstants.CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX;
-        String result = HttpHandler.doPostHttps(paymentMethodRemovalUrl, params);
-        JSONObject resultObj = new JSONObject(result);
+        String paymentMethodInfoUrl =
+                cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX;
+        Map resultMap = HttpHandler.doPostHttps(paymentMethodInfoUrl, params, authenticatorClient.getSessionCookie(), false);
+        return resultMap.get(CloudIntegrationConstants.RESPONSE).toString();
+    }
 
-        if (!"true".equals(resultObj.getString("success"))) {
-            Assert.fail("Payment method removal failure. error: " + resultObj.getString("reasons"));
-        }
-    }*/
+    /**
+     * Delete a payment method
+     *
+     * @throws Exception
+     */
+    @Test(priority = 3, description = "Delete payment method.")
+    public void deletePaymentMethod() throws Exception {
+        log.info("Started running test case delete payment method.");
+        String paymentMethodId = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.BILLING_PAYMENT_SECONDARY_PAYMENT_METHOD_ID);
+        String errorMessage = "Error removing the payment method.";
+        Assert.assertTrue(loginStatus, CloudIntegrationConstants.LOGIN_ERROR_MESSAGE);
+        Map<String, String> params = new HashMap<>();
+        params.put(CloudIntegrationConstants.PARAMETER_KEY_ACTION, "removePaymentMethod");
+        params.put("paymentMethodId", paymentMethodId);
+        String paymentMethodRemovalUrl =
+                cloudMgtServerUrl + CloudIntegrationConstants.CLOUD_BILLING_PAYMENT_METHOD_INFO_URL_SFX;
+        Map resultMap =
+                HttpHandler.doPostHttps(paymentMethodRemovalUrl, params, authenticatorClient.getSessionCookie(), false);
+        JSONObject resultObj = new JSONObject(resultMap.get(CloudIntegrationConstants.RESPONSE).toString());
+        Assert.assertEquals(resultObj.getString(CloudIntegrationConstants.SUCCESS), CloudIntegrationConstants.TRUE,
+                            errorMessage);
+    }
 
-    @AfterClass(alwaysRun = true) public void destroy() throws IOException {
+    @AfterClass(alwaysRun = true) public void destroy() throws Exception {
+        log.info("Making primary payment method back to default payment method.");
+        String errorMessage = "Error Making primary payment method back to default payment method.";
+        String primaryPaymentMethodId = CloudIntegrationTestUtils
+                .getPropertyValue(CloudIntegrationConstants.BILLING_PAYMENT_PRIMARY_PAYMENT_METHOD_ID);
+        String result = setSecondaryPaymentMethodAsDefault(primaryPaymentMethodId);
+        Assert.assertEquals(result, CloudIntegrationConstants.TRUE, errorMessage);
         authenticatorClient.logout();
         super.cleanup();
     }
