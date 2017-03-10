@@ -62,7 +62,7 @@ include("/jagg/constants.jag");
                 pointingUrl = cloudConfigFile.customUrl.integrationCloud.pointingUrl;
             }
             if (mod.validateUrl(customUrl, pointingUrl)) {
-                if (mod.isUrlAvailable(customUrl, nodeType, cloudType)) {
+                if (mod.isUrlAvailable(customUrl, nodeType)) {
                     urlValidation.error = "false";
                 } else {
                     urlValidation.error = "true";

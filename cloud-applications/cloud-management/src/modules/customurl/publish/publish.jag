@@ -333,9 +333,9 @@
         return null;
     };
 
-    var isUrlAvailable = function(newUrl, node, cloudType) {
+    var isUrlAvailable = function(newUrl, node) {
         if (node == APPLICATION_NODE_TYPE) {
-            return (isCustomDomainAvailable(newUrl, cloudType).trim() === "true");
+            return (isCustomDomainAvailable(newUrl, INTEGRATION_CLOUD_TYPE).trim() === "true");
         } else {
             var currentUrlMapping = getCurrentUserMapping(API_CLOUD_TYPE);
             if (currentUrlMapping != null) {
