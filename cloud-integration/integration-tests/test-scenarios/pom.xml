@@ -50,7 +50,7 @@
                     <disableXmlReport>false</disableXmlReport>
                     <parallel>false</parallel>
                     <!-- Fix this to false when running the test cases -->
-                    <skipTests>true</skipTests>
+		            <skipTests>${skipTests}</skipTests>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
@@ -86,6 +86,7 @@
 
     <properties>
         <checkstyle.skip>true</checkstyle.skip>
-        <findbugs.skip>true</findbugs.skip>
+	    <findbugs.skip>true</findbugs.skip>
+	    <skipTests>true</skipTests>
     </properties>
 </project>
