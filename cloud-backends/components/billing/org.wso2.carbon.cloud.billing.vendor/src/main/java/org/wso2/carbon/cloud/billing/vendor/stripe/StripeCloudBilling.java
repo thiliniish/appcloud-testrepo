@@ -1210,20 +1210,20 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 // Getting custom meta-data
                 String metadataObject = customerMetaDataObject.get("data").toString();
                 Map<String, String> metadataMap = JsonToMapParser.parseJsonToMap(metadataObject);
-                        int customFieldNo = 1;
+                int customFieldNo = 1;
                 for (Map.Entry<String, String> entry : metadataMap.entrySet()) {
                         List<String> customFieldNameArray = new ArrayList<String>(Arrays.asList(entry.toString().split(
                                         "_|=")));
-                        if (customFieldNameArray.get(0).equals("custom")) {
+                        if ("custom".equals(customFieldNameArray.get(0))) {
                             customFieldNameArray.remove(0);
                             customFieldNameArray.remove(customFieldNameArray.size() - 1);
-                                String customFieldName = "";
-                                for (int i = 0; i < customFieldNameArray.size(); i++) {
-                                    customFieldName = customFieldName.concat(" ").concat(customFieldNameArray.get(i));
-                                }
-                                    invoiceDetailObj.put("customId" + customFieldNo, customFieldName.trim());
-                                    invoiceDetailObj.put("customData" + customFieldNo, " :" + entry.getValue());
-                                customFieldNo++;
+                            String customFieldName = "";
+                            for (int i = 0; i < customFieldNameArray.size(); i++) {
+                                customFieldName = customFieldName.concat(" ").concat(customFieldNameArray.get(i));
+                            }
+                            invoiceDetailObj.put("customId" + customFieldNo, customFieldName.trim());
+                            invoiceDetailObj.put("customData" + customFieldNo, " :" + entry.getValue());
+                            customFieldNo++;
                         }
                 }
             invoiceDetailObj.put(BillingVendorConstants.INVOICE_NUMBER, invoiceId);
