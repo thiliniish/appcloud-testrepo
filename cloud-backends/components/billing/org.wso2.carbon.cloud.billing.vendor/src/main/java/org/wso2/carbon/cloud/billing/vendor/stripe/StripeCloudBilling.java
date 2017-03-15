@@ -59,8 +59,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -1154,7 +1156,6 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
      * @return JSON string of invoice information
      */
     public String getInvoicingDetails(String eventId) throws CloudBillingVendorException {
-
         JSONArray invoiceArrayList = new JSONArray();
         JSONObject invoiceDetailObj = new JSONObject();
         JSONObject invoiceItemObj;
@@ -1205,6 +1206,27 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
                 !StringUtils.isBlank(dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString())) {
                 String additionalEmails = dataObject.get(BillingVendorConstants.ADDITIONAL_EMAILS).getAsString();
                 invoiceDetailObj.put(BillingVendorConstants.ADDITIONAL_EMAILS, additionalEmails);
+            }
+            // Getting custom meta-data
+            String metadataObject = customerMetaDataObject.get("data").toString();
+            Map<String, String> metadataMap = JsonToMapParser.parseJsonToMap(metadataObject);
+            int customFieldNo = 1;
+            for (Map.Entry<String, String> entry : metadataMap.entrySet()) {
+                List<String> customFieldNameArray = new ArrayList<String>(Arrays.asList(entry.toString().split(
+                        "_|=")));
+                // here we only consider meta data starts with word "custom" Eg: custom_PO_No. Also we only allow to 
+                // add maximum 5 custom fields
+                if ("custom".equals(customFieldNameArray.get(0))) {
+                    customFieldNameArray.remove(0);
+                    customFieldNameArray.remove(customFieldNameArray.size() - 1);
+                    String customFieldName = "";
+                    for (int i = 0; i < customFieldNameArray.size(); i++) {
+                        customFieldName = customFieldName.concat(" ").concat(customFieldNameArray.get(i));
+                    }
+                    invoiceDetailObj.put("customId" + customFieldNo, customFieldName.trim());
+                    invoiceDetailObj.put("customData" + customFieldNo, " :" + entry.getValue());
+                    customFieldNo++;
+                }
             }
             invoiceDetailObj.put(BillingVendorConstants.INVOICE_NUMBER, invoiceId);
             invoiceDetailObj.put(BillingVendorConstants.INVOICE_DATE,
@@ -1283,7 +1305,6 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
             }
 
             invoiceDetailObj.put("invoiceItems", invoiceArrayList);
-
             invoiceLocation = String.valueOf(new JSONObject().put("invoice", invoiceDetailObj));
         } catch (JSONException | IOException e) {
             LOGGER.error("Error while creating the invoice items : ", e);
@@ -1331,4 +1352,14 @@ public class StripeCloudBilling implements CloudBillingServiceProvider {
         }
         return response.toString();
     }
+
+        /**
+         * Inner class to parse json object to Map
+         */
+        private static class JsonToMapParser {
+                protected static Map<String, String> parseJsonToMap(String objectInfoJson) {
+                        return gsonObj.fromJson(objectInfoJson, new TypeToken<Map<String, String>>() {
+                        }.getType());
+                }
+        }
 }
