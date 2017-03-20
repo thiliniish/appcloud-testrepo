@@ -1,0 +1,9 @@
+#as,cloud-backends/components/cloud-mgt/org.wso2.carbon.cloud.common/src/main/resources/cloud-mgt.xml,CLOUDMGT_XML_PATH,false,cloud-mgt.xml,cloud-mgt.xml
+#as,cloud-applications/cloud-management,CLOUDMGT_APP_PATH,true,cloudmgt.zip,cloudmgt.zip
+#as,cloud-backends/components/cloud-mgt/org.wso2.carbon.cloud.users,DROPINS_PATH,true,org.wso2.carbon.cloud.users-1.1.0.jar,org.wso2.carbon.cloud.users_1.1.0.jar
+#wso2base,cloud-backends/components/user-store/org.wso2.carbon.cloud.userstore,DROPINS_PATH,true,org.wso2.carbon.cloud.userstore-1.0.0.jar,org.wso2.carbon.cloud.userstore_1.0.0.jar
+#as,cloud-tools/custom-url/ssl-security-service,DROPINS_PATH,true,org.wso2.carbon.cloud.ssl.security.service-1.0.0.jar,org.wso2.carbon.cloud.ssl.security.service_1.0.0.jar
+#as,cloud-backends/components/bpsFileUploader/org.wso2.carbon.cloud.signup.workflow.fileUploader,DROPINS_PATH,true,org.wso2.carbon.cloud.signup.workflow.fileuploader-1.0.0.jar,org.wso2.carbon.cloud.signup.workflow.fileuploader-1.0.0.jar
+#as,cloud-backends/components/billing/org.wso2.carbon.cloud.billing.core,DROPINS_PATH,true,org.wso2.carbon.cloud.billing.core-1.0.0.jar,org.wso2.carbon.cloud.billing.core_1.0.0.jar
+#as,cloud-backends/components/billing/org.wso2.carbon.cloud.billing.vendor,DROPINS_PATH,true,org.wso2.carbon.cloud.billing.vendor-1.0.0.jar,org.wso2.carbon.cloud.billing.vendor_1.0.0.jar
+#as,cloud-backends/components/listeners/org.wso2.carbon.cloud.appcloudlistener,DROPINS_PATH,true,org.wso2.carbon.cloud.appcloudlistener-1.0.0.jar,org.wso2.carbon.cloud.appcloudlistener-1.0.0.jar
