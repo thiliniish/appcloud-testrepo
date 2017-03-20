@@ -24,10 +24,11 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -56,16 +57,16 @@ public class HttpHandler {
      * @param params     Content of the post request
      * @param authCookie authCookie for authentication
      * @param headerMap     header list of the request
+     * @param isErrorResponseRequired boolean value to check whether response error message need to be read
      * @return response and if cookie is null returns the cookie in a Map
      * @throws java.io.IOException - Throws this when failed to fulfill a https post request
      */
-    public static Map<String, String> doPostHttps(String url, Map<String, String> params, String authCookie,
-                                                  Map<String, String> headerMap) throws IOException {
+    public static Map doPostHttps(String url, Map<String, String> params, String authCookie,
+                                                  Map<String, String> headerMap, boolean isErrorResponseRequired)
+            throws IOException {
 
         URL obj = new URL(url);
         String payload = mapToString(params);
-        Map<String, String> responseMap = new HashMap<String, String>();
-
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
         if (authCookie != null && !"".equals(authCookie)) {
@@ -86,26 +87,43 @@ public class HttpHandler {
         wr.close();
         int responseCode = con.getResponseCode();
         if (responseCode == HttpStatus.SC_OK) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            if (authCookie == null || "".equals(authCookie)) {
-                Map<String, List<String>> headers = con.getHeaderFields();
-                List<String> cookies = headers.get("Set-Cookie");
-                StringBuilder sb = new StringBuilder();
-                for (String s : cookies) {
-                    sb.append(s).append("; ");
-                }
-                responseMap.put(CloudIntegrationConstants.COOKIE, sb.substring(0, sb.length() - 1));
-            }
-            responseMap.put(CloudIntegrationConstants.RESPONSE, response.toString());
-            return responseMap;
+            return getResponseMap(con, con.getInputStream(), authCookie);
+        } else if (isErrorResponseRequired) {
+            return getResponseMap(con, con.getErrorStream(), authCookie);
         }
         return null;
+    }
+
+    /**
+     * Method use to get the response map
+     *
+     * @param con            http url connection
+     * @param responseStream response stream
+     * @param authCookie     authCookie
+     * @return response map
+     * @throws IOException
+     */
+    private static Map getResponseMap(HttpsURLConnection con, InputStream responseStream, String authCookie)
+            throws IOException {
+        Map<String, String> responseMap = new HashMap<>();
+        BufferedReader input = new BufferedReader(new InputStreamReader(responseStream));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = input.readLine()) != null) {
+            response.append(inputLine);
+        }
+        input.close();
+        if (authCookie == null || "".equals(authCookie)) {
+            Map<String, List<String>> headers = con.getHeaderFields();
+            List<String> cookies = headers.get("Set-Cookie");
+            StringBuilder sb = new StringBuilder();
+            for (String s : cookies) {
+                sb.append(s).append("; ");
+            }
+            responseMap.put(CloudIntegrationConstants.COOKIE, sb.substring(0, sb.length() - 1));
+        }
+        responseMap.put(CloudIntegrationConstants.RESPONSE, response.toString());
+        return responseMap;
     }
 
     /**
@@ -113,14 +131,14 @@ public class HttpHandler {
      *
      * @param url    String url to do the post
      * @param params Map of parameters as to make the contents of the post
-     * @return String reponse with the post value
+     * @return String response with the post value
      * @throws IOException Throws this when failed to fulfill a https post request
      */
-    public static Map doPostHttps(String url, Map<String, String> params, String authCookie)
-            throws IOException {
-        Map<String, String> headers = new HashMap<String, String>();
+    public static Map doPostHttps(String url, Map<String, String> params, String authCookie,
+                                  boolean isErrorResponseRequired) throws IOException {
+        Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED);
-        return doPostHttps(url, params, authCookie, headers);
+        return doPostHttps(url, params, authCookie, headers, isErrorResponseRequired);
     }
 
     /**

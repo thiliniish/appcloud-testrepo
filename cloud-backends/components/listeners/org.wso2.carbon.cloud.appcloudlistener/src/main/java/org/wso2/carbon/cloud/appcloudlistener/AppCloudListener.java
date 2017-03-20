@@ -31,8 +31,8 @@ import org.apache.http.cookie.SM;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
-import org.wso2.carbon.cloud.listener.CloudListener;
-import org.wso2.carbon.cloud.listener.CloudMgtException;
+import org.wso2.carbon.cloud.common.CloudListener;
+import org.wso2.carbon.cloud.common.CloudMgtException;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.IOException;

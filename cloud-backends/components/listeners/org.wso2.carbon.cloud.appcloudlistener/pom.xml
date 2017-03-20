@@ -42,11 +42,6 @@
             <version>${wso2cloud.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.cloud</groupId>
-            <artifactId>org.wso2.carbon.cloud.listener</artifactId>
-            <version>${wso2cloud.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${apache.httpcomponents.version}</version>
@@ -79,7 +74,7 @@
                         </Export-Package>
                         <Import-Package>
                             org.apache.commons.logging.*; version="${imp.pkg.version.commons-logging}",
-                            org.wso2.carbon.cloud.listener.*; version="${cloud.listener.version}",
+                            org.wso2.carbon.cloud.common.*; version="${wso2cloud.version}",
                             org.osgi.framework.*; version="${imp.pkg.version.osgi.framework}",
                             org.osgi.service.component.*; version="${imp.pkg.version.osgi.service.component}",
                             org.wso2.carbon.utils.*; version="${imp.pkg.version.carbon.platform}",
@@ -97,7 +92,6 @@
 
     <properties>
         <apache.httpcomponents.httpcore.version>4.4.1</apache.httpcomponents.httpcore.version>
-        <cloud.listener.version>1.0.0</cloud.listener.version>
         <carbon.base.version>1.0.0</carbon.base.version>
     </properties>
 

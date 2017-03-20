@@ -151,8 +151,8 @@ function setCustomDomainDetailsForTenant() {
     jagg.post('../../site/blocks/customurl/ajax/customurl.jag', {
         action: 'getCustomDomainDetailsForTenant',
         cloudType: INTEGRATION_CLOUD_TYPE
-    }, function(result) {
-        esult = $.trim(result);
+    }, function (result) {
+        result = $.trim(result);
         result = JSON.parse(result);
         if (result.length == 0) {
             $('#customDetailsTable').hide();
@@ -344,6 +344,7 @@ function publishCustomUrl(node) {
 }
 
 function verifyCustomDomain(node) {
+    var cloudType = $('#cloudType').val();
     var customUrl = $('#' + node + 'Domain').val();
     var customUrlConfig = JSON.parse($('#customUrlConfig').val());
     var defaultPointingUrl = customUrlConfig.apiCloudPointingUrl;

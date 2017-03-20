@@ -18,7 +18,7 @@
 <automation xmlns="automation_mapping.xsd">
 
     <!--  =================================================  -->
-    <!--     Parameters of Developer/Local Environment       -->
+    <!--          Parameters of Staging Environment          -->
     <!--  =================================================  -->
 
     <configurations>
@@ -75,9 +75,9 @@
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
         </datasource>
         <datasource name="mysql-cloudMgt">
-            <url>jdbc:mysql://localhost:3306/dbCloudMgt</url>
-            <username>root</username>
-            <password>root</password>
+            <url>jdbc:mysql://localhost:3307/dbCloudMgt?autoReconnect=true</url>
+            <username>CloudMgtUser</username>
+            <password>password</password>
             <driverClassName>com.mysql.jdbc.Driver</driverClassName>
         </datasource>
     </datasources>
@@ -135,8 +135,8 @@
             <tenant domain="carbon.super" key="superTenant">
                 <admin>
                     <user key="superAdmin">
-                        <userName>admin</userName>
-                        <password>admin</password>
+                        <userName>cloudadmin</userName>
+                        <password>password</password>
                     </user>
                 </admin>
                 <users>
@@ -286,10 +286,10 @@
     <!--Cloud Related properties-->
     <cloudProperties>
         <urls>
-            <cloudMgtServerUrl>https://cloudmgt.cloudlocal.wso2.com:9444</cloudMgtServerUrl>
-            <apiMgtServerUrl>https://api.cloudlocal.wso2.com</apiMgtServerUrl>
+            <cloudMgtServerUrl>https://cloudmgt.cloudstaging.wso2.com</cloudMgtServerUrl>
+            <apiMgtServerUrl>https://api.cloudstaging.wso2.com</apiMgtServerUrl>
             <apiGatewayEndpointUrl>https://gateway.api.cloudstaging.wso2.com</apiGatewayEndpointUrl>
-            <identityServerUrl>https://identity.cloudlocal.wso2.com:9443</identityServerUrl>
+            <identityServerUrl>https://identity.cloudstaging.wso2.com</identityServerUrl>
         </urls>
         <tenantDetails>
             <Tenant key="defaultTenant">
@@ -332,7 +332,7 @@
                 <couponId>coupon_Ace</couponId>
             </payments>
         </billing>
-        <tenantNewUserEmails>newSubscriberUser12r3321456@discard.email,userNotInTenant123@discard.email,newAdminUser123465@discard.email,newRevokeUser123456@discard.email
+        <tenantNewUserEmails>newSubscriberUser1221323@discard.email,notInten3ant@discard.email,newAdminUser546@discard.email,newRev3okeUse2r132456@discard.email
         </tenantNewUserEmails>
         <tenantRoles>
             <role name="subscriber">

@@ -66,7 +66,7 @@ public class JaggeryAppAuthenticatorClient {
         params.put("action", "login");
         params.put(usernamePara, userName);
         params.put("password", password);
-        Map resultMap = HttpHandler.doPostHttps(loginUrl, params, null);
+        Map resultMap = HttpHandler.doPostHttps(loginUrl, params, null, false);
         setSessionCookie((String) resultMap.get(CloudIntegrationConstants.COOKIE));
         if(loginUrl.contains(CloudIntegrationConstants.API_PUBLISHER_LOGIN_URL_SFX) ||
            loginUrl.contains(CloudIntegrationConstants.API_STORE_LOGIN_URL_SFX)){
@@ -86,7 +86,7 @@ public class JaggeryAppAuthenticatorClient {
         Map<String, String> params = new HashMap<String, String>();
         params.put("action", "logout");
         if (sessionCookie != null) {
-            Map resultMap = HttpHandler.doPostHttps(logOutUrl, params, sessionCookie);
+            Map resultMap = HttpHandler.doPostHttps(logOutUrl, params, sessionCookie, false);
             return "true".equals(resultMap.get(CloudIntegrationConstants.RESPONSE));
         } else {
             log.error("Please Login first");

@@ -300,4 +300,12 @@ var RESPONSE_TYPE = "json";
 var TRIAL_END_DATE = "2017-12-31 00:00:00";
 var CUSTOMER_TYPE_COMPLIMENTARY = "Complimentary";
 var TENANT_DOMAIN_NAME_MAXIMUM_LENGTH = "15";
+
+//Integration Cloud custom URL related
+var INTEGRATION_CLOUD_LOGIN_BLOCK_SUFFIX = "user/login/ajax/login.jag";
+var INTEGRATION_CLOUD_LOGIN_ACTION = "loginWithJWT";
+var INTEGRATION_CLOUD_APPLICATION_BLOCK_SUFFIX = "application/application.jag";
+var INTEGRATION_CLOUD_URL_MAPPER_BLOCK_SUFFIX = "urlmapper/urlmapper.jag";
+var INTEGRATION_CLOUD_GET_CUSTOM_DOMAIN_DETAILS_FOR_TENANT_ACTION = "getCustomDomainDetailsForTenant";
+var INTEGRATION_CLOUD_IS_CUSTOM_DOMAIN_AVAILABLE_ACTION = "isCustomDomainAvailable";
 %>

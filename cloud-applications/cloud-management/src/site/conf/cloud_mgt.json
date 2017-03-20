@@ -9,25 +9,6 @@
   "subscriptions": {
     "type": [
       {
-        "id": "integration_cloud",
-        "name": "Integration Cloud",
-        "isBeta": true,
-        "logoClass": "fa",
-        "logo": "cubes",
-        "description": "Host your integration solutions and API backends.",
-        "serviceType": "free",
-        "roleTypes": [
-          {
-            "roleName": "integrationclouduser",
-            "displayRoles": "IntegrationCloudUser"
-          }
-        ],
-        "urls": {
-            "cloudTypeUrl": "https://integration.cloudlocal.wso2.com:9446/appmgt/",
-            "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
-        }
-      },
-      {
         "id": "api_cloud",
         "name": "API Cloud",
         "isBeta":false,
@@ -46,8 +27,8 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9643/publisher/",
-          "storeUrl": "https://milestones.appfactory.wso2.com:9643/store",
+          "cloudTypeUrl": "https://api.cloudlocal.wso2.com:9445/publisher/",
+          "storeUrl": "https://api.cloudlocal.wso2.com:9445/store",
           "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
         },
         "adminUsername" : "admin",
@@ -65,26 +46,63 @@
         }
       },
       {
+        "id": "integration_cloud",
+        "name": "Integration Cloud",
+        "isBeta": true,
+        "logoClass": "fa",
+        "logo": "cubes",
+        "description": "Host your integration solutions and API backends.",
+        "serviceType": "commercial",
+        "roleTypes": [
+          {
+            "roleName": "integrationclouduser",
+            "displayRoles": "IntegrationCloudUser"
+          }
+        ],
+        "urls": {
+            "cloudTypeUrl": "https://integration.cloudlocal.wso2.com:9446/appmgt/",
+            "leadSourceUrl": "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-app"
+        }
+      },
+      {
+        "id": "identity_cloud",
+        "name": "Identity Cloud",
+        "isBeta":true,
+        "logoClass":"fw",
+        "logo": "security",
+        "description": "Enable Single Sign-On for your enterprise applications.",
+        "serviceType": "free",
+        "roleTypes": [
+            {
+              "roleName": "admin",
+              "displayRoles": "Admin"
+            }
+        ],
+        "urls": {
+            "cloudTypeUrl": "https://identity.cloudlocal.wso2.com/admin",
+            "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-identity"
+        }
+      },
+      {
         "id": "device_cloud",
         "name": "Device Cloud",
         "isBeta":true,
         "logoClass":"fw",
         "logo": "mobile",
         "description": "Manage your devices using comprehensive platform with effectively and efficiently.",
-        "serviceType": "commercial",
+        "serviceType": "free",
         "roleTypes": [
           {
-            "roleName": "devicemgt_user",
+            "roleName": "devicemgtuser",
             "displayRoles": "DeviceMgtUser"
           },
           {
-            "roleName": "devicemgt_admin",
+            "roleName": "devicemgtadmin",
             "displayRoles": "DeviceMgtAdmin"
           }
         ],
-
         "urls": {
-          "cloudTypeUrl": "https://devicemgt.clouddev.wso2.com/devicemgt/",
+          "cloudTypeUrl": "https://devicemgt.cloudlocal.wso2.com/devicemgt/",
           "leadSourceUrl" : "http://connect.wso2.com/wso2/getformdata/reg/cloud-signup-reg-api"
         }
       },
@@ -99,25 +117,25 @@
           }
         ],
         "urls": {
-          "cloudTypeUrl": "https://milestones.appfactory.wso2.com:9443/cloudmgt/"
+          "cloudTypeUrl": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/"
         }
       }
     ]
   },
   "ServerUrls": {
-    "appfactory": "https://milestones.appfactory.wso2.com:9443/services/",
-    "cloudmgtServices": "https://milestones.appfactory.wso2.com:9443/services/",
-    "cloudmgt": "https://milestones.appfactory.wso2.com:9443/cloudmgt",
-    "bps": "https://milestones.appfactory.wso2.com:9543/services/",
-    "greg": "https://milestones.appfactory.wso2.com:9443/services/",
-    "identity": "https://milestones.appfactory.wso2.com:9444/services/",
-    "apiCloud": "https://milestones.appfactory.wso2.com:9643/services/",
-    "apiManager": "https://milestones.appfactory.wso2.com:9643/"
+    "appfactory": "https://apps.cloudlocal.wso2.com:9443/services/",
+    "cloudmgtServices": "https://cloudmgt.cloudlocal.wso2.com:9444/services/",
+    "cloudmgt": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt",
+    "bps": "https://process.cloudlocal.wso2.com:9543/services/",
+    "greg": "https://apps.cloudlocal.wso2.com:9443/services/",
+    "identity": "https://identity.cloudlocal.wso2.com:9443/services/",
+    "apiCloud": "https://api.cloudlocal.wso2.com:9445/services/",
+    "apiManager": "https://api.cloudlocal.wso2.com:9445/"
   },
   "SSORelyingParty": {
-    "name": "cloudmgt",
+    "name": "CLOUDMGT",
     "dashboardName": "WSO2 Cloud Dashboard",
-    "identityProviderURL": "https://milestones.appfactory.wso2.com:9444/samlsso",
+    "identityProviderURL": "https://identity.cloudlocal.wso2.com:9443/samlsso",
     "keyStorePassword": "wso2carbon",
     "identityKeyAlias": "wso2carbon",
     "keyStoreName": "../../../../../../resources/security/wso2carbon.jks",
@@ -138,8 +156,8 @@
     "host": "smtp.gmail.com",
     "port": "25",
     "tls": "true",
-    "targetEpr": "https://milestones.appfactory.wso2.com:9443/cloudmgt/site/pages/confirm-verification.jag",
-    "targetStoreEpr" : "https://local.cloudmgt.wso2.com:9643/store/site/pages/confirm-verification.jag",
+    "targetEpr": "https://cloudmgt.cloudlocal.wso2.com:9444/cloudmgt/site/pages/confirm-verification.jag",
+    "targetStoreEpr" : "https://api.cloudlocal.wso2.com:9445/store/site/pages/confirm-verification.jag",
     "confirmPagePath" : "/site/pages/confirm-verification.jag"
   },
   "bamConfiguration": {
@@ -185,13 +203,7 @@
     ],
     "integrationCloud" : {
       "pointingUrl" : "customdns.wso2apps.com",
-      "serverBlockBaseUrl" : "https://localhost:9543/appmgt/site/blocks/",
-      "loginBlockSuffix" : "user/login/ajax/login.jag",
-      "loginAction" : "loginWithJWT",
-      "applicationBlockSuffix" : "application/application.jag",
-      "urlMapperBlockSuffix" : "urlmapper/urlmapper.jag",
-      "getCustomDomainDetailsForTenantAction" : "getCustomDomainDetailsForTenant",
-      "isCustomDomainAvailableAction" : "isCustomDomainAvailable"
+      "serverBlockBaseUrl" : "https://localhost:9543/appmgt/site/blocks/"
     }
   },
   "invitationEmail": {
@@ -203,9 +215,9 @@
       "cloudEmail": "cloudEmail"
     },
     "ServerUrls": {
-      "gatewayCallback": "https://localhost:8443/services/WorkflowCallbackService",
-      "bpsServiceURL": "http://localhost:9863/services/",
-      "bpsServerURL": "https://milestones.appfactory.wso2.com:9543/services/"
+      "gatewayCallback": "https://gateway.cloudlocal.wso2.com:8443/services/WorkflowCallbackService",
+      "bpsServiceURL": "http://process.cloudlocal.wso2.com:9863/services/",
+      "bpsServerURL": "https://processmgt.cloudlocal.wso2.com:9543/services/"
     },
     "configFileMediaTypes": {
       "signupConfig": "signup-config",

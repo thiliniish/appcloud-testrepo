@@ -25,11 +25,9 @@
                                 <fo:block margin="0mm 0mm 0mm 30mm">
                                     <fo:external-graphic
                                             src="http://b.content.wso2.com/newsletter/images/nl-m-wso2-logo.gif"
-                                            content-width="40mm"/>
+                                            content-width="40mm"/>&#x00A0;
                                 </fo:block>
                                 <fo:block linefeed-treatment="preserve" font-size="10pt">
-                                    &#x00A0;
-                                    &#x00A0;
                                     <fo:inline font-weight="bold">Invoice No :</fo:inline>
                                     <xsl:value-of
                                             select="invoiceNumber"/>&#x00A0;
@@ -41,11 +39,27 @@
                                             select="customerId"/>&#x00A0;
                                     <fo:inline font-weight="bold">Email :</fo:inline>
                                     <xsl:value-of
-                                            select="email"/>
-                                    &#x00A0;
-                                    &#x00A0;
-                                    &#x00A0;
-                                    &#x00A0;
+                                            select="email"/>&#x00A0;
+                                    <fo:inline font-weight="bold"> <xsl:value-of
+                                            select="customId1"/> </fo:inline>
+                                    <xsl:value-of
+                                            select="customData1"/>&#x00A0;
+                                    <fo:inline font-weight="bold"><xsl:value-of
+                                            select="customId2"/> </fo:inline>
+                                    <xsl:value-of
+                                            select="customData2"/>&#x00A0;
+                                    <fo:inline font-weight="bold"><xsl:value-of
+                                            select="customId3"/> </fo:inline>
+                                    <xsl:value-of
+                                            select="customData3"/>&#x00A0;
+                                    <fo:inline font-weight="bold"><xsl:value-of
+                                            select="customId4"/> </fo:inline>
+                                    <xsl:value-of
+                                            select="customData4"/>&#x00A0;
+                                    <fo:inline font-weight="bold"><xsl:value-of
+                                            select="customId5"/> </fo:inline>
+                                    <xsl:value-of
+                                            select="customData5"/>
                                     &#x00A0;
                                 </fo:block>
                             </fo:block>
@@ -66,7 +80,9 @@
                         <xsl:value-of select="addressLine1"/>&#160;<xsl:value-of select="addressLine2"/>&#x00A0;
                         <xsl:value-of select="addressCity"/>,&#160;<xsl:value-of
                             select="addressState"/>&#160;<xsl:value-of select="addressZip"/>&#x00A0;
-                        <xsl:value-of select="addressCountry"/>
+                        <xsl:value-of select="addressCountry"/>&#x00A0;
+                        &#x00A0;
+                        &#x00A0;
                     </fo:block>
                     <fo:block font-size="10pt" padding="5mm 0mm 0mm 0mm">
                         <fo:table>

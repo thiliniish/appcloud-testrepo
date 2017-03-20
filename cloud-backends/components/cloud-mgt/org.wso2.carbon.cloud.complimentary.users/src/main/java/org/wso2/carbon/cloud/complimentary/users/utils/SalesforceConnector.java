@@ -1,5 +1,19 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
  */
 
 package org.wso2.carbon.cloud.complimentary.users.utils;
@@ -28,11 +42,11 @@ import java.util.List;
  */
 public class SalesforceConnector {
 
-    private static final Log logger = LogFactory.getLog(SalesforceConnector.class);
+    private static final Log log = LogFactory.getLog(SalesforceConnector.class);
     private PartnerConnection conn = null;
 
     /**
-     * This method is used to login to Salesforce.
+     * Method to login to Salesforce.
      *
      * @param username Sales force username
      * @param password Sales force password for the username
@@ -41,22 +55,22 @@ public class SalesforceConnector {
      */
     public void login(String username, String password, String token) throws SalesforceException {
         conn = getConnection(username, password, token);
-        logger.debug("User: " + username + " successfully logged into salesforce.");
+        log.debug("User: " + username + " successfully logged into salesforce.");
     }
 
     /**
-     * This method is used to logout of Salesforce.
+     * Method to logout of Salesforce.
      */
     public void logout() {
         try {
             conn.logout();
         } catch (ConnectionException e) {
-            logger.error("Failed to log out in Salesforce.", e);
+            log.error("Failed to log out from Salesforce.", e);
         }
     }
 
     /**
-     * This method is used to login and get a connection to Salesforce.
+     * Method to login and get a connection to Salesforce.
      *
      * @param username Sales force username
      * @param password Sales force password for the username
@@ -71,13 +85,13 @@ public class SalesforceConnector {
         try {
             return Connector.newConnection(config);
         } catch (ConnectionException e) {
-            String msg = "Failed to get a connection, please check the user credentials.";
+            String msg = "Failed to get a connection. Please check the user credentials.";
             throw new SalesforceException(msg, e);
         }
     }
 
     /**
-     * This method is used to retrieve the list of opportunities for the JIRAs from Salesforce.
+     * Method to retrieve the list of opportunities for the JIRAs from Salesforce.
      *
      * @param jiraKeys List of Jira keys
      * @return returns a list of opportunities
@@ -98,7 +112,7 @@ public class SalesforceConnector {
                 SObject[] records = queryResult.getRecords();
                 List<String> opportunityIds = new ArrayList<>();
                 for (int i = 0; i < records.length; i++) {
-                    String opportunityId = records[i].getField("Opportunity_Name__c").toString();
+                    String opportunityId = records[i].getField(Constants.OPPORTUNITY_NAME_CUSTOM_FIELD).toString();
                     opportunityIds.add(opportunityId);
                 }
                 return opportunityIds;
@@ -106,13 +120,13 @@ public class SalesforceConnector {
                 return new ArrayList<>();
             }
         } catch (ConnectionException e) {
-            String msg = "Error connecting to Salesforce API: Get Opportunities By Jira!";
+            String msg = "Error while getting opportunities by Jira.";
             throw new SalesforceException(msg, e);
         }
     }
 
     /**
-     * This method is used to get the list of products with production support for the opportunity ids from Salesforce.
+     * Method to get the list of products with production support for the opportunity ids from Salesforce.
      *
      * @param opportunityIds List of opportunity ids
      * @return List of products with production support
@@ -132,7 +146,7 @@ public class SalesforceConnector {
                 SObject[] records = queryResult.getRecords();
                 List<String> products = new ArrayList<>();
                 for (int i = 0; i < records.length; i++) {
-                    String productCode = records[i].getField("ProductCode").toString();
+                    String productCode = records[i].getField(Constants.PRODUCT_CODE_FIELD).toString();
                     products.add(productCode);
                 }
                 return products;
@@ -140,11 +154,18 @@ public class SalesforceConnector {
                 return new ArrayList<>();
             }
         } catch (ConnectionException e) {
-            String msg = "Error connecting to Salesforce API: Get Products by OpportunitiesIds!";
+            String msg = "Error while getting products by opportunity Ids.";
             throw new SalesforceException(msg, e);
         }
     }
 
+    /**
+     * Metod to check if the complimentary account has been claimed.
+     *
+     * @param opportunityIds List of opportunity ids
+     * @return Whether the complimentary account was claimed or not
+     * @throws SalesforceException
+     */
     public boolean hasClaimedComplimentarySubscription(List<String> opportunityIds) throws SalesforceException {
         String searchQuery = getSearchQuery(opportunityIds);
         if (searchQuery == null) {
@@ -156,16 +177,24 @@ public class SalesforceConnector {
             if (queryResult != null && queryResult.getSize() > 0 && queryResult.getRecords() != null && queryResult
                     .getRecords().length > 0) {
                 SObject[] records = queryResult.getRecords();
-                return Boolean.parseBoolean(records[0].getField("Complementary_Cloud_Subscriber__c").toString());
+                return Boolean.parseBoolean(records[0].getField(Constants.COMPLIMENTARY_CLOUD_SUBSCRIBER_CUSTOM_FIELD).
+                        toString());
             }
         } catch (ConnectionException e) {
-            String msg = "Error connecting to Salesforce API: Get Products by OpportunitiesIds!";
+            String msg = "Error while getting if the complimentary account has been claimed.";
             throw new SalesforceException(msg, e);
         }
 
         return false;
     }
 
+    /**
+     * Method to get email of contact who claimed the complimentary subscription.
+     *
+     * @param opportunityIds List of opportunity ids
+     * @return Email of contact who claimed the subscription
+     * @throws SalesforceException
+     */
     public String getContactWhoClaimedSubscription(List<String> opportunityIds) throws SalesforceException {
         String searchQuery = getSearchQuery(opportunityIds);
         if (searchQuery == null) {
@@ -179,20 +208,26 @@ public class SalesforceConnector {
                 SObject[] records = queryResult.getRecords();
                 for (int i = 0; i < records.length; i++) {
                     boolean hasClaimed = Boolean.parseBoolean(records[i].
-                            getField("Complementary_Cloud_Subscriber__c").toString());
+                            getField(Constants.COMPLIMENTARY_CLOUD_SUBSCRIBER_CUSTOM_FIELD).toString());
                     if (hasClaimed) {
                         return records[i].getField("Email").toString();
                     }
                 }
             }
         } catch (ConnectionException e) {
-            String msg = "Error connecting to Salesforce API: Get Products by OpportunitiesIds!";
+            String msg = "Error while getting Id of contact who claimed subscription.";
             throw new SalesforceException(msg, e);
         }
 
         return null;
     }
 
+    /**
+     * Method to get the search query given the search parameters list.
+     *
+     * @param searchParamsList List of search parameters
+     * @return Search query
+     */
     private String getSearchQuery(List<String> searchParamsList) {
         if (searchParamsList == null || searchParamsList.size() <= 0) {
             return null;
@@ -210,6 +245,13 @@ public class SalesforceConnector {
         return buffer.toString();
     }
 
+    /**
+     * Method to get Id of account related to the list of opportunities.
+     *
+     * @param opportunityIds List of opportunity ids
+     * @return Id of account
+     * @throws SalesforceException
+     */
     public String getAccountId(List<String> opportunityIds) throws SalesforceException {
         String searchQuery = getSearchQuery(opportunityIds);
         if (searchQuery == null) {
@@ -220,16 +262,24 @@ public class SalesforceConnector {
             if (queryResult != null && queryResult.getSize() > 0 && queryResult.getRecords() != null && queryResult
                     .getRecords().length > 0) {
                 SObject[] records = queryResult.getRecords();
-                return records[0].getSObjectField("AccountId").toString();
+                return records[0].getSObjectField(Constants.ACCOUNT_ID_FIELD).toString();
             }
         } catch (ConnectionException e) {
-            String msg = "Error connecting to Salesforce API: Get Products by OpportunitiesIds!";
+            String msg = "Error while getting account Id for list of opportunity Ids.";
             throw new SalesforceException(msg, e);
         }
 
         return null;
     }
 
+    /**
+     * Method to get Id of contact given the email.
+     *
+     * @param opportunityIds List of opportunity ids
+     * @param email          Email address
+     * @return Id of contact
+     * @throws SalesforceException
+     */
     public String getContactId(List<String> opportunityIds, String email) throws SalesforceException {
         String searchQuery = getSearchQuery(opportunityIds);
         if (searchQuery == null || email == null) {
@@ -243,43 +293,51 @@ public class SalesforceConnector {
                 SObject[] records = queryResult.getRecords();
                 for (int i = 0; i < records.length; i++) {
                     String contactEmail;
-                    if (records[i].getSObjectField("Email") != null) {
-                        contactEmail = records[i].getSObjectField("Email").toString();
+                    if (records[i].getSObjectField(Constants.EMAIL_FIELD) != null) {
+                        contactEmail = records[i].getSObjectField(Constants.EMAIL_FIELD).toString();
                         if (email.equals(contactEmail)) {
-                            return records[i].getSObjectField("Id").toString();
+                            return records[i].getSObjectField(Constants.ID_FIELD).toString();
                         }
                     }
                 }
             }
         } catch (ConnectionException e) {
-            String msg = "Error connecting to Salesforce API: Get Products by OpportunitiesIds!";
+            String msg = "Error while getting Id of contact for email: " + email;
             throw new SalesforceException(msg, e);
         }
         return null;
     }
 
-    public void updateSObject(String sObjectType, String sObjectId, boolean complimentaryFieldValue) {
+    /**
+     * Method to update a Salesforce object.
+     *
+     * @param sObjectType             Salesforce object type
+     * @param sObjectId               Salesforce Object Id
+     * @param complimentaryFieldValue true or false
+     */
+    public void updateSObject(String sObjectType, String sObjectId, boolean complimentaryFieldValue) throws
+            SalesforceException {
         try {
             SObject updatedSObject = new SObject();
             updatedSObject.setType(sObjectType);
             updatedSObject.setId(sObjectId);
-            updatedSObject.setField("Complementary_Cloud_Subscriber__c", complimentaryFieldValue);
+            updatedSObject.setField(Constants.COMPLIMENTARY_CLOUD_SUBSCRIBER_CUSTOM_FIELD, complimentaryFieldValue);
             SaveResult[] saveResults = conn.update(new SObject[]{updatedSObject});
-
             for (int j = 0; j < saveResults.length; j++) {
                 if (saveResults[j].isSuccess()) {
-                    logger.info("Item with an ID of " + saveResults[j].getId() + " was updated.");
+                    log.info("Item with an ID of " + saveResults[j].getId() + " was updated.");
                 } else {
                     for (int i = 0; i < saveResults[j].getErrors().length; i++) {
                         Error err = saveResults[j].getErrors()[i];
-                        logger.error("Errors were found on item " + j);
-                        logger.error("Error code: " + err.getStatusCode().toString());
-                        logger.error("Error message: " + err.getMessage());
+                        log.error("Error on item: " + j);
+                        log.error("Error code: " + err.getStatusCode().toString());
+                        log.error("Error message: " + err.getMessage());
                     }
                 }
             }
         } catch (ConnectionException e) {
-            logger.error(e.getMessage());
+            String msg = "Error while updating Salesforce " + sObjectType + " type object with Id " + sObjectId + ".";
+            throw new SalesforceException(msg, e);
         }
     }
 
