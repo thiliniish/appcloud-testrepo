@@ -110,8 +110,4 @@ echo "===================== End Processing $INSTRUCTIONS_FILE ==================
 #Reset the IFS value
 IFS=$OLDIFS
 
-#Changing ownership
-echo "#####  Changing ownership to puppet user #####"
-chown -R puppet:puppet ${PUPPET_BASE}/*
-
 echo "##### Updated puppet master with cloud jars and packs #####"
